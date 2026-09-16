@@ -1,0 +1,1 @@
+"""SugarCap catalog scraper package."""

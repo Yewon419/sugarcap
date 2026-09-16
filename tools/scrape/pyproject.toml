@@ -1,0 +1,39 @@
+[project]
+name = "sugarcap-scrape"
+version = "0.1.0"
+description = "SugarCap catalog builder: scrapes official nutrition data from Korean cafe franchises."
+requires-python = ">=3.13"
+dependencies = [
+    "httpx>=0.28",
+    "pydantic>=2.11",
+    "beautifulsoup4>=4.13",
+]
+
+[project.optional-dependencies]
+dev = ["mypy>=1.16", "ruff>=0.12", "pytest>=8"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ANN", "RUF"]
+ignore = ["ANN401"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["ANN"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+warn_unreachable = true
+plugins = ["pydantic.mypy"]
+files = ["sugarcap_scrape", "tests"]
+
+[[tool.mypy.overrides]]
+module = ["bs4", "bs4.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["live: hits real brand websites"]

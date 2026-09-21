@@ -60,7 +60,41 @@ jobs:
             -scheme SugarCap \
             -configuration Debug \
             -destination "id=$SIM_UDID" \
+            -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO
+
+      # 개발 환경에 Mac이 없어서 화면을 볼 수 있는 경로가 이것뿐이다(SPEC §8 Phase 1 게이트).
+      # 테스트가 만든 .app을 그대로 설치해 찍는다.
+      - name: 스크린샷
+        working-directory: SugarCap
+        run: |
+          APP=build/Build/Products/Debug-iphonesimulator/SugarCap.app
+          OUT="$RUNNER_TEMP/screenshots"
+          mkdir -p "$OUT"
+          xcrun simctl bootstatus "$SIM_UDID" -b
+          xcrun simctl install "$SIM_UDID" "$APP"
+
+          shoot() {
+            local name="$1" appearance="$2" size="$3"
+            xcrun simctl ui "$SIM_UDID" appearance "$appearance"
+            xcrun simctl ui "$SIM_UDID" content_size "$size"
+            xcrun simctl launch "$SIM_UDID" com.sugarcap.app
+            sleep 4
+            xcrun simctl io "$SIM_UDID" screenshot "$OUT/$name.png"
+            xcrun simctl terminate "$SIM_UDID" com.sugarcap.app
+          }
+
+          shoot light light large
+          shoot dark dark large
+          # 표준 최대치(XXXL)를 넘는 접근성 크기로 레이아웃이 무너지는지 본다.
+          shoot type-ax-xl light accessibility-extra-large
+          ls -la "$OUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: ${{ runner.temp }}/screenshots
+          retention-days: 14
 
   # TestFlight 업로드. Actions 탭에서 수동 실행한다.
   testflight:

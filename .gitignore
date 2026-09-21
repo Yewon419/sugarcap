@@ -14,5 +14,6 @@ SugarCap/Tests-Info.plist
 
 # Xcode
 DerivedData/
+SugarCap/build/
 *.xcarchive
 xcuserdata/

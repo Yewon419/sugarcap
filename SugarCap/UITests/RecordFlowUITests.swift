@@ -5,15 +5,14 @@ import XCTest
 ///
 /// CI의 시뮬레이터는 매번 새것이라 기록 0건에서 시작한다고 가정한다.
 final class RecordFlowUITests: XCTestCase {
-    override func setUpWithError() throws {
-        continueAfterFailure = false
-    }
-
+    @MainActor
     func testRecordingFromBrandMenuAndManualEntryShrinksTheCup() throws {
+        continueAfterFailure = false
         let app = XCUIApplication()
         app.launch()
+        let ui = Driver(app: app)
 
-        let summary = app.descendants(matching: .any)["cup-summary"]
+        let summary = ui.element("cup-summary")
         XCTAssertTrue(summary.waitForExistence(timeout: 15))
         XCTAssertTrue(
             summary.label.contains("50 g / 50 g"),
@@ -21,7 +20,7 @@ final class RecordFlowUITests: XCTestCase {
         )
 
         // 브랜드 메뉴 → 첫 음료 → 추가
-        app.buttons["brand-starbucks"].tap()
+        ui.tap(app.buttons["brand-starbucks"])
         let firstDrink = app.buttons
             .matching(NSPredicate(format: "identifier BEGINSWITH %@", "drink-"))
             .firstMatch
@@ -34,28 +33,69 @@ final class RecordFlowUITests: XCTestCase {
 
         // 추가하면 오늘 루트로 돌아와야 한다(§4.2).
         XCTAssertTrue(summary.waitForExistence(timeout: 10))
-        let rows = app.descendants(matching: .any).matching(identifier: "entry-row")
-        XCTAssertEqual(rows.count, 1)
+        XCTAssertEqual(ui.entryRowCount(), 1)
 
         // 직접 입력: 당 30 g, 카페인 200 mg
-        app.buttons["manual-entry"].tap()
-        let name = app.textFields["manual-name"]
-        XCTAssertTrue(name.waitForExistence(timeout: 5))
-        name.tap()
-        name.typeText("Test drink")
-        let sugar = app.textFields["manual-sugar"]
-        sugar.tap()
-        sugar.typeText("30")
-        let caffeine = app.textFields["manual-caffeine"]
-        caffeine.tap()
-        caffeine.typeText("200")
+        ui.scrollToTop()
+        ui.tap(app.buttons["manual-entry"])
+        ui.type("Test drink", into: app.textFields["manual-name"])
+        ui.type("30", into: app.textFields["manual-sugar"])
+        ui.type("200", into: app.textFields["manual-caffeine"])
         app.buttons["manual-save"].tap()
 
-        XCTAssertTrue(summary.waitForExistence(timeout: 10))
-        XCTAssertEqual(rows.count, 2)
+        XCTAssertEqual(ui.entryRowCount(), 2)
+
+        ui.scrollToTop()
+        XCTAssertTrue(summary.waitForExistence(timeout: 5))
         XCTAssertFalse(
             summary.label.contains("50 g / 50 g"),
             "당 30 g 이상을 기록했는데 컵이 그대로임: \(summary.label)"
         )
+    }
+}
+
+/// List는 화면에 보이는 셀만 접근성 트리에 올린다. 아래로 밀려난 요소는 스크롤해서 꺼낸다.
+@MainActor
+private struct Driver {
+    let app: XCUIApplication
+
+    func element(_ identifier: String) -> XCUIElement {
+        app.descendants(matching: .any)[identifier]
+    }
+
+    func reveal(_ target: XCUIElement, maxSwipes: Int = 6) {
+        var swipes = 0
+        while !(target.exists && target.isHittable), swipes < maxSwipes {
+            app.swipeUp()
+            swipes += 1
+        }
+    }
+
+    func scrollToTop() {
+        for _ in 0..<4 {
+            app.swipeDown()
+        }
+    }
+
+    func tap(_ target: XCUIElement) {
+        reveal(target)
+        XCTAssertTrue(target.isHittable, "\(target) 를 누를 수 없음")
+        target.tap()
+    }
+
+    func type(_ text: String, into field: XCUIElement) {
+        XCTAssertTrue(field.waitForExistence(timeout: 5))
+        field.tap()
+        field.typeText(text)
+    }
+
+    /// 기록은 리스트 맨 아래라 끝까지 내리면 전부 보인다.
+    func entryRowCount() -> Int {
+        for _ in 0..<3 {
+            app.swipeUp()
+        }
+        let rows = app.descendants(matching: .any).matching(identifier: "entry-row")
+        XCTAssertTrue(rows.firstMatch.waitForExistence(timeout: 5), "기록 행이 안 보임")
+        return rows.count
     }
 }

@@ -146,25 +146,24 @@ struct TodayView: View {
         .accessibilityIdentifier("cup-summary")
     }
 
-    /// 브랜드 8개 + 직접 입력(§4.1). 카탈로그 등록 순서 그대로.
+    /// 브랜드 8개 + 직접 입력(§4.1). 카탈로그 등록 순서 그대로, 전부 한눈에 보이게 줄바꿈한다.
     private var brandPicker: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                ForEach(catalog.catalog.brands) { brand in
-                    Button(brand.name) { path = [brand.id] }
-                        .accessibilityIdentifier("brand-\(brand.id)")
-                }
-                Button {
-                    isManualEntryPresented = true
-                } label: {
-                    Label("직접 입력", systemImage: "square.and.pencil")
-                }
-                .accessibilityIdentifier("manual-entry")
+        FlowLayout {
+            ForEach(catalog.catalog.brands) { brand in
+                Button(brand.name) { path = [brand.id] }
+                    .accessibilityIdentifier("brand-\(brand.id)")
             }
-            .buttonStyle(.bordered)
-            .buttonBorderShape(.capsule)
-            .padding(.horizontal)
+            Button {
+                isManualEntryPresented = true
+            } label: {
+                Label("직접 입력", systemImage: "square.and.pencil")
+            }
+            .accessibilityIdentifier("manual-entry")
         }
+        .buttonStyle(.bordered)
+        .buttonBorderShape(.capsule)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal)
     }
 
     private func record(_ entry: Entry) {

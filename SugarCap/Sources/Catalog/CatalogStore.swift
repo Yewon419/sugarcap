@@ -4,6 +4,7 @@ enum CatalogError: Error, CustomStringConvertible {
     case resourceMissing(String)
     case unsupportedSchemaVersion(found: Int, supported: Int)
     case decodingFailed(Error)
+    case duplicateIdentifier(kind: String, id: String)
 
     var description: String {
         switch self {
@@ -13,6 +14,8 @@ enum CatalogError: Error, CustomStringConvertible {
             return "지원하지 않는 schema_version \(found) (지원: \(supported))."
         case .decodingFailed(let error):
             return "카탈로그 디코딩 실패: \(error)"
+        case .duplicateIdentifier(let kind, let id):
+            return "\(kind) id가 중복입니다: \(id)"
         }
     }
 }
@@ -41,7 +44,28 @@ enum CatalogStore {
                 supported: supportedSchemaVersion
             )
         }
+        try assertUniqueIdentifiers(in: catalog)
         return catalog
+    }
+
+    /// `CatalogIndex`가 사전을 만들 때 중복 키로 트랩하기 전에 잡는다.
+    /// 번들 파일은 `validate.py`가 보장하지만 원격 갱신(§2.3)은 손상된 파일을 줄 수 있다.
+    private static func assertUniqueIdentifiers(in catalog: Catalog) throws {
+        var brandIDs = Set<String>()
+        for brand in catalog.brands where !brandIDs.insert(brand.id).inserted {
+            throw CatalogError.duplicateIdentifier(kind: "brand", id: brand.id)
+        }
+
+        var drinkIDs = Set<String>()
+        var servingIDs = Set<String>()
+        for drink in catalog.drinks {
+            guard drinkIDs.insert(drink.id).inserted else {
+                throw CatalogError.duplicateIdentifier(kind: "drink", id: drink.id)
+            }
+            for serving in drink.servings where !servingIDs.insert(serving.id).inserted {
+                throw CatalogError.duplicateIdentifier(kind: "serving", id: serving.id)
+            }
+        }
     }
 
     static func loadBundled(from bundle: Bundle = .main) throws -> Catalog {

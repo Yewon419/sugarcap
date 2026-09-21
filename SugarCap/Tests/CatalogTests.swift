@@ -139,6 +139,47 @@ final class CatalogTests: XCTestCase {
         }
     }
 
+    func testDuplicateServingIdentifierIsRejected() throws {
+        // 중복 id는 CatalogIndex의 사전 생성에서 트랩한다. 그 전에 에러로 잡아야 한다.
+        let payload = Data(
+            """
+            {"schema_version": 1, "built_at": "2026-09-16T04:06:26+00:00", "brands": [],
+             "drinks": [{"id": "x:a:hot", "brand_id": "x", "name": "A", "name_en": null,
+              "category": "c", "temperature": "hot", "servings": [
+               {"id": "x:a:hot:r", "size_label": "R", "volume_ml": null, "sugar_g": 1,
+                "caffeine_mg": null, "caffeine_variants": []},
+               {"id": "x:a:hot:r", "size_label": "L", "volume_ml": null, "sugar_g": 2,
+                "caffeine_mg": null, "caffeine_variants": []}]}]}
+            """.utf8
+        )
+
+        XCTAssertThrowsError(try CatalogStore.load(from: payload)) { error in
+            guard case CatalogError.duplicateIdentifier(let kind, let id) = error else {
+                return XCTFail("예상과 다른 에러: \(error)")
+            }
+            XCTAssertEqual(kind, "serving")
+            XCTAssertEqual(id, "x:a:hot:r")
+        }
+    }
+
+    func testDuplicateBrandIdentifierIsRejected() throws {
+        let payload = Data(
+            """
+            {"schema_version": 1, "built_at": "2026-09-16T04:06:26+00:00", "drinks": [],
+             "brands": [
+              {"id": "x", "name": "X", "serving_note": "", "has_size_choice": false},
+              {"id": "x", "name": "X2", "serving_note": "", "has_size_choice": false}]}
+            """.utf8
+        )
+
+        XCTAssertThrowsError(try CatalogStore.load(from: payload)) { error in
+            guard case CatalogError.duplicateIdentifier(let kind, _) = error else {
+                return XCTFail("예상과 다른 에러: \(error)")
+            }
+            XCTAssertEqual(kind, "brand")
+        }
+    }
+
     func testMalformedJSONIsRejected() throws {
         XCTAssertThrowsError(try CatalogStore.load(from: Data("{ not json".utf8))) { error in
             guard case CatalogError.decodingFailed = error else {

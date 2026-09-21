@@ -6,3 +6,12 @@ __pycache__/
 .pytest_cache/
 tools/scrape/.raw/
 .DS_Store
+
+# XcodeGen 산출물 (project.yml이 SSOT)
+SugarCap/SugarCap.xcodeproj/
+SugarCap/Info.plist
+
+# Xcode
+DerivedData/
+*.xcarchive
+xcuserdata/

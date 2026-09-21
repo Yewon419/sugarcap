@@ -1,0 +1,126 @@
+name: iOS
+
+# private 리포의 macOS 러너는 분당 10배로 과금된다(무료 2,000분 = macOS 실질 200분).
+# 그래서 푸시에는 서명 없는 컴파일 검증만 돌리고, TestFlight 업로드는 수동 실행으로만 연다.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "SugarCap/**"
+      - ".github/workflows/testflight.yml"
+  pull_request:
+    paths:
+      - "SugarCap/**"
+  workflow_dispatch:
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # 컴파일만 확인한다. 서명·시크릿 없이 돈다.
+  build:
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Xcode 버전
+        run: xcodebuild -version
+
+      - name: XcodeGen 설치
+        run: brew install xcodegen
+
+      - name: 프로젝트 생성
+        working-directory: SugarCap
+        run: xcodegen generate
+
+      - name: 빌드 (서명 없음)
+        working-directory: SugarCap
+        run: |
+          xcodebuild build \
+            -project SugarCap.xcodeproj \
+            -scheme SugarCap \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO
+
+  # TestFlight 업로드. Actions 탭에서 수동 실행한다.
+  testflight:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Xcode 버전
+        run: xcodebuild -version
+
+      - name: XcodeGen 설치
+        run: brew install xcodegen
+
+      - name: 프로젝트 생성
+        working-directory: SugarCap
+        run: xcodegen generate
+
+      # App Store Connect API 키. xcodebuild가 -authenticationKeyPath로 읽는다.
+      - name: API 키 배치
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+        run: |
+          mkdir -p "$HOME/private_keys"
+          KEY="$HOME/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+          printf '%s' "$ASC_KEY_P8" | base64 --decode > "$KEY"
+          # base64가 아니라 .p8 원문을 그대로 시크릿에 넣으면 디코드 결과가 쓰레기가 된다.
+          # 비어 있지 않은지만 보면 그걸 못 잡으므로 헤더까지 확인한다.
+          if ! head -n 1 "$KEY" | grep -q "BEGIN PRIVATE KEY"; then
+            echo "ASC_KEY_P8을 디코드했지만 PKCS#8 헤더가 없습니다." >&2
+            echo "AuthKey_*.p8를 base64로 인코딩한 값을 넣었는지 확인하세요 (docs/RELEASE.md)." >&2
+            exit 1
+          fi
+
+      - name: teamID 주입
+        env:
+          TEAM_ID: ${{ secrets.TEAM_ID }}
+        run: |
+          /usr/libexec/PlistBuddy -c "Add :teamID string ${TEAM_ID}" SugarCap/ExportOptions.plist
+
+      - name: 아카이브
+        working-directory: SugarCap
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          TEAM_ID: ${{ secrets.TEAM_ID }}
+        run: |
+          xcodebuild archive \
+            -project SugarCap.xcodeproj \
+            -scheme SugarCap \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/SugarCap.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$HOME/private_keys/AuthKey_${ASC_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$TEAM_ID" \
+            CURRENT_PROJECT_VERSION=${{ github.run_number }}
+
+      - name: 익스포트 + TestFlight 업로드
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/SugarCap.xcarchive" \
+            -exportPath "$RUNNER_TEMP/export" \
+            -exportOptionsPlist SugarCap/ExportOptions.plist \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$HOME/private_keys/AuthKey_${ASC_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+
+      - name: API 키 삭제
+        if: always()
+        run: rm -rf "$HOME/private_keys"

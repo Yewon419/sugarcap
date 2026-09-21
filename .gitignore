@@ -11,6 +11,7 @@ tools/scrape/.raw/
 SugarCap/SugarCap.xcodeproj/
 SugarCap/Info.plist
 SugarCap/Tests-Info.plist
+SugarCap/UITests-Info.plist
 
 # Xcode
 DerivedData/

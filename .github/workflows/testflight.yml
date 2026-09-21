@@ -64,7 +64,8 @@ jobs:
             CODE_SIGNING_ALLOWED=NO
 
       # 개발 환경에 Mac이 없어서 화면을 볼 수 있는 경로가 이것뿐이다(SPEC §8 Phase 1 게이트).
-      # 테스트가 만든 .app을 그대로 설치해 찍는다.
+      # 테스트가 만든 .app을 그대로 설치해 찍는다. 재설치는 데이터를 지우지 않으므로
+      # UI 테스트가 남긴 기록 2건(브랜드 메뉴 1 + 직접 입력 1)이 든 상태로 찍힌다.
       - name: 스크린샷
         working-directory: SugarCap
         run: |

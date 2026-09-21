@@ -4,11 +4,15 @@ import SwiftUI
 
 /// 오늘 화면(SPEC §4.1). 컵은 가득 찬 채로 시작해 기록할 때마다 줄어든다.
 struct TodayView: View {
+    let catalog: CatalogIndex
+
     @Environment(\.modelContext) private var context
     @Query private var settingsRows: [AppSettings]
     @Query(sort: \Entry.loggedAt, order: .reverse) private var entries: [Entry]
 
     @State private var side: CupSide = .sugar
+    @State private var path: [String] = []
+    @State private var isManualEntryPresented = false
 
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "today")
 
@@ -16,13 +20,31 @@ struct TodayView: View {
     private var boundaryHour: Int { settingsRows.first?.dayBoundaryHour ?? 4 }
 
     var body: some View {
-        NavigationStack {
+        // path는 브랜드 id 스택이다. 기록하면 비워서 오늘 루트로 돌아온다(§4.2).
+        NavigationStack(path: $path) {
             // 경계 시각(기본 새벽 4시)을 넘기면 화면을 켜 둔 채로도 오늘이 바뀌어야 한다.
             TimelineView(.everyMinute) { timeline in
                 content(now: timeline.date)
             }
             .navigationTitle("오늘")
+            .navigationDestination(for: String.self) { brandID in
+                if let brand = catalog.brand(id: brandID) {
+                    BrandMenuView(
+                        brand: brand,
+                        drinks: catalog.drinks(brandID: brandID),
+                        onAdd: { selection in
+                            record(selection.makeEntry(brandName: brand.name, at: Date()))
+                        },
+                        onManualEntry: { isManualEntryPresented = true }
+                    )
+                }
+            }
         }
+        .sheet(isPresented: $isManualEntryPresented) {
+            ManualEntrySheet(onSave: record)
+        }
+        // 기록할 때만 햅틱 1회(§4.1). 삭제로 줄어들 때는 울리지 않는다.
+        .sensoryFeedback(.success, trigger: entries.count) { old, new in new > old }
         .task { ensureSettings() }
     }
 
@@ -40,6 +62,10 @@ struct TodayView: View {
             summary(totals: totals)
                 .listRowSeparator(.hidden)
 
+            brandPicker
+                .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 12, trailing: 0))
+                .listRowSeparator(.hidden)
+
             Section {
                 if todays.isEmpty {
                     Text("첫 잔을 기록해 보세요")
@@ -47,6 +73,7 @@ struct TodayView: View {
                 } else {
                     ForEach(todays) { entry in
                         EntryRow(entry: entry)
+                            .accessibilityIdentifier("entry-row")
                     }
                     .onDelete { offsets in
                         delete(offsets.map { todays[$0] })
@@ -116,11 +143,49 @@ struct TodayView: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
         .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("cup-summary")
+    }
+
+    /// 브랜드 8개 + 직접 입력(§4.1). 카탈로그 등록 순서 그대로.
+    private var brandPicker: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(catalog.catalog.brands) { brand in
+                    Button(brand.name) { path = [brand.id] }
+                        .accessibilityIdentifier("brand-\(brand.id)")
+                }
+                Button {
+                    isManualEntryPresented = true
+                } label: {
+                    Label("직접 입력", systemImage: "square.and.pencil")
+                }
+                .accessibilityIdentifier("manual-entry")
+            }
+            .buttonStyle(.bordered)
+            .buttonBorderShape(.capsule)
+            .padding(.horizontal)
+        }
+    }
+
+    private func record(_ entry: Entry) {
+        context.insert(entry)
+        persist("기록 저장")
+        path = []
     }
 
     private func delete(_ targets: [Entry]) {
         for entry in targets {
             context.delete(entry)
+        }
+        persist("기록 삭제")
+    }
+
+    /// 자동 저장을 기다리지 않는다. 기록 직후 앱이 종료돼도 남아야 한다.
+    private func persist(_ action: String) {
+        do {
+            try context.save()
+        } catch {
+            Self.logger.error("\(action, privacy: .public) 실패: \(String(describing: error), privacy: .public)")
         }
     }
 
@@ -135,6 +200,10 @@ struct TodayView: View {
 }
 
 #Preview {
-    TodayView()
-        .modelContainer(for: [Entry.self, AppSettings.self], inMemory: true)
+    if let catalog = try? CatalogStore.loadBundled() {
+        TodayView(catalog: CatalogIndex(catalog: catalog))
+            .modelContainer(for: [Entry.self, AppSettings.self], inMemory: true)
+    } else {
+        Text("번들 카탈로그를 읽지 못함")
+    }
 }

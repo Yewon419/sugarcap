@@ -63,6 +63,23 @@ targets:
       path: Tests-Info.plist
       properties: {}
 
+  # 기록 루프 end-to-end. 실제 앱을 띄워 탭으로만 진행한다.
+  SugarCapUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: UITests
+    dependencies:
+      - target: SugarCap
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.sugarcap.app.uitests
+        TEST_TARGET_NAME: SugarCap
+        SWIFT_STRICT_CONCURRENCY: complete
+    info:
+      path: UITests-Info.plist
+      properties: {}
+
 schemes:
   SugarCap:
     build:
@@ -74,6 +91,7 @@ schemes:
       config: Debug
       targets:
         - name: SugarCapTests
+        - name: SugarCapUITests
     archive:
       config: Release
     management:

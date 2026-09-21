@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>슈가캡 화면 흐름도</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{--bg:#F6F5F2;--surface:#fff;--line:#E4E1DA;--text:#1F1D1A;--sub:#77726A;--hover:#F2F0EB;--accent:#FF6B3D;--sel:#2563EB}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;font-family:Pretendard,-apple-system,"Segoe UI",sans-serif;color:var(--text);background:var(--bg);font-size:13px}
+button,select,input,textarea{font:inherit;color:inherit}
+#app{display:grid;grid-template-rows:50px 1fr;grid-template-columns:1fr 330px;height:100vh}
+header{grid-column:1/3;display:flex;align-items:center;gap:6px;padding:0 12px;background:var(--surface);border-bottom:1px solid var(--line);white-space:nowrap;overflow-x:auto}
+header h1{font-size:15px;margin:0 10px 0 2px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:5px 10px;cursor:pointer}
+.btn:hover{background:var(--hover)}
+.btn.dark{background:var(--text);color:#fff;border-color:var(--text)}
+.btn.danger{color:#C2410C}
+.sep{width:1px;height:22px;background:var(--line);margin:0 4px;flex:none}
+header label{color:var(--sub);font-size:12px;display:flex;align-items:center;gap:6px}
+header select{border:1px solid var(--line);border-radius:8px;padding:4px 6px;background:var(--surface)}
+#status{margin-left:auto;color:var(--sub);font-size:12px;padding-left:12px}
+
+#canvas{position:relative;overflow:hidden;cursor:grab;background-color:var(--bg);background-image:radial-gradient(#D6D1C7 1px,transparent 1px);touch-action:none}
+#canvas.panning{cursor:grabbing}
+#world{position:absolute;left:0;top:0;transform-origin:0 0}
+#edges{position:absolute;overflow:visible;pointer-events:none}
+#edges .hit{fill:none;stroke:transparent;stroke-width:14;pointer-events:stroke;cursor:pointer}
+#edges .ln{fill:none;stroke-width:2;pointer-events:none}
+#edges .ln.sel{stroke-width:3.5}
+#labels{position:absolute;left:0;top:0}
+.elabel{position:absolute;transform:translate(-50%,-50%);background:var(--surface);border:1px solid;border-radius:99px;padding:1px 8px;font-size:11.5px;font-weight:600;white-space:nowrap;cursor:pointer}
+.elabel.sel{box-shadow:0 0 0 2px var(--sel)}
+
+.node{position:absolute;width:236px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 6px 16px rgba(0,0,0,.05);user-select:none;cursor:move}
+.node.sel{outline:2px solid var(--sel);outline-offset:2px}
+.node.drop{outline:2px dashed var(--accent);outline-offset:2px}
+.node.k-system{border-style:dashed;background:#FBFAF8}
+.node.k-external{border-style:dotted;border-width:2px}
+.node.k-sheet .nh::before{content:"";position:absolute;left:50%;top:5px;width:30px;height:4px;margin-left:-15px;border-radius:2px;background:#D6D1C7}
+.nh{position:relative;padding:10px 40px 8px 12px;border-bottom:1px solid var(--line);border-radius:13px 13px 0 0}
+.nh .grp{font-size:11px;font-weight:700;letter-spacing:.02em}
+.nh .ttl{font-size:14.5px;font-weight:700;margin-top:1px}
+.nh .kind{position:absolute;right:10px;top:10px;font-size:10.5px;padding:1px 7px;border-radius:99px;background:var(--hover);color:var(--sub)}
+.nb:empty{display:none}
+.nb{padding:4px 0}
+.el{position:relative;padding:5px 24px 5px 12px;line-height:1.35}
+.el:hover{background:#FAF9F6}
+.port{position:absolute;right:-7px;top:50%;width:13px;height:13px;margin-top:-6.5px;border-radius:50%;background:var(--surface);border:2px solid #B9B3A8;cursor:crosshair}
+.port:hover{border-color:var(--accent);background:var(--accent)}
+.nn{padding:6px 12px 9px;color:var(--sub);font-size:12px;border-top:1px dashed var(--line);white-space:pre-wrap;line-height:1.4}
+
+#legend{position:absolute;left:12px;bottom:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-size:12px;display:grid;grid-template-columns:auto auto;gap:4px 14px;pointer-events:none}
+#legend div{display:flex;align-items:center;gap:6px}
+#zoom{position:absolute;right:12px;bottom:12px;display:flex;gap:4px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:4px}
+#zoom span{min-width:44px;text-align:center;color:var(--sub);font-size:12px}
+
+aside{background:var(--surface);border-left:1px solid var(--line);overflow-y:auto;padding:14px 14px 40px}
+aside h2{font-size:15px;margin:0 0 12px}
+aside h3{font-size:12px;color:var(--sub);margin:18px 0 6px;font-weight:600}
+.f{display:block;margin-bottom:10px}
+.f span{display:block;font-size:12px;color:var(--sub);margin-bottom:4px}
+.f input,.f select,.f textarea,.row input,.newlink select{width:100%;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface)}
+.f textarea{min-height:56px;resize:vertical}
+.row{display:flex;gap:4px;margin-bottom:5px;align-items:center}
+.row input{flex:1}
+.ib{border:1px solid var(--line);background:var(--surface);border-radius:6px;width:28px;height:30px;cursor:pointer;flex:none;padding:0}
+.ib:hover{background:var(--hover)}
+.ib:disabled{opacity:.35;cursor:default}
+.lk{display:flex;align-items:center;gap:6px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;margin-bottom:5px;cursor:pointer;line-height:1.35}
+.lk:hover{background:var(--hover)}
+.sw{width:18px;height:0;border-top:2.5px solid;flex:none}
+.newlink{display:grid;gap:5px;padding:8px;border:1px dashed var(--line);border-radius:10px}
+.muted{color:var(--sub);line-height:1.6}
+.muted kbd{font:inherit;font-size:11.5px;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;background:var(--hover)}
+.stack{display:flex;gap:6px;margin-top:14px}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>슈가캡 화면 흐름도</h1>
+    <button class="btn" id="bAdd">화면 추가</button>
+    <label>드래그 연결 기본값 <select id="defType"></select></label>
+    <span class="sep"></span>
+    <button class="btn" id="bUndo" title="Ctrl+Z">되돌리기</button>
+    <button class="btn" id="bRedo" title="Ctrl+Shift+Z">다시하기</button>
+    <button class="btn" id="bFit">전체 보기</button>
+    <span class="sep"></span>
+    <button class="btn" id="bOpen">불러오기</button>
+    <button class="btn dark" id="bSave" title="Ctrl+S">JSON 저장</button>
+    <button class="btn" id="bPng">PNG 내보내기</button>
+    <button class="btn danger" id="bReset">SPEC 초안으로 초기화</button>
+    <span id="status"></span>
+    <input type="file" id="fileIn" accept=".json,application/json" hidden>
+  </header>
+  <main id="canvas">
+    <div id="world">
+      <svg id="edges"><defs id="markers"></defs><g id="edgeG"></g></svg>
+      <div id="labels"></div>
+      <div id="nodes"></div>
+    </div>
+    <div id="legend"></div>
+    <div id="zoom"><button class="ib" id="zOut">−</button><span id="zVal">100%</span><button class="ib" id="zIn">+</button></div>
+  </main>
+  <aside id="panel"></aside>
+</div>
+<script>
+'use strict';
+const LS_KEY = 'sugarcap-screen-flow-v1';
+const TYPES = {
+  push:     { label: '푸시',            color: '#3B82F6', dash: '' },
+  sheet:    { label: '시트',            color: '#A855F7', dash: '7 5' },
+  overlay:  { label: '메뉴·오버레이',   color: '#F59E0B', dash: '3 4' },
+  replace:  { label: '교체(뒤로 없음)', color: '#EF4444', dash: '' },
+  tab:      { label: '탭 전환',         color: '#10B981', dash: '' },
+  dismiss:  { label: '닫기·뒤로',       color: '#9CA3AF', dash: '2 4' },
+  deeplink: { label: '딥링크',          color: '#0EA5E9', dash: '10 4 2 4' },
+};
+const KINDS = { root: '탭 루트', screen: '화면', sheet: '시트', overlay: '오버레이', system: '시스템', external: '외부' };
+const GROUP_COLORS = { '진입': '#77726A', '탭': '#10B981', '오늘': '#FF6B3D', '추이': '#3B82F6', '설정': '#A855F7', '공통': '#F59E0B', '외부': '#0EA5E9' };
+const FALLBACK_COLORS = ['#EC4899', '#14B8A6', '#8B5CF6', '#84CC16', '#F97316', '#06B6D4'];
+
+function seed() {
+  const screens = [], links = [];
+  const S = (id, title, kind, group, x, y, els, note = '') =>
+    screens.push({ id, title, kind, group, x, y, note, elements: els.map((label, i) => ({ id: `${id}.e${i}`, label })) });
+  const L = (from, ei, to, type, label = '') =>
+    links.push({ id: `l${links.length}`, from, el: ei === null ? null : `${from}.e${ei}`, to, type, label });
+
+  S('launch', '앱 실행', 'system', '진입', 40, 60, ['첫 실행', '이후 실행']);
+  S('onboarding', '온보딩', 'screen', '진입', 40, 250, ['시작'], '앱 설명 한 줄 + 하루 기준 기본값 안내. 계정 없음');
+  S('widget', '위젯 Small', 'external', '외부', 40, 470, ['위젯 탭'], '컵 + 오늘 수치');
+  S('tabbar', '탭 바', 'system', '탭', 370, 300, ['오늘', '추이', '설정'], '탭 간 슬라이드 없음, 탭마다 자기 스택');
+  S('today', '오늘', 'root', '오늘', 720, 60,
+    ['컵 좌우 스와이프 (당 ↔ 카페인)', '빠른 기록 칩 탭 (즉시 기록)', '음료 추가 버튼', '기록 행 스와이프 (삭제)', '기록 행 롱프레스'],
+    '메인 = 당 컵 1개, 스와이프하면 카페인 컵\n빈 상태: "첫 잔을 기록해 보세요"');
+  S('add', '음료 추가', 'sheet', '오늘', 1080, 60,
+    ['검색창', '브랜드 칩', '음료 행 탭 → 하단 패널', '사이즈 · 원두 · 수량 선택', '추가 버튼', '직접 입력 (검색 0건)'],
+    'formSheet · large · 드래그로 닫기');
+  S('manual', '직접 입력', 'screen', '오늘', 1420, 230, ['이름 · 당 · 카페인', '저장']);
+  S('recordMenu', '기록 메뉴', 'overlay', '오늘', 1080, 380, ['즐겨찾기 추가', '수량 변경', '삭제'], '컨텍스트 메뉴');
+  S('trend', '추이', 'root', '추이', 720, 480, ['주 / 월 세그먼트', '월 보기 (Pro)', '주간 목표 설정 (Pro)'], '당 · 카페인 7일 막대, 지난주 대비 한 줄');
+  S('goal', '주간 목표', 'screen', '추이', 1080, 600, ['목표 % 선택', '저장']);
+  S('paywall', '페이월', 'sheet', '공통', 1420, 560, ['연간 구매', '평생 구매', '구매 복원', '닫기'], 'Pro 기능을 누른 자리에서 열림');
+  S('origin', '호출한 화면', 'system', '공통', 1760, 600, [], '페이월을 연 화면으로 복귀');
+  S('settings', '설정', 'root', '설정', 720, 780,
+    ['하루 기준', '하루 경계 시각', '즐겨찾기 정렬', 'Pro 구매 · 복원', '데이터 갱신 날짜', '정보 · 개인정보']);
+  S('baseline', '하루 기준', 'screen', '설정', 1080, 800, ['당 프리셋 25 / 50 / 100 g', '카페인 슬라이더 100~600 mg']);
+  S('dayBoundary', '하루 경계', 'screen', '설정', 1080, 960, ['시각 선택 (기본 새벽 4시)']);
+  S('favSort', '즐겨찾기 정렬', 'screen', '설정', 1080, 1085, ['드래그 정렬']);
+  S('about', '정보 · 개인정보', 'screen', '설정', 1080, 1210, ['개인정보 (수집 없음)', '데이터 출처']);
+
+  L('launch', 0, 'onboarding', 'replace');
+  L('launch', 1, 'today', 'replace');
+  L('onboarding', 0, 'today', 'replace', '뒤로 가기 불가');
+  L('widget', 0, 'today', 'deeplink');
+  L('tabbar', 0, 'today', 'tab');
+  L('tabbar', 1, 'trend', 'tab');
+  L('tabbar', 2, 'settings', 'tab');
+  L('today', 2, 'add', 'sheet');
+  L('today', 4, 'recordMenu', 'overlay');
+  L('add', 4, 'today', 'dismiss', '컵 채움');
+  L('add', 5, 'manual', 'push');
+  L('manual', 1, 'today', 'dismiss');
+  L('trend', 1, 'paywall', 'sheet', '무료 사용자');
+  L('trend', 2, 'paywall', 'sheet', '무료 사용자');
+  L('trend', 2, 'goal', 'push', 'Pro');
+  L('goal', 1, 'trend', 'dismiss');
+  L('paywall', 0, 'origin', 'dismiss', '구매 후');
+  L('paywall', 1, 'origin', 'dismiss', '구매 후');
+  L('paywall', 3, 'origin', 'dismiss');
+  L('settings', 0, 'baseline', 'push');
+  L('settings', 1, 'dayBoundary', 'push');
+  L('settings', 2, 'favSort', 'push');
+  L('settings', 3, 'paywall', 'sheet');
+  L('settings', 5, 'about', 'push');
+  return { version: 1, screens, links };
+}
+
+// ---------- state ----------
+function validateDoc(d) {
+  if (!d || !Array.isArray(d.screens) || !Array.isArray(d.links)) throw new Error('screens / links 배열이 없는 JSON입니다');
+  for (const s of d.screens) {
+    if (typeof s.id !== 'string' || !Array.isArray(s.elements)) throw new Error(`화면 형식 오류: ${JSON.stringify(s).slice(0, 80)}`);
+  }
+  const ids = new Set(d.screens.map(s => s.id));
+  for (const l of d.links) {
+    if (!ids.has(l.from) || !ids.has(l.to)) throw new Error(`없는 화면을 가리키는 연결: ${l.id} (${l.from} → ${l.to})`);
+    if (!TYPES[l.type]) throw new Error(`알 수 없는 연결 유형: ${l.type}`);
+  }
+  return d;
+}
+function loadLocal() {
+  let raw = null;
+  try { raw = localStorage.getItem(LS_KEY); } catch (e) { console.error('localStorage 읽기 실패', e); return null; }
+  if (!raw) return null;
+  try { return validateDoc(JSON.parse(raw)); } catch (e) { console.error('자동 저장본 손상, 초안으로 시작', e); return null; }
+}
+
+let state = loadLocal() || seed();
+let view = { x: 40, y: 40, k: 1 };
+let sel = null; // { t: 'node' | 'link', id }
+let drag = null;
+let fileHandle = null;
+const undoStack = [], redoStack = [];
+
+const $ = id => document.getElementById(id);
+const canvas = $('canvas'), world = $('world'), nodesEl = $('nodes'), labelsEl = $('labels'), svg = $('edges'), edgeG = $('edgeG'), panel = $('panel');
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = p => p + Math.random().toString(36).slice(2, 8);
+const scr = id => state.screens.find(s => s.id === id);
+const lnk = id => state.links.find(l => l.id === id);
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+
+function groupColor(g) {
+  if (GROUP_COLORS[g]) return GROUP_COLORS[g];
+  let h = 0;
+  for (const c of String(g)) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return FALLBACK_COLORS[h % FALLBACK_COLORS.length];
+}
+function elLabel(l) {
+  if (!l.el) return '(화면 자체)';
+  const e = scr(l.from)?.elements.find(x => x.id === l.el);
+  return e ? e.label : '(삭제된 요소)';
+}
+
+function snapshot() {
+  undoStack.push(JSON.stringify(state));
+  if (undoStack.length > 200) undoStack.shift();
+  redoStack.length = 0;
+}
+function restore(from, to) {
+  if (!from.length) return;
+  to.push(JSON.stringify(state));
+  state = JSON.parse(from.pop());
+  if (sel && !(sel.t === 'node' ? scr(sel.id) : lnk(sel.id))) sel = null;
+  renderAll(); persist();
+}
+function setStatus(t) { $('status').textContent = t; }
+function persist() {
+  const t = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(state));
+    setStatus(`화면 ${state.screens.length} · 연결 ${state.links.length} · 브라우저에 자동 저장 ${t}`);
+  } catch (e) {
+    setStatus(`자동 저장 실패: ${e.message}`);
+    console.error(e);
+  }
+}
+
+// ---------- render ----------
+function renderAll() { renderNodes(); renderEdges(); renderPanel(); }
+
+function renderNodes() {
+  nodesEl.innerHTML = '';
+  for (const s of state.screens) {
+    const n = document.createElement('div');
+    n.className = `node k-${s.kind}` + (sel?.t === 'node' && sel.id === s.id ? ' sel' : '');
+    n.dataset.id = s.id;
+    n.style.left = s.x + 'px';
+    n.style.top = s.y + 'px';
+    const gc = groupColor(s.group);
+    n.innerHTML =
+      `<div class="nh" style="border-top:4px solid ${gc}">
+        <div class="grp" style="color:${gc}">${esc(s.group || '그룹 없음')}</div>
+        <div class="ttl">${esc(s.title || '(제목 없음)')}</div>
+        <span class="kind">${esc(KINDS[s.kind] || s.kind)}</span>
+        <span class="port" data-el="" title="화면 자체에서 연결"></span>
+      </div>
+      <div class="nb">${s.elements.map(e => `<div class="el" data-el="${esc(e.id)}">${esc(e.label)}<span class="port" data-el="${esc(e.id)}" title="끌어서 대상 화면에 놓기"></span></div>`).join('')}</div>
+      ${s.note ? `<div class="nn">${esc(s.note)}</div>` : ''}`;
+    nodesEl.appendChild(n);
+  }
+}
+
+function nodeEl(id) { return nodesEl.querySelector(`.node[data-id="${CSS.escape(id)}"]`); }
+
+function anchorY(s, n, elId) {
+  if (elId) {
+    const r = n.querySelector(`.el[data-el="${CSS.escape(elId)}"]`);
+    if (r) return s.y + r.offsetTop + r.offsetHeight / 2;
+  }
+  const h = n.querySelector('.nh');
+  return s.y + h.offsetHeight / 2;
+}
+
+function route(a, b, sa, sb) {
+  const same = sa === sb;
+  const d = same ? 70 : Math.max(50, Math.abs(b.x - a.x) / 2);
+  const c1 = a.x + (sa === 'r' ? d : -d);
+  const c2 = b.x + (sb === 'r' ? d : -d);
+  return {
+    d: `M${a.x},${a.y} C${c1},${a.y} ${c2},${b.y} ${b.x},${b.y}`,
+    mid: { x: (a.x + 3 * c1 + 3 * c2 + b.x) / 8, y: (a.y + b.y) / 2 },
+  };
+}
+
+function geometry(l) {
+  const s = scr(l.from), t = scr(l.to);
+  const ns = nodeEl(l.from), nt = nodeEl(l.to);
+  if (!s || !t || !ns || !nt) return null;
+  const ws = ns.offsetWidth, wt = nt.offsetWidth;
+  const ay = anchorY(s, ns, l.el), by = anchorY(t, nt, null);
+  if (l.from === l.to) {
+    const x = s.x + ws;
+    return { d: `M${x},${ay} C${x + 70},${ay} ${x + 70},${by} ${x},${by}`, mid: { x: x + 52, y: (ay + by) / 2 } };
+  }
+  const cs = s.x + ws / 2, ct = t.x + wt / 2;
+  let sa, sb;
+  if (ct > cs + 60) { sa = 'r'; sb = 'l'; }
+  else if (ct < cs - 60) { sa = 'l'; sb = 'r'; }
+  else { sa = 'r'; sb = 'r'; }
+  const a = { x: sa === 'r' ? s.x + ws : s.x, y: ay };
+  const b = { x: sb === 'r' ? t.x + wt : t.x, y: by };
+  return route(a, b, sa, sb);
+}
+
+function renderMarkers() {
+  $('markers').innerHTML = Object.entries(TYPES).map(([k, v]) =>
+    `<marker id="m-${k}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="${v.color}"/></marker>`
+  ).join('');
+}
+
+function renderEdges() {
+  // SVG를 콘텐츠 bbox에 맞춰 키워야 선 위 클릭이 잡힌다
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const s of state.screens) {
+    minX = Math.min(minX, s.x); minY = Math.min(minY, s.y);
+    maxX = Math.max(maxX, s.x + 300); maxY = Math.max(maxY, s.y + 400);
+  }
+  if (drag?.t === 'connect') {
+    minX = Math.min(minX, drag.p.x); minY = Math.min(minY, drag.p.y);
+    maxX = Math.max(maxX, drag.p.x); maxY = Math.max(maxY, drag.p.y);
+  }
+  if (!isFinite(minX)) { minX = minY = 0; maxX = maxY = 100; }
+  minX -= 300; minY -= 300; maxX += 300; maxY += 300;
+  Object.assign(svg.style, { left: minX + 'px', top: minY + 'px', width: (maxX - minX) + 'px', height: (maxY - minY) + 'px' });
+  edgeG.setAttribute('transform', `translate(${-minX},${-minY})`);
+
+  let html = '', labels = '';
+  for (const l of state.links) {
+    const g = geometry(l);
+    if (!g) continue;
+    const ty = TYPES[l.type];
+    const on = sel?.t === 'link' && sel.id === l.id;
+    html += `<path class="hit" data-link="${esc(l.id)}" d="${g.d}"/>`;
+    html += `<path class="ln${on ? ' sel' : ''}" d="${g.d}" stroke="${ty.color}" stroke-dasharray="${ty.dash}" marker-end="url(#m-${l.type})"/>`;
+    const text = l.label || (on ? ty.label : '');
+    if (text) labels += `<div class="elabel${on ? ' sel' : ''}" data-link="${esc(l.id)}" style="left:${g.mid.x}px;top:${g.mid.y}px;border-color:${ty.color};color:${ty.color}">${esc(text)}</div>`;
+  }
+  if (drag?.t === 'connect') {
+    const s = scr(drag.from), n = nodeEl(drag.from);
+    const a = { x: s.x + n.offsetWidth, y: anchorY(s, n, drag.el) };
+    const ty = TYPES[$('defType').value];
+    html += `<path class="ln" d="M${a.x},${a.y} C${a.x + 60},${a.y} ${drag.p.x - 60},${drag.p.y} ${drag.p.x},${drag.p.y}" stroke="${ty.color}" stroke-dasharray="4 4" marker-end="url(#m-${$('defType').value})"/>`;
+  }
+  edgeG.innerHTML = html;
+  labelsEl.innerHTML = labels;
+}
+
+function renderLegend() {
+  $('legend').innerHTML = Object.values(TYPES).map(v =>
+    `<div><svg width="26" height="8"><line x1="0" y1="4" x2="26" y2="4" stroke="${v.color}" stroke-width="2.5" stroke-dasharray="${v.dash}"/></svg>${v.label}</div>`
+  ).join('');
+}
+
+function applyView() {
+  world.style.transform = `translate(${view.x}px,${view.y}px) scale(${view.k})`;
+  canvas.style.backgroundSize = `${22 * view.k}px ${22 * view.k}px`;
+  canvas.style.backgroundPosition = `${view.x}px ${view.y}px`;
+  $('zVal').textContent = Math.round(view.k * 100) + '%';
+}
+
+function fit() {
+  if (!state.screens.length) return;
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const s of state.screens) {
+    const n = nodeEl(s.id);
+    minX = Math.min(minX, s.x); minY = Math.min(minY, s.y);
+    maxX = Math.max(maxX, s.x + n.offsetWidth); maxY = Math.max(maxY, s.y + n.offsetHeight);
+  }
+  const r = canvas.getBoundingClientRect(), pad = 60;
+  const k = clamp(Math.min((r.width - pad * 2) / (maxX - minX), (r.height - pad * 2) / (maxY - minY)), 0.25, 1.2);
+  view = { k, x: (r.width - (maxX - minX) * k) / 2 - minX * k, y: (r.height - (maxY - minY) * k) / 2 - minY * k };
+  applyView();
+}
+
+function zoomAt(mx, my, k) {
+  k = clamp(k, 0.25, 2.5);
+  view.x = mx - (mx - view.x) * k / view.k;
+  view.y = my - (my - view.y) * k / view.k;
+  view.k = k;
+  applyView();
+}
+
+function markSel() {
+  nodesEl.querySelectorAll('.node').forEach(n => n.classList.toggle('sel', sel?.t === 'node' && sel.id === n.dataset.id));
+  renderEdges();
+  renderPanel();
+}
+function select(s) { sel = s; markSel(); }
+
+// ---------- panel ----------
+function typeOptions(cur) { return Object.entries(TYPES).map(([k, v]) => `<option value="${k}"${k === cur ? ' selected' : ''}>${v.label}</option>`).join(''); }
+function screenOptions(cur) { return state.screens.map(s => `<option value="${esc(s.id)}"${s.id === cur ? ' selected' : ''}>${esc(s.title)} · ${esc(s.group)}</option>`).join(''); }
+function elOptions(s, cur) { return `<option value=""${cur ? '' : ' selected'}>(화면 자체)</option>` + s.elements.map(e => `<option value="${esc(e.id)}"${e.id === cur ? ' selected' : ''}>${esc(e.label)}</option>`).join(''); }
+function linkRow(l, dir) {
+  const ty = TYPES[l.type];
+  const txt = dir === 'out'
+    ? `${esc(elLabel(l))} → <b>${esc(scr(l.to)?.title)}</b>`
+    : `<b>${esc(scr(l.from)?.title)}</b> · ${esc(elLabel(l))}`;
+  return `<div class="lk" data-sel-link="${esc(l.id)}"><span class="sw" style="border-color:${ty.color}"></span><span>${txt}<br><span class="muted">${ty.label}${l.label ? ' · ' + esc(l.label) : ''}</span></span></div>`;
+}
+
+function renderPanel() {
+  if (!sel) {
+    panel.innerHTML = `<h2>사용법</h2>
+      <div class="muted">
+        화면 카드의 <b>누를 수 있는 요소</b> 오른쪽 점을 끌어서 대상 화면 위에 놓으면 연결이 생깁니다. 헤더 오른쪽 점은 화면 자체에서 나가는 연결입니다.<br><br>
+        카드 드래그 = 이동 · 빈 곳 드래그 = 화면 이동 · 휠 = 확대/축소 · 빈 곳 더블클릭 = 화면 추가<br>
+        <kbd>Delete</kbd> 선택 삭제 · <kbd>Ctrl</kbd>+<kbd>Z</kbd> 되돌리기 · <kbd>Ctrl</kbd>+<kbd>S</kbd> JSON 저장<br><br>
+        작업은 이 브라우저에 자동 저장됩니다. 리포에 남기려면 <b>JSON 저장</b>으로 <code>design/screen-flow.json</code>에 쓰세요.
+      </div>
+      <h3>현재</h3><div class="muted">화면 ${state.screens.length}개 · 연결 ${state.links.length}개</div>`;
+    return;
+  }
+  if (sel.t === 'node') {
+    const s = scr(sel.id);
+    const groups = [...new Set(state.screens.map(x => x.group).filter(Boolean))];
+    const out = state.links.filter(l => l.from === s.id), inc = state.links.filter(l => l.to === s.id && l.from !== s.id);
+    panel.innerHTML = `<h2>화면</h2>
+      <label class="f"><span>제목</span><input data-k="title" value="${esc(s.title)}"></label>
+      <label class="f"><span>그룹 (탭·스택)</span><input data-k="group" list="groups" value="${esc(s.group)}"><datalist id="groups">${groups.map(g => `<option value="${esc(g)}">`).join('')}</datalist></label>
+      <label class="f"><span>종류</span><select data-k="kind">${Object.entries(KINDS).map(([k, v]) => `<option value="${k}"${k === s.kind ? ' selected' : ''}>${v}</option>`).join('')}</select></label>
+      <label class="f"><span>메모</span><textarea data-k="note">${esc(s.note || '')}</textarea></label>
+      <h3>누를 수 있는 요소</h3>
+      ${s.elements.map((e, i) => `<div class="row"><input data-elid="${esc(e.id)}" value="${esc(e.label)}">
+        <button class="ib" data-mv="${i},-1" ${i === 0 ? 'disabled' : ''} title="위로">↑</button>
+        <button class="ib" data-mv="${i},1" ${i === s.elements.length - 1 ? 'disabled' : ''} title="아래로">↓</button>
+        <button class="ib" data-delel="${esc(e.id)}" title="요소 삭제">✕</button></div>`).join('')}
+      <button class="btn" id="pAddEl">+ 요소 추가</button>
+      <h3>나가는 연결 ${out.length}</h3>${out.map(l => linkRow(l, 'out')).join('') || '<div class="muted">없음</div>'}
+      <div class="newlink">
+        <select id="nlEl">${elOptions(s, null)}</select>
+        <select id="nlTo">${screenOptions(null)}</select>
+        <select id="nlType">${typeOptions($('defType').value)}</select>
+        <button class="btn" id="pAddLink">연결 추가</button>
+      </div>
+      <h3>들어오는 연결 ${inc.length}</h3>${inc.map(l => linkRow(l, 'in')).join('') || '<div class="muted">없음</div>'}
+      <div class="stack"><button class="btn" id="pDup">복제</button><button class="btn danger" id="pDel">화면 삭제</button></div>`;
+
+    panel.querySelectorAll('[data-k]').forEach(inp => bindInput(inp, v => { s[inp.dataset.k] = v; }));
+    panel.querySelectorAll('[data-elid]').forEach(inp => bindInput(inp, v => { s.elements.find(e => e.id === inp.dataset.elid).label = v; }));
+    panel.querySelectorAll('[data-mv]').forEach(b => b.onclick = () => {
+      const [i, d] = b.dataset.mv.split(',').map(Number);
+      mutate(() => { const [e] = s.elements.splice(i, 1); s.elements.splice(i + d, 0, e); });
+    });
+    panel.querySelectorAll('[data-delel]').forEach(b => b.onclick = () => mutate(() => {
+      s.elements = s.elements.filter(e => e.id !== b.dataset.delel);
+      state.links = state.links.filter(l => l.el !== b.dataset.delel);
+    }));
+    $('pAddEl').onclick = () => {
+      mutate(() => s.elements.push({ id: uid(s.id + '.'), label: '새 요소' }));
+      const inputs = panel.querySelectorAll('[data-elid]');
+      const last = inputs[inputs.length - 1];
+      last.focus(); last.select();
+    };
+    $('pAddLink').onclick = () => {
+      const l = { id: uid('l'), from: s.id, el: $('nlEl').value || null, to: $('nlTo').value, type: $('nlType').value, label: '' };
+      mutate(() => state.links.push(l));
+    };
+    $('pDup').onclick = () => {
+      const c = JSON.parse(JSON.stringify(s));
+      c.id = uid('s'); c.x += 30; c.y += 30; c.title += ' 사본';
+      c.elements.forEach(e => { e.id = uid(c.id + '.'); });
+      mutate(() => state.screens.push(c));
+      select({ t: 'node', id: c.id });
+    };
+    $('pDel').onclick = () => deleteSel();
+  } else {
+    const l = lnk(sel.id), s = scr(l.from);
+    panel.innerHTML = `<h2>연결</h2>
+      <label class="f"><span>출발 화면</span><select data-lk="from">${screenOptions(l.from)}</select></label>
+      <label class="f"><span>누르는 요소</span><select data-lk="el">${elOptions(s, l.el)}</select></label>
+      <label class="f"><span>도착 화면</span><select data-lk="to">${screenOptions(l.to)}</select></label>
+      <label class="f"><span>전환 방식</span><select data-lk="type">${typeOptions(l.type)}</select></label>
+      <label class="f"><span>라벨 (조건·결과)</span><input id="pLabel" value="${esc(l.label || '')}" placeholder="예: 무료 사용자, 구매 후"></label>
+      <div class="muted">${esc(TYPE_HELP[l.type])}</div>
+      <div class="stack"><button class="btn" id="pGoFrom">출발 화면 보기</button><button class="btn danger" id="pDel">연결 삭제</button></div>`;
+    panel.querySelectorAll('[data-lk]').forEach(inp => inp.onchange = () => {
+      const k = inp.dataset.lk;
+      mutate(() => {
+        if (k === 'from') { l.from = inp.value; l.el = null; }
+        else if (k === 'el') l.el = inp.value || null;
+        else l[k] = inp.value;
+      });
+    });
+    bindInput($('pLabel'), v => { l.label = v; });
+    $('pGoFrom').onclick = () => select({ t: 'node', id: l.from });
+    $('pDel').onclick = () => deleteSel();
+  }
+  panel.querySelectorAll('[data-sel-link]').forEach(r => r.onclick = () => select({ t: 'link', id: r.dataset.selLink }));
+}
+
+const TYPE_HELP = {
+  push: '같은 스택에 쌓임. 뒤로 가기(스와이프 백) 가능.',
+  sheet: '아래에서 올라오는 모달. 드래그로 닫힘.',
+  overlay: '컨텍스트 메뉴·팝오버처럼 화면 위에 잠깐 뜨는 것.',
+  replace: '스택을 교체. 뒤로 가기로 돌아올 수 없음(온보딩 → 루트 등).',
+  tab: '탭 바에서 다른 탭 루트로 전환. 각 탭은 자기 스택 유지.',
+  dismiss: '시트 닫기 또는 스택 뒤로.',
+  deeplink: '앱 밖(위젯·알림)에서 특정 화면으로 진입.',
+};
+
+// 텍스트 입력: 포커스 때 한 번만 스냅샷, 타이핑 중엔 패널을 다시 그리지 않는다
+function bindInput(inp, apply) {
+  inp.addEventListener('focus', () => snapshot());
+  inp.addEventListener('input', () => {
+    apply(inp.value);
+    const keep = sel?.t === 'node' ? sel.id : null;
+    renderNodes(); renderEdges();
+    if (keep) nodeEl(keep)?.classList.add('sel');
+    persist();
+  });
+  if (inp.tagName === 'SELECT') inp.addEventListener('change', () => renderPanel());
+}
+function mutate(fn) { snapshot(); fn(); renderAll(); persist(); }
+
+function deleteSel() {
+  if (!sel) return;
+  if (sel.t === 'node') {
+    const id = sel.id;
+    mutate(() => {
+      state.screens = state.screens.filter(s => s.id !== id);
+      state.links = state.links.filter(l => l.from !== id && l.to !== id);
+      sel = null;
+    });
+  } else {
+    const id = sel.id;
+    mutate(() => { state.links = state.links.filter(l => l.id !== id); sel = null; });
+  }
+}
+
+function addScreenAt(x, y) {
+  const s = { id: uid('s'), title: '새 화면', kind: 'screen', group: '', x: Math.round(x), y: Math.round(y), note: '', elements: [{ id: '', label: '버튼' }] };
+  s.elements[0].id = uid(s.id + '.');
+  mutate(() => state.screens.push(s));
+  select({ t: 'node', id: s.id });
+  const t = panel.querySelector('[data-k="title"]');
+  t.focus(); t.select();
+}
+
+// ---------- pointer ----------
+function worldPt(e) {
+  const r = canvas.getBoundingClientRect();
+  return { x: (e.clientX - r.left - view.x) / view.k, y: (e.clientY - r.top - view.y) / view.k };
+}
+function clearDrop() { nodesEl.querySelectorAll('.drop').forEach(n => n.classList.remove('drop')); }
+
+canvas.addEventListener('pointerdown', e => {
+  if (e.button !== 0 || e.target.closest('#zoom')) return;
+  document.activeElement?.blur();
+  const port = e.target.closest('.port');
+  const node = e.target.closest('.node');
+  const linkHit = e.target.closest('[data-link]');
+  if (port && node) {
+    drag = { t: 'connect', from: node.dataset.id, el: port.dataset.el || null, p: worldPt(e) };
+    select({ t: 'node', id: node.dataset.id });
+  } else if (linkHit) {
+    select({ t: 'link', id: linkHit.dataset.link });
+    return;
+  } else if (node) {
+    const s = scr(node.dataset.id);
+    drag = { t: 'move', id: s.id, sx: e.clientX, sy: e.clientY, ox: s.x, oy: s.y, moved: false };
+    if (!(sel?.t === 'node' && sel.id === s.id)) select({ t: 'node', id: s.id });
+  } else {
+    drag = { t: 'pan', sx: e.clientX, sy: e.clientY, ox: view.x, oy: view.y, moved: false };
+    canvas.classList.add('panning');
+  }
+  canvas.setPointerCapture(e.pointerId);
+  e.preventDefault();
+});
+
+canvas.addEventListener('pointermove', e => {
+  if (!drag) return;
+  if (drag.t === 'pan') {
+    const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+    if (Math.abs(dx) + Math.abs(dy) > 3) drag.moved = true;
+    view.x = drag.ox + dx; view.y = drag.oy + dy;
+    applyView();
+  } else if (drag.t === 'move') {
+    const dx = (e.clientX - drag.sx) / view.k, dy = (e.clientY - drag.sy) / view.k;
+    if (!drag.moved && Math.abs(dx) + Math.abs(dy) < 3) return;
+    if (!drag.moved) { snapshot(); drag.moved = true; }
+    const s = scr(drag.id);
+    s.x = Math.round(drag.ox + dx); s.y = Math.round(drag.oy + dy);
+    const n = nodeEl(s.id);
+    n.style.left = s.x + 'px'; n.style.top = s.y + 'px';
+    renderEdges();
+  } else if (drag.t === 'connect') {
+    drag.p = worldPt(e);
+    clearDrop();
+    const hit = document.elementFromPoint(e.clientX, e.clientY)?.closest('.node');
+    if (hit) hit.classList.add('drop');
+    renderEdges();
+  }
+});
+
+canvas.addEventListener('pointerup', e => {
+  if (!drag) return;
+  const d = drag;
+  drag = null;
+  canvas.classList.remove('panning');
+  if (d.t === 'pan' && !d.moved) select(null);
+  else if (d.t === 'move' && d.moved) persist();
+  else if (d.t === 'connect') {
+    clearDrop();
+    const hit = document.elementFromPoint(e.clientX, e.clientY)?.closest('.node');
+    if (hit) {
+      const l = { id: uid('l'), from: d.from, el: d.el, to: hit.dataset.id, type: $('defType').value, label: '' };
+      mutate(() => state.links.push(l));
+      select({ t: 'link', id: l.id });
+    } else renderEdges();
+  }
+});
+
+canvas.addEventListener('dblclick', e => {
+  if (e.target.closest('.node, [data-link], #zoom, #legend')) return;
+  const p = worldPt(e);
+  addScreenAt(p.x - 118, p.y - 20);
+});
+
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const r = canvas.getBoundingClientRect();
+  zoomAt(e.clientX - r.left, e.clientY - r.top, view.k * Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015)));
+}, { passive: false });
+
+// ---------- file ----------
+async function saveJson() {
+  const data = JSON.stringify(state, null, 2) + '\n';
+  if (window.showSaveFilePicker) {
+    try {
+      if (!fileHandle) {
+        fileHandle = await window.showSaveFilePicker({ suggestedName: 'screen-flow.json', types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }] });
+      }
+      const w = await fileHandle.createWritable();
+      await w.write(data);
+      await w.close();
+      setStatus(`파일 저장됨: ${fileHandle.name} (${new Date().toLocaleTimeString('ko-KR')})`);
+    } catch (e) {
+      if (e.name === 'AbortError') return;
+      setStatus(`파일 저장 실패: ${e.message}`);
+      throw e;
+    }
+    return;
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
+  a.download = 'screen-flow.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  setStatus('screen-flow.json 내려받음');
+}
+
+function loadDoc(text, name) {
+  let doc;
+  try { doc = validateDoc(JSON.parse(text)); }
+  catch (e) { setStatus(`불러오기 실패 (${name}): ${e.message}`); throw e; }
+  snapshot();
+  state = doc; sel = null;
+  renderAll(); persist(); fit();
+  setStatus(`불러옴: ${name}`);
+}
+
+async function openJson() {
+  if (window.showOpenFilePicker) {
+    try {
+      const [h] = await window.showOpenFilePicker({ types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }] });
+      const f = await h.getFile();
+      loadDoc(await f.text(), f.name);
+      fileHandle = h;
+    } catch (e) {
+      if (e.name !== 'AbortError') throw e;
+    }
+    return;
+  }
+  $('fileIn').click();
+}
+$('fileIn').onchange = async () => {
+  const f = $('fileIn').files[0];
+  if (f) loadDoc(await f.text(), f.name);
+  $('fileIn').value = '';
+};
+
+async function exportPng() {
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const s of state.screens) {
+    const n = nodeEl(s.id);
+    minX = Math.min(minX, s.x); minY = Math.min(minY, s.y);
+    maxX = Math.max(maxX, s.x + n.offsetWidth); maxY = Math.max(maxY, s.y + n.offsetHeight);
+  }
+  const pad = 80, scale = 2, W = maxX - minX + pad * 2, H = maxY - minY + pad * 2;
+  const prevSel = sel; sel = null; markSel();
+  const clone = world.cloneNode(true);
+  sel = prevSel; markSel();
+  clone.style.transform = `translate(${pad - minX}px,${pad - minY}px)`;
+  const css = [...document.styleSheets].flatMap(sh => { try { return [...sh.cssRules].map(r => r.cssText); } catch { return []; } }).join('\n');
+  const xml = new XMLSerializer().serializeToString(clone);
+  const svgDoc = `<svg xmlns="http://www.w3.org/2000/svg" width="${W * scale}" height="${H * scale}" viewBox="0 0 ${W} ${H}"><foreignObject x="0" y="0" width="${W}" height="${H}"><div xmlns="http://www.w3.org/1999/xhtml" style="position:relative;width:${W}px;height:${H}px;background:#F6F5F2;font-family:Pretendard,-apple-system,sans-serif;font-size:13px;color:#1F1D1A"><style>${css.replace(/@import[^;]+;|@font-face\{[^}]*\}/g, '')}</style>${xml}</div></foreignObject></svg>`;
+  const img = new Image();
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgDoc);
+  await img.decode();
+  const c = document.createElement('canvas');
+  c.width = W * scale; c.height = H * scale;
+  c.getContext('2d').drawImage(img, 0, 0);
+  const a = document.createElement('a');
+  a.href = c.toDataURL('image/png');
+  a.download = 'screen-flow.png';
+  a.click();
+  setStatus('screen-flow.png 내려받음');
+}
+
+// ---------- wiring ----------
+$('defType').innerHTML = typeOptions('push');
+$('bAdd').onclick = () => {
+  const r = canvas.getBoundingClientRect();
+  addScreenAt((r.width / 2 - view.x) / view.k - 118, (r.height / 2 - view.y) / view.k - 60);
+};
+$('bUndo').onclick = () => restore(undoStack, redoStack);
+$('bRedo').onclick = () => restore(redoStack, undoStack);
+$('bFit').onclick = fit;
+$('bSave').onclick = () => saveJson();
+$('bOpen').onclick = () => openJson();
+$('bPng').onclick = () => exportPng();
+$('bReset').onclick = () => {
+  if (!confirm('지금 작업을 버리고 SPEC §4 기준 초안으로 되돌릴까요? (되돌리기로 복구 가능)')) return;
+  snapshot(); state = seed(); sel = null; fileHandle = null;
+  renderAll(); persist(); fit();
+};
+$('zIn').onclick = () => { const r = canvas.getBoundingClientRect(); zoomAt(r.width / 2, r.height / 2, view.k * 1.2); };
+$('zOut').onclick = () => { const r = canvas.getBoundingClientRect(); zoomAt(r.width / 2, r.height / 2, view.k / 1.2); };
+
+document.addEventListener('keydown', e => {
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName);
+  const mod = e.ctrlKey || e.metaKey;
+  if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); saveJson(); return; }
+  if (typing) return;
+  if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? restore(redoStack, undoStack) : restore(undoStack, redoStack); }
+  else if (mod && e.key.toLowerCase() === 'y') { e.preventDefault(); restore(redoStack, undoStack); }
+  else if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); deleteSel(); }
+  else if (e.key === 'Escape') select(null);
+});
+window.addEventListener('resize', applyView);
+
+renderMarkers();
+renderLegend();
+renderAll();
+persist();
+document.fonts.ready.then(() => { renderEdges(); fit(); });
+fit();
+</script>
+</body>
+</html>

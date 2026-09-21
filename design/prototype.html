@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>슈가캡 프로토타입</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,"Segoe UI","Malgun Gothic",sans-serif;font-size:14px;background:#e9e7e2;color:#222;display:flex;gap:24px;justify-content:center;align-items:flex-start;padding:24px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;border:1px solid #bbb;background:#fff;border-radius:8px;padding:6px 10px}
+button.p{background:#222;color:#fff;border-color:#222}
+button:disabled{opacity:.4;cursor:default}
+input,select{font:inherit;border:1px solid #bbb;border-radius:6px;padding:6px}
+#phone{width:390px;height:780px;background:#fff;border:1px solid #999;border-radius:28px;position:relative;overflow:hidden;display:flex;flex-direction:column}
+#bar{padding:10px 18px 4px;font-size:12px;color:#666;display:flex;justify-content:space-between}
+#main{flex:1;overflow-y:auto;padding:8px 16px 16px}
+#tabs{display:flex;border-top:1px solid #ddd}
+#tabs button{flex:1;border:0;border-radius:0;padding:12px;background:#fafafa}
+#tabs button.on{font-weight:700;background:#fff}
+h1{font-size:24px;margin:6px 0 10px}
+h2{font-size:17px;margin:4px 0 10px}
+.muted{color:#777;font-size:12.5px}
+.banner{background:#fff4d6;border:1px solid #e8cf85;border-radius:10px;padding:10px;margin-bottom:8px}
+.banner.info{background:#eef3ff;border-color:#b7c7ee}
+.cupzone{display:flex;align-items:flex-end;justify-content:center;gap:14px;padding:10px 0;user-select:none;touch-action:pan-y}
+.cup{width:130px;height:190px;border:3px solid #444;border-top:0;border-radius:0 0 22px 22px;position:relative;overflow:hidden;background:#fafafa}
+.liq{position:absolute;left:0;right:0;bottom:0;transition:height .4s cubic-bezier(.3,1.4,.5,1)}
+.char{width:88px;height:88px;border-radius:50%;border:2px dashed #888;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;text-align:center;cursor:pointer;background:#fff}
+.char b{font-size:15px}
+.dots{text-align:center;color:#999;letter-spacing:4px}
+.dots .on{color:#222}
+.num{text-align:center;font-size:20px;font-variant-numeric:tabular-nums;margin:4px 0}
+.over{text-align:center;color:#c0392b;font-size:13px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #eee}
+.row .r{text-align:right;font-variant-numeric:tabular-nums;font-size:12.5px;color:#555}
+.btns{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.list-item{padding:8px 4px;border-bottom:1px solid #eee;cursor:pointer}
+.list-item:hover{background:#f6f6f6}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:6px 0}
+.chips button{white-space:nowrap;border-radius:99px;padding:4px 10px}
+.chips button.on,.seg button.on{background:#222;color:#fff}
+.seg{display:flex;gap:4px;flex-wrap:wrap;margin:4px 0}
+.overlay{position:absolute;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:flex-end}
+.sheet{background:#fff;width:100%;height:92%;border-radius:18px 18px 0 0;display:flex;flex-direction:column;padding:12px 16px}
+.sheet .body{flex:1;overflow-y:auto}
+.cover{position:absolute;inset:0;background:#fff;padding:40px 20px 20px;display:flex;flex-direction:column;gap:10px}
+.panel{border-top:2px solid #222;padding-top:8px;margin-top:6px}
+.bars{display:flex;align-items:flex-end;gap:6px;height:120px;border-bottom:1px solid #ccc;margin:8px 0 2px}
+.bars div{flex:1;background:#999;min-height:1px}
+.barlbl{display:flex;gap:6px;font-size:11px;color:#777}
+.barlbl span{flex:1;text-align:center}
+.back{border:0;padding:4px 0;color:#2563eb;background:none}
+#debug{width:320px;background:#fff;border:1px solid #bbb;border-radius:12px;padding:14px}
+#debug h3{margin:0 0 8px;font-size:15px}
+#debug .btns button{font-size:12.5px;padding:4px 8px}
+#debug pre{font-size:11px;background:#f4f4f4;padding:8px;max-height:360px;overflow:auto;white-space:pre-wrap}
+</style>
+</head>
+<body>
+<div id="phone">
+  <div id="bar"><span id="clock"></span><span id="probadge"></span></div>
+  <div id="main"></div>
+  <div id="tabs"></div>
+  <div id="layer"></div>
+</div>
+<div id="debug">
+  <h3>디버그</h3>
+  <div id="dclock" style="font-weight:700"></div>
+  <div class="muted" id="dday"></div>
+  <div class="btns">
+    <button data-a="t" data-v="1">+1시간</button>
+    <button data-a="t" data-v="3">+3시간</button>
+    <button data-a="tAt" data-v="20">오늘 20:00으로</button>
+    <button data-a="tAt" data-v="28">다음 날 04:00으로</button>
+    <button data-a="tAt" data-v="33">다음 날 09:00으로</button>
+    <button data-a="tReset">실제 시각</button>
+  </div>
+  <div class="btns">
+    <button data-a="togglePro">Pro 켜기/끄기</button>
+    <button data-a="wipe">전체 초기화</button>
+  </div>
+  <div class="muted">임시 값: 호감도 = 남은 비율 × 100점/일, 200점마다 1단계, 무료 한도 3단계 (SPEC §9-4·9-5 미결)</div>
+  <pre id="dump"></pre>
+</div>
+<input type="file" id="catFile" accept=".json" hidden>
+<script>
+'use strict';
+const LS = 'sugarcap-proto-v1';
+const LV_STEP = 200, FREE_CAP = 3;
+const CHARS = {
+  roshu: { name: '로슈', what: '당', unit: 'g', color: '#f3a6b8', unlocks: ['기본 대기', '손 흔들기', '웃는 표정', '빙글 돌기', '잠옷', '특별 대사'] },
+  kain: { name: '카인', what: '카페인', unit: 'mg', color: '#a07350', unlocks: ['기본 대기', '하품', '윙크', '점프', '안경', '특별 대사'] },
+};
+const ORDER = ['roshu', 'kain'];
+const fresh = () => ({ onboarded: false, pro: false, clockOffset: 0,
+  settings: { sugarLimit: 50, caffLimit: 400, boundary: 4, closeFrom: 20 },
+  entries: [], days: {}, aff: { roshu: 0, kain: 0 }, goal: 0 });
+
+let S = load();
+let CAT = null;
+const ui = { tab: 'today', stack: { today: [], trend: [], settings: [] }, sheet: null, cover: null, cup: 0, react: null,
+  add: { q: '', brand: 'all', pick: null, size: 0, variant: 0, qty: 1 } };
+
+function load() {
+  try { const r = localStorage.getItem(LS); if (r) return JSON.parse(r); } catch (e) { console.error('상태 읽기 실패', e); }
+  return fresh();
+}
+function save() { try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) { console.error('상태 저장 실패', e); } }
+
+// ---------- 시간·하루 ----------
+const now = () => Date.now() + S.clockOffset;
+const pad = n => String(n).padStart(2, '0');
+function dayKey(t) {
+  const d = new Date(t - S.settings.boundary * 3600e3);
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+function keyShift(k, n) { const d = new Date(k + 'T12:00:00'); d.setDate(d.getDate() + n); return dayKey(d.getTime() + S.settings.boundary * 3600e3); }
+function fmtTime(t) { const d = new Date(t); return `${d.getMonth() + 1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+function canClose() {
+  const h = new Date(now()).getHours(), { closeFrom, boundary } = S.settings;
+  return h >= closeFrom || h < boundary;
+}
+function day(k) { return S.days[k] || (S.days[k] = { active: false }); }
+
+function totalsOf(k) {
+  let s = 0, c = 0;
+  for (const e of S.entries) if (dayKey(e.at) === k) { s += e.sugar ?? 0; c += e.caff ?? 0; }
+  const { sugarLimit: sl, caffLimit: cl } = S.settings;
+  return { s, c, leftS: Math.max(0, sl - s), leftC: Math.max(0, cl - c), overS: Math.max(0, s - sl), overC: Math.max(0, c - cl) };
+}
+function gainOf(t) {
+  return { roshu: Math.round(t.leftS / S.settings.sugarLimit * 100), kain: Math.round(t.leftC / S.settings.caffLimit * 100) };
+}
+const level = p => Math.min(CHARS.roshu.unlocks.length, 1 + Math.floor(p / LV_STEP));
+
+// 마감한 지난 날을 하루 경계 시각의 최종 값으로 확정
+function processDays() {
+  const today = dayKey(now());
+  day(today).active = true;
+  for (const [k, d] of Object.entries(S.days)) {
+    if (k >= today || !d.closedAt || d.finalizedAt) continue;
+    const t = totalsOf(k);
+    d.final = { leftS: t.leftS, leftC: t.leftC };
+    d.gained = gainOf(t);
+    S.aff.roshu += d.gained.roshu; S.aff.kain += d.gained.kain;
+    d.finalizedAt = now();
+    d.noteDue = t.leftS < d.atClose.leftS - 1e-9 || t.leftC < d.atClose.leftC - 1e-9;
+  }
+  save();
+}
+function pendingFeedDay() {
+  const y = keyShift(dayKey(now()), -1), d = S.days[y];
+  return d && d.active && !d.closedAt ? y : null;
+}
+// 어제 앱을 안 열었으면 한 번만 묻는다 (안 마셔서 안 열었을 수 있음)
+function askDay() {
+  const y = keyShift(dayKey(now()), -1), d = S.days[y];
+  if (!S.firstDay || y < S.firstDay) return null;
+  return !d || (!d.active && !d.closedAt && !d.asked) ? y : null;
+}
+function noteDay() { return Object.keys(S.days).filter(k => S.days[k].noteDue).sort()[0] || null; }
+
+// ---------- 카탈로그 ----------
+async function loadCatalog() {
+  try {
+    const r = await fetch('../data/catalog.json');
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    setCatalog(await r.json());
+  } catch (e) {
+    console.warn('catalog.json 자동 로드 실패, 파일 선택으로 대체', e);
+  }
+}
+function setCatalog(c) {
+  if (c.schema_version !== 1) throw new Error(`지원하지 않는 schema_version: ${c.schema_version}`);
+  CAT = { ...c, brandName: Object.fromEntries(c.brands.map(b => [b.id, b.name])), drink: Object.fromEntries(c.drinks.map(d => [d.id, d])) };
+  render();
+}
+document.getElementById('catFile').onchange = async e => { const f = e.target.files[0]; if (f) setCatalog(JSON.parse(await f.text())); };
+
+// ---------- 렌더 ----------
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmt = (v, u) => v === null || v === undefined ? '미공개' : `${Math.round(v * 10) / 10} ${u}`;
+const topOf = tab => ui.stack[tab][ui.stack[tab].length - 1];
+const back = () => '<button class="back" data-a="pop">‹ 뒤로</button>';
+
+function render() {
+  processDays();
+  const main = document.getElementById('main');
+  document.getElementById('clock').textContent = fmtTime(now());
+  document.getElementById('probadge').textContent = S.pro ? 'Pro' : '무료';
+  if (!S.onboarded) {
+    main.innerHTML = `<div style="padding-top:120px;text-align:center"><h1>슈가캡</h1>
+      <p>하루치 당·카페인이 담긴 컵이 마실 때마다 줄어들어요.<br>밤에 남은 만큼 로슈와 카인에게 먹여 주세요.</p>
+      <p class="muted">하루 기준: 당 ${S.settings.sugarLimit} g · 카페인 ${S.settings.caffLimit} mg (설정에서 변경)</p>
+      <button class="p" data-a="start">시작</button></div>`;
+    document.getElementById('tabs').innerHTML = '';
+    document.getElementById('layer').innerHTML = '';
+    renderDebug();
+    return;
+  }
+  const top = topOf(ui.tab);
+  main.innerHTML = top ? SCREENS[top.s](top) : ROOTS[ui.tab]();
+  document.getElementById('tabs').innerHTML = [['today', '오늘'], ['trend', '추이'], ['settings', '설정']]
+    .map(([k, l]) => `<button data-a="tab" data-v="${k}" class="${ui.tab === k ? 'on' : ''}">${l}</button>`).join('');
+  let layer = '';
+  if (ui.sheet) layer += `<div class="overlay" data-a="closeSheetBg"><div class="sheet">${SHEETS[ui.sheet.s](ui.sheet)}</div></div>`;
+  if (ui.cover) layer += `<div class="cover">${COVERS[ui.cover.s](ui.cover)}</div>`;
+  document.getElementById('layer').innerHTML = layer;
+  renderDebug();
+}
+
+function renderDebug() {
+  document.getElementById('dclock').textContent = '앱 시각 ' + fmtTime(now());
+  document.getElementById('dday').textContent = `하루 키 ${dayKey(now())} · 마감 ${canClose() ? '가능' : '불가'}`;
+  const { entries, ...rest } = S;
+  document.getElementById('dump').textContent = JSON.stringify({ ...rest, entries: entries.length }, null, 1);
+}
+
+function cupHtml(key) {
+  const c = CHARS[key], t = totalsOf(dayKey(now()));
+  const isS = key === 'roshu';
+  const left = isS ? t.leftS : t.leftC, lim = isS ? S.settings.sugarLimit : S.settings.caffLimit, over = isS ? t.overS : t.overC;
+  const state = ui.react?.key === key ? ui.react.text : over > 0 ? '아쉬움' : '대기';
+  return `<div class="cupzone" id="cupzone">
+      <div class="cup"><div class="liq" style="height:${left / lim * 100}%;background:${c.color}"></div></div>
+      <div class="char" data-a="poke" data-v="${key}"><b>${c.name}</b>(${state})<span class="muted">${c.what} 컵</span></div>
+    </div>
+    <div class="dots">${ORDER.map(k => `<span class="${k === key ? 'on' : ''}">●</span>`).join('')}</div>
+    <div class="num">남은 ${Math.round(left * 10) / 10} ${c.unit} / ${lim} ${c.unit}</div>
+    ${over > 0 ? `<div class="over">+${Math.round(over * 10) / 10} ${c.unit} 넘김</div>` : ''}`;
+}
+
+const ROOTS = {
+  today() {
+    const k = dayKey(now()), d = day(k), pf = pendingFeedDay(), nd = noteDay();
+    let h = '';
+    if (pf) h += `<div class="banner">어제(${pf}) 마감을 안 했어요. <button data-a="feedLate" data-v="${pf}">어제 남은 음료 먹이기</button></div>`;
+    const ad = askDay();
+    if (ad) h += `<div class="banner">어제(${ad})는 기록이 없어요. 음료를 안 마셨나요?
+      <div class="btns"><button class="p" data-a="feedLate" data-v="${ad}">안 마셨어요, 먹이기</button><button data-a="askNo" data-v="${ad}">마셨어요</button></div></div>`;
+    if (nd) {
+      const x = S.days[nd];
+      h += `<div class="banner info">어젯밤 마감 이후 마신 만큼 빠졌어요. 당 ${Math.round((x.atClose.leftS - x.final.leftS) * 10) / 10} g · 카페인 ${Math.round(x.atClose.leftC - x.final.leftC)} mg
+        (확정 로슈 +${x.gained.roshu} · 카인 +${x.gained.kain}) <button data-a="noteOk" data-v="${nd}">확인</button></div>`;
+    }
+    h += `<div style="display:flex;justify-content:space-between;align-items:center"><h1>오늘</h1><button data-a="profile">캐릭터 프로필</button></div>`;
+    h += cupHtml(ORDER[ui.cup]);
+    h += `<div class="btns"><button data-a="swipe" data-v="-1">◀</button><button data-a="swipe" data-v="1">▶</button></div>`;
+    h += CAT
+      ? `<div class="chips" style="flex-wrap:wrap">${CAT.brands.map(b => `<button data-a="openBrand" data-v="${b.id}">${esc(b.name)}</button>`).join('')}<button data-a="manual">직접 입력</button></div>`
+      : `<div class="muted">catalog.json을 못 읽었어요. <button data-a="pickCat">catalog.json 선택</button></div>`;
+    if (d.closedAt) h += `<div class="muted">오늘은 ${fmtTime(d.closedAt)}에 마감했어요. 이후 기록도 오늘 몫으로 빠져요.</div>`;
+    else if (canClose()) h += `<div class="btns"><button class="p" data-a="close">오늘 마감</button></div>`;
+    else h += `<div class="muted">오늘 마감은 ${S.settings.closeFrom}:00부터 할 수 있어요.</div>`;
+    const list = S.entries.filter(e => dayKey(e.at) === k).sort((a, b) => b.at - a.at);
+    h += `<h2 style="margin-top:14px">오늘 기록</h2>`;
+    h += list.length ? list.map(e => `<div class="row"><div>${esc(e.name)}${e.qty > 1 ? ` ×${e.qty}` : ''}<div class="muted">${fmtTime(e.at)} · ${esc(e.brand)} ${esc(e.size)}</div></div>
+      <div class="r">${fmt(e.sugar, 'g')}<br>${fmt(e.caff, 'mg')}</div><button data-a="del" data-v="${e.id}">✕</button></div>`).join('')
+      : '<div class="muted">첫 잔을 기록해 보세요</div>';
+    return h;
+  },
+  trend() {
+    const today = dayKey(now());
+    const keys = Array.from({ length: 7 }, (_, i) => keyShift(today, i - 6));
+    const prev = Array.from({ length: 7 }, (_, i) => keyShift(today, i - 13));
+    const bars = (f, lim) => `<div class="bars">${keys.map(k => `<div style="height:${Math.min(100, f(totalsOf(k)) / lim * 100)}%"></div>`).join('')}</div>
+      <div class="barlbl">${keys.map(k => `<span>${k.slice(8)}</span>`).join('')}</div>`;
+    const sum = (ks, f) => ks.reduce((a, k) => a + f(totalsOf(k)), 0);
+    const cmp = (f) => { const a = sum(keys, f), b = sum(prev, f); return b ? `${Math.round((a - b) / b * 100)}%` : '비교할 지난주 기록 없음'; };
+    return `<h1>추이</h1><div class="btns"><button class="p">주</button><button data-a="pro" data-v="monthView">월 (Pro)</button></div>
+      <h2>당</h2>${bars(t => t.s, S.settings.sugarLimit)}<div class="muted">지난주 대비 ${S.pro ? cmp(t => t.s) : 'Pro'}</div>
+      <h2 style="margin-top:14px">카페인</h2>${bars(t => t.c, S.settings.caffLimit)}<div class="muted">지난주 대비 ${S.pro ? cmp(t => t.c) : 'Pro'}</div>
+      <div class="btns" style="margin-top:14px"><button data-a="pro" data-v="goal">감소 목표 설정 (Pro)</button></div>`;
+  },
+  settings() {
+    const items = [['baseline', '하루 기준'], ['boundary', '하루 경계 · 마감 시각']];
+    return `<h1>설정</h1>${items.map(([s, l]) => `<div class="list-item" data-a="push" data-v="${s}">${l} ›</div>`).join('')}
+      <div class="list-item" data-a="openPaywall">Pro 구매 · 복원 ›</div>
+      <div class="list-item">데이터 갱신 날짜 <span class="muted">${CAT ? CAT.built_at.slice(0, 10) : '카탈로그 없음'}</span></div>
+      <div class="list-item" data-a="push" data-v="about">정보 · 개인정보 ›</div>`;
+  },
+};
+
+const SCREENS = {
+  baseline() {
+    const st = S.settings;
+    return `${back()}<h2>하루 기준</h2><div>당</div><div class="seg">${[25, 50, 100].map(v => `<button data-a="set" data-k="sugarLimit" data-v="${v}" class="${st.sugarLimit === v ? 'on' : ''}">${v} g</button>`).join('')}</div>
+      <div style="margin-top:12px">카페인 ${st.caffLimit} mg</div><input type="range" min="100" max="600" step="50" value="${st.caffLimit}" data-in="caffLimit" style="width:100%">`;
+  },
+  boundary() {
+    const st = S.settings, opt = (k, lo, hi) => `<select data-in="${k}">${Array.from({ length: hi - lo + 1 }, (_, i) => lo + i).map(h => `<option value="${h}"${st[k] === h ? ' selected' : ''}>${h}:00</option>`).join('')}</select>`;
+    return `${back()}<h2>하루 경계 · 마감</h2><p>하루 경계 ${opt('boundary', 0, 6)}</p><p>마감 가능 시각 ${opt('closeFrom', 17, 23)}</p>`;
+  },
+  about() { return `${back()}<h2>정보 · 개인정보</h2><p>수집하는 정보 없음. 모든 기록은 기기 안에만 있어요.</p><p class="muted">데이터 출처: 각 브랜드 공식 메뉴 페이지</p>`; },
+  goal() {
+    const sl = S.settings.sugarLimit, cl = S.settings.caffLimit;
+    return `${back()}<h2>감소 목표</h2><p class="muted">하루 기준을 매주 조금씩 낮춰요 (세부 규칙 미결, SPEC §9-8)</p>
+      <div class="seg">${[0, 5, 10].map(v => `<button data-a="goal" data-v="${v}" class="${S.goal === v ? 'on' : ''}">${v ? `매주 −${v}%` : '없음'}</button>`).join('')}</div>
+      ${S.goal ? `<p>다음 주 하루 기준: 당 ${Math.round(sl * (1 - S.goal / 100) * 10) / 10} g · 카페인 ${Math.round(cl * (1 - S.goal / 100))} mg</p>` : ''}`;
+  },
+  monthView() { return `${back()}<h2>월 보기</h2><p class="muted">(자리만. 30일 막대)</p>`; },
+  affinity() {
+    const hist = Object.entries(S.days).filter(([, d]) => d.gained).sort((a, b) => b[0].localeCompare(a[0]));
+    return `${back()}<h2>호감도</h2>${ORDER.map(k => {
+      const c = CHARS[k], p = S.aff[k], lv = level(p);
+      return `<div class="panel"><b>${c.name}</b> ${p}점 · ${lv}단계 <span class="muted">(다음 단계까지 ${lv >= c.unlocks.length ? '-' : LV_STEP * lv - p}점)</span>
+        ${c.unlocks.map((u, i) => `<div class="muted">${i + 1}단계 ${u} ${i < lv ? (i + 1 > FREE_CAP && !S.pro ? '(Pro 필요)' : '✓') : '잠김'}</div>`).join('')}</div>`;
+    }).join('')}<h2 style="margin-top:12px">기록</h2>${hist.map(([k, d]) => `<div class="row"><span>${k}</span><span class="r">로슈 +${d.gained.roshu} · 카인 +${d.gained.kain}</span></div>`).join('') || '<div class="muted">아직 없음</div>'}`;
+  },
+};
+
+SCREENS.brandMenu = () => {
+  const a = ui.add;
+  return `${back()}<h2>${esc(CAT.brandName[a.brand])}</h2>
+    <input id="q" placeholder="메뉴 검색" value="${esc(a.q)}" style="width:100%">
+    <div id="results">${resultsHtml()}</div>${a.pick ? pickPanel() : ''}`;
+};
+
+const SHEETS = {
+  manual() {
+    return `<div style="display:flex;justify-content:space-between"><h2>직접 입력</h2><button data-a="closeSheet">닫기</button></div>
+      <p>이름 <input id="mName" style="width:100%"></p><p>당 (g) <input id="mS" type="number" min="0"></p><p>카페인 (mg) <input id="mC" type="number" min="0"></p>
+      <button class="p" data-a="saveManual">저장</button>`;
+  },
+  paywall() {
+    return `<div style="display:flex;justify-content:space-between"><h2>슈가캡 Pro</h2><button data-a="closeSheet">닫기</button></div>
+      <p>호감도 확인 · ${FREE_CAP}단계 이후 해금 · 감소 목표 · 월 보기 · 지난주 대비 · 위젯</p>
+      <div class="btns"><button class="p" data-a="buy">연간 9,900원</button><button class="p" data-a="buy">평생 29,000원</button><button data-a="buy">구매 복원</button></div>
+      <p class="muted">구매 후 이 시트를 연 화면으로 돌아갑니다.</p>`;
+  },
+};
+
+function resultsHtml() {
+  const a = ui.add, q = a.q.trim().toLowerCase();
+  const res = CAT.drinks.filter(d => (a.brand === 'all' || d.brand_id === a.brand) && (!q || d.name.toLowerCase().includes(q) || (d.name_en || '').toLowerCase().includes(q)));
+  if (!res.length) return `<div class="list-item" data-a="manual">검색 결과 없음 · 직접 입력 ›</div>`;
+  const temp = { hot: 'HOT', iced: 'ICED', both: '' };
+  return res.slice(0, 400).map(d => {
+    const s = d.servings[0];
+    return `<div class="list-item" data-a="pick" data-v="${esc(d.id)}">${esc(d.name)} <span class="muted">${temp[d.temperature]} · ${esc(CAT.brandName[d.brand_id])}</span>
+      <div class="muted">${fmt(s.sugar_g, 'g')} · ${fmt(s.caffeine_mg, 'mg')} · ${esc(s.size_label)}</div></div>`;
+  }).join('') + (res.length > 400 ? `<div class="muted">외 ${res.length - 400}개, 검색어를 좁혀 보세요</div>` : '');
+}
+
+function pickValues() {
+  const a = ui.add, d = CAT.drink[a.pick], s = d.servings[a.size];
+  const caff = s.caffeine_variants.length ? s.caffeine_variants[a.variant].caffeine_mg : s.caffeine_mg;
+  return { d, s, sugar: s.sugar_g === null ? null : s.sugar_g * a.qty, caff: caff === null ? null : caff * a.qty };
+}
+function pickPanel() {
+  const a = ui.add, { d, s, sugar, caff } = pickValues();
+  return `<div class="panel"><b>${esc(d.name)}</b> <span class="muted">${esc(CAT.brands.find(b => b.id === d.brand_id).serving_note)}</span>
+    ${d.servings.length > 1 ? `<div class="seg">${d.servings.map((x, i) => `<button data-a="size" data-v="${i}" class="${a.size === i ? 'on' : ''}">${esc(x.size_label)}</button>`).join('')}</div>` : ''}
+    ${s.caffeine_variants.length ? `<div class="seg">${s.caffeine_variants.map((x, i) => `<button data-a="variant" data-v="${i}" class="${a.variant === i ? 'on' : ''}">${esc(x.label)}</button>`).join('')}</div>` : ''}
+    <div class="btns"><button data-a="qty" data-v="-1" ${a.qty <= 1 ? 'disabled' : ''}>−</button><span style="align-self:center">${a.qty}잔</span><button data-a="qty" data-v="1">+</button>
+    <span style="margin-left:auto;align-self:center;font-size:16px">${fmt(sugar, 'g')} · ${fmt(caff, 'mg')}</span></div>
+    <button class="p" style="width:100%" data-a="addPicked">추가</button></div>`;
+}
+
+const COVERS = {
+  feed(c) {
+    const lines = ORDER.map(k => {
+      const ch = CHARS[k], g = c.gained[k], before = level(c.base[k]), after = level(c.base[k] + g);
+      let lv = '';
+      if (after > before) lv = after > FREE_CAP && !S.pro ? ` · ${after}단계 해금은 Pro` : ` · ${after}단계! '${ch.unlocks[after - 1]}' 해금${c.late ? '' : ' (확정 시)'}`;
+      const left = k === 'roshu' ? `${Math.round(c.left.leftS * 10) / 10} g` : `${Math.round(c.left.leftC)} mg`;
+      return `<div class="panel"><b>${ch.name}</b>(먹는 중)에게 남은 ${ch.what} ${left}<br>호감도 +${g}${c.late ? '' : ' 예정'}${lv}</div>`;
+    }).join('');
+    return `<h1>${c.late ? `${c.key} 남은 음료` : '오늘 마감'}</h1>${lines}
+      <p class="muted">${c.late ? '적립 완료.' : `호감도는 하루 경계(${S.settings.boundary}:00)에 확정돼요. 그 전에 더 마시면 그만큼 줄어요.`}</p>
+      <div class="btns" style="margin-top:auto"><button data-a="profileFromFeed">호감도 자세히</button><button class="p" data-a="feedDone">완료</button></div>`;
+  },
+};
+
+// ---------- 동작 ----------
+function openPaywall() { ui.sheet = { s: 'paywall' }; }
+const ACT = {
+  start() { S.onboarded = true; S.firstDay = dayKey(now()); save(); },
+  askNo(k) { day(k).asked = true; save(); },
+  tab(v) { if (ui.tab === v) ui.stack[v] = []; ui.tab = v; },
+  push(v) { ui.stack[ui.tab].push({ s: v }); },
+  pop() { ui.stack[ui.tab].pop(); },
+  pro(v) { if (S.pro) ui.stack[ui.tab].push({ s: v }); else openPaywall(); },
+  profile() { if (S.pro) ui.stack.today.push({ s: 'affinity' }); else openPaywall(); },
+  profileFromFeed() { ui.cover = null; ACT.profile(); },
+  openPaywall,
+  buy() { S.pro = true; save(); ui.sheet = null; },
+  swipe(v) { ui.cup = (ui.cup + Number(v) + ORDER.length) % ORDER.length; },
+  poke(v) { react(v, '반응'); },
+  openBrand(v) { ui.add = { q: '', brand: v, pick: null, size: 0, variant: 0, qty: 1 }; ui.stack.today.push({ s: 'brandMenu' }); },
+  closeSheet() { ui.sheet = null; },
+  closeSheetBg(_, e) { if (e.target.classList.contains('overlay')) ui.sheet = null; else return 'skip'; },
+  pickCat() { document.getElementById('catFile').click(); return 'skip'; },
+  pick(v) { Object.assign(ui.add, { pick: v, size: 0, variant: 0, qty: 1 }); },
+  size(v) { ui.add.size = Number(v); ui.add.variant = 0; },
+  variant(v) { ui.add.variant = Number(v); },
+  qty(v) { ui.add.qty = Math.max(1, ui.add.qty + Number(v)); },
+  addPicked() {
+    const { d, s, sugar, caff } = pickValues();
+    const vl = s.caffeine_variants.length ? ` ${s.caffeine_variants[ui.add.variant].label}` : '';
+    addEntry({ name: d.name, brand: CAT.brandName[d.brand_id], size: s.size_label + vl, servingId: s.id, qty: ui.add.qty, sugar, caff });
+  },
+  manual() { ui.sheet = { s: 'manual' }; },
+  saveManual() {
+    const name = document.getElementById('mName').value.trim() || '직접 입력';
+    const num = id => { const v = document.getElementById(id).value; return v === '' ? null : Number(v); };
+    addEntry({ name, brand: '직접 입력', size: '', servingId: null, qty: 1, sugar: num('mS'), caff: num('mC') });
+  },
+  del(v) { S.entries = S.entries.filter(e => e.id !== v); save(); },
+  close() {
+    const k = dayKey(now()), d = day(k), t = totalsOf(k);
+    d.closedAt = now(); d.atClose = { leftS: t.leftS, leftC: t.leftC }; save();
+    ui.cover = { s: 'feed', key: k, late: false, left: t, gained: gainOf(t), base: { ...S.aff } };
+  },
+  feedLate(k) {
+    const d = day(k), t = totalsOf(k), g = gainOf(t), base = { ...S.aff };
+    Object.assign(d, { closedAt: now(), atClose: { leftS: t.leftS, leftC: t.leftC }, final: { leftS: t.leftS, leftC: t.leftC }, gained: g, finalizedAt: now() });
+    S.aff.roshu += g.roshu; S.aff.kain += g.kain; save();
+    ui.cover = { s: 'feed', key: k, late: true, left: t, gained: g, base };
+  },
+  feedDone() { ui.cover = null; },
+  noteOk(k) { S.days[k].noteDue = false; save(); },
+  set(v, el) { S.settings[el.dataset.k] = Number(v); save(); },
+  goal(v) { S.goal = Number(v); save(); },
+  t(v) { S.clockOffset += Number(v) * 3600e3; save(); },
+  tAt(v) {
+    const base = new Date(now()); base.setHours(0, 0, 0, 0);
+    if (new Date(now()).getHours() < S.settings.boundary) base.setDate(base.getDate() - 1);
+    S.clockOffset = base.getTime() + Number(v) * 3600e3 - Date.now(); save();
+  },
+  tReset() { S.clockOffset = 0; save(); },
+  togglePro() { S.pro = !S.pro; save(); },
+  wipe() { S = fresh(); save(); Object.assign(ui, { tab: 'today', stack: { today: [], trend: [], settings: [] }, sheet: null, cover: null }); },
+};
+
+function addEntry(e) {
+  S.entries.push({ id: 'e' + Math.random().toString(36).slice(2, 9), at: now(), ...e });
+  save();
+  ui.sheet = null;
+  ui.stack.today = [];
+  ui.tab = 'today';
+  const t = totalsOf(dayKey(now()));
+  const key = e.sugar ? 'roshu' : 'kain';
+  react(key, (key === 'roshu' ? t.overS : t.overC) > 0 ? '아쉬움' : '꿀꺽');
+}
+function react(key, text) {
+  ui.react = { key, text };
+  clearTimeout(react.t);
+  react.t = setTimeout(() => { ui.react = null; render(); }, 1200);
+}
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-a]');
+  if (!el) return;
+  const r = ACT[el.dataset.a](el.dataset.v, el.dataset.a === 'closeSheetBg' ? e : el);
+  if (r !== 'skip') render();
+});
+document.addEventListener('input', e => {
+  if (e.target.id === 'q') { ui.add.q = e.target.value; ui.add.pick = null; document.getElementById('results').innerHTML = resultsHtml(); document.querySelector('.panel')?.remove(); }
+  if (e.target.dataset.in) { S.settings[e.target.dataset.in] = Number(e.target.value); save(); if (e.target.type !== 'range') render(); else document.querySelector('#main div[style]').textContent = `카페인 ${e.target.value} mg`; }
+});
+// 컵 좌우 스와이프
+let sx = null;
+document.addEventListener('pointerdown', e => { sx = e.target.closest('#cupzone') ? e.clientX : null; });
+document.addEventListener('pointerup', e => {
+  if (sx === null) return;
+  const dx = e.clientX - sx; sx = null;
+  if (Math.abs(dx) > 40) { ACT.swipe(dx < 0 ? 1 : -1); render(); }
+});
+setInterval(() => { if (!/INPUT|SELECT/.test(document.activeElement?.tagName)) render(); }, 30000);
+
+render();
+loadCatalog();
+</script>
+</body>
+</html>

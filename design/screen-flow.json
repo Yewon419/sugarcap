@@ -1,0 +1,722 @@
+{
+  "version": 1,
+  "screens": [
+    {
+      "id": "launch",
+      "title": "앱 실행",
+      "kind": "system",
+      "group": "진입",
+      "x": 40,
+      "y": 60,
+      "note": "",
+      "elements": [
+        {
+          "id": "launch.e0",
+          "label": "첫 실행"
+        },
+        {
+          "id": "launch.e1",
+          "label": "이후 실행"
+        }
+      ]
+    },
+    {
+      "id": "onboarding",
+      "title": "온보딩",
+      "kind": "screen",
+      "group": "진입",
+      "x": 40,
+      "y": 250,
+      "note": "앱 설명 한 줄 + 하루 기준 기본값 안내. 계정 없음",
+      "elements": [
+        {
+          "id": "onboarding.e0",
+          "label": "시작"
+        }
+      ]
+    },
+    {
+      "id": "widget",
+      "title": "위젯 Small",
+      "kind": "external",
+      "group": "외부",
+      "x": 40,
+      "y": 470,
+      "note": "컵 + 오늘 수치",
+      "elements": [
+        {
+          "id": "widget.e0",
+          "label": "위젯 탭"
+        }
+      ]
+    },
+    {
+      "id": "tabbar",
+      "title": "탭 바",
+      "kind": "system",
+      "group": "탭",
+      "x": 370,
+      "y": 300,
+      "note": "탭 간 슬라이드 없음, 탭마다 자기 스택",
+      "elements": [
+        {
+          "id": "tabbar.e0",
+          "label": "오늘"
+        },
+        {
+          "id": "tabbar.e1",
+          "label": "추이"
+        },
+        {
+          "id": "tabbar.e2",
+          "label": "설정"
+        }
+      ]
+    },
+    {
+      "id": "today",
+      "title": "오늘",
+      "kind": "root",
+      "group": "오늘",
+      "x": 720,
+      "y": 60,
+      "note": "컵은 가득 찬 채로 시작, 기록할 때마다 줄어듦\n메인 = 당 컵 + 로슈, 스와이프하면 카페인 컵 + 카인\n기준 초과: 빈 컵 + 넘긴 양, 캐릭터 가벼운 반응",
+      "elements": [
+        {
+          "id": "today.e0",
+          "label": "컵 좌우 스와이프 (당 ↔ 카페인)"
+        },
+        {
+          "id": "today.e2",
+          "label": "브랜드 선택 (8개)"
+        },
+        {
+          "id": "today.e3",
+          "label": "기록 행 스와이프 (삭제)"
+        },
+        {
+          "id": "today.e4",
+          "label": "기록 행 롱프레스"
+        },
+        {
+          "id": "today.e5",
+          "label": "캐릭터 탭 (반응 동작)"
+        },
+        {
+          "id": "today.e6",
+          "label": "캐릭터 프로필 버튼"
+        },
+        {
+          "id": "today.e7",
+          "label": "오늘 마감 버튼 (저녁 8시 이후)"
+        },
+        {
+          "id": "today.e8",
+          "label": "어제 정산 배너 (다음 날 첫 실행)"
+        },
+        {
+          "id": "today.e9",
+          "label": "직접 입력"
+        }
+      ]
+    },
+    {
+      "id": "add",
+      "title": "브랜드 메뉴",
+      "kind": "screen",
+      "group": "오늘",
+      "x": 1080,
+      "y": 60,
+      "note": "오늘 스택에 푸시. 그 브랜드 메뉴 전체 + 브랜드 안 검색",
+      "elements": [
+        {
+          "id": "add.e0",
+          "label": "브랜드 안 검색"
+        },
+        {
+          "id": "add.e2",
+          "label": "음료 행 탭 → 하단 패널"
+        },
+        {
+          "id": "add.e3",
+          "label": "사이즈 · 원두 · 수량 선택"
+        },
+        {
+          "id": "add.e4",
+          "label": "추가 버튼"
+        },
+        {
+          "id": "add.e5",
+          "label": "직접 입력 (검색 0건)"
+        }
+      ]
+    },
+    {
+      "id": "manual",
+      "title": "직접 입력",
+      "kind": "sheet",
+      "group": "오늘",
+      "x": 1420,
+      "y": 230,
+      "note": "",
+      "elements": [
+        {
+          "id": "manual.e0",
+          "label": "이름 · 당 · 카페인"
+        },
+        {
+          "id": "manual.e1",
+          "label": "저장"
+        }
+      ]
+    },
+    {
+      "id": "recordMenu",
+      "title": "기록 메뉴",
+      "kind": "overlay",
+      "group": "오늘",
+      "x": 1080,
+      "y": 380,
+      "note": "컨텍스트 메뉴",
+      "elements": [
+        {
+          "id": "recordMenu.e0",
+          "label": "즐겨찾기 추가"
+        },
+        {
+          "id": "recordMenu.e1",
+          "label": "수량 변경"
+        },
+        {
+          "id": "recordMenu.e2",
+          "label": "삭제"
+        }
+      ]
+    },
+    {
+      "id": "trend",
+      "title": "추이",
+      "kind": "root",
+      "group": "추이",
+      "x": 720,
+      "y": 480,
+      "note": "당 · 카페인 7일 막대, 지난주 대비 한 줄",
+      "elements": [
+        {
+          "id": "trend.e0",
+          "label": "주 / 월 세그먼트"
+        },
+        {
+          "id": "trend.e1",
+          "label": "월 보기 (Pro)"
+        },
+        {
+          "id": "trend.e2",
+          "label": "감소 목표 설정 (Pro)"
+        }
+      ]
+    },
+    {
+      "id": "goal",
+      "title": "감소 목표",
+      "kind": "screen",
+      "group": "추이",
+      "x": 1080,
+      "y": 600,
+      "note": "하루 기준을 주·월 단위로 조금씩 낮추는 계획",
+      "elements": [
+        {
+          "id": "goal.e0",
+          "label": "목표 % 선택"
+        },
+        {
+          "id": "goal.e1",
+          "label": "저장"
+        }
+      ]
+    },
+    {
+      "id": "paywall",
+      "title": "페이월",
+      "kind": "sheet",
+      "group": "공통",
+      "x": 1420,
+      "y": 560,
+      "note": "Pro 기능을 누른 자리에서 열림",
+      "elements": [
+        {
+          "id": "paywall.e0",
+          "label": "연간 구매"
+        },
+        {
+          "id": "paywall.e1",
+          "label": "평생 구매"
+        },
+        {
+          "id": "paywall.e2",
+          "label": "구매 복원"
+        },
+        {
+          "id": "paywall.e3",
+          "label": "닫기"
+        }
+      ]
+    },
+    {
+      "id": "origin",
+      "title": "호출한 화면",
+      "kind": "system",
+      "group": "공통",
+      "x": 1760,
+      "y": 600,
+      "note": "페이월을 연 화면으로 복귀",
+      "elements": []
+    },
+    {
+      "id": "settings",
+      "title": "설정",
+      "kind": "root",
+      "group": "설정",
+      "x": 720,
+      "y": 780,
+      "note": "",
+      "elements": [
+        {
+          "id": "settings.e0",
+          "label": "하루 기준"
+        },
+        {
+          "id": "settings.e1",
+          "label": "하루 경계 · 마감 시각"
+        },
+        {
+          "id": "settings.e2",
+          "label": "즐겨찾기 정렬"
+        },
+        {
+          "id": "settings.e3",
+          "label": "Pro 구매 · 복원"
+        },
+        {
+          "id": "settings.e4",
+          "label": "데이터 갱신 날짜"
+        },
+        {
+          "id": "settings.e5",
+          "label": "정보 · 개인정보"
+        }
+      ]
+    },
+    {
+      "id": "baseline",
+      "title": "하루 기준",
+      "kind": "screen",
+      "group": "설정",
+      "x": 1080,
+      "y": 800,
+      "note": "",
+      "elements": [
+        {
+          "id": "baseline.e0",
+          "label": "당 프리셋 25 / 50 / 100 g"
+        },
+        {
+          "id": "baseline.e1",
+          "label": "카페인 슬라이더 100~600 mg"
+        }
+      ]
+    },
+    {
+      "id": "dayBoundary",
+      "title": "하루 경계 · 마감",
+      "kind": "screen",
+      "group": "설정",
+      "x": 1080,
+      "y": 960,
+      "note": "",
+      "elements": [
+        {
+          "id": "dayBoundary.e0",
+          "label": "시각 선택 (기본 새벽 4시)"
+        },
+        {
+          "id": "dayBoundary.e1",
+          "label": "마감 가능 시각 (기본 저녁 8시)"
+        }
+      ]
+    },
+    {
+      "id": "favSort",
+      "title": "즐겨찾기 정렬",
+      "kind": "screen",
+      "group": "설정",
+      "x": 1080,
+      "y": 1085,
+      "note": "",
+      "elements": [
+        {
+          "id": "favSort.e0",
+          "label": "드래그 정렬"
+        }
+      ]
+    },
+    {
+      "id": "about",
+      "title": "정보 · 개인정보",
+      "kind": "screen",
+      "group": "설정",
+      "x": 1080,
+      "y": 1210,
+      "note": "",
+      "elements": [
+        {
+          "id": "about.e0",
+          "label": "개인정보 (수집 없음)"
+        },
+        {
+          "id": "about.e1",
+          "label": "데이터 출처"
+        }
+      ]
+    },
+    {
+      "id": "feed",
+      "title": "마감 · 먹이기",
+      "kind": "sheet",
+      "group": "캐릭터",
+      "x": 1760,
+      "y": 60,
+      "note": "fullScreenCover. 남은 당 → 로슈, 남은 카페인 → 카인\n호감도는 하루 경계 시각에 확정",
+      "elements": [
+        {
+          "id": "feed.e0",
+          "label": "먹이기"
+        },
+        {
+          "id": "feed.e1",
+          "label": "단계 상승 연출 · 새 동작 해금"
+        },
+        {
+          "id": "feed.e2",
+          "label": "호감도 자세히"
+        },
+        {
+          "id": "feed.e3",
+          "label": "완료"
+        }
+      ]
+    },
+    {
+      "id": "affinity",
+      "title": "호감도",
+      "kind": "screen",
+      "group": "캐릭터",
+      "x": 2100,
+      "y": 60,
+      "note": "Pro. 수치 · 기록 · 단계별 해금 목록",
+      "elements": [
+        {
+          "id": "affinity.e0",
+          "label": "카인 / 로슈 전환"
+        },
+        {
+          "id": "affinity.e1",
+          "label": "호감도 기록"
+        },
+        {
+          "id": "affinity.e2",
+          "label": "해금 동작 · 표정 미리보기"
+        }
+      ]
+    },
+    {
+      "id": "settleNote",
+      "title": "정산 안내",
+      "kind": "overlay",
+      "group": "캐릭터",
+      "x": 1420,
+      "y": 400,
+      "note": "\"어젯밤 이후 마신 만큼 빠졌어요\" 한 줄",
+      "elements": [
+        {
+          "id": "settleNote.e0",
+          "label": "확인"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "id": "l0",
+      "from": "launch",
+      "el": "launch.e0",
+      "to": "onboarding",
+      "type": "replace",
+      "label": ""
+    },
+    {
+      "id": "l1",
+      "from": "launch",
+      "el": "launch.e1",
+      "to": "today",
+      "type": "replace",
+      "label": ""
+    },
+    {
+      "id": "l2",
+      "from": "onboarding",
+      "el": "onboarding.e0",
+      "to": "today",
+      "type": "replace",
+      "label": "뒤로 가기 불가"
+    },
+    {
+      "id": "l3",
+      "from": "widget",
+      "el": "widget.e0",
+      "to": "today",
+      "type": "deeplink",
+      "label": ""
+    },
+    {
+      "id": "l4",
+      "from": "tabbar",
+      "el": "tabbar.e0",
+      "to": "today",
+      "type": "tab",
+      "label": ""
+    },
+    {
+      "id": "l5",
+      "from": "tabbar",
+      "el": "tabbar.e1",
+      "to": "trend",
+      "type": "tab",
+      "label": ""
+    },
+    {
+      "id": "l6",
+      "from": "tabbar",
+      "el": "tabbar.e2",
+      "to": "settings",
+      "type": "tab",
+      "label": ""
+    },
+    {
+      "id": "l7",
+      "from": "today",
+      "el": "today.e2",
+      "to": "add",
+      "type": "push",
+      "label": ""
+    },
+    {
+      "id": "l8",
+      "from": "today",
+      "el": "today.e4",
+      "to": "recordMenu",
+      "type": "overlay",
+      "label": ""
+    },
+    {
+      "id": "l9",
+      "from": "add",
+      "el": "add.e4",
+      "to": "today",
+      "type": "dismiss",
+      "label": "컵 줄어듦"
+    },
+    {
+      "id": "l10",
+      "from": "add",
+      "el": "add.e5",
+      "to": "manual",
+      "type": "sheet",
+      "label": ""
+    },
+    {
+      "id": "l11",
+      "from": "manual",
+      "el": "manual.e1",
+      "to": "today",
+      "type": "dismiss",
+      "label": ""
+    },
+    {
+      "id": "l12",
+      "from": "trend",
+      "el": "trend.e1",
+      "to": "paywall",
+      "type": "sheet",
+      "label": "무료 사용자"
+    },
+    {
+      "id": "l13",
+      "from": "trend",
+      "el": "trend.e2",
+      "to": "paywall",
+      "type": "sheet",
+      "label": "무료 사용자"
+    },
+    {
+      "id": "l14",
+      "from": "trend",
+      "el": "trend.e2",
+      "to": "goal",
+      "type": "push",
+      "label": "Pro"
+    },
+    {
+      "id": "l15",
+      "from": "goal",
+      "el": "goal.e1",
+      "to": "trend",
+      "type": "dismiss",
+      "label": ""
+    },
+    {
+      "id": "l16",
+      "from": "paywall",
+      "el": "paywall.e0",
+      "to": "origin",
+      "type": "dismiss",
+      "label": "구매 후"
+    },
+    {
+      "id": "l17",
+      "from": "paywall",
+      "el": "paywall.e1",
+      "to": "origin",
+      "type": "dismiss",
+      "label": "구매 후"
+    },
+    {
+      "id": "l18",
+      "from": "paywall",
+      "el": "paywall.e3",
+      "to": "origin",
+      "type": "dismiss",
+      "label": ""
+    },
+    {
+      "id": "l19",
+      "from": "settings",
+      "el": "settings.e0",
+      "to": "baseline",
+      "type": "push",
+      "label": ""
+    },
+    {
+      "id": "l20",
+      "from": "settings",
+      "el": "settings.e1",
+      "to": "dayBoundary",
+      "type": "push",
+      "label": ""
+    },
+    {
+      "id": "l21",
+      "from": "settings",
+      "el": "settings.e2",
+      "to": "favSort",
+      "type": "push",
+      "label": ""
+    },
+    {
+      "id": "l22",
+      "from": "settings",
+      "el": "settings.e3",
+      "to": "paywall",
+      "type": "sheet",
+      "label": ""
+    },
+    {
+      "id": "l23",
+      "from": "settings",
+      "el": "settings.e5",
+      "to": "about",
+      "type": "push",
+      "label": ""
+    },
+    {
+      "id": "l24",
+      "from": "today",
+      "el": "today.e7",
+      "to": "feed",
+      "type": "sheet",
+      "label": "저녁 8시 이후"
+    },
+    {
+      "id": "l25",
+      "from": "today",
+      "el": "today.e8",
+      "to": "feed",
+      "type": "sheet",
+      "label": "어제 미마감"
+    },
+    {
+      "id": "l26",
+      "from": "today",
+      "el": "today.e8",
+      "to": "settleNote",
+      "type": "overlay",
+      "label": "마감 후 기록 있음"
+    },
+    {
+      "id": "l27",
+      "from": "today",
+      "el": "today.e6",
+      "to": "affinity",
+      "type": "push",
+      "label": "Pro"
+    },
+    {
+      "id": "l28",
+      "from": "today",
+      "el": "today.e6",
+      "to": "paywall",
+      "type": "sheet",
+      "label": "무료 사용자"
+    },
+    {
+      "id": "l29",
+      "from": "feed",
+      "el": "feed.e2",
+      "to": "affinity",
+      "type": "push",
+      "label": "Pro"
+    },
+    {
+      "id": "l30",
+      "from": "feed",
+      "el": "feed.e2",
+      "to": "paywall",
+      "type": "sheet",
+      "label": "무료 사용자"
+    },
+    {
+      "id": "l31",
+      "from": "feed",
+      "el": "feed.e3",
+      "to": "today",
+      "type": "dismiss",
+      "label": ""
+    },
+    {
+      "id": "l32",
+      "from": "settleNote",
+      "el": "settleNote.e0",
+      "to": "today",
+      "type": "dismiss",
+      "label": ""
+    },
+    {
+      "id": "l33",
+      "from": "today",
+      "el": "today.e9",
+      "to": "manual",
+      "type": "sheet",
+      "label": ""
+    }
+  ]
+}

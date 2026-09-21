@@ -1,0 +1,140 @@
+import OSLog
+import SwiftData
+import SwiftUI
+
+/// 오늘 화면(SPEC §4.1). 컵은 가득 찬 채로 시작해 기록할 때마다 줄어든다.
+struct TodayView: View {
+    @Environment(\.modelContext) private var context
+    @Query private var settingsRows: [AppSettings]
+    @Query(sort: \Entry.loggedAt, order: .reverse) private var entries: [Entry]
+
+    @State private var side: CupSide = .sugar
+
+    private static let logger = Logger(subsystem: "com.sugarcap.app", category: "today")
+
+    private var limits: DailyLimits { settingsRows.first?.limits ?? .default }
+    private var boundaryHour: Int { settingsRows.first?.dayBoundaryHour ?? 4 }
+
+    var body: some View {
+        NavigationStack {
+            // 경계 시각(기본 새벽 4시)을 넘기면 화면을 켜 둔 채로도 오늘이 바뀌어야 한다.
+            TimelineView(.everyMinute) { timeline in
+                content(now: timeline.date)
+            }
+            .navigationTitle("오늘")
+        }
+        .task { ensureSettings() }
+    }
+
+    @ViewBuilder
+    private func content(now: Date) -> some View {
+        let today = DayKey(at: now, boundaryHour: boundaryHour)
+        let todays = entries.filter { $0.dayKey(boundaryHour: boundaryHour) == today }
+        let totals = DayMath.totals(todays.map(\.consumption), limits: limits)
+
+        List {
+            cupPager(totals: totals)
+                .listRowInsets(EdgeInsets())
+                .listRowSeparator(.hidden)
+
+            summary(totals: totals)
+                .listRowSeparator(.hidden)
+
+            Section {
+                if todays.isEmpty {
+                    Text("첫 잔을 기록해 보세요")
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(todays) { entry in
+                        EntryRow(entry: entry)
+                    }
+                    .onDelete { offsets in
+                        delete(offsets.map { todays[$0] })
+                    }
+                }
+            } header: {
+                Text("오늘 기록")
+            }
+        }
+        .listStyle(.plain)
+    }
+
+    private func cupPager(totals: DayTotals) -> some View {
+        TabView(selection: $side) {
+            ForEach(CupSide.allCases) { cupSide in
+                cupPage(cupSide, totals: totals)
+                    .tag(cupSide)
+            }
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        // 장면은 9:16이지만 아래에 수치·기록이 와야 하므로 3:4로 잘라 쓴다.
+        .aspectRatio(3.0 / 4.0, contentMode: .fit)
+    }
+
+    private func cupPage(_ cupSide: CupSide, totals: DayTotals) -> some View {
+        let step = CupLevel.step(
+            remaining: cupSide.remaining(totals), limit: cupSide.limit(limits)
+        )
+        return CupView(step: step)
+            .overlay(alignment: .bottomTrailing) {
+                // 캐릭터는 컵에 붙어 있다(§4.1). 잔 오른쪽 냅킨 위에 기대 세운다.
+                CharacterView(side: cupSide, isOverLimit: cupSide.overflow(totals) > 0)
+                    .frame(width: 112, height: 112)
+                    .padding(.trailing, 20)
+                    .padding(.bottom, 28)
+            }
+    }
+
+    private func summary(totals: DayTotals) -> some View {
+        let remaining = side.remaining(totals)
+        let limit = side.limit(limits)
+        let overflow = side.overflow(totals)
+
+        return VStack(spacing: 6) {
+            HStack(spacing: 6) {
+                ForEach(CupSide.allCases) { cupSide in
+                    Circle()
+                        .fill(cupSide == side ? Color.primary : Color.secondary.opacity(0.35))
+                        .frame(width: 6, height: 6)
+                }
+            }
+            .accessibilityHidden(true)
+
+            Text("\(side.label) 남은 \(Amount.number(remaining)) \(side.unit) / \(Amount.number(limit)) \(side.unit)")
+                .font(.title3.weight(.semibold))
+                .monospacedDigit()
+                .contentTransition(.numericText())
+                .animation(.spring(response: 0.4), value: remaining)
+
+            if overflow > 0 {
+                Text("+\(Amount.number(overflow)) \(side.unit) 넘김")
+                    .font(.subheadline)
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .accessibilityElement(children: .combine)
+    }
+
+    private func delete(_ targets: [Entry]) {
+        for entry in targets {
+            context.delete(entry)
+        }
+    }
+
+    private func ensureSettings() {
+        do {
+            _ = try AppSettings.current(in: context)
+        } catch {
+            // 실패해도 화면은 기본 기준(§3)으로 돈다. 설정 저장만 안 되는 상태다.
+            Self.logger.error("설정 행을 만들지 못함: \(String(describing: error), privacy: .public)")
+        }
+    }
+}
+
+#Preview {
+    TodayView()
+        .modelContainer(for: [Entry.self, AppSettings.self], inMemory: true)
+}

@@ -18,7 +18,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # 컴파일만 확인한다. 서명·시크릿 없이 돈다.
+  # 컴파일 + 테스트. 서명·시크릿 없이 돈다.
   build:
     if: github.event_name != 'workflow_dispatch'
     runs-on: macos-15
@@ -36,14 +36,30 @@ jobs:
         working-directory: SugarCap
         run: xcodegen generate
 
-      - name: 빌드 (서명 없음)
+      # 시뮬레이터 이름은 Xcode 버전마다 바뀐다. 이름을 박지 않고 있는 것 중에서 고른다.
+      - name: 시뮬레이터 선택
+        run: |
+          UDID=$(xcrun simctl list devices available -j | /usr/bin/python3 -c '
+          import json, sys
+          for runtime, devices in sorted(json.load(sys.stdin)["devices"].items()):
+              if "iOS" not in runtime:
+                  continue
+              for device in devices:
+                  if device.get("isAvailable") and "iPhone" in device["name"]:
+                      print(device["udid"], device["name"], sep="\t")
+                      sys.exit(0)
+          sys.exit(1)')
+          echo "SIM_UDID=${UDID%%$'\t'*}" >> "$GITHUB_ENV"
+          echo "선택: ${UDID#*$'\t'}"
+
+      - name: 테스트 (서명 없음)
         working-directory: SugarCap
         run: |
-          xcodebuild build \
+          xcodebuild test \
             -project SugarCap.xcodeproj \
             -scheme SugarCap \
             -configuration Debug \
-            -destination 'generic/platform=iOS Simulator' \
+            -destination "id=$SIM_UDID" \
             CODE_SIGNING_ALLOWED=NO
 
   # TestFlight 업로드. Actions 탭에서 수동 실행한다.

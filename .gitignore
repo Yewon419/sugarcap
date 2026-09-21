@@ -10,6 +10,7 @@ tools/scrape/.raw/
 # XcodeGen 산출물 (project.yml이 SSOT)
 SugarCap/SugarCap.xcodeproj/
 SugarCap/Info.plist
+SugarCap/Tests-Info.plist
 
 # Xcode
 DerivedData/

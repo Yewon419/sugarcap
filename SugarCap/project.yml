@@ -20,6 +20,9 @@ targets:
     sources:
       - path: Sources
       - path: Resources
+      # 수집 파이프라인 산출물을 그대로 번들에 넣는다. 복사본을 두면 갱신이 갈라진다.
+      - path: ../data/catalog.json
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.sugarcap.app
@@ -40,6 +43,26 @@ targets:
           - UIInterfaceOrientationPortrait
         ITSAppUsesNonExemptEncryption: false
 
+  SugarCapTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Tests
+      # 테스트는 실제 카탈로그를 읽는다(목 없음). 테스트 번들에도 같은 파일이 필요하다.
+      - path: ../data/catalog.json
+        buildPhase: resources
+    dependencies:
+      - target: SugarCap
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.sugarcap.app.tests
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/SugarCap.app/SugarCap
+        BUNDLE_LOADER: $(TEST_HOST)
+        SWIFT_STRICT_CONCURRENCY: complete
+    info:
+      path: Tests-Info.plist
+      properties: {}
+
 schemes:
   SugarCap:
     build:
@@ -49,6 +72,8 @@ schemes:
       config: Debug
     test:
       config: Debug
+      targets:
+        - name: SugarCapTests
     archive:
       config: Release
     management:

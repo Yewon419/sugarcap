@@ -21,7 +21,7 @@ jobs:
   # 컴파일 + 테스트. 서명·시크릿 없이 돈다.
   build:
     if: github.event_name != 'workflow_dispatch'
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -134,7 +134,7 @@ jobs:
   # TestFlight 업로드. Actions 탭에서 수동 실행한다.
   testflight:
     if: github.event_name == 'workflow_dispatch'
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4

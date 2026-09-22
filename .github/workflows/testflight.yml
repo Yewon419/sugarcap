@@ -52,9 +52,19 @@ jobs:
           echo "SIM_UDID=${UDID%%$'\t'*}" >> "$GITHUB_ENV"
           echo "선택: ${UDID#*$'\t'}"
 
-      - name: 테스트 (서명 없음)
+      # 기록 루프 UI 테스트를 화면째 녹화한다(SPEC §8 Phase 1 게이트 "플로우 녹화").
+      # 녹화는 부팅된 기기에만 붙으므로 xcodebuild보다 먼저 부팅하고, 테스트가 실패해도 영상은 닫는다.
+      - name: 테스트 (서명 없음) + 플로우 녹화
         working-directory: SugarCap
         run: |
+          mkdir -p "$RUNNER_TEMP/flow"
+          xcrun simctl boot "$SIM_UDID"
+          xcrun simctl bootstatus "$SIM_UDID" -b
+          xcrun simctl io "$SIM_UDID" recordVideo --codec=h264 --force "$RUNNER_TEMP/flow/record-flow.mp4" &
+          REC=$!
+          sleep 2
+
+          set +e
           xcodebuild test \
             -project SugarCap.xcodeproj \
             -scheme SugarCap \
@@ -63,6 +73,21 @@ jobs:
             -derivedDataPath build \
             -resultBundlePath "$RUNNER_TEMP/Tests.xcresult" \
             CODE_SIGNING_ALLOWED=NO
+          STATUS=$?
+          set -e
+
+          # SIGINT여야 recordVideo가 mp4 헤더를 마저 쓰고 끝난다.
+          kill -INT "$REC"
+          wait "$REC" || true
+          ls -la "$RUNNER_TEMP/flow"
+          exit "$STATUS"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: flow-video
+          path: ${{ runner.temp }}/flow
+          retention-days: 14
 
       # UI 테스트가 실패하면 그 순간의 스크린샷이 xcresult에 들어 있다.
       - uses: actions/upload-artifact@v4

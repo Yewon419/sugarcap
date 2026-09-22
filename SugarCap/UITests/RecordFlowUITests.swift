@@ -63,11 +63,28 @@ private struct Driver {
         app.descendants(matching: .any)[identifier]
     }
 
+    /// `isHittable`은 요소가 일부만 보여도 참이다. 화면 아래 끝에 걸친 버튼은 탭 지점이
+    /// 홈 인디케이터 제스처 영역에 떨어져 시스템이 먹는다(실측: 874pt 화면에서 y=851~892 칩).
+    /// 그래서 내비게이션 바 아래 ~ 하단 여유 위, 온전히 안쪽에 들어올 때까지 움직인다.
     func reveal(_ target: XCUIElement, maxSwipes: Int = 6) {
-        var swipes = 0
-        while !(target.exists && target.isHittable), swipes < maxSwipes {
-            app.swipeUp()
-            swipes += 1
+        let window = app.windows.firstMatch.frame
+        let safeTop = window.minY + 160
+        let safeBottom = window.maxY - 120
+
+        for _ in 0..<maxSwipes {
+            guard target.exists else {
+                app.swipeUp()
+                continue
+            }
+            let frame = target.frame
+            if frame.minY >= safeTop, frame.maxY <= safeBottom, target.isHittable {
+                return
+            }
+            if frame.minY < safeTop {
+                app.swipeDown()
+            } else {
+                app.swipeUp()
+            }
         }
     }
 

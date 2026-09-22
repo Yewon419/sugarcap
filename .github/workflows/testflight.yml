@@ -61,7 +61,16 @@ jobs:
             -configuration Debug \
             -destination "id=$SIM_UDID" \
             -derivedDataPath build \
+            -resultBundlePath "$RUNNER_TEMP/Tests.xcresult" \
             CODE_SIGNING_ALLOWED=NO
+
+      # UI 테스트가 실패하면 그 순간의 스크린샷이 xcresult에 들어 있다.
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-results
+          path: ${{ runner.temp }}/Tests.xcresult
+          retention-days: 7
 
       # 개발 환경에 Mac이 없어서 화면을 볼 수 있는 경로가 이것뿐이다(SPEC §8 Phase 1 게이트).
       # 테스트가 만든 .app을 그대로 설치해 찍는다. 재설치는 데이터를 지우지 않으므로

@@ -84,7 +84,10 @@ private struct Driver {
     }
 
     func type(_ text: String, into field: XCUIElement) {
-        XCTAssertTrue(field.waitForExistence(timeout: 5))
+        XCTAssertTrue(
+            field.waitForExistence(timeout: 5),
+            "\(field) 없음. 현재 화면 계층:\n\(app.debugDescription)"
+        )
         field.tap()
         field.typeText(text)
     }

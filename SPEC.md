@@ -67,7 +67,7 @@ Favorite   { servingId, order }
 Settings   { sugarLimitG, caffeineLimitMg, reductionGoal?, dayBoundaryHour, closeFromHour }
 DaySettlement { day, closedAt: Date?, sugarLeftAtCloseG?, caffeineLeftAtCloseMg?,
                 finalSugarLeftG?, finalCaffeineLeftMg?, finalizedAt: Date? }
-Affinity   { character: kain|roshu, points: Int, level: Int }
+Affinity   { character: kain|roshu, points: Int }   // 단계는 저장하지 않고 points에서 계산(§9.5)
 ```
 Entry는 기록 시점 값을 스냅샷한다. 카탈로그 갱신으로 과거 기록이 바뀌면 안 된다.
 
@@ -239,6 +239,11 @@ Entry는 기록 시점 값을 스냅샷한다. 카탈로그 갱신으로 과거 
   - 판정: 그 주 7일 중 **5일 이상** 하루 합계가 그 주 기준 이하면 달성. 기록 0인 날도 기준 이하로 센다(자기 보고 앱, §9.3).
   - 미달이면 다음 주 기준을 낮추지 않고 유지한다. 벌점·죄책감 문구 없음. 그만큼 계획 기간이 늘어난다.
   - 목표치에 도달하면 계획을 끝내고 목표치를 하루 기준으로 유지한다.
+- **구현 세부(2026-09-23, Phase 2b):**
+  - "오늘 마감"은 연출과 마감 시점 값만 남기고 **적립은 하루 경계가 지난 뒤 첫 실행에 최종 값으로** 한다(§2.2 "final로만 적립"을 따른 결과). 그래서 마감 날 밤엔 단계 상승이 뜨지 않고, 다음 날 배너("지난밤 먹인 음료가 반영됐어요" + 단계 상승)로 알린다. 어제 미마감분·"안 마셨어요"는 하루가 이미 끝났으니 먹이는 즉시 적립·연출한다.
+  - 호감도 수치는 무료 화면에 보이지 않는다(§6 수치 확인은 Pro). 먹이기 화면은 반응 문구와 단계 상승만 보여 준다.
+  - 앱을 연 날 판정은 `DaySettlement` 행 존재로 한다(오늘 화면이 뜰 때 오늘 행을 만든다). 가장 이른 행이 설치 날이다.
+  - 적립에 쓰는 하루 기준은 확정 시점의 설정값이다. 날마다 스냅샷하지 않는다.
 
 ## 10. 게이트 기록
 - 2026-09-15 게이트 1: 지금카페인 스크린샷 4장 대조. 당 기준선·목표·위젯·컵 비주얼 전부 없음 확인.

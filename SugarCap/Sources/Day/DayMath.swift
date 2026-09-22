@@ -19,6 +19,13 @@ struct DayKey: Hashable, Comparable, Codable, CustomStringConvertible, Sendable 
         self.day = day
     }
 
+    /// `rawValue`("YYYY-MM-DD")를 되읽는다. 정산 행이 날짜를 이 문자열로 저장한다.
+    init?(rawValue: String) {
+        let parts = rawValue.split(separator: "-").compactMap { Int($0) }
+        guard parts.count == 3 else { return nil }
+        self.init(year: parts[0], month: parts[1], day: parts[2])
+    }
+
     /// 경계 시각만큼 뒤로 민 뒤 달력 날짜를 읽는다.
     /// 경계가 4시면 03:59는 전날, 04:00은 당일이다.
     init(at date: Date, boundaryHour: Int, calendar: Calendar = .current) {

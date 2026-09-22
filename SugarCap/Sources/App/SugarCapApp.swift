@@ -20,6 +20,6 @@ struct SugarCapApp: App {
         WindowGroup {
             RootView(catalog: catalog)
         }
-        .modelContainer(for: [Entry.self, AppSettings.self])
+        .modelContainer(for: [Entry.self, AppSettings.self, DaySettlement.self, Affinity.self])
     }
 }

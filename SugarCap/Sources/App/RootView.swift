@@ -74,5 +74,5 @@ struct RootView: View {
 
 #Preview {
     RootView(catalog: Result { CatalogIndex(catalog: try CatalogStore.loadBundled()) })
-        .modelContainer(for: [Entry.self, AppSettings.self], inMemory: true)
+        .modelContainer(for: [Entry.self, AppSettings.self, DaySettlement.self, Affinity.self], inMemory: true)
 }

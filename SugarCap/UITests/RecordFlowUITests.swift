@@ -81,8 +81,7 @@ extension RecordFlowUITests {
 
         app.tabBars.buttons["설정"].tap()
         let preset100 = app.buttons["100 g"]
-        XCTAssertTrue(preset100.waitForExistence(timeout: 5), "당 프리셋이 안 보임:
-\(app.debugDescription)")
+        XCTAssertTrue(preset100.waitForExistence(timeout: 5), "당 프리셋이 안 보임:\n\(app.debugDescription)")
         preset100.tap()
 
         app.tabBars.buttons["오늘"].tap()

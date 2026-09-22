@@ -88,8 +88,18 @@ extension RecordFlowUITests {
         XCTAssertTrue(summary.waitForExistence(timeout: 5))
         XCTAssertTrue(summary.label.contains("/ 100 g"), "프리셋 변경이 오늘 화면에 안 반영됨: \(summary.label)")
 
+        // 되돌리기도 확인한다. 확인 없이 탭만 하면 실패해도 통과하고, 스크린샷이 100 g 상태로 찍힌다.
         app.tabBars.buttons["설정"].tap()
-        app.buttons["50 g"].tap()
+        let preset50 = app.buttons["50 g"]
+        XCTAssertTrue(preset50.waitForExistence(timeout: 5))
+        preset50.tap()
+        let restored = NSPredicate(format: "isSelected == true")
+        expectation(for: restored, evaluatedWith: preset50)
+        waitForExpectations(timeout: 5)
+
+        app.tabBars.buttons["오늘"].tap()
+        XCTAssertTrue(summary.waitForExistence(timeout: 5))
+        XCTAssertTrue(summary.label.contains("/ 50 g"), "기본값으로 안 돌아옴: \(summary.label)")
     }
 }
 

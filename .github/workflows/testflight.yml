@@ -109,11 +109,14 @@ jobs:
           xcrun simctl bootstatus "$SIM_UDID" -b
           xcrun simctl install "$SIM_UDID" "$APP"
 
+          # 네 번째 인자부터는 앱 실행 인자다. `-key value`는 UserDefaults 인자 도메인으로 들어가
+          # 저장 없이 그 실행에만 적용된다(`-initialTab settings`, `-onboardingCompleted NO`).
           shoot() {
             local name="$1" appearance="$2" size="$3"
+            shift 3
             xcrun simctl ui "$SIM_UDID" appearance "$appearance"
             xcrun simctl ui "$SIM_UDID" content_size "$size"
-            xcrun simctl launch "$SIM_UDID" com.sugarcap.app
+            xcrun simctl launch "$SIM_UDID" com.sugarcap.app "$@"
             sleep 4
             xcrun simctl io "$SIM_UDID" screenshot "$OUT/$name.png"
             xcrun simctl terminate "$SIM_UDID" com.sugarcap.app
@@ -123,6 +126,12 @@ jobs:
           shoot dark dark large
           # 표준 최대치(XXXL)를 넘는 접근성 크기로 레이아웃이 무너지는지 본다.
           shoot type-ax-xl light accessibility-extra-large
+          for mode in light dark; do
+            shoot "settings-$mode" "$mode" large -initialTab settings
+            shoot "onboarding-$mode" "$mode" large -onboardingCompleted NO
+          done
+          shoot settings-type-ax-xl light accessibility-extra-large -initialTab settings
+          shoot onboarding-type-ax-xl light accessibility-extra-large -onboardingCompleted NO
           ls -la "$OUT"
 
       - uses: actions/upload-artifact@v4

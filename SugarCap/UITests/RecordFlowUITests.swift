@@ -3,7 +3,8 @@ import XCTest
 /// 기록 루프 end-to-end(SPEC §8 Phase 1 게이트). 실제 앱을 띄워 탭으로만 진행한다.
 /// 브랜드 메뉴 경로와 직접 입력 경로를 둘 다 지나고, 컵 수치가 줄었는지 본다.
 ///
-/// CI의 시뮬레이터는 매번 새것이라 기록 0건에서 시작한다고 가정한다.
+/// CI의 시뮬레이터는 매번 새것이라 기록 0건·온보딩 전 상태에서 시작한다고 가정한다.
+/// 테스트는 이름순으로 돌아 이 테스트가 먼저다.
 final class RecordFlowUITests: XCTestCase {
     @MainActor
     func testRecordingFromBrandMenuAndManualEntryShrinksTheCup() throws {
@@ -11,6 +12,11 @@ final class RecordFlowUITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
         let ui = Driver(app: app)
+
+        // 새 시뮬레이터라 온보딩이 떠야 한다(§4.5).
+        let start = app.buttons["onboarding-start"]
+        XCTAssertTrue(start.waitForExistence(timeout: 15), "첫 실행에 온보딩이 없음")
+        start.tap()
 
         let summary = ui.element("cup-summary")
         XCTAssertTrue(summary.waitForExistence(timeout: 15))
@@ -51,6 +57,40 @@ final class RecordFlowUITests: XCTestCase {
             summary.label.contains("50 g / 50 g"),
             "당 30 g 이상을 기록했는데 컵이 그대로임: \(summary.label)"
         )
+    }
+}
+
+extension RecordFlowUITests {
+    /// 설정에서 당 하루 기준을 바꾸면 오늘 화면 수치의 분모가 바로 바뀐다(§4.4).
+    /// 끝나면 기본값 50 g으로 되돌린다. 뒤이은 CI 스크린샷이 기본 상태를 찍어야 한다.
+    @MainActor
+    func testSugarPresetChangesTodayLimit() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launch()
+
+        // 단독 실행이면 온보딩부터 뜬다.
+        let start = app.buttons["onboarding-start"]
+        if start.waitForExistence(timeout: 5) {
+            start.tap()
+        }
+
+        let summary = app.descendants(matching: .any)["cup-summary"]
+        XCTAssertTrue(summary.waitForExistence(timeout: 15))
+        XCTAssertTrue(summary.label.contains("/ 50 g"), "기본 당 기준이 50 g이 아님: \(summary.label)")
+
+        app.tabBars.buttons["설정"].tap()
+        let preset100 = app.buttons["100 g"]
+        XCTAssertTrue(preset100.waitForExistence(timeout: 5), "당 프리셋이 안 보임:
+\(app.debugDescription)")
+        preset100.tap()
+
+        app.tabBars.buttons["오늘"].tap()
+        XCTAssertTrue(summary.waitForExistence(timeout: 5))
+        XCTAssertTrue(summary.label.contains("/ 100 g"), "프리셋 변경이 오늘 화면에 안 반영됨: \(summary.label)")
+
+        app.tabBars.buttons["설정"].tap()
+        app.buttons["50 g"].tap()
     }
 }
 

@@ -45,7 +45,6 @@ struct TodayView: View {
         }
         // 기록할 때만 햅틱 1회(§4.1). 삭제로 줄어들 때는 울리지 않는다.
         .sensoryFeedback(.success, trigger: entries.count) { old, new in new > old }
-        .task { ensureSettings() }
     }
 
     @ViewBuilder
@@ -185,15 +184,6 @@ struct TodayView: View {
             try context.save()
         } catch {
             Self.logger.error("\(action, privacy: .public) 실패: \(String(describing: error), privacy: .public)")
-        }
-    }
-
-    private func ensureSettings() {
-        do {
-            _ = try AppSettings.current(in: context)
-        } catch {
-            // 실패해도 화면은 기본 기준(§3)으로 돈다. 설정 저장만 안 되는 상태다.
-            Self.logger.error("설정 행을 만들지 못함: \(String(describing: error), privacy: .public)")
         }
     }
 }

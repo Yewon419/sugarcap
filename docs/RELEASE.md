@@ -28,7 +28,10 @@ private 리포의 macOS 러너는 **분당 10배로 과금**된다(무료 2,000�
 
 ### 3. App Store Connect API 키 발급
 App Store Connect > **사용자 및 액세스** > **통합** 탭 > **App Store Connect API** >
-**팀 키** > `+` → 역할 **App Manager** → 생성.
+**팀 키** > `+` → 역할 **관리자(Admin)** → 생성.
+
+> App Manager(앱 관리) 키는 안 된다. export의 cloud signing이 `Cloud signing permission error`로 거부한다.
+> 키 권한은 생성 후 올릴 수 없으니 처음부터 관리자로 만든다.
 
 발급 직후 세 가지를 확보한다:
 - **Issuer ID** — 키 목록 상단에 표시되는 UUID

@@ -37,6 +37,9 @@ targets:
       path: Info.plist
       properties:
         CFBundleDisplayName: 슈가캡
+        # 지정하지 않으면 XcodeGen이 1.0 / 1을 박아 넣는다. 빌드 설정을 따르게 한다.
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleDevelopmentRegion: ko
         UILaunchScreen: {}
         # 라이트 모드 전용(SPEC §5).

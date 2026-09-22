@@ -123,13 +123,10 @@ jobs:
           }
 
           shoot light light large
-          shoot dark dark large
           # 표준 최대치(XXXL)를 넘는 접근성 크기로 레이아웃이 무너지는지 본다.
           shoot type-ax-xl light accessibility-extra-large
-          for mode in light dark; do
-            shoot "settings-$mode" "$mode" large -initialTab settings
-            shoot "onboarding-$mode" "$mode" large -onboardingCompleted NO
-          done
+          shoot settings light large -initialTab settings
+          shoot onboarding light large -onboardingCompleted NO
           shoot settings-type-ax-xl light accessibility-extra-large -initialTab settings
           shoot onboarding-type-ax-xl light accessibility-extra-large -onboardingCompleted NO
           ls -la "$OUT"

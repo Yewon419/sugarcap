@@ -39,6 +39,8 @@ targets:
         CFBundleDisplayName: 슈가캡
         CFBundleDevelopmentRegion: ko
         UILaunchScreen: {}
+        # 라이트 모드 전용(SPEC §5).
+        UIUserInterfaceStyle: Light
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         ITSAppUsesNonExemptEncryption: false

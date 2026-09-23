@@ -103,6 +103,39 @@ extension RecordFlowUITests {
     }
 }
 
+extension RecordFlowUITests {
+    /// 감소 목표를 만들면 하루 기준이 목표 관리로 넘어가고, 그만두면 되돌아온다(§4.3·§9.5).
+    @MainActor
+    func testStartAndStopSugarReductionGoal() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launch()
+
+        let start = app.buttons["onboarding-start"]
+        if start.waitForExistence(timeout: 5) {
+            start.tap()
+        }
+        app.tabBars.buttons["설정"].tap()
+
+        let startGoal = app.buttons["start-goal-sugar"]
+        XCTAssertTrue(startGoal.waitForExistence(timeout: 10))
+        startGoal.tap()
+
+        let confirm = app.buttons["goal-start"]
+        XCTAssertTrue(confirm.waitForExistence(timeout: 5), "목표 시트가 안 열림")
+        confirm.tap()
+
+        // 목표가 도는 동안에는 당 프리셋 대신 목표 진행 행이 보인다.
+        let stopGoal = app.buttons["그만두기"]
+        XCTAssertTrue(stopGoal.waitForExistence(timeout: 5), "목표 진행 행이 안 보임")
+        XCTAssertFalse(app.buttons["25 g"].exists, "목표 중에는 프리셋을 만지지 못한다")
+
+        stopGoal.tap()
+        XCTAssertTrue(startGoal.waitForExistence(timeout: 5), "그만두면 다시 만들 수 있어야 한다")
+        XCTAssertTrue(app.buttons["25 g"].waitForExistence(timeout: 5), "프리셋이 돌아와야 한다")
+    }
+}
+
 /// List는 화면에 보이는 셀만 접근성 트리에 올린다. 아래로 밀려난 요소는 스크롤해서 꺼낸다.
 @MainActor
 private struct Driver {

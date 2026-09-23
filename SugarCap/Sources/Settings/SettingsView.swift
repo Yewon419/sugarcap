@@ -1,3 +1,4 @@
+import OSLog
 import SwiftData
 import SwiftUI
 
@@ -7,13 +8,15 @@ struct SettingsView: View {
     let catalog: Catalog
 
     @Query private var settingsRows: [AppSettings]
+    @Query private var goals: [ReductionGoal]
+    @Environment(\.modelContext) private var context
 
     var body: some View {
         NavigationStack {
             Group {
                 // 설정 행은 루트가 첫 프레임에 만든다(`RootView.ensureSettings`).
                 if let settings = settingsRows.first {
-                    SettingsForm(settings: settings, catalog: catalog)
+                    SettingsForm(settings: settings, catalog: catalog, goals: goals, context: context)
                 } else {
                     ProgressView()
                 }
@@ -49,53 +52,80 @@ enum HourChoices {
 private struct SettingsForm: View {
     @Bindable var settings: AppSettings
     let catalog: Catalog
+    let goals: [ReductionGoal]
+    let context: ModelContext
+
+    @State private var editingSide: CupSide?
+
+    private func goal(_ side: CupSide) -> ReductionGoal? {
+        goals.first { $0.side == side.rawValue }
+    }
 
     var body: some View {
         Form {
             Section {
-                VStack(alignment: .leading, spacing: 10) {
-                    Text(CupSide.sugar.label)
-                    Picker(CupSide.sugar.label, selection: $settings.sugarLimitG) {
-                        ForEach(SugarPreset.values, id: \.self) { value in
-                            Text("\(Amount.number(value)) \(CupSide.sugar.unit)").tag(value)
+                // 감소 목표가 도는 동안에는 기준을 목표가 주마다 쓴다. 손으로 못 바꾸게 막는다.
+                if goal(.sugar) != nil {
+                    managedLimitRow(.sugar, value: settings.sugarLimitG)
+                } else {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(CupSide.sugar.label)
+                        Picker(CupSide.sugar.label, selection: $settings.sugarLimitG) {
+                            ForEach(SugarPreset.values, id: \.self) { value in
+                                Text("\(Amount.number(value)) \(CupSide.sugar.unit)").tag(value)
+                            }
                         }
+                        .pickerStyle(.segmented)
+                        .labelsHidden()
+                        .accessibilityIdentifier("sugar-limit")
                     }
-                    .pickerStyle(.segmented)
-                    .labelsHidden()
-                    .accessibilityIdentifier("sugar-limit")
+                    .padding(.vertical, 4)
                 }
-                .padding(.vertical, 4)
 
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack {
-                        Text(CupSide.caffeine.label)
-                        Spacer()
-                        Text("\(Amount.number(settings.caffeineLimitMg)) \(CupSide.caffeine.unit)")
-                            .monospacedDigit()
-                            .foregroundStyle(.secondary)
+                if goal(.caffeine) != nil {
+                    managedLimitRow(.caffeine, value: settings.caffeineLimitMg)
+                } else {
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack {
+                            Text(CupSide.caffeine.label)
+                            Spacer()
+                            Text("\(Amount.number(settings.caffeineLimitMg)) \(CupSide.caffeine.unit)")
+                                .monospacedDigit()
+                                .foregroundStyle(.secondary)
+                        }
+                        Slider(
+                            value: $settings.caffeineLimitMg,
+                            in: CaffeineRange.bounds,
+                            step: CaffeineRange.step
+                        ) {
+                            Text(CupSide.caffeine.label)
+                        } minimumValueLabel: {
+                            Text(Amount.number(CaffeineRange.bounds.lowerBound))
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        } maximumValueLabel: {
+                            Text(Amount.number(CaffeineRange.bounds.upperBound))
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
+                        .accessibilityIdentifier("caffeine-limit")
                     }
-                    Slider(
-                        value: $settings.caffeineLimitMg,
-                        in: CaffeineRange.bounds,
-                        step: CaffeineRange.step
-                    ) {
-                        Text(CupSide.caffeine.label)
-                    } minimumValueLabel: {
-                        Text(Amount.number(CaffeineRange.bounds.lowerBound))
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    } maximumValueLabel: {
-                        Text(Amount.number(CaffeineRange.bounds.upperBound))
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
-                    .accessibilityIdentifier("caffeine-limit")
+                    .padding(.vertical, 4)
                 }
-                .padding(.vertical, 4)
             } header: {
                 Text("하루 기준")
             } footer: {
                 Text("기본값은 당 50 g(WHO 권고), 카페인 400 mg(식약처 성인 권고)이에요.")
+            }
+
+            Section {
+                ForEach(CupSide.allCases) { side in
+                    goalRow(side)
+                }
+            } header: {
+                Text("감소 목표")
+            } footer: {
+                Text("한 주에 5일 이상 하루 기준 이내면 다음 주 기준이 조금 내려가요. 미달한 주는 기준을 그대로 둬요.")
             }
 
             Section {
@@ -126,7 +156,69 @@ private struct SettingsForm: View {
                 Text("기록은 이 기기에만 저장돼요. 수집하는 정보는 없어요.")
             }
         }
+        .sheet(item: $editingSide) { side in
+            ReductionGoalSheet(side: side, currentLimit: side.limit(settings.limits)) { target, weeks in
+                start(side, target: target, weeks: weeks)
+            }
+        }
     }
+
+    private func managedLimitRow(_ side: CupSide, value: Double) -> some View {
+        LabeledContent(side.label) {
+            Text("\(Amount.number(value)) \(side.unit)")
+                .monospacedDigit()
+        }
+    }
+
+    @ViewBuilder
+    private func goalRow(_ side: CupSide) -> some View {
+        if let goal = goal(side) {
+            VStack(alignment: .leading, spacing: 8) {
+                LabeledContent(side.label) {
+                    Text("이번 주 \(Amount.number(side.limit(settings.limits))) → 목표 \(Amount.number(goal.target)) \(side.unit)")
+                        .monospacedDigit()
+                }
+                HStack {
+                    Text("\(goal.weeks)주 계획 · \(goal.achievedWeeks)주 달성")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Button("그만두기", role: .destructive) { stop(side) }
+                        .font(.footnote)
+                        .buttonStyle(.bordered)
+                        .buttonBorderShape(.capsule)
+                }
+            }
+            .padding(.vertical, 4)
+        } else {
+            Button("\(side.label) 줄이기 시작") { editingSide = side }
+                .accessibilityIdentifier("start-goal-\(side.rawValue)")
+        }
+    }
+
+    private func start(_ side: CupSide, target: Double, weeks: Int) {
+        do {
+            let today = DayKey(at: Date(), boundaryHour: settings.dayBoundaryHour)
+            try ReductionStore.start(
+                side: side, target: target, weeks: weeks, settings: settings, today: today,
+                in: context
+            )
+            try context.save()
+        } catch {
+            Self.logger.error("감소 목표 시작 실패: \(String(describing: error), privacy: .public)")
+        }
+    }
+
+    private func stop(_ side: CupSide) {
+        do {
+            try ReductionStore.stop(side: side, in: context)
+            try context.save()
+        } catch {
+            Self.logger.error("감소 목표 중단 실패: \(String(describing: error), privacy: .public)")
+        }
+    }
+
+    private static let logger = Logger(subsystem: "com.sugarcap.app", category: "settings")
 
     private static var appVersion: String {
         let info = Bundle.main.infoDictionary

@@ -238,6 +238,14 @@ struct TodayView: View {
                     now: Date(), in: context
                 )
             }
+            if let settings = settingsRows.first {
+                for goal in try ReductionStore.goals(in: context) {
+                    ReductionStore.advance(
+                        goal, entries: entries, boundaryHour: boundaryHour, today: today,
+                        settings: settings, in: context
+                    )
+                }
+            }
             try context.save()
 
             prompt = plan.prompt
@@ -397,7 +405,7 @@ struct TodayView: View {
 #Preview {
     if let catalog = try? CatalogStore.loadBundled() {
         TodayView(catalog: CatalogIndex(catalog: catalog))
-            .modelContainer(for: [Entry.self, AppSettings.self, DaySettlement.self, Affinity.self], inMemory: true)
+            .modelContainer(for: [Entry.self, AppSettings.self, DaySettlement.self, Affinity.self, ReductionGoal.self], inMemory: true)
     } else {
         Text("번들 카탈로그를 읽지 못함")
     }

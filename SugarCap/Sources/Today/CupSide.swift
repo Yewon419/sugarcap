@@ -52,6 +52,14 @@ enum CupSide: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
+    /// 감소 목표가 하루 기준을 낮출 때 쓰는 반올림 단위(SPEC §9.5).
+    var reductionStep: Double {
+        switch self {
+        case .sugar: return 5
+        case .caffeine: return 25
+        }
+    }
+
     func limit(_ limits: DailyLimits) -> Double {
         switch self {
         case .sugar: return limits.sugarG

@@ -47,6 +47,18 @@ struct DayKey: Hashable, Comparable, Codable, CustomStringConvertible, Sendable 
         return DayKey(year: parts.year ?? year, month: parts.month ?? month, day: parts.day ?? day)
     }
 
+    /// 두 날짜 사이 일수. 정오 기준이라 서머타임에도 어긋나지 않는다.
+    func days(until other: DayKey, calendar: Calendar = .current) -> Int {
+        let noon = { (key: DayKey) in
+            calendar.date(from: DateComponents(year: key.year, month: key.month, day: key.day, hour: 12))
+        }
+        guard let from = noon(self), let to = noon(other) else {
+            assertionFailure("달력으로 환원되지 않는 DayKey: \(rawValue) → \(other.rawValue)")
+            return 0
+        }
+        return calendar.dateComponents([.day], from: from, to: to).day ?? 0
+    }
+
     static func < (lhs: DayKey, rhs: DayKey) -> Bool {
         (lhs.year, lhs.month, lhs.day) < (rhs.year, rhs.month, rhs.day)
     }

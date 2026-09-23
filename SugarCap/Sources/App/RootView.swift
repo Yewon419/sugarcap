@@ -3,9 +3,9 @@ import SwiftData
 import SwiftUI
 
 /// 탭 식별자. 탭 간 슬라이드 없음, 각 탭이 자기 스택을 가진다(SPEC §4).
-/// 추이 탭은 Phase 2c에서 내용과 함께 붙는다.
 enum AppTab: String {
     case today
+    case trends
     case settings
 
     /// CI 스크린샷이 `simctl launch … -initialTab settings`로 시작 탭을 고른다.
@@ -54,6 +54,9 @@ struct RootView: View {
             TodayView(catalog: index)
                 .tabItem { Label("오늘", systemImage: "cup.and.saucer") }
                 .tag(AppTab.today)
+            TrendsView()
+                .tabItem { Label("추이", systemImage: "chart.bar") }
+                .tag(AppTab.trends)
             SettingsView(catalog: index.catalog)
                 .tabItem { Label("설정", systemImage: "gearshape") }
                 .tag(AppTab.settings)
@@ -74,5 +77,5 @@ struct RootView: View {
 
 #Preview {
     RootView(catalog: Result { CatalogIndex(catalog: try CatalogStore.loadBundled()) })
-        .modelContainer(for: [Entry.self, AppSettings.self, DaySettlement.self, Affinity.self], inMemory: true)
+        .modelContainer(for: [Entry.self, AppSettings.self, DaySettlement.self, Affinity.self, ReductionGoal.self], inMemory: true)
 }

@@ -28,6 +28,14 @@ final class AppSettings {
         DailyLimits(sugarG: sugarLimitG, caffeineMg: caffeineLimitMg)
     }
 
+    /// 감소 목표가 주마다 하루 기준을 낮출 때 쓴다(SPEC §9.5).
+    func setLimit(_ value: Double, for side: CupSide) {
+        switch side {
+        case .sugar: sugarLimitG = value
+        case .caffeine: caffeineLimitMg = value
+        }
+    }
+
     /// 없으면 기본값으로 만들어 넣는다. 설정 화면이 없는 Phase 1에서도 기본값이 필요하다.
     static func current(in context: ModelContext) throws -> AppSettings {
         let existing = try context.fetch(FetchDescriptor<AppSettings>())

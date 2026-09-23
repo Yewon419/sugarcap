@@ -92,11 +92,16 @@ final class ReductionMathTests: XCTestCase {
 
 @MainActor
 final class ReductionStoreTests: XCTestCase {
+    /// 컨테이너를 테스트가 붙잡고 있어야 한다. 지역 변수로 두면 해제되면서 컨텍스트가 리셋되고
+    /// 모델 인스턴스가 "destroyed by ModelContext.reset"으로 죽는다.
+    private var container: ModelContainer?
+
     private func makeContext() throws -> ModelContext {
         let container = try ModelContainer(
             for: Entry.self, AppSettings.self, DaySettlement.self, Affinity.self, ReductionGoal.self,
             configurations: ModelConfiguration(isStoredInMemoryOnly: true)
         )
+        self.container = container
         return container.mainContext
     }
 
@@ -181,10 +186,13 @@ final class ReductionStoreTests: XCTestCase {
 
 @MainActor
 final class TrendMathTests: XCTestCase {
+    private var container: ModelContainer?
+
     private func makeEntries(_ values: [(day: Int, sugar: Double, caffeine: Double?)]) throws -> [Entry] {
         let container = try ModelContainer(
             for: Entry.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true)
         )
+        self.container = container
         let context = container.mainContext
         let calendar = Calendar.current
         for value in values {

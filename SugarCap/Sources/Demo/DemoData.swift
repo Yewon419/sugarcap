@@ -29,9 +29,10 @@ enum DemoData {
             insert(context, "아메리카노", "스타벅스", "Tall", sugar: 0, caffeine: 150, at: hour(9, now, calendar))
             insert(context, "카페모카", "투썸플레이스", "레귤러", sugar: 30, caffeine: 95, at: hour(14, now, calendar))
 
-            // 지난 12일: 추이 막대가 줄어드는 모양이 되도록 최근으로 올수록 적게 마신 값.
-            let sugarByDay: [Double] = [62, 58, 55, 48, 51, 44, 40, 38, 35, 33, 28, 30]
-            let caffeineByDay: [Double] = [390, 355, 330, 300, 290, 265, 250, 240, 225, 210, 195, 200]
+            // 지난 12일. 배열의 0번이 **어제**다. 최근으로 올수록 적게 마신 값이어야
+            // 추이 막대와 "지난주 대비"가 줄어드는 그림이 된다.
+            let sugarByDay: [Double] = [30, 28, 33, 35, 38, 40, 44, 51, 48, 55, 58, 62]
+            let caffeineByDay: [Double] = [200, 195, 210, 225, 240, 250, 265, 290, 300, 330, 355, 390]
             for offset in 0..<sugarByDay.count {
                 let day = today.shifted(by: -(offset + 1), calendar: calendar)
                 guard let date = calendar.date(

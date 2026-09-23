@@ -342,6 +342,8 @@ struct TodayView: View {
         .tabViewStyle(.page(indexDisplayMode: .never))
         // 장면은 9:16이지만 아래에 수치·기록이 와야 하므로 3:4로 잘라 쓴다.
         .aspectRatio(3.0 / 4.0, contentMode: .fit)
+        // 큰 화면에서 컵이 그대로 커지면 수치·브랜드 칩이 탭 바 밑으로 밀린다.
+        .frame(maxHeight: 420)
     }
 
     private func cupPage(_ cupSide: CupSide, totals: DayTotals) -> some View {

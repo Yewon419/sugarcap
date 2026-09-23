@@ -343,7 +343,9 @@ struct TodayView: View {
         // 장면은 9:16이지만 아래에 수치·기록이 와야 하므로 3:4로 잘라 쓴다.
         .aspectRatio(3.0 / 4.0, contentMode: .fit)
         // 큰 화면에서 컵이 그대로 커지면 수치·브랜드 칩이 탭 바 밑으로 밀린다.
+        // 높이를 묶으면 폭이 줄어드니 가운데로 다시 세운다.
         .frame(maxHeight: 420)
+        .frame(maxWidth: .infinity)
     }
 
     private func cupPage(_ cupSide: CupSide, totals: DayTotals) -> some View {
@@ -404,7 +406,10 @@ struct TodayView: View {
             Button {
                 isManualEntryPresented = true
             } label: {
+                // 줄바꿈 배치가 마지막 칩에 좁은 폭을 줘도 글자가 눌리지 않게 고정한다.
                 Label("직접 입력", systemImage: "square.and.pencil")
+                    .lineLimit(1)
+                    .fixedSize()
             }
             .accessibilityIdentifier("manual-entry")
         }

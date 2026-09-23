@@ -105,10 +105,12 @@ extension RecordFlowUITests {
 
 extension RecordFlowUITests {
     /// 감소 목표를 만들면 하루 기준이 목표 관리로 넘어가고, 그만두면 되돌아온다(§4.3·§9.5).
+    /// 감소 목표는 Pro라 목 구매 상태(Debug 전용 인자)로 띄운다.
     @MainActor
     func testStartAndStopSugarReductionGoal() throws {
         continueAfterFailure = false
         let app = XCUIApplication()
+        app.launchArguments += ["-mockProOwned", "YES"]
         app.launch()
 
         let start = app.buttons["onboarding-start"]
@@ -134,6 +136,38 @@ extension RecordFlowUITests {
         XCTAssertTrue(startGoal.waitForExistence(timeout: 5), "그만두면 다시 만들 수 있어야 한다")
         XCTAssertTrue(app.buttons["25 g"].waitForExistence(timeout: 5), "프리셋이 돌아와야 한다")
     }
+}
+
+extension RecordFlowUITests {
+    /// 무료 사용자가 Pro 기능을 누르면 페이월이 열린다(§6).
+    @MainActor
+    func testTappingProFeatureOpensPaywall() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments += ["-mockPro", "YES"]
+        app.launch()
+
+        let start = app.buttons["onboarding-start"]
+        if start.waitForExistence(timeout: 5) {
+            start.tap()
+        }
+
+        let affinity = app.buttons["affinity"]
+        XCTAssertTrue(affinity.waitForExistence(timeout: 15))
+        affinity.tap()
+
+        XCTAssertTrue(
+            app.buttons["plan-\(ProductIDs.yearly)"].waitForExistence(timeout: 5),
+            "페이월에 상품이 안 보임"
+        )
+        app.buttons["paywall-close"].tap()
+        XCTAssertTrue(affinity.waitForExistence(timeout: 5), "닫으면 원래 화면으로 돌아와야 한다")
+    }
+}
+
+/// UI 테스트 번들은 앱 코드를 불러오지 않는다. 상품 id는 여기에 따로 적는다.
+private enum ProductIDs {
+    static let yearly = "com.sugarcap.app.pro.yearly"
 }
 
 /// List는 화면에 보이는 셀만 접근성 트리에 올린다. 아래로 밀려난 요소는 스크롤해서 꺼낸다.

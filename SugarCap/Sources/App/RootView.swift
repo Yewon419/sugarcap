@@ -23,6 +23,7 @@ struct RootView: View {
     @Environment(\.modelContext) private var context
     @AppStorage(OnboardingView.completedKey) private var onboardingCompleted = false
     @State private var tab = AppTab.initial
+    @State private var pro = ProStore.make()
 
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "root")
 
@@ -46,7 +47,11 @@ struct RootView: View {
                 )
             }
         }
-        .task { ensureSettings() }
+        .environment(pro)
+        .task {
+            ensureSettings()
+            pro.start()
+        }
     }
 
     private func tabs(_ index: CatalogIndex) -> some View {

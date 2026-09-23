@@ -11,6 +11,9 @@ struct TrendsView: View {
     @Query(sort: \Entry.loggedAt, order: .reverse) private var entries: [Entry]
 
     @State private var range: TrendRange = .week
+    @State private var paywall: ProFeature?
+
+    @Environment(ProStore.self) private var pro
 
     private var limits: DailyLimits { settingsRows.first?.limits ?? .default }
     private var boundaryHour: Int { settingsRows.first?.dayBoundaryHour ?? 4 }
@@ -22,6 +25,9 @@ struct TrendsView: View {
                 content(today: today)
             }
             .navigationTitle("추이")
+            .sheet(item: $paywall) { feature in
+                PaywallView(feature: feature)
+            }
         }
     }
 
@@ -39,6 +45,12 @@ struct TrendsView: View {
                 }
                 .pickerStyle(.segmented)
                 .accessibilityIdentifier("trend-range")
+                // 월 보기는 Pro다(§6). 무료가 고르면 주 보기로 되돌리고 페이월을 연다.
+                .onChange(of: range) { _, newValue in
+                    guard newValue == .month, !pro.isPro else { return }
+                    range = .week
+                    paywall = .monthlyTrends
+                }
 
                 if hasRecords {
                     ForEach(CupSide.allCases) { side in
@@ -68,10 +80,21 @@ struct TrendsView: View {
                 .font(.headline)
 
             if let change {
-                Text(changeText(change))
-                    .font(.subheadline)
+                if pro.isPro {
+                    Text(changeText(change))
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .monospacedDigit()
+                } else {
+                    Button {
+                        paywall = .weekOverWeek
+                    } label: {
+                        Label("지난주 대비 보기", systemImage: "lock")
+                            .font(.subheadline)
+                    }
+                    .buttonStyle(.plain)
                     .foregroundStyle(.secondary)
-                    .monospacedDigit()
+                }
             }
 
             Chart {

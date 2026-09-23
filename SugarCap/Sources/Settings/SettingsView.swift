@@ -56,6 +56,9 @@ private struct SettingsForm: View {
     let context: ModelContext
 
     @State private var editingSide: CupSide?
+    @State private var paywall: ProFeature?
+
+    @Environment(ProStore.self) private var pro
 
     private func goal(_ side: CupSide) -> ReductionGoal? {
         goals.first { $0.side == side.rawValue }
@@ -146,6 +149,20 @@ private struct SettingsForm: View {
             }
 
             Section {
+                if pro.isPro {
+                    LabeledContent("슈가캡 Pro", value: "사용 중")
+                } else {
+                    Button("슈가캡 Pro 보기") { paywall = .affinityDetail }
+                        .accessibilityIdentifier("open-paywall")
+                }
+                Button("구매 복원") {
+                    Task { await pro.restore() }
+                }
+            } header: {
+                Text("Pro")
+            }
+
+            Section {
                 LabeledContent("메뉴 데이터") {
                     Text(catalog.builtAtDate?.formatted(date: .abbreviated, time: .omitted) ?? catalog.builtAt)
                 }
@@ -155,6 +172,9 @@ private struct SettingsForm: View {
             } footer: {
                 Text("기록은 이 기기에만 저장돼요. 수집하는 정보는 없어요.")
             }
+        }
+        .sheet(item: $paywall) { feature in
+            PaywallView(feature: feature)
         }
         .sheet(item: $editingSide) { side in
             ReductionGoalSheet(side: side, currentLimit: side.limit(settings.limits)) { target, weeks in
@@ -191,8 +211,24 @@ private struct SettingsForm: View {
             }
             .padding(.vertical, 4)
         } else {
-            Button("\(side.label) 줄이기 시작") { editingSide = side }
-                .accessibilityIdentifier("start-goal-\(side.rawValue)")
+            Button {
+                // 감소 목표는 Pro다(§6).
+                if pro.isPro {
+                    editingSide = side
+                } else {
+                    paywall = .reductionGoal
+                }
+            } label: {
+                HStack {
+                    Text("\(side.label) 줄이기 시작")
+                    if !pro.isPro {
+                        Spacer()
+                        Image(systemName: "lock")
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .accessibilityIdentifier("start-goal-\(side.rawValue)")
         }
     }
 

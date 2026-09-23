@@ -133,6 +133,9 @@ jobs:
           shoot trends light large -initialTab trends
           shoot trends-type-ax-xl light accessibility-extra-large -initialTab trends
           shoot feeding light large -screenshotFeeding YES
+          shoot paywall light large -mockPro YES -screenshotPaywall YES
+          shoot paywall-type-ax-xl light accessibility-extra-large -mockPro YES -screenshotPaywall YES
+          shoot affinity light large -mockProOwned YES -screenshotAffinity YES
           shoot feeding-type-ax-xl light accessibility-extra-large -screenshotFeeding YES
           ls -la "$OUT"
 

@@ -18,6 +18,10 @@ struct TodayView: View {
     @State private var prompt: SettlementPlan.Prompt?
     /// 지난 마감분이 방금 확정됐을 때만 채운다. 이번 실행 동안만 보인다.
     @State private var creditNotice: [FeedResult]?
+    @State private var paywall: ProFeature?
+    @State private var isAffinityPresented = false
+
+    @Environment(ProStore.self) private var pro
 
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "today")
 
@@ -33,6 +37,21 @@ struct TodayView: View {
                 content(now: timeline.date)
             }
             .navigationTitle("오늘")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        // 무료는 페이월, Pro는 호감도 화면(§4.8).
+                        if pro.isPro {
+                            isAffinityPresented = true
+                        } else {
+                            paywall = .affinityDetail
+                        }
+                    } label: {
+                        Label("호감도", systemImage: "heart")
+                    }
+                    .accessibilityIdentifier("affinity")
+                }
+            }
             .navigationDestination(for: String.self) { brandID in
                 if let brand = catalog.brand(id: brandID) {
                     BrandMenuView(
@@ -51,6 +70,12 @@ struct TodayView: View {
         }
         .fullScreenCover(item: $feeding) { request in
             FeedingView(request: request, onFeed: { try feed(request) })
+        }
+        .sheet(item: $paywall) { feature in
+            PaywallView(feature: feature)
+        }
+        .sheet(isPresented: $isAffinityPresented) {
+            AffinityView()
         }
         // 기록할 때만 햅틱 1회(§4.1). 삭제로 줄어들 때는 울리지 않는다.
         .sensoryFeedback(.success, trigger: entries.count) { old, new in new > old }
@@ -287,14 +312,22 @@ struct TodayView: View {
         }
     }
 
-    /// CI 스크린샷 전용(Debug 빌드만): `simctl launch … -screenshotFeeding YES`로 마감 화면을 띄운다.
-    /// 마감 버튼은 저녁 이후에만 보여서 러너 시각에 따라 화면에 닿지 못한다.
+    /// CI 스크린샷 전용(Debug 빌드만). 실행 인자로 덮인 화면을 바로 띄운다.
+    /// 마감 버튼은 저녁 이후에만 보여서 러너 시각에 따라 화면에 닿지 못하고,
+    /// 페이월·호감도는 탭을 거쳐야 열려 `simctl`로는 닿지 못한다.
     private func presentScreenshotFeedingIfRequested(totals: DayTotals) {
         #if DEBUG
-        if UserDefaults.standard.bool(forKey: "screenshotFeeding") {
+        let defaults = UserDefaults.standard
+        if defaults.bool(forKey: "screenshotFeeding") {
             feeding = FeedingRequest(
                 kind: .closeToday, sugarLeftG: totals.leftSugarG, caffeineLeftMg: totals.leftCaffeineMg
             )
+        }
+        if defaults.bool(forKey: "screenshotPaywall") {
+            paywall = .affinityDetail
+        }
+        if defaults.bool(forKey: "screenshotAffinity") {
+            isAffinityPresented = true
         }
         #endif
     }
@@ -405,6 +438,7 @@ struct TodayView: View {
 #Preview {
     if let catalog = try? CatalogStore.loadBundled() {
         TodayView(catalog: CatalogIndex(catalog: catalog))
+            .environment(ProStore(previewPlans: ProStore.mockPlans, isPro: false))
             .modelContainer(for: [Entry.self, AppSettings.self, DaySettlement.self, Affinity.self, ReductionGoal.self], inMemory: true)
     } else {
         Text("번들 카탈로그를 읽지 못함")

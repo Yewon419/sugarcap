@@ -36,7 +36,10 @@ struct FeedingView: View {
     let onFeed: () throws -> [FeedResult]
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(ProStore.self) private var pro
     @State private var results: [FeedResult]?
+    @State private var paywall: ProFeature?
+    @State private var isAffinityPresented = false
     @State private var errorText: String?
     @State private var bounce = false
 
@@ -69,6 +72,17 @@ struct FeedingView: View {
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
                     }
+                    if isFed {
+                        Button("호감도 자세히") {
+                            if pro.isPro {
+                                isAffinityPresented = true
+                            } else {
+                                paywall = .affinityDetail
+                            }
+                        }
+                        .font(.subheadline)
+                        .accessibilityIdentifier("feeding-affinity")
+                    }
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 8)
@@ -98,6 +112,12 @@ struct FeedingView: View {
                 .accessibilityIdentifier(isFed ? "feeding-done" : "feeding-feed")
             }
             .sensoryFeedback(.success, trigger: isFed) { _, fed in fed }
+            .sheet(item: $paywall) { feature in
+                PaywallView(feature: feature)
+            }
+            .sheet(isPresented: $isAffinityPresented) {
+                AffinityView()
+            }
         }
     }
 
@@ -170,4 +190,5 @@ struct FeedingView: View {
         request: FeedingRequest(kind: .closeToday, sugarLeftG: 18, caffeineLeftMg: 150),
         onFeed: { [] }
     )
+    .environment(ProStore(previewPlans: ProStore.mockPlans, isPro: false))
 }

@@ -75,10 +75,17 @@ struct TrendsView: View {
             }
 
             Chart {
-                // 하루 기준선. 막대와 겹치지 않게 얇은 점선, 회색으로 뒤로 뺀다.
+                // 하루 기준선. 막대와 경쟁하지 않게 회색 점선으로 뒤로 뺀다.
+                // `.secondary`는 차트 안에서 액센트로 풀려 막대와 같은 색이 된다.
                 RuleMark(y: .value("하루 기준", side.limit(limits)))
                     .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
-                    .foregroundStyle(.secondary.opacity(0.6))
+                    .foregroundStyle(Color.gray.opacity(0.6))
+                    .annotation(position: .top, alignment: .leading, spacing: 2) {
+                        Text("하루 기준 \(Amount.number(side.limit(limits))) \(side.unit)")
+                            .font(.caption2)
+                            .monospacedDigit()
+                            .foregroundStyle(.secondary)
+                    }
 
                 ForEach(points) { point in
                     BarMark(

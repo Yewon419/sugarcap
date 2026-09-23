@@ -145,6 +145,64 @@ jobs:
           path: ${{ runner.temp }}/screenshots
           retention-days: 14
 
+      # App Store 제출용 6.9인치 스크린샷(docs/STORE.md §9). 데모 기록을 넣은 상태로 찍는다.
+      - name: 스토어 스크린샷 (6.9인치)
+        working-directory: SugarCap
+        run: |
+          BIG=$(xcrun simctl list devices available -j | /usr/bin/python3 -c '
+          import json, sys
+          devices = json.load(sys.stdin)["devices"]
+          best = None
+          for runtime, items in sorted(devices.items()):
+              if "iOS" not in runtime:
+                  continue
+              for device in items:
+                  if not device.get("isAvailable"):
+                      continue
+                  name = device["name"]
+                  rank = 2 if "Pro Max" in name else (1 if "Max" in name or "Plus" in name else 0)
+                  if best is None or rank > best[0]:
+                      best = (rank, device["udid"], name)
+          if best is None:
+              sys.exit(1)
+          print(best[1], best[2], sep="\t")')
+          UDID=${BIG%%$'\t'*}
+          echo "기기: ${BIG#*$'\t'}"
+
+          APP=build/Build/Products/Debug-iphonesimulator/SugarCap.app
+          OUT="$RUNNER_TEMP/store-screenshots"
+          mkdir -p "$OUT"
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl ui "$UDID" appearance light
+          xcrun simctl install "$UDID" "$APP"
+          # 상태 바를 스토어 관례대로 고정한다(9:41, 통신·배터리 가득).
+          xcrun simctl status_bar "$UDID" override --time "9:41" --cellularBars 4 --batteryState charged --batteryLevel 100
+
+          store_shot() {
+            local name="$1"; shift
+            xcrun simctl launch "$UDID" com.sugarcap.app -seedDemo YES -onboardingCompleted YES "$@"
+            sleep 5
+            xcrun simctl io "$UDID" screenshot "$OUT/$name.png"
+            xcrun simctl terminate "$UDID" com.sugarcap.app
+          }
+
+          store_shot 01-today
+          store_shot 02-trends -initialTab trends -mockProOwned YES
+          store_shot 03-feeding -screenshotFeeding YES
+          store_shot 04-affinity -mockProOwned YES -screenshotAffinity YES
+          store_shot 05-paywall -mockPro YES -screenshotPaywall YES
+          # 업로드 전에 크기를 찍어 둔다. App Store 6.9인치는 1320x2868이어야 한다.
+          for shot in "$OUT"/*.png; do
+            sips -g pixelWidth -g pixelHeight "$shot" | xargs echo
+          done
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: store-screenshots
+          path: ${{ runner.temp }}/store-screenshots
+          retention-days: 30
+
   # TestFlight 업로드. Actions 탭에서 수동 실행한다.
   testflight:
     if: github.event_name == 'workflow_dispatch'

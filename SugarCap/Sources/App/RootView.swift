@@ -50,6 +50,7 @@ struct RootView: View {
         .environment(pro)
         .task {
             ensureSettings()
+            seedDemoIfRequested()
             pro.start()
         }
     }
@@ -66,6 +67,19 @@ struct RootView: View {
                 .tabItem { Label("설정", systemImage: "gearshape") }
                 .tag(AppTab.settings)
         }
+    }
+
+    /// 스토어 스크린샷용 데모 기록(Debug 빌드만). 어느 탭으로 시작하든 돌아야 해서 루트에 둔다.
+    private func seedDemoIfRequested() {
+        #if DEBUG
+        guard DemoData.isRequested else { return }
+        do {
+            let settings = try AppSettings.current(in: context)
+            DemoData.seed(into: context, boundaryHour: settings.dayBoundaryHour)
+        } catch {
+            Self.logger.error("데모 시드 실패: \(String(describing: error), privacy: .public)")
+        }
+        #endif
     }
 
     /// 설정 행은 앱 전체에서 하나다. 오늘·설정 탭 둘 다 읽으므로 루트에서 한 번 만든다.

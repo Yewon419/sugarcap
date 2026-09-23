@@ -7,6 +7,9 @@ import SwiftData
 ///
 /// 빈 앱을 찍으면 컵이 가득 차고 추이가 비어 있어 화면이 뭘 하는 앱인지 보여 주지 못한다.
 /// 출시 빌드(Release)에는 이 파일 자체가 들어가지 않는다.
+///
+/// `SettlementStore`가 MainActor라 여기도 MainActor다(화면에서만 부른다).
+@MainActor
 enum DemoData {
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "demo")
 

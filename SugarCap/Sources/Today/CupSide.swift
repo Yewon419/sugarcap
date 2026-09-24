@@ -52,6 +52,15 @@ enum CupSide: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
+    /// 이 면에 그리는 컵 세트(SPEC §9-10). 당 컵은 단 음료, 카페인 컵은 커피.
+    /// 세트 선택(§9-9 커스터마이징)이 생기기 전까지는 면마다 고정이다.
+    var cupSetID: String {
+        switch self {
+        case .sugar: return "strawberry-latte"
+        case .caffeine: return "iced-americano"
+        }
+    }
+
     /// 감소 목표가 하루 기준을 낮출 때 쓰는 반올림 단위(SPEC §9.5).
     var reductionStep: Double {
         switch self {

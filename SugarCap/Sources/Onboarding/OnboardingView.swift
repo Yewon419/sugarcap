@@ -90,7 +90,8 @@ struct OnboardingView: View {
         if isLast {
             Color(.systemGroupedBackground).ignoresSafeArea()
         } else {
-            CupView(step: cupStep)
+            // 오늘 화면의 첫 면(당 컵)과 같은 세트로 보여 준다.
+            CupView(step: cupStep, setID: CupSide.sugar.cupSetID)
                 .ignoresSafeArea()
                 .animation(.easeInOut(duration: 0.6), value: cupStep)
 

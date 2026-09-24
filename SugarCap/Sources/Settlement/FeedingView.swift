@@ -64,7 +64,8 @@ struct FeedingView: View {
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            CupView(step: cupStep)
+            // 남은 당을 먹이는 화면이라 당 컵 세트를 그린다.
+            CupView(step: cupStep, setID: CupSide.sugar.cupSetID)
                 .ignoresSafeArea()
 
             // 위·아래 흰 스크림. 글자와 버튼이 사진 위에서 묻히지 않게 한다.

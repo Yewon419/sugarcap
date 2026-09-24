@@ -98,7 +98,7 @@ struct TodayView: View {
         let limit = side.limit(limits)
 
         ZStack(alignment: .topLeading) {
-            CupView(step: CupLevel.step(remaining: remaining, limit: limit))
+            CupView(step: CupLevel.step(remaining: remaining, limit: limit), setID: side.cupSetID)
                 .ignoresSafeArea()
                 .contentShape(Rectangle())
                 // 좌우로 밀어 당 컵과 카페인 컵을 오간다(§4.1).

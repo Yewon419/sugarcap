@@ -112,6 +112,11 @@ jobs:
           mkdir -p "$OUT"
           xcrun simctl bootstatus "$SIM_UDID" -b
           xcrun simctl install "$SIM_UDID" "$APP"
+          # 설치 직후 첫 실행은 콜드 런치라 아래 sleep 안에 화면이 안 뜰 때가 있다(run 35956560232에서
+          # light.png가 빈 흰 화면). 한 번 띄웠다 내려 두 번째부터 찍는다. 데이터는 건드리지 않는다.
+          xcrun simctl launch "$SIM_UDID" com.sugarcap.app
+          sleep 8
+          xcrun simctl terminate "$SIM_UDID" com.sugarcap.app
 
           # 네 번째 인자부터는 앱 실행 인자다. `-key value`는 UserDefaults 인자 도메인으로 들어가
           # 저장 없이 그 실행에만 적용된다(`-initialTab settings`, `-onboardingCompleted NO`).
@@ -182,6 +187,10 @@ jobs:
           xcrun simctl bootstatus "$UDID" -b
           xcrun simctl ui "$UDID" appearance light
           xcrun simctl install "$UDID" "$APP"
+          # 위 스크린샷 단계와 같은 이유로 콜드 런치를 한 번 소모한다.
+          xcrun simctl launch "$UDID" com.sugarcap.app -onboardingCompleted YES
+          sleep 8
+          xcrun simctl terminate "$UDID" com.sugarcap.app
           # 상태 바를 스토어 관례대로 고정한다(9:41, 통신·배터리 가득).
           xcrun simctl status_bar "$UDID" override --time "9:41" --cellularBars 4 --batteryState charged --batteryLevel 100
 

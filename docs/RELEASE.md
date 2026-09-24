@@ -10,9 +10,11 @@
 | `SugarCap/**` 푸시·PR | `build` | 서명 없이 컴파일만 확인 | 불필요 |
 | Actions 탭 수동 실행 | `testflight` | 아카이브 → TestFlight 업로드 | 4개 필요 |
 
-private 리포의 macOS 러너는 **분당 10배로 과금**된다(무료 2,000분 = macOS 실질 200분).
-그래서 업로드는 자동 트리거로 걸지 않았다. 한도가 빠듯해지면 리포를 public으로 돌리는 게
-가장 싼 해법이다(public 리포는 macOS 러너 무료).
+**2026-09-24 리포를 public으로 전환했다.** private일 때 macOS 러너가 분당 10배 과금이라
+(무료 2,000분 = 실질 200분) 하루 만에 한도가 소진돼 잡이 시작조차 안 됐다
+("recent account payments have failed or your spending limit needs to be increased").
+public 리포는 macOS 러너가 무료다. 키·시크릿은 GitHub Secrets와 `_keys\` 폴더에만 있고
+리포 히스토리에는 없다(전환 직전 검사).
 
 ## 한 번만 해야 하는 준비 (대표님 계정 작업)
 

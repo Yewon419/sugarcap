@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// 온보딩 1화면(SPEC §4.5). 앱 설명 한 줄 + 하루 기준 기본값 안내 + "시작".
+/// 온보딩 1화면(SPEC §4.5, 2026-09-24 디자인). 컵 장면 위에 카피와 기본값 카드, "시작".
 /// 계정·페이월 없음. 완료 여부는 기기 단위 플래그라 SwiftData가 아니라 UserDefaults에 둔다.
 struct OnboardingView: View {
     static let completedKey = "onboardingCompleted"
@@ -8,78 +8,106 @@ struct OnboardingView: View {
     let onStart: () -> Void
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 32) {
-                HStack(alignment: .bottom, spacing: 20) {
+        ZStack(alignment: .topLeading) {
+            CupView(step: 100)
+                .ignoresSafeArea()
+
+            // 위는 글자 자리, 아래는 카드·버튼 자리. 가운데만 컵이 보인다.
+            LinearGradient(
+                stops: [
+                    .init(color: .white.opacity(0.94), location: 0),
+                    .init(color: .white.opacity(0.55), location: 0.42),
+                    .init(color: .white.opacity(0.88), location: 0.72),
+                    .init(color: .white, location: 1),
+                ],
+                startPoint: .top, endPoint: .bottom
+            )
+            .ignoresSafeArea()
+            .allowsHitTesting(false)
+
+            VStack(alignment: .leading, spacing: 0) {
+                Text("슈가캡")
+                    .kicker()
+                    .padding(.top, 40)
+                Text("마실 때마다\n줄어드는 컵")
+                    .font(.system(size: 40, weight: .bold))
+                    .tracking(-0.8)
+                    .lineSpacing(2)
+                    .padding(.top, 16)
+                Text("밤에 남은 만큼을 로슈와 카인에게 먹여요.")
+                    .font(.system(size: 15))
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 14)
+            }
+            .padding(.leading, 24)
+        }
+        .overlay(alignment: .bottom) {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(alignment: .bottom) {
                     Image(CupSide.sugar.characterAsset)
                         .resizable()
                         .scaledToFit()
+                        .frame(height: 140)
                         .accessibilityLabel(CupSide.sugar.characterName)
+                    Spacer()
                     Image(CupSide.caffeine.characterAsset)
                         .resizable()
                         .scaledToFit()
+                        .frame(height: 110)
                         .accessibilityLabel(CupSide.caffeine.characterName)
+                        .padding(.trailing, 12)
                 }
-                .frame(height: 120)
-                .padding(.top, 48)
-
-                VStack(spacing: 12) {
-                    Text("마실 때마다 줄어드는\n하루치 컵")
-                        .font(.title.bold())
-                    Text("밤에 남은 만큼을 로슈와 카인에게 먹여 주세요.")
-                        .foregroundStyle(.secondary)
-                }
-                .multilineTextAlignment(.center)
+                .padding(.horizontal, 30)
 
                 limitsCard
+                    .padding(.top, 16)
             }
             .padding(.horizontal, 24)
-            .frame(maxWidth: .infinity)
+            .padding(.bottom, 12)
         }
-        .scrollBounceBehavior(.basedOnSize)
         .safeAreaInset(edge: .bottom) {
             Button(action: onStart) {
                 Text("시작")
-                    .font(.headline)
+                    .font(.system(size: 17, weight: .semibold))
                     .frame(maxWidth: .infinity)
+                    .frame(height: 56)
             }
             .buttonStyle(.borderedProminent)
             .buttonBorderShape(.capsule)
-            .controlSize(.large)
             .padding(.horizontal, 24)
             .padding(.bottom, 8)
-            .background(.background)
             .accessibilityIdentifier("onboarding-start")
         }
     }
 
+    /// 기본값 안내. 유리 카드에 두 기준을 나란히.
     private var limitsCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             Text("하루 기준")
-                .font(.headline)
-            limitRow(.sugar, value: DailyLimits.default.sugarG, source: "WHO 권고")
-            limitRow(.caffeine, value: DailyLimits.default.caffeineMg, source: "식약처 권고")
-            Text("설정에서 바꿀 수 있어요.")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
+                .kicker()
+            HStack(alignment: .top, spacing: 0) {
+                limitColumn(.sugar, value: DailyLimits.default.sugarG, source: "WHO 권고")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                limitColumn(.caffeine, value: DailyLimits.default.caffeineMg, source: "식약처 권고")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            Color(.secondarySystemBackground),
-            in: RoundedRectangle(cornerRadius: 16, style: .continuous)
+        .background(.white.opacity(0.86), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(.white, lineWidth: 1)
         )
     }
 
-    private func limitRow(_ side: CupSide, value: Double, source: String) -> some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text(side.label)
-            Spacer()
-            Text("\(Amount.number(value)) \(side.unit)")
-                .font(.body.weight(.semibold))
+    private func limitColumn(_ side: CupSide, value: Double, source: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text("\(side.label) \(Amount.number(value)) \(side.unit)")
+                .font(.system(size: 17, weight: .semibold))
                 .monospacedDigit()
             Text(source)
-                .font(.footnote)
+                .font(.system(size: 11))
                 .foregroundStyle(.secondary)
         }
         .accessibilityElement(children: .combine)

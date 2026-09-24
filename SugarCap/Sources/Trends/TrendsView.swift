@@ -24,7 +24,7 @@ struct TrendsView: View {
                 let today = DayKey(at: timeline.date, boundaryHour: boundaryHour)
                 content(today: today)
             }
-            .navigationTitle("추이")
+            .toolbar(.hidden, for: .navigationBar)
             .sheet(item: $paywall) { feature in
                 PaywallView(feature: feature)
             }
@@ -38,6 +38,8 @@ struct TrendsView: View {
 
         ScrollView {
             VStack(spacing: 28) {
+                header(today: today)
+
                 Picker("기간", selection: $range) {
                     ForEach(TrendRange.allCases) { range in
                         Text(range.label).tag(range)
@@ -70,14 +72,72 @@ struct TrendsView: View {
         }
     }
 
+    /// 날짜 범위 → 소제목 → 이번 주 하루 평균(주인공 숫자) → 지난주 대비.
+    /// 오늘 화면과 같은 글자 규칙이다. 지난주 대비는 Pro(§6)라 무료에는 잠금 문구만 보인다.
+    private func header(today: DayKey) -> some View {
+        let week = TrendMath.daily(entries: entries, boundaryHour: boundaryHour, today: today, days: 7)
+        let average = week.reduce(0) { $0 + $1.sugarG } / 7
+        let change = TrendMath.changeVersusPreviousWeek(
+            entries: entries, boundaryHour: boundaryHour, today: today, side: .sugar
+        )
+        let start = today.shifted(by: -6)
+
+        return VStack(alignment: .leading, spacing: 0) {
+            Text("\(start.month)월 \(start.day)일 – \(today.month)월 \(today.day)일")
+                .dateLabel()
+                .padding(.top, 8)
+            Text("이번 주 하루 평균 당")
+                .kicker()
+                .padding(.top, 28)
+            HStack(alignment: .firstTextBaseline, spacing: 0) {
+                Text(Amount.number(average))
+                    .heroNumber()
+                    .contentTransition(.numericText())
+                Text(CupSide.sugar.unit)
+                    .heroUnit()
+                    .padding(.leading, 2)
+                if let change {
+                    if pro.isPro {
+                        Text(deltaText(change))
+                            .font(.system(size: 13, weight: .medium))
+                            .tracking(0.3)
+                            .foregroundStyle(.tint)
+                            .padding(.leading, 12)
+                    } else {
+                        Button {
+                            paywall = .weekOverWeek
+                        } label: {
+                            Label("지난주 대비", systemImage: "lock")
+                                .font(.system(size: 13, weight: .medium))
+                        }
+                        .buttonStyle(.plain)
+                        .foregroundStyle(.secondary)
+                        .padding(.leading, 12)
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.leading, 4)
+        .accessibilityElement(children: .combine)
+    }
+
+    /// 줄어든 쪽이 좋은 신호다. 부호를 말로 풀고 죄책감 문구는 붙이지 않는다(§4.3).
+    private func deltaText(_ change: Double) -> String {
+        let rounded = abs(change).formatted(.number.precision(.fractionLength(0)))
+        if change < 0 { return "지난주보다 \(rounded)% 적게" }
+        if change > 0 { return "지난주보다 \(rounded)% 많이" }
+        return "지난주와 같아요"
+    }
+
     private func chartSection(_ side: CupSide, points: [TrendPoint], today: DayKey) -> some View {
         let change = TrendMath.changeVersusPreviousWeek(
             entries: entries, boundaryHour: boundaryHour, today: today, side: side
         )
 
         return VStack(alignment: .leading, spacing: 8) {
-            Text(range == .week ? "\(side.label) 하루 합계" : "\(side.label) 하루 평균")
-                .font(.headline)
+            Text(range == .week ? "\(side.label) · 하루 합계" : "\(side.label) · 하루 평균")
+                .font(.system(size: 13, weight: .semibold))
 
             if let change {
                 if pro.isPro {
@@ -115,8 +175,9 @@ struct TrendsView: View {
                         x: .value("날짜", point.day.rawValue),
                         y: .value(side.label, point.value(side))
                     )
-                    .cornerRadius(4)
-                    .foregroundStyle(.tint)
+                    .cornerRadius(6)
+                    // 오늘(마지막 칸)만 진하게. 나머지는 한 톤 물러나 오늘이 먼저 읽힌다.
+                    .foregroundStyle(.tint.opacity(point.day == today ? 1 : 0.55))
                     .accessibilityLabel(range.axisLabel(point.day))
                     .accessibilityValue("\(Amount.number(point.value(side))) \(side.unit)")
                 }

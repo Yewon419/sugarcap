@@ -25,8 +25,12 @@ final class RecordFlowUITests: XCTestCase {
             "기록 0건에서 컵이 가득 차 있지 않음: \(summary.label)"
         )
 
-        // 브랜드 메뉴 → 첫 음료 → 추가
-        ui.tap(app.buttons["brand-starbucks"])
+        // 브랜드 선택은 기록 시트 안에 있다(2026-09-24 디자인).
+        app.buttons["record-add"].tap()
+        let starbucks = app.buttons["brand-starbucks"]
+        XCTAssertTrue(starbucks.waitForExistence(timeout: 5), "기록 시트에 브랜드가 없음")
+        starbucks.tap()
+
         let firstDrink = app.buttons
             .matching(NSPredicate(format: "identifier BEGINSWITH %@", "drink-"))
             .firstMatch
@@ -39,24 +43,29 @@ final class RecordFlowUITests: XCTestCase {
 
         // 추가하면 오늘 루트로 돌아와야 한다(§4.2).
         XCTAssertTrue(summary.waitForExistence(timeout: 10))
-        XCTAssertEqual(ui.entryRowCount(), 1)
 
         // 직접 입력: 당 30 g, 카페인 200 mg
-        ui.scrollToTop()
-        ui.tap(app.buttons["manual-entry"])
+        app.buttons["record-add"].tap()
+        let manual = app.buttons["manual-entry"]
+        XCTAssertTrue(manual.waitForExistence(timeout: 5))
+        manual.tap()
         ui.type("Test drink", into: app.textFields["manual-name"])
         ui.type("30", into: app.textFields["manual-sugar"])
         ui.type("200", into: app.textFields["manual-caffeine"])
         app.buttons["manual-save"].tap()
 
-        XCTAssertEqual(ui.entryRowCount(), 2)
-
-        ui.scrollToTop()
         XCTAssertTrue(summary.waitForExistence(timeout: 5))
         XCTAssertFalse(
             summary.label.contains("50 g / 50 g"),
             "당 30 g 이상을 기록했는데 컵이 그대로임: \(summary.label)"
         )
+
+        // 기록 2건이 시트에 남아 있어야 한다.
+        app.buttons["record-add"].tap()
+        let rows = app.descendants(matching: .any).matching(identifier: "entry-row")
+        XCTAssertTrue(rows.firstMatch.waitForExistence(timeout: 5), "기록 행이 안 보임")
+        XCTAssertEqual(rows.count, 2)
+        app.buttons["record-close"].tap()
     }
 }
 
@@ -225,13 +234,4 @@ private struct Driver {
         field.typeText(text)
     }
 
-    /// 기록은 리스트 맨 아래라 끝까지 내리면 전부 보인다.
-    func entryRowCount() -> Int {
-        for _ in 0..<3 {
-            app.swipeUp()
-        }
-        let rows = app.descendants(matching: .any).matching(identifier: "entry-row")
-        XCTAssertTrue(rows.firstMatch.waitForExistence(timeout: 5), "기록 행이 안 보임")
-        return rows.count
-    }
 }

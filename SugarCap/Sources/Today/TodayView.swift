@@ -21,6 +21,7 @@ struct TodayView: View {
     @State private var creditNotice: [FeedResult]?
     @State private var paywall: ProFeature?
     @State private var isAffinityPresented = false
+    @State private var isRecordSheetPresented = false
 
     @Environment(ProStore.self) private var pro
 
@@ -37,22 +38,7 @@ struct TodayView: View {
             TimelineView(.everyMinute) { timeline in
                 content(now: timeline.date)
             }
-            .navigationTitle("오늘")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        // 무료는 페이월, Pro는 호감도 화면(§4.8).
-                        if pro.isPro {
-                            isAffinityPresented = true
-                        } else {
-                            paywall = .affinityDetail
-                        }
-                    } label: {
-                        Label("호감도", systemImage: "heart")
-                    }
-                    .accessibilityIdentifier("affinity")
-                }
-            }
+            .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(for: String.self) { brandID in
                 if let brand = catalog.brand(id: brandID) {
                     BrandMenuView(
@@ -69,6 +55,21 @@ struct TodayView: View {
         .sheet(isPresented: $isManualEntryPresented) {
             ManualEntrySheet(onSave: record)
         }
+        .sheet(isPresented: $isRecordSheetPresented) {
+            RecordSheet(
+                brands: catalog.catalog.brands,
+                entries: todaysEntries(now: Date()),
+                onBrand: { brandID in
+                    isRecordSheetPresented = false
+                    path = [brandID]
+                },
+                onManualEntry: {
+                    isRecordSheetPresented = false
+                    isManualEntryPresented = true
+                },
+                onDelete: delete
+            )
+        }
         .fullScreenCover(item: $feeding) { request in
             FeedingView(request: request, onFeed: { try feed(request) })
         }
@@ -82,53 +83,168 @@ struct TodayView: View {
         .sensoryFeedback(.success, trigger: entries.count) { old, new in new > old }
     }
 
+    private func todaysEntries(now: Date) -> [Entry] {
+        let today = DayKey(at: now, boundaryHour: boundaryHour)
+        return entries.filter { $0.dayKey(boundaryHour: boundaryHour) == today }
+    }
+
+    /// 오늘 화면(2026-09-24 디자인). 컵 장면이 화면을 꽉 채우고 수치·조작부가 그 위에 얹힌다.
     @ViewBuilder
     private func content(now: Date) -> some View {
         let today = DayKey(at: now, boundaryHour: boundaryHour)
-        let todays = entries.filter { $0.dayKey(boundaryHour: boundaryHour) == today }
+        let todays = todaysEntries(now: now)
         let totals = DayMath.totals(todays.map(\.consumption), limits: limits)
+        let remaining = side.remaining(totals)
+        let limit = side.limit(limits)
 
-        List {
+        ZStack(alignment: .topLeading) {
+            CupView(step: CupLevel.step(remaining: remaining, limit: limit))
+                .ignoresSafeArea()
+                .contentShape(Rectangle())
+                // 좌우로 밀어 당 컵과 카페인 컵을 오간다(§4.1).
+                .gesture(
+                    DragGesture(minimumDistance: 24)
+                        .onEnded { value in
+                            guard abs(value.translation.width) > abs(value.translation.height) else { return }
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.9)) {
+                                side = value.translation.width < 0 ? .caffeine : .sugar
+                            }
+                        }
+                )
+
+            // 상태 바 글자가 밝은 사진 위에서 묻히지 않게 아주 옅게만 깐다.
+            LinearGradient(
+                colors: [Color.black.opacity(0.09), .clear],
+                startPoint: .top, endPoint: .bottom
+            )
+            .frame(height: 160)
+            .ignoresSafeArea(edges: .top)
+            .allowsHitTesting(false)
+
+            headline(remaining: remaining, limit: limit, overflow: side.overflow(totals), now: now)
+
             banners(today: today)
-                .listRowSeparator(.hidden)
-
-            cupPager(totals: totals)
-                .listRowInsets(EdgeInsets())
-                .listRowSeparator(.hidden)
-
-            summary(totals: totals)
-                .listRowSeparator(.hidden)
-
-            closeControl(now: now, today: today, totals: totals)
-                .listRowSeparator(.hidden)
-
-            brandPicker
-                .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 12, trailing: 0))
-                .listRowSeparator(.hidden)
-
-            Section {
-                if todays.isEmpty {
-                    Text("첫 잔을 기록해 보세요")
-                        .foregroundStyle(.secondary)
-                } else {
-                    ForEach(todays) { entry in
-                        EntryRow(entry: entry)
-                            .accessibilityIdentifier("entry-row")
-                    }
-                    .onDelete { offsets in
-                        delete(offsets.map { todays[$0] })
-                    }
-                }
-            } header: {
-                Text("오늘 기록")
-            }
+                .padding(.horizontal, 20)
+                .padding(.top, 232)
         }
-        .listStyle(.plain)
+        .overlay(alignment: .bottom) { bottomControls(now: now, today: today, totals: totals) }
+        .overlay(alignment: .topTrailing) { affinityButton }
         // 하루가 바뀔 때마다(앱을 켠 날마다) 정산을 한 번 돈다(§4.7).
         .task(id: today) {
             refreshSettlement(today: today)
             presentScreenshotFeedingIfRequested(totals: totals)
         }
+    }
+
+    /// 날짜 → 무엇의 수치인지 → 숫자 순으로 읽힌다. 자간과 크기 대비로 위계를 만든다.
+    private func headline(remaining: Double, limit: Double, overflow: Double, now: Date) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text(now.formatted(.dateTime.month().day().weekday(.wide)))
+                .font(.system(size: 11, weight: .medium))
+                .tracking(1.5)
+                .foregroundStyle(.secondary)
+                .padding(.top, 8)
+
+            Text("오늘 남은 \(side.label)")
+                .font(.system(size: 11, weight: .semibold))
+                .tracking(1.3)
+                .foregroundStyle(.tint)
+                .padding(.top, 28)
+
+            HStack(alignment: .firstTextBaseline, spacing: 0) {
+                Text(Amount.number(remaining))
+                    .font(.system(size: 96, weight: .bold))
+                    .tracking(-5.8)
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+                Text(side.unit)
+                    .font(.system(size: 30, weight: .medium))
+                    .opacity(0.85)
+                    .padding(.leading, 2)
+                Text("/\(Amount.number(limit)) \(side.unit)")
+                    .font(.system(size: 13))
+                    .tracking(0.3)
+                    .foregroundStyle(.secondary)
+                    .opacity(0.8)
+                    .padding(.leading, 10)
+            }
+            .animation(.spring(response: 0.4), value: remaining)
+
+            if overflow > 0 {
+                Text("+\(Amount.number(overflow)) \(side.unit) 넘김")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 6)
+            }
+        }
+        .padding(.leading, 24)
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("cup-summary")
+        .accessibilityLabel(
+            "\(side.label) 남은 \(Amount.number(remaining)) \(side.unit) / \(Amount.number(limit)) \(side.unit)"
+        )
+    }
+
+    private var affinityButton: some View {
+        Button {
+            // 무료는 페이월, Pro는 호감도 화면(§4.8).
+            if pro.isPro {
+                isAffinityPresented = true
+            } else {
+                paywall = .affinityDetail
+            }
+        } label: {
+            Image(systemName: "heart")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(.primary.opacity(0.7))
+                .frame(width: 36, height: 36)
+                .background(.white.opacity(0.22), in: Circle())
+        }
+        .padding(.trailing, 20)
+        .padding(.top, 6)
+        .accessibilityIdentifier("affinity")
+    }
+
+    /// 아래에서 위로: 마감 버튼(시간대에만) → 페이지 점 → 기록 버튼.
+    @ViewBuilder
+    private func bottomControls(now: Date, today: DayKey, totals: DayTotals) -> some View {
+        VStack(spacing: 14) {
+            closeControl(now: now, today: today, totals: totals)
+
+            HStack(alignment: .bottom) {
+                Spacer()
+                pageDots
+                Spacer()
+            }
+            .overlay(alignment: .trailing) {
+                Button {
+                    isRecordSheetPresented = true
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 26, weight: .regular))
+                        .foregroundStyle(.white)
+                        .frame(width: 59, height: 59)
+                        .background(Color.accentColor, in: Circle())
+                        .shadow(color: .black.opacity(0.18), radius: 12, y: 6)
+                }
+                .padding(.trailing, 20)
+                .padding(.bottom, 8)
+                .accessibilityLabel("기록 추가")
+                .accessibilityIdentifier("record-add")
+            }
+        }
+        .padding(.bottom, 12)
+    }
+
+    private var pageDots: some View {
+        HStack(spacing: 7) {
+            ForEach(CupSide.allCases) { cupSide in
+                Circle()
+                    .fill(Color.primary.opacity(cupSide == side ? 0.85 : 0.25))
+                    .frame(width: 7, height: 7)
+            }
+        }
+        .accessibilityHidden(true)
     }
 
     // MARK: - 정산(§4.7)
@@ -219,7 +335,6 @@ struct TodayView: View {
             Text("오늘 마감했어요")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity)
         } else if CloseWindow.isOpen(at: now, closeFromHour: closeFromHour, boundaryHour: boundaryHour) {
             Button {
                 feeding = FeedingRequest(
@@ -229,13 +344,12 @@ struct TodayView: View {
                 )
             } label: {
                 Text("오늘 마감")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
+                    .font(.system(size: 15, weight: .semibold))
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
             }
             .buttonStyle(.borderedProminent)
             .buttonBorderShape(.capsule)
-            .controlSize(.large)
-            .padding(.horizontal)
             .accessibilityIdentifier("close-today")
         }
     }
@@ -331,93 +445,6 @@ struct TodayView: View {
             isAffinityPresented = true
         }
         #endif
-    }
-
-    private func cupPager(totals: DayTotals) -> some View {
-        TabView(selection: $side) {
-            ForEach(CupSide.allCases) { cupSide in
-                cupPage(cupSide, totals: totals)
-                    .tag(cupSide)
-            }
-        }
-        .tabViewStyle(.page(indexDisplayMode: .never))
-        // 장면은 9:16이지만 아래에 수치·기록이 와야 하므로 3:4로 잘라 쓴다.
-        .aspectRatio(3.0 / 4.0, contentMode: .fit)
-        // 큰 화면에서 컵이 그대로 커지면 수치·브랜드 칩이 탭 바 밑으로 밀린다.
-        // 높이를 묶으면 폭이 줄어드니 가운데로 다시 세운다.
-        .frame(maxHeight: 420)
-        .frame(maxWidth: .infinity)
-    }
-
-    private func cupPage(_ cupSide: CupSide, totals: DayTotals) -> some View {
-        let step = CupLevel.step(
-            remaining: cupSide.remaining(totals), limit: cupSide.limit(limits)
-        )
-        return CupView(step: step)
-            .overlay(alignment: .bottomTrailing) {
-                // 캐릭터는 컵에 붙어 있다(§4.1). 잔 오른쪽 냅킨 위에 기대 세운다.
-                CharacterView(side: cupSide, isOverLimit: cupSide.overflow(totals) > 0)
-                    .frame(width: 112, height: 112)
-                    .padding(.trailing, 20)
-                    .padding(.bottom, 28)
-            }
-    }
-
-    private func summary(totals: DayTotals) -> some View {
-        let remaining = side.remaining(totals)
-        let limit = side.limit(limits)
-        let overflow = side.overflow(totals)
-
-        return VStack(spacing: 6) {
-            HStack(spacing: 6) {
-                ForEach(CupSide.allCases) { cupSide in
-                    Circle()
-                        .fill(cupSide == side ? Color.primary : Color.secondary.opacity(0.35))
-                        .frame(width: 6, height: 6)
-                }
-            }
-            .accessibilityHidden(true)
-
-            Text("\(side.label) 남은 \(Amount.number(remaining)) \(side.unit) / \(Amount.number(limit)) \(side.unit)")
-                .font(.title3.weight(.semibold))
-                .monospacedDigit()
-                .contentTransition(.numericText())
-                .animation(.spring(response: 0.4), value: remaining)
-
-            if overflow > 0 {
-                Text("+\(Amount.number(overflow)) \(side.unit) 넘김")
-                    .font(.subheadline)
-                    .monospacedDigit()
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 8)
-        .accessibilityElement(children: .combine)
-        .accessibilityIdentifier("cup-summary")
-    }
-
-    /// 브랜드 8개 + 직접 입력(§4.1). 카탈로그 등록 순서 그대로, 전부 한눈에 보이게 줄바꿈한다.
-    private var brandPicker: some View {
-        FlowLayout {
-            ForEach(catalog.catalog.brands) { brand in
-                Button(brand.name) { path = [brand.id] }
-                    .accessibilityIdentifier("brand-\(brand.id)")
-            }
-            Button {
-                isManualEntryPresented = true
-            } label: {
-                // 줄바꿈 배치가 마지막 칩에 좁은 폭을 줘도 글자가 눌리지 않게 고정한다.
-                Label("직접 입력", systemImage: "square.and.pencil")
-                    .lineLimit(1)
-                    .fixedSize()
-            }
-            .accessibilityIdentifier("manual-entry")
-        }
-        .buttonStyle(.bordered)
-        .buttonBorderShape(.capsule)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal)
     }
 
     private func record(_ entry: Entry) {

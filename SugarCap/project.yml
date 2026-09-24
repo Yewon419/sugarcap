@@ -123,6 +123,10 @@ targets:
       path: Widget-Info.plist
       properties:
         CFBundleDisplayName: 슈가캡
+        # 앱과 같은 버전·빌드 번호를 받는다. 없으면 XcodeGen 기본값 "1"로 굳어
+        # 업로드 때 "CFBundleVersion Mismatch" 경고가 난다(1.0 (52) 업로드에서 확인).
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
 

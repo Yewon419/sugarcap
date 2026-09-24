@@ -1,94 +1,92 @@
 import SwiftUI
 
-/// 페이월(SPEC §6). Pro 기능을 탭한 자리에서 시트로 열고, 구매하면 그 화면으로 돌아간다.
-/// 온보딩에는 넣지 않는다.
+/// 스토어·심사에 필요한 바깥 링크. 개인정보처리방침 URL은 배포 뒤에 채운다(docs/STORE.md §5).
+enum AppLinks {
+    /// Apple 표준 사용권 계약. 자체 약관이 없을 때 App Store가 인정하는 링크다.
+    static let termsOfUse = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")
+    /// `site/privacy/index.html`을 올린 주소. 아직 배포 전이라 nil이고, nil이면 링크를 숨긴다.
+    static let privacyPolicy: URL? = nil
+}
+
+/// 페이월(SPEC §6, 2026-09-24 디자인). Pro 기능을 탭한 자리에서 시트로 열고, 구매하면 그 화면으로 돌아간다.
+/// 온보딩에는 넣지 않는다. 자동 갱신 구독이라 갱신·해지 안내와 약관 링크를 빼면 심사에 걸린다.
 struct PaywallView: View {
-    /// 어떤 기능을 누르다 왔는지. 맨 위 한 줄이 그 기능을 말한다.
+    /// 어떤 기능을 누르다 왔는지. 소제목이 그 기능을 말한다.
     let feature: ProFeature
 
     @Environment(ProStore.self) private var store
     @Environment(\.dismiss) private var dismiss
+    @State private var selectedPlanID = ProProduct.yearly
 
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
-                    header
-                    benefits
-                    plans
-                    if let failure = store.failure {
-                        Text(failure)
-                            .font(.footnote)
-                            .foregroundStyle(.red)
-                            .multilineTextAlignment(.center)
-                    }
-                    Button("구매 복원") {
-                        Task { await store.restore() }
-                    }
-                    .font(.footnote)
-                }
-                .padding(.horizontal, 24)
-                .padding(.vertical, 8)
-            }
-            .navigationTitle("슈가캡 Pro")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("닫기") { dismiss() }
-                        .accessibilityIdentifier("paywall-close")
-                }
-            }
-            .task { await store.loadPlans() }
-            // 구매가 끝나면 원래 하려던 걸 하러 돌아간다.
-            .onChange(of: store.isPro) { _, isPro in
-                if isPro { dismiss() }
-            }
-        }
+    private var selectedPlan: ProPlan? {
+        store.plans.first { $0.id == selectedPlanID } ?? store.plans.first
     }
 
-    private var header: some View {
-        VStack(spacing: 8) {
-            HStack(spacing: 12) {
-                ForEach(CupSide.allCases) { side in
-                    Image(side.characterAsset)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 72)
-                        .accessibilityHidden(true)
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack {
+                    Text("슈가캡 PRO")
+                        .kicker()
+                    Spacer()
+                    Button("닫기") { dismiss() }
+                        .font(.system(size: 15))
+                        .accessibilityIdentifier("paywall-close")
+                }
+                .padding(.top, 20)
+
+                Text("덜 마신 날을\n더 잘 보이게")
+                    .font(.system(size: 34, weight: .bold))
+                    .tracking(-0.7)
+                    .lineSpacing(2)
+                    .padding(.top, 20)
+
+                Text("\(feature.title)는 Pro에서 열려요")
+                    .font(.system(size: 13))
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 10)
+
+                benefits
+                    .padding(.top, 24)
+
+                plans
+                    .padding(.top, 28)
+
+                if let failure = store.failure {
+                    Text(failure)
+                        .font(.footnote)
+                        .foregroundStyle(.red)
+                        .padding(.top, 12)
                 }
             }
-            Text("\(feature.title)는 Pro 기능이에요")
-                .font(.title3.bold())
-                .multilineTextAlignment(.center)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 24)
         }
-        .padding(.top, 8)
+        .safeAreaInset(edge: .bottom) { footer }
+        .task { await store.loadPlans() }
+        // 구매가 끝나면 원래 하려던 걸 하러 돌아간다.
+        .onChange(of: store.isPro) { _, isPro in
+            if isPro { dismiss() }
+        }
     }
 
     private var benefits: some View {
         VStack(alignment: .leading, spacing: 12) {
             ForEach(ProFeature.allCases, id: \.self) { item in
-                Label {
-                    Text(item.title)
-                } icon: {
-                    Image(systemName: "checkmark")
-                        .foregroundStyle(.tint)
-                }
-                .font(.subheadline)
+                benefitRow(item.title)
             }
-            Label {
-                Text("위젯")
-            } icon: {
-                Image(systemName: "checkmark")
-                    .foregroundStyle(.tint)
-            }
-            .font(.subheadline)
+            benefitRow("위젯")
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .background(
-            Color(.secondarySystemBackground),
-            in: RoundedRectangle(cornerRadius: 16, style: .continuous)
-        )
+    }
+
+    private func benefitRow(_ title: String) -> some View {
+        HStack(spacing: 12) {
+            Circle()
+                .fill(.tint)
+                .frame(width: 6, height: 6)
+            Text(title)
+                .font(.system(size: 15))
+        }
     }
 
     @ViewBuilder
@@ -96,6 +94,7 @@ struct PaywallView: View {
         if store.plans.isEmpty {
             if store.isLoadingPlans {
                 ProgressView()
+                    .frame(maxWidth: .infinity)
                     .padding(.vertical, 24)
             } else {
                 Button("다시 불러오기") {
@@ -107,57 +106,117 @@ struct PaywallView: View {
         } else {
             VStack(spacing: 12) {
                 ForEach(store.plans) { plan in
-                    planButton(plan)
+                    planCard(plan)
                 }
             }
         }
     }
 
-    private func planButton(_ plan: ProPlan) -> some View {
-        Button {
-            Task { await store.purchase(plan.id) }
+    /// 선택된 카드만 액센트를 쓴다. 누르면 선택만 바뀌고, 결제는 아래 버튼이 한다.
+    private func planCard(_ plan: ProPlan) -> some View {
+        let selected = plan.id == selectedPlanID
+        return Button {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.9)) {
+                selectedPlanID = plan.id
+            }
         } label: {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
+            HStack(alignment: .center) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text(plan.title)
-                        .font(.headline)
+                        .font(.system(size: 17, weight: .semibold))
                     if let note = plan.note {
                         Text(note)
-                            .font(.footnote)
+                            .font(.system(size: 12))
                             .foregroundStyle(.secondary)
                     }
                 }
                 Spacer(minLength: 8)
-                if store.purchasingID == plan.id {
-                    ProgressView()
-                } else {
-                    Text(plan.price)
-                        .font(.headline)
-                        .monospacedDigit()
+                Text(plan.price)
+                    .font(.system(size: 20, weight: .bold))
+                    .tracking(-0.4)
+                    .monospacedDigit()
+            }
+            .padding(.horizontal, 20)
+            .frame(height: 84)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                selected ? Color.accentColor.opacity(0.08) : Color.clear,
+                in: RoundedRectangle(cornerRadius: 16, style: .continuous)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .strokeBorder(
+                        selected ? Color.accentColor : Color(.separator),
+                        lineWidth: selected ? 2 : 1
+                    )
+            )
+            .overlay(alignment: .topTrailing) {
+                if !plan.isLifetime {
+                    Text("추천")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .background(Color.accentColor, in: Capsule())
+                        .offset(x: -16, y: -10)
                 }
             }
-            .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .buttonStyle(.plain)
-        .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .strokeBorder(plan.isLifetime ? Color.secondary.opacity(0.3) : Color.accentColor, lineWidth: plan.isLifetime ? 1 : 2)
-        )
-        .disabled(store.purchasingID != nil)
         .accessibilityIdentifier("plan-\(plan.id)")
+        .accessibilityAddTraits(selected ? .isSelected : [])
+    }
+
+    private var footer: some View {
+        VStack(spacing: 12) {
+            Button {
+                guard let plan = selectedPlan else { return }
+                Task { await store.purchase(plan.id) }
+            } label: {
+                Group {
+                    if store.purchasingID != nil {
+                        ProgressView().tint(.white)
+                    } else {
+                        Text(selectedPlan.map { "\($0.title)으로 시작" } ?? "시작")
+                            .font(.system(size: 17, weight: .semibold))
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 56)
+            }
+            .buttonStyle(.borderedProminent)
+            .buttonBorderShape(.capsule)
+            .disabled(store.plans.isEmpty || store.purchasingID != nil)
+            .accessibilityIdentifier("paywall-purchase")
+
+            Text("연간 구독은 기간이 끝나기 24시간 전에 해지하지 않으면 자동으로 갱신됩니다. 해지는 App Store 계정 설정에서 합니다.")
+                .font(.system(size: 11))
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+
+            HStack(spacing: 6) {
+                Button("구매 복원") {
+                    Task { await store.restore() }
+                }
+                if let terms = AppLinks.termsOfUse {
+                    Text("·").foregroundStyle(.secondary)
+                    Link("이용약관", destination: terms)
+                }
+                if let privacy = AppLinks.privacyPolicy {
+                    Text("·").foregroundStyle(.secondary)
+                    Link("개인정보처리방침", destination: privacy)
+                }
+            }
+            .font(.system(size: 12, weight: .medium))
+        }
+        .padding(.horizontal, 24)
+        .padding(.top, 8)
+        .padding(.bottom, 8)
+        .background(.background)
     }
 }
 
 #Preview {
     PaywallView(feature: .affinityDetail)
-        .environment(
-            ProStore(
-                previewPlans: [
-                    ProPlan(id: ProProduct.yearly, title: "연간", price: "₩9,900", note: "해지할 때까지 매년"),
-                    ProPlan(id: ProProduct.lifetime, title: "평생", price: "₩29,000", note: "한 번만 결제"),
-                ],
-                isPro: false
-            )
-        )
+        .environment(ProStore(previewPlans: ProStore.mockPlans, isPro: false))
 }

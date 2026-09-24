@@ -128,22 +128,21 @@ struct FeedingView: View {
                 Text(CupSide.sugar.unit)
                     .heroUnit()
                     .padding(.leading, 2)
-                Text(isFed ? "로슈가 먹었어요" : "남은 당을 로슈에게")
-                    .font(.system(size: 13))
-                    .tracking(0.3)
-                    .foregroundStyle(.secondary)
-                    .padding(.leading, 12)
             }
             .animation(.spring(response: 0.5), value: isFed)
-            Text(
-                isFed
-                    ? "카페인은 카인이 먹었어요"
-                    : "카페인 \(Amount.number(caffeine)) \(CupSide.caffeine.unit)는 카인에게"
-            )
+            // 두 캡션은 한 덩어리로 숫자 밑에 붙인다. 옆·아래로 갈라 두면 큰 글자에서 남남으로 읽혔다.
+            VStack(alignment: .leading, spacing: 4) {
+                Text(isFed ? "로슈가 먹었어요" : "남은 당을 로슈에게")
+                Text(
+                    isFed
+                        ? "카페인은 카인이 먹었어요"
+                        : "카페인 \(Amount.number(caffeine)) \(CupSide.caffeine.unit)는 카인에게"
+                )
+            }
             .font(.system(size: 13))
             .tracking(0.3)
             .foregroundStyle(.secondary)
-            .padding(.top, 8)
+            .padding(.top, 6)
 
             if let errorText {
                 Text(errorText)

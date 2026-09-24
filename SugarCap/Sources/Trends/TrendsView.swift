@@ -165,8 +165,9 @@ struct TrendsView: View {
                     .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
                     .foregroundStyle(Color.gray.opacity(0.6))
                     .annotation(position: .top, alignment: .leading, spacing: 2) {
+                        // 차트 안 글자는 Dynamic Type을 따르지 않는다. 큰 글자에서 주석이 막대를 덮었다.
                         Text("하루 기준 \(Amount.number(side.limit(limits))) \(side.unit)")
-                            .font(.caption2)
+                            .font(.system(size: 11))
                             .monospacedDigit()
                             .foregroundStyle(.secondary)
                     }
@@ -188,6 +189,7 @@ struct TrendsView: View {
                     AxisValueLabel {
                         if let raw = value.as(String.self), let day = DayKey(rawValue: raw) {
                             Text(range.axisLabel(day))
+                                .font(.system(size: 12))
                         }
                     }
                 }
@@ -198,6 +200,7 @@ struct TrendsView: View {
                     AxisValueLabel {
                         if let number = value.as(Double.self) {
                             Text(Amount.number(number))
+                                .font(.system(size: 12))
                                 .monospacedDigit()
                         }
                     }

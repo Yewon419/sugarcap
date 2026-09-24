@@ -16,7 +16,21 @@ struct RecordSheet: View {
     private let columns = [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)]
 
     var body: some View {
-        NavigationStack {
+        // 시스템 내비바 대신 다른 시트(페이월·호감도)와 같은 머리글. iOS 26 내비바 버튼은
+        // 유리 알약으로 그려져 흰 시트 위에서 그림자 번짐이 생긴다.
+        VStack(spacing: 0) {
+            HStack {
+                Text("기록")
+                    .kicker()
+                Spacer()
+                Button("닫기") { dismiss() }
+                    .font(.system(size: 15))
+                    .accessibilityIdentifier("record-close")
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 28)
+            .padding(.bottom, 4)
+
             List {
                 Section {
                     LazyVGrid(columns: columns, spacing: 10) {
@@ -93,14 +107,6 @@ struct RecordSheet: View {
             }
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
-            .navigationTitle("기록")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("닫기") { dismiss() }
-                        .accessibilityIdentifier("record-close")
-                }
-            }
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)

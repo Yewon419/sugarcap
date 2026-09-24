@@ -26,8 +26,11 @@ enum DemoData {
             let today = DayKey(at: now, boundaryHour: boundaryHour)
 
             // 오늘: 두 잔. 당 30 g / 카페인 245 mg이 빠져 컵이 반쯤 줄어 보인다.
-            insert(context, "아메리카노", "스타벅스", "Tall", sugar: 0, caffeine: 150, at: hour(9, now, calendar))
-            insert(context, "카페모카", "투썸플레이스", "레귤러", sugar: 30, caffeine: 95, at: hour(14, now, calendar))
+            //
+            // **지금 시각에서 뒤로 잡는다.** 달력 시각(9시·14시)으로 박으면 CI가 도는 새벽에는
+            // 하루 경계(4시) 기준으로 그 시각이 아직 오지 않아 오늘 합계에 안 잡힌다.
+            insert(context, "아메리카노", "스타벅스", "Tall", sugar: 0, caffeine: 150, at: now.addingTimeInterval(-5400))
+            insert(context, "카페모카", "투썸플레이스", "레귤러", sugar: 30, caffeine: 95, at: now.addingTimeInterval(-1800))
 
             // 지난 12일. 배열의 0번이 **어제**다. 최근으로 올수록 적게 마신 값이어야
             // 추이 막대와 "지난주 대비"가 줄어드는 그림이 된다.
@@ -61,10 +64,6 @@ enum DemoData {
         } catch {
             logger.error("데모 데이터 주입 실패: \(String(describing: error), privacy: .public)")
         }
-    }
-
-    private static func hour(_ hour: Int, _ now: Date, _ calendar: Calendar) -> Date {
-        calendar.date(bySettingHour: hour, minute: 10, second: 0, of: now) ?? now
     }
 
     private static func insert(

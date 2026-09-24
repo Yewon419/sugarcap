@@ -73,6 +73,16 @@ gh secret set ASC_KEY_P8    --repo Yewon419/sugarcap --body "<위 base64 한 줄
 | `ASC_KEY_P8` | `AuthKey_*.p8`를 base64로 인코딩한 한 줄 |
 | `TEAM_ID` | Apple Developer Team ID (10자리) |
 
+### 6. App Group과 위젯 App ID (2026-09-24 완료)
+위젯(SPEC §4.6)은 앱과 `group.com.sugarcap.app` 저장소를 공유한다(`SharedStore.appGroupID`, 두 `.entitlements`).
+developer.apple.com > Identifiers 에 다음이 등록돼 있다:
+- App Group `SugarCap Shared` = `group.com.sugarcap.app`
+- App ID `com.sugarcap.app`(SugarCap) — App Groups 켜짐, 위 그룹 배정
+- App ID `com.sugarcap.app.widget`(SugarCap Widget, explicit) — App Groups 켜짐, 위 그룹 배정
+
+cloud signing이 entitlements와 App ID 기능을 대조하므로, 셋 중 하나라도 빠지면 archive/export가 App Groups 불일치로 실패한다.
+새 확장 타깃을 추가하면 같은 절차로 App ID를 만들고 그룹을 배정한다.
+
 ## 업로드 실행
 
 GitHub > Actions > **iOS** > **Run workflow** (main 브랜치).

@@ -52,6 +52,8 @@ jobs:
           echo "SIM_UDID=${UDID%%$'\t'*}" >> "$GITHUB_ENV"
           echo "선택: ${UDID#*$'\t'}"
 
+      # 시뮬레이터에서도 ad-hoc 서명("-")을 해야 entitlements가 앱에 박힌다.
+      # 서명을 끄면 App Group 컨테이너를 못 찾아 SwiftData가 그대로 죽는다(§4.6).
       # 기록 루프 UI 테스트를 화면째 녹화한다(SPEC §8 Phase 1 게이트 "플로우 녹화").
       # 녹화는 부팅된 기기에만 붙으므로 xcodebuild보다 먼저 부팅하고, 테스트가 실패해도 영상은 닫는다.
       - name: 테스트 (서명 없음) + 플로우 녹화
@@ -72,7 +74,9 @@ jobs:
             -destination "id=$SIM_UDID" \
             -derivedDataPath build \
             -resultBundlePath "$RUNNER_TEMP/Tests.xcresult" \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO
           STATUS=$?
           set -e
 

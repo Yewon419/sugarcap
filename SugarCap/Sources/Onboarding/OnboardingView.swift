@@ -38,8 +38,8 @@ struct OnboardingView: View {
                         .tag(item.rawValue)
                 }
             }
+            // 하단 인셋(점·버튼) 위에서 끝나야 장식(타일·캐릭터)이 바에 가려지지 않는다.
             .tabViewStyle(.page(indexDisplayMode: .never))
-            .ignoresSafeArea(edges: .bottom)
         }
         .overlay(alignment: .topTrailing) {
             if !isLast {

@@ -34,7 +34,7 @@ struct RootView: View {
                 if onboardingCompleted {
                     tabs(index)
                 } else {
-                    OnboardingView {
+                    OnboardingView(brands: index.catalog.brands) {
                         withAnimation(.easeOut(duration: 0.25)) { onboardingCompleted = true }
                     }
                 }

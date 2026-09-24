@@ -136,8 +136,12 @@ jobs:
           shoot type-ax-xl light accessibility-extra-large
           shoot settings light large -initialTab settings
           shoot onboarding light large -onboardingCompleted NO
+          shoot onboarding-2 light large -onboardingCompleted NO -onboardingPage 2
+          shoot onboarding-3 light large -onboardingCompleted NO -onboardingPage 3
+          shoot onboarding-4 light large -onboardingCompleted NO -onboardingPage 4
           shoot settings-type-ax-xl light accessibility-extra-large -initialTab settings
           shoot onboarding-type-ax-xl light accessibility-extra-large -onboardingCompleted NO
+          shoot onboarding-4-type-ax-xl light accessibility-extra-large -onboardingCompleted NO -onboardingPage 4
           # 마감 버튼은 저녁 이후에만 보여 러너 시각에 따라 닿지 못한다. Debug 빌드 전용 인자로 띄운다.
           shoot trends light large -initialTab trends
           shoot trends-type-ax-xl light accessibility-extra-large -initialTab trends

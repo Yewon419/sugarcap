@@ -13,9 +13,12 @@ final class RecordFlowUITests: XCTestCase {
         app.launch()
         let ui = Driver(app: app)
 
-        // 새 시뮬레이터라 온보딩이 떠야 한다(§4.5).
+        // 새 시뮬레이터라 온보딩이 떠야 한다(§4.5). 4페이지라 건너뛰기로 마지막 장까지 간 뒤 시작한다.
+        let skip = app.buttons["onboarding-skip"]
+        XCTAssertTrue(skip.waitForExistence(timeout: 15), "첫 실행에 온보딩이 없음")
+        skip.tap()
         let start = app.buttons["onboarding-start"]
-        XCTAssertTrue(start.waitForExistence(timeout: 15), "첫 실행에 온보딩이 없음")
+        XCTAssertTrue(start.waitForExistence(timeout: 5), "온보딩 마지막 장(하루 기준)이 안 열림")
         start.tap()
 
         let summary = ui.element("cup-summary")
@@ -79,10 +82,7 @@ extension RecordFlowUITests {
         app.launch()
 
         // 단독 실행이면 온보딩부터 뜬다.
-        let start = app.buttons["onboarding-start"]
-        if start.waitForExistence(timeout: 5) {
-            start.tap()
-        }
+        completeOnboardingIfPresented(app)
 
         let summary = app.descendants(matching: .any)["cup-summary"]
         XCTAssertTrue(summary.waitForExistence(timeout: 15))
@@ -122,10 +122,7 @@ extension RecordFlowUITests {
         app.launchArguments += ["-mockProOwned", "YES"]
         app.launch()
 
-        let start = app.buttons["onboarding-start"]
-        if start.waitForExistence(timeout: 5) {
-            start.tap()
-        }
+        completeOnboardingIfPresented(app)
         app.tabBars.buttons["설정"].tap()
 
         let startGoal = app.buttons["start-goal-sugar"]
@@ -156,10 +153,7 @@ extension RecordFlowUITests {
         app.launchArguments += ["-mockPro", "YES"]
         app.launch()
 
-        let start = app.buttons["onboarding-start"]
-        if start.waitForExistence(timeout: 5) {
-            start.tap()
-        }
+        completeOnboardingIfPresented(app)
 
         let affinity = app.buttons["affinity"]
         XCTAssertTrue(affinity.waitForExistence(timeout: 15))
@@ -234,4 +228,17 @@ private struct Driver {
         field.typeText(text)
     }
 
+}
+
+extension RecordFlowUITests {
+    /// 단독 실행이면 온보딩부터 뜬다. 건너뛰기 → 마지막 장 "시작". 이미 지났으면 아무것도 안 한다.
+    @MainActor
+    func completeOnboardingIfPresented(_ app: XCUIApplication) {
+        let skip = app.buttons["onboarding-skip"]
+        guard skip.waitForExistence(timeout: 5) else { return }
+        skip.tap()
+        let start = app.buttons["onboarding-start"]
+        XCTAssertTrue(start.waitForExistence(timeout: 5), "온보딩 마지막 장이 안 열림")
+        start.tap()
+    }
 }

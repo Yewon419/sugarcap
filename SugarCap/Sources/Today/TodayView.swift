@@ -208,31 +208,25 @@ struct TodayView: View {
     /// 아래에서 위로: 마감 버튼(시간대에만) → 페이지 점 → 기록 버튼.
     @ViewBuilder
     private func bottomControls(now: Date, today: DayKey, totals: DayTotals) -> some View {
-        VStack(spacing: 14) {
+        // 액센트는 기록 버튼 하나만 쓴다. 마감은 조용한 유리 알약으로 왼쪽에 둔다.
+        HStack(alignment: .center, spacing: 12) {
             closeControl(now: now, today: today, totals: totals)
-
-            HStack(alignment: .bottom) {
-                Spacer()
-                pageDots
-                Spacer()
+            Spacer(minLength: 0)
+            Button {
+                isRecordSheetPresented = true
+            } label: {
+                Image(systemName: "plus")
+                    .font(.system(size: 26, weight: .regular))
+                    .foregroundStyle(.white)
+                    .frame(width: 59, height: 59)
+                    .background(Color.accentColor, in: Circle())
+                    .shadow(color: .black.opacity(0.18), radius: 12, y: 6)
             }
-            .overlay(alignment: .trailing) {
-                Button {
-                    isRecordSheetPresented = true
-                } label: {
-                    Image(systemName: "plus")
-                        .font(.system(size: 26, weight: .regular))
-                        .foregroundStyle(.white)
-                        .frame(width: 59, height: 59)
-                        .background(Color.accentColor, in: Circle())
-                        .shadow(color: .black.opacity(0.18), radius: 12, y: 6)
-                }
-                .padding(.trailing, 20)
-                .padding(.bottom, 8)
-                .accessibilityLabel("기록 추가")
-                .accessibilityIdentifier("record-add")
-            }
+            .accessibilityLabel("기록 추가")
+            .accessibilityIdentifier("record-add")
         }
+        .overlay { pageDots }
+        .padding(.horizontal, 20)
         .padding(.bottom, 12)
     }
 
@@ -332,9 +326,12 @@ struct TodayView: View {
     private func closeControl(now: Date, today: DayKey, totals: DayTotals) -> some View {
         let isClosed = settlements.first { $0.day == today.rawValue }?.isClosed == true
         if isClosed {
-            Text("오늘 마감했어요")
-                .font(.footnote)
+            Label("마감함", systemImage: "moon.stars")
+                .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(.secondary)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 9)
+                .background(.ultraThinMaterial, in: Capsule())
         } else if CloseWindow.isOpen(at: now, closeFromHour: closeFromHour, boundaryHour: boundaryHour) {
             Button {
                 feeding = FeedingRequest(
@@ -343,13 +340,16 @@ struct TodayView: View {
                     caffeineLeftMg: totals.leftCaffeineMg
                 )
             } label: {
-                Text("오늘 마감")
-                    .font(.system(size: 15, weight: .semibold))
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 12)
+                Label("오늘 마감", systemImage: "moon.stars")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(.primary)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 11)
+                    .background(.ultraThinMaterial, in: Capsule())
+                    .overlay(Capsule().strokeBorder(.white.opacity(0.45), lineWidth: 1))
+                    .shadow(color: .black.opacity(0.10), radius: 8, y: 3)
             }
-            .buttonStyle(.borderedProminent)
-            .buttonBorderShape(.capsule)
+            .buttonStyle(.plain)
             .accessibilityIdentifier("close-today")
         }
     }

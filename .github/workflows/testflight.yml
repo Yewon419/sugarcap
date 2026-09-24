@@ -140,6 +140,8 @@ jobs:
           shoot paywall light large -mockPro YES -screenshotPaywall YES
           shoot paywall-type-ax-xl light accessibility-extra-large -mockPro YES -screenshotPaywall YES
           shoot affinity light large -mockProOwned YES -screenshotAffinity YES
+          shoot record light large -seedDemo YES -screenshotRecord YES
+          shoot record-type-ax-xl light accessibility-extra-large -seedDemo YES -screenshotRecord YES
           shoot feeding-type-ax-xl light accessibility-extra-large -screenshotFeeding YES
           ls -la "$OUT"
 

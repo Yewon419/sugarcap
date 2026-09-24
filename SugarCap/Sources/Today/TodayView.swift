@@ -444,6 +444,9 @@ struct TodayView: View {
         if defaults.bool(forKey: "screenshotAffinity") {
             isAffinityPresented = true
         }
+        if defaults.bool(forKey: "screenshotRecord") {
+            isRecordSheetPresented = true
+        }
         #endif
     }
 

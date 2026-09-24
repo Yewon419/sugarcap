@@ -20,23 +20,24 @@ struct EntryRow: View {
     }
 
     var body: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 12) {
-            VStack(alignment: .leading, spacing: 2) {
+        HStack(alignment: .top, spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(.body)
+                    .font(.system(size: 16, weight: .semibold))
                 Text(detail)
-                    .font(.footnote)
+                    .font(.system(size: 12))
                     .foregroundStyle(.secondary)
             }
             Spacer(minLength: 8)
-            VStack(alignment: .trailing, spacing: 2) {
-                Text(Amount.text(entry.sugarG, unit: CupSide.sugar.unit))
-                Text(Amount.text(entry.caffeineMg, unit: CupSide.caffeine.unit))
-            }
-            .font(.footnote)
+            Text(
+                "\(Amount.text(entry.sugarG, unit: CupSide.sugar.unit)) · \(Amount.text(entry.caffeineMg, unit: CupSide.caffeine.unit))"
+            )
+            .font(.system(size: 13, weight: .medium))
             .monospacedDigit()
             .foregroundStyle(.secondary)
+            .padding(.top, 3)
         }
+        .padding(.vertical, 6)
         .accessibilityElement(children: .combine)
     }
 }

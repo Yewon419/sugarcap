@@ -14,7 +14,7 @@ struct SugarCapApp: App {
             container = try SharedStore.makeContainer()
         } catch {
             Logger(subsystem: "com.sugarcap.app", category: "store")
-                .fault("공용 저장소를 열지 못함: \(String(describing: error), privacy: .public)")
+                .fault("저장소를 열지 못함: \(String(describing: error), privacy: .public)")
             fatalError("SwiftData 저장소를 열 수 없습니다: \(error)")
         }
 
@@ -24,6 +24,12 @@ struct SugarCapApp: App {
                 .fault("번들 카탈로그 로드 실패: \(String(describing: error), privacy: .public)")
         }
         catalog = loaded
+
+        if SharedStore.groupContainerURL == nil {
+            // 실기기에서 이 로그가 보이면 entitlement가 빠진 빌드다. 위젯이 기록을 못 읽는다.
+            Logger(subsystem: "com.sugarcap.app", category: "store")
+                .error("App Group이 없어 앱 전용 저장소를 쓴다(위젯은 빈 값으로 보인다).")
+        }
     }
 
     var body: some Scene {

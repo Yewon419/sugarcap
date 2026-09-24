@@ -12,10 +12,20 @@ enum SharedStore {
         Entry.self, AppSettings.self, DaySettlement.self, Affinity.self, ReductionGoal.self,
     ])
 
+    /// App Group이 실제로 붙어 있는지. entitlement가 없으면 nil이다.
+    ///
+    /// **SwiftData는 없는 App Group을 지정하면 예외가 아니라 그 자리에서 죽는다**
+    /// (`Unable to find App Group Container in Entitlements`). 그래서 만들기 전에 먼저 본다.
+    /// CI 시뮬레이터처럼 entitlement가 안 박히는 환경에서는 앱 전용 저장소로 물러난다.
+    static var groupContainerURL: URL? {
+        FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)
+    }
+
     static func makeContainer() throws -> ModelContainer {
-        let configuration = ModelConfiguration(
-            schema: schema, groupContainer: .identifier(appGroupID)
-        )
+        let configuration =
+            groupContainerURL == nil
+            ? ModelConfiguration(schema: schema)
+            : ModelConfiguration(schema: schema, groupContainer: .identifier(appGroupID))
         return try ModelContainer(for: schema, configurations: configuration)
     }
 }

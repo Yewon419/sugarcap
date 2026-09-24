@@ -98,6 +98,7 @@ private struct SettingsContent: View {
                             HStack {
                                 Text("슈가캡 Pro 보기")
                                     .foregroundStyle(.tint)
+                                    .multilineTextAlignment(.leading)
                                 Spacer()
                                 Image(systemName: "chevron.right")
                                     .font(.footnote.weight(.semibold))
@@ -305,6 +306,7 @@ private struct SettingsContent: View {
                 HStack {
                     Text("\(side.label) 줄이기 시작")
                         .foregroundStyle(.tint)
+                        .multilineTextAlignment(.leading)
                     Spacer()
                     Image(systemName: pro.isPro ? "chevron.right" : "lock")
                         .font(.footnote.weight(.semibold))

@@ -4,8 +4,8 @@ import SwiftUI
 enum AppLinks {
     /// Apple 표준 사용권 계약. 자체 약관이 없을 때 App Store가 인정하는 링크다.
     static let termsOfUse = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")
-    /// `site/privacy/index.html`을 올린 주소. 아직 배포 전이라 nil이고, nil이면 링크를 숨긴다.
-    static let privacyPolicy: URL? = nil
+    /// `site/privacy/index.html`을 올린 주소(Vercel, 2026-09-24 배포). nil이면 링크를 숨긴다.
+    static let privacyPolicy = URL(string: "https://sugarcap.vercel.app/privacy/")
 }
 
 /// 페이월(SPEC §6, 2026-09-24 디자인). Pro 기능을 탭한 자리에서 시트로 열고, 구매하면 그 화면으로 돌아간다.

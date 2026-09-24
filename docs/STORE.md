@@ -78,12 +78,12 @@
 
 | 항목 | 값 | 상태 |
 |---|---|---|
-| 지원 URL | (미정) | 필수. 깃허브 이슈 페이지나 정적 페이지 하나면 된다 |
+| 지원 URL | https://sugarcap.vercel.app/ | 배포됨(2026-09-24). `site/index.html` |
 | 마케팅 URL | (선택) | |
-| 개인정보처리방침 URL | (미정) | **필수.** 초안은 `site/privacy/index.html` |
+| 개인정보처리방침 URL | https://sugarcap.vercel.app/privacy/ | 배포됨(2026-09-24). `site/privacy/index.html` |
 
-`site/`는 Vercel 정적 배포용이다(SPEC §2.3, 카탈로그 원격 갱신과 같은 호스팅을 쓴다).
-배포는 대표님 계정 작업이다.
+`site/`는 Vercel 프로젝트 `sugarcap`(팀 yewon419s-projects)에 정적 배포한다. 갱신은 `site/`에서
+`npx vercel --prod --yes`. git 자동 배포는 안 걸려 있다. 카탈로그 원격 갱신(SPEC §2.3)도 같은 호스팅을 쓴다.
 
 ## 6. 앱 개인정보(App Privacy) 문항
 
@@ -139,8 +139,8 @@ App Store는 6.9인치 세트 하나면 나머지 크기를 자동으로 채운�
 - [ ] 인앱 구매 상품 2개 등록 + "제출 준비 완료" 상태 (`com.sugarcap.app.pro.yearly`, `com.sugarcap.app.pro.lifetime`)
 - [ ] 구독 그룹과 현지화(한국어) 작성
 - [ ] 샌드박스 계정으로 구매·복원 확인 (SPEC §8 Phase 3 게이트)
-- [ ] 개인정보처리방침 URL 열림 확인
-- [ ] 지원 URL 열림 확인
+- [x] 개인정보처리방침 URL 열림 확인 (2026-09-24, 200)
+- [x] 지원 URL 열림 확인 (2026-09-24, 200)
 - [ ] 스크린샷 5장 업로드
 - [ ] 앱 개인정보 문항 제출
 - [ ] 연령 등급 문항 제출

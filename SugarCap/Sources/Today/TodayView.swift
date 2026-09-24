@@ -259,7 +259,8 @@ struct TodayView: View {
                         feeding = FeedingRequest(
                             kind: .pastDay(day),
                             sugarLeftG: dayTotals.leftSugarG,
-                            caffeineLeftMg: dayTotals.leftCaffeineMg
+                            caffeineLeftMg: dayTotals.leftCaffeineMg,
+                            limits: limits
                         )
                     }
                     .buttonStyle(.borderedProminent)
@@ -276,7 +277,8 @@ struct TodayView: View {
                             feeding = FeedingRequest(
                                 kind: .pastDay(day),
                                 sugarLeftG: limits.sugarG,
-                                caffeineLeftMg: limits.caffeineMg
+                                caffeineLeftMg: limits.caffeineMg,
+                                limits: limits
                             )
                         }
                         .buttonStyle(.borderedProminent)
@@ -337,7 +339,8 @@ struct TodayView: View {
                 feeding = FeedingRequest(
                     kind: .closeToday,
                     sugarLeftG: totals.leftSugarG,
-                    caffeineLeftMg: totals.leftCaffeineMg
+                    caffeineLeftMg: totals.leftCaffeineMg,
+                    limits: limits
                 )
             } label: {
                 Label("오늘 마감", systemImage: "moon.stars")
@@ -435,7 +438,8 @@ struct TodayView: View {
         let defaults = UserDefaults.standard
         if defaults.bool(forKey: "screenshotFeeding") {
             feeding = FeedingRequest(
-                kind: .closeToday, sugarLeftG: totals.leftSugarG, caffeineLeftMg: totals.leftCaffeineMg
+                kind: .closeToday, sugarLeftG: totals.leftSugarG, caffeineLeftMg: totals.leftCaffeineMg,
+                limits: limits
             )
         }
         if defaults.bool(forKey: "screenshotPaywall") {

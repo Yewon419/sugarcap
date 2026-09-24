@@ -1,6 +1,7 @@
 import OSLog
 import SwiftData
 import SwiftUI
+import WidgetKit
 
 /// 오늘 화면(SPEC §4.1). 컵은 가득 찬 채로 시작해 기록할 때마다 줄어든다.
 struct TodayView: View {
@@ -436,6 +437,7 @@ struct TodayView: View {
     private func persist(_ action: String) {
         do {
             try context.save()
+            WidgetCenter.shared.reloadAllTimelines()
         } catch {
             Self.logger.error("\(action, privacy: .public) 실패: \(String(describing: error), privacy: .public)")
         }

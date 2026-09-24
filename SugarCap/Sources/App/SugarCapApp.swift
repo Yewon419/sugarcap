@@ -6,8 +6,18 @@ import SwiftUI
 struct SugarCapApp: App {
     /// 번들 카탈로그는 앱 수명 동안 한 번만 읽는다(약 620KB, 1,583 servings).
     private let catalog: Result<CatalogIndex, any Error>
+    /// App Group 컨테이너에 둔다(§4.6). 위젯이 같은 파일을 읽는다.
+    private let container: ModelContainer
 
     init() {
+        do {
+            container = try SharedStore.makeContainer()
+        } catch {
+            Logger(subsystem: "com.sugarcap.app", category: "store")
+                .fault("공용 저장소를 열지 못함: \(String(describing: error), privacy: .public)")
+            fatalError("SwiftData 저장소를 열 수 없습니다: \(error)")
+        }
+
         let loaded = Result { CatalogIndex(catalog: try CatalogStore.loadBundled()) }
         if case .failure(let error) = loaded {
             Logger(subsystem: "com.sugarcap.app", category: "catalog")
@@ -20,6 +30,6 @@ struct SugarCapApp: App {
         WindowGroup {
             RootView(catalog: catalog)
         }
-        .modelContainer(for: [Entry.self, AppSettings.self, DaySettlement.self, Affinity.self, ReductionGoal.self])
+        .modelContainer(container)
     }
 }

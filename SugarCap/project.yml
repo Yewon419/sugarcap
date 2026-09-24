@@ -17,8 +17,15 @@ targets:
   SugarCap:
     type: application
     platform: iOS
+    dependencies:
+      - target: SugarCapWidget
+    entitlements:
+      path: SugarCap.entitlements
     sources:
       - path: Sources
+        # 위젯 코드는 확장 타깃 것이다. 앱까지 컴파일하면 @main이 둘이 된다.
+        excludes:
+          - "Widget/**"
       - path: Resources
       # 수집 파이프라인 산출물을 그대로 번들에 넣는다. 복사본을 두면 갱신이 갈라진다.
       - path: ../data/catalog.json
@@ -84,6 +91,40 @@ targets:
     info:
       path: UITests-Info.plist
       properties: {}
+
+  # Small 위젯(SPEC §4.6). 앱과 App Group 저장소를 공유한다.
+  SugarCapWidget:
+    type: app-extension
+    platform: iOS
+    entitlements:
+      path: SugarCapWidget.entitlements
+    sources:
+      - path: Sources/Widget
+      - path: Sources/Shared
+      - path: Sources/Model
+      - path: Sources/Day
+      - path: Sources/Reduction/ReductionMath.swift
+      - path: Sources/Settlement/SettlementMath.swift
+      - path: Sources/Today/CupSide.swift
+      - path: Sources/Today/Amount.swift
+      # 캐릭터 스프라이트만 든 카탈로그. 컵 장면(2048px 9장)은 위젯에 넣지 않는다.
+      - path: Resources/Shared.xcassets
+    dependencies:
+      - sdk: WidgetKit.framework
+      - sdk: SwiftUI.framework
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.sugarcap.app.widget
+        PRODUCT_NAME: SugarCapWidget
+        TARGETED_DEVICE_FAMILY: "1"
+        SWIFT_STRICT_CONCURRENCY: complete
+        SKIP_INSTALL: YES
+    info:
+      path: Widget-Info.plist
+      properties:
+        CFBundleDisplayName: 슈가캡
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
 
 schemes:
   SugarCap:

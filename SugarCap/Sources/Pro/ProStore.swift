@@ -1,6 +1,7 @@
 import OSLog
 import StoreKit
 import SwiftUI
+import WidgetKit
 
 /// 구매 상태(SPEC §6). StoreKit 2를 직접 쓰고 서버 영수증 검증은 두지 않는다(서버 없음, §1).
 @Observable
@@ -71,6 +72,11 @@ final class ProStore {
             }
         }
         isPro = ProEntitlement.isPro(productIDs: owned)
+        // 위젯은 StoreKit을 다시 묻지 않고 이 값을 읽는다(§4.6).
+        if SharedDefaults.isPro != isPro {
+            SharedDefaults.isPro = isPro
+            WidgetCenter.shared.reloadAllTimelines()
+        }
     }
 
     func loadPlans() async {

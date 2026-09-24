@@ -15,8 +15,9 @@ struct OnboardingView: View {
             // 위는 글자 자리, 아래는 카드·버튼 자리. 가운데만 컵이 보인다.
             LinearGradient(
                 stops: [
-                    .init(color: .white.opacity(0.94), location: 0),
-                    .init(color: .white.opacity(0.55), location: 0.42),
+                    .init(color: .white.opacity(0.96), location: 0),
+                    .init(color: .white.opacity(0.9), location: 0.3),
+                    .init(color: .white.opacity(0.5), location: 0.48),
                     .init(color: .white.opacity(0.88), location: 0.72),
                     .init(color: .white, location: 1),
                 ],

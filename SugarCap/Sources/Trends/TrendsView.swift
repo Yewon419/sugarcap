@@ -139,7 +139,8 @@ struct TrendsView: View {
             Text(range == .week ? "\(side.label) · 하루 합계" : "\(side.label) · 하루 평균")
                 .font(.system(size: 13, weight: .semibold))
 
-            if let change {
+            // 당의 지난주 대비는 헤더가 이미 말한다. 차트 밑에는 카페인만 적는다.
+            if let change, side == .caffeine {
                 if pro.isPro {
                     Text(changeText(change))
                         .font(.subheadline)

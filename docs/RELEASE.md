@@ -80,7 +80,8 @@ GitHub > Actions > **iOS** > **Run workflow** (main 브랜치).
 
 ## 버전·빌드 번호
 
-- `MARKETING_VERSION` (예: `0.1.0`) — `SugarCap/project.yml`에서 손으로 올린다.
+- `MARKETING_VERSION` (현재 `1.0`) — `SugarCap/project.yml`에서 손으로 올린다.
+  App Store Connect의 앱 버전(1.0)보다 낮으면 업로드가 거부된다(2026-09-24에 0.1.0 → 1.0으로 맞춤).
 - `CURRENT_PROJECT_VERSION` — CI가 `github.run_number`로 덮어쓴다. 실행할 때마다 자동 증가하므로
   "이 빌드 번호는 이미 사용됨" 오류가 나지 않는다.
 

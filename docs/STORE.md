@@ -146,4 +146,4 @@ App Store는 6.9인치 세트 하나면 나머지 크기를 자동으로 채운�
 - [ ] 연령 등급 문항 제출
 - [ ] 수출 규정: `ITSAppUsesNonExemptEncryption = false` (이미 Info.plist에 있음)
 - [ ] KIPRIS 상표 확인 (SPEC §9-1, 아직 미확인)
-- [ ] 빌드 버전 정리: 지금 `MARKETING_VERSION`은 0.1.0이고 첫 TestFlight 빌드는 1.0으로 올라갔을 수 있다. 출시 버전을 1.0으로 올릴지 정한다
+- [x] 빌드 버전 정리: `MARKETING_VERSION` 1.0 (2026-09-24, `docs/RELEASE.md` 버전 절). 빌드 번호는 CI `run_number`, 심사 후보 1.0 (59)

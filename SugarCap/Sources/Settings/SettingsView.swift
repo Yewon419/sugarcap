@@ -60,6 +60,7 @@ private struct SettingsContent: View {
 
     @State private var editingSide: CupSide?
     @State private var paywall: ProFeature?
+    @State private var showsOnboarding = false
 
     @Environment(ProStore.self) private var pro
 
@@ -120,6 +121,22 @@ private struct SettingsContent: View {
                 }
 
                 section("정보", footer: "기록은 이 기기에만 저장돼요. 수집하는 정보는 없어요.") {
+                    Button {
+                        showsOnboarding = true
+                    } label: {
+                        HStack {
+                            Text("앱 소개 다시 보기")
+                                .foregroundStyle(.primary)
+                                .multilineTextAlignment(.leading)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.footnote.weight(.semibold))
+                                .foregroundStyle(.tertiary)
+                        }
+                        .rowPadding()
+                    }
+                    .accessibilityIdentifier("replay-onboarding")
+                    rowDivider
                     valueRow(
                         "메뉴 데이터",
                         value: catalog.builtAtDate?.formatted(date: .abbreviated, time: .omitted) ?? catalog.builtAt
@@ -134,6 +151,14 @@ private struct SettingsContent: View {
         .background(Color(.systemGroupedBackground))
         .sheet(item: $paywall) { feature in
             PaywallView(feature: feature)
+        }
+        // 온보딩 화면을 그대로 전체 화면으로 띄운다. 완료 플래그는 건드리지 않는다.
+        .fullScreenCover(isPresented: $showsOnboarding) {
+            OnboardingView(
+                brands: catalog.brands,
+                onStart: { showsOnboarding = false },
+                onClose: { showsOnboarding = false }
+            )
         }
         .sheet(item: $editingSide) { side in
             ReductionGoalSheet(side: side, currentLimit: side.limit(settings.limits)) { target, weeks in

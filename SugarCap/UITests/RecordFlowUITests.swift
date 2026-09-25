@@ -168,6 +168,41 @@ extension RecordFlowUITests {
     }
 }
 
+extension RecordFlowUITests {
+    /// 설정에서 앱 소개를 다시 열고, "닫기"와 마지막 장 "완료" 두 길로 모두 설정에 돌아온다(§4.4).
+    @MainActor
+    func testReplayOnboardingFromSettings() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launch()
+
+        completeOnboardingIfPresented(app)
+        app.tabBars.buttons["설정"].tap()
+
+        let replay = app.buttons["replay-onboarding"]
+        Driver(app: app).tap(replay)
+
+        let close = app.buttons["onboarding-close"]
+        XCTAssertTrue(close.waitForExistence(timeout: 5), "앱 소개가 안 열림")
+        XCTAssertFalse(app.buttons["onboarding-skip"].exists, "다시 보기에는 건너뛰기 대신 닫기만 있어야 한다")
+        close.tap()
+        XCTAssertTrue(replay.waitForExistence(timeout: 5), "닫기 후 설정으로 돌아와야 한다")
+
+        Driver(app: app).tap(replay)
+        let next = app.buttons["onboarding-next"]
+        for _ in 0..<3 {
+            XCTAssertTrue(next.waitForExistence(timeout: 5))
+            next.tap()
+        }
+        let finish = app.buttons["onboarding-start"]
+        XCTAssertTrue(finish.waitForExistence(timeout: 5), "마지막 장이 안 열림")
+        XCTAssertEqual(finish.label, "완료")
+        finish.tap()
+        XCTAssertTrue(replay.waitForExistence(timeout: 5), "완료 후 설정으로 돌아와야 한다")
+        XCTAssertTrue(app.tabBars.buttons["설정"].isSelected, "다시 보기는 온보딩 완료 상태를 건드리지 않는다")
+    }
+}
+
 /// UI 테스트 번들은 앱 코드를 불러오지 않는다. 상품 id는 여기에 따로 적는다.
 private enum ProductIDs {
     static let yearly = "com.sugarcap.app.pro.yearly"

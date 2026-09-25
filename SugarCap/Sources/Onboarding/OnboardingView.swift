@@ -11,6 +11,8 @@ struct OnboardingView: View {
 
     let brands: [Brand]
     let onStart: () -> Void
+    /// 설정에서 다시 볼 때만 준다. 있으면 "건너뛰기" 자리가 "닫기"가 되고 마지막 버튼은 "완료"다.
+    var onClose: (() -> Void)?
 
     @Query private var settingsRows: [AppSettings]
     @State private var page: Int = Self.initialPage
@@ -42,7 +44,14 @@ struct OnboardingView: View {
             .tabViewStyle(.page(indexDisplayMode: .never))
         }
         .overlay(alignment: .topTrailing) {
-            if !isLast {
+            if let onClose {
+                Button("닫기", action: onClose)
+                    .font(.system(size: 15))
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 20)
+                    .padding(.trailing, 24)
+                    .accessibilityIdentifier("onboarding-close")
+            } else if !isLast {
                 Button("건너뛰기") {
                     withAnimation(.easeInOut(duration: 0.3)) { page = Page.allCases.count - 1 }
                 }
@@ -63,7 +72,7 @@ struct OnboardingView: View {
                         withAnimation(.easeInOut(duration: 0.3)) { page += 1 }
                     }
                 } label: {
-                    Text(isLast ? "시작" : "다음")
+                    Text(isLast ? (onClose == nil ? "시작" : "완료") : "다음")
                         .font(.system(size: 17, weight: .semibold))
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
@@ -268,6 +277,13 @@ private enum Page: Int, CaseIterable, Identifiable {
 private struct LimitsForm: View {
     @Bindable var settings: AppSettings
 
+    /// 설정에서 다시 볼 때는 감소 목표가 돌고 있을 수 있다. 그 기준은 설정 화면처럼 잠근다.
+    @Query private var goals: [ReductionGoal]
+
+    private func isManaged(_ side: CupSide) -> Bool {
+        goals.contains { $0.side == side.rawValue }
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -288,58 +304,19 @@ private struct LimitsForm: View {
                 .padding(.leading, 4)
 
                 VStack(spacing: 0) {
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack {
-                            Text(CupSide.sugar.label)
-                            Spacer()
-                            Text("WHO 권고 50 g")
-                                .font(.system(size: 13))
-                                .foregroundStyle(.secondary)
-                        }
-                        Picker(CupSide.sugar.label, selection: $settings.sugarLimitG) {
-                            ForEach(SugarPreset.values, id: \.self) { value in
-                                Text("\(Amount.number(value)) \(CupSide.sugar.unit)").tag(value)
-                            }
-                        }
-                        .pickerStyle(.segmented)
-                        .labelsHidden()
-                        .accessibilityIdentifier("onboarding-sugar-limit")
+                    if isManaged(.sugar) {
+                        managedRow(.sugar, value: settings.sugarLimitG)
+                    } else {
+                        sugarControl
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 14)
 
                     Divider().padding(.leading, 16)
 
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack {
-                            Text(CupSide.caffeine.label)
-                            Spacer()
-                            Text("\(Amount.number(settings.caffeineLimitMg)) \(CupSide.caffeine.unit)")
-                                .monospacedDigit()
-                                .foregroundStyle(.secondary)
-                        }
-                        Slider(
-                            value: $settings.caffeineLimitMg,
-                            in: CaffeineRange.bounds,
-                            step: CaffeineRange.step
-                        ) {
-                            Text(CupSide.caffeine.label)
-                        } minimumValueLabel: {
-                            Text(Amount.number(CaffeineRange.bounds.lowerBound))
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
-                        } maximumValueLabel: {
-                            Text(Amount.number(CaffeineRange.bounds.upperBound))
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
-                        }
-                        .accessibilityIdentifier("onboarding-caffeine-limit")
-                        Text("식약처 성인 권고 400 mg")
-                            .font(.system(size: 13))
-                            .foregroundStyle(.secondary)
+                    if isManaged(.caffeine) {
+                        managedRow(.caffeine, value: settings.caffeineLimitMg)
+                    } else {
+                        caffeineControl
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 14)
                 }
                 .background(
                     Color(.secondarySystemGroupedBackground),
@@ -350,9 +327,81 @@ private struct LimitsForm: View {
             .padding(.bottom, 24)
         }
     }
+
+    private func managedRow(_ side: CupSide, value: Double) -> some View {
+        HStack {
+            Text(side.label)
+            Spacer()
+            Text("\(Amount.number(value)) \(side.unit)")
+                .monospacedDigit()
+                .foregroundStyle(.secondary)
+            Image(systemName: "lock")
+                .font(.footnote)
+                .foregroundStyle(.tertiary)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+        .accessibilityElement(children: .combine)
+        .accessibilityHint("감소 목표가 이번 주 기준을 정해요")
+    }
+
+    private var sugarControl: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text(CupSide.sugar.label)
+                Spacer()
+                Text("WHO 권고 50 g")
+                    .font(.system(size: 13))
+                    .foregroundStyle(.secondary)
+            }
+            Picker(CupSide.sugar.label, selection: $settings.sugarLimitG) {
+                ForEach(SugarPreset.values, id: \.self) { value in
+                    Text("\(Amount.number(value)) \(CupSide.sugar.unit)").tag(value)
+                }
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .accessibilityIdentifier("onboarding-sugar-limit")
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+    }
+
+    private var caffeineControl: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text(CupSide.caffeine.label)
+                Spacer()
+                Text("\(Amount.number(settings.caffeineLimitMg)) \(CupSide.caffeine.unit)")
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
+            }
+            Slider(
+                value: $settings.caffeineLimitMg,
+                in: CaffeineRange.bounds,
+                step: CaffeineRange.step
+            ) {
+                Text(CupSide.caffeine.label)
+            } minimumValueLabel: {
+                Text(Amount.number(CaffeineRange.bounds.lowerBound))
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            } maximumValueLabel: {
+                Text(Amount.number(CaffeineRange.bounds.upperBound))
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+            .accessibilityIdentifier("onboarding-caffeine-limit")
+            Text("식약처 성인 권고 400 mg")
+                .font(.system(size: 13))
+                .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+    }
 }
 
 #Preview {
     OnboardingView(brands: [], onStart: {})
-        .modelContainer(for: [AppSettings.self], inMemory: true)
+        .modelContainer(for: [AppSettings.self, ReductionGoal.self], inMemory: true)
 }

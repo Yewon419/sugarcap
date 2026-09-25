@@ -23,16 +23,16 @@ struct EntryRow: View {
         HStack(alignment: .top, spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.system(.callout, weight: .semibold))
                 Text(detail)
-                    .font(.system(size: 12))
+                    .font(.caption)
                     .foregroundStyle(.secondary)
             }
             Spacer(minLength: 8)
             Text(
                 "\(Amount.text(entry.sugarG, unit: CupSide.sugar.unit)) · \(Amount.text(entry.caffeineMg, unit: CupSide.caffeine.unit))"
             )
-            .font(.system(size: 13, weight: .medium))
+            .font(.system(.footnote, weight: .medium))
             .monospacedDigit()
             .foregroundStyle(.secondary)
             .padding(.top, 3)

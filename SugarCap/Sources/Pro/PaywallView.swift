@@ -11,8 +11,8 @@ enum AppLinks {
 /// 페이월(SPEC §6, 2026-09-24 디자인). Pro 기능을 탭한 자리에서 시트로 열고, 구매하면 그 화면으로 돌아간다.
 /// 온보딩에는 넣지 않는다. 자동 갱신 구독이라 갱신·해지 안내와 약관 링크를 빼면 심사에 걸린다.
 struct PaywallView: View {
-    /// 어떤 기능을 누르다 왔는지. 소제목이 그 기능을 말한다.
-    let feature: ProFeature
+    /// 어떤 기능을 누르다 왔는지. 소제목이 그 기능을 말한다. 설정의 "Pro 보기"처럼 특정 기능이 없으면 nil.
+    let feature: ProFeature?
 
     @Environment(ProStore.self) private var store
     @Environment(\.dismiss) private var dismiss
@@ -29,9 +29,10 @@ struct PaywallView: View {
                     Text("슈가캡 PRO")
                         .kicker()
                     Spacer()
-                    Button("닫기") { dismiss() }
-                        .font(.system(size: 15))
-                        .accessibilityIdentifier("paywall-close")
+                    Button { dismiss() } label: {
+                        Text("닫기").font(.subheadline).tapTarget()
+                    }
+                    .accessibilityIdentifier("paywall-close")
                 }
                 .padding(.top, 20)
 
@@ -41,8 +42,8 @@ struct PaywallView: View {
                     .lineSpacing(2)
                     .padding(.top, 20)
 
-                Text("\(feature.title)는 Pro에서 열려요")
-                    .font(.system(size: 13))
+                Text(feature.map { "\($0.title)는 Pro에서 열려요" } ?? "한 번 결제로 아래 기능이 모두 열려요")
+                    .font(.footnote)
                     .foregroundStyle(.secondary)
                     .padding(.top, 10)
 
@@ -85,7 +86,7 @@ struct PaywallView: View {
                 .fill(.tint)
                 .frame(width: 6, height: 6)
             Text(title)
-                .font(.system(size: 15))
+                .font(.subheadline)
         }
     }
 
@@ -126,13 +127,13 @@ struct PaywallView: View {
                         .font(.system(size: 17, weight: .semibold))
                     if let note = plan.note {
                         Text(note)
-                            .font(.system(size: 12))
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
                 Spacer(minLength: 8)
                 Text(plan.price)
-                    .font(.system(size: 20, weight: .bold))
+                    .font(.system(.title3, weight: .bold))
                     .tracking(-0.4)
                     .monospacedDigit()
             }
@@ -190,7 +191,7 @@ struct PaywallView: View {
             .accessibilityIdentifier("paywall-purchase")
 
             Text("연간 구독은 기간이 끝나기 24시간 전에 해지하지 않으면 자동으로 갱신됩니다. 해지는 App Store 계정 설정에서 합니다.")
-                .font(.system(size: 11))
+                .font(.caption2)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
 
@@ -207,7 +208,7 @@ struct PaywallView: View {
                     Link("개인정보처리방침", destination: privacy)
                 }
             }
-            .font(.system(size: 12, weight: .medium))
+            .font(.system(.caption, weight: .medium))
         }
         .padding(.horizontal, 24)
         .padding(.top, 8)

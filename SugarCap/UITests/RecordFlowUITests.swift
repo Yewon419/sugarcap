@@ -139,6 +139,10 @@ extension RecordFlowUITests {
         XCTAssertFalse(app.buttons["25 g"].exists, "목표 중에는 프리셋을 만지지 못한다")
 
         stopGoal.tap()
+        // 되돌릴 수 없는 동작이라 확인을 한 번 거친다.
+        let confirmStop = app.buttons["confirm-stop-goal"]
+        XCTAssertTrue(confirmStop.waitForExistence(timeout: 5), "그만두기 확인 창이 안 뜸")
+        confirmStop.tap()
         XCTAssertTrue(startGoal.waitForExistence(timeout: 5), "그만두면 다시 만들 수 있어야 한다")
         XCTAssertTrue(app.buttons["25 g"].waitForExistence(timeout: 5), "프리셋이 돌아와야 한다")
     }

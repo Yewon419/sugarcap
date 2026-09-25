@@ -60,7 +60,14 @@ private struct SettingsContent: View {
 
     @State private var editingSide: CupSide?
     @State private var paywall: ProFeature?
+    /// 특정 기능이 아니라 "Pro 보기"로 연 페이월. 부제에 기능 이름을 붙이지 않는다.
+    @State private var showsGeneralPaywall = false
+    /// 감소 목표를 누르다 페이월로 간 쪽. 구매하고 닫히면 목표 시트를 이어서 연다.
+    @State private var pendingGoalSide: CupSide?
     @State private var showsOnboarding = false
+    @State private var stoppingSide: CupSide?
+    @State private var isRestoring = false
+    @State private var alertMessage: String?
 
     @Environment(ProStore.self) private var pro
 
@@ -94,7 +101,7 @@ private struct SettingsContent: View {
                         valueRow("슈가캡 Pro", value: "사용 중")
                     } else {
                         Button {
-                            paywall = .affinityDetail
+                            showsGeneralPaywall = true
                         } label: {
                             HStack {
                                 Text("슈가캡 Pro 보기")
@@ -111,13 +118,20 @@ private struct SettingsContent: View {
                     }
                     rowDivider
                     Button {
-                        Task { await pro.restore() }
+                        restore()
                     } label: {
-                        Text("구매 복원")
-                            .foregroundStyle(.primary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .rowPadding()
+                        HStack {
+                            Text("구매 복원")
+                                .foregroundStyle(.primary)
+                            Spacer()
+                            if isRestoring {
+                                ProgressView()
+                            }
+                        }
+                        .rowPadding()
                     }
+                    .disabled(isRestoring)
+                    .accessibilityIdentifier("restore-purchases")
                 }
 
                 section("정보", footer: "기록은 이 기기에만 저장돼요. 수집하는 정보는 없어요.") {
@@ -149,8 +163,39 @@ private struct SettingsContent: View {
             .padding(.bottom, 24)
         }
         .background(Color(.systemGroupedBackground))
-        .sheet(item: $paywall) { feature in
+        .sheet(item: $paywall, onDismiss: {
+            if pro.isPro, let side = pendingGoalSide { editingSide = side }
+            pendingGoalSide = nil
+        }) { feature in
             PaywallView(feature: feature)
+        }
+        .sheet(isPresented: $showsGeneralPaywall) {
+            PaywallView(feature: nil)
+        }
+        // 목표를 그만두면 쌓은 주 진행이 사라지고 되돌릴 수 없다. 한 번 더 묻는다.
+        .confirmationDialog(
+            "감소 목표를 그만둘까요?",
+            isPresented: Binding(
+                get: { stoppingSide != nil },
+                set: { if !$0 { stoppingSide = nil } }
+            ),
+            titleVisibility: .visible,
+            presenting: stoppingSide
+        ) { side in
+            Button("그만두기", role: .destructive) { stop(side) }
+                .accessibilityIdentifier("confirm-stop-goal")
+            Button("계속하기", role: .cancel) {}
+        } message: { _ in
+            Text("지금까지 달성한 주 기록이 사라지고, 하루 기준은 이번 주 값으로 남아요.")
+        }
+        .alert(
+            alertMessage ?? "",
+            isPresented: Binding(
+                get: { alertMessage != nil },
+                set: { if !$0 { alertMessage = nil } }
+            )
+        ) {
+            Button("확인", role: .cancel) {}
         }
         // 온보딩 화면을 그대로 전체 화면으로 띄운다. 완료 플래그는 건드리지 않는다.
         .fullScreenCover(isPresented: $showsOnboarding) {
@@ -203,7 +248,7 @@ private struct SettingsContent: View {
                     .opacity(0.85)
             }
             Text("\(side.label) · \(limitSource(side))")
-                .font(.system(size: 13))
+                .font(.footnote)
                 .foregroundStyle(.secondary)
         }
         .accessibilityElement(children: .combine)
@@ -312,7 +357,7 @@ private struct SettingsContent: View {
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Button("그만두기", role: .destructive) { stop(side) }
+                    Button("그만두기", role: .destructive) { stoppingSide = side }
                         .font(.footnote)
                         .buttonStyle(.bordered)
                         .buttonBorderShape(.capsule)
@@ -325,6 +370,7 @@ private struct SettingsContent: View {
                 if pro.isPro {
                     editingSide = side
                 } else {
+                    pendingGoalSide = side
                     paywall = .reductionGoal
                 }
             } label: {
@@ -402,7 +448,7 @@ private struct SettingsContent: View {
 
     private func footnote(_ text: String) -> some View {
         Text(text)
-            .font(.system(size: 13))
+            .font(.footnote)
             .foregroundStyle(.secondary)
             .padding(.horizontal, 4)
     }
@@ -419,6 +465,8 @@ private struct SettingsContent: View {
             try context.save()
         } catch {
             Self.logger.error("감소 목표 시작 실패: \(String(describing: error), privacy: .public)")
+            context.rollback()
+            alertMessage = "감소 목표를 시작하지 못했어요. 다시 시도해 주세요."
         }
     }
 
@@ -428,6 +476,18 @@ private struct SettingsContent: View {
             try context.save()
         } catch {
             Self.logger.error("감소 목표 중단 실패: \(String(describing: error), privacy: .public)")
+            context.rollback()
+            alertMessage = "감소 목표를 그만두지 못했어요. 다시 시도해 주세요."
+        }
+    }
+
+    /// 결과를 이 화면에서 바로 알린다. 페이월 밖에서는 `store.failure`가 그려지지 않는다.
+    private func restore() {
+        isRestoring = true
+        Task {
+            await pro.restore()
+            isRestoring = false
+            alertMessage = pro.isPro ? "구매를 복원했어요." : (pro.failure ?? "복원할 구매가 없어요.")
         }
     }
 

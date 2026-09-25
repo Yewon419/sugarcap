@@ -9,6 +9,7 @@ struct BrandMenuView: View {
 
     @State private var query = ""
     @State private var selection: ServingSelection?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var results: [Drink] {
         drinks.filter { $0.matches(query) }
@@ -49,7 +50,8 @@ struct BrandMenuView: View {
                     onAdd: { onAdd(binding.wrappedValue) },
                     onClose: { selection = nil }
                 )
-                .transition(.move(edge: .bottom).combined(with: .opacity))
+                // 모션 줄이기를 켜면 아래에서 올라오지 않고 그 자리에서 나타난다.
+                .transition(reduceMotion ? .opacity : .move(edge: .bottom).combined(with: .opacity))
             }
         }
         .animation(.snappy, value: selection?.drink.id)

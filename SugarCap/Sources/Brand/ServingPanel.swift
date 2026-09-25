@@ -17,6 +17,7 @@ struct ServingPanel: View {
                     Image(systemName: "xmark.circle.fill")
                         .font(.title3)
                         .foregroundStyle(.secondary)
+                        .tapTarget()
                 }
                 .accessibilityLabel("닫기")
             }

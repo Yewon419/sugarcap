@@ -45,6 +45,8 @@ struct FeedingView: View {
     @State private var isAffinityPresented = false
     @State private var errorText: String?
     @State private var bounce = false
+    @State private var pendingAffinity = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "feeding")
 
@@ -96,16 +98,20 @@ struct FeedingView: View {
             headline
         }
         .overlay(alignment: .topTrailing) {
-            Button("닫기") { dismiss() }
-                .font(.system(size: 15))
-                .padding(.trailing, 24)
-                .padding(.top, 8)
-                .accessibilityIdentifier("feeding-close")
+            Button { dismiss() } label: {
+                Text("닫기").font(.subheadline).tapTarget()
+            }
+            .padding(.trailing, 16)
+            .padding(.top, 0)
+            .accessibilityIdentifier("feeding-close")
         }
         .overlay(alignment: .bottom) { characters }
         .safeAreaInset(edge: .bottom) { footer }
         .sensoryFeedback(.success, trigger: isFed) { _, fed in fed }
-        .sheet(item: $paywall) { feature in
+        .sheet(item: $paywall, onDismiss: {
+            if pro.isPro, pendingAffinity { isAffinityPresented = true }
+            pendingAffinity = false
+        }) { feature in
             PaywallView(feature: feature)
         }
         .sheet(isPresented: $isAffinityPresented) {
@@ -140,7 +146,7 @@ struct FeedingView: View {
                         : "카페인 \(Amount.number(caffeine)) \(CupSide.caffeine.unit)는 카인에게"
                 )
             }
-            .font(.system(size: 13))
+            .font(.footnote)
             .tracking(0.3)
             .foregroundStyle(.secondary)
             .padding(.top, 6)
@@ -173,13 +179,13 @@ struct FeedingView: View {
         return VStack(spacing: 6) {
             if isFed {
                 Text(reaction(side, result: result))
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.system(.caption, weight: .semibold))
                     .tracking(0.3)
                     .foregroundStyle(.tint)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
                     .background(.ultraThinMaterial, in: Capsule())
-                    .transition(.scale(scale: 0.8).combined(with: .opacity))
+                    .transition(reduceMotion ? .opacity : .scale(scale: 0.8).combined(with: .opacity))
             }
             Image(side.characterAsset)
                 .resizable()
@@ -205,18 +211,22 @@ struct FeedingView: View {
             .accessibilityIdentifier(isFed ? "feeding-done" : "feeding-feed")
 
             if isFed {
-                Button("호감도 자세히") {
+                Button {
                     if pro.isPro {
                         isAffinityPresented = true
                     } else {
+                        pendingAffinity = true
                         paywall = .affinityDetail
                     }
+                } label: {
+                    Text("호감도 자세히")
+                        .font(.system(.footnote, weight: .medium))
+                        .tapTarget()
                 }
-                .font(.system(size: 13, weight: .medium))
                 .accessibilityIdentifier("feeding-affinity")
             } else if request.kind == .closeToday {
                 Text("마감 뒤에 마신 음료도 오늘 몫으로 빠져요")
-                    .font(.system(size: 12))
+                    .font(.caption)
                     .foregroundStyle(.secondary)
             }
         }
@@ -238,6 +248,8 @@ struct FeedingView: View {
             withAnimation(.spring(response: 0.4, dampingFraction: 1)) {
                 results = fed
             }
+            // 캐릭터가 한 번 튀는 연출. 모션 줄이기를 켜면 생략한다.
+            guard !reduceMotion else { return }
             withAnimation(.spring(response: 0.22, dampingFraction: 0.45)) {
                 bounce = true
             }

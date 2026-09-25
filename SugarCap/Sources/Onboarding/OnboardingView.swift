@@ -30,6 +30,13 @@ struct OnboardingView: View {
 
     private var isLast: Bool { page == Page.allCases.count - 1 }
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// 페이지가 옆으로 미끄러지는 공간 이동. 모션 줄이기를 켜면 바로 바꾼다.
+    private var pageAnimation: Animation? {
+        reduceMotion ? nil : .easeInOut(duration: 0.3)
+    }
+
     var body: some View {
         ZStack(alignment: .topLeading) {
             background
@@ -45,20 +52,22 @@ struct OnboardingView: View {
         }
         .overlay(alignment: .topTrailing) {
             if let onClose {
-                Button("닫기", action: onClose)
-                    .font(.system(size: 15))
-                    .foregroundStyle(.secondary)
-                    .padding(.top, 20)
-                    .padding(.trailing, 24)
-                    .accessibilityIdentifier("onboarding-close")
-            } else if !isLast {
-                Button("건너뛰기") {
-                    withAnimation(.easeInOut(duration: 0.3)) { page = Page.allCases.count - 1 }
+                Button(action: onClose) {
+                    Text("닫기").font(.subheadline).tapTarget()
                 }
-                .font(.system(size: 15))
                 .foregroundStyle(.secondary)
-                .padding(.top, 20)
-                .padding(.trailing, 24)
+                .padding(.top, 8)
+                .padding(.trailing, 16)
+                .accessibilityIdentifier("onboarding-close")
+            } else if !isLast {
+                Button {
+                    withAnimation(pageAnimation) { page = Page.allCases.count - 1 }
+                } label: {
+                    Text("건너뛰기").font(.subheadline).tapTarget()
+                }
+                .foregroundStyle(.secondary)
+                .padding(.top, 8)
+                .padding(.trailing, 16)
                 .accessibilityIdentifier("onboarding-skip")
             }
         }
@@ -69,7 +78,7 @@ struct OnboardingView: View {
                     if isLast {
                         onStart()
                     } else {
-                        withAnimation(.easeInOut(duration: 0.3)) { page += 1 }
+                        withAnimation(pageAnimation) { page += 1 }
                     }
                 } label: {
                     Text(isLast ? (onClose == nil ? "시작" : "완료") : "다음")
@@ -188,7 +197,7 @@ struct OnboardingView: View {
                 .lineSpacing(2)
                 .padding(.top, 16)
             Text(caption)
-                .font(.system(size: 15))
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .padding(.top, 14)
             Spacer(minLength: 0)
@@ -206,7 +215,7 @@ struct OnboardingView: View {
         return LazyVGrid(columns: columns, spacing: 10) {
             ForEach(shown) { brand in
                 Text(brand.name)
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.system(.subheadline, weight: .medium))
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -297,7 +306,7 @@ private struct LimitsForm: View {
                         .lineSpacing(2)
                         .padding(.top, 16)
                     Text("나중에 설정에서 언제든 바꿀 수 있어요.")
-                        .font(.system(size: 15))
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .padding(.top, 14)
                 }
@@ -351,7 +360,7 @@ private struct LimitsForm: View {
                 Text(CupSide.sugar.label)
                 Spacer()
                 Text("WHO 권고 50 g")
-                    .font(.system(size: 13))
+                    .font(.footnote)
                     .foregroundStyle(.secondary)
             }
             Picker(CupSide.sugar.label, selection: $settings.sugarLimitG) {
@@ -393,7 +402,7 @@ private struct LimitsForm: View {
             }
             .accessibilityIdentifier("onboarding-caffeine-limit")
             Text("식약처 성인 권고 400 mg")
-                .font(.system(size: 13))
+                .font(.footnote)
                 .foregroundStyle(.secondary)
         }
         .padding(.horizontal, 16)

@@ -12,6 +12,7 @@ struct TrendsView: View {
 
     @State private var range: TrendRange = .week
     @State private var paywall: ProFeature?
+    @State private var pendingMonth = false
 
     @Environment(ProStore.self) private var pro
 
@@ -25,7 +26,11 @@ struct TrendsView: View {
                 content(today: today)
             }
             .toolbar(.hidden, for: .navigationBar)
-            .sheet(item: $paywall) { feature in
+            // 구매하고 닫히면 누르려던 월 보기로 바로 넘어간다(§6 "구매 후 그 화면으로").
+            .sheet(item: $paywall, onDismiss: {
+                if pro.isPro, pendingMonth { range = .month }
+                pendingMonth = false
+            }) { feature in
                 PaywallView(feature: feature)
             }
         }
@@ -51,6 +56,7 @@ struct TrendsView: View {
                 .onChange(of: range) { _, newValue in
                     guard newValue == .month, !pro.isPro else { return }
                     range = .week
+                    pendingMonth = true
                     paywall = .monthlyTrends
                 }
 
@@ -99,7 +105,7 @@ struct TrendsView: View {
                 if let change {
                     if pro.isPro {
                         Text(deltaText(change))
-                            .font(.system(size: 13, weight: .medium))
+                            .font(.system(.footnote, weight: .medium))
                             .tracking(0.3)
                             .foregroundStyle(.tint)
                             .padding(.leading, 12)
@@ -108,7 +114,8 @@ struct TrendsView: View {
                             paywall = .weekOverWeek
                         } label: {
                             Label("지난주 대비", systemImage: "lock")
-                                .font(.system(size: 13, weight: .medium))
+                                .font(.system(.footnote, weight: .medium))
+                                .tapTarget()
                         }
                         .buttonStyle(.plain)
                         .foregroundStyle(.secondary)
@@ -137,7 +144,7 @@ struct TrendsView: View {
 
         return VStack(alignment: .leading, spacing: 8) {
             Text(range == .week ? "\(side.label) · 하루 합계" : "\(side.label) · 하루 평균")
-                .font(.system(size: 13, weight: .semibold))
+                .font(.system(.footnote, weight: .semibold))
 
             // 당의 지난주 대비는 헤더가 이미 말한다. 차트 밑에는 카페인만 적는다.
             if let change, side == .caffeine {
@@ -152,6 +159,7 @@ struct TrendsView: View {
                     } label: {
                         Label("지난주 대비 보기", systemImage: "lock")
                             .font(.subheadline)
+                            .tapTarget()
                     }
                     .buttonStyle(.plain)
                     .foregroundStyle(.secondary)

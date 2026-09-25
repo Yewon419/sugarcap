@@ -23,9 +23,10 @@ struct RecordSheet: View {
                 Text("기록")
                     .kicker()
                 Spacer()
-                Button("닫기") { dismiss() }
-                    .font(.system(size: 15))
-                    .accessibilityIdentifier("record-close")
+                Button { dismiss() } label: {
+                    Text("닫기").font(.subheadline).tapTarget()
+                }
+                .accessibilityIdentifier("record-close")
             }
             .padding(.horizontal, 20)
             .padding(.top, 28)
@@ -39,7 +40,7 @@ struct RecordSheet: View {
                                 onBrand(brand.id)
                             } label: {
                                 Text(brand.name)
-                                    .font(.system(size: 15, weight: .medium))
+                                    .font(.system(.subheadline, weight: .medium))
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.8)
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -62,7 +63,7 @@ struct RecordSheet: View {
                         onManualEntry()
                     } label: {
                         Label("직접 입력", systemImage: "plus")
-                            .font(.system(size: 15, weight: .medium))
+                            .font(.system(.subheadline, weight: .medium))
                             .foregroundStyle(.secondary)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 16)

@@ -22,8 +22,10 @@ struct AffinityView: View {
                     Text("호감도")
                         .kicker()
                     Spacer()
-                    Button("닫기") { dismiss() }
-                        .font(.system(size: 15))
+                    Button { dismiss() } label: {
+                        Text("닫기").font(.subheadline).tapTarget()
+                    }
+                    .accessibilityIdentifier("affinity-close")
                 }
                 .padding(.top, 20)
 
@@ -64,23 +66,23 @@ struct AffinityView: View {
 
             VStack(alignment: .leading, spacing: 0) {
                 Text("Lv")
-                    .font(.system(size: 20, weight: .medium))
+                    .font(.system(.title3, weight: .medium))
                     .foregroundStyle(.secondary)
                 Text("\(level)")
                     .heroNumber()
                     .contentTransition(.numericText())
                 if level >= AffinityMath.maxLevel {
                     Text("마지막 단계예요")
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.system(.footnote, weight: .medium))
                         .padding(.top, 4)
                 } else {
                     Text("다음 단계까지 \(next - points)점")
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.system(.footnote, weight: .medium))
                         .monospacedDigit()
                         .padding(.top, 4)
                 }
                 Text("쌓은 호감도 \(points)점")
-                    .font(.system(size: 12))
+                    .font(.caption)
                     .foregroundStyle(.secondary)
                     .monospacedDigit()
                     .padding(.top, 4)
@@ -105,12 +107,12 @@ struct AffinityView: View {
                         .fill(unlocked ? AnyShapeStyle(.tint) : AnyShapeStyle(Color(.separator)))
                         .frame(width: 8, height: 8)
                     Text("Lv \(step)")
-                        .font(.system(size: 15, weight: unlocked ? .semibold : .medium))
+                        .font(.system(.subheadline, weight: unlocked ? .semibold : .medium))
                         .foregroundStyle(unlocked ? .primary : .secondary)
                         .monospacedDigit()
                     Spacer()
                     Text(unlocked ? "해금" : "\(AffinityMath.threshold(level: step))점")
-                        .font(.system(size: 13))
+                        .font(.footnote)
                         .foregroundStyle(.secondary)
                         .monospacedDigit()
                 }
@@ -121,7 +123,7 @@ struct AffinityView: View {
                 .accessibilityElement(children: .combine)
             }
             Text("표정 그림은 준비 중이에요. 단계는 지금부터 쌓여요.")
-                .font(.system(size: 12))
+                .font(.caption)
                 .foregroundStyle(.secondary)
                 .padding(.top, 16)
         }

@@ -22,6 +22,10 @@ struct TodayView: View {
     @State private var paywall: ProFeature?
     @State private var isAffinityPresented = false
     @State private var isRecordSheetPresented = false
+    /// 호감도를 누르다 페이월로 간 경우. 구매하고 닫히면 호감도 화면을 이어서 연다.
+    @State private var pendingAffinity = false
+    /// 저장·정산 실패를 사용자에게 알린다. 로그만 남기면 기록이 사라져도 모른다.
+    @State private var failureMessage: String?
 
     @Environment(ProStore.self) private var pro
 
@@ -73,11 +77,23 @@ struct TodayView: View {
         .fullScreenCover(item: $feeding) { request in
             FeedingView(request: request, onFeed: { try feed(request) })
         }
-        .sheet(item: $paywall) { feature in
+        .sheet(item: $paywall, onDismiss: {
+            if pro.isPro, pendingAffinity { isAffinityPresented = true }
+            pendingAffinity = false
+        }) { feature in
             PaywallView(feature: feature)
         }
         .sheet(isPresented: $isAffinityPresented) {
             AffinityView()
+        }
+        .alert(
+            failureMessage ?? "",
+            isPresented: Binding(
+                get: { failureMessage != nil },
+                set: { if !$0 { failureMessage = nil } }
+            )
+        ) {
+            Button("확인", role: .cancel) {}
         }
         // 기록할 때만 햅틱 1회(§4.1). 삭제로 줄어들 때는 울리지 않는다.
         .sensoryFeedback(.success, trigger: entries.count) { old, new in new > old }
@@ -140,13 +156,13 @@ struct TodayView: View {
     private func headline(remaining: Double, limit: Double, overflow: Double, now: Date) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(now.formatted(.dateTime.month().day().weekday(.wide)))
-                .font(.system(size: 11, weight: .medium))
+                .font(.system(.caption2, weight: .medium))
                 .tracking(1.5)
                 .foregroundStyle(.secondary)
                 .padding(.top, 8)
 
             Text("오늘 남은 \(side.label)")
-                .font(.system(size: 11, weight: .semibold))
+                .font(.system(.caption2, weight: .semibold))
                 .tracking(1.3)
                 .foregroundStyle(.tint)
                 .padding(.top, 28)
@@ -162,7 +178,7 @@ struct TodayView: View {
                     .opacity(0.85)
                     .padding(.leading, 2)
                 Text("/\(Amount.number(limit)) \(side.unit)")
-                    .font(.system(size: 13))
+                    .font(.footnote)
                     .tracking(0.3)
                     .foregroundStyle(.secondary)
                     .opacity(0.8)
@@ -172,7 +188,7 @@ struct TodayView: View {
 
             if overflow > 0 {
                 Text("+\(Amount.number(overflow)) \(side.unit) 넘김")
-                    .font(.system(size: 13, weight: .medium))
+                    .font(.system(.footnote, weight: .medium))
                     .foregroundStyle(.secondary)
                     .padding(.top, 6)
             }
@@ -183,6 +199,15 @@ struct TodayView: View {
         .accessibilityLabel(
             "\(side.label) 남은 \(Amount.number(remaining)) \(side.unit) / \(Amount.number(limit)) \(side.unit)"
         )
+        // 컵 전환은 화면에서는 좌우 스와이프다. VoiceOver에서는 위아래 쓸기로 같은 일을 한다.
+        .accessibilityAdjustableAction { direction in
+            switch direction {
+            case .increment: side = .caffeine
+            case .decrement: side = .sugar
+            @unknown default: break
+            }
+        }
+        .accessibilityHint("위아래로 쓸어 당과 카페인 컵을 오가요")
     }
 
     private var affinityButton: some View {
@@ -191,17 +216,21 @@ struct TodayView: View {
             if pro.isPro {
                 isAffinityPresented = true
             } else {
+                pendingAffinity = true
                 paywall = .affinityDetail
             }
         } label: {
+            // 보이는 원은 36pt 그대로, 누르는 영역만 44pt.
             Image(systemName: "heart")
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(.primary.opacity(0.7))
                 .frame(width: 36, height: 36)
                 .background(.white.opacity(0.22), in: Circle())
+                .tapTarget()
         }
-        .padding(.trailing, 20)
-        .padding(.top, 6)
+        .padding(.trailing, 16)
+        .padding(.top, 2)
+        .accessibilityLabel("호감도")
         .accessibilityIdentifier("affinity")
     }
 
@@ -329,7 +358,7 @@ struct TodayView: View {
         let isClosed = settlements.first { $0.day == today.rawValue }?.isClosed == true
         if isClosed {
             Label("마감함", systemImage: "moon.stars")
-                .font(.system(size: 13, weight: .medium))
+                .font(.system(.footnote, weight: .medium))
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 9)
@@ -344,7 +373,7 @@ struct TodayView: View {
                 )
             } label: {
                 Label("오늘 마감", systemImage: "moon.stars")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(.subheadline, weight: .semibold))
                     .foregroundStyle(.primary)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 11)
@@ -397,6 +426,7 @@ struct TodayView: View {
             }
         } catch {
             Self.logger.error("정산 실패(\(today.rawValue, privacy: .public)): \(String(describing: error), privacy: .public)")
+            failureMessage = "지난 기록을 정리하지 못했어요. 앱을 다시 열어 주세요."
         }
     }
 
@@ -427,6 +457,7 @@ struct TodayView: View {
             prompt = nil
         } catch {
             Self.logger.error("어제 닫기 실패(\(day.rawValue, privacy: .public)): \(String(describing: error), privacy: .public)")
+            failureMessage = "저장하지 못했어요. 다시 시도해 주세요."
         }
     }
 
@@ -474,6 +505,9 @@ struct TodayView: View {
             WidgetCenter.shared.reloadAllTimelines()
         } catch {
             Self.logger.error("\(action, privacy: .public) 실패: \(String(describing: error), privacy: .public)")
+            // 저장 안 된 변경을 되돌려 화면(컵)이 실제 저장 상태와 어긋나지 않게 한다.
+            context.rollback()
+            failureMessage = "\(action)에 실패했어요. 다시 시도해 주세요."
         }
     }
 }

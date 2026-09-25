@@ -5,14 +5,14 @@ import SwiftUI
 extension View {
     /// 자간을 벌린 11pt 소제목. 숫자나 목록이 무엇인지 먼저 말한다. 액센트 색.
     func kicker() -> some View {
-        font(.system(size: 11, weight: .semibold))
+        font(.system(.caption2, weight: .semibold))
             .tracking(1.3)
             .foregroundStyle(.tint)
     }
 
     /// 자간을 벌린 11pt 날짜·보조 라벨. 보조색.
     func dateLabel() -> some View {
-        font(.system(size: 11, weight: .medium))
+        font(.system(.caption2, weight: .medium))
             .tracking(1.5)
             .foregroundStyle(.secondary)
     }
@@ -28,6 +28,13 @@ extension View {
     func heroUnit() -> some View {
         font(.system(size: 30, weight: .medium))
             .opacity(0.85)
+    }
+
+    /// 글자만 있는 버튼(닫기·건너뛰기·잠금 링크)의 누르는 영역을 44pt 이상으로 넓힌다.
+    /// 보이는 모양은 그대로 두고 판정 영역만 키운다.
+    func tapTarget() -> some View {
+        frame(minWidth: 44, minHeight: 44)
+            .contentShape(Rectangle())
     }
 
     /// 조작부 유리 알약. 액센트는 주 동작 하나에만 쓰고 나머지는 이걸로 조용히 둔다.

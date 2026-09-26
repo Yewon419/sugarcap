@@ -364,9 +364,9 @@ input { font: inherit; }
 .talk-line { font-size: 18px; font-weight: 600; letter-spacing: -.3px; line-height: 1.45; margin: 8px 0 12px; }
 .talk-foot { font-size: 12px; color: var(--secondary); }
 
-/* 몸짓 자리 채움: 대표님 애니메이션 6개(로슈 shy·happy·aegyo, 카인 tilt·spin·hop)가 오면 교체한다. 한 번만 재생 */
-.react-shy { animation: r-shy 1.2s ease-in-out; }
-@keyframes r-shy { 25%, 70% { transform: translateX(-22px) rotate(-9deg) scale(.93); } }
+/* 몸짓 자리 채움: 대표님 애니메이션 6개(로슈 wary·happy·aegyo, 카인 tilt·spin·hop)가 오면 교체한다. 한 번만 재생 */
+.react-wary { animation: r-wary 1.4s ease-in-out; }
+@keyframes r-wary { 20% { transform: translateY(4px) scale(1.02, .94); } 40%, 75% { transform: translateX(18px) translateY(3px) rotate(6deg) scale(.95); } }
 .react-happy { animation: r-happy .8s cubic-bezier(.3, 1.6, .5, 1); }
 @keyframes r-happy { 40% { transform: translateY(-22px) scale(1.05); } }
 .react-aegyo { animation: r-aegyo 1.2s ease-in-out; }

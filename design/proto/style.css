@@ -323,6 +323,25 @@ input { font: inherit; }
 .summary-num small { font-size: 17px; font-weight: 500; letter-spacing: 0; margin-left: 3px; opacity: .85; }
 .summary-label { font-size: 11px; font-weight: 600; letter-spacing: 1.3px; color: #b9cfe4; }
 
+/* 먹이기 전환 모션그래픽(screens-feeding.js FEED_FX). 폰 좌표 402×874. */
+.ffx { position: absolute; inset: 0; z-index: 120; overflow: hidden; }
+.ffx-sky { position: absolute; left: -60px; right: -60px; top: -70px; bottom: -70px; border-radius: 50% / 70px;
+  background: linear-gradient(#0e1626, #1d2a44 55%, #2b3a58); }
+.ffx-sky.top { border-radius: 0 0 50% 50% / 0 0 70px 70px; }
+.ffx-moon { position: absolute; left: 290px; top: 190px; width: 64px; height: 64px; border-radius: 50%; background: #f3f5f8;
+  box-shadow: 0 0 40px rgba(243, 245, 248, .35); }
+.ffx-star { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #fff; box-shadow: 0 0 8px rgba(255, 255, 255, .7); }
+.ffx-star.burst { left: 198px; top: 434px; }
+.ffx-type { position: absolute; left: 24px; right: 24px; top: 480px; color: #fff; }
+.ffx-type.center { left: 0; right: 0; top: 200px; text-align: center; }
+.ffx-small { font-size: 15px; font-weight: 600; letter-spacing: .3px; color: rgba(255, 255, 255, .72); margin-bottom: 6px; }
+.ffx-type .it-mask { font-family: "Pretendard", var(--font); font-size: 56px; font-weight: 800; letter-spacing: -.05em; line-height: 1.12; }
+.ffx-disc { position: absolute; inset: 0; background: #b8732f; }
+.ffx-kain { position: absolute; left: 0; right: 0; margin: 0 auto; top: 360px; height: 150px; transform-origin: 50% 55%; }
+.ffx-drop { position: absolute; left: 50%; top: 50%; width: 76px; height: 76px; margin: -38px 0 0 -38px; background-size: contain; background-repeat: no-repeat; }
+.ffx-flash { position: absolute; left: 50%; top: 50%; width: 60px; height: 60px; margin: -30px 0 0 -30px; border-radius: 50%; opacity: 0;
+  background: radial-gradient(circle, #fff 0%, rgba(255, 255, 255, .5) 40%, rgba(255, 255, 255, 0) 70%); }
+
 @media (prefers-reduced-motion: reduce) {
   .feed-char.asking, .cup-pulse, .drop, .feed-cup-box.shake { animation: none; }
   .feed-cup-box img.cup-empty { animation: none; opacity: 0; }

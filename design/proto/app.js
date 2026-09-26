@@ -526,7 +526,7 @@ const ACTIONS = {
 
 /** 첫 먹이기면 로슈·카인 소개를 먼저 틀고, 소개가 끝나면 이 먹이기로 이어간다(§4.5). */
 function openFeedingFirstIntro(kind, day, noDrink) {
-  if (S.metFriends) openFeeding(kind, day, noDrink);
+  if (S.metFriends) playFeedFx('dusk', { title: kind === 'close' ? '오늘 마감' : '어제 마감' }, () => openFeeding(kind, day, noDrink));
   else ui.intro = { kind, day, noDrink };
 }
 

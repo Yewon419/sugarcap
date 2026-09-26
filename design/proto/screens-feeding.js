@@ -32,15 +32,120 @@ const FEEDING_ACTIONS = {
     const c = ui.cover;
     if (c.stage !== 'eaten') return;
     if (c.step === 'sugar') {
-      c.step = 'caffeine';
-      c.stage = 'ask';
+      playFeedFx('turn', {}, () => {
+        c.step = 'caffeine';
+        c.stage = 'ask';
+      });
     } else {
-      commitFeeding();
-      c.step = 'done';
-      afterRender.push(() => SIDE_ORDER.forEach(bounce));
+      playFeedFx('night', {}, () => {
+        commitFeeding();
+        c.step = 'done';
+        afterRender.push(() => SIDE_ORDER.forEach(bounce));
+      });
     }
   },
 };
+
+// ---------- 전환 모션그래픽(2026-09-26 대표님: 하루 마무리라 전환에 모션그래픽) ----------
+// 마감 진입(dusk) · 로슈→카인(turn) · 마무리(night). 전환 층은 다시 그리기(#layers) 밖에 두고,
+// 화면이 다 덮인 순간 swap()으로 상태를 바꿔 밑 화면을 새로 그린다. 모션 줄이기면 바로 바꾼다.
+let feedFx = null;
+const FX_STARS = [[46, 150], [330, 118], [262, 226], [104, 292], [356, 318], [30, 404], [190, 96], [300, 430]];
+
+function playFeedFx(kind, opts, swap) {
+  const swapNow = () => { swap(); render(); };
+  if (reduceMotion() || feedFx || !window.gsap) { swapNow(); return; }
+  const el = document.createElement('div');
+  el.className = `ffx ffx-${kind}`;
+  el.innerHTML = FEED_FX[kind].html(opts);
+  document.getElementById('screen').appendChild(el);
+  document.getElementById('phone').classList.add('dark-status');
+  const tl = gsap.timeline({
+    onComplete: () => {
+      el.remove();
+      feedFx = null;
+      document.getElementById('phone').classList.toggle('dark-status', Boolean(ui.cover));
+    },
+  });
+  feedFx = { el, tl };
+  FEED_FX[kind].build(tl, sel => el.querySelector(sel), sel => el.querySelectorAll(sel), swapNow);
+}
+
+const fxMask = text => `<span class="it-mask"><span>${text}</span></span>`;
+
+const FEED_FX = {
+  // 하루가 저문다: 밤하늘이 지평선처럼 차오르고 달·별이 뜬 뒤, 하늘이 걷히며 밤 장면이 드러난다.
+  dusk: {
+    html: o => `<div class="ffx-sky"><i class="ffx-moon"></i>${FX_STARS.map(([x, y]) => `<i class="ffx-star" style="left:${x}px;top:${y}px"></i>`).join('')}
+      <div class="ffx-type"><div class="ffx-small">${dateLabel(now())}</div>${fxMask(o.title)}</div></div>`,
+    build: (tl, $, $$, swapNow) => {
+      tl.fromTo($('.ffx-sky'), { yPercent: 100 }, { yPercent: 0, duration: 0.6, ease: 'power3.inOut' }, 0);
+      tl.fromTo($('.ffx-moon'), { y: 300, scale: 0.6 }, { y: 0, scale: 1, duration: 0.85, ease: 'power3.out' }, 0.15);
+      tl.fromTo($$('.ffx-star'), { scale: 0 }, { scale: 1, duration: 0.3, ease: 'back.out(3)', stagger: 0.05 }, 0.45);
+      tl.fromTo($('.ffx-small'), { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }, 0.4);
+      tl.fromTo($('.ffx-type .it-mask > span'), { yPercent: 108 }, { yPercent: 0, duration: 0.55, ease: 'power4.out' }, 0.45);
+      tl.call(swapNow, null, 1.1);
+      tl.to($('.ffx-type'), { y: -40, opacity: 0, duration: 0.3, ease: 'power3.in' }, 1.15);
+      tl.to($('.ffx-sky'), { yPercent: -100, duration: 0.55, ease: 'power3.in' }, 1.25);
+    },
+  },
+  // 로슈 → 카인: "다음 · 카인" 버튼 자리에서 호박색이 번지고, 카인이 튀어나온 뒤 카인 자리로 오므라든다.
+  turn: {
+    html: () => `<div class="ffx-disc"></div><img class="ffx-kain" src="${characterAsset('kain')}" alt="">
+      <div class="ffx-type center"><div class="ffx-small">다음은</div>${fxMask('카인 차례!')}</div>`,
+    build: (tl, $, $$, swapNow) => {
+      const at = (r, y) => `circle(${r}px at 201px ${y}px)`;
+      tl.fromTo($('.ffx-disc'), { clipPath: at(0, 802) }, { clipPath: at(1000, 802), duration: 0.6, ease: 'expo.inOut' }, 0);
+      tl.fromTo($('.ffx-small'), { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }, 0.32);
+      tl.fromTo($('.ffx-type .it-mask > span'), { yPercent: 108 }, { yPercent: 0, duration: 0.5, ease: 'power4.out' }, 0.36);
+      tl.fromTo($('.ffx-kain'), { y: 140, scale: 0.4, rotation: -25, opacity: 0 }, { y: 0, scale: 1, rotation: 0, opacity: 1, duration: 0.5, ease: 'back.out(1.7)' }, 0.42);
+      tl.to($('.ffx-kain'), { rotation: 360, duration: 0.5, ease: 'power3.inOut' }, 0.8);
+      tl.call(swapNow, null, 0.95);
+      tl.to($('.ffx-type'), { y: -30, opacity: 0, duration: 0.25, ease: 'power3.in' }, 1.25);
+      tl.to($('.ffx-kain'), { y: 250, scale: 0.55, duration: 0.45, ease: 'power3.in' }, 1.25);
+      tl.to($('.ffx-kain'), { opacity: 0, duration: 0.12 }, 1.62);
+      tl.to($('.ffx-disc'), { clipPath: at(0, 662), duration: 0.55, ease: 'expo.inOut' }, 1.3);
+    },
+  },
+  // 마무리: 밤하늘이 내려오고, 당·카페인 방울이 가운데서 합쳐져 별로 흩어진다. 그 사이 요약 화면이 올라온다.
+  night: {
+    html: () => `<div class="ffx-sky top"></div><i class="ffx-flash"></i>
+      <i class="ffx-drop" data-s="sugar" style="background-image:url('../assets/drops/sugar.png')"></i>
+      <i class="ffx-drop" data-s="caffeine" style="background-image:url('../assets/drops/caffeine.png')"></i>
+      ${Array.from({ length: 14 }, () => '<i class="ffx-star burst"></i>').join('')}`,
+    build: (tl, $, $$, swapNow) => {
+      tl.fromTo($('.ffx-sky'), { yPercent: -100 }, { yPercent: 0, duration: 0.6, ease: 'power3.inOut' }, 0);
+      tl.fromTo($('[data-s=sugar]'), { x: -150, y: 300, scale: 0.4, opacity: 0 }, { x: -46, y: 0, scale: 1, opacity: 1, duration: 0.55, ease: 'power3.out' }, 0.35);
+      tl.fromTo($('[data-s=caffeine]'), { x: 150, y: 300, scale: 0.4, opacity: 0 }, { x: 46, y: 0, scale: 1, opacity: 1, duration: 0.55, ease: 'power3.out' }, 0.42);
+      tl.to($$('.ffx-drop'), { x: 0, duration: 0.28, ease: 'power3.in' }, 0.98);
+      tl.to($$('.ffx-drop'), { scale: 0, duration: 0.12, ease: 'power2.in' }, 1.22);
+      tl.fromTo($('.ffx-flash'), { scale: 0, opacity: 1 }, { scale: 7, opacity: 0, duration: 0.7, ease: 'power2.out' }, 1.22);
+      $$('.ffx-star.burst').forEach((star, i) => {
+        const a = (i / 14) * Math.PI * 2 + 0.3;
+        const d = 120 + (i % 4) * 45;
+        tl.fromTo(star, { x: 0, y: 0, scale: 0 }, { x: Math.cos(a) * d, y: Math.sin(a) * d * 1.3, scale: 1, duration: 0.7, ease: 'power3.out' }, 1.24);
+      });
+      tl.call(swapNow, null, 1.35);
+      tl.call(() => animateSummaryIn(), null, 1.4);
+      tl.to($('.ffx-sky'), { opacity: 0, duration: 0.5, ease: 'power2.inOut' }, 1.45);
+      tl.to($$('.ffx-star.burst'), { opacity: 0, duration: 0.6, ease: 'power2.in' }, 1.6);
+    },
+  },
+};
+
+/** 요약 화면이 올라온다: 글자는 줄마다, 두 캐릭터 기둥은 차례로, 숫자는 0에서 센다. */
+function animateSummaryIn() {
+  const layers = document.getElementById('layers');
+  gsap.from(layers.querySelectorAll('.split-head > *'), { y: 24, opacity: 0, duration: 0.55, ease: 'power3.out', stagger: 0.07 });
+  gsap.from(layers.querySelectorAll('.summary-col'), { y: 60, opacity: 0, duration: 0.6, ease: 'back.out(1.4)', stagger: 0.12, delay: 0.2 });
+  layers.querySelectorAll('.summary-num').forEach(el => {
+    const text = el.firstChild;
+    const to = Number(text.textContent.replace(/,/g, ''));
+    if (!Number.isFinite(to)) return;
+    const v = { n: 0 };
+    gsap.to(v, { n: to, duration: 0.9, ease: 'power2.out', delay: 0.3, onUpdate: () => { text.textContent = num(Math.round(v.n)); }, onComplete: () => { text.textContent = num(to); } });
+  });
+}
 
 // ---------- 그리기 ----------
 function renderFeeding() {

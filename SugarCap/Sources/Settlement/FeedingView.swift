@@ -445,6 +445,8 @@ struct FeedingView: View {
             .padding(.bottom, 8)
         }
         .overlay(alignment: .topTrailing) { closeButton }
+        // 하루 한 번 보는 한 장짜리 요약이라 제목·캐릭터·숫자가 한 화면에 들어가야 한다. 글자 상한을 둔다.
+        .dynamicTypeSize(...DynamicTypeSize.xxLarge)
         .onAppear {
             if reduceMotion { summaryIn = true } else { withAnimation { summaryIn = true } }
         }
@@ -467,6 +469,8 @@ struct FeedingView: View {
                     .font(AppFont.pretendard(44, .bold, relativeTo: .largeTitle))
                     .tracking(-1.8)
                     .monospacedDigit()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
                     .contentTransition(.numericText())
                     .animation(reduceMotion ? nil : .easeOut(duration: 0.9).delay(0.3), value: summaryIn)
                 Text(side.unit)

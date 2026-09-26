@@ -34,10 +34,11 @@ struct CompanionIntroView: View {
                 .clipped()
                 .contentShape(Rectangle())
                 .onTapGesture { clock.seek(to: Self.chapters.next(after: clock.time(at: Date()))) }
-                .overlay(alignment: .top) { chrome(t: t) }
-                .overlay(alignment: .bottom) { cta(t: t) }
             }
             .ignoresSafeArea()
+            // 무대만 화면 끝까지 깔고, 막대·버튼은 상태 바·홈 표시줄 안쪽에 둔다.
+            .overlay(alignment: .top) { chrome(t: t) }
+            .overlay(alignment: .bottom) { cta(t: t) }
         }
         .background(Color.wall)
         .onAppear {

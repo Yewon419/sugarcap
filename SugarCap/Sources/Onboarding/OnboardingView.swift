@@ -416,14 +416,14 @@ private struct LimitSetup: View {
                     VStack(spacing: 3) {
                         HStack(alignment: .firstTextBaseline, spacing: 2) {
                             Text(Amount.number(chip.value))
-                                .font(AppFont.numeral(20, relativeTo: .title3))
+                                .font(AppFont.numeralFixed(20))
                                 .tracking(-0.5)
                             Text(side.unit)
-                                .font(AppFont.numeral(11, relativeTo: .caption2))
+                                .font(AppFont.numeralFixed(11))
                         }
                         if let note = chip.note {
                             Text(note)
-                                .font(AppFont.pretendard(11, .regular, relativeTo: .caption2))
+                                .font(AppFont.pretendardFixed(11, .regular))
                                 .foregroundStyle(isOn ? Color.white.opacity(0.72) : Color.secondary)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.8)

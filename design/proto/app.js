@@ -8,8 +8,8 @@ const CATALOG_URL = '../../data/catalog.json';
 
 // ---------- 규칙 ----------
 const SIDES = {
-  sugar: { label: '당', unit: 'g', char: 'roshu', name: '로슈', withGwa: '로슈와', cupSet: 'strawberry-latte', limitKey: 'sugarG' },
-  caffeine: { label: '카페인', unit: 'mg', char: 'kain', name: '카인', withGwa: '카인과', cupSet: 'iced-americano', limitKey: 'caffeineMg' },
+  sugar: { label: '당', unit: 'g', char: 'roshu', name: '로슈', withGwa: '로슈와', withIga: '로슈가', cupSet: 'strawberry-latte', limitKey: 'sugarG' },
+  caffeine: { label: '카페인', unit: 'mg', char: 'kain', name: '카인', withGwa: '카인과', withIga: '카인이', cupSet: 'iced-americano', limitKey: 'caffeineMg' },
 };
 const SIDE_ORDER = ['sugar', 'caffeine'];
 const CUP_STEPS = [0, 10, 20, 30, 40, 50, 70, 80, 100];
@@ -203,7 +203,8 @@ const VARIANTS = {
   // 2026-09-26 확정: 기록 = 검색 먼저 + 즐겨찾기, 브랜드 = 영향 미리보기.
   record: { 확정: renderRecordSheet },
   brand: { 확정: renderBrandMenu },
-  feeding: { 'A 밤 장면': renderFeedingNight, 'B 둘에게 나눠 주기': renderFeedingSplit, 'C 끌어서 주기': renderFeedingDrag },
+  // 2026-09-26 확정: 밤 장면 + 당·카페인 분리 + 끌어서 주기.
+  feeding: { 확정: renderFeeding },
   trends: { '미설계': () => renderPlaceholder('추이') },
   settings: { '미설계': () => renderPlaceholder('설정') },
   affinity: { '미설계': () => renderSimpleSheet('호감도', '호감도 화면은 Phase 2에서 메인 화면 문법으로 다시 설계해요.') },
@@ -347,7 +348,7 @@ function render() {
   html += renderToast();
   html += isDraftVisible() ? '<span class="draft-tag">초안 · Phase 2</span>' : '';
   document.getElementById('layers').innerHTML = html;
-  document.getElementById('phone').classList.toggle('dark-status', Boolean(ui.cover) && variantName('feeding') === 'A 밤 장면');
+  document.getElementById('phone').classList.toggle('dark-status', Boolean(ui.cover));
 
   const search = document.getElementById('drinkSearch');
   if (search) search.oninput = () => { ui.query = search.value; renderKeepingFocus('drinkSearch'); };

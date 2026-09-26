@@ -13,12 +13,15 @@ final class RecordFlowUITests: XCTestCase {
         app.launch()
         let ui = Driver(app: app)
 
-        // 새 시뮬레이터라 온보딩이 떠야 한다(§4.5). 4페이지라 건너뛰기로 마지막 장까지 간 뒤 시작한다.
+        // 새 시뮬레이터라 온보딩이 떠야 한다(§4.5). 릴을 건너뛰면 하루 기준 두 단계(당 → 카페인)다.
         let skip = app.buttons["onboarding-skip"]
         XCTAssertTrue(skip.waitForExistence(timeout: 15), "첫 실행에 온보딩이 없음")
         skip.tap()
+        let sugarNext = app.buttons["onboarding-next"]
+        XCTAssertTrue(sugarNext.waitForExistence(timeout: 5), "당 하루 기준 단계가 안 열림")
+        sugarNext.tap()
         let start = app.buttons["onboarding-start"]
-        XCTAssertTrue(start.waitForExistence(timeout: 5), "온보딩 마지막 장(하루 기준)이 안 열림")
+        XCTAssertTrue(start.waitForExistence(timeout: 5), "카페인 하루 기준 단계가 안 열림")
         start.tap()
 
         let summary = ui.element("cup-summary")
@@ -208,12 +211,13 @@ extension RecordFlowUITests {
         XCTAssertTrue(replay.waitForExistence(timeout: 5), "닫기 후 설정으로 돌아와야 한다")
 
         Driver(app: app).tap(replay)
+        // 릴 7장은 화면을 누르면 한 장씩 넘어가고, 그 뒤 당 단계의 "다음"도 같은 식별자다.
         let next = app.buttons["onboarding-next"]
-        for _ in 0..<3 {
+        let finish = app.buttons["onboarding-start"]
+        for _ in 0..<12 where !finish.exists {
             XCTAssertTrue(next.waitForExistence(timeout: 5))
             next.tap()
         }
-        let finish = app.buttons["onboarding-start"]
         XCTAssertTrue(finish.waitForExistence(timeout: 5), "마지막 장이 안 열림")
         XCTAssertEqual(finish.label, "완료")
         finish.tap()
@@ -285,12 +289,15 @@ private struct Driver {
 }
 
 extension RecordFlowUITests {
-    /// 단독 실행이면 온보딩부터 뜬다. 건너뛰기 → 마지막 장 "시작". 이미 지났으면 아무것도 안 한다.
+    /// 단독 실행이면 온보딩부터 뜬다. 건너뛰기 → 당 "다음" → 카페인 "시작". 이미 지났으면 아무것도 안 한다.
     @MainActor
     func completeOnboardingIfPresented(_ app: XCUIApplication) {
         let skip = app.buttons["onboarding-skip"]
         guard skip.waitForExistence(timeout: 5) else { return }
         skip.tap()
+        let next = app.buttons["onboarding-next"]
+        XCTAssertTrue(next.waitForExistence(timeout: 5), "당 하루 기준 단계가 안 열림")
+        next.tap()
         let start = app.buttons["onboarding-start"]
         XCTAssertTrue(start.waitForExistence(timeout: 5), "온보딩 마지막 장이 안 열림")
         start.tap()

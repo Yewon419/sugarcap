@@ -37,6 +37,14 @@ enum CupSide: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
+    /// 받침에 맞춘 "가/이" (로슈가, 카인이).
+    var characterNameWithIga: String {
+        switch self {
+        case .sugar: return "로슈가"
+        case .caffeine: return "카인이"
+        }
+    }
+
     /// `Affinity.character` 저장 값(SPEC §2.2 `kain|roshu`).
     var characterID: String {
         switch self {

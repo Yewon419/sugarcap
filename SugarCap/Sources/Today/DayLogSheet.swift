@@ -126,6 +126,8 @@ struct DayLogSheet: View {
         } trailing: {
             EmptyView()
         }
+        // 묶음 요소로 만들어야 식별자가 줄 하나에만 붙는다(안 묶으면 줄 안 글자마다 붙어 UI 테스트가 5배로 셌다).
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("entry-row")
     }
 }

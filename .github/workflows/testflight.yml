@@ -156,6 +156,18 @@ jobs:
           shoot daylog-type-ax-xl light accessibility-extra-large -seedDemo YES -screenshotDayLog YES
           shoot brand light large -seedDemo YES -screenshotBrand starbucks
           shoot feeding-type-ax-xl light accessibility-extra-large -screenshotFeeding YES
+          # 먹이기 단계·전환 모션·로슈카인 소개(Debug 인자로 한 시각에 멈춰 찍는다).
+          shoot feeding-dropped light large -screenshotFeeding YES -screenshotFeedingStage dropped
+          shoot feeding-eaten light large -screenshotFeeding YES -screenshotFeedingStage eaten
+          shoot feeding-caffeine light large -screenshotFeeding YES -screenshotFeedingStage caffeine
+          shoot feeding-summary light large -screenshotFeeding YES -screenshotFeedingStage summary
+          shoot feeding-summary-type-ax-xl light accessibility-extra-large -screenshotFeeding YES -screenshotFeedingStage summary
+          shoot fx-dusk light large -screenshotFeeding YES -screenshotFx dusk -screenshotFxAt 0.8
+          shoot fx-turn light large -screenshotFeeding YES -screenshotFeedingStage eaten -screenshotFx turn -screenshotFxAt 0.7
+          shoot fx-night light large -screenshotFeeding YES -screenshotFeedingStage caffeine -screenshotFx night -screenshotFxAt 1.3
+          for at in 1.5 4.8 7.4 8.8 12.4 13.6; do
+            shoot "intro-$at" light large -screenshotFeeding YES -screenshotIntroAt "$at"
+          done
           ls -la "$OUT"
 
       - uses: actions/upload-artifact@v4

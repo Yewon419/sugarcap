@@ -129,6 +129,7 @@ struct RecordSheet: View {
             .accessibilityLabel("\(drink.name) 기록")
             .accessibilityIdentifier("quick-add")
         }
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("quick-row")
     }
 

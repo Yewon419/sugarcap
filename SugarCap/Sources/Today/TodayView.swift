@@ -16,6 +16,9 @@ struct TodayView: View {
     @State private var path: [String] = []
     @State private var isManualEntryPresented = false
     @State private var feeding: FeedingRequest?
+    @State private var feedingOpening: FeedingOpening = .dusk
+    @State private var feedingSnapshot: FeedingSnapshot?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var prompt: SettlementPlan.Prompt?
     /// 지난 마감분이 방금 확정됐을 때만 채운다. 이번 실행 동안만 보인다.
     @State private var creditNotice: [FeedResult]?
@@ -114,7 +117,7 @@ struct TodayView: View {
             )
         }
         .fullScreenCover(item: $feeding) { request in
-            FeedingView(request: request, onFeed: { try feed(request) })
+            FeedingView(request: request, opening: feedingOpening, snapshot: feedingSnapshot, onFeed: { try feed(request) })
         }
         .sheet(item: $paywall, onDismiss: {
             if pro.isPro, pendingAffinity { isAffinityPresented = true }
@@ -340,12 +343,14 @@ struct TodayView: View {
                     Spacer(minLength: 8)
                     Button("먹이기") {
                         let dayTotals = totals(for: day)
-                        feeding = FeedingRequest(
+                        openFeeding(FeedingRequest(
                             kind: .pastDay(day),
                             sugarLeftG: dayTotals.leftSugarG,
                             caffeineLeftMg: dayTotals.leftCaffeineMg,
-                            limits: limits
-                        )
+                            limits: limits,
+                            sugarOverG: dayTotals.overSugarG,
+                            caffeineOverMg: dayTotals.overCaffeineMg
+                        ))
                     }
                     .buttonStyle(.borderedProminent)
                     .buttonBorderShape(.capsule)
@@ -358,12 +363,12 @@ struct TodayView: View {
                     Text("어제는 기록이 없어요. 음료를 안 마셨나요?")
                     HStack(spacing: 8) {
                         Button("안 마셨어요") {
-                            feeding = FeedingRequest(
+                            openFeeding(FeedingRequest(
                                 kind: .pastDay(day),
                                 sugarLeftG: limits.sugarG,
                                 caffeineLeftMg: limits.caffeineMg,
                                 limits: limits
-                            )
+                            ))
                         }
                         .buttonStyle(.borderedProminent)
                         Button("마셨어요") { dismissPastDay(day) }
@@ -420,12 +425,14 @@ struct TodayView: View {
                 .background(.ultraThinMaterial, in: Capsule())
         } else if CloseWindow.isOpen(at: now, closeFromHour: closeFromHour, boundaryHour: boundaryHour) {
             Button {
-                feeding = FeedingRequest(
+                openFeeding(FeedingRequest(
                     kind: .closeToday,
                     sugarLeftG: totals.leftSugarG,
                     caffeineLeftMg: totals.leftCaffeineMg,
-                    limits: limits
-                )
+                    limits: limits,
+                    sugarOverG: totals.overSugarG,
+                    caffeineOverMg: totals.overCaffeineMg
+                ))
             } label: {
                 Label("오늘 마감", systemImage: "moon.stars")
                     .font(.system(.subheadline, weight: .semibold))
@@ -439,6 +446,17 @@ struct TodayView: View {
             .buttonStyle(.plain)
             .accessibilityIdentifier("close-today")
         }
+    }
+
+    /// 먹이기를 연다. 첫 마감이면 로슈·카인 소개부터(§4.5), 그 뒤로는 마감 진입 모션.
+    /// 화면이 아래에서 밀려 올라오는 기본 전환은 끈다. 모션이 대신 화면을 연다.
+    private func openFeeding(_ request: FeedingRequest) {
+        let seen = UserDefaults.standard.bool(forKey: CompanionIntro.seenKey)
+        feedingSnapshot = nil
+        feedingOpening = !seen ? .companionIntro : (reduceMotion ? .immediate : .dusk)
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) { feeding = request }
     }
 
     private func totals(for day: DayKey) -> DayTotals {
@@ -523,9 +541,24 @@ struct TodayView: View {
         #if DEBUG
         let defaults = UserDefaults.standard
         if defaults.bool(forKey: "screenshotFeeding") {
+            // 단계·전환·소개 시각을 인자로 골라 멈춘 화면을 찍는다(스크립트: .github/workflows/testflight.yml).
+            var snapshot = FeedingSnapshot()
+            snapshot.stage = defaults.string(forKey: "screenshotFeedingStage").flatMap(FeedingSnapshot.Stage.init(rawValue:)) ?? .ask
+            switch defaults.string(forKey: "screenshotFx") {
+            case "dusk": snapshot.fx = .dusk(title: "오늘 마감")
+            case "turn": snapshot.fx = .turn
+            case "night": snapshot.fx = .night
+            default: break
+            }
+            snapshot.fxAt = defaults.double(forKey: "screenshotFxAt")
+            if defaults.object(forKey: "screenshotIntroAt") != nil {
+                snapshot.introAt = defaults.double(forKey: "screenshotIntroAt")
+            }
+            feedingSnapshot = snapshot
+            feedingOpening = snapshot.introAt != nil ? .companionIntro : .immediate
             feeding = FeedingRequest(
                 kind: .closeToday, sugarLeftG: totals.leftSugarG, caffeineLeftMg: totals.leftCaffeineMg,
-                limits: limits
+                limits: limits, sugarOverG: totals.overSugarG, caffeineOverMg: totals.overCaffeineMg
             )
         }
         if defaults.bool(forKey: "screenshotPaywall") {

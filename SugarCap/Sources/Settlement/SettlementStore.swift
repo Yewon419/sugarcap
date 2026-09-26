@@ -100,7 +100,7 @@ enum SettlementStore {
         return FeedResult(side: side, left: left, levelBefore: before, levelAfter: affinity.level)
     }
 
-    private static func affinity(for side: CupSide, in context: ModelContext) throws -> Affinity {
+    static func affinity(for side: CupSide, in context: ModelContext) throws -> Affinity {
         let id = side.characterID
         let existing = try context.fetch(
             FetchDescriptor<Affinity>(predicate: #Predicate { $0.character == id })

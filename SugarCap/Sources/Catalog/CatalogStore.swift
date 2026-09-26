@@ -83,6 +83,7 @@ struct CatalogIndex {
     private let brandsByID: [String: Brand]
     private let drinksByBrandID: [String: [Drink]]
     private let servingsByID: [String: Serving]
+    private let drinksByServingID: [String: Drink]
 
     init(catalog: Catalog) {
         self.catalog = catalog
@@ -91,9 +92,25 @@ struct CatalogIndex {
         self.servingsByID = Dictionary(
             uniqueKeysWithValues: catalog.drinks.flatMap(\.servings).map { ($0.id, $0) }
         )
+        self.drinksByServingID = Dictionary(
+            uniqueKeysWithValues: catalog.drinks.flatMap { drink in drink.servings.map { ($0.id, drink) } }
+        )
     }
 
     func brand(id: String) -> Brand? { brandsByID[id] }
     func drinks(brandID: String) -> [Drink] { drinksByBrandID[brandID] ?? [] }
     func serving(id: String) -> Serving? { servingsByID[id] }
+    func drink(servingID: String) -> Drink? { drinksByServingID[servingID] }
+
+    /// 기록 시트 검색(8개 브랜드 전체). 브랜드 안 검색과 같은 일치 규칙, 카탈로그 순서, 최대 `limit`개.
+    func search(_ query: String, limit: Int = 60) -> [Drink] {
+        guard !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return [] }
+        return Array(catalog.drinks.lazy.filter { $0.matches(query) }.prefix(limit))
+    }
+
+    /// 브랜드 메뉴 분류 칩: 메뉴가 많은 분류부터. 같은 수면 이름순(화면이 실행마다 흔들리지 않게).
+    func categories(brandID: String) -> [String] {
+        let counts = Dictionary(grouping: drinks(brandID: brandID), by: \.category).mapValues(\.count)
+        return counts.keys.sorted { (counts[$0] ?? 0, $1) > (counts[$1] ?? 0, $0) }
+    }
 }

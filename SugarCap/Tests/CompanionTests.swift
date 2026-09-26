@@ -39,10 +39,19 @@ final class TalkMathTests: XCTestCase {
 final class RecentDrinksTests: XCTestCase {
     func testSkipsFavoritesAndDuplicatesAndStopsAtLimit() {
         let ids = ["a", "b", "a", "fav", "c", "d", "e", "f", "g"]
-        XCTAssertEqual(RecentDrinks.pick(servingIDsNewestFirst: ids, favorites: ["fav"]), ["a", "b", "c", "d", "e"])
+        XCTAssertEqual(RecentDrinks.pick(keysNewestFirst: ids, favorites: ["fav"]), ["a", "b", "c", "d", "e"])
+    }
+
+    func testKeySeparatesBeanVariantsAndRoundTrips() {
+        let plain = DrinkKey.make(servingID: "theventi:americano:iced:large", variantLabel: nil)
+        let bean = DrinkKey.make(servingID: "theventi:americano:iced:large", variantLabel: "디카페인")
+        XCTAssertNotEqual(plain, bean)
+        XCTAssertEqual(DrinkKey.parse(bean)?.servingID, "theventi:americano:iced:large")
+        XCTAssertEqual(DrinkKey.parse(bean)?.variantLabel, "디카페인")
+        XCTAssertNil(DrinkKey.parse(plain)?.variantLabel)
     }
 
     func testEmptyWhenEverythingIsFavorite() {
-        XCTAssertEqual(RecentDrinks.pick(servingIDsNewestFirst: ["a", "a"], favorites: ["a"]), [])
+        XCTAssertEqual(RecentDrinks.pick(keysNewestFirst: ["a", "a"], favorites: ["a"]), [])
     }
 }

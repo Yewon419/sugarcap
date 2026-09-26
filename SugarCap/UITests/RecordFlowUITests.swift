@@ -63,12 +63,22 @@ final class RecordFlowUITests: XCTestCase {
             "당 30 g 이상을 기록했는데 컵이 그대로임: \(summary.label)"
         )
 
-        // 기록 2건이 시트에 남아 있어야 한다.
-        app.buttons["record-add"].tap()
+        // 기록 2건은 큰 숫자를 누르면 뜨는 하루 기록 시트에 있다(2026-09-26, 기록 시트에서 뺐다).
+        summary.tap()
         let rows = app.descendants(matching: .any).matching(identifier: "entry-row")
-        XCTAssertTrue(rows.firstMatch.waitForExistence(timeout: 5), "기록 행이 안 보임")
+        XCTAssertTrue(rows.firstMatch.waitForExistence(timeout: 5), "하루 기록 시트에 기록 줄이 안 보임")
         XCTAssertEqual(rows.count, 2)
-        app.buttons["record-close"].tap()
+
+        // 편집 → 지우기 하면 한 줄이 빠지고 컵이 그만큼 다시 찬다.
+        app.buttons["daylog-edit"].tap()
+        let delete = app.buttons.matching(identifier: "delete-entry").firstMatch
+        XCTAssertTrue(delete.waitForExistence(timeout: 5), "편집에 지우기 버튼이 없음")
+        delete.tap()
+        let oneLeft = NSPredicate(format: "count == 1")
+        expectation(for: oneLeft, evaluatedWith: rows)
+        waitForExpectations(timeout: 5)
+        app.buttons["daylog-close"].tap()
+        XCTAssertTrue(summary.waitForExistence(timeout: 5))
     }
 }
 

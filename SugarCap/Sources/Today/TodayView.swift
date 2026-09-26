@@ -22,6 +22,9 @@ struct TodayView: View {
     @State private var paywall: ProFeature?
     @State private var isAffinityPresented = false
     @State private var isRecordSheetPresented = false
+    @State private var isDayLogPresented = false
+    /// 즐겨찾기 `+`로 방금 기록한 음료. 4초 동안 되돌리기 안내를 띄운다.
+    @State private var undoToast: UndoToast?
     /// 호감도를 누르다 페이월로 간 경우. 구매하고 닫히면 호감도 화면을 이어서 연다.
     @State private var pendingAffinity = false
     /// 저장·정산 실패를 사용자에게 알린다. 로그만 남기면 기록이 사라져도 모른다.
@@ -43,11 +46,15 @@ struct TodayView: View {
                 content(now: timeline.date)
             }
             .toolbar(.hidden, for: .navigationBar)
+            // 브랜드 메뉴의 뒤로 버튼 글자("‹ 오늘"). 막대는 숨겨 두므로 제목은 보이지 않는다.
+            .navigationTitle("오늘")
             .navigationDestination(for: String.self) { brandID in
                 if let brand = catalog.brand(id: brandID) {
                     BrandMenuView(
                         brand: brand,
-                        drinks: catalog.drinks(brandID: brandID),
+                        catalog: catalog,
+                        todayTotals: todayTotals(now: Date()),
+                        limits: limits,
                         onAdd: { selection in
                             record(selection.makeEntry(brandName: brand.name, at: Date()))
                         },
@@ -56,13 +63,26 @@ struct TodayView: View {
                 }
             }
         }
+        .overlay(alignment: .bottom) {
+            if let undoToast {
+                UndoToastView(toast: undoToast) { undo(undoToast) }
+                    .padding(.bottom, 110)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .task(id: undoToast.id) {
+                        try? await Task.sleep(for: .seconds(4))
+                        if self.undoToast?.id == undoToast.id { self.undoToast = nil }
+                    }
+            }
+        }
+        .animation(.spring(response: 0.35, dampingFraction: 1), value: undoToast?.id)
         .sheet(isPresented: $isManualEntryPresented) {
             ManualEntrySheet(onSave: record)
         }
         .sheet(isPresented: $isRecordSheetPresented) {
             RecordSheet(
-                brands: catalog.catalog.brands,
-                entries: todaysEntries(now: Date()),
+                catalog: catalog,
+                todayTotals: todayTotals(now: Date()),
+                limits: limits,
                 onBrand: { brandID in
                     isRecordSheetPresented = false
                     path = [brandID]
@@ -71,6 +91,25 @@ struct TodayView: View {
                     isRecordSheetPresented = false
                     isManualEntryPresented = true
                 },
+                onAdd: { selection, brand in
+                    isRecordSheetPresented = false
+                    record(selection.makeEntry(brandName: brand.name, at: Date()))
+                },
+                onQuickAdd: { drink in
+                    isRecordSheetPresented = false
+                    let entry = drink.selection.makeEntry(brandName: drink.brand.name, at: Date())
+                    record(entry)
+                    undoToast = UndoToast(entryID: entry.id, text: "\(drink.name) 기록했어요")
+                }
+            )
+        }
+        .sheet(isPresented: $isDayLogPresented) {
+            let now = Date()
+            DayLogSheet(
+                day: DayKey(at: now, boundaryHour: boundaryHour),
+                isToday: true,
+                entries: todaysEntries(now: now),
+                limits: limits,
                 onDelete: delete
             )
         }
@@ -102,6 +141,17 @@ struct TodayView: View {
     private func todaysEntries(now: Date) -> [Entry] {
         let today = DayKey(at: now, boundaryHour: boundaryHour)
         return entries.filter { $0.dayKey(boundaryHour: boundaryHour) == today }
+    }
+
+    private func todayTotals(now: Date) -> DayTotals {
+        DayMath.totals(todaysEntries(now: now).map(\.consumption), limits: limits)
+    }
+
+    /// 방금 기록한 한 잔을 지운다. 이미 지워졌으면 아무것도 하지 않는다.
+    private func undo(_ toast: UndoToast) {
+        undoToast = nil
+        guard let entry = entries.first(where: { $0.id == toast.entryID }) else { return }
+        delete([entry])
     }
 
     /// 오늘 화면(2026-09-24 디자인). 컵 장면이 화면을 꽉 채우고 수치·조작부가 그 위에 얹힌다.
@@ -194,7 +244,12 @@ struct TodayView: View {
             }
         }
         .padding(.leading, 24)
+        // 큰 숫자를 누르면 하루 기록 시트(2026-09-26). 기록 보기·지우기는 여기서 한다.
+        .contentShape(Rectangle())
+        .onTapGesture { isDayLogPresented = true }
         .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction { isDayLogPresented = true }
         .accessibilityIdentifier("cup-summary")
         .accessibilityLabel(
             "\(side.label) 남은 \(Amount.number(remaining)) \(side.unit) / \(Amount.number(limit)) \(side.unit)"
@@ -207,7 +262,7 @@ struct TodayView: View {
             @unknown default: break
             }
         }
-        .accessibilityHint("위아래로 쓸어 당과 카페인 컵을 오가요")
+        .accessibilityHint("눌러서 오늘 기록을 봐요. 위아래로 쓸어 당과 카페인 컵을 오가요")
     }
 
     private var affinityButton: some View {
@@ -481,6 +536,12 @@ struct TodayView: View {
         }
         if defaults.bool(forKey: "screenshotRecord") {
             isRecordSheetPresented = true
+        }
+        if defaults.bool(forKey: "screenshotDayLog") {
+            isDayLogPresented = true
+        }
+        if let brandID = defaults.string(forKey: "screenshotBrand") {
+            path = [brandID]
         }
         #endif
     }

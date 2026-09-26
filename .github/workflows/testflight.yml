@@ -152,6 +152,9 @@ jobs:
           shoot affinity-type-ax-xl light accessibility-extra-large -mockProOwned YES -screenshotAffinity YES
           shoot record light large -seedDemo YES -screenshotRecord YES
           shoot record-type-ax-xl light accessibility-extra-large -seedDemo YES -screenshotRecord YES
+          shoot daylog light large -seedDemo YES -screenshotDayLog YES
+          shoot daylog-type-ax-xl light accessibility-extra-large -seedDemo YES -screenshotDayLog YES
+          shoot brand light large -seedDemo YES -screenshotBrand starbucks
           shoot feeding-type-ax-xl light accessibility-extra-large -screenshotFeeding YES
           ls -la "$OUT"
 

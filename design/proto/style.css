@@ -328,3 +328,15 @@ input { font: inherit; }
 }
 /* 밝은 사진 위 흰 글자: 그라데이션을 진하게 하는 대신 옅은 그림자로 읽히게 한다 */
 .cover.night .light, .cover.night .summary-num, .cover.night .summary-label { text-shadow: 0 1px 10px rgba(0,0,0,.28); }
+
+/* 이미 열려 있던 층은 다시 그려도 등장 애니메이션을 반복하지 않는다(settleOverlays). */
+.settled { animation: none !important; }
+
+/* 컵 크기(2026-09-26 대표님 지시): 사진 높이를 바닥 기준 84%로 줄이고, 위에 생긴 빈 곳은 벽 색으로 채워 사진 윗부분을 흐리게 잇는다.
+   폭은 화면 폭 그대로 두고 채우기(cover)라 양옆 빈 곳·경계선이 생기지 않는다(요소를 scale로 줄이면 폭까지 줄어 경계가 보였다). 벽 색은 컵 사진 가장자리 실측값(#F3F5F8 부근). */
+.cup-bg, .feed-cup-box { background: #f3f5f8; }
+.cup-bg img, .feed-cup-box img {
+  top: auto; bottom: 0; height: 84%; width: 100%; object-fit: cover; object-position: center bottom;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14%);
+          mask-image: linear-gradient(to bottom, transparent 0, #000 14%);
+}

@@ -348,6 +348,7 @@ function render() {
   html += renderToast();
   html += isDraftVisible() ? '<span class="draft-tag">초안 · Phase 2</span>' : '';
   document.getElementById('layers').innerHTML = html;
+  settleOverlays();
   document.getElementById('phone').classList.toggle('dark-status', Boolean(ui.cover));
 
   const search = document.getElementById('drinkSearch');
@@ -359,6 +360,34 @@ function render() {
   while (afterRender.length) afterRender.shift()();
 }
 const afterRender = [];
+
+/**
+ * 화면을 통째로 다시 그리기 때문에, 그냥 두면 시트·먹이기·밀어 넣기의 등장 애니메이션이
+ * 버튼 하나 누를 때마다 다시 재생된다(컵이 자꾸 솟아오르던 문제). 새로 열린 층만 애니메이션하고
+ * 이미 열려 있던 층은 멈춘 상태로 그린다.
+ */
+let lastOverlays = {};
+function settleOverlays() {
+  const current = {
+    sheet: ui.sheet,
+    panel: ui.panelSheet?.drinkId ?? null,
+    pushed: ui.pushed?.brandId ?? null,
+    cover: ui.cover ? `${ui.cover.kind}:${ui.cover.day}` : null,
+  };
+  const keep = (selector, key) => {
+    if (current[key] && current[key] === lastOverlays[key]) {
+      document.querySelectorAll(selector).forEach(el => el.classList.add('settled'));
+    }
+  };
+  keep('.sheet', 'sheet');
+  keep('.panel-sheet', 'panel');
+  keep('.pushed', 'pushed');
+  keep('.cover', 'cover');
+  if (current.sheet === lastOverlays.sheet && current.panel === lastOverlays.panel) {
+    document.querySelectorAll('.dim').forEach(el => el.classList.add('settled'));
+  }
+  lastOverlays = current;
+}
 
 /** 아직 안이 없는 초안 화면이 보이는 중인지. 안이 붙은 화면(기록·브랜드)은 표시하지 않는다. */
 function isDraftVisible() {

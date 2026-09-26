@@ -203,7 +203,7 @@ const VARIANTS = {
   // 2026-09-26 확정: 기록 = 검색 먼저 + 즐겨찾기, 브랜드 = 영향 미리보기.
   record: { 확정: renderRecordSheet },
   brand: { 확정: renderBrandMenu },
-  feeding: { 초안: renderFeeding },
+  feeding: { 'A 밤 장면': renderFeedingNight, 'B 둘에게 나눠 주기': renderFeedingSplit, 'C 끌어서 주기': renderFeedingDrag },
   trends: { '미설계': () => renderPlaceholder('추이') },
   settings: { '미설계': () => renderPlaceholder('설정') },
   affinity: { '미설계': () => renderSimpleSheet('호감도', '호감도 화면은 Phase 2에서 메인 화면 문법으로 다시 설계해요.') },
@@ -307,39 +307,6 @@ function renderManualSheet() {
     </div>`;
 }
 
-// ---------- 마감·먹이기(초안) ----------
-function renderFeeding() {
-  const c = ui.cover;
-  const left = c.fed ? { sugar: 0, caffeine: 0 } : c.left;
-  const bubble = side => {
-    if (!c.fed) return '';
-    const r = c.results?.find(x => x.side === side);
-    const text = r && r.after > r.before ? `${stageName(r.after)}가 됐어요` : '잘 먹었어요';
-    return `<div class="glass-pill" style="font-size:12px;height:28px;color:var(--accent)">${text}</div>`;
-  };
-  return `
-    <div class="cover">
-      <div class="cup-bg"><img src="${cupAsset(SIDES.sugar.cupSet, c.fed ? 0 : cupStep(c.left.sugar, limitOf('sugar')))}" alt=""></div>
-      <div style="position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,.96),rgba(255,255,255,.55) 45%,rgba(255,255,255,.2) 70%,rgba(255,255,255,.9))"></div>
-      <button class="text-button" data-a="closeCover" style="position:absolute;right:20px;top:var(--safe-top)">닫기</button>
-      <div class="headline">
-        <div class="kicker" style="margin-top:44px">${c.kind === 'close' ? '오늘 마감' : '어제 남은 음료'}</div>
-        <div class="number-row"><span class="hero-number">${num(left.sugar)}</span><span class="hero-unit">g</span></div>
-        <div style="font-size:13px;color:var(--secondary);letter-spacing:.3px;line-height:1.5;margin-top:6px">
-          ${c.fed ? '로슈가 먹었어요<br>카페인은 카인이 먹었어요' : `남은 당을 로슈에게<br>카페인 ${num(left.caffeine)} mg는 카인에게`}
-        </div>
-      </div>
-      <div style="position:absolute;left:28px;right:28px;bottom:170px;display:flex;justify-content:space-between;align-items:flex-end">
-        <div style="display:flex;flex-direction:column;align-items:center;gap:6px">${bubble('sugar')}<img src="${characterAsset('roshu')}" style="height:170px" alt="로슈"></div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:24px">${bubble('caffeine')}<img src="${characterAsset('kain')}" style="height:110px" alt="카인"></div>
-      </div>
-      <div style="position:absolute;left:24px;right:24px;bottom:50px">
-        <button class="cta" data-a="${c.fed ? 'closeCover' : 'feed'}">${c.fed ? '완료' : '먹이기'}</button>
-        ${!c.fed && c.kind === 'close' ? '<p style="text-align:center;font-size:12px;color:var(--secondary);margin:12px 0 0">마감 뒤에 마신 음료도 오늘 몫으로 빠져요</p>' : ''}
-      </div>
-    </div>`;
-}
-
 // ---------- 미설계 자리 ----------
 function renderPlaceholder(title) {
   return `<div class="placeholder"><div class="date-label">${title}</div>
@@ -380,17 +347,21 @@ function render() {
   html += renderToast();
   html += isDraftVisible() ? '<span class="draft-tag">초안 · Phase 2</span>' : '';
   document.getElementById('layers').innerHTML = html;
+  document.getElementById('phone').classList.toggle('dark-status', Boolean(ui.cover) && variantName('feeding') === 'A 밤 장면');
 
   const search = document.getElementById('drinkSearch');
   if (search) search.oninput = () => { ui.query = search.value; renderKeepingFocus('drinkSearch'); };
   const globalSearch = document.getElementById('globalSearch');
   if (globalSearch) globalSearch.oninput = () => { ui.globalQuery = globalSearch.value; renderKeepingFocus('globalSearch'); };
   renderPanel();
+  // 방금 그린 DOM에 붙는 애니메이션·끌기 처리. 그리는 쪽이 필요할 때 넣는다.
+  while (afterRender.length) afterRender.shift()();
 }
+const afterRender = [];
 
 /** 아직 안이 없는 초안 화면이 보이는 중인지. 안이 붙은 화면(기록·브랜드)은 표시하지 않는다. */
 function isDraftVisible() {
-  return Boolean(['manual', 'affinity', 'paywall'].includes(ui.sheet) || ui.cover || ui.tab !== 'today');
+  return Boolean(['manual', 'affinity', 'paywall'].includes(ui.sheet) || ui.tab !== 'today');
 }
 
 function renderKeepingFocus(id) {
@@ -493,37 +464,42 @@ const ACTIONS = {
   },
   deleteEntry: v => { S.entries = S.entries.filter(e => e.id !== v); saveState(); },
   affinity: () => { ui.sheet = S.pro ? 'affinity' : 'paywall'; },
-  closeToday: () => {
-    const t = totalsOf(dayKey(now()));
-    ui.cover = { kind: 'close', day: dayKey(now()), left: { sugar: t.sugar.left, caffeine: t.caffeine.left }, fed: false };
-  },
-  feedYesterday: v => {
-    const t = totalsOf(v);
-    ui.cover = { kind: 'past', day: v, left: { sugar: t.sugar.left, caffeine: t.caffeine.left }, fed: false };
-  },
-  noDrink: v => {
-    ui.cover = { kind: 'past', day: v, left: { sugar: S.settings.sugarG, caffeine: S.settings.caffeineMg }, fed: false };
-  },
+  closeToday: () => openFeeding('close', dayKey(now()), false),
+  feedYesterday: v => openFeeding('past', v, false),
+  noDrink: v => openFeeding('past', v, true),
   drank: v => { dayRow(v).asked = true; saveState(); },
-  feed: () => {
-    const c = ui.cover;
-    const row = dayRow(c.day);
-    if (c.kind === 'close') {
-      // 적립은 하루 경계가 지난 뒤 첫 실행에 최종 값으로 한다(§9.5 Phase 2b).
-      row.closedAt = now();
-      row.atClose = { ...c.left };
-      c.results = [];
-    } else {
-      row.closedAt = now();
-      row.atClose = { ...c.left };
-      row.asked = true;
-      c.results = credit(c.day, c.left);
-    }
-    c.fed = true;
-    saveState();
-  },
   closeCover: () => { ui.cover = null; },
+  // 먹이기 화면 안별 동작은 screens-feeding.js
+  ...FEEDING_ACTIONS,
 };
+
+/** 먹이기 화면을 연다. noDrink면 "안 마셨어요"라 가득 찬 컵으로 먹인다(§4.7). */
+function openFeeding(kind, day, noDrink) {
+  const t = totalsOf(day);
+  ui.cover = {
+    kind, day,
+    left: noDrink ? { sugar: S.settings.sugarG, caffeine: S.settings.caffeineMg } : { sugar: t.sugar.left, caffeine: t.caffeine.left },
+    over: noDrink ? { sugar: 0, caffeine: 0 } : { sugar: t.sugar.over, caffeine: t.caffeine.over },
+    phase: 'ready',
+    fedSides: [],
+    results: null,
+  };
+}
+
+/** 먹인 사실을 남긴다. 오늘 마감은 연출만 하고 적립은 하루 경계 뒤 첫 실행에(§9.5 Phase 2b), 지난 날은 바로 적립. */
+function commitFeeding() {
+  const c = ui.cover;
+  const row = dayRow(c.day);
+  row.closedAt = now();
+  row.atClose = { ...c.left };
+  if (c.kind === 'close') {
+    c.results = [];
+  } else {
+    row.asked = true;
+    c.results = credit(c.day, c.left);
+  }
+  saveState();
+}
 
 function handleClick(event) {
   const target = event.target.closest('[data-a]');

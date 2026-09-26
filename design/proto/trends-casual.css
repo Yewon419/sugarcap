@@ -36,7 +36,7 @@
 .stat-row { display: grid; grid-template-columns: 1.35fr 1fr; gap: 12px; margin: 12px 16px 0; }
 .stat-card { display: flex; align-items: center; gap: 12px; padding: 16px; border-radius: 24px; min-height: 96px; text-align: left;
   background: rgba(255, 255, 255, .78); border: 1px solid #fff; box-shadow: 0 10px 30px rgba(20, 30, 50, .05); }
-.stat-card.drops img { width: 52px; height: 52px; flex: none; animation: float 2.6s ease-in-out infinite; }
+.stat-card.drops img { width: 52px; height: 52px; flex: none; }
 .stat-num { font-size: 28px; font-weight: 700; letter-spacing: -1px; font-variant-numeric: tabular-nums; line-height: 1.1; }
 .stat-num small { font-size: 13px; font-weight: 500; letter-spacing: 0; margin-left: 2px; }
 .stat-label { font-size: 12px; color: var(--secondary); margin-top: 2px; line-height: 1.35; }
@@ -56,4 +56,4 @@
 .drop-cell.is-today .drop-day { color: var(--label); font-weight: 700; }
 .drop-cell.future { opacity: .35; justify-content: flex-end; height: 62px; }
 
-@media (prefers-reduced-motion: reduce) { .hero-char.cheer, .stat-card.drops img { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .hero-char.cheer { animation: none; } }

@@ -5,7 +5,7 @@
 //    대화하면 호감도가 조금(TALK_POINTS) 오른다. 먹이기(하루 1~10점)를 앞지르지 않는 크기.
 //  - 성격(대표님 설정): 로슈는 처음엔 낯가리다 가까워질수록 애교가 확확 는다.
 //    카인은 무슨 생각인지 모르겠지만 엉뚱하고 귀엽다. 둘 다 말은 못 하고 반응만 한다.
-// 대사는 초안이다. 대표님이 고친다.
+// 반응은 캐릭터마다 애니메이션 3개(대표님 제작)와 짧은 한마디뿐이다.
 
 const TALK_POINTS = 2;
 
@@ -20,58 +20,29 @@ const TALK_CHOICES = [
 ];
 
 /**
- * 반응 = [몸짓, 묘사]. 로슈는 사이 단계에 따라 세 갈래(낯가림 1~3 · 풀림 4~6 · 애교 7~10).
- * 몸짓 이름은 style.css의 .react-* 애니메이션.
+ * 반응 애니메이션은 대표님이 캐릭터마다 3개씩(모두 6개) 그린다(2026-09-26). 긴 지문 대신 짧은 한마디만.
+ * 몸짓 이름은 애니메이션 파일 이름이 되고, 지금은 style.css의 .react-* 로 자리만 채운다.
+ *  - 로슈: 사이 단계로 정해진다. 낯가림(1~3) → 좋아함(4~6) → 애교(7~10).
+ *  - 카인: 엉뚱해서 무엇을 고르든 셋 중 하나가 나온다(같은 날·같은 선택이면 같은 반응).
  */
-const ROSHU_REACTIONS = {
-  shy: {
-    greet: ['duck', '로슈가 눈을 피하며 꾸벅해요.'],
-    praise: ['hide', '로슈가 볼이 발개져서 몸을 반쯤 숨겨요.'],
-    pat: ['freeze', '로슈가 움찔했다가… 가만히 있어요.'],
-    walk: ['shake', '로슈가 고개를 도리도리 저어요. 아직은 부끄러운가 봐요.'],
-    ask: ['fidget', '로슈가 날개를 꼼지락꼼지락해요.'],
-    five: ['duck', '로슈가 날개를 들다 말고 슬쩍 내려요.'],
-  },
-  warm: {
-    greet: ['wave', '로슈가 날개를 작게 흔들어요.'],
-    praise: ['proud', '로슈가 뿌듯한 듯 몸을 쭉 펴요.'],
-    pat: ['lean', '로슈가 눈을 감고 머리를 쏙 내밀어요.'],
-    walk: ['hop', '로슈가 쪼르르 와서 옆에 서요.'],
-    ask: ['flap', '로슈가 신나서 날개를 파닥파닥해요.'],
-    five: ['bounce', '로슈가 톡, 날개를 맞대요.'],
-  },
-  sweet: {
-    greet: ['jump', '로슈가 달려와서 폭 안겨요!'],
-    praise: ['spin', '로슈가 빙글빙글 돌며 좋아해요.'],
-    pat: ['nuzzle', '로슈가 손에 머리를 부비부비해요.'],
-    walk: ['waddle', '로슈가 벌써 앞장서서 뒤뚱뒤뚱 걸어가요.'],
-    ask: ['lean', '로슈가 몸을 폭 기대고 꾸벅꾸벅 졸아요.'],
-    five: ['jump', '로슈가 두 날개로 짝! 하이파이브해요.'],
-  },
-};
-
-/** 카인은 단계와 상관없이 엉뚱하다. 가까워질수록 끝에 다정한 한 줄이 붙는다. */
-const KAIN_REACTIONS = {
-  greet: ['spin', '카인이 한쪽 눈으로 가만히 쳐다보다가… 갑자기 한 바퀴 돌아요.'],
-  praise: ['peck', '카인이 부리로 바닥을 톡톡 두드려요. 칭찬인 줄 아는 걸까요?'],
-  pat: ['dodge', '카인이 머리를 내밀었다가 갑자기 딴 데를 봐요.'],
-  walk: ['wander', '카인이 반대쪽으로 세 걸음 갔다가 돌아와요.'],
-  ask: ['tilt', '카인이 고개를 옆으로 꺾어요. 끝까지 꺾어요.'],
-  five: ['peck', '카인이 부리로 손바닥을 콕 찍어요.'],
-};
-const KAIN_WARM_TAIL = ['', ' 그리고 옆에 슬쩍 와서 앉아요.', ' 그러고는 발 위에 딱 붙어 앉아요.'];
-
-function stageBucket(level) {
-  if (level <= 3) return 0;
-  if (level <= 6) return 1;
-  return 2;
-}
+const ROSHU_REACTIONS = [
+  ['shy', '부끄러워해요'],
+  ['happy', '좋아해요'],
+  ['aegyo', '애교를 부려요'],
+];
+const KAIN_REACTIONS = [
+  ['tilt', '고개를 갸웃해요'],
+  ['spin', '갑자기 한 바퀴 돌아요'],
+  ['hop', '폴짝 뛰어요'],
+];
 
 function reactionFor(side, choiceId, level) {
-  const bucket = stageBucket(level);
-  if (side === 'sugar') return ROSHU_REACTIONS[['shy', 'warm', 'sweet'][bucket]][choiceId];
-  const [move, line] = KAIN_REACTIONS[choiceId];
-  return [move, line + KAIN_WARM_TAIL[bucket]];
+  if (side === 'sugar') {
+    const bucket = level <= 3 ? 0 : level <= 6 ? 1 : 2;
+    return ROSHU_REACTIONS[bucket];
+  }
+  const seed = [...`${dayKey(now())}${choiceId}`].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 11);
+  return KAIN_REACTIONS[seed % KAIN_REACTIONS.length];
 }
 
 /** 오늘의 선택지 3개. 날짜와 캐릭터로 정해져서 다시 열어도 같다. */
@@ -137,7 +108,7 @@ function renderAffinity() {
   const talkBlock = talkedToday
     ? `<div class="talk-result">
         <div class="talk-said">"${esc(TALK_CHOICES.find(c => c.id === talk.choice).text)}"</div>
-        <p class="talk-line">${esc(talk.line)}</p>
+        <p class="talk-line">${meta.withIga} ${esc(talk.line)}</p>
         <div class="talk-foot">${talk.leveledUp ? `${meta.withGwa} ${a.stage}가 됐어요.` : '조금 더 가까워졌어요.'} 내일 또 말 걸어 주세요.</div>
       </div>`
     : `<div class="talk-ask">${meta.name}에게 뭐라고 할까요?</div>

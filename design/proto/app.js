@@ -54,6 +54,7 @@ const freshState = () => ({
   days: {},
   points: { roshu: 0, kain: 0 },
   firstDay: null,
+  favorites: [],
 });
 
 let S = loadState();
@@ -69,7 +70,6 @@ const ui = {
   query: '',
   globalQuery: '',
   category: '전체',
-  temperature: '전체',
   toast: null,
   variants: {},
 };
@@ -190,6 +190,8 @@ const ICON = {
   chart: '<svg width="26" height="24" viewBox="0 0 26 24" fill="currentColor"><rect x="2" y="11" width="6" height="11" rx="1.6"/><rect x="10" y="6" width="6" height="16" rx="1.6"/><rect x="18" y="2" width="6" height="20" rx="1.6"/></svg>',
   gear: '<svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M10.3 2h3.4l.5 2.6 1.6.7 2.2-1.5 2.4 2.4-1.5 2.2.7 1.6 2.6.5v3.4l-2.6.5-.7 1.6 1.5 2.2-2.4 2.4-2.2-1.5-1.6.7-.5 2.6h-3.4l-.5-2.6-1.6-.7-2.2 1.5-2.4-2.4 1.5-2.2-.7-1.6L2 13.7v-3.4l2.6-.5.7-1.6-1.5-2.2 2.4-2.4 2.2 1.5 1.6-.7ZM12 15.4a3.4 3.4 0 1 0 0-6.8 3.4 3.4 0 0 0 0 6.8Z"/></svg>',
   back: '<svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2 2 10l8 8"/></svg>',
+  star: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="m12 3.2 2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 17l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8Z"/></svg>',
+  starFill: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="m12 3.2 2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 17l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8Z"/></svg>',
   search: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6.8" cy="6.8" r="5"/><path d="m10.6 10.6 4 4" stroke-linecap="round"/></svg>',
 };
 
@@ -197,9 +199,9 @@ const ICON = {
 // Phase 2에서 화면마다 안을 추가한다. 첫 항목이 기본.
 const VARIANTS = {
   today: { 현행: renderToday },
-  record: { 'A 매거진': renderRecordA, 'B 다시 마시기': renderRecordB, 'C 검색 먼저': renderRecordC },
-  // B는 목록이 A와 같고, 메뉴를 고른 뒤 패널이 다르다(pickPanel).
-  brand: { 'A 매거진': renderBrandA, 'B 영향 미리보기': renderBrandA, 'C 원탭': renderBrandC },
+  // 2026-09-26 확정: 기록 = 검색 먼저 + 즐겨찾기, 브랜드 = 영향 미리보기.
+  record: { 확정: renderRecordSheet },
+  brand: { 확정: renderBrandMenu },
   feeding: { 초안: renderFeeding },
   trends: { '미설계': () => renderPlaceholder('추이') },
   settings: { '미설계': () => renderPlaceholder('설정') },
@@ -208,7 +210,6 @@ const VARIANTS = {
 };
 const variantName = screen => ui.variants[screen] ?? Object.keys(VARIANTS[screen])[0];
 const pick = screen => VARIANTS[screen][variantName(screen)];
-const pickPanel = () => (variantName('brand') === 'B 영향 미리보기' ? renderServingImpact : renderServingPlain);
 
 // ---------- 오늘 ----------
 function renderToday() {
@@ -372,7 +373,7 @@ function render() {
   if (ui.sheet === 'manual') html += renderManualSheet();
   if (ui.sheet === 'affinity') html += pick('affinity')();
   if (ui.sheet === 'paywall') html += pick('paywall')();
-  if (ui.panelSheet) html += pickPanel()();
+  if (ui.panelSheet) html += renderServingPanel();
   if (ui.cover) html += pick('feeding')();
   html += renderToast();
   html += isDraftVisible() ? '<span class="draft-tag">초안 · Phase 2</span>' : '';
@@ -438,7 +439,7 @@ const ACTIONS = {
   tab: v => { ui.tab = v; ui.pushed = null; },
   openRecord: () => { ui.sheet = 'record'; ui.globalQuery = ''; },
   closeSheet: () => { ui.sheet = null; },
-  brand: v => { ui.sheet = null; ui.pushed = { brandId: v }; ui.query = ''; ui.category = '전체'; ui.temperature = '전체'; },
+  brand: v => { ui.sheet = null; ui.pushed = { brandId: v }; ui.query = ''; ui.category = '전체'; },
   pop: () => { ui.pushed = null; },
   manual: () => { ui.sheet = 'manual'; },
   drink: v => { ui.panelSheet = { drinkId: v, size: 0, variant: 0, quantity: 1 }; },
@@ -450,31 +451,19 @@ const ACTIONS = {
     const p = ui.panelSheet;
     recordDrink(p.drinkId, p.size, p.variant, p.quantity);
     ui.panelSheet = null;
-    // 원탭 안에서 원두 선택 때문에 패널을 연 경우는 메뉴에 머문다. 나머지는 기록하면 오늘로 돌아간다(§4.2).
-    if (variantName('brand') === 'C 원탭' && ui.pushed) {
-      showToast(`${CATALOG.drinks.find(d => d.id === p.drinkId).name} 추가했어요`, S.entries.at(-1).id);
-    } else {
-      ui.pushed = null;
-      ui.sheet = null;
-    }
-  },
-  quickAdd: v => {
-    const [drinkId, index] = v.split('|');
-    const drink = CATALOG.drinks.find(d => d.id === drinkId);
-    const serving = drink.servings[Number(index)];
-    // 원두를 골라야 하는 메뉴(더벤티)는 패널로 묻는다. 추측해서 넣지 않는다.
-    if (serving.caffeine_variants.length) {
-      ui.panelSheet = { drinkId, size: Number(index), variant: 0, quantity: 1 };
-      return;
-    }
-    const id = recordDrink(drinkId, Number(index), 0, 1);
-    showToast(`${drink.name}${drink.servings.length > 1 ? ` ${serving.size_label}` : ''} 추가했어요`, id);
-  },
-  again: v => {
-    const e = recentDrinks(5)[Number(v)];
-    const id = recordDrink(e.drinkId, e.servingIndex, e.variantIndex, 1);
+    // 기록하면 오늘로 돌아가 컵이 줄어드는 걸 본다(§4.2).
+    ui.pushed = null;
     ui.sheet = null;
-    showToast(`${e.drinkName} 한 잔 더 기록했어요`, id);
+  },
+  quickRecord: v => {
+    const [drinkId, servingIndex, variantIndex] = v.split('|').map((x, i) => (i ? Number(x) : x));
+    const id = recordDrink(drinkId, servingIndex, variantIndex, 1);
+    ui.sheet = null;
+    showToast(`${CATALOG.drinks.find(d => d.id === drinkId).name} 기록했어요`, id);
+  },
+  toggleFavorite: v => {
+    S.favorites = isFavorite(v) ? S.favorites.filter(k => k !== v) : [...S.favorites, v];
+    saveState();
   },
   undo: () => {
     S.entries = S.entries.filter(e => e.id !== ui.toast.entryId);
@@ -482,7 +471,6 @@ const ACTIONS = {
     ui.toast = null;
   },
   category: v => { ui.category = v; },
-  temperature: v => { ui.temperature = v; },
   saveManual: () => {
     const parse = id => {
       const raw = document.getElementById(id).value.trim();

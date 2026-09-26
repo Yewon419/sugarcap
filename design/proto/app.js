@@ -67,6 +67,10 @@ const ui = {
   cover: null,
   credit: null,
   query: '',
+  globalQuery: '',
+  category: '전체',
+  temperature: '전체',
+  toast: null,
   variants: {},
 };
 
@@ -193,18 +197,18 @@ const ICON = {
 // Phase 2에서 화면마다 안을 추가한다. 첫 항목이 기본.
 const VARIANTS = {
   today: { 현행: renderToday },
-  record: { 초안: renderRecordSheet },
-  brand: { 초안: renderBrandMenu },
+  record: { 'A 매거진': renderRecordA, 'B 다시 마시기': renderRecordB, 'C 검색 먼저': renderRecordC },
+  // B는 목록이 A와 같고, 메뉴를 고른 뒤 패널이 다르다(pickPanel).
+  brand: { 'A 매거진': renderBrandA, 'B 영향 미리보기': renderBrandA, 'C 원탭': renderBrandC },
   feeding: { 초안: renderFeeding },
   trends: { '미설계': () => renderPlaceholder('추이') },
   settings: { '미설계': () => renderPlaceholder('설정') },
   affinity: { '미설계': () => renderSimpleSheet('호감도', '호감도 화면은 Phase 2에서 메인 화면 문법으로 다시 설계해요.') },
   paywall: { '미설계': () => renderSimpleSheet('슈가캡 PRO', '페이월은 Phase 2에서 다시 설계해요.') },
 };
-const pick = screen => {
-  const options = VARIANTS[screen];
-  return options[ui.variants[screen]] ?? Object.values(options)[0];
-};
+const variantName = screen => ui.variants[screen] ?? Object.keys(VARIANTS[screen])[0];
+const pick = screen => VARIANTS[screen][variantName(screen)];
+const pickPanel = () => (variantName('brand') === 'B 영향 미리보기' ? renderServingImpact : renderServingPlain);
 
 // ---------- 오늘 ----------
 function renderToday() {
@@ -282,82 +286,8 @@ function setCup(src) {
   setTimeout(() => { while (layer.children.length > 1) layer.firstElementChild.remove(); }, 400);
 }
 
-// ---------- 기록(초안) ----------
-function renderRecordSheet() {
-  const today = dayKey(now());
-  const todays = S.entries.filter(e => dayKey(e.at) === today).sort((a, b) => b.at - a.at);
-  const brands = CATALOG ? CATALOG.brands : [];
-  return `
-    <div class="dim" data-a="closeSheet"></div>
-    <div class="sheet">
-      <div class="grabber"></div>
-      <div class="sheet-head"><span class="kicker">기록</span><button class="text-button" data-a="closeSheet">닫기</button></div>
-      <div class="scroll">
-        <div class="section-kicker kicker">어디서 마셨나요</div>
-        <div class="tiles">
-          ${brands.map(b => `<button class="tile" data-a="brand" data-v="${b.id}">${esc(b.name)}</button>`).join('')}
-          <button class="tile dashed" data-a="manual">＋ 직접 입력</button>
-        </div>
-        <div class="section-kicker kicker">오늘 기록</div>
-        ${todays.length ? todays.map(renderEntry).join('') : '<div class="empty-note">첫 잔을 기록해 보세요</div>'}
-      </div>
-    </div>`;
-}
-
-function renderEntry(e) {
-  const title = e.quantity > 1 ? `${e.drinkName} ×${e.quantity}` : e.drinkName;
-  const detail = [timeLabel(e.at), e.brandName, e.sizeLabel].filter(Boolean).join(' · ');
-  return `<div class="entry">
-    <div><div class="title">${esc(title)}</div><div class="detail">${esc(detail)}</div></div>
-    <div class="amounts">${amount(e.sugarG, 'g')} · ${amount(e.caffeineMg, 'mg')}</div>
-    <button class="del" data-a="deleteEntry" data-v="${e.id}" aria-label="삭제">삭제</button>
-  </div>`;
-}
-
-function renderBrandMenu() {
-  const brand = CATALOG.brands.find(b => b.id === ui.pushed.brandId);
-  const q = ui.query.trim();
-  const drinks = CATALOG.drinks.filter(d => d.brand_id === brand.id && (!q || d.name.includes(q)));
-  return `
-    <div class="pushed">
-      <div class="nav-bar"><button class="back" data-a="pop">${ICON.back} 오늘</button></div>
-      <div class="nav-title">${esc(brand.name)}</div>
-      <label class="search">${ICON.search}<input id="drinkSearch" placeholder="메뉴 검색" value="${esc(ui.query)}"></label>
-      <div class="scroll">
-        ${drinks.slice(0, 200).map(d => {
-          const s = d.servings[0];
-          return `<button class="drink" data-a="drink" data-v="${esc(d.id)}">
-            <div><div class="name">${esc(d.name)}</div><div class="meta">${[TEMP[d.temperature], s.size_label].filter(Boolean).join(' · ')}</div></div>
-            <div class="num">${amount(s.sugar_g, 'g')} · ${amount(s.caffeine_mg, 'mg')}</div></button>`;
-        }).join('')}
-        <div style="height:120px"></div>
-      </div>
-    </div>`;
-}
-
-function renderServingPanel() {
-  const p = ui.panelSheet;
-  const drink = CATALOG.drinks.find(d => d.id === p.drinkId);
-  const serving = drink.servings[p.size];
-  const variants = serving.caffeine_variants;
-  const caffeine = variants.length ? variants[p.variant]?.caffeine_mg ?? serving.caffeine_mg : serving.caffeine_mg;
-  const times = v => (v === null || v === undefined ? null : v * p.quantity);
-  return `
-    <div class="dim" data-a="closePanel" style="z-index:61"></div>
-    <div class="panel-sheet">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div><div class="kicker">${esc(TEMP[drink.temperature] || '메뉴')}</div><div style="font-size:22px;font-weight:700;margin-top:6px">${esc(drink.name)}</div></div>
-        <button class="text-button" data-a="closePanel">닫기</button>
-      </div>
-      ${drink.servings.length > 1 ? `<div class="segmented">${drink.servings.map((s, i) => `<button class="${i === p.size ? 'on' : ''}" data-a="size" data-v="${i}">${esc(s.size_label)}</button>`).join('')}</div>` : ''}
-      ${variants.length ? `<div class="segmented">${variants.map((v, i) => `<button class="${i === p.variant ? 'on' : ''}" data-a="variant" data-v="${i}">${esc(v.label)}</button>`).join('')}</div>` : ''}
-      <div style="display:flex;justify-content:space-between;align-items:center;margin:22px 0">
-        <div style="font-size:15px;color:var(--secondary)">${amount(times(serving.sugar_g), 'g')} · ${amount(times(caffeine), 'mg')}</div>
-        <div class="stepper"><button data-a="qty" data-v="-1">−</button><b>${p.quantity}</b><button data-a="qty" data-v="1">＋</button></div>
-      </div>
-      <button class="cta" data-a="addServing">추가</button>
-    </div>`;
-}
+// ---------- 기록 ----------
+// 기록 시트·브랜드 메뉴·서빙 패널 안은 screens-record.js.
 
 function renderManualSheet() {
   return `
@@ -442,40 +372,73 @@ function render() {
   if (ui.sheet === 'manual') html += renderManualSheet();
   if (ui.sheet === 'affinity') html += pick('affinity')();
   if (ui.sheet === 'paywall') html += pick('paywall')();
-  if (ui.panelSheet) html += renderServingPanel();
+  if (ui.panelSheet) html += pickPanel()();
   if (ui.cover) html += pick('feeding')();
+  html += renderToast();
   html += isDraftVisible() ? '<span class="draft-tag">초안 · Phase 2</span>' : '';
   document.getElementById('layers').innerHTML = html;
 
   const search = document.getElementById('drinkSearch');
-  if (search) {
-    search.oninput = () => { ui.query = search.value; renderKeepingFocus(); };
-  }
+  if (search) search.oninput = () => { ui.query = search.value; renderKeepingFocus('drinkSearch'); };
+  const globalSearch = document.getElementById('globalSearch');
+  if (globalSearch) globalSearch.oninput = () => { ui.globalQuery = globalSearch.value; renderKeepingFocus('globalSearch'); };
   renderPanel();
 }
 
+/** 아직 안이 없는 초안 화면이 보이는 중인지. 안이 붙은 화면(기록·브랜드)은 표시하지 않는다. */
 function isDraftVisible() {
-  return Boolean(ui.sheet || ui.pushed || ui.cover || ui.tab !== 'today');
+  return Boolean(['manual', 'affinity', 'paywall'].includes(ui.sheet) || ui.cover || ui.tab !== 'today');
 }
 
-function renderKeepingFocus() {
-  const pos = document.getElementById('drinkSearch')?.selectionStart;
+function renderKeepingFocus(id) {
+  const pos = document.getElementById(id)?.selectionStart;
+  const scroll = document.querySelector('.sheet .scroll, .pushed .scroll')?.scrollTop;
   render();
-  const input = document.getElementById('drinkSearch');
+  const input = document.getElementById(id);
   if (input) { input.focus(); input.setSelectionRange(pos, pos); }
+  const area = document.querySelector('.sheet .scroll, .pushed .scroll');
+  if (area && scroll !== undefined) area.scrollTop = scroll;
 }
 
 // ---------- 동작 ----------
 function record(entry) {
-  S.entries.push({ id: crypto.randomUUID(), at: now(), quantity: 1, ...entry });
+  const id = crypto.randomUUID();
+  S.entries.push({ id, at: now(), quantity: 1, ...entry });
   saveState();
+  return id;
+}
+
+/** 카탈로그 메뉴 한 잔(또는 여러 잔)을 기록한다. 최근 목록(다시 마시기)이 쓰도록 위치도 남긴다. */
+function recordDrink(drinkId, servingIndex, variantIndex, quantity) {
+  const drink = CATALOG.drinks.find(d => d.id === drinkId);
+  if (!drink) throw new Error(`카탈로그에 없는 메뉴: ${drinkId}`);
+  const serving = drink.servings[servingIndex];
+  const variant = serving.caffeine_variants[variantIndex];
+  const caffeine = variant ? variant.caffeine_mg : serving.caffeine_mg;
+  const times = v => (v === null || v === undefined ? null : v * quantity);
+  return record({
+    drinkId, servingIndex, variantIndex,
+    drinkName: drink.name,
+    brandName: CATALOG.brands.find(b => b.id === drink.brand_id).name,
+    sizeLabel: [TEMP[drink.temperature], serving.size_label === '기본' ? '' : serving.size_label, variant?.label].filter(Boolean).join(' '),
+    quantity,
+    sugarG: times(serving.sugar_g),
+    caffeineMg: times(caffeine),
+  });
+}
+
+let toastTimer = null;
+function showToast(text, entryId) {
+  ui.toast = { text, entryId };
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { ui.toast = null; render(); }, 4000);
 }
 
 const ACTIONS = {
   tab: v => { ui.tab = v; ui.pushed = null; },
-  openRecord: () => { ui.sheet = 'record'; },
+  openRecord: () => { ui.sheet = 'record'; ui.globalQuery = ''; },
   closeSheet: () => { ui.sheet = null; },
-  brand: v => { ui.sheet = null; ui.pushed = { brandId: v }; ui.query = ''; },
+  brand: v => { ui.sheet = null; ui.pushed = { brandId: v }; ui.query = ''; ui.category = '전체'; ui.temperature = '전체'; },
   pop: () => { ui.pushed = null; },
   manual: () => { ui.sheet = 'manual'; },
   drink: v => { ui.panelSheet = { drinkId: v, size: 0, variant: 0, quantity: 1 }; },
@@ -485,22 +448,41 @@ const ACTIONS = {
   qty: v => { ui.panelSheet.quantity = Math.max(1, ui.panelSheet.quantity + Number(v)); },
   addServing: () => {
     const p = ui.panelSheet;
-    const drink = CATALOG.drinks.find(d => d.id === p.drinkId);
-    const serving = drink.servings[p.size];
-    const variant = serving.caffeine_variants[p.variant];
-    const caffeine = variant ? variant.caffeine_mg : serving.caffeine_mg;
-    const times = v => (v === null || v === undefined ? null : v * p.quantity);
-    record({
-      drinkName: drink.name,
-      brandName: CATALOG.brands.find(b => b.id === drink.brand_id).name,
-      sizeLabel: [TEMP[drink.temperature], serving.size_label, variant?.label].filter(Boolean).join(' '),
-      quantity: p.quantity,
-      sugarG: times(serving.sugar_g),
-      caffeineMg: times(caffeine),
-    });
+    recordDrink(p.drinkId, p.size, p.variant, p.quantity);
     ui.panelSheet = null;
-    ui.pushed = null;
+    // 원탭 안에서 원두 선택 때문에 패널을 연 경우는 메뉴에 머문다. 나머지는 기록하면 오늘로 돌아간다(§4.2).
+    if (variantName('brand') === 'C 원탭' && ui.pushed) {
+      showToast(`${CATALOG.drinks.find(d => d.id === p.drinkId).name} 추가했어요`, S.entries.at(-1).id);
+    } else {
+      ui.pushed = null;
+      ui.sheet = null;
+    }
   },
+  quickAdd: v => {
+    const [drinkId, index] = v.split('|');
+    const drink = CATALOG.drinks.find(d => d.id === drinkId);
+    const serving = drink.servings[Number(index)];
+    // 원두를 골라야 하는 메뉴(더벤티)는 패널로 묻는다. 추측해서 넣지 않는다.
+    if (serving.caffeine_variants.length) {
+      ui.panelSheet = { drinkId, size: Number(index), variant: 0, quantity: 1 };
+      return;
+    }
+    const id = recordDrink(drinkId, Number(index), 0, 1);
+    showToast(`${drink.name}${drink.servings.length > 1 ? ` ${serving.size_label}` : ''} 추가했어요`, id);
+  },
+  again: v => {
+    const e = recentDrinks(5)[Number(v)];
+    const id = recordDrink(e.drinkId, e.servingIndex, e.variantIndex, 1);
+    ui.sheet = null;
+    showToast(`${e.drinkName} 한 잔 더 기록했어요`, id);
+  },
+  undo: () => {
+    S.entries = S.entries.filter(e => e.id !== ui.toast.entryId);
+    saveState();
+    ui.toast = null;
+  },
+  category: v => { ui.category = v; },
+  temperature: v => { ui.temperature = v; },
   saveManual: () => {
     const parse = id => {
       const raw = document.getElementById(id).value.trim();

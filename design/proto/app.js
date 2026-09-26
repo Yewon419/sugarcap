@@ -56,6 +56,7 @@ const freshState = () => ({
   firstDay: null,
   favorites: [],
   talks: {},
+  onboarded: false,
 });
 
 let S = loadState();
@@ -351,12 +352,12 @@ function render() {
   if (ui.sheet === 'affinity') html += pick('affinity')();
   if (ui.sheet === 'paywall') html += pick('paywall')();
   if (ui.sheet === 'goal') html += renderGoalSheet();
-  if (ui.sheet === 'onboardingSoon') html += renderSimpleSheet('앱 소개', '온보딩은 다음 차례에 설계해요. 설계가 끝나면 여기서 다시 볼 수 있어요.');
   if (ui.sheet === 'restoreDone') html += renderSimpleSheet('구매 복원', '복원할 구매가 없어요. (프로토타입 흉내)');
   if (ui.stopGoalSide) html += renderStopGoal();
   if (ui.panelSheet) html += renderServingPanel();
   if (ui.cover) html += pick('feeding')();
   html += renderToast();
+  if (ui.onboarding) html += renderOnboarding();
   html += isDraftVisible() ? '<span class="draft-tag">초안 · Phase 2</span>' : '';
   document.getElementById('layers').innerHTML = html;
   settleOverlays();
@@ -403,7 +404,7 @@ function settleOverlays() {
 
 /** 아직 안이 없는 초안 화면이 보이는 중인지. 안이 붙은 화면(기록·브랜드)은 표시하지 않는다. */
 function isDraftVisible() {
-  return Boolean(['manual', 'paywall', 'onboardingSoon'].includes(ui.sheet));
+  return Boolean(['manual', 'paywall'].includes(ui.sheet));
 }
 
 function renderKeepingFocus(id) {
@@ -516,6 +517,7 @@ const ACTIONS = {
   ...AFFINITY_ACTIONS,
   ...TREND_ACTIONS,
   ...SETTINGS_ACTIONS,
+  ...ONBOARDING_ACTIONS,
 };
 
 /** 먹이기 화면을 연다. noDrink면 "안 마셨어요"라 가득 찬 컵으로 먹인다(§4.7). */
@@ -602,6 +604,7 @@ function renderPanel() {
     </section>
     <section><h3>상태</h3>
       <div class="row"><button class="${S.pro ? 'on' : ''}" data-p="pro">Pro ${S.pro ? '켜짐' : '꺼짐'}</button><button data-p="demo">데모 기록 넣기</button><button data-p="reset">초기화</button></div>
+      <div class="row"><button data-p="onboarding">온보딩 보기</button></div>
       <div class="row"><button data-p="history">지난 4주 데모</button><button data-p="goalWeek">줄이기 +1주 달성</button></div>
       <div class="row"><button data-p="points" data-v="30">호감도 +30점</button><button data-p="points" data-v="300">+300점</button></div>
       <div class="row"><label>당 기준 <input type="number" id="pSugar" value="${S.settings.sugarG}"> g</label></div>
@@ -669,6 +672,7 @@ const PANEL_ACTIONS = {
     }
     S.firstDay = shiftDay(today, -28);
   },
+  onboarding: () => { obStart(); },
   goalWeek: () => {
     // 감소 목표가 도는 쪽을 한 주 달성시키고, 그 주 하루 기준을 설정에 써 넣는다(§9.5).
     for (const side of SIDE_ORDER) {
@@ -699,6 +703,8 @@ async function start() {
   // 컵 장면 18장을 미리 받아 둔다. 처음 줄어들 때 빈 화면이 끼지 않게.
   for (const side of SIDE_ORDER) for (const step of CUP_STEPS) new Image().src = cupAsset(SIDES[side].cupSet, step);
 
+  // 처음 여는 사람에게는 소개부터(§4.5).
+  if (!S.onboarded) obStart();
   render();
   const response = await fetch(CATALOG_URL);
   if (!response.ok) throw new Error(`카탈로그 로드 실패: ${CATALOG_URL} HTTP ${response.status}`);

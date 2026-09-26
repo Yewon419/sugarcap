@@ -201,7 +201,7 @@ const SETTINGS_ACTIONS = {
     ui.stopGoalSide = null;
     saveState();
   },
-  replayOnboarding: () => { ui.sheet = 'onboardingSoon'; },
+  replayOnboarding: () => { obStart(); },
   restore: () => { ui.sheet = 'restoreDone'; },
   openLink: () => {},
 };

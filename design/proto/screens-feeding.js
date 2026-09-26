@@ -77,7 +77,7 @@ function renderFeedingStep(c) {
 
   // 방울 크기는 남은 비율을 따르되 너무 작아지지 않게. 넘긴 날(0)도 먹이면 1점은 쌓이니 방울은 준다.
   const ratio = Math.min(1, left / limitOf(side));
-  const dropSize = Math.round(46 + 30 * ratio);
+  const dropSize = Math.round(58 + 30 * ratio);
 
   return `
     <div class="cover night" data-side="${side}">
@@ -96,7 +96,7 @@ function renderFeedingStep(c) {
       </div>
       ${stage === 'dropped' ? `<div class="drop" id="drop" role="button" tabindex="0" style="--size:${dropSize}px"
           aria-label="${meta.label} ${num(left)} ${meta.unit}를 ${meta.name}에게 주기">
-          <div class="drop-body ${side}"></div>
+          <img class="drop-body" src="../assets/drops/${side}.png" alt="" draggable="false">
           <div class="drop-label">${num(left)} ${meta.unit}</div>
         </div>` : ''}
       <div class="feed-asker">

@@ -202,9 +202,7 @@ struct FeedingView: View {
                 if isFed { dismiss() } else { feed() }
             } label: {
                 Text(isFed ? "완료" : "먹이기")
-                    .font(.system(size: 17, weight: .semibold))
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 56)
+                    .ctaLabel()
             }
             .buttonStyle(.borderedProminent)
             .buttonBorderShape(.capsule)
@@ -228,6 +226,8 @@ struct FeedingView: View {
                 Text("마감 뒤에 마신 음료도 오늘 몫으로 빠져요")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
         .padding(.horizontal, 24)
@@ -237,7 +237,7 @@ struct FeedingView: View {
 
     private func reaction(_ side: CupSide, result: FeedResult?) -> String {
         if let result, result.leveledUp {
-            return "한 단계 더 친해졌어요 · Lv \(result.levelAfter)"
+            return "\(AffinityMath.stageName(level: result.levelAfter))가 됐어요"
         }
         return request.left(side) > 0 ? "맛있게 먹었어요" : "빈 컵이어도 반가워해요"
     }

@@ -1,12 +1,15 @@
 import SwiftData
 import SwiftUI
 
-/// 호감도 화면(SPEC §4.8, Pro, 2026-09-24 디자인). 캐릭터 전환, 단계를 주인공 숫자로, 해금 목록.
+/// 호감도 화면(SPEC §4.8, Pro, 2026-09-26 개편). 단계 숫자와 점수는 보여 주지 않는다.
+/// 지금 사이의 이름, 다음 사이까지의 진행 막대, 해금 표정 9칸만 둔다.
 ///
-/// v1은 정지 스프라이트 1장씩이라(§9.4) 해금 칸은 자리만 잡아 둔다. 표정 원화가 나오면 이미지를 끼운다.
+/// v1은 표정 원화가 없어(§9.4) 열린 칸에도 기본 그림을 끼운다. 원화가 나오면 칸마다 바꾼다.
 struct AffinityView: View {
     @Query private var affinities: [Affinity]
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var typeSize
     @State private var side: CupSide = .sugar
 
     private var points: Int {
@@ -14,6 +17,8 @@ struct AffinityView: View {
     }
 
     private var level: Int { AffinityMath.level(points: points) }
+
+    private var isLastStage: Bool { level >= AffinityMath.maxLevel }
 
     var body: some View {
         ScrollView {
@@ -38,94 +43,125 @@ struct AffinityView: View {
                 .padding(.top, 20)
 
                 portrait
-                    .padding(.top, 24)
+                    .padding(.top, 28)
 
                 Divider()
-                    .padding(.top, 24)
+                    .padding(.top, 32)
 
-                unlocks
+                expressions
                     .padding(.top, 20)
             }
             .padding(.horizontal, 24)
             .padding(.bottom, 32)
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.25), value: side)
         }
     }
 
-    /// 왼쪽 캐릭터, 오른쪽 Lv 주인공 숫자와 다음 단계 캡션.
-    @ViewBuilder
+    /// 캐릭터 → "로슈와" → 사이 이름 → 다음 사이까지 막대.
     private var portrait: some View {
-        let current = AffinityMath.threshold(level: level)
-        let next = AffinityMath.threshold(level: min(AffinityMath.maxLevel, level + 1))
+        let stage = AffinityMath.stageName(level: level)
+        let next = AffinityMath.stageName(level: level + 1)
 
-        HStack(alignment: .center, spacing: 20) {
+        return VStack(spacing: 0) {
             Image(side.characterAsset)
                 .resizable()
                 .scaledToFit()
-                .frame(width: 150, height: 170)
+                .frame(height: 180)
+                .id(side)
+                .transition(.opacity)
                 .accessibilityHidden(true)
 
-            VStack(alignment: .leading, spacing: 0) {
-                Text("Lv")
-                    .font(.system(.title3, weight: .medium))
+            Text(side.characterNameWithGwa)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .padding(.top, 20)
+
+            Text(stage)
+                .font(.system(.title, weight: .bold))
+                .tracking(-0.6)
+                .multilineTextAlignment(.center)
+                .contentTransition(.opacity)
+                .padding(.top, 4)
+                .accessibilityIdentifier("affinity-stage")
+
+            VStack(alignment: .leading, spacing: 8) {
+                ProgressView(value: AffinityMath.progressToNext(points: points))
+                    .tint(.accentColor)
+                Text(isLastStage ? "가장 가까운 사이가 됐어요" : "다음은 \(next)")
+                    .font(.footnote)
                     .foregroundStyle(.secondary)
-                Text("\(level)")
-                    .heroNumber()
-                    .contentTransition(.numericText())
-                if level >= AffinityMath.maxLevel {
-                    Text("마지막 단계예요")
-                        .font(.system(.footnote, weight: .medium))
-                        .padding(.top, 4)
-                } else {
-                    Text("다음 단계까지 \(next - points)점")
-                        .font(.system(.footnote, weight: .medium))
-                        .monospacedDigit()
-                        .padding(.top, 4)
-                }
-                Text("쌓은 호감도 \(points)점")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .monospacedDigit()
-                    .padding(.top, 4)
             }
-            .animation(.spring(response: 0.4), value: side)
-            Spacer(minLength: 0)
+            .padding(.top, 24)
         }
+        .frame(maxWidth: .infinity)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(side.characterName) \(level)단계, 다음 단계까지 \(max(0, next - points))점, 쌓은 호감도 \(points)점")
-        // 마지막 단계에서는 current가 next와 같아 남은 점수가 음수로 보일 수 있다. 위 분기가 막는다.
-        .id(current)
+        .accessibilityLabel(
+            isLastStage
+                ? "\(side.characterNameWithGwa) \(stage). 가장 가까운 사이예요"
+                : "\(side.characterNameWithGwa) \(stage). 다음은 \(next)"
+        )
     }
 
-    private var unlocks: some View {
-        VStack(alignment: .leading, spacing: 0) {
+    /// 해금 표정 9칸(단계 2~10, §9.5). 기본 표정은 위 초상이 맡는다.
+    private var expressions: some View {
+        let count = typeSize.isAccessibilitySize ? 2 : 3
+        let columns = Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
+
+        return VStack(alignment: .leading, spacing: 0) {
             Text("표정")
                 .kicker()
-            ForEach(2...AffinityMath.maxLevel, id: \.self) { step in
-                let unlocked = step <= level
-                HStack(spacing: 12) {
-                    Circle()
-                        .fill(unlocked ? AnyShapeStyle(.tint) : AnyShapeStyle(Color(.separator)))
-                        .frame(width: 8, height: 8)
-                    Text("Lv \(step)")
-                        .font(.system(.subheadline, weight: unlocked ? .semibold : .medium))
-                        .foregroundStyle(unlocked ? .primary : .secondary)
-                        .monospacedDigit()
-                    Spacer()
-                    Text(unlocked ? "해금" : "\(AffinityMath.threshold(level: step))점")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .monospacedDigit()
+            LazyVGrid(columns: columns, spacing: 10) {
+                ForEach(2...AffinityMath.maxLevel, id: \.self) { step in
+                    expressionCard(step)
                 }
-                .padding(.vertical, 12)
-                .overlay(alignment: .bottom) {
-                    Divider().opacity(0.7)
-                }
-                .accessibilityElement(children: .combine)
             }
-            Text("표정 그림은 준비 중이에요. 단계는 지금부터 쌓여요.")
+            .padding(.top, 14)
+            Text("표정 그림은 준비 중이에요. 친해질수록 하나씩 열려요.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .padding(.top, 16)
         }
+    }
+
+    /// 열린 칸은 그림과 그 사이 이름, 바로 다음 칸은 "곧 열려요", 나머지는 실루엣만.
+    private func expressionCard(_ step: Int) -> some View {
+        let unlocked = step <= level
+        let caption: String
+        if unlocked {
+            caption = AffinityMath.stageName(level: step)
+        } else if step == level + 1 {
+            caption = "곧 열려요"
+        } else {
+            caption = ""
+        }
+
+        return VStack(spacing: 8) {
+            Image(side.characterAsset)
+                .resizable()
+                .scaledToFit()
+                .frame(height: 64)
+                .colorMultiply(unlocked ? .white : .black)
+                .opacity(unlocked ? 1 : 0.12)
+                .overlay(alignment: .bottomTrailing) {
+                    if !unlocked {
+                        Image(systemName: "lock.fill")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            Text(caption)
+                .font(.system(.caption2, weight: unlocked ? .semibold : .regular))
+                .foregroundStyle(unlocked ? .primary : .secondary)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .frame(maxWidth: .infinity, minHeight: 28, alignment: .top)
+        }
+        .padding(.top, 14)
+        .padding(.bottom, 10)
+        .padding(.horizontal, 8)
+        .frame(maxWidth: .infinity)
+        .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(unlocked ? "\(AffinityMath.stageName(level: step)) 표정" : "잠긴 표정")
     }
 }

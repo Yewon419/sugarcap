@@ -4,6 +4,15 @@ import SwiftUI
 struct EntryRow: View {
     let entry: Entry
 
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    /// 큰 글자에서는 수치를 이름 옆에 두면 둘 다 세 줄로 부서진다. 이름 아래로 내린다.
+    private var layout: AnyLayout {
+        typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
+            : AnyLayout(HStackLayout(alignment: .top, spacing: 12))
+    }
+
     private var title: String {
         entry.quantity > 1 ? "\(entry.drinkName) ×\(entry.quantity)" : entry.drinkName
     }
@@ -20,7 +29,7 @@ struct EntryRow: View {
     }
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
+        layout {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.system(.callout, weight: .semibold))
@@ -28,14 +37,16 @@ struct EntryRow: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            Spacer(minLength: 8)
+            if !typeSize.isAccessibilitySize {
+                Spacer(minLength: 8)
+            }
             Text(
                 "\(Amount.text(entry.sugarG, unit: CupSide.sugar.unit)) · \(Amount.text(entry.caffeineMg, unit: CupSide.caffeine.unit))"
             )
             .font(.system(.footnote, weight: .medium))
             .monospacedDigit()
             .foregroundStyle(.secondary)
-            .padding(.top, 3)
+            .padding(.top, typeSize.isAccessibilitySize ? 0 : 3)
         }
         .padding(.vertical, 6)
         .accessibilityElement(children: .combine)

@@ -19,6 +19,25 @@ enum AffinityMath {
         15 * level * (level - 1)
     }
 
+    /// 화면에 단계 숫자 대신 보이는 이름(2026-09-26, §4.8). 모두 "사이"로 끝나 "~가 됐어요"로 붙는다.
+    static let stageNames = [
+        "처음 만난 사이", "눈인사하는 사이", "이름 부르는 사이", "반가운 사이", "기다려지는 사이",
+        "편한 사이", "친한 사이", "단짝 사이", "속마음 나누는 사이", "둘도 없는 사이",
+    ]
+
+    static func stageName(level: Int) -> String {
+        stageNames[min(max(level, 1), maxLevel) - 1]
+    }
+
+    /// 지금 단계 안에서 다음 단계까지 얼마나 왔는지, 0~1. 마지막 단계면 1.
+    static func progressToNext(points: Int) -> Double {
+        let level = level(points: points)
+        guard level < maxLevel else { return 1 }
+        let start = threshold(level: level)
+        let end = threshold(level: level + 1)
+        return Double(points - start) / Double(end - start)
+    }
+
     static func level(points: Int) -> Int {
         var level = 1
         while level < maxLevel, points >= threshold(level: level + 1) {

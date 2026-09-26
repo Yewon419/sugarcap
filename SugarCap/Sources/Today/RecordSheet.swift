@@ -12,8 +12,13 @@ struct RecordSheet: View {
     let onDelete: ([Entry]) -> Void
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.dynamicTypeSize) private var typeSize
 
-    private let columns = [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)]
+    /// 큰 글자에서는 두 칸에 브랜드 이름이 안 들어가 "메가MGC…"로 잘린다. 한 칸으로 편다.
+    private var columns: [GridItem] {
+        let count = typeSize.isAccessibilitySize ? 1 : 2
+        return Array(repeating: GridItem(.flexible(), spacing: 12), count: count)
+    }
 
     var body: some View {
         // 시스템 내비바 대신 다른 시트(페이월·호감도)와 같은 머리글. iOS 26 내비바 버튼은
@@ -45,7 +50,7 @@ struct RecordSheet: View {
                                     .minimumScaleFactor(0.8)
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .padding(.horizontal, 16)
-                                    .frame(height: 52)
+                                    .frame(minHeight: 52)
                                     .background(
                                         Color(.secondarySystemBackground),
                                         in: RoundedRectangle(cornerRadius: 14, style: .continuous)

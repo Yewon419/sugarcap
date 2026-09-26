@@ -326,7 +326,7 @@ struct TodayView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("지난밤 먹인 음료가 반영됐어요")
                     ForEach(creditNotice.filter(\.leveledUp), id: \.side) { result in
-                        Text("\(result.side.characterNameWithGwa) 한 단계 더 친해졌어요 · Lv \(result.levelAfter)")
+                        Text("\(result.side.characterNameWithGwa) \(AffinityMath.stageName(level: result.levelAfter))가 됐어요")
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(.tint)
                     }

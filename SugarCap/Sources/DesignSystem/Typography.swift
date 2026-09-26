@@ -30,6 +30,17 @@ extension View {
             .opacity(0.85)
     }
 
+    /// 화면 하단 주 동작 버튼(다음·시작·먹이기·구매)의 글자와 크기.
+    /// 큰 글자 설정을 따라 커지되 접근성 3단계에서 멈추고, 한 줄을 지킨다. 높이는 최소 56pt.
+    func ctaLabel() -> some View {
+        font(.headline)
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+            .dynamicTypeSize(...DynamicTypeSize.accessibility3)
+            .frame(maxWidth: .infinity)
+            .frame(minHeight: 56)
+    }
+
     /// 글자만 있는 버튼(닫기·건너뛰기·잠금 링크)의 누르는 영역을 44pt 이상으로 넓힌다.
     /// 보이는 모양은 그대로 두고 판정 영역만 키운다.
     func tapTarget() -> some View {

@@ -17,6 +17,7 @@ struct PaywallView: View {
     @Environment(ProStore.self) private var store
     @Environment(\.dismiss) private var dismiss
     @State private var selectedPlanID = ProProduct.yearly
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     private var selectedPlan: ProPlan? {
         store.plans.first { $0.id == selectedPlanID } ?? store.plans.first
@@ -58,6 +59,12 @@ struct PaywallView: View {
                         .font(.footnote)
                         .foregroundStyle(.red)
                         .padding(.top, 12)
+                }
+
+                // 큰 글자에서는 안내가 하단 고정 영역의 절반을 먹어 기능 목록이 잘린다. 본문으로 내린다.
+                if typeSize.isAccessibilitySize {
+                    legal
+                        .padding(.top, 28)
                 }
             }
             .padding(.horizontal, 24)
@@ -179,41 +186,63 @@ struct PaywallView: View {
                         ProgressView().tint(.white)
                     } else {
                         Text(selectedPlan.map { "\($0.title)으로 시작" } ?? "시작")
-                            .font(.system(size: 17, weight: .semibold))
                     }
                 }
-                .frame(maxWidth: .infinity)
-                .frame(height: 56)
+                .ctaLabel()
             }
             .buttonStyle(.borderedProminent)
             .buttonBorderShape(.capsule)
             .disabled(store.plans.isEmpty || store.purchasingID != nil)
             .accessibilityIdentifier("paywall-purchase")
 
-            Text("연간 구독은 기간이 끝나기 24시간 전에 해지하지 않으면 자동으로 갱신됩니다. 해지는 App Store 계정 설정에서 합니다.")
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-
-            HStack(spacing: 6) {
-                Button("구매 복원") {
-                    Task { await store.restore() }
-                }
-                if let terms = AppLinks.termsOfUse {
-                    Text("·").foregroundStyle(.secondary)
-                    Link("이용약관", destination: terms)
-                }
-                if let privacy = AppLinks.privacyPolicy {
-                    Text("·").foregroundStyle(.secondary)
-                    Link("개인정보처리방침", destination: privacy)
-                }
+            if !typeSize.isAccessibilitySize {
+                legal
             }
-            .font(.system(.caption, weight: .medium))
         }
         .padding(.horizontal, 24)
         .padding(.top, 8)
         .padding(.bottom, 8)
         .background(.background)
+    }
+
+    /// 자동 갱신 안내와 약관 링크. 심사 필수라 어느 글자 크기에서도 빠지지 않는다.
+    private var legal: some View {
+        VStack(spacing: 12) {
+            Text("연간 구독은 기간이 끝나기 24시간 전에 해지하지 않으면 자동으로 갱신됩니다. 해지는 App Store 계정 설정에서 합니다.")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+
+            // 한 줄에 안 들어가면 세로로 쌓는다. 가로로 욱여넣으면 "이용약/관"처럼 단어가 깨진다.
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 6) {
+                    links(separated: true)
+                }
+                VStack(spacing: 10) {
+                    links(separated: false)
+                }
+            }
+            .font(.system(.caption, weight: .medium))
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    @ViewBuilder
+    private func links(separated: Bool) -> some View {
+        Button("구매 복원") {
+            Task { await store.restore() }
+        }
+        .fixedSize()
+        if let terms = AppLinks.termsOfUse {
+            if separated { Text("·").foregroundStyle(.secondary) }
+            Link("이용약관", destination: terms)
+                .fixedSize()
+        }
+        if let privacy = AppLinks.privacyPolicy {
+            if separated { Text("·").foregroundStyle(.secondary) }
+            Link("개인정보처리방침", destination: privacy)
+                .fixedSize()
+        }
     }
 }
 

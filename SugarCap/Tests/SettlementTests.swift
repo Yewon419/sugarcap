@@ -48,6 +48,23 @@ final class AffinityMathTests: XCTestCase {
         XCTAssertEqual(AffinityMath.level(points: 1350), 10)
         XCTAssertEqual(AffinityMath.level(points: 99_999), 10, "10단계가 끝")
     }
+
+    func testEveryLevelHasAStageNameEndingInSai() {
+        XCTAssertEqual(AffinityMath.stageNames.count, AffinityMath.maxLevel)
+        for level in 1...AffinityMath.maxLevel {
+            XCTAssertTrue(AffinityMath.stageName(level: level).hasSuffix("사이"), "\"~가 됐어요\"에 붙어야 한다")
+        }
+        XCTAssertEqual(AffinityMath.stageName(level: 0), AffinityMath.stageName(level: 1))
+        XCTAssertEqual(AffinityMath.stageName(level: 99), AffinityMath.stageName(level: 10))
+    }
+
+    func testProgressToNextStaysInsideTheCurrentStage() {
+        XCTAssertEqual(AffinityMath.progressToNext(points: 0), 0)
+        XCTAssertEqual(AffinityMath.progressToNext(points: 15), 0.5, accuracy: 0.0001)
+        XCTAssertEqual(AffinityMath.progressToNext(points: 30), 0, "단계가 오르면 다시 0부터")
+        XCTAssertEqual(AffinityMath.progressToNext(points: 60), 0.5, accuracy: 0.0001)
+        XCTAssertEqual(AffinityMath.progressToNext(points: 1350), 1, "마지막 단계는 가득")
+    }
 }
 
 final class CloseWindowTests: XCTestCase {

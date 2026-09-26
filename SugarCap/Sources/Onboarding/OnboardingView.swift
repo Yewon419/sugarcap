@@ -31,6 +31,8 @@ struct OnboardingView: View {
     private var isLast: Bool { page == Page.allCases.count - 1 }
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// 소제목 위 여백. 오른쪽 위 "건너뛰기"와 같은 비율로 커져야 큰 글자에서 둘이 겹치지 않는다.
+    @ScaledMetric(relativeTo: .subheadline) private var copyTopInset: CGFloat = 40
 
     /// 페이지가 옆으로 미끄러지는 공간 이동. 모션 줄이기를 켜면 바로 바꾼다.
     private var pageAnimation: Animation? {
@@ -82,9 +84,7 @@ struct OnboardingView: View {
                     }
                 } label: {
                     Text(isLast ? (onClose == nil ? "시작" : "완료") : "다음")
-                        .font(.system(size: 17, weight: .semibold))
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
+                        .ctaLabel()
                 }
                 .buttonStyle(.borderedProminent)
                 .buttonBorderShape(.capsule)
@@ -190,7 +190,7 @@ struct OnboardingView: View {
         VStack(alignment: .leading, spacing: 0) {
             Text(kicker)
                 .kicker()
-                .padding(.top, 40)
+                .padding(.top, copyTopInset)
             Text(headline)
                 .font(.system(size: 40, weight: .bold))
                 .tracking(-0.8)

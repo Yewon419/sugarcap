@@ -253,7 +253,6 @@ struct TrendsView: View {
             Spacer(minLength: 0)
         }
         .statCard()
-        .layoutPriority(1.35)
         .accessibilityElement(children: .combine)
 
         deltaCard(today: today)
@@ -521,9 +520,10 @@ private extension View {
         }
     }
 
+    /// 두 카드가 한 줄을 나눠 쓴다(한쪽이 다른 쪽을 밀어 세로 한 줄로 찌그러졌던 일, 2026-09-27).
     func statCard() -> some View {
         padding(16)
-            .frame(minHeight: 96)
+            .frame(maxWidth: .infinity, minHeight: 96, alignment: .leading)
             .card(radius: 24)
     }
 

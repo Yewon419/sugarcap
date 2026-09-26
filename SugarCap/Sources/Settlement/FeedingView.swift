@@ -41,6 +41,15 @@ struct FeedingRequest: Identifiable, Equatable {
     }
 }
 
+/// 전체 화면으로 띄울 한 덩어리(요청 + 여는 방식). `fullScreenCover(item:)`에 넘긴다.
+struct FeedingPresentation: Identifiable, Equatable {
+    let request: FeedingRequest
+    let opening: FeedingOpening
+    let snapshot: FeedingSnapshot?
+
+    var id: String { request.id }
+}
+
 /// 먹이기 화면이 어떻게 열리는지. 첫 마감이면 로슈·카인 소개, 그 뒤로는 마감 진입 모션.
 enum FeedingOpening: Equatable {
     case companionIntro

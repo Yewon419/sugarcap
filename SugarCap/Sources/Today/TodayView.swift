@@ -15,9 +15,9 @@ struct TodayView: View {
     @State private var side: CupSide = .sugar
     @State private var path: [String] = []
     @State private var isManualEntryPresented = false
-    @State private var feeding: FeedingRequest?
-    @State private var feedingOpening: FeedingOpening = .dusk
-    @State private var feedingSnapshot: FeedingSnapshot?
+    /// 먹이기 요청 + 여는 방식을 한 덩어리로 둔다. 따로 두면 전체 화면이 뜨기 전 값을 붙잡아
+    /// 첫 마감 소개가 안 나왔다(2026-09-27 CI 스크린샷에서 발견).
+    @State private var feeding: FeedingPresentation?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var prompt: SettlementPlan.Prompt?
     /// 지난 마감분이 방금 확정됐을 때만 채운다. 이번 실행 동안만 보인다.
@@ -116,8 +116,9 @@ struct TodayView: View {
                 onDelete: delete
             )
         }
-        .fullScreenCover(item: $feeding) { request in
-            FeedingView(request: request, opening: feedingOpening, snapshot: feedingSnapshot, onFeed: { try feed(request) })
+        .fullScreenCover(item: $feeding) { presentation in
+            let request = presentation.request
+            FeedingView(request: request, opening: presentation.opening, snapshot: presentation.snapshot, onFeed: { try feed(request) })
         }
         .sheet(item: $paywall, onDismiss: {
             if pro.isPro, pendingAffinity { isAffinityPresented = true }
@@ -452,11 +453,10 @@ struct TodayView: View {
     /// 화면이 아래에서 밀려 올라오는 기본 전환은 끈다. 모션이 대신 화면을 연다.
     private func openFeeding(_ request: FeedingRequest) {
         let seen = UserDefaults.standard.bool(forKey: CompanionIntro.seenKey)
-        feedingSnapshot = nil
-        feedingOpening = !seen ? .companionIntro : (reduceMotion ? .immediate : .dusk)
+        let opening: FeedingOpening = !seen ? .companionIntro : (reduceMotion ? .immediate : .dusk)
         var transaction = Transaction()
         transaction.disablesAnimations = true
-        withTransaction(transaction) { feeding = request }
+        withTransaction(transaction) { feeding = FeedingPresentation(request: request, opening: opening, snapshot: nil) }
     }
 
     private func totals(for day: DayKey) -> DayTotals {
@@ -554,11 +554,12 @@ struct TodayView: View {
             if defaults.object(forKey: "screenshotIntroAt") != nil {
                 snapshot.introAt = defaults.double(forKey: "screenshotIntroAt")
             }
-            feedingSnapshot = snapshot
-            feedingOpening = snapshot.introAt != nil ? .companionIntro : .immediate
-            feeding = FeedingRequest(
+            let request = FeedingRequest(
                 kind: .closeToday, sugarLeftG: totals.leftSugarG, caffeineLeftMg: totals.leftCaffeineMg,
                 limits: limits, sugarOverG: totals.overSugarG, caffeineOverMg: totals.overCaffeineMg
+            )
+            feeding = FeedingPresentation(
+                request: request, opening: snapshot.introAt != nil ? .companionIntro : .immediate, snapshot: snapshot
             )
         }
         if defaults.bool(forKey: "screenshotPaywall") {

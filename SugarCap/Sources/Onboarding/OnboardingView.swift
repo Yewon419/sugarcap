@@ -306,6 +306,8 @@ private struct LimitSetup: View {
                     .padding(.top, 24)
             } else {
                 chipRow
+                    // 칩 네 칸이 한 줄이라 큰 글자에서 숫자가 "……"로 깨졌다. 이 줄만 글자 상한을 둔다.
+                    .dynamicTypeSize(...DynamicTypeSize.xxLarge)
                     .padding(.horizontal, 20)
                     .padding(.top, 36)
             }

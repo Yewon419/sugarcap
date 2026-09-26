@@ -120,6 +120,13 @@ struct PaywallView: View {
         }
     }
 
+    /// 큰 글자에서는 이름·설명 옆에 가격을 두면 둘 다 "₩9,9…"처럼 잘린다. 가격을 아래로 내린다.
+    private var planLayout: AnyLayout {
+        typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
+            : AnyLayout(HStackLayout(alignment: .center))
+    }
+
     /// 선택된 카드만 액센트를 쓴다. 누르면 선택만 바뀌고, 결제는 아래 버튼이 한다.
     private func planCard(_ plan: ProPlan) -> some View {
         let selected = plan.id == selectedPlanID
@@ -128,7 +135,7 @@ struct PaywallView: View {
                 selectedPlanID = plan.id
             }
         } label: {
-            HStack(alignment: .center) {
+            planLayout {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(plan.title)
                         .font(.system(size: 17, weight: .semibold))
@@ -138,14 +145,17 @@ struct PaywallView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                Spacer(minLength: 8)
+                if !typeSize.isAccessibilitySize {
+                    Spacer(minLength: 8)
+                }
                 Text(plan.price)
                     .font(.system(.title3, weight: .bold))
                     .tracking(-0.4)
                     .monospacedDigit()
             }
             .padding(.horizontal, 20)
-            .frame(height: 84)
+            .padding(.vertical, 14)
+            .frame(minHeight: 84)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
                 selected ? Color.accentColor.opacity(0.08) : Color.clear,

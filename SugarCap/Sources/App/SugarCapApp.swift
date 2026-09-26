@@ -26,8 +26,6 @@ struct SugarCapApp: App {
         }
         catalog = loaded
 
-        Self.scaleSegmentedControlTitles()
-
         if SharedStore.groupContainerURL == nil {
             // 실기기에서 이 로그가 보이면 entitlement가 빠진 빌드다. 위젯이 기록을 못 읽는다.
             Logger(subsystem: "com.sugarcap.app", category: "store")
@@ -37,6 +35,7 @@ struct SugarCapApp: App {
 
     /// 세그먼트 컨트롤(`.pickerStyle(.segmented)`) 글자는 기본이 13pt 고정이라 큰 글자에서 혼자 작게 남는다.
     /// 같은 13pt를 footnote 비율로 키우되 24pt에서 멈춘다(세 칸짜리 "100 g"이 잘리지 않는 선). 실행 중에 글자 크기를 바꾸면 다음 실행부터 반영된다.
+    /// `App.init`에서 부르면 에셋 액센트가 붙기 전에 UIKit이 먼저 떠 앱 전체가 시스템 파랑이 됐다(2026-09-26). 첫 화면이 뜬 뒤에 부른다.
     private static func scaleSegmentedControlTitles() {
         let metrics = UIFontMetrics(forTextStyle: .footnote)
         let appearance = UISegmentedControl.appearance()
@@ -51,6 +50,9 @@ struct SugarCapApp: App {
     var body: some Scene {
         WindowGroup {
             RootView(catalog: catalog)
+                // 액센트 정의는 에셋 `AccentColor` 하나(§5). 전역 설정이 어떤 이유로 안 붙어도 같은 색이 되게 루트에 한 번 더 건다.
+                .tint(Color("AccentColor"))
+                .onAppear(perform: Self.scaleSegmentedControlTitles)
         }
         .modelContainer(container)
     }

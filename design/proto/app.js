@@ -69,6 +69,7 @@ const ui = {
   credit: null,
   query: '',
   globalQuery: '',
+  dayLog: null,
   category: '전체',
   toast: null,
   variants: {},
@@ -222,7 +223,7 @@ function renderToday() {
 
   return `
     <div class="top-scrim"></div>
-    <div class="headline" aria-label="${meta.label} 남은 ${num(t.left)} ${meta.unit} / ${num(limit)} ${meta.unit}">
+    <div class="headline" role="button" data-a="openDayLog" aria-label="오늘 기록 보기, "${meta.label} 남은 ${num(t.left)} ${meta.unit} / ${num(limit)} ${meta.unit}">
       <div class="date-label">${dateLabel(now())}</div>
       <div class="kicker">오늘 남은 ${meta.label}</div>
       <div class="number-row">
@@ -371,6 +372,7 @@ function render() {
   html += renderTabbar();
   if (ui.sheet === 'record') html += pick('record')();
   if (ui.sheet === 'manual') html += renderManualSheet();
+  if (ui.sheet === 'daylog') html += renderDayLog();
   if (ui.sheet === 'affinity') html += pick('affinity')();
   if (ui.sheet === 'paywall') html += pick('paywall')();
   if (ui.panelSheet) html += renderServingPanel();
@@ -438,6 +440,8 @@ function showToast(text, entryId) {
 const ACTIONS = {
   tab: v => { ui.tab = v; ui.pushed = null; },
   openRecord: () => { ui.sheet = 'record'; ui.globalQuery = ''; },
+  openDayLog: v => { ui.sheet = 'daylog'; ui.dayLog = { key: v ?? dayKey(now()), editing: false }; },
+  toggleEdit: () => { ui.dayLog.editing = !ui.dayLog.editing; },
   closeSheet: () => { ui.sheet = null; },
   brand: v => { ui.sheet = null; ui.pushed = { brandId: v }; ui.query = ''; ui.category = '전체'; },
   pop: () => { ui.pushed = null; },

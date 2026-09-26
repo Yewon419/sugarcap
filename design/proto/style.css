@@ -201,6 +201,15 @@ input { font: inherit; }
 .star:active { transform: scale(.9); }
 .sub-kicker { padding: 16px 24px 4px; font-size: 11px; font-weight: 500; letter-spacing: 1.2px; color: var(--secondary); }
 .panel-head-actions { display: flex; align-items: center; gap: 2px; }
+
+/* 하루 기록 시트 */
+.headline[data-a] { cursor: pointer; transition: transform .12s ease-out; transform-origin: left center; }
+.headline[data-a]:active { transform: scale(.98); }
+.sheet-head .text-button + .text-button { margin-left: 14px; }
+.day-figures { display: flex; gap: 32px; padding: 14px 24px 18px; border-bottom: .5px solid var(--separator); }
+.day-figure-num { font-size: 40px; font-weight: 700; letter-spacing: -1.6px; font-variant-numeric: tabular-nums; line-height: 1.05; }
+.day-figure-num small { font-size: 17px; font-weight: 500; letter-spacing: 0; margin-left: 3px; opacity: .85; }
+.minus-circle { width: 24px; height: 24px; border-radius: 50%; background: #ff3b30; color: #fff; font-size: 18px; font-weight: 700; line-height: 22px; flex: none; margin-left: -4px; animation: fade .15s ease-out; }
 .glass-pill.dashed { background: none; border: 1px dashed var(--separator); box-shadow: none; color: var(--secondary); }
 
 /* 검색 먼저 */

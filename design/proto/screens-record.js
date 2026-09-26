@@ -207,3 +207,40 @@ function renderToast() {
   if (!ui.toast) return '';
   return `<div class="toast">${esc(ui.toast.text)}<button data-a="undo">되돌리기</button></div>`;
 }
+
+// ---------- 하루 기록 시트(오늘 숫자를 누르면 열림, 추이에서도 같은 시트) ----------
+// 기록 시트에서 오늘 기록 목록을 뺀 대신 여기서 보고 지운다(2026-09-26 대표님 결정).
+function renderDayLog() {
+  const key = ui.dayLog.key;
+  const isToday = key === dayKey(now());
+  const entries = S.entries.filter(e => dayKey(e.at) === key).sort((a, b) => b.at - a.at);
+  const t = totalsOf(key);
+  const d = new Date(`${key}T12:00:00`);
+  const title = isToday ? '오늘 기록' : `${d.getMonth() + 1}월 ${d.getDate()}일 기록`;
+  const editing = ui.dayLog.editing;
+  const figure = (value, unit, label, limit) => `<div class="day-figure">
+      <div class="day-figure-num">${num(value)}<small>${unit}</small></div>
+      <div class="log-sub">${label} · 기준 ${num(limit)} ${unit}</div></div>`;
+  const rows = entries.map(e => {
+    const name = e.quantity > 1 ? `${e.drinkName} ×${e.quantity}` : e.drinkName;
+    const meta = [timeLabel(e.at), e.brandName, e.sizeLabel].filter(Boolean).join(' · ');
+    return `<div class="again-row">
+      ${editing ? `<button class="minus-circle" data-a="deleteEntry" data-v="${e.id}" aria-label="${esc(name)} 삭제">−</button>` : ''}
+      <div class="log-text"><div class="log-name">${esc(name)}</div><div class="log-meta">${esc(meta)}</div></div>
+      <div class="log-figure"><div>${sugarFigure(e.sugarG)}</div><div class="log-sub">${amount(e.caffeineMg, 'mg')}</div></div>
+    </div>`;
+  }).join('');
+  return `
+    <div class="dim light" data-a="closeSheet"></div>
+    <div class="sheet glass">
+      <div class="grabber"></div>
+      <div class="sheet-head"><span class="kicker">${title}${entries.length ? ` · ${entries.length}잔` : ''}</span>
+        <span>${entries.length ? `<button class="text-button" data-a="toggleEdit">${editing ? '완료' : '편집'}</button>` : ''}<button class="text-button" data-a="closeSheet">닫기</button></span></div>
+      <div class="scroll">
+        <div class="day-figures">${figure(t.sugar.used, 'g', '당', limitOf('sugar'))}${figure(t.caffeine.used, 'mg', '카페인', limitOf('caffeine'))}</div>
+        ${rows || `<div class="caption-note">${isToday ? '아직 기록이 없어요. 컵은 가득 찬 채로 기다리고 있어요.' : '이날은 기록이 없어요.'}</div>`}
+        ${editing ? '<div class="caption-note" style="padding-top:14px">지운 음료만큼 컵이 다시 차요.</div>' : ''}
+        <div class="bottom-space"></div>
+      </div>
+    </div>`;
+}

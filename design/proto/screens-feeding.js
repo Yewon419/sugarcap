@@ -16,8 +16,6 @@ const FEEDING_ACTIONS = {
     const c = ui.cover;
     if (c.stage !== 'ask') return;
     c.stage = 'dropped';
-    const side = c.step;
-    afterRender.push(() => drainCup('feedCup', SIDES[side].cupSet, cupStep(c.left[side], limitOf(side))));
   },
   feedDroplet: () => {
     const c = ui.cover;
@@ -60,7 +58,7 @@ function renderFeedingStep(c) {
   const left = c.left[side];
   const over = c.over[side];
   const stage = c.stage;
-  const cupShown = stage === 'ask' ? cupStep(left, limitOf(side)) : 0;
+  const cupStart = cupStep(left, limitOf(side));
   const stepLabel = `${c.kind === 'close' ? '오늘 마감' : '어제 남은 음료'} · ${side === 'sugar' ? '1' : '2'}/2`;
 
   const caption = {
@@ -84,7 +82,8 @@ function renderFeedingStep(c) {
   return `
     <div class="cover night" data-side="${side}">
       <div class="feed-cup-box ${stage === 'dropped' ? 'shake' : ''}">
-        <img id="feedCup" src="${cupAsset(meta.cupSet, cupShown)}" alt="">
+        <img src="${cupAsset(meta.cupSet, stage === 'ask' ? cupStart : 0)}" alt="">
+        ${stage === 'dropped' ? `<img class="cup-empty" src="${cupAsset(meta.cupSet, cupStart)}" alt="">` : ''}
       </div>
       <div class="night-scrim"></div>
       ${stage === 'ask' ? `<button class="cup-hit" data-a="tapCup" aria-label="${meta.label} 컵 누르기"><span class="cup-pulse"></span></button>` : ''}
@@ -124,7 +123,8 @@ function renderFeedingSummary(c) {
   };
   return `
     <div class="cover night">
-      <div class="night-scrim solid"></div>
+      <div class="feed-cup-box"><img src="${cupAsset(SIDES.sugar.cupSet, 0)}" alt=""></div>
+      <div class="night-scrim"></div>
       <button class="text-button light cover-close" data-a="closeCover">닫기</button>
       <div class="split-head">
         <div class="date-label light">${dateLabel(now())}</div>
@@ -149,18 +149,6 @@ function bounce(side) {
   el.classList.remove('bounce');
   void el.offsetWidth;
   el.classList.add('bounce');
-}
-
-/** 컵 장면을 지금 단계에서 0까지 넘겨 보인다(단계 사진 넘기기). 모션 줄이기면 바로 빈 컵. */
-async function drainCup(imgId, set, fromStep) {
-  const img = document.getElementById(imgId);
-  if (!img) return;
-  if (reduceMotion()) { img.src = cupAsset(set, 0); return; }
-  img.src = cupAsset(set, fromStep);
-  for (const step of CUP_STEPS.filter(s => s < fromStep).reverse()) {
-    await wait(90);
-    img.src = cupAsset(set, step);
-  }
 }
 
 async function countDown(elId, from) {

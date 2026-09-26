@@ -254,7 +254,7 @@ input { font: inherit; }
 /* ---------- 먹이기(확정: 밤 장면 + 당·카페인 분리 + 끌어서 주기) ---------- */
 .phone.dark-status .status { color: #fff; }
 .phone.dark-status .home-indicator { background: #fff; }
-.cover.night { background: #111a2b; overflow: hidden; }
+.cover.night { background: #f4f4f4; overflow: hidden; }
 .cover .headline { z-index: 3; pointer-events: none; }
 .cover-close { position: absolute; right: 20px; top: var(--safe-top); z-index: 6; }
 .date-label.light { color: rgba(255,255,255,.7); }
@@ -264,18 +264,18 @@ input { font: inherit; }
 .feed-caption { font-size: 13px; letter-spacing: .3px; line-height: 1.55; color: var(--secondary); margin-top: 8px; }
 .feed-caption.light { color: rgba(255,255,255,.78); }
 
-/* 컵은 위쪽 가운데 무대, 캐릭터는 그 아래에서 올려다본다 */
-.feed-cup-box { position: absolute; left: 0; right: 0; top: 200px; height: 470px; overflow: hidden;
-  -webkit-mask-image: radial-gradient(ellipse 62% 58% at 50% 55%, #000 55%, transparent 100%);
-          mask-image: radial-gradient(ellipse 62% 58% at 50% 55%, #000 55%, transparent 100%); }
-.feed-cup-box img { width: 100%; height: 100%; object-fit: cover; object-position: center 85%; filter: brightness(.78) saturate(1.05); }
+/* 컵 장면은 메인 화면처럼 화면을 꽉 채우고, 캐릭터가 컵 앞에서 올려다본다 */
+.feed-cup-box { position: absolute; inset: 0; overflow: hidden; }
+.feed-cup-box img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center bottom; }
+/* 컵을 누르면 남은 양 장면이 빈 컵 위에서 한 번에 사라진다(단계 넘기기 없음) */
+.feed-cup-box img.cup-empty { animation: vanish .6s ease-in-out .1s forwards; }
+@keyframes vanish { to { opacity: 0; } }
 .feed-cup-box.shake { animation: shake .55s cubic-bezier(.36, .07, .19, .97); transform-origin: 50% 90%; }
 @keyframes shake { 15% { transform: rotate(-4deg); } 30% { transform: rotate(3.5deg); } 45% { transform: rotate(-3deg); } 60% { transform: rotate(2deg); } 75% { transform: rotate(-1deg); } }
 .night-scrim { position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(rgba(17,26,43,.92), rgba(17,26,43,.35) 34%, rgba(17,26,43,.3) 62%, rgba(17,26,43,.95) 82%); }
-.night-scrim.solid { background: radial-gradient(ellipse at 50% 70%, #1c2a44, #111a2b 70%); }
+  background: linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.18) 34%, rgba(0,0,0,.08) 58%, rgba(0,0,0,.5)); }
 
-.cup-hit { position: absolute; left: 90px; right: 90px; top: 260px; height: 360px; z-index: 2; border-radius: 40px; }
+.cup-hit { position: absolute; left: 70px; right: 70px; top: 250px; height: 440px; z-index: 2; border-radius: 40px; }
 .cup-pulse { position: absolute; left: 50%; top: 58%; width: 92px; height: 92px; margin: -46px 0 0 -46px; border-radius: 50%;
   border: 2px solid rgba(255,255,255,.85); box-shadow: 0 0 24px rgba(185,207,228,.6); animation: pulse 1.6s ease-out infinite; }
 @keyframes pulse { 0% { transform: scale(.6); opacity: .9; } 100% { transform: scale(1.5); opacity: 0; } }
@@ -322,4 +322,7 @@ input { font: inherit; }
 
 @media (prefers-reduced-motion: reduce) {
   .feed-char.asking, .cup-pulse, .drop, .feed-cup-box.shake { animation: none; }
+  .feed-cup-box img.cup-empty { animation: none; opacity: 0; }
 }
+/* 밝은 사진 위 흰 글자: 그라데이션을 진하게 하는 대신 옅은 그림자로 읽히게 한다 */
+.cover.night .light, .cover.night .summary-num, .cover.night .summary-label { text-shadow: 0 1px 10px rgba(0,0,0,.28); }

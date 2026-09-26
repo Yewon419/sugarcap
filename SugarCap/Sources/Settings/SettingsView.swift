@@ -2,11 +2,8 @@ import OSLog
 import SwiftData
 import SwiftUI
 
-/// 설정 탭(SPEC §4.4). Phase 2a 범위: 하루 기준 2개, 하루 경계 시각, 마감 가능 시각, 정보.
-/// 즐겨찾기 정렬은 즐겨찾기 기능과 함께, Pro 구매·복원은 Phase 3에서 붙는다.
-///
-/// 2026-09-24 재설계: 큰 제목 `Form` 대신 다른 화면과 같은 글자 규칙(§5)으로 짠다.
-/// 소제목 → 현재 기준 숫자 → 카드. 조작 컨트롤은 전부 네이티브 그대로다.
+/// 설정 탭(SPEC §4.4). 2026-09-26 HTML 프로토타입 확정 = 추이 캐주얼과 같은 문법(흰 유리 카드, 큰 숫자, 방울·캐릭터).
+/// 하루 기준 → 조금씩 줄이기 → 시간 → Pro → 기타. 조작 컨트롤(프리셋·슬라이더·시각 메뉴·확인 창)은 네이티브 그대로다.
 struct SettingsView: View {
     let catalog: Catalog
 
@@ -77,92 +74,29 @@ private struct SettingsContent: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 28) {
-                VStack(alignment: .leading, spacing: 16) {
-                    header
-                    card { limitsRows }
-                    footnote("기본값은 당 50 g(WHO 권고), 카페인 400 mg(식약처 성인 권고)이에요.")
-                }
+            VStack(alignment: .leading, spacing: 14) {
+                Text("설정")
+                    .dateLabel()
+                    .padding(.top, 8)
+                    .padding(.horizontal, 4)
 
-                section("감소 목표", footer: "한 주에 5일 이상 하루 기준 이내면 다음 주 기준이 조금 내려가요. 미달한 주는 기준을 그대로 둬요.") {
-                    goalRow(.sugar)
-                    rowDivider
-                    goalRow(.caffeine)
-                }
+                limitsCard
+                goalsCard
+                timeCard
+                proCard
+                etcCard
 
-                section("시간", footer: "하루가 바뀌는 시각 전에 마신 음료는 전날 몫으로 들어가요.") {
-                    hourRow("하루가 바뀌는 시각", selection: $settings.dayBoundaryHour, choices: HourChoices.dayBoundary)
-                    rowDivider
-                    hourRow("오늘 마감을 여는 시각", selection: $settings.closeFromHour, choices: HourChoices.closeFrom)
-                }
-
-                section("Pro") {
-                    if pro.isPro {
-                        valueRow("슈가캡 Pro", value: "사용 중")
-                    } else {
-                        Button {
-                            showsGeneralPaywall = true
-                        } label: {
-                            HStack {
-                                Text("슈가캡 Pro 보기")
-                                    .foregroundStyle(.tint)
-                                    .multilineTextAlignment(.leading)
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .font(.footnote.weight(.semibold))
-                                    .foregroundStyle(.tertiary)
-                            }
-                            .rowPadding()
-                        }
-                        .accessibilityIdentifier("open-paywall")
-                    }
-                    rowDivider
-                    Button {
-                        restore()
-                    } label: {
-                        HStack {
-                            Text("구매 복원")
-                                .foregroundStyle(.primary)
-                            Spacer()
-                            if isRestoring {
-                                ProgressView()
-                            }
-                        }
-                        .rowPadding()
-                    }
-                    .disabled(isRestoring)
-                    .accessibilityIdentifier("restore-purchases")
-                }
-
-                section("정보", footer: "기록은 이 기기에만 저장돼요. 수집하는 정보는 없어요.") {
-                    Button {
-                        showsOnboarding = true
-                    } label: {
-                        HStack {
-                            Text("앱 소개 다시 보기")
-                                .foregroundStyle(.primary)
-                                .multilineTextAlignment(.leading)
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.footnote.weight(.semibold))
-                                .foregroundStyle(.tertiary)
-                        }
-                        .rowPadding()
-                    }
-                    .accessibilityIdentifier("replay-onboarding")
-                    rowDivider
-                    valueRow(
-                        "메뉴 데이터",
-                        value: catalog.builtAtDate?.formatted(date: .abbreviated, time: .omitted) ?? catalog.builtAt
-                    )
-                    rowDivider
-                    valueRow("버전", value: Self.appVersion)
-                }
+                Text("슈가캡 \(Self.appVersion) · 메뉴 데이터 \(catalog.builtAtDate?.formatted(date: .abbreviated, time: .omitted) ?? catalog.builtAt)")
+                    .font(AppFont.pretendard(11, .regular, relativeTo: .caption2))
+                    .tracking(0.5)
+                    .foregroundStyle(.tertiary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 4)
             }
-            .padding(.horizontal, 20)
-            .padding(.bottom, 24)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 110)
         }
-        .background(Color(.systemGroupedBackground))
+        .background(Color.wall.ignoresSafeArea())
         .sheet(item: $paywall, onDismiss: {
             if pro.isPro, let side = pendingGoalSide { editingSide = side }
             pendingGoalSide = nil
@@ -174,7 +108,7 @@ private struct SettingsContent: View {
         }
         // 목표를 그만두면 쌓은 주 진행이 사라지고 되돌릴 수 없다. 한 번 더 묻는다.
         .confirmationDialog(
-            "감소 목표를 그만둘까요?",
+            "\(stoppingSide?.label ?? "") 줄이기를 그만둘까요?",
             isPresented: Binding(
                 get: { stoppingSide != nil },
                 set: { if !$0 { stoppingSide = nil } }
@@ -212,71 +146,23 @@ private struct SettingsContent: View {
         }
     }
 
-    // MARK: 헤더
+    // MARK: 하루 기준
 
-    /// 보조 라벨 → 소제목 → 현재 기준 두 개. 온보딩의 기준 카드와 같은 문법이라 첫 화면에서 본 값을
-    /// 여기서 다시 만난다. 값이 둘이라 96pt 주인공 숫자는 쓰지 않는다.
-    private var header: some View {
+    /// 현재 기준 두 값(방울 + 숫자) → 당 프리셋 → 카페인 슬라이더. 줄이기 목표가 돌면 그쪽은 목표가 맡는다.
+    private var limitsCard: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("설정")
-                .dateLabel()
-                .padding(.top, 8)
-            Text("하루 기준")
-                .kicker()
-                .padding(.top, 28)
-            HStack(alignment: .firstTextBaseline, spacing: 24) {
-                limitSummary(.sugar)
-                limitSummary(.caffeine)
+            Text("하루 기준").kicker()
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) { limitFigure(.sugar); limitFigure(.caffeine) }
+                VStack(alignment: .leading, spacing: 12) { limitFigure(.sugar); limitFigure(.caffeine) }
             }
-            .padding(.top, 10)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.leading, 4)
-    }
+            .padding(.top, 14)
+            .padding(.bottom, 4)
 
-    private func limitSummary(_ side: CupSide) -> some View {
-        let value = side.limit(settings.limits)
-        return VStack(alignment: .leading, spacing: 4) {
-            HStack(alignment: .firstTextBaseline, spacing: 3) {
-                Text(Amount.number(value))
-                    .font(.system(size: 40, weight: .bold))
-                    .tracking(-1.6)
-                    .monospacedDigit()
-                    .contentTransition(.numericText())
-                Text(side.unit)
-                    .font(.system(size: 17, weight: .medium))
-                    .opacity(0.85)
-            }
-            Text("\(side.label) · \(limitSource(side))")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-        }
-        .accessibilityElement(children: .combine)
-        .animation(.default, value: value)
-    }
-
-    /// 숫자 밑에 붙는 출처. 기본값이면 권고 기관, 바꿨으면 그 사실, 감소 목표 중이면 목표를 적는다.
-    private func limitSource(_ side: CupSide) -> String {
-        if let goal = goal(side) {
-            return "목표 \(Amount.number(goal.target)) \(side.unit)까지"
-        }
-        let isDefault = side.limit(settings.limits) == side.limit(.default)
-        switch side {
-        case .sugar: return isDefault ? "WHO 권고" : "직접 설정"
-        case .caffeine: return isDefault ? "식약처 권고" : "직접 설정"
-        }
-    }
-
-    // MARK: 하루 기준 카드
-
-    @ViewBuilder
-    private var limitsRows: some View {
-        // 감소 목표가 도는 동안에는 기준을 목표가 주마다 쓴다. 손으로 못 바꾸게 막는다.
-        if goal(.sugar) != nil {
-            managedLimitRow(.sugar, value: settings.sugarLimitG)
-        } else {
-            VStack(alignment: .leading, spacing: 10) {
-                Text(CupSide.sugar.label)
+            controlLabel(CupSide.sugar.label)
+            if goal(.sugar) != nil {
+                managedNote(.sugar)
+            } else {
                 Picker(CupSide.sugar.label, selection: $settings.sugarLimitG) {
                     ForEach(SugarPreset.values, id: \.self) { value in
                         Text("\(Amount.number(value)) \(CupSide.sugar.unit)").tag(value)
@@ -284,24 +170,14 @@ private struct SettingsContent: View {
                 }
                 .pickerStyle(.segmented)
                 .labelsHidden()
+                .padding(.top, 10)
                 .accessibilityIdentifier("sugar-limit")
             }
-            .rowPadding()
-        }
 
-        rowDivider
-
-        if goal(.caffeine) != nil {
-            managedLimitRow(.caffeine, value: settings.caffeineLimitMg)
-        } else {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack {
-                    Text(CupSide.caffeine.label)
-                    Spacer()
-                    Text("\(Amount.number(settings.caffeineLimitMg)) \(CupSide.caffeine.unit)")
-                        .monospacedDigit()
-                        .foregroundStyle(.secondary)
-                }
+            controlLabel(CupSide.caffeine.label)
+            if goal(.caffeine) != nil {
+                managedNote(.caffeine)
+            } else {
                 Slider(
                     value: $settings.caffeineLimitMg,
                     in: CaffeineRange.bounds,
@@ -309,92 +185,188 @@ private struct SettingsContent: View {
                 ) {
                     Text(CupSide.caffeine.label)
                 } minimumValueLabel: {
-                    Text(Amount.number(CaffeineRange.bounds.lowerBound))
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+                    Text(Amount.number(CaffeineRange.bounds.lowerBound)).cardNote()
                 } maximumValueLabel: {
-                    Text(Amount.number(CaffeineRange.bounds.upperBound))
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+                    Text(Amount.number(CaffeineRange.bounds.upperBound)).cardNote()
                 }
+                .padding(.top, 6)
                 .accessibilityIdentifier("caffeine-limit")
             }
-            .rowPadding()
+
+            Text("기본값은 당 50 g(WHO 권고), 카페인 400 mg(식약처 성인 권고)이에요.")
+                .cardNote()
+                .padding(.top, 14)
         }
+        .padding(20)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .settingsCard(radius: 28)
+        .padding(.top, 4)
     }
 
-    private func managedLimitRow(_ side: CupSide, value: Double) -> some View {
-        HStack {
-            Text(side.label)
-            Spacer()
-            Text("\(Amount.number(value)) \(side.unit)")
-                .monospacedDigit()
-                .foregroundStyle(.secondary)
-            Image(systemName: "lock")
-                .font(.footnote)
-                .foregroundStyle(.tertiary)
-        }
-        .rowPadding()
-        .accessibilityElement(children: .combine)
-        .accessibilityHint("감소 목표가 이번 주 기준을 정해요")
-    }
-
-    // MARK: 감소 목표
-
-    @ViewBuilder
-    private func goalRow(_ side: CupSide) -> some View {
-        if let goal = goal(side) {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text(side.label)
-                    Spacer()
-                    Text("이번 주 \(Amount.number(side.limit(settings.limits))) → 목표 \(Amount.number(goal.target)) \(side.unit)")
+    private func limitFigure(_ side: CupSide) -> some View {
+        let value = side.limit(settings.limits)
+        return HStack(spacing: 10) {
+            Image(side.dropAsset)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 40, height: 40)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(alignment: .firstTextBaseline, spacing: 2) {
+                    Text(Amount.number(value))
+                        .font(AppFont.pretendard(28, .bold, relativeTo: .title))
+                        .tracking(-1)
                         .monospacedDigit()
-                        .foregroundStyle(.secondary)
+                        .contentTransition(.numericText())
+                    Text(side.unit)
+                        .font(AppFont.pretendard(13, .medium, relativeTo: .footnote))
                 }
-                HStack {
-                    Text("\(goal.weeks)주 계획 · \(goal.achievedWeeks)주 달성")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Button("그만두기", role: .destructive) { stoppingSide = side }
-                        .font(.footnote)
-                        .buttonStyle(.bordered)
-                        .buttonBorderShape(.capsule)
-                }
+                Text("\(side.label) · \(limitSource(side))")
+                    .cardNote()
             }
-            .rowPadding()
-        } else {
-            Button {
-                // 감소 목표는 Pro다(§6).
-                if pro.isPro {
-                    editingSide = side
-                } else {
-                    pendingGoalSide = side
-                    paywall = .reductionGoal
-                }
-            } label: {
-                HStack {
-                    Text("\(side.label) 줄이기 시작")
-                        .foregroundStyle(.tint)
-                        .multilineTextAlignment(.leading)
-                    Spacer()
-                    Image(systemName: pro.isPro ? "chevron.right" : "lock")
-                        .font(.footnote.weight(.semibold))
-                        .foregroundStyle(.tertiary)
-                }
-                .rowPadding()
-            }
-            .accessibilityIdentifier("start-goal-\(side.rawValue)")
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityElement(children: .combine)
+        .animation(.default, value: value)
+    }
+
+    /// 숫자 밑에 붙는 출처. 기본값이면 권고 기관, 바꿨으면 "지금 기준", 줄이기 목표 중이면 그 사실.
+    private func limitSource(_ side: CupSide) -> String {
+        if goal(side) != nil { return "줄이기 진행 중" }
+        let isDefault = side.limit(settings.limits) == side.limit(.default)
+        switch side {
+        case .sugar: return isDefault ? "WHO 권고" : "지금 기준"
+        case .caffeine: return isDefault ? "식약처 권고" : "지금 기준"
         }
     }
 
-    // MARK: 행·카드 부품
+    private func controlLabel(_ text: String) -> some View {
+        Text(text)
+            .font(AppFont.pretendard(13, .semibold, relativeTo: .footnote))
+            .padding(.top, 14)
+    }
 
-    /// 시각 행. 값은 메뉴 피커라 한 번에 고른다. 보조 조작이라 액센트를 쓰지 않는다.
+    private func managedNote(_ side: CupSide) -> some View {
+        Label("줄이기 목표가 \(side.label) 기준을 맡고 있어요", systemImage: "lock.fill")
+            .font(AppFont.pretendard(13, .regular, relativeTo: .footnote))
+            .foregroundStyle(.secondary)
+            .padding(.top, 10)
+            .accessibilityHint("감소 목표가 이번 주 기준을 정해요")
+    }
+
+    // MARK: 조금씩 줄이기
+
+    private var goalsCard: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("조금씩 줄이기").kicker()
+                .padding(.horizontal, 8)
+                .padding(.bottom, 4)
+            goalRow(.sugar)
+            Divider().padding(.horizontal, 8)
+            goalRow(.caffeine)
+            Text("한 주에 5일 이상 기준 안이면 다음 주 기준이 조금 내려가요. 못 지킨 주는 그대로예요.")
+                .cardNote()
+                .padding(.horizontal, 8)
+                .padding(.top, 10)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 18)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .settingsCard(radius: 28)
+    }
+
+    private func goalRow(_ side: CupSide) -> some View {
+        HStack(spacing: 12) {
+            Image(side.characterAsset)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 44, height: 48)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 3) {
+                Text("\(side.label) 조금씩 줄이기")
+                    .font(AppFont.pretendard(16, .bold, relativeTo: .callout))
+                    .tracking(-0.2)
+                if let goal = goal(side) {
+                    Text("이번 주 \(Amount.number(side.limit(settings.limits))) \(side.unit) → 목표 \(Amount.number(goal.target)) \(side.unit) · \(goal.weeks)주 중 \(goal.achievedWeeks)주 달성")
+                        .cardNote()
+                        .monospacedDigit()
+                    GeometryReader { bar in
+                        Capsule().fill(Color(.systemFill))
+                            .overlay(alignment: .leading) {
+                                Capsule().fill(Color.accentColor)
+                                    .frame(width: max(4, bar.size.width * Double(goal.achievedWeeks) / Double(max(1, goal.weeks))))
+                            }
+                    }
+                    .frame(height: 4)
+                    .padding(.top, 5)
+                } else {
+                    Text("4~12주에 걸쳐 하루 기준을 낮춰요")
+                        .cardNote()
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            if goal(side) != nil {
+                Button("그만두기") { stoppingSide = side }
+                    .font(AppFont.pretendard(15, .regular, relativeTo: .subheadline))
+                    .tapTarget()
+            } else {
+                Button {
+                    // 감소 목표는 Pro다(§6).
+                    if pro.isPro {
+                        editingSide = side
+                    } else {
+                        pendingGoalSide = side
+                        paywall = .reductionGoal
+                    }
+                } label: {
+                    HStack(spacing: 4) {
+                        if !pro.isPro { Image(systemName: "lock.fill").font(.system(size: 10)) }
+                        Text(pro.isPro ? "시작" : "Pro")
+                    }
+                    .font(AppFont.pretendard(14, .semibold, relativeTo: .subheadline))
+                    .foregroundStyle(.tint)
+                    .padding(.horizontal, 14)
+                    .frame(minHeight: 34)
+                    .background(.white, in: Capsule())
+                    .overlay(Capsule().strokeBorder(Color.accentColor.opacity(0.4)))
+                    .tapTarget()
+                }
+                .buttonStyle(PressScaleStyle())
+                .accessibilityLabel("\(side.label) 줄이기 시작")
+                .accessibilityIdentifier("start-goal-\(side.rawValue)")
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 10)
+    }
+
+    // MARK: 시간
+
+    private var timeCard: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("시간").kicker()
+                .padding(.horizontal, 8)
+                .padding(.bottom, 4)
+            hourRow("하루가 바뀌는 시각", selection: $settings.dayBoundaryHour, choices: HourChoices.dayBoundary)
+            Divider().padding(.horizontal, 8)
+            hourRow("오늘 마감을 여는 시각", selection: $settings.closeFromHour, choices: HourChoices.closeFrom)
+            Text("하루가 바뀌는 시각 전에 마신 음료는 전날 몫으로 들어가요.")
+                .cardNote()
+                .padding(.horizontal, 8)
+                .padding(.top, 10)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 18)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .settingsCard(radius: 28)
+    }
+
+    /// 시각 행. 값은 메뉴 피커라 한 번에 고른다.
     private func hourRow(_ title: String, selection: Binding<Int>, choices: [Int]) -> some View {
         HStack {
             Text(title)
+                .font(AppFont.pretendard(15, .regular, relativeTo: .subheadline))
             Spacer()
             Picker(title, selection: selection) {
                 ForEach(choices, id: \.self) { hour in
@@ -403,54 +375,118 @@ private struct SettingsContent: View {
             }
             .pickerStyle(.menu)
             .labelsHidden()
-            .tint(Color.secondary)
+            .background(Color.accentColor.opacity(0.1), in: Capsule())
         }
-        .rowPadding()
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
     }
 
-    private func valueRow(_ title: String, value: String) -> some View {
+    // MARK: Pro
+
+    @ViewBuilder
+    private var proCard: some View {
+        if pro.isPro {
+            HStack(spacing: 12) {
+                proCharacters
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("슈가캡 Pro 사용 중")
+                        .font(AppFont.pretendard(16, .bold, relativeTo: .callout))
+                    Text("로슈·카인과 친해지기·월 추이·조금씩 줄이기").cardNote()
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(16)
+            .frame(minHeight: 96)
+            .settingsCard(radius: 24)
+            .accessibilityElement(children: .combine)
+        } else {
+            Button {
+                showsGeneralPaywall = true
+            } label: {
+                HStack(spacing: 12) {
+                    proCharacters
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("슈가캡 Pro")
+                            .font(AppFont.pretendard(16, .bold, relativeTo: .callout))
+                            .foregroundStyle(.primary)
+                        Text("로슈·카인과 친해지기, 월 추이, 조금씩 줄이기").cardNote()
+                            .multilineTextAlignment(.leading)
+                    }
+                    Spacer(minLength: 0)
+                    Text("알아보기")
+                        .font(AppFont.pretendard(13, .semibold, relativeTo: .footnote))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color.accentColor, in: Capsule())
+                }
+                .padding(16)
+                .frame(minHeight: 96)
+                .settingsCard(radius: 24)
+            }
+            .buttonStyle(PressScaleStyle())
+            .accessibilityIdentifier("open-paywall")
+        }
+    }
+
+    private var proCharacters: some View {
+        HStack(alignment: .bottom, spacing: -6) {
+            Image(CupSide.sugar.characterAsset).resizable().scaledToFit().frame(height: 50)
+            Image(CupSide.caffeine.characterAsset).resizable().scaledToFit().frame(height: 42)
+        }
+        .accessibilityHidden(true)
+    }
+
+    // MARK: 기타
+
+    private var etcCard: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Button {
+                showsOnboarding = true
+            } label: {
+                etcRow("앱 소개 다시 보기", trailing: Image(systemName: "chevron.right"))
+            }
+            .accessibilityIdentifier("replay-onboarding")
+            Divider().padding(.horizontal, 8)
+            Button {
+                restore()
+            } label: {
+                HStack {
+                    Text("구매 복원")
+                    Spacer()
+                    if isRestoring { ProgressView() }
+                }
+                .etcPadding()
+            }
+            .disabled(isRestoring)
+            .accessibilityIdentifier("restore-purchases")
+            if let privacy = AppLinks.privacyPolicy {
+                Divider().padding(.horizontal, 8)
+                Link(destination: privacy) {
+                    etcRow("개인정보처리방침", trailing: Image(systemName: "arrow.up.right"))
+                }
+            }
+            Text("기록은 이 기기에만 저장돼요. 수집하는 정보는 없어요.")
+                .cardNote()
+                .padding(.horizontal, 8)
+                .padding(.top, 8)
+                .padding(.bottom, 8)
+        }
+        .foregroundStyle(.primary)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .settingsCard(radius: 28)
+    }
+
+    private func etcRow(_ title: String, trailing: Image) -> some View {
         HStack {
             Text(title)
             Spacer()
-            Text(value)
-                .foregroundStyle(.secondary)
-                .monospacedDigit()
+            trailing
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.tertiary)
         }
-        .rowPadding()
-        .accessibilityElement(children: .combine)
-    }
-
-    private var rowDivider: some View {
-        Divider().padding(.leading, 16)
-    }
-
-    private func section<Content: View>(
-        _ title: String, footer: String? = nil, @ViewBuilder content: () -> Content
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(title)
-                .kicker()
-                .padding(.leading, 4)
-            card(content: content)
-            if let footer {
-                footnote(footer)
-            }
-        }
-    }
-
-    private func card<Content: View>(@ViewBuilder content: () -> Content) -> some View {
-        VStack(spacing: 0, content: content)
-            .background(
-                Color(.secondarySystemGroupedBackground),
-                in: RoundedRectangle(cornerRadius: 16, style: .continuous)
-            )
-    }
-
-    private func footnote(_ text: String) -> some View {
-        Text(text)
-            .font(.footnote)
-            .foregroundStyle(.secondary)
-            .padding(.horizontal, 4)
+        .etcPadding()
     }
 
     // MARK: 동작
@@ -502,9 +538,26 @@ private struct SettingsContent: View {
 }
 
 private extension View {
-    /// 카드 안 한 행의 여백. 행마다 같은 값이라야 카드가 한 덩어리로 읽힌다.
-    func rowPadding() -> some View {
-        padding(.horizontal, 16)
+    /// 흰 유리 카드(추이 캐주얼과 같은 문법).
+    func settingsCard(radius: CGFloat) -> some View {
+        background {
+            let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
+            shape.fill(.white.opacity(0.78))
+                .overlay(shape.strokeBorder(.white))
+                .shadow(color: Color(red: 20 / 255, green: 30 / 255, blue: 50 / 255).opacity(0.05), radius: 15, y: 10)
+        }
+    }
+
+    func cardNote() -> some View {
+        font(AppFont.pretendard(12, .regular, relativeTo: .caption))
+            .foregroundStyle(.secondary)
+            .lineSpacing(3)
+    }
+
+    func etcPadding() -> some View {
+        font(AppFont.pretendard(15, .regular, relativeTo: .subheadline))
+            .padding(.horizontal, 8)
             .padding(.vertical, 14)
+            .contentShape(Rectangle())
     }
 }

@@ -145,6 +145,8 @@ jobs:
           # 마감 버튼은 저녁 이후에만 보여 러너 시각에 따라 닿지 못한다. Debug 빌드 전용 인자로 띄운다.
           shoot trends light large -initialTab trends
           shoot trends-type-ax-xl light accessibility-extra-large -initialTab trends
+          shoot trends-caffeine light large -seedDemo YES -initialTab trends -trendSide caffeine
+          shoot trends-month light large -seedDemo YES -mockProOwned YES -initialTab trends -trendRange month
           shoot feeding light large -screenshotFeeding YES
           shoot paywall light large -mockPro YES -screenshotPaywall YES
           shoot paywall-type-ax-xl light accessibility-extra-large -mockPro YES -screenshotPaywall YES

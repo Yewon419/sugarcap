@@ -81,7 +81,8 @@ struct FeedFxOverlay: View {
                 .offset(x: 290 * sx, y: 190 * sy + Motion.lerp(300, 0, moonK) * sy)
 
             ForEach(Array(Self.stars.enumerated()), id: \.offset) { index, point in
-                let k = seg(t, 0.45 + Double(index) * 0.05, 0.75 + Double(index) * 0.05) { Ease.backOut($0, overshoot: 3) }
+                let start: Double = 0.45 + Double(index) * 0.05
+                let k: Double = seg(t, start, start + 0.3) { Ease.backOut($0, overshoot: 3) }
                 Circle()
                     .fill(.white)
                     .frame(width: 6, height: 6)
@@ -142,17 +143,18 @@ struct FeedFxOverlay: View {
             .offset(y: 200 * sy - 30 * typeOut)
             .opacity(1 - typeOut)
 
+            let kainAngle: Double = Motion.lerp(-25, 0, pop) + 360 * seg(t, 0.8, 1.3, Ease.power3InOut)
+            let kainScale: Double = Motion.lerp(0.4, 1, pop) * Motion.lerp(1, 0.55, drop)
+            let kainOpacity: Double = min(1, max(0, pop * 2)) * (1 - seg(t, 1.62, 1.74, Ease.linear))
+            let kainY: Double = 360 * Double(sy) + Motion.lerp(140, 0, pop) + 250 * drop
             Image(CupSide.caffeine.characterAsset)
                 .resizable()
                 .scaledToFit()
                 .frame(height: 150)
-                .rotationEffect(
-                    .degrees(Motion.lerp(-25, 0, pop) + 360 * seg(t, 0.8, 1.3, Ease.power3InOut)),
-                    anchor: UnitPoint(x: 0.5, y: 0.55)
-                )
-                .scaleEffect(Motion.lerp(0.4, 1, pop) * Motion.lerp(1, 0.55, drop))
-                .opacity(min(1, max(0, pop * 2)) * (1 - seg(t, 1.62, 1.74, Ease.linear)))
-                .offset(y: 360 * sy + Motion.lerp(140, 0, pop) + 250 * drop)
+                .rotationEffect(.degrees(kainAngle), anchor: UnitPoint(x: 0.5, y: 0.55))
+                .scaleEffect(kainScale)
+                .opacity(kainOpacity)
+                .offset(y: kainY)
         }
     }
 
@@ -178,18 +180,20 @@ struct FeedFxOverlay: View {
                 .opacity(1 - fade)
 
             ForEach(CupSide.allCases) { side in
-                let sign: CGFloat = side == .sugar ? -1 : 1
-                let enter = seg(t, side == .sugar ? 0.35 : 0.42, side == .sugar ? 0.9 : 0.97, Ease.power3Out)
+                let sign: Double = side == .sugar ? -1 : 1
+                let start: Double = side == .sugar ? 0.35 : 0.42
+                let enter: Double = seg(t, start, start + 0.55, Ease.power3Out)
+                let spread: Double = Motion.lerp(Motion.lerp(150, 46, enter), 0, merge)
+                let x: Double = Double(center.x) + sign * spread
+                let y: Double = Double(center.y) + Motion.lerp(300, 0, enter)
+                let scale: Double = Motion.lerp(0.4, 1, enter) * (1 - vanish)
                 Image(side.dropAsset)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 76, height: 76)
-                    .scaleEffect(Motion.lerp(0.4, 1, enter) * (1 - vanish))
+                    .scaleEffect(scale)
                     .opacity(enter)
-                    .position(
-                        x: center.x + sign * Motion.lerp(Motion.lerp(150, 46, enter), 0, merge),
-                        y: center.y + Motion.lerp(300, 0, enter)
-                    )
+                    .position(x: x, y: y)
             }
 
             Circle()
@@ -200,17 +204,16 @@ struct FeedFxOverlay: View {
                 .position(center)
 
             ForEach(0..<14, id: \.self) { index in
-                let angle = Double(index) / 14 * .pi * 2 + 0.3
-                let distance = 120 + Double(index % 4) * 45
+                let angle: Double = Double(index) / 14 * Double.pi * 2 + 0.3
+                let distance: Double = 120 + Double(index % 4) * 45
+                let x: Double = Double(center.x) + cos(angle) * distance * burst
+                let y: Double = Double(center.y) + sin(angle) * distance * 1.3 * burst
                 Circle()
                     .fill(.white)
                     .frame(width: 6, height: 6)
                     .scaleEffect(t < 1.24 ? 0 : burst)
                     .opacity(1 - starsOut)
-                    .position(
-                        x: center.x + cos(angle) * distance * burst,
-                        y: center.y + sin(angle) * distance * 1.3 * burst
-                    )
+                    .position(x: x, y: y)
             }
         }
     }

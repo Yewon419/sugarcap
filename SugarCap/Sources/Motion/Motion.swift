@@ -21,6 +21,10 @@ enum Ease {
         x < 0.5 ? 8 * pow(x, 4) : 1 - pow(-2 * x + 2, 4) / 2
     }
 
+    static func power4InOut(_ x: Double) -> Double {
+        x < 0.5 ? 16 * pow(x, 5) : 1 - pow(-2 * x + 2, 5) / 2
+    }
+
     static func sineInOut(_ x: Double) -> Double { -(cos(Double.pi * x) - 1) / 2 }
 
     static func expoInOut(_ x: Double) -> Double {

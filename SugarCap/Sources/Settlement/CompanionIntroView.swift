@@ -194,16 +194,15 @@ private struct IntroStage: View {
                 let popStart = isSugar ? 0.15 : 0.27
                 let pop = seg(popStart, popStart + 0.5) { Ease.backOut($0, overshoot: 1.8) }
                 let bobStart = isSugar ? 0.75 : 0.87
-                let bob = seg(bobStart, bobStart + 0.42, Ease.sineInOut) - seg(bobStart + 0.42, bobStart + 0.84, Ease.sineInOut)
-                let leaveUp = isSugar ? seg(2.1, 2.55, Ease.power3In) : 0
-                let leaveRight = isSugar ? 0 : seg(2.18, 2.63, Ease.power3In)
+                let bob: Double = seg(bobStart, bobStart + 0.42, Ease.sineInOut) - seg(bobStart + 0.42, bobStart + 0.84, Ease.sineInOut)
+                let leaveUp: Double = isSugar ? seg(2.1, 2.55, Ease.power3In) : 0
+                let leaveRight: Double = isSugar ? 0 : seg(2.18, 2.63, Ease.power3In)
+                let home: Double = isSugar ? -120 : 120
+                let x: Double = home + 780 * leaveRight
+                let top: Double = 1000 - 50 * bob - 1400 * leaveUp
                 dropImage(side, size: 170)
                     .scaleEffect(max(0, pop))
-                    .stagePosition(
-                        x: (isSugar ? -120 : 120) + 780 * leaveRight,
-                        top: 1000 - 50 * bob - 1400 * leaveUp,
-                        height: 170
-                    )
+                    .stagePosition(x: x, top: top, height: 170)
             }
         }
     }
@@ -247,12 +246,14 @@ private struct IntroStage: View {
                 .position(x: 540, y: 1190)
 
             ForEach(0..<14, id: \.self) { index in
-                let angle = Double(index) / 14 * .pi * 2 + 0.2
-                let distance = 300 + Double(index % 3) * 70
+                let angle: Double = Double(index) / 14 * Double.pi * 2 + 0.2
+                let distance: Double = 300 + Double(index % 3) * 70
+                let x: Double = 540 + cos(angle) * distance * burst
+                let y: Double = 1320 + sin(angle) * distance * burst * 0.8
                 Circle()
                     .fill(index % 2 == 0 ? Color.ink : Color.white)
                     .frame(width: burstRadius * 2, height: burstRadius * 2)
-                    .position(x: 540 + cos(angle) * distance * burst, y: 1320 + sin(angle) * distance * burst * 0.8)
+                    .position(x: x, y: y)
             }
 
             // 뒤쪽 궤도 방울 → 로슈 → 앞쪽 궤도 방울
@@ -272,13 +273,17 @@ private struct IntroStage: View {
     }
 
     private func orbit(front: Bool, on: Double) -> some View {
+        // 식을 쪼개 둔다. 한 줄에 몰면 컴파일러가 타입을 제때 못 푼다(CI 오류).
         ForEach(0..<3, id: \.self) { index in
-            let angle = (u - 2.05) * 3.1 + Double(index) * .pi * 2 / 3
-            let depth = sin(angle)
+            let angle: Double = (u - 2.05) * 3.1 + Double(index) * Double.pi * 2 / 3
+            let depth: Double = sin(angle)
+            let scale: Double = max(0, on * (0.8 + 0.25 * depth))
+            let x: Double = 360 * cos(angle)
+            let top: Double = 1300 + 120 * depth - 55
             if (depth > 0) == front {
                 dropImage(.sugar, size: 110)
-                    .scaleEffect(max(0, on * (0.8 + 0.25 * depth)))
-                    .stagePosition(x: 360 * cos(angle), top: 1300 + 120 * depth - 55, height: 110)
+                    .scaleEffect(scale)
+                    .stagePosition(x: x, top: top, height: 110)
             }
         }
     }
@@ -299,6 +304,12 @@ private struct IntroStage: View {
         let pulse = useg(6.65, 6.85, Ease.power2Out) - useg(6.85, 7.05, Ease.power2Out)
         let bounce = useg(4.55, 5.25)
         let ring = useg(5.25, 5.8, Ease.power3Out)
+        let caffeineScale: Double = u < 4.55 ? 0 : 1 - useg(5.15, 5.3)
+        let caffeineX: Double = Motion.lerp(760, 0, bounce)
+        let bounceHeight: Double = 520 * abs(sin(Double.pi * bounce * 2.5)) * (1 - bounce)
+        let caffeineTop: Double = 1080 - bounceHeight
+        let kainX: Double = Motion.lerp(-900, 0, enter) + jitter
+        let kainTop: Double = 1060 - 180 * hop
 
         return ZStack(alignment: .topLeading) {
             Color.caffeineAmber
@@ -331,15 +342,11 @@ private struct IntroStage: View {
                 .frame(height: 420)
                 .rotationEffect(.degrees(360 * spin), anchor: UnitPoint(x: 0.5, y: 0.55))
                 .scaleEffect(1 + 0.08 * pulse, anchor: UnitPoint(x: 0.5, y: 0.55))
-                .stagePosition(x: Motion.lerp(-900, 0, enter) + jitter, top: 1060 - 180 * hop, height: 420)
+                .stagePosition(x: kainX, top: kainTop, height: 420)
 
             dropImage(.caffeine, size: 170)
-                .scaleEffect(u < 4.55 ? 0 : 1 - useg(5.15, 5.3))
-                .stagePosition(
-                    x: Motion.lerp(760, 0, bounce),
-                    top: 1080 - 520 * abs(sin(.pi * bounce * 2.5)) * (1 - bounce),
-                    height: 170
-                )
+                .scaleEffect(caffeineScale)
+                .stagePosition(x: caffeineX, top: caffeineTop, height: 170)
 
             maskedText(["카페인을", "좋아하는"], size: 150, name: "카인!", revealAt: 4.1, hideAt: 7.05, clock: u,
                        accentLast: false, color: .ink)
@@ -364,6 +371,8 @@ private struct IntroStage: View {
         let night = useg(10.2, 11.0, Ease.power2InOut)
         let bondIn = useg(9.75, 10.25, Ease.power3Out)
         let textColor = Color.ink(towardWhite: night)
+        let roshuTop: Double = 1040 - 46 * min(1, hopSugar)
+        let kainTop: Double = 1110 - 46 * min(1, hopCaffeine)
 
         return ZStack(alignment: .topLeading) {
             Circle()
@@ -375,29 +384,31 @@ private struct IntroStage: View {
                 .opacity(night)
 
             ForEach(Array(Self.rain.enumerated()), id: \.offset) { index, drop in
-                let at = 8.2 + Double(index) * 0.1
-                let k = useg(at, at + hitDelay, Ease.power2In)
-                let target = drop.side == .sugar ? roshuX : kainX
-                let appear = useg(at, at + 0.12, Ease.power3Out) * (1 - useg(at + hitDelay - 0.06, at + hitDelay + 0.04))
+                let at: Double = 8.2 + Double(index) * 0.1
+                let k: Double = useg(at, at + hitDelay, Ease.power2In)
+                let target: Double = drop.side == .sugar ? roshuX : kainX
+                let grow: Double = useg(at, at + 0.12, Ease.power3Out)
+                let fade: Double = 1 - useg(at + hitDelay - 0.06, at + hitDelay + 0.04)
+                let scale: Double = u < at ? 0 : grow * fade
+                let landing: Double = drop.side == .sugar ? 1200 : 1240
+                let arc: Double = 260 * sin(Double.pi * k)
+                let x: Double = Motion.lerp(drop.x * 0.8, target, k)
+                let top: Double = Motion.lerp(780, landing, k) - arc
                 dropImage(drop.side, size: 96)
-                    .scaleEffect(u < at ? 0 : appear)
-                    .stagePosition(
-                        x: Motion.lerp(drop.x * 0.8, target, k),
-                        top: Motion.lerp(780, drop.side == .sugar ? 1200 : 1240, k) - 260 * sin(.pi * k),
-                        height: 96
-                    )
+                    .scaleEffect(scale)
+                    .stagePosition(x: x, top: top, height: 96)
             }
 
             Image(CupSide.sugar.characterAsset)
                 .resizable()
                 .scaledToFit()
                 .frame(height: 480)
-                .stagePosition(x: roshuX, top: 1040 - 46 * min(1, hopSugar), height: 480)
+                .stagePosition(x: roshuX, top: roshuTop, height: 480)
             Image(CupSide.caffeine.characterAsset)
                 .resizable()
                 .scaledToFit()
                 .frame(height: 420)
-                .stagePosition(x: kainX, top: 1110 - 46 * min(1, hopCaffeine), height: 420)
+                .stagePosition(x: kainX, top: kainTop, height: 420)
 
             maskedText(["많이많이 남겨서", "두 친구와", "더 가까워져요"], size: 96, name: nil, revealAt: 7.85, hideAt: nil, clock: u,
                        accentLast: true, color: textColor)

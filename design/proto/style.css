@@ -340,3 +340,58 @@ input { font: inherit; }
   -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14%);
           mask-image: linear-gradient(to bottom, transparent 0, #000 14%);
 }
+
+/* ---------- Phase 2-3: 호감도 ---------- */
+.segmented.inset-x { margin: 6px 20px 0; }
+.pad-x0 { padding: 0 20px; }
+.bond-bar { height: 6px; border-radius: 3px; background: rgba(60,60,67,.12); overflow: hidden; width: 100%; }
+.bond-bar i { display: block; height: 100%; border-radius: 3px; background: var(--accent); min-width: 6px; transition: width .6s cubic-bezier(.23, 1, .32, 1); }
+.bond-bar.small { height: 4px; margin-top: 8px; }
+.bond-note { font-size: 13px; color: var(--secondary); margin-top: 8px; }
+
+.face-grid { display: grid; gap: 10px; }
+.face-card { position: relative; border-radius: 16px; padding: 14px 8px 10px; display: flex; flex-direction: column; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.62); border: 1px solid rgba(255,255,255,.9); }
+.face-card img { height: 58px; filter: brightness(0) opacity(.12); }
+.face-card.open img { filter: none; }
+.face-lock { position: absolute; top: 44px; left: 50%; margin-left: 12px; color: var(--secondary); }
+.face-caption { min-height: 28px; font-size: 11px; line-height: 1.3; text-align: center; color: var(--secondary); }
+.face-card.open .face-caption { color: var(--label); font-weight: 600; }
+
+/* A 초상 */
+.portrait { display: flex; flex-direction: column; align-items: center; padding: 26px 24px 6px; text-align: center; }
+.portrait-char { height: 190px; }
+.portrait-char.caffeine { height: 160px; margin-top: 30px; }
+.portrait-with { font-size: 15px; color: var(--secondary); margin-top: 20px; }
+.portrait-stage { font-size: 34px; font-weight: 700; letter-spacing: -.7px; margin: 4px 0 22px; }
+.portrait .bond-note { align-self: flex-start; }
+
+/* B 관계 길 */
+.path { list-style: none; margin: 18px 0 0; padding: 0 24px 0 40px; position: relative; }
+.path::before { content: ""; position: absolute; left: 47px; top: 14px; bottom: 14px; width: 2px; background: rgba(60,60,67,.14); }
+.path-node { position: relative; display: flex; align-items: center; gap: 14px; min-height: 56px; padding: 8px 0; }
+.path-dot { position: absolute; left: -1px; width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 2px solid rgba(60,60,67,.2); z-index: 1; }
+.path-node.past .path-dot { background: var(--accent); border-color: var(--accent); }
+.path-node.now .path-dot { width: 22px; height: 22px; left: -4px; background: var(--accent); border: 4px solid #fff; box-shadow: 0 0 0 2px var(--accent); }
+.path-text { flex: 1; padding-left: 30px; }
+.path-name { font-size: 16px; color: var(--tertiary); }
+.path-node.past .path-name { color: var(--label); }
+.path-node.now .path-name { font-size: 22px; font-weight: 700; letter-spacing: -.4px; color: var(--label); }
+.path-sub { font-size: 11px; color: var(--secondary); margin-top: 2px; letter-spacing: .5px; }
+.path-char { height: 86px; }
+.path-face { width: 34px; height: 34px; object-fit: contain; display: grid; place-items: center; color: var(--tertiary); }
+
+/* C 둘 나란히 */
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 20px; }
+.pair-card { border-radius: 24px; padding: 18px 12px 16px; display: flex; flex-direction: column; align-items: center; text-align: center;
+  background: rgba(255,255,255,.55); border: 1px solid rgba(255,255,255,.9); transition: transform .12s ease-out; }
+.pair-card.on { background: rgba(255,255,255,.85); box-shadow: 0 8px 24px rgba(0,0,0,.06); }
+.pair-card:active { transform: scale(.97); }
+.ring { position: relative; width: 130px; height: 130px; }
+.ring svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+.ring-track { fill: none; stroke: rgba(60,60,67,.12); stroke-width: 6; }
+.ring-fill { fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset .6s cubic-bezier(.23, 1, .32, 1); }
+.ring img { position: absolute; left: 50%; top: 50%; height: 78px; transform: translate(-50%, -46%); }
+.pair-with { font-size: 12px; color: var(--secondary); margin-top: 12px; }
+.pair-stage { font-size: 18px; font-weight: 700; letter-spacing: -.3px; margin-top: 2px; }
+.pair-card .bond-note { font-size: 11px; margin-top: 4px; }

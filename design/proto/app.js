@@ -193,6 +193,7 @@ const ICON = {
   back: '<svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2 2 10l8 8"/></svg>',
   star: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="m12 3.2 2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 17l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8Z"/></svg>',
   starFill: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="m12 3.2 2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 17l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8Z"/></svg>',
+  lock: '<svg width="12" height="14" viewBox="0 0 12 14" fill="currentColor"><path d="M3 6V4.2a3 3 0 0 1 6 0V6h.6c.8 0 1.4.6 1.4 1.4v4.9c0 .8-.6 1.4-1.4 1.4H2.4c-.8 0-1.4-.6-1.4-1.4V7.4C1 6.6 1.6 6 2.4 6H3Zm1.5 0h3V4.2a1.5 1.5 0 0 0-3 0V6Z"/></svg>',
   search: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6.8" cy="6.8" r="5"/><path d="m10.6 10.6 4 4" stroke-linecap="round"/></svg>',
 };
 
@@ -207,7 +208,7 @@ const VARIANTS = {
   feeding: { 확정: renderFeeding },
   trends: { '미설계': () => renderPlaceholder('추이') },
   settings: { '미설계': () => renderPlaceholder('설정') },
-  affinity: { '미설계': () => renderSimpleSheet('호감도', '호감도 화면은 Phase 2에서 메인 화면 문법으로 다시 설계해요.') },
+  affinity: { 'A 초상': renderAffinityPortrait, 'B 관계 길': renderAffinityPath, 'C 둘 나란히': renderAffinityPair },
   paywall: { '미설계': () => renderSimpleSheet('슈가캡 PRO', '페이월은 Phase 2에서 다시 설계해요.') },
 };
 const variantName = screen => ui.variants[screen] ?? Object.keys(VARIANTS[screen])[0];
@@ -391,7 +392,7 @@ function settleOverlays() {
 
 /** 아직 안이 없는 초안 화면이 보이는 중인지. 안이 붙은 화면(기록·브랜드)은 표시하지 않는다. */
 function isDraftVisible() {
-  return Boolean(['manual', 'affinity', 'paywall'].includes(ui.sheet) || ui.tab !== 'today');
+  return Boolean(['manual', 'paywall'].includes(ui.sheet) || ui.tab !== 'today');
 }
 
 function renderKeepingFocus(id) {
@@ -443,6 +444,7 @@ const ACTIONS = {
   openRecord: () => { ui.sheet = 'record'; ui.globalQuery = ''; },
   openDayLog: v => { ui.sheet = 'daylog'; ui.dayLog = { key: v ?? dayKey(now()), editing: false }; },
   toggleEdit: () => { ui.dayLog.editing = !ui.dayLog.editing; },
+  affinitySide: v => { ui.affinitySide = v; },
   closeSheet: () => { ui.sheet = null; },
   brand: v => { ui.sheet = null; ui.pushed = { brandId: v }; ui.query = ''; ui.category = '전체'; },
   pop: () => { ui.pushed = null; },
@@ -587,6 +589,7 @@ function renderPanel() {
     </section>
     <section><h3>상태</h3>
       <div class="row"><button class="${S.pro ? 'on' : ''}" data-p="pro">Pro ${S.pro ? '켜짐' : '꺼짐'}</button><button data-p="demo">데모 기록 넣기</button><button data-p="reset">초기화</button></div>
+      <div class="row"><button data-p="points" data-v="30">호감도 +30점</button><button data-p="points" data-v="300">+300점</button></div>
       <div class="row"><label>당 기준 <input type="number" id="pSugar" value="${S.settings.sugarG}"> g</label></div>
       <div class="row"><label>카페인 기준 <input type="number" id="pCaffeine" value="${S.settings.caffeineMg}"> mg</label></div>
       ${affinityRows}
@@ -633,6 +636,7 @@ const PANEL_ACTIONS = {
     ui.cover = ui.sheet = ui.pushed = ui.panelSheet = null;
   },
   variant: (el, v) => { ui.variants[el.dataset.screen] = v; },
+  points: (_, v) => { for (const side of SIDE_ORDER) S.points[SIDES[side].char] += Number(v); },
 };
 
 document.getElementById('panel').addEventListener('click', event => {

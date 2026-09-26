@@ -9,7 +9,7 @@ enum SharedStore {
     static let appGroupID = "group.com.sugarcap.app"
 
     static let schema = Schema([
-        Entry.self, AppSettings.self, DaySettlement.self, Affinity.self, ReductionGoal.self,
+        Entry.self, AppSettings.self, DaySettlement.self, Affinity.self, ReductionGoal.self, FavoriteDrink.self, TalkLog.self,
     ])
 
     /// App Group이 실제로 붙어 있는지. entitlement가 없으면 nil이다.

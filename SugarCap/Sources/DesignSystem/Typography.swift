@@ -1,39 +1,39 @@
 import SwiftUI
 
 /// 오늘 화면에서 정한 글자 규칙(2026-09-24 디자인)을 다른 화면이 같이 쓴다.
-/// 서체는 시스템 하나뿐이고, 위계는 크기 대비와 자간으로만 만든다(SPEC §5).
+/// 서체는 Pretendard 하나(`AppFont`, 2026-09-26)이고, 위계는 크기 대비와 자간으로만 만든다(SPEC §5).
 extension View {
     /// 자간을 벌린 11pt 소제목. 숫자나 목록이 무엇인지 먼저 말한다. 액센트 색.
     func kicker() -> some View {
-        font(.system(.caption2, weight: .semibold))
+        font(AppFont.pretendard(11, .semibold, relativeTo: .caption2))
             .tracking(1.3)
             .foregroundStyle(.tint)
     }
 
     /// 자간을 벌린 11pt 날짜·보조 라벨. 보조색.
     func dateLabel() -> some View {
-        font(.system(.caption2, weight: .medium))
+        font(AppFont.pretendard(11, .medium, relativeTo: .caption2))
             .tracking(1.5)
             .foregroundStyle(.secondary)
     }
 
     /// 화면의 주인공 숫자. 자간을 좁혀 덩어리로 읽힌다.
     func heroNumber() -> some View {
-        font(.system(size: 96, weight: .bold))
+        font(AppFont.pretendardFixed(96, .bold))
             .tracking(-5.8)
             .monospacedDigit()
     }
 
     /// 주인공 숫자 옆에 붙는 단위.
     func heroUnit() -> some View {
-        font(.system(size: 30, weight: .medium))
+        font(AppFont.pretendardFixed(30, .medium))
             .opacity(0.85)
     }
 
     /// 화면 하단 주 동작 버튼(다음·시작·먹이기·구매)의 글자와 크기.
     /// 큰 글자 설정을 따라 커지되 접근성 3단계에서 멈추고, 한 줄을 지킨다. 높이는 최소 56pt.
     func ctaLabel() -> some View {
-        font(.headline)
+        font(AppFont.pretendard(17, .semibold, relativeTo: .headline))
             .lineLimit(1)
             .minimumScaleFactor(0.8)
             .dynamicTypeSize(...DynamicTypeSize.accessibility3)

@@ -52,6 +52,14 @@ enum CupSide: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
+    /// 먹이기·소개에 쓰는 음료 방울 사진(`design/assets/drops`, 힉스필드 Seedream 5.0 lite로 만든 둥근 방울).
+    var dropAsset: String {
+        switch self {
+        case .sugar: return "drop-sugar"
+        case .caffeine: return "drop-caffeine"
+        }
+    }
+
     /// 이 면에 그리는 컵 세트(SPEC §9-10). 당 컵은 단 음료, 카페인 컵은 커피.
     /// 세트 선택(§9-9 커스터마이징)이 생기기 전까지는 면마다 고정이다.
     var cupSetID: String {

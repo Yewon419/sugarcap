@@ -51,6 +51,15 @@ targets:
         UILaunchScreen: {}
         # 라이트 모드 전용(SPEC §5).
         UIUserInterfaceStyle: Light
+        # 번들 글꼴(AppFont). 파일은 Resources/Fonts, 경로 없이 파일 이름만 적는다.
+        UIAppFonts:
+          - Pretendard-Regular.otf
+          - Pretendard-Medium.otf
+          - Pretendard-SemiBold.otf
+          - Pretendard-Bold.otf
+          - Pretendard-ExtraBold.otf
+          - Pretendard-Black.otf
+          - ArchivoBlack-Regular.ttf
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         ITSAppUsesNonExemptEncryption: false

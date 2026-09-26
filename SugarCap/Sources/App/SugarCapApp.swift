@@ -52,6 +52,8 @@ struct SugarCapApp: App {
             RootView(catalog: catalog)
                 // 액센트 정의는 에셋 `AccentColor` 하나(§5). 전역 설정이 어떤 이유로 안 붙어도 같은 색이 되게 루트에 한 번 더 건다.
                 .tint(Color("AccentColor"))
+                // 글꼴을 따로 주지 않은 글자는 Pretendard 본문(AppFont).
+                .font(AppFont.pretendard(17, .regular))
                 .onAppear(perform: Self.scaleSegmentedControlTitles)
         }
         .modelContainer(container)

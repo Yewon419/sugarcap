@@ -516,7 +516,7 @@ struct TodayView: View {
     if let catalog = try? CatalogStore.loadBundled() {
         TodayView(catalog: CatalogIndex(catalog: catalog))
             .environment(ProStore(previewPlans: ProStore.mockPlans, isPro: false))
-            .modelContainer(for: [Entry.self, AppSettings.self, DaySettlement.self, Affinity.self, ReductionGoal.self], inMemory: true)
+            .modelContainer(for: [Entry.self, AppSettings.self, DaySettlement.self, Affinity.self, ReductionGoal.self, FavoriteDrink.self, TalkLog.self], inMemory: true)
     } else {
         Text("번들 카탈로그를 읽지 못함")
     }

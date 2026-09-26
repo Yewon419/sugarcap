@@ -34,3 +34,5 @@ SSOT = `SPEC.md`. 세션 시작 시 SPEC §0·§8·§9부터 읽는다.
 - iOS 26 `confirmationDialog` 안 버튼의 식별자는 두 요소로 잡힌다. UI 테스트에서 `matching(identifier:)` 중 `isHittable`인 것을 골라 누른다. 실패하면 상태(감소 목표 등)가 남아 뒤 테스트까지 연쇄 실패한다.
 - 색·레이아웃 변경은 CI 스크린샷을 눈으로 확인한 뒤에 끝낸다. 빌드·테스트 녹색은 색이 틀어진 걸 못 잡는다.
 - 모션그래픽(온보딩 릴·로슈카인 소개·먹이기 전환)에는 에어브러시류를 쓰지 않는다: 글로우 box-shadow, 방사형·부드러운 그라데이션 번쩍임, 그라데이션 하늘. 단색 면·또렷한 선만(대표님 2026-09-26 "구려져"). 큰 한글 제목 자간은 -0.02em보다 좁히지 않는다(좁히면 받침·느낌표가 붙는다).
+- 여러 글자가 든 줄(HStack·VStack)에 `accessibilityIdentifier`를 달면 안쪽 글자마다 같은 식별자가 붙는다. UI 테스트가 줄 수를 5배로 셌다(2026-09-26 하루 기록 시트). 줄에는 `.accessibilityElement(children: .contain)`을 먼저 건다.
+- 모션그래픽을 시각 t의 순수 함수로 옮길 때 `.position(x: a + b * lerp(...) * sin(.pi * k), ...)`처럼 한 줄에 몰면 "unable to type-check this expression in reasonable time"으로 빌드가 죽는다. 중간값을 `let x: Double = ...`로 쪼개고 `Double.pi`를 쓴다.

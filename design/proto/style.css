@@ -341,57 +341,66 @@ input { font: inherit; }
           mask-image: linear-gradient(to bottom, transparent 0, #000 14%);
 }
 
-/* ---------- Phase 2-3: 호감도 ---------- */
+/* ---------- 호감도(확정: 초상 + 말걸기) ---------- */
 .segmented.inset-x { margin: 6px 20px 0; }
-.pad-x0 { padding: 0 20px; }
 .bond-bar { height: 6px; border-radius: 3px; background: rgba(60,60,67,.12); overflow: hidden; width: 100%; }
 .bond-bar i { display: block; height: 100%; border-radius: 3px; background: var(--accent); min-width: 6px; transition: width .6s cubic-bezier(.23, 1, .32, 1); }
-.bond-bar.small { height: 4px; margin-top: 8px; }
 .bond-note { font-size: 13px; color: var(--secondary); margin-top: 8px; }
-
-.face-grid { display: grid; gap: 10px; }
-.face-card { position: relative; border-radius: 16px; padding: 14px 8px 10px; display: flex; flex-direction: column; align-items: center; gap: 8px;
-  background: rgba(255,255,255,.62); border: 1px solid rgba(255,255,255,.9); }
-.face-card img { height: 58px; filter: brightness(0) opacity(.12); }
-.face-card.open img { filter: none; }
-.face-lock { position: absolute; top: 44px; left: 50%; margin-left: 12px; color: var(--secondary); }
-.face-caption { min-height: 28px; font-size: 11px; line-height: 1.3; text-align: center; color: var(--secondary); }
-.face-card.open .face-caption { color: var(--label); font-weight: 600; }
-
-/* A 초상 */
 .portrait { display: flex; flex-direction: column; align-items: center; padding: 26px 24px 6px; text-align: center; }
-.portrait-char { height: 190px; }
+.portrait-char { height: 190px; transform-origin: 50% 100%; }
 .portrait-char.caffeine { height: 160px; margin-top: 30px; }
 .portrait-with { font-size: 15px; color: var(--secondary); margin-top: 20px; }
 .portrait-stage { font-size: 34px; font-weight: 700; letter-spacing: -.7px; margin: 4px 0 22px; }
 .portrait .bond-note { align-self: flex-start; }
 
-/* B 관계 길 */
-.path { list-style: none; margin: 18px 0 0; padding: 0 24px 0 40px; position: relative; }
-.path::before { content: ""; position: absolute; left: 47px; top: 14px; bottom: 14px; width: 2px; background: rgba(60,60,67,.14); }
-.path-node { position: relative; display: flex; align-items: center; gap: 14px; min-height: 56px; padding: 8px 0; }
-.path-dot { position: absolute; left: -1px; width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 2px solid rgba(60,60,67,.2); z-index: 1; }
-.path-node.past .path-dot { background: var(--accent); border-color: var(--accent); }
-.path-node.now .path-dot { width: 22px; height: 22px; left: -4px; background: var(--accent); border: 4px solid #fff; box-shadow: 0 0 0 2px var(--accent); }
-.path-text { flex: 1; padding-left: 30px; }
-.path-name { font-size: 16px; color: var(--tertiary); }
-.path-node.past .path-name { color: var(--label); }
-.path-node.now .path-name { font-size: 22px; font-weight: 700; letter-spacing: -.4px; color: var(--label); }
-.path-sub { font-size: 11px; color: var(--secondary); margin-top: 2px; letter-spacing: .5px; }
-.path-char { height: 86px; }
-.path-face { width: 34px; height: 34px; object-fit: contain; display: grid; place-items: center; color: var(--tertiary); }
+.talk { padding: 0 24px; }
+.talk-ask { font-size: 20px; font-weight: 700; letter-spacing: -.3px; margin-bottom: 14px; }
+.talk-choices { display: flex; flex-direction: column; gap: 8px; }
+.talk-choice { height: 50px; border-radius: 25px; padding: 0 20px; text-align: left; font-size: 16px; font-weight: 500;
+  background: rgba(255,255,255,.72); border: 1px solid rgba(255,255,255,.95); box-shadow: 0 2px 8px rgba(0,0,0,.04); transition: transform .12s ease-out; }
+.talk-choice:active { transform: scale(.97); background: rgba(91,132,170,.1); }
+.talk-result { border-radius: 20px; padding: 18px 18px 16px; background: rgba(255,255,255,.72); border: 1px solid rgba(255,255,255,.95); animation: pop .35s cubic-bezier(.23, 1, .32, 1); }
+.talk-said { font-size: 13px; color: var(--accent); font-weight: 600; }
+.talk-line { font-size: 18px; font-weight: 600; letter-spacing: -.3px; line-height: 1.45; margin: 8px 0 12px; }
+.talk-foot { font-size: 12px; color: var(--secondary); }
 
-/* C 둘 나란히 */
-.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 20px; }
-.pair-card { border-radius: 24px; padding: 18px 12px 16px; display: flex; flex-direction: column; align-items: center; text-align: center;
-  background: rgba(255,255,255,.55); border: 1px solid rgba(255,255,255,.9); transition: transform .12s ease-out; }
-.pair-card.on { background: rgba(255,255,255,.85); box-shadow: 0 8px 24px rgba(0,0,0,.06); }
-.pair-card:active { transform: scale(.97); }
-.ring { position: relative; width: 130px; height: 130px; }
-.ring svg { position: absolute; inset: 0; transform: rotate(-90deg); }
-.ring-track { fill: none; stroke: rgba(60,60,67,.12); stroke-width: 6; }
-.ring-fill { fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset .6s cubic-bezier(.23, 1, .32, 1); }
-.ring img { position: absolute; left: 50%; top: 50%; height: 78px; transform: translate(-50%, -46%); }
-.pair-with { font-size: 12px; color: var(--secondary); margin-top: 12px; }
-.pair-stage { font-size: 18px; font-weight: 700; letter-spacing: -.3px; margin-top: 2px; }
-.pair-card .bond-note { font-size: 11px; margin-top: 4px; }
+/* 몸짓: 말 대신 몸으로 대답한다. 한 번만 재생 */
+.react-duck { animation: r-duck .9s ease-in-out; }
+@keyframes r-duck { 30%, 60% { transform: translateY(6px) scale(.96, .92) rotate(-4deg); } }
+.react-hide { animation: r-hide 1.2s ease-in-out; }
+@keyframes r-hide { 25%, 70% { transform: translateX(-26px) rotate(-10deg) scale(.92); } }
+.react-freeze { animation: r-freeze 1s steps(2) ; }
+@keyframes r-freeze { 10% { transform: translateY(-6px) scale(.97); } 20%, 100% { transform: none; } }
+.react-shake { animation: r-shake .8s ease-in-out; }
+@keyframes r-shake { 20% { transform: rotate(-7deg); } 40% { transform: rotate(7deg); } 60% { transform: rotate(-6deg); } 80% { transform: rotate(5deg); } }
+.react-fidget { animation: r-fidget .9s ease-in-out; }
+@keyframes r-fidget { 25% { transform: scale(1.03, .97); } 50% { transform: scale(.97, 1.03); } 75% { transform: scale(1.02, .98); } }
+.react-wave { animation: r-wave 1s ease-in-out; }
+@keyframes r-wave { 25% { transform: rotate(5deg); } 50% { transform: rotate(-5deg); } 75% { transform: rotate(4deg); } }
+.react-proud { animation: r-proud 1s cubic-bezier(.3, 1.4, .5, 1); }
+@keyframes r-proud { 40%, 70% { transform: scale(1.06, 1.12); } }
+.react-lean { animation: r-lean 1.4s ease-in-out; }
+@keyframes r-lean { 30%, 75% { transform: rotate(9deg) translateX(8px); } }
+.react-hop { animation: r-hop .8s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes r-hop { 40% { transform: translateY(-22px) translateX(10px); } }
+.react-flap { animation: r-flap .9s ease-in-out; }
+@keyframes r-flap { 20%, 60% { transform: translateY(-10px) scale(1.04); } 40%, 80% { transform: translateY(0) scale(.98); } }
+.react-bounce { animation: r-bounce .6s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes r-bounce { 40% { transform: scale(1.1) translateY(-8px); } }
+.react-jump { animation: r-jump 1s cubic-bezier(.3, 1.5, .5, 1); }
+@keyframes r-jump { 25% { transform: translateY(-40px) scale(1.05); } 50% { transform: translateY(0) scale(1.08, .92); } 70% { transform: translateY(-14px); } }
+.react-spin { animation: r-spin 1s cubic-bezier(.45, 0, .2, 1); }
+@keyframes r-spin { to { transform: rotate(360deg); } }
+.react-nuzzle { animation: r-nuzzle 1.2s ease-in-out; }
+@keyframes r-nuzzle { 20% { transform: rotate(8deg); } 40% { transform: rotate(-2deg); } 60% { transform: rotate(8deg); } 80% { transform: rotate(-2deg); } }
+.react-waddle { animation: r-waddle 1.4s linear; }
+@keyframes r-waddle { 12% { transform: translateX(8px) rotate(6deg); } 25% { transform: translateX(16px) rotate(-6deg); } 37% { transform: translateX(24px) rotate(6deg); } 50% { transform: translateX(32px) rotate(-6deg); } 100% { transform: none; } }
+.react-peck { animation: r-peck .9s ease-in-out; }
+@keyframes r-peck { 20%, 60% { transform: rotate(14deg) translateY(4px); } 40%, 80% { transform: none; } }
+.react-dodge { animation: r-dodge 1.1s ease-in-out; }
+@keyframes r-dodge { 25% { transform: rotate(10deg) translateX(6px); } 55%, 80% { transform: scaleX(-1); } }
+.react-wander { animation: r-wander 1.6s ease-in-out; }
+@keyframes r-wander { 45% { transform: translateX(-44px) scaleX(-1); } 55% { transform: translateX(-44px); } }
+.react-tilt { animation: r-tilt 1.6s ease-in-out; }
+@keyframes r-tilt { 30%, 80% { transform: rotate(-80deg) translateX(-10px); } }
+@media (prefers-reduced-motion: reduce) { [class*="react-"] { animation: none !important; } }

@@ -55,6 +55,7 @@ const freshState = () => ({
   points: { roshu: 0, kain: 0 },
   firstDay: null,
   favorites: [],
+  talks: {},
 });
 
 let S = loadState();
@@ -208,7 +209,8 @@ const VARIANTS = {
   feeding: { 확정: renderFeeding },
   trends: { '미설계': () => renderPlaceholder('추이') },
   settings: { '미설계': () => renderPlaceholder('설정') },
-  affinity: { 'A 초상': renderAffinityPortrait, 'B 관계 길': renderAffinityPath, 'C 둘 나란히': renderAffinityPair },
+  // 2026-09-26 확정: 초상 + 말걸기(표정 칸 없음).
+  affinity: { 확정: renderAffinity },
   paywall: { '미설계': () => renderSimpleSheet('슈가캡 PRO', '페이월은 Phase 2에서 다시 설계해요.') },
 };
 const variantName = screen => ui.variants[screen] ?? Object.keys(VARIANTS[screen])[0];
@@ -444,7 +446,6 @@ const ACTIONS = {
   openRecord: () => { ui.sheet = 'record'; ui.globalQuery = ''; },
   openDayLog: v => { ui.sheet = 'daylog'; ui.dayLog = { key: v ?? dayKey(now()), editing: false }; },
   toggleEdit: () => { ui.dayLog.editing = !ui.dayLog.editing; },
-  affinitySide: v => { ui.affinitySide = v; },
   closeSheet: () => { ui.sheet = null; },
   brand: v => { ui.sheet = null; ui.pushed = { brandId: v }; ui.query = ''; ui.category = '전체'; },
   pop: () => { ui.pushed = null; },
@@ -503,6 +504,7 @@ const ACTIONS = {
   closeCover: () => { ui.cover = null; },
   // 먹이기 화면 안별 동작은 screens-feeding.js
   ...FEEDING_ACTIONS,
+  ...AFFINITY_ACTIONS,
 };
 
 /** 먹이기 화면을 연다. noDrink면 "안 마셨어요"라 가득 찬 컵으로 먹인다(§4.7). */

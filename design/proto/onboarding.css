@@ -40,10 +40,32 @@
 .reel-kick { font-family: "Archivo Black", sans-serif; font-size: 11px; letter-spacing: 2px; color: var(--accent); }
 .reel-line { font-size: 19px; font-weight: 700; letter-spacing: -.3px; margin-top: 4px; color: #141a24; }
 
-/* ---------- 하루 기준 ---------- */
-.ob-copy { position: relative; z-index: 3; }
-.setup-copy { padding: calc(var(--safe-top) + 24px) 24px 0; }
-.ob-title { font-size: 40px; font-weight: 700; letter-spacing: -.9px; line-height: 1.16; margin: 14px 0 0; }
-.ob-caption { font-size: 15px; color: var(--secondary); line-height: 1.5; margin: 14px 0 0; }
-.ob-setup-card { margin-top: 24px; }
-.onboard.setup .ob-foot { position: sticky; bottom: 0; margin: 28px 24px 0; padding-bottom: 44px; }
+/* ---------- 하루 기준(개편): 릴과 같은 바탕·컵 선, 당 → 카페인 두 단계 ---------- */
+.setup2-wrap { overflow: hidden; }
+.setup2 { position: absolute; inset: 0; background: #f3f5f8; animation: fade .4s ease-out; }
+.setup2-grid { position: absolute; inset: 0; pointer-events: none;
+  background-image: linear-gradient(90deg, rgba(20, 26, 36, .07) 1px, transparent 1px); background-size: 82px 100%; background-position: 36px 0; }
+.setup2-progress { left: 20px; right: 20px; }
+.setup2-back { position: absolute; left: 12px; top: 66px; z-index: 5; font-size: 14px; font-weight: 500; color: rgba(20, 26, 36, .72); padding: 10px 8px; }
+.setup2-head { position: absolute; left: 24px; right: 24px; top: 112px; }
+.setup2-title { font-size: 30px; font-weight: 800; letter-spacing: -.8px; line-height: 1.22; margin-top: 10px; }
+.setup2-cup { position: absolute; left: 50%; top: 250px; width: 230px; height: 307px; margin-left: -115px; cursor: ns-resize; touch-action: none; }
+.setup2-cup svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.setup2-cup.dragging { transform: scale(1.02); }
+/* 숫자는 컵 벽선과 겹치지 않게 컵 안쪽 폭에 들어가는 크기로, 단위는 아래 작은 글자로 */
+.setup2-num { position: absolute; left: 0; right: 0; top: 64px; text-align: center; pointer-events: none;
+  font-family: "Archivo Black", sans-serif; font-size: 70px; letter-spacing: -3px; line-height: 1;
+  color: transparent; -webkit-text-stroke: 2.5px #141a24; font-variant-numeric: tabular-nums; }
+.setup2-num small { display: block; margin-top: 8px; font-size: 15px; letter-spacing: .35em; color: #141a24; -webkit-text-stroke: 0; }
+.setup2-hint { position: absolute; left: 0; right: 0; bottom: -30px; text-align: center; font-size: 12px; color: var(--secondary); }
+.setup2-chips { position: absolute; left: 20px; right: 20px; top: 612px; display: flex; gap: 8px; }
+.setup2-chip { flex: 1; min-height: 64px; border-radius: 20px; padding: 10px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  background: rgba(255, 255, 255, .72); border: 1.5px solid rgba(20, 26, 36, .12); transition: transform .12s ease-out; }
+.setup2-chip:active { transform: scale(.96); }
+.setup2-chip b { font-family: "Archivo Black", sans-serif; font-size: 20px; letter-spacing: -.5px; }
+.setup2-chip b small { font-size: 11px; margin-left: 2px; letter-spacing: 0; }
+.setup2-chip span { font-size: 11px; color: var(--secondary); }
+.setup2-chip.on { background: #141a24; border-color: #141a24; color: #fff; }
+.setup2-chip.on span { color: rgba(255, 255, 255, .72); }
+.setup2-foot { position: absolute; left: 24px; right: 24px; bottom: 34px; text-align: center; }
+.setup2-foot p { font-size: 12px; color: var(--secondary); margin: 10px 0 0; }

@@ -38,7 +38,7 @@ function renderOnboarding() {
     return '';
   }
   afterRender.push(bindObSetup);
-  return `<div class="onboard setup">${renderObSetup()}</div>`;
+  return `<div class="onboard setup2-wrap">${renderObSetup()}</div>`;
 }
 
 function reelChapterIndex(t) {
@@ -50,6 +50,7 @@ function reelChapterIndex(t) {
 function goSetup() {
   unmountReel();
   ui.onboarding.scene = 'setup';
+  ui.onboarding.step = 'sugar';
   render();
 }
 
@@ -295,34 +296,109 @@ function updateReelChrome(t) {
   cap.classList.add('in');
 }
 
-// ---------- 하루 기준 ----------
+// ---------- 하루 기준(2026-09-26 개편: 릴과 같은 그림 언어, 당 → 카페인 두 단계) ----------
+// 가운데 컵 선 안의 액체가 고른 양만큼 찬다. 컵을 위아래로 끌거나 아래 알약을 눌러 정한다.
+const SETUP_SIDES = {
+  sugar: {
+    label: '당', unit: 'g', max: 100, min: 25, key: 'sugar',
+    title: '하루에 당은<br>얼마까지 마실래요?',
+    // SPEC §4.4: 당 기준은 프리셋 셋 중 하나다. 끌어도 가까운 프리셋에 붙는다.
+    snap: v => [25, 50, 100].reduce((a, b) => (Math.abs(b - v) < Math.abs(a - v) ? b : a)),
+    chips: [[25, '더 줄이기'], [50, 'WHO 권고'], [100, '넉넉하게']],
+    colors: ['#f6c1cc', '#df7690'],
+  },
+  caffeine: {
+    label: '카페인', unit: 'mg', max: 600, min: 100, key: 'caffeine',
+    title: '카페인은<br>얼마까지 마실래요?',
+    snap: v => Math.min(600, Math.max(100, Math.round(v / 25) * 25)),
+    chips: [[200, '가볍게'], [300, ''], [400, '식약처 권고'], [600, '최대']],
+    colors: ['#e2ae76', '#8a4a1c'],
+  },
+};
+const CUP_TOP = 20, CUP_BOTTOM = 386;
+
 function renderObSetup() {
   const ob = ui.onboarding;
-  return `<div class="ob-copy setup-copy">
-      <div class="kicker">하루 기준</div>
-      <h1 class="ob-title static">얼마나 마실지<br>정해 두세요</h1>
-      <p class="ob-caption">나중에 설정에서 언제든 바꿀 수 있어요.</p>
+  ob.step ??= 'sugar';
+  const side = SETUP_SIDES[ob.step];
+  const value = ob[side.key];
+  const last = ob.step === 'caffeine';
+  return `<div class="setup2 ${ob.step}">
+    <div class="setup2-grid"></div>
+    <div class="reel-progress setup2-progress"><i><b style="width:100%"></b></i><i><b style="width:${last ? '100%' : '0'}"></b></i></div>
+    ${last ? '<button class="setup2-back" data-a="obBack">이전</button>' : ''}
+    <div class="setup2-head">
+      <div class="kicker">하루 기준 ${last ? '2' : '1'}/2</div>
+      <h1 class="setup2-title">${side.title}</h1>
     </div>
-    <section class="hero-card settings-card ob-setup-card">
-      <div class="limit-figures">
-        <div class="limit-figure"><img src="${DROP('sugar')}" alt=""><div><div class="stat-num">${ob.sugar}<small>g</small></div><div class="stat-label">당</div></div></div>
-        <div class="limit-figure"><img src="${DROP('caffeine')}" alt=""><div><div class="stat-num" id="obCaffeineNum">${ob.caffeine}<small>mg</small></div><div class="stat-label">카페인</div></div></div>
-      </div>
-      <div class="control-label">당</div>
-      <div class="segmented">${[25, 50, 100].map(v => `<button class="${ob.sugar === v ? 'on' : ''}" data-a="obSugar" data-v="${v}">${v} g</button>`).join('')}</div>
-      <div class="control-label">카페인</div>
-      <div class="slider-row"><span>100</span><input type="range" id="obCaffeine" min="100" max="600" step="25" value="${ob.caffeine}" aria-label="카페인 하루 기준"><span>600</span></div>
-      <div class="card-note">기본값은 당 50 g(WHO 권고), 카페인 400 mg(식약처 성인 권고)이에요.</div>
-    </section>
-    <div class="ob-foot"><button class="cta" data-a="obFinish">시작</button></div>`;
+    <div class="setup2-cup" id="setupCup" aria-label="${side.label} 하루 기준 ${value}${side.unit}. 위아래로 끌어 바꿔요">
+      <svg viewBox="0 0 300 400" aria-hidden="true">
+        <defs>
+          <linearGradient id="setupFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${side.colors[0]}"/><stop offset="1" stop-color="${side.colors[1]}"/></linearGradient>
+          <clipPath id="setupClip"><path d="M 30 16 L 66 368 Q 69 384 86 384 L 214 384 Q 231 384 234 368 L 270 16 Z"/></clipPath>
+        </defs>
+        <g clip-path="url(#setupClip)"><path id="setupLiquid" fill="url(#setupFill)" d=""/></g>
+        <path d="M 22 10 L 58 372 Q 62 392 82 392 L 218 392 Q 238 392 242 372 L 278 10" fill="none" stroke="#141a24" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="setup2-num"><span id="setupNum">${value}</span><small>${side.unit}</small></div>
+      <div class="setup2-hint">위아래로 끌어 봐요</div>
+    </div>
+    <div class="setup2-chips">${side.chips.map(([v, note]) => `<button class="setup2-chip ${v === value ? 'on' : ''}" data-a="obPick" data-v="${v}">
+      <b>${v}<small>${side.unit}</small></b>${note ? `<span>${note}</span>` : ''}</button>`).join('')}</div>
+    <div class="setup2-foot"><button class="cta" data-a="${last ? 'obFinish' : 'obNextStep'}">${last ? '시작' : '다음'}</button>
+      <p>나중에 설정에서 언제든 바꿀 수 있어요.</p></div>
+  </div>`;
+}
+
+// 컵 속 물결: 값이 바뀌면 수위가 스프링처럼 따라가고, 표면은 늘 조금 출렁인다(프로토타입 실시간 루프).
+let setupLevel = null;
+let setupLoop = null;
+function setupTargetLevel() {
+  const ob = ui.onboarding;
+  if (!ob || ob.scene !== 'setup') return null;
+  const side = SETUP_SIDES[ob.step ?? 'sugar'];
+  return ob[side.key] / side.max;
+}
+
+function tickSetupLiquid(now) {
+  const path = document.getElementById('setupLiquid');
+  const target = setupTargetLevel();
+  if (!path || target === null) { setupLoop = null; setupLevel = null; return; }
+  setupLevel = setupLevel === null ? 0 : setupLevel + (target - setupLevel) * 0.12;
+  const t = now / 1000;
+  const amp = 5 + Math.min(18, Math.abs(target - setupLevel) * 60);
+  const baseY = CUP_BOTTOM - (CUP_BOTTOM - CUP_TOP) * setupLevel;
+  let d = `M 0 400 L 0 ${baseY}`;
+  for (let x = 0; x <= 300; x += 10) {
+    d += ` L ${x} ${(baseY + amp * Math.sin(x * 0.035 + t * 3.2) + amp * 0.4 * Math.sin(x * 0.08 - t * 4.1)).toFixed(1)}`;
+  }
+  path.setAttribute('d', `${d} L 300 400 Z`);
+  setupLoop = requestAnimationFrame(tickSetupLiquid);
 }
 
 function bindObSetup() {
-  const slider = document.getElementById('obCaffeine');
-  if (!slider) return;
-  slider.oninput = () => {
-    ui.onboarding.caffeine = Number(slider.value);
-    document.getElementById('obCaffeineNum').innerHTML = `${slider.value}<small>mg</small>`;
+  if (!setupLoop) setupLoop = requestAnimationFrame(tickSetupLiquid);
+  const cup = document.getElementById('setupCup');
+  if (!cup) return;
+  // 컵을 위아래로 끌면 수위 = 값
+  const setFromY = clientY => {
+    const ob = ui.onboarding;
+    const side = SETUP_SIDES[ob.step];
+    const svg = cup.querySelector('svg').getBoundingClientRect();
+    const y = ((clientY - svg.top) / svg.height) * 400;
+    const ratio = Math.max(0, Math.min(1, (CUP_BOTTOM - y) / (CUP_BOTTOM - CUP_TOP)));
+    const value = side.snap(Math.max(side.min, ratio * side.max));
+    if (value === ob[side.key]) return;
+    ob[side.key] = value;
+    document.getElementById('setupNum').textContent = value;
+    document.querySelectorAll('.setup2-chip').forEach(chip => chip.classList.toggle('on', Number(chip.dataset.v) === value));
+  };
+  cup.onpointerdown = e => {
+    cup.setPointerCapture(e.pointerId);
+    cup.classList.add('dragging');
+    setFromY(e.clientY);
+    cup.onpointermove = ev => setFromY(ev.clientY);
+    cup.onpointerup = () => { cup.onpointermove = null; cup.classList.remove('dragging'); };
   };
 }
 
@@ -335,7 +411,9 @@ const ONBOARDING_ACTIONS = {
     else goSetup();
   },
   obSkip: () => goSetup(),
-  obSugar: v => { ui.onboarding.sugar = Number(v); },
+  obPick: v => { const ob = ui.onboarding; ob[SETUP_SIDES[ob.step].key] = Number(v); },
+  obNextStep: () => { ui.onboarding.step = 'caffeine'; setupLevel = 0; },
+  obBack: () => { ui.onboarding.step = 'sugar'; setupLevel = 0; },
   obFinish: () => {
     unmountReel();
     S.settings.sugarG = ui.onboarding.sugar;

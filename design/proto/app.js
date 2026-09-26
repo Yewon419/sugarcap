@@ -362,6 +362,7 @@ function render() {
   html += isDraftVisible() ? '<span class="draft-tag">초안 · Phase 2</span>' : '';
   document.getElementById('layers').innerHTML = html;
   settleOverlays();
+  syncIntro();
   document.getElementById('phone').classList.toggle('dark-status', Boolean(ui.cover));
 
   const search = document.getElementById('drinkSearch');
@@ -508,9 +509,9 @@ const ACTIONS = {
   },
   deleteEntry: v => { S.entries = S.entries.filter(e => e.id !== v); saveState(); },
   affinity: () => { if (S.pro) ui.sheet = 'affinity'; else openPaywall('affinity'); },
-  closeToday: () => openFeeding('close', dayKey(now()), false),
-  feedYesterday: v => openFeeding('past', v, false),
-  noDrink: v => openFeeding('past', v, true),
+  closeToday: () => openFeedingFirstIntro('close', dayKey(now()), false),
+  feedYesterday: v => openFeedingFirstIntro('past', v, false),
+  noDrink: v => openFeedingFirstIntro('past', v, true),
   drank: v => { dayRow(v).asked = true; saveState(); },
   closeCover: () => { ui.cover = null; },
   // 먹이기 화면 안별 동작은 screens-feeding.js
@@ -520,7 +521,14 @@ const ACTIONS = {
   ...SETTINGS_ACTIONS,
   ...ONBOARDING_ACTIONS,
   ...PAYWALL_ACTIONS,
+  ...INTRO_ACTIONS,
 };
+
+/** 첫 먹이기면 로슈·카인 소개를 먼저 틀고, 소개가 끝나면 이 먹이기로 이어간다(§4.5). */
+function openFeedingFirstIntro(kind, day, noDrink) {
+  if (S.metFriends) openFeeding(kind, day, noDrink);
+  else ui.intro = { kind, day, noDrink };
+}
 
 /** 먹이기 화면을 연다. noDrink면 "안 마셨어요"라 가득 찬 컵으로 먹인다(§4.7). */
 function openFeeding(kind, day, noDrink) {
@@ -606,7 +614,7 @@ function renderPanel() {
     </section>
     <section><h3>상태</h3>
       <div class="row"><button class="${S.pro ? 'on' : ''}" data-p="pro">Pro ${S.pro ? '켜짐' : '꺼짐'}</button><button data-p="demo">데모 기록 넣기</button><button data-p="reset">초기화</button></div>
-      <div class="row"><button data-p="onboarding">온보딩 보기</button></div>
+      <div class="row"><button data-p="onboarding">온보딩 보기</button><button data-p="introAgain">첫 마감 소개 다시</button></div>
       <div class="row"><button data-p="history">지난 4주 데모</button><button data-p="goalWeek">줄이기 +1주 달성</button></div>
       <div class="row"><button data-p="points" data-v="30">호감도 +30점</button><button data-p="points" data-v="300">+300점</button></div>
       <div class="row"><label>당 기준 <input type="number" id="pSugar" value="${S.settings.sugarG}"> g</label></div>
@@ -675,6 +683,7 @@ const PANEL_ACTIONS = {
     S.firstDay = shiftDay(today, -28);
   },
   onboarding: () => { obStart(); },
+  introAgain: () => { S.metFriends = false; saveState(); },
   goalWeek: () => {
     // 감소 목표가 도는 쪽을 한 주 달성시키고, 그 주 하루 기준을 설정에 써 넣는다(§9.5).
     for (const side of SIDE_ORDER) {

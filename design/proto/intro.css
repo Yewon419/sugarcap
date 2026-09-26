@@ -1,0 +1,25 @@
+/* 로슈·카인 소개(첫 마감 직전). 온보딩 릴과 같은 그림 언어, 폰 좌표로 직접. */
+.intro { position: absolute; inset: 0; z-index: 110; overflow: hidden; cursor: pointer; user-select: none; }
+.in-bg { position: absolute; inset: 0; background: #f3f5f8; }
+.in-grid { position: absolute; inset: 0; pointer-events: none;
+  background-image: linear-gradient(90deg, rgba(20, 26, 36, .07) 1px, transparent 1px); background-size: 82px 100%; background-position: 36px 0; }
+.in-wipe { position: absolute; left: 146px; top: 245px; width: 110px; height: 110px; border-radius: 50%; }
+#inWipePink { background: #e07a91; }
+#inWipeAmber { background: #b8732f; }
+#inWipeCream { background: #f3f5f8; }
+.in-outline { position: absolute; left: 0; right: 0; top: 150px; text-align: center; opacity: 0;
+  font-family: "Pretendard", var(--font); font-weight: 900; font-size: 150px; letter-spacing: -.06em; line-height: 1;
+  color: transparent; -webkit-text-stroke: 3px rgba(255, 255, 255, .85); }
+.in-outline.light { -webkit-text-stroke-color: rgba(255, 255, 255, .8); }
+.in-drop { position: absolute; left: 0; top: 0; width: 84px; height: 84px; background-size: contain; background-repeat: no-repeat;
+  filter: drop-shadow(0 10px 14px rgba(20, 26, 36, .18)); }
+.in-char { position: absolute; left: 0; top: 0; height: 190px; transform-origin: 50% 100%; -webkit-user-drag: none; }
+.in-char.kain { height: 162px; transform-origin: 50% 55%; }
+.in-bond { position: absolute; left: 70px; right: 70px; top: 590px; text-align: center; opacity: 0; }
+.in-bond-name { font-size: 22px; font-weight: 800; letter-spacing: -.4px; margin-bottom: 12px; }
+.in-bond .bond-bar { height: 6px; }
+.in-bond .bond-bar i { width: 0; min-width: 0; }
+.in-night { position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  background: linear-gradient(#0e1626, #1d2a44 55%, #2b3a58); }
+.intro .reel-cap { z-index: 6; }
+.in-cta { position: absolute; left: 24px; right: 24px; bottom: 132px; z-index: 7; opacity: 0; }

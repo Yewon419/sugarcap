@@ -2,14 +2,17 @@
 // 로슈·카인 소개(2026-09-26 대표님 결정: 온보딩이 아니라 첫 마감 때, 모션그래픽으로).
 // 온보딩 마지막 질문 "오늘의 분량을 남기면 어디로 가냐고요...?"의 답. 첫 먹이기 화면이 열리기 직전 한 번만 재생된다.
 // 온보딩 릴과 같은 1080×1920 무대를 폰 화면에 줄여 쓴다(REEL_SCALE·REEL_OFFSET_X). 글씨는 설명 카드 대신 무대 위 큰 글자.
-// 문구는 대표님 문구 세 줄 = 세 장. 캐릭터는 정지 그림이라 몸짓(튀기·떨기·돌기)은 transform으로 흉내 낸다.
+// 첫 장(남긴 방울이 어디로 가나)은 대표님 요청으로 살렸다. 나머지 세 장은 대표님 문구 세 줄. 캐릭터는 정지 그림이라 몸짓(튀기·떨기·돌기)은 transform으로 흉내 낸다.
 
+// 첫 장 뒤의 세 장은 한 타임라인(child)으로 짜고 INTRO_OPEN만큼 밀어 붙인다. INTRO_NIGHT_AT은 그 child 기준 시각.
+const INTRO_OPEN = 2.6;
 const INTRO_CHAPTERS = [
-  { at: 0, lines: ['달달한 걸', '좋아하는'], name: '로슈!' },
-  { at: 3.7, lines: ['카페인을', '좋아하는'], name: '카인!' },
-  { at: 7.3, lines: ['많이많이 남겨서', '두 친구와', '더 가까워져요'] },
+  { at: 0, lines: ['오늘 남긴 만큼은', '이 친구들에게 가요'] },
+  { at: INTRO_OPEN, lines: ['달달한 걸', '좋아하는'], name: '로슈!' },
+  { at: INTRO_OPEN + 3.7, lines: ['카페인을', '좋아하는'], name: '카인!' },
+  { at: INTRO_OPEN + 7.3, lines: ['많이많이 남겨서', '두 친구와', '더 가까워져요'] },
 ];
-const INTRO_END = 11;
+const INTRO_END = INTRO_OPEN + 11;
 const INTRO_NIGHT_AT = 10.2;
 // 마지막 장에 쏟아지는 방울: [가로 위치(무대 가운데 기준), 종류]. 당은 로슈, 카페인은 카인에게 간다.
 const INTRO_RAIN = [[-260, 'sugar'], [220, 'caffeine'], [-60, 'sugar'], [380, 'caffeine'], [-400, 'sugar'], [80, 'caffeine'], [-180, 'sugar'],
@@ -44,11 +47,16 @@ function mountIntro() {
   const el = document.createElement('div');
   el.className = 'intro';
   el.dataset.a = 'introNext';
-  const [c1, c2, c3] = INTRO_CHAPTERS;
+  const [c0, c1, c2, c3] = INTRO_CHAPTERS;
   el.innerHTML = `
     <div class="reel-stage" style="transform: translateX(${REEL_OFFSET_X}px) scale(${REEL_SCALE})">
       <div class="it-bg"></div>
       <svg class="it-layer" id="itGrid" viewBox="0 0 1080 1920" aria-hidden="true"></svg>
+      <div class="it-group" id="itG0">
+        ${introText('itT0', c0, 'small')}
+        <i class="it-drop mid" id="itOpS" style="background-image:url('${DROP('sugar')}')"></i>
+        <i class="it-drop mid" id="itOpC" style="background-image:url('${DROP('caffeine')}')"></i>
+      </div>
       <div class="it-ripple" id="itRip1"></div><div class="it-ripple" id="itRip2"></div>
       <div class="it-group" id="itG1">
         <div class="it-panel pink" id="itPink"></div>
@@ -177,12 +185,11 @@ function buildIntroTimeline(root) {
         scale: t < r.at ? 0 : seg(t, r.at, r.at + 0.12, E.o3) * (1 - seg(t, r.at + HIT - 0.06, r.at + HIT + 0.04)),
       });
     });
-    updateIntroChrome(t);
   };
 
-  const tl = gsap.timeline({ paused: true });
+  const tl = gsap.timeline();
   draw(0);
-  tl.to({ v: 0 }, { v: 1, duration: INTRO_END, ease: 'none', onUpdate() { draw(this.time()); } }, 0);
+  tl.to({ v: 0 }, { v: 1, duration: INTRO_END - INTRO_OPEN, ease: 'none', onUpdate() { draw(this.time()); } }, 0);
 
   const reveal = (id, at) => tl.fromTo(root.querySelectorAll(`#${id} .it-mask > span`), { yPercent: 108 },
     { yPercent: 0, duration: 0.6, ease: 'power4.out', stagger: 0.09 }, at);
@@ -193,7 +200,7 @@ function buildIntroTimeline(root) {
   tl.fromTo($('itDropS'), { x: 0, y: -320, scaleX: 1, scaleY: 1 }, { y: 1080, duration: 0.5, ease: 'power2.in' }, 0.1);
   tl.to($('itDropS'), { scaleY: 0.66, scaleX: 1.3, duration: 0.09, ease: 'power2.out', yoyo: true, repeat: 1 }, 0.6);
   [$('itRip1'), $('itRip2')].forEach((el, i) =>
-    tl.fromTo(el, { scale: 0.2, opacity: 0.9 }, { scale: 2.6 + i, opacity: 0, duration: 0.9, ease: 'power2.out' }, 0.6 + i * 0.1));
+    tl.fromTo(el, { scale: 0.2, opacity: 0.9 }, { scale: 2.6 + i, opacity: 0, duration: 0.9, ease: 'power2.out', immediateRender: false }, 0.6 + i * 0.1));
   tl.fromTo($('itPink'), { clipPath: circle(0, 540, 1190) }, { clipPath: circle(2300, 540, 1190), duration: 0.75, ease: 'expo.inOut' }, 0.7);
   tl.to($('itDropS'), { scale: 0, duration: 0.3, ease: 'power2.in' }, 0.95);
   reveal('itT1', 1.05);
@@ -221,7 +228,22 @@ function buildIntroTimeline(root) {
   tl.fromTo($('itNight'), { opacity: 0 }, { opacity: 1, duration: 0.8, ease: 'power2.inOut' }, INTRO_NIGHT_AT);
   tl.fromTo([$('itT3'), $('itBond')], { color: '#141a24' }, { color: '#ffffff', duration: 0.8, ease: 'power2.inOut', immediateRender: false }, INTRO_NIGHT_AT);
   tl.fromTo($('inCta'), { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out' }, 10.45);
-  return tl;
+
+  // ---- 첫 장 · 오늘 남긴 만큼은 이 친구들에게 가요
+  // 당 방울은 위로 날아가 로슈 장에서 떨어지고, 커피 방울은 오른쪽으로 빠졌다가 카인 장에서 튀어 들어온다.
+  const master = gsap.timeline({ paused: true, onUpdate: () => updateIntroChrome(master.time()) });
+  const opS = $('itOpS'), opC = $('itOpC');
+  const opLines = root.querySelectorAll('#itT0 .it-mask > span');
+  master.fromTo(opS, { x: -120, y: 1000, scale: 0 }, { scale: 1, duration: 0.5, ease: 'back.out(1.8)' }, 0.15);
+  master.fromTo(opC, { x: 120, y: 1000, scale: 0 }, { scale: 1, duration: 0.5, ease: 'back.out(1.8)' }, 0.27);
+  master.to([opS, opC], { y: 950, duration: 0.42, ease: 'sine.inOut', yoyo: true, repeat: 1, stagger: 0.12 }, 0.75);
+  master.fromTo(opLines[0], { yPercent: 108 }, { yPercent: 0, duration: 0.6, ease: 'power4.out' }, 0.35);
+  master.fromTo(opLines[1], { yPercent: 108 }, { yPercent: 0, duration: 0.6, ease: 'power4.out' }, 1.15);
+  master.to(opLines, { yPercent: -108, duration: 0.3, ease: 'power3.in', stagger: 0.04 }, 2.05);
+  master.to(opS, { y: -400, duration: 0.45, ease: 'power3.in' }, 2.1);
+  master.to(opC, { x: 900, duration: 0.45, ease: 'power3.in' }, 2.18);
+  master.add(tl, INTRO_OPEN);
+  return master;
 }
 
 function updateIntroChrome(t) {
@@ -231,7 +253,7 @@ function updateIntroChrome(t) {
     const bar = document.getElementById(`inBar${i}`);
     if (bar) bar.style.width = `${clamp01Intro((t - c.at) / (end - c.at)) * 100}%`;
   });
-  intro.el.classList.toggle('night', t >= INTRO_NIGHT_AT + 0.3);
+  intro.el.classList.toggle('night', t >= INTRO_OPEN + INTRO_NIGHT_AT + 0.3);
 }
 
 function clamp01Intro(v) {

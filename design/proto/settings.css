@@ -1,0 +1,59 @@
+/* 설정 탭. 카드·숫자·그림은 추이 캐주얼(trends-casual.css)과 같은 문법. */
+.settings-page { background: radial-gradient(120% 50% at 10% 0%, #eaf0f7 0%, rgba(234, 240, 247, 0) 60%), #f3f5f8; }
+.settings-card { margin-top: 14px; }
+.hero-card.settings-card { min-height: 0; margin-top: 18px; }
+
+.limit-figures { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0 18px; }
+.limit-figure { display: flex; align-items: center; gap: 10px; }
+.limit-figure img { width: 40px; height: 40px; flex: none; }
+.control-label { font-size: 13px; font-weight: 600; margin: 14px 0 0; }
+.slider-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: 12px; color: var(--secondary); }
+.slider-row input { flex: 1; accent-color: var(--accent); }
+.managed { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 13px; color: var(--secondary); }
+.managed svg { width: 11px; height: 13px; }
+.card-note { font-size: 12px; color: var(--secondary); line-height: 1.5; margin-top: 14px; padding: 0 2px; }
+.shelf .card-note { padding: 0 8px; }
+
+.goal-row { display: flex; align-items: center; gap: 12px; padding: 10px 8px; border-top: .5px solid var(--separator); }
+.goal-row:first-of-type { border-top: 0; }
+.goal-char { height: 48px; width: 44px; object-fit: contain; flex: none; }
+.goal-text { flex: 1; min-width: 0; }
+.goal-title { font-size: 16px; font-weight: 700; letter-spacing: -.2px; }
+.goal-sub { font-size: 12px; color: var(--secondary); margin-top: 3px; line-height: 1.4; }
+.goal-text .bond-bar.small { margin-top: 8px; height: 4px; }
+.goal-start { flex: none; display: inline-flex; align-items: center; gap: 4px; height: 34px; padding: 0 14px; border-radius: 17px; font-size: 14px; font-weight: 600;
+  color: var(--accent); background: #fff; border: 1px solid rgba(91, 132, 170, .4); }
+.goal-start svg { width: 10px; height: 12px; }
+.goal-start:active { transform: scale(.96); }
+
+.time-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 8px; border-top: .5px solid var(--separator); font-size: 15px; }
+.time-row:first-of-type { border-top: 0; }
+.time-row select { appearance: none; -webkit-appearance: none; border: 0; outline: none; font: inherit; font-size: 14px; font-weight: 600; color: var(--accent);
+  background: rgba(91, 132, 170, .1); border-radius: 14px; padding: 6px 12px; cursor: pointer; }
+
+.stat-row.single { grid-template-columns: 1fr; }
+.pro-chars { display: flex; align-items: flex-end; flex: none; }
+.pro-chars img { height: 50px; }
+.pro-chars img + img { height: 42px; margin-left: -6px; }
+.pro-promo { background: linear-gradient(120deg, rgba(255, 255, 255, .9), rgba(234, 240, 247, .9)); position: relative; }
+.pro-go { margin-left: auto; font-size: 13px; font-weight: 600; color: #fff; background: var(--accent); border-radius: 14px; padding: 6px 12px; flex: none; }
+
+.etc { padding: 6px 12px; }
+.etc-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 14px 8px; font-size: 15px; text-align: left; border-top: .5px solid var(--separator); }
+.etc-row:first-child { border-top: 0; }
+.etc-row span { color: var(--tertiary); }
+.version-note { text-align: center; font-size: 11px; color: var(--tertiary); margin: 18px 0 0; letter-spacing: .5px; }
+
+.chip-row.wrap { flex-wrap: wrap; overflow: visible; }
+.goal-preview { display: flex; align-items: center; gap: 14px; margin: 24px 20px 20px; padding: 16px; border-radius: 20px; background: rgba(255, 255, 255, .7); font-size: 14px; line-height: 1.55; }
+.goal-preview img { height: 64px; }
+.goal-preview b { color: var(--accent); }
+
+.panel-sheet.confirm { text-align: center; padding-bottom: 44px; }
+.panel-sheet.confirm .panel-title { font-size: 20px; }
+.cta.danger { background: #ff3b30; }
+.cta.ghost { background: none; color: var(--accent); margin-top: 6px; }
+
+/* 추이·설정: 상태 바 아래로 스크롤되는 내용을 배경색 띠로 가린다 */
+.top-fade { position: absolute; left: 0; right: 0; top: 0; height: 64px; z-index: 35; pointer-events: none;
+  background: linear-gradient(#f3f5f8 55%, rgba(243, 245, 248, 0)); }

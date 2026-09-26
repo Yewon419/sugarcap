@@ -209,7 +209,8 @@ const VARIANTS = {
   feeding: { 확정: renderFeeding },
   // 2026-09-26 확정: 캐주얼(캐릭터 카드·컵 선반·모은 방울·방울 달력).
   trends: { 확정: renderTrendsCasual },
-  settings: { '미설계': () => renderPlaceholder('설정') },
+  // 추이와 같은 캐주얼 문법으로 한 안만 만들었다(2026-09-26).
+  settings: { 확정: renderSettings },
   // 2026-09-26 확정: 초상 + 말걸기(표정 칸 없음).
   affinity: { 확정: renderAffinity },
   paywall: { '미설계': () => renderSimpleSheet('슈가캡 PRO', '페이월은 Phase 2에서 다시 설계해요.') },
@@ -341,12 +342,18 @@ function render() {
   if (ui.tab === 'today') html += `<div class="today">${pick('today')()}</div>`;
   else html += pick(ui.tab)();
   if (ui.pushed) html += pick('brand')();
+  // 스크롤하는 탭은 내용이 상태 바 밑으로 들어가 글자가 겹친다. 배경색 띠로 옅게 가린다.
+  if (ui.tab !== 'today') html += '<div class="top-fade"></div>';
   html += renderTabbar();
   if (ui.sheet === 'record') html += pick('record')();
   if (ui.sheet === 'manual') html += renderManualSheet();
   if (ui.sheet === 'daylog') html += renderDayLog();
   if (ui.sheet === 'affinity') html += pick('affinity')();
   if (ui.sheet === 'paywall') html += pick('paywall')();
+  if (ui.sheet === 'goal') html += renderGoalSheet();
+  if (ui.sheet === 'onboardingSoon') html += renderSimpleSheet('앱 소개', '온보딩은 다음 차례에 설계해요. 설계가 끝나면 여기서 다시 볼 수 있어요.');
+  if (ui.sheet === 'restoreDone') html += renderSimpleSheet('구매 복원', '복원할 구매가 없어요. (프로토타입 흉내)');
+  if (ui.stopGoalSide) html += renderStopGoal();
   if (ui.panelSheet) html += renderServingPanel();
   if (ui.cover) html += pick('feeding')();
   html += renderToast();
@@ -360,6 +367,7 @@ function render() {
   const globalSearch = document.getElementById('globalSearch');
   if (globalSearch) globalSearch.oninput = () => { ui.globalQuery = globalSearch.value; renderKeepingFocus('globalSearch'); };
   renderPanel();
+  if (ui.tab === 'settings') afterRender.push(bindSettingsControls);
   // 방금 그린 DOM에 붙는 애니메이션·끌기 처리. 그리는 쪽이 필요할 때 넣는다.
   while (afterRender.length) afterRender.shift()();
 }
@@ -395,7 +403,7 @@ function settleOverlays() {
 
 /** 아직 안이 없는 초안 화면이 보이는 중인지. 안이 붙은 화면(기록·브랜드)은 표시하지 않는다. */
 function isDraftVisible() {
-  return Boolean(['manual', 'paywall'].includes(ui.sheet) || ui.tab === 'settings');
+  return Boolean(['manual', 'paywall', 'onboardingSoon'].includes(ui.sheet));
 }
 
 function renderKeepingFocus(id) {
@@ -507,6 +515,7 @@ const ACTIONS = {
   ...FEEDING_ACTIONS,
   ...AFFINITY_ACTIONS,
   ...TREND_ACTIONS,
+  ...SETTINGS_ACTIONS,
 };
 
 /** 먹이기 화면을 연다. noDrink면 "안 마셨어요"라 가득 찬 컵으로 먹인다(§4.7). */
@@ -593,7 +602,7 @@ function renderPanel() {
     </section>
     <section><h3>상태</h3>
       <div class="row"><button class="${S.pro ? 'on' : ''}" data-p="pro">Pro ${S.pro ? '켜짐' : '꺼짐'}</button><button data-p="demo">데모 기록 넣기</button><button data-p="reset">초기화</button></div>
-      <div class="row"><button data-p="history">지난 4주 데모</button></div>
+      <div class="row"><button data-p="history">지난 4주 데모</button><button data-p="goalWeek">줄이기 +1주 달성</button></div>
       <div class="row"><button data-p="points" data-v="30">호감도 +30점</button><button data-p="points" data-v="300">+300점</button></div>
       <div class="row"><label>당 기준 <input type="number" id="pSugar" value="${S.settings.sugarG}"> g</label></div>
       <div class="row"><label>카페인 기준 <input type="number" id="pCaffeine" value="${S.settings.caffeineMg}"> mg</label></div>
@@ -659,6 +668,15 @@ const PANEL_ACTIONS = {
       S.days[key] = { opened: true, closedAt: new Date(`${key}T22:00:00`).getTime(), atClose: { sugar: 0, caffeine: 0 }, finalized: true };
     }
     S.firstDay = shiftDay(today, -28);
+  },
+  goalWeek: () => {
+    // 감소 목표가 도는 쪽을 한 주 달성시키고, 그 주 하루 기준을 설정에 써 넣는다(§9.5).
+    for (const side of SIDE_ORDER) {
+      const goal = S.goals?.[side];
+      if (!goal) continue;
+      goal.achieved = Math.min(goal.weeks, goal.achieved + 1);
+      S.settings[SIDES[side].limitKey] = goalWeekLimit(goal, side);
+    }
   },
   points: (_, v) => { for (const side of SIDE_ORDER) S.points[SIDES[side].char] += Number(v); },
 };

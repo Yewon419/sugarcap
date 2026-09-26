@@ -8,12 +8,15 @@
 
 const REEL_SCALE = 874 / 1920;
 const REEL_OFFSET_X = (402 - 1080 * REEL_SCALE) / 2;
+// 장별 한 줄 설명(2026-09-26 대표님 문구). 릴 다음은 하루 기준 → 로슈·카인 소개 순서.
 const REEL_CHAPTERS = [
-  { at: 0, kick: '01', line: '마실 때마다 컵이 줄어요' },
-  { at: 2.8, kick: '02', line: '당도 카페인도 따로 챙겨요' },
-  { at: 5.55, kick: '03', line: '기준 안에서 마신 날이 하나씩 쌓여요' },
-  { at: 8.45, kick: '04', line: '남은 만큼이 방울이 돼요' },
-  { at: 11.4, kick: '05', line: '남긴 방울은 밤에 로슈와 카인에게' },
+  { at: 0, kick: '01', line: '단 걸 좋아하는 당신!' },
+  { at: 1.45, kick: '02', line: '하루에 당을 얼마나 먹고 계신지 아나요?' },
+  { at: 2.8, kick: '03', line: '카페인 없이 못 사는 당신!' },
+  { at: 5.55, kick: '04', line: '우리 함께 줄여나가요' },
+  { at: 7.5, kick: '05', line: '매일매일 음료를 기록하고' },
+  { at: 8.9, kick: '06', line: '목표한 만큼 덜 마셔 봅시다' },
+  { at: 11.4, kick: '07', line: '오늘의 분량을 남기면 어디로 가냐고요...?' },
 ];
 const REEL_END = 15;
 const DROP = side => `../assets/drops/${side}.png`;

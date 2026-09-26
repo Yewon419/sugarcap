@@ -1,0 +1,59 @@
+/* 추이 캐주얼(기본). 카드 = 흰 유리 + 큰 둥근 모서리, 그림 = 기존 자산(컵 사진·방울·캐릭터). */
+.trends.casual { background: radial-gradient(120% 60% at 80% 0%, #fdeef2 0%, rgba(253, 238, 242, 0) 60%), #f3f5f8; }
+.trends.casual.caffeine { background: radial-gradient(120% 60% at 80% 0%, #f7ebdf 0%, rgba(247, 235, 223, 0) 60%), #f3f5f8; }
+
+.hero-card { position: relative; margin: 22px 16px 0; padding: 22px 20px 20px; border-radius: 28px; min-height: 196px;
+  background: rgba(255, 255, 255, .78); border: 1px solid #fff; box-shadow: 0 10px 30px rgba(20, 30, 50, .06); overflow: hidden; }
+.hero-text { position: relative; z-index: 1; max-width: 62%; }
+.hero-card .number-row { margin-top: 2px; }
+.hero-card .hero-number { font-size: 84px; letter-spacing: -4.5px; line-height: 1.1; }
+.hero-caption { font-size: 13px; color: var(--secondary); margin-top: 4px; line-height: 1.45; }
+.hero-char { position: absolute; right: 14px; bottom: -8px; height: 150px; transform-origin: 50% 100%; }
+.caffeine .hero-char { height: 128px; right: 22px; }
+.hero-char.cheer { animation: cheer 1.8s ease-in-out infinite; }
+@keyframes cheer {
+  0%, 60%, 100% { transform: translateY(0) rotate(0); }
+  70% { transform: translateY(-14px) rotate(-4deg); }
+  80% { transform: translateY(0) rotate(0); }
+  88% { transform: translateY(-6px) rotate(3deg); }
+}
+
+.shelf { margin: 16px 16px 0; padding: 18px 12px 16px; border-radius: 28px; background: rgba(255, 255, 255, .78); border: 1px solid #fff; box-shadow: 0 10px 30px rgba(20, 30, 50, .05); }
+.shelf-head { display: flex; justify-content: space-between; align-items: baseline; padding: 0 8px 12px; }
+.shelf-hint { font-size: 11px; color: var(--secondary); }
+.shelf-row { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(7, 1fr); align-items: end; gap: 2px; }
+.shelf-cup { position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; padding-top: 16px; }
+.shelf-glass { width: 44px; height: 82px; background-size: 260%; background-position: 50% 92%; background-repeat: no-repeat; border-radius: 12px 12px 8px 8px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 12%); mask-image: linear-gradient(to bottom, transparent 0, #000 12%); transition: transform .15s ease-out; }
+.shelf-glass.blank { opacity: .35; }
+.shelf-cup:active .shelf-glass { transform: scale(.94); }
+.shelf-cup.is-today .shelf-glass { transform: translateY(-4px); }
+.shelf-day { font-size: 12px; color: var(--secondary); }
+.shelf-cup.is-today .shelf-day { color: #fff; background: var(--accent); border-radius: 10px; padding: 1px 8px; font-weight: 700; }
+.over-tag { position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: 2; font-size: 10px; font-weight: 700; color: #fff; white-space: nowrap;
+  background: #1c1c1e; border-radius: 8px; padding: 2px 6px; font-variant-numeric: tabular-nums; }
+
+.stat-row { display: grid; grid-template-columns: 1.35fr 1fr; gap: 12px; margin: 12px 16px 0; }
+.stat-card { display: flex; align-items: center; gap: 12px; padding: 16px; border-radius: 24px; min-height: 96px; text-align: left;
+  background: rgba(255, 255, 255, .78); border: 1px solid #fff; box-shadow: 0 10px 30px rgba(20, 30, 50, .05); }
+.stat-card.drops img { width: 52px; height: 52px; flex: none; animation: float 2.6s ease-in-out infinite; }
+.stat-num { font-size: 28px; font-weight: 700; letter-spacing: -1px; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.stat-num small { font-size: 13px; font-weight: 500; letter-spacing: 0; margin-left: 2px; }
+.stat-label { font-size: 12px; color: var(--secondary); margin-top: 2px; line-height: 1.35; }
+.stat-card.locked { justify-content: center; flex-direction: column; gap: 6px; color: var(--secondary); text-align: center; }
+.stat-card.locked svg { width: 14px; height: 16px; }
+.stat-arrow { width: 36px; height: 36px; border-radius: 50%; flex: none; display: grid; place-items: center; font-size: 18px; font-weight: 700; color: #fff; background: var(--accent); }
+.delta-card.up .stat-arrow { background: #8e8e93; }
+
+.drop-weekdays, .drop-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+.drop-weekdays span { text-align: center; font-size: 11px; color: var(--secondary); padding-bottom: 4px; }
+.drop-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 0; border-radius: 12px; }
+.drop-cell.is-today { background: rgba(91, 132, 170, .12); }
+.drop-spot { height: 40px; display: grid; place-items: center; }
+.drop-spot img { filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .18)); }
+.drop-none { width: 6px; height: 6px; border-radius: 50%; background: rgba(60, 60, 67, .2); }
+.drop-day { font-size: 11px; color: var(--secondary); font-variant-numeric: tabular-nums; }
+.drop-cell.is-today .drop-day { color: var(--label); font-weight: 700; }
+.drop-cell.future { opacity: .35; justify-content: flex-end; height: 62px; }
+
+@media (prefers-reduced-motion: reduce) { .hero-char.cheer, .stat-card.drops img { animation: none; } }

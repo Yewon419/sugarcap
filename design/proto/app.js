@@ -207,7 +207,7 @@ const VARIANTS = {
   brand: { 확정: renderBrandMenu },
   // 2026-09-26 확정: 밤 장면 + 당·카페인 분리 + 끌어서 주기.
   feeding: { 확정: renderFeeding },
-  trends: { 'A 숫자 먼저': renderTrendsNumber, 'B 컵 달력': renderTrendsCups, 'C 하루 줄': renderTrendsRows },
+  trends: { '캐주얼': renderTrendsCasual, 'A 숫자 먼저': renderTrendsNumber, 'B 컵 달력': renderTrendsCups, 'C 하루 줄': renderTrendsRows },
   settings: { '미설계': () => renderPlaceholder('설정') },
   // 2026-09-26 확정: 초상 + 말걸기(표정 칸 없음).
   affinity: { 확정: renderAffinity },

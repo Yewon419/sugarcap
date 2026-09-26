@@ -19,6 +19,7 @@ body {
   background: #dcdcdf;
   color: var(--label);
   -webkit-font-smoothing: antialiased;
+  word-break: keep-all;
 }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 input { font: inherit; }

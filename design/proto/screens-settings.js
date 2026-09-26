@@ -181,7 +181,7 @@ function renderStopGoal() {
 const SETTINGS_ACTIONS = {
   setSugar: v => { S.settings.sugarG = Number(v); saveState(); },
   openGoal: v => {
-    if (!S.pro) { ui.sheet = 'paywall'; return; }
+    if (!S.pro) { openPaywall('goal'); return; }
     ui.goalDraft = { side: v, weeks: 8, target: null };
     ui.sheet = 'goal';
   },

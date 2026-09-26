@@ -56,7 +56,7 @@ function renderTrendsCasual() {
 /** 지난주 대비(Pro). 무료는 잠긴 카드. */
 function deltaChip(side) {
   const meta = SIDES[side];
-  if (!S.pro) return `<button class="stat-card locked" data-a="paywall">${ICON.lock}<div class="stat-label">지난주와<br>비교하기</div></button>`;
+  if (!S.pro) return `<button class="stat-card locked" data-a="paywall" data-v="delta">${ICON.lock}<div class="stat-label">지난주와<br>비교하기</div></button>`;
   const cur = weekStats(side).avg;
   const prev = weekStats(side, 7).avg;
   if (prev === 0) return '<div class="stat-card"><div class="stat-label">지난주 기록이<br>없어요</div></div>';

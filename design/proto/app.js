@@ -214,7 +214,8 @@ const VARIANTS = {
   settings: { 확정: renderSettings },
   // 2026-09-26 확정: 초상 + 말걸기(표정 칸 없음).
   affinity: { 확정: renderAffinity },
-  paywall: { '미설계': () => renderSimpleSheet('슈가캡 PRO', '페이월은 Phase 2에서 다시 설계해요.') },
+  // 2026-09-26: 캐주얼 문법 한 안.
+  paywall: { 확정: renderPaywall },
 };
 const variantName = screen => ui.variants[screen] ?? Object.keys(VARIANTS[screen])[0];
 const pick = screen => VARIANTS[screen][variantName(screen)];
@@ -404,7 +405,7 @@ function settleOverlays() {
 
 /** 아직 안이 없는 초안 화면이 보이는 중인지. 안이 붙은 화면(기록·브랜드)은 표시하지 않는다. */
 function isDraftVisible() {
-  return Boolean(['manual', 'paywall'].includes(ui.sheet));
+  return Boolean(['manual'].includes(ui.sheet));
 }
 
 function renderKeepingFocus(id) {
@@ -506,7 +507,7 @@ const ACTIONS = {
     }
   },
   deleteEntry: v => { S.entries = S.entries.filter(e => e.id !== v); saveState(); },
-  affinity: () => { ui.sheet = S.pro ? 'affinity' : 'paywall'; },
+  affinity: () => { if (S.pro) ui.sheet = 'affinity'; else openPaywall('affinity'); },
   closeToday: () => openFeeding('close', dayKey(now()), false),
   feedYesterday: v => openFeeding('past', v, false),
   noDrink: v => openFeeding('past', v, true),
@@ -518,6 +519,7 @@ const ACTIONS = {
   ...TREND_ACTIONS,
   ...SETTINGS_ACTIONS,
   ...ONBOARDING_ACTIONS,
+  ...PAYWALL_ACTIONS,
 };
 
 /** 먹이기 화면을 연다. noDrink면 "안 마셨어요"라 가득 찬 컵으로 먹인다(§4.7). */

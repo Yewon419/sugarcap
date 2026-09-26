@@ -51,8 +51,8 @@ function trendHeader(title) {
 const TREND_ACTIONS = {
   trendSide: v => { ui.trendSide = v; },
   trendRange: v => {
-    if (v === 'month' && !S.pro) { ui.sheet = 'paywall'; return; }
+    if (v === 'month' && !S.pro) { openPaywall('month'); return; }
     ui.trendRange = v;
   },
-  paywall: () => { ui.sheet = 'paywall'; },
+  paywall: v => { openPaywall(v ?? null); },
 };

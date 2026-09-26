@@ -207,7 +207,7 @@ const VARIANTS = {
   brand: { 확정: renderBrandMenu },
   // 2026-09-26 확정: 밤 장면 + 당·카페인 분리 + 끌어서 주기.
   feeding: { 확정: renderFeeding },
-  trends: { '미설계': () => renderPlaceholder('추이') },
+  trends: { 'A 숫자 먼저': renderTrendsNumber, 'B 컵 달력': renderTrendsCups, 'C 하루 줄': renderTrendsRows },
   settings: { '미설계': () => renderPlaceholder('설정') },
   // 2026-09-26 확정: 초상 + 말걸기(표정 칸 없음).
   affinity: { 확정: renderAffinity },
@@ -394,7 +394,7 @@ function settleOverlays() {
 
 /** 아직 안이 없는 초안 화면이 보이는 중인지. 안이 붙은 화면(기록·브랜드)은 표시하지 않는다. */
 function isDraftVisible() {
-  return Boolean(['manual', 'paywall'].includes(ui.sheet) || ui.tab !== 'today');
+  return Boolean(['manual', 'paywall'].includes(ui.sheet) || ui.tab === 'settings');
 }
 
 function renderKeepingFocus(id) {
@@ -505,6 +505,7 @@ const ACTIONS = {
   // 먹이기 화면 안별 동작은 screens-feeding.js
   ...FEEDING_ACTIONS,
   ...AFFINITY_ACTIONS,
+  ...TREND_ACTIONS,
 };
 
 /** 먹이기 화면을 연다. noDrink면 "안 마셨어요"라 가득 찬 컵으로 먹인다(§4.7). */
@@ -591,6 +592,7 @@ function renderPanel() {
     </section>
     <section><h3>상태</h3>
       <div class="row"><button class="${S.pro ? 'on' : ''}" data-p="pro">Pro ${S.pro ? '켜짐' : '꺼짐'}</button><button data-p="demo">데모 기록 넣기</button><button data-p="reset">초기화</button></div>
+      <div class="row"><button data-p="history">지난 4주 데모</button></div>
       <div class="row"><button data-p="points" data-v="30">호감도 +30점</button><button data-p="points" data-v="300">+300점</button></div>
       <div class="row"><label>당 기준 <input type="number" id="pSugar" value="${S.settings.sugarG}"> g</label></div>
       <div class="row"><label>카페인 기준 <input type="number" id="pCaffeine" value="${S.settings.caffeineMg}"> mg</label></div>
@@ -638,6 +640,25 @@ const PANEL_ACTIONS = {
     ui.cover = ui.sheet = ui.pushed = ui.panelSheet = null;
   },
   variant: (el, v) => { ui.variants[el.dataset.screen] = v; },
+  history: () => {
+    // 지난 28일에 하루 1~3잔을 넣는다. 날마다 마감·확정된 것으로 표시해 어제 배너가 뜨지 않게 한다.
+    const today = dayKey(now());
+    let seed = 7;
+    const rand = () => { seed = (seed * 1103515245 + 12345) >>> 0; return seed / 2 ** 32; };
+    for (let back = 28; back >= 1; back -= 1) {
+      const key = shiftDay(today, -back);
+      const cups = 1 + Math.floor(rand() * 3);
+      for (let i = 0; i < cups; i += 1) {
+        S.entries.push({
+          id: crypto.randomUUID(), at: new Date(`${key}T${pad(10 + i * 3)}:00:00`).getTime(), quantity: 1,
+          drinkName: ['카페 라떼', '바닐라 라떼', '아메리카노', '딸기 라떼', '자몽 에이드'][Math.floor(rand() * 5)],
+          brandName: '데모', sizeLabel: '', sugarG: Math.round(rand() * 32), caffeineMg: Math.round(rand() * 180),
+        });
+      }
+      S.days[key] = { opened: true, closedAt: new Date(`${key}T22:00:00`).getTime(), atClose: { sugar: 0, caffeine: 0 }, finalized: true };
+    }
+    S.firstDay = shiftDay(today, -28);
+  },
   points: (_, v) => { for (const side of SIDE_ORDER) S.points[SIDES[side].char] += Number(v); },
 };
 

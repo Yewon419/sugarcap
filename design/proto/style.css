@@ -60,7 +60,7 @@ input { font: inherit; }
 .headline .date-label { margin-top: 8px; }
 .headline .kicker { margin-top: 28px; }
 .number-row { display: flex; align-items: baseline; }
-.number-row .limit { font-size: 13px; letter-spacing: .3px; color: var(--secondary); opacity: .8; margin-left: 10px; }
+.number-row .limit { font-size: 13px; letter-spacing: .3px; color: var(--secondary); opacity: .8; margin-left: 10px; white-space: nowrap; }
 .overflow-note { font-size: 13px; font-weight: 500; color: var(--secondary); margin-top: 6px; }
 
 .heart-button { position: absolute; right: 20px; top: calc(var(--safe-top) + 6px); width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.22); display: grid; place-items: center; color: rgba(91,132,170,.75); }
@@ -378,3 +378,62 @@ input { font: inherit; }
 .react-hop { animation: r-hop .8s cubic-bezier(.3, 1.6, .5, 1); }
 @keyframes r-hop { 40% { transform: translateY(-28px); } }
 @media (prefers-reduced-motion: reduce) { [class*="react-"] { animation: none !important; } }
+
+/* ---------- Phase 2-4: 추이 ---------- */
+.trends { position: absolute; inset: 0; overflow-y: auto; background: #f3f5f8; padding: calc(var(--safe-top) + 8px) 0 120px; }
+.trend-head { padding: 0 20px 0 24px; }
+.trend-controls { display: flex; gap: 10px; margin-top: 16px; }
+.segmented.compact { margin: 0; flex: none; }
+.segmented.compact button { white-space: nowrap; padding: 0 14px; height: 30px; display: inline-flex; align-items: center; gap: 4px; }
+.segmented.compact svg { width: 10px; height: 12px; opacity: .6; }
+.trend-hero { padding: 28px 24px 0; }
+.trend-hero .number-row .limit { font-size: 13px; }
+.delta { font-size: 13px; font-weight: 600; margin-top: 8px; color: var(--secondary); }
+.delta.down { color: var(--accent); }
+.delta.locked { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; color: var(--secondary); }
+.trend-card { margin: 22px 16px 0; padding: 18px 14px 14px; border-radius: 22px; background: rgba(255,255,255,.8); border: 1px solid #fff; box-shadow: 0 6px 20px rgba(0,0,0,.04); }
+.trend-note { padding: 12px 24px; }
+
+/* A 막대 */
+.bars { position: relative; height: calc(var(--h) + 44px); display: flex; align-items: flex-end; gap: 8px; padding-top: 18px; }
+.limit-line { position: absolute; left: 0; right: 0; margin-top: 18px; border-top: 1.5px dashed rgba(60,60,67,.35); }
+.limit-line span { position: absolute; right: 0; top: -18px; font-size: 10px; letter-spacing: .5px; color: var(--secondary); }
+.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 6px; }
+.bar-col:disabled { cursor: default; }
+.bar { width: 100%; max-width: 30px; border-radius: 8px 8px 4px 4px; background: rgba(91,132,170,.35); transition: height .4s cubic-bezier(.23, 1, .32, 1); }
+.bar.is-today { background: var(--accent); }
+.bar.over { background: repeating-linear-gradient(135deg, rgba(91,132,170,.55) 0 5px, rgba(91,132,170,.3) 5px 10px); }
+.bar-val { font-size: 10px; color: var(--secondary); font-variant-numeric: tabular-nums; min-height: 12px; }
+.bar-label { font-size: 12px; color: var(--secondary); }
+.bar-label.is-today { color: var(--label); font-weight: 700; }
+.bar-col:not(:disabled):active .bar { opacity: .7; }
+
+/* B 컵 달력 */
+.cup-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cup-day { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 4px 0; border-radius: 12px; }
+.cup-day.is-today { background: rgba(91,132,170,.1); }
+.cup-thumb { width: 40px; height: 64px; border-radius: 10px; background-size: 250%; background-position: 50% 88%; background-repeat: no-repeat; }
+.cup-day.empty .cup-thumb { opacity: .35; }
+.cup-date { font-size: 12px; color: var(--secondary); }
+.cup-day.is-today .cup-date { color: var(--label); font-weight: 700; }
+.cup-left { font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.cup-legend { font-size: 12px; color: var(--secondary); margin: 12px 4px 0; line-height: 1.5; }
+.cup-weekdays, .cup-month { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.cup-weekdays span { text-align: center; font-size: 11px; color: var(--secondary); padding-bottom: 6px; }
+.cup-month .cup-thumb { width: 34px; height: 50px; }
+.cup-month .cup-day { padding: 2px 0; }
+.cup-day.future { justify-content: flex-end; font-size: 12px; color: var(--tertiary); height: 72px; }
+
+/* C 하루 줄 */
+.trend-card.rows { padding: 6px 0; }
+.day-row { display: grid; grid-template-columns: 70px 1fr 64px; align-items: center; gap: 12px; width: 100%; padding: 12px 16px; text-align: left; border-bottom: .5px solid var(--separator); }
+.day-row:last-child { border-bottom: 0; }
+.day-row:active { background: rgba(0,0,0,.03); }
+.day-row-date { font-size: 12px; color: var(--secondary); }
+.day-row-date b { font-size: 15px; color: var(--label); margin-right: 2px; }
+.day-row-bar { position: relative; height: 8px; border-radius: 4px; background: rgba(60,60,67,.08); }
+.day-row-bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: var(--accent); opacity: .75; }
+.day-row-bar i.over { opacity: 1; background: repeating-linear-gradient(135deg, var(--accent) 0 5px, rgba(91,132,170,.6) 5px 10px); }
+.day-row-bar em { position: absolute; top: -4px; bottom: -4px; width: 1.5px; background: rgba(60,60,67,.45); }
+.day-row-num { text-align: right; font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.day-row-num small { font-size: 11px; font-weight: 500; color: var(--secondary); margin-left: 1px; }

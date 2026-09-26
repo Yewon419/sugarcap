@@ -114,12 +114,12 @@ function proCard() {
   if (S.pro) {
     return `<section class="stat-row single"><div class="stat-card pro-on">
       <div class="pro-chars"><img src="${characterAsset('roshu')}" alt=""><img src="${characterAsset('kain')}" alt=""></div>
-      <div><div class="goal-title">슈가캡 Pro 사용 중</div><div class="stat-label">호감도·말걸기·월 추이·조금씩 줄이기</div></div>
+      <div><div class="goal-title">슈가캡 Pro 사용 중</div><div class="stat-label">로슈·카인과 친해지기·월 추이·조금씩 줄이기</div></div>
     </div></section>`;
   }
   return `<section class="stat-row single"><button class="stat-card pro-promo" data-a="paywall">
     <div class="pro-chars"><img src="${characterAsset('roshu')}" alt=""><img src="${characterAsset('kain')}" alt=""></div>
-    <div><div class="goal-title">슈가캡 Pro</div><div class="stat-label">호감도와 말걸기, 월 추이, 조금씩 줄이기</div></div>
+    <div><div class="goal-title">슈가캡 Pro</div><div class="stat-label">로슈·카인과 친해지기, 월 추이, 조금씩 줄이기</div></div>
     <span class="pro-go">알아보기</span>
   </button></section>`;
 }

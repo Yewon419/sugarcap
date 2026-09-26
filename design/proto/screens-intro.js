@@ -69,7 +69,7 @@ function mountIntro() {
       <div class="it-group" id="itG2">
         <div class="it-panel amber" id="itAmber"></div>
         <svg class="it-layer" viewBox="0 0 1080 1920" aria-hidden="true">
-          <g id="itRingG"><circle id="itRing" cx="540" cy="1250" r="360" fill="none" stroke="#3b1d0e" stroke-width="40" stroke-linecap="round"/></g>
+          <g id="itRingG"><circle id="itRing" cx="540" cy="1290" r="320" fill="none" stroke="#3b1d0e" stroke-width="40" stroke-linecap="round"/></g>
           <g id="itTicks"></g>
         </svg>
         <img class="it-char kain" id="itKain2" src="${characterAsset('kain')}" alt="">
@@ -121,12 +121,12 @@ function buildIntroTimeline(root) {
   for (let i = 0; i < 60; i += 1) {
     const l = document.createElementNS(NS, 'line');
     const long = i % 5 === 0;
-    l.setAttribute('x1', 540); l.setAttribute('x2', 540); l.setAttribute('y1', 1250 - 420); l.setAttribute('y2', 1250 - (long ? 468 : 446));
+    l.setAttribute('x1', 540); l.setAttribute('x2', 540); l.setAttribute('y1', 1290 - 366); l.setAttribute('y2', 1290 - (long ? 406 : 388));
     l.setAttribute('stroke', '#f3f5f8'); l.setAttribute('stroke-width', long ? 6 : 3); l.setAttribute('stroke-linecap', 'round');
-    l.setAttribute('transform', `rotate(${i * 6} 540 1250)`);
+    l.setAttribute('transform', `rotate(${i * 6} 540 1290)`);
     $('itTicks').appendChild(l);
   }
-  const RING_C = 2 * Math.PI * 360;
+  const RING_C = 2 * Math.PI * 320;
   $('itRing').setAttribute('stroke-dasharray', `${RING_C} ${RING_C}`);
 
   // 가로는 무대 가운데 기준(xPercent -50), 세로는 윗변 기준
@@ -160,8 +160,8 @@ function buildIntroTimeline(root) {
     let v = seg(t, 5.25, 5.8, E.o3);
     $('itRing').setAttribute('stroke-dashoffset', (RING_C * (1 - v)).toFixed(1));
     $('itRing').style.opacity = v > 0 ? '1' : '0'; // 둥근 끝이 길이 0에서도 점으로 찍힌다
-    $('itRingG').setAttribute('transform', `rotate(${-90 + 140 * seg(t, 5.25, 7.3, E.io3)} 540 1250)`);
-    $('itTicks').setAttribute('transform', `rotate(${-(t - 5.25) * 30} 540 1250)`);
+    $('itRingG').setAttribute('transform', `rotate(${-90 + 140 * seg(t, 5.25, 7.3, E.io3)} 540 1290)`);
+    $('itTicks').setAttribute('transform', `rotate(${-(t - 5.25) * 30} 540 1290)`);
     $('itTicks').style.opacity = seg(t, 5.3, 5.7).toFixed(3);
     // 3장: 방울이 쏟아져 둘에게 들어갈 때마다 둘이 가까워진다
     let nS = 0, nC = 0, hopS = 0, hopC = 0;
@@ -172,8 +172,8 @@ function buildIntroTimeline(root) {
       const hop = t > r.at + HIT ? Math.exp(-(t - r.at - HIT) * 9) : 0;
       if (r.side === 'sugar') { nS += got; hopS += hop; } else { nC += got; hopC += hop; }
     });
-    pos.sugar = lerp(-1000, -270, enter) + 100 * (nS / 7);
-    pos.caffeine = lerp(1000, 270, enter) - 100 * (nC / 7);
+    pos.sugar = lerp(-1000, -225, enter) + 80 * (nS / 7);
+    pos.caffeine = lerp(1000, 245, enter) - 80 * (nC / 7);
     gsap.set(roshu3, { x: pos.sugar, y: 1040 - 46 * Math.min(1, hopS) });
     gsap.set(kain3, { x: pos.caffeine, y: 1110 - 46 * Math.min(1, hopC) });
     rain.forEach(r => {

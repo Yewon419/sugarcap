@@ -69,6 +69,10 @@ struct CupView: View {
             Image(assetName)
                 .resizable()
                 .scaledToFill()
+                .overlay {
+                    // 대기 루프(얼음). 동작 줄이기면 정지 사진만.
+                    if !reduceMotion { CupIdleOverlay(assetName: assetName) }
+                }
                 // .id로 뷰를 교체해야 transition이 걸린다. 같은 Image에 이름만 바꾸면 페이드 없이 즉시 갈린다.
                 .id(assetName)
                 .transition(.opacity)

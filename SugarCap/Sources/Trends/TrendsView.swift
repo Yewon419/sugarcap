@@ -306,6 +306,7 @@ struct TrendsView: View {
         }
     }
 
+    /// 카드 폭이 좁아 "2,800"이 두 줄로 쪼개졌다(2026-09-27). 한 줄로 두고 넘치면 줄인다.
     private func statNumber(_ value: String, unit: String) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 2) {
             Text(value)
@@ -315,6 +316,8 @@ struct TrendsView: View {
             Text(unit)
                 .font(AppFont.pretendard(13, .medium, relativeTo: .footnote))
         }
+        .lineLimit(1)
+        .minimumScaleFactor(0.6)
     }
 
     // MARK: - 월(Pro)

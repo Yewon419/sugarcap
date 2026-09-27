@@ -206,7 +206,7 @@ struct TrendsView: View {
         } label: {
             VStack(spacing: 8) {
                 ZStack(alignment: .top) {
-                    ShelfGlass(asset: CupLevel.assetName(setID: side.cupSetID, step: recorded ? CupLevel.step(remaining: left, limit: limit) : 0))
+                    ShelfGlass(asset: CupLevel.cutoutName(setID: side.cupSetID, step: recorded ? CupLevel.step(remaining: left, limit: limit) : 0))
                         .opacity(recorded ? 1 : 0.35)
                         .offset(y: isToday ? -4 : 0)
                         .padding(.top, 16)

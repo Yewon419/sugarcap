@@ -13,8 +13,8 @@ struct TodayView: View {
     @Query private var settlements: [DaySettlement]
 
     @State private var side: CupSide = .sugar
-    /// 컵을 넘기는 방향(식탁 위에서 미는 연출). 카페인으로 가면 왼쪽으로 민다.
-    @State private var pushEdge: Edge = .leading
+    /// 넘기는 중 손가락이 끈 거리. 놓으면 0으로 돌아가며 가까운 컵에 붙는다.
+    @State private var dragX: CGFloat = 0
     @State private var path: [String] = []
     @State private var isManualEntryPresented = false
     /// 먹이기 요청 + 여는 방식을 한 덩어리로 둔다. 따로 두면 전체 화면이 뜨기 전 값을 붙잡아
@@ -148,11 +148,49 @@ struct TodayView: View {
         .sensoryFeedback(.success, trigger: entries.count) { old, new in new > old }
     }
 
-    /// 당 ↔ 카페인 넘기기. 식탁 위에서 잔을 밀듯 한 번에 미끄러지고 살짝 흔들리며 선다.
+    /// 당 · 카페인 컵 장면 두 장을 옆으로 붙여 두고 손가락을 따라 통째로 민다(2026-09-27 대표님:
+    /// "이미지 두 개 붙여 놓고 미는 식으로"). 놓으면 끈 거리·속도로 가까운 쪽에 붙는다. 끝에서는 고무줄처럼 덜 끌린다.
+    private func cupStrip(totals: DayTotals) -> some View {
+        GeometryReader { proxy in
+            let width = proxy.size.width
+            let index = CGFloat(CupSide.allCases.firstIndex(of: side) ?? 0)
+            HStack(spacing: 0) {
+                ForEach(CupSide.allCases) { cupSide in
+                    CupView(
+                        step: CupLevel.step(remaining: cupSide.remaining(totals), limit: cupSide.limit(limits)),
+                        setID: cupSide.cupSetID
+                    )
+                    .frame(width: width)
+                }
+            }
+            .offset(x: -index * width + dragX)
+            .frame(width: width, alignment: .leading)
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 12)
+                    .onChanged { value in
+                        guard abs(value.translation.width) > abs(value.translation.height) else { return }
+                        let pullingPastEdge = (side == .sugar && value.translation.width > 0)
+                            || (side == .caffeine && value.translation.width < 0)
+                        dragX = pullingPastEdge ? value.translation.width * 0.25 : value.translation.width
+                    }
+                    .onEnded { value in
+                        let travel = value.predictedEndTranslation.width
+                        let next: CupSide = travel < -width / 3 ? .caffeine : (travel > width / 3 ? .sugar : side)
+                        withAnimation(reduceMotion ? .easeInOut(duration: 0.25) : .spring(response: 0.45, dampingFraction: 0.86)) {
+                            side = next
+                            dragX = 0
+                        }
+                    }
+            )
+        }
+        .ignoresSafeArea()
+    }
+
+    /// 보이스오버의 위아래 쓸기로 컵을 오갈 때.
     private func switchSide(to next: CupSide) {
         guard next != side else { return }
-        pushEdge = next == .caffeine ? .leading : .trailing
-        withAnimation(reduceMotion ? .easeInOut(duration: 0.25) : .spring(response: 0.55, dampingFraction: 0.78)) {
+        withAnimation(reduceMotion ? .easeInOut(duration: 0.25) : .spring(response: 0.45, dampingFraction: 0.86)) {
             side = next
         }
     }
@@ -183,17 +221,7 @@ struct TodayView: View {
         let limit = side.limit(limits)
 
         ZStack(alignment: .topLeading) {
-            CupView(step: CupLevel.step(remaining: remaining, limit: limit), setID: side.cupSetID, pushTowards: pushEdge)
-                .ignoresSafeArea()
-                .contentShape(Rectangle())
-                // 좌우로 밀어 당 컵과 카페인 컵을 오간다(§4.1).
-                .gesture(
-                    DragGesture(minimumDistance: 24)
-                        .onEnded { value in
-                            guard abs(value.translation.width) > abs(value.translation.height) else { return }
-                            switchSide(to: value.translation.width < 0 ? .caffeine : .sugar)
-                        }
-                )
+            cupStrip(totals: totals)
 
             // 상태 바 글자가 밝은 사진 위에서 묻히지 않게 아주 옅게만 깐다.
             LinearGradient(

@@ -169,7 +169,7 @@ private struct ImpactCup: View {
     let step: Int
 
     var body: some View {
-        CupCrop(asset: CupLevel.assetName(setID: CupSide.sugar.cupSetID, step: step))
+        CupCrop(asset: CupLevel.cutoutName(setID: CupSide.sugar.cupSetID, step: step))
             .padding(.vertical, 6)
             .frame(width: 74, height: 110)
             .background(Color.wall, in: RoundedRectangle(cornerRadius: 14, style: .continuous))

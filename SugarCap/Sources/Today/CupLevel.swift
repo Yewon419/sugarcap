@@ -15,6 +15,11 @@ enum CupLevel {
         "cup-\(setID)-\(step)"
     }
 
+    /// 같은 단계의 오린 컵(배경 없음). 추이 선반·영향 미리보기용(`design/assets/cups/make_cutouts.py`).
+    static func cutoutName(setID: String = defaultSetID, step: Int) -> String {
+        "cutout-\(setID)-\(step)"
+    }
+
     /// - Parameter remaining: 남은 양. `limit`과 같은 단위여야 한다.
     static func step(remaining: Double, limit: Double) -> Int {
         guard limit > 0 else { return 0 }

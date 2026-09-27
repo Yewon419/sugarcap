@@ -146,12 +146,15 @@ def main() -> None:
         ]
         subprocess.run(cmd, check=True)
 
-    # 마스크는 에셋 카탈로그 이미지(흰 = 영상 보임). 사각형 위치는 JSON으로 앱에 넘긴다.
+    # 마스크는 에셋 카탈로그 이미지. SwiftUI .mask는 밝기가 아니라 알파만 보므로 알파 채널에 넣는다
+    # (흑백 PNG로 넣었다가 패치 사각형 전체가 식탁 위에 드러났다, 2026-09-27).
+    # 사각형 위치는 JSON으로 앱에 넘긴다.
     mask_set = os.path.join(RES, "Assets.xcassets", f"{name}-idle-mask.imageset")
     os.makedirs(mask_set, exist_ok=True)
+    alpha8 = (mask[y0:y1, x0:x1] * 255).round().astype(np.uint8)
+    white = np.full_like(alpha8, 255)
     write_image(
-        os.path.join(mask_set, "mask.png"),
-        (mask[y0:y1, x0:x1] * 255).round().astype(np.uint8),
+        os.path.join(mask_set, "mask.png"), np.dstack([white, white, white, alpha8])
     )
     with open(os.path.join(mask_set, "Contents.json"), "w", encoding="utf-8") as fh:
         json.dump(

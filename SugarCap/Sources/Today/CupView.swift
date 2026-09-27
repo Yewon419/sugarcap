@@ -14,6 +14,8 @@ struct CupView: View {
         self.setID = setID
     }
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     static let heightRatio: CGFloat = 0.84
     static let wallColor = Color(red: 0xF3 / 255, green: 0xF5 / 255, blue: 0xF8 / 255)
 
@@ -33,6 +35,10 @@ struct CupView: View {
                             Image(assetName)
                                 .resizable()
                                 .scaledToFill()
+                                .overlay {
+                                    // 대기 루프(얼음, SPEC §9-10). 동작 줄이기면 정지 사진만.
+                                    if !reduceMotion { CupIdleOverlay(assetName: assetName) }
+                                }
                                 // .id로 뷰를 교체해야 transition이 걸린다. 같은 Image에 이름만 바꾸면 페이드 없이 즉시 갈린다.
                                 .id(assetName)
                                 .transition(.opacity)

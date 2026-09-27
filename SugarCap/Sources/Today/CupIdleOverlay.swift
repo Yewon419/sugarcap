@@ -6,7 +6,7 @@ import UIKit
 /// 번들에 `<에셋>-idle.mp4`·`<에셋>-idle.json`(캔버스 좌표 사각형)·`<에셋>-idle-mask` 이미지가 있는 단계만 돈다.
 /// 만드는 법은 `design/assets/cups/make_idle_patch.py`.
 ///
-/// 오린 컵 이미지(`resizable().scaledToFill()`)의 overlay로 붙인다. 그 틀이 937×1666 캔버스를 그대로 비례 확대한 크기다.
+/// 단계 사진(`resizable().scaledToFill()`)의 overlay로 붙인다. 그 틀이 937×1666 캔버스를 그대로 비례 확대한 크기다.
 struct CupIdleOverlay: View {
     private let loop: CupIdleLoop?
 

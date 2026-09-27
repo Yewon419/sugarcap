@@ -13,6 +13,8 @@ struct TodayView: View {
     @Query private var settlements: [DaySettlement]
 
     @State private var side: CupSide = .sugar
+    /// 컵을 넘기는 방향(식탁 위에서 미는 연출). 카페인으로 가면 왼쪽으로 민다.
+    @State private var pushEdge: Edge = .leading
     @State private var path: [String] = []
     @State private var isManualEntryPresented = false
     /// 먹이기 요청 + 여는 방식을 한 덩어리로 둔다. 따로 두면 전체 화면이 뜨기 전 값을 붙잡아
@@ -20,6 +22,10 @@ struct TodayView: View {
     @State private var feeding: FeedingPresentation?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var prompt: SettlementPlan.Prompt?
+    /// 어젯밤 처리할 게 있으면 앱을 열자마자 전체 화면으로 띄운다(2026-09-27 대표님). 처리 전까지 계속 뜬다.
+    @State private var gate: YesterdayGate?
+    /// "어젯밤 이후 마신 만큼 빠졌어요"를 X로 닫은 날. 그날엔 다시 띄우지 않는다.
+    @AppStorage("dismissedShrankNoticeDay") private var dismissedShrankDay = ""
     /// 지난 마감분이 방금 확정됐을 때만 채운다. 이번 실행 동안만 보인다.
     @State private var creditNotice: [FeedResult]?
     @State private var paywall: ProFeature?
@@ -142,6 +148,15 @@ struct TodayView: View {
         .sensoryFeedback(.success, trigger: entries.count) { old, new in new > old }
     }
 
+    /// 당 ↔ 카페인 넘기기. 식탁 위에서 잔을 밀듯 한 번에 미끄러지고 살짝 흔들리며 선다.
+    private func switchSide(to next: CupSide) {
+        guard next != side else { return }
+        pushEdge = next == .caffeine ? .leading : .trailing
+        withAnimation(reduceMotion ? .easeInOut(duration: 0.25) : .spring(response: 0.55, dampingFraction: 0.78)) {
+            side = next
+        }
+    }
+
     private func todaysEntries(now: Date) -> [Entry] {
         let today = DayKey(at: now, boundaryHour: boundaryHour)
         return entries.filter { $0.dayKey(boundaryHour: boundaryHour) == today }
@@ -168,7 +183,7 @@ struct TodayView: View {
         let limit = side.limit(limits)
 
         ZStack(alignment: .topLeading) {
-            CupView(step: CupLevel.step(remaining: remaining, limit: limit), setID: side.cupSetID)
+            CupView(step: CupLevel.step(remaining: remaining, limit: limit), setID: side.cupSetID, pushTowards: pushEdge)
                 .ignoresSafeArea()
                 .contentShape(Rectangle())
                 // 좌우로 밀어 당 컵과 카페인 컵을 오간다(§4.1).
@@ -176,9 +191,7 @@ struct TodayView: View {
                     DragGesture(minimumDistance: 24)
                         .onEnded { value in
                             guard abs(value.translation.width) > abs(value.translation.height) else { return }
-                            withAnimation(.spring(response: 0.35, dampingFraction: 0.9)) {
-                                side = value.translation.width < 0 ? .caffeine : .sugar
-                            }
+                            switchSide(to: value.translation.width < 0 ? .caffeine : .sugar)
                         }
                 )
 
@@ -196,6 +209,14 @@ struct TodayView: View {
             banners(today: today)
                 .padding(.horizontal, 20)
                 .padding(.top, 232)
+        }
+        .fullScreenCover(item: $gate, onDismiss: presentGateIfPending) { gate in
+            YesterdayGateView(
+                gate: gate,
+                opening: feedingOpening(),
+                onFeed: { request in try feed(request) },
+                onDrank: { dismissPastDay(gate.day) }
+            )
         }
         .overlay(alignment: .bottom) { bottomControls(now: now, today: today, totals: totals) }
         .overlay(alignment: .topTrailing) { affinityButton }
@@ -261,8 +282,8 @@ struct TodayView: View {
         // 컵 전환은 화면에서는 좌우 스와이프다. VoiceOver에서는 위아래 쓸기로 같은 일을 한다.
         .accessibilityAdjustableAction { direction in
             switch direction {
-            case .increment: side = .caffeine
-            case .decrement: side = .sugar
+            case .increment: switchSide(to: .caffeine)
+            case .decrement: switchSide(to: .sugar)
             @unknown default: break
             }
         }
@@ -331,86 +352,62 @@ struct TodayView: View {
 
     // MARK: - 정산(§4.7)
 
-    @ViewBuilder
+    /// 컵 위에 뜨는 안내. 음료를 가리므로 투명하게 두고 반드시 X로 닫을 수 있게 한다(2026-09-27 대표님 베타 피드백).
+    /// 어제 먹이기·"안 마셨나요?"는 여기가 아니라 앱을 열면 먼저 뜨는 전체 화면(`YesterdayGateView`)이 맡는다.
     private func banners(today: DayKey) -> some View {
         let yesterday = today.shifted(by: -1)
         let yesterdayRow = settlements.first { $0.day == yesterday.rawValue }
+        let showsShrank = yesterdayRow?.shrankAfterClose == true && dismissedShrankDay != yesterday.rawValue
 
-        switch prompt {
-        case .feedYesterday(let day)?:
-            banner {
-                HStack {
-                    Text("어제 남은 음료를 먹여 주세요")
-                    Spacer(minLength: 8)
-                    Button("먹이기") {
-                        let dayTotals = totals(for: day)
-                        openFeeding(FeedingRequest(
-                            kind: .pastDay(day),
-                            sugarLeftG: dayTotals.leftSugarG,
-                            caffeineLeftMg: dayTotals.leftCaffeineMg,
-                            limits: limits,
-                            sugarOverG: dayTotals.overSugarG,
-                            caffeineOverMg: dayTotals.overCaffeineMg
-                        ))
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .buttonBorderShape(.capsule)
-                    .accessibilityIdentifier("banner-feed-yesterday")
-                }
-            }
-        case .askNoDrink(let day)?:
-            banner {
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("어제는 기록이 없어요. 음료를 안 마셨나요?")
-                    HStack(spacing: 8) {
-                        Button("안 마셨어요") {
-                            openFeeding(FeedingRequest(
-                                kind: .pastDay(day),
-                                sugarLeftG: limits.sugarG,
-                                caffeineLeftMg: limits.caffeineMg,
-                                limits: limits
-                            ))
+        return VStack(spacing: 10) {
+            if let creditNotice {
+                notice(onClose: { self.creditNotice = nil }) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("지난밤 먹인 음료가 반영됐어요")
+                        ForEach(creditNotice.filter(\.leveledUp), id: \.side) { result in
+                            Text("\(result.side.characterNameWithGwa) \(AffinityMath.stageName(level: result.levelAfter))가 됐어요")
+                                .font(AppFont.pretendard(15, .semibold, relativeTo: .subheadline))
+                                .foregroundStyle(.tint)
                         }
-                        .buttonStyle(.borderedProminent)
-                        Button("마셨어요") { dismissPastDay(day) }
-                            .buttonStyle(.bordered)
-                    }
-                    .buttonBorderShape(.capsule)
-                }
-            }
-        case nil:
-            EmptyView()
-        }
-
-        if let creditNotice {
-            banner {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("지난밤 먹인 음료가 반영됐어요")
-                    ForEach(creditNotice.filter(\.leveledUp), id: \.side) { result in
-                        Text("\(result.side.characterNameWithGwa) \(AffinityMath.stageName(level: result.levelAfter))가 됐어요")
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(.tint)
                     }
                 }
+                .accessibilityIdentifier("notice-credit")
+            }
+            if showsShrank {
+                notice(onClose: { dismissedShrankDay = yesterday.rawValue }) {
+                    Text("어젯밤 이후 마신 만큼 빠졌어요")
+                }
+                .accessibilityIdentifier("notice-shrank")
             }
         }
-
-        if yesterdayRow?.shrankAfterClose == true {
-            banner {
-                Text("어젯밤 이후 마신 만큼 빠졌어요")
-                    .foregroundStyle(.secondary)
-            }
-        }
+        .animation(.easeOut(duration: 0.2), value: creditNotice == nil)
+        .animation(.easeOut(duration: 0.2), value: showsShrank)
     }
 
-    private func banner(@ViewBuilder _ content: () -> some View) -> some View {
-        content()
-            .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                Color(.secondarySystemBackground),
-                in: RoundedRectangle(cornerRadius: 16, style: .continuous)
-            )
+    /// 투명한 안내 카드 + X. 컵 사진이 비쳐 보이게 옅은 흰 막만 깐다.
+    private func notice(onClose: @escaping () -> Void, @ViewBuilder _ content: () -> some View) -> some View {
+        HStack(alignment: .top, spacing: 8) {
+            content()
+                .font(AppFont.pretendard(15, .regular, relativeTo: .subheadline))
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Button(action: onClose) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 26, height: 26)
+                    .background(.white.opacity(0.5), in: Circle())
+                    .tapTarget()
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("닫기")
+        }
+        .padding(.leading, 16)
+        .padding(.trailing, 6)
+        .padding(.vertical, 6)
+        .frame(minHeight: 52)
+        .background(.white.opacity(0.28), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(.white.opacity(0.6)))
+        .transition(.opacity.combined(with: .move(edge: .top)))
     }
 
     /// 마감 가능 시각 이후에만 연다(이른 마감 방지). 마감한 뒤에도 기록은 계속 된다.
@@ -449,11 +446,33 @@ struct TodayView: View {
         }
     }
 
+    /// 어제 처리할 게 남아 있으면 전체 화면을 (다시) 띄운다. 먹이기를 도중에 닫아도 여기로 돌아온다.
+    private func presentGateIfPending() {
+        guard let prompt, gate == nil else { return }
+        switch prompt {
+        case .feedYesterday(let day):
+            let dayTotals = totals(for: day)
+            gate = YesterdayGate(
+                kind: .feed, day: day, sugarLeftG: dayTotals.leftSugarG, caffeineLeftMg: dayTotals.leftCaffeineMg,
+                limits: limits, sugarOverG: dayTotals.overSugarG, caffeineOverMg: dayTotals.overCaffeineMg
+            )
+        case .askNoDrink(let day):
+            gate = YesterdayGate(
+                kind: .askNoDrink, day: day, sugarLeftG: limits.sugarG, caffeineLeftMg: limits.caffeineMg, limits: limits
+            )
+        }
+    }
+
+    /// 첫 먹이기면 로슈·카인 소개부터(§4.5), 그 뒤로는 마감 진입 모션.
+    private func feedingOpening() -> FeedingOpening {
+        let seen = UserDefaults.standard.bool(forKey: CompanionIntro.seenKey)
+        return !seen ? .companionIntro : (reduceMotion ? .immediate : .dusk)
+    }
+
     /// 먹이기를 연다. 첫 마감이면 로슈·카인 소개부터(§4.5), 그 뒤로는 마감 진입 모션.
     /// 화면이 아래에서 밀려 올라오는 기본 전환은 끈다. 모션이 대신 화면을 연다.
     private func openFeeding(_ request: FeedingRequest) {
-        let seen = UserDefaults.standard.bool(forKey: CompanionIntro.seenKey)
-        let opening: FeedingOpening = !seen ? .companionIntro : (reduceMotion ? .immediate : .dusk)
+        let opening = feedingOpening()
         var transaction = Transaction()
         transaction.disablesAnimations = true
         withTransaction(transaction) { feeding = FeedingPresentation(request: request, opening: opening, snapshot: nil) }
@@ -494,6 +513,7 @@ struct TodayView: View {
             try context.save()
 
             prompt = plan.prompt
+            presentGateIfPending()
             if !credited.isEmpty {
                 creditNotice = credited
             }
@@ -528,6 +548,7 @@ struct TodayView: View {
             try SettlementStore.dismissPastDay(day, now: Date(), in: context)
             try context.save()
             prompt = nil
+            gate = nil
         } catch {
             Self.logger.error("어제 닫기 실패(\(day.rawValue, privacy: .public)): \(String(describing: error), privacy: .public)")
             failureMessage = "저장하지 못했어요. 다시 시도해 주세요."
@@ -570,6 +591,15 @@ struct TodayView: View {
         }
         if defaults.bool(forKey: "screenshotRecord") {
             isRecordSheetPresented = true
+        }
+        // 어젯밤 처리 전체 화면(`-screenshotGate feed|ask`).
+        if let kind = defaults.string(forKey: "screenshotGate") {
+            let yesterday = DayKey(at: Date(), boundaryHour: boundaryHour).shifted(by: -1)
+            gate = YesterdayGate(
+                kind: kind == "ask" ? .askNoDrink : .feed, day: yesterday,
+                sugarLeftG: kind == "ask" ? limits.sugarG : 18, caffeineLeftMg: kind == "ask" ? limits.caffeineMg : 150,
+                limits: limits
+            )
         }
         if defaults.bool(forKey: "screenshotDayLog") {
             isDayLogPresented = true

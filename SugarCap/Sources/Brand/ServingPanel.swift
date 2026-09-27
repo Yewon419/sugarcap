@@ -169,15 +169,10 @@ private struct ImpactCup: View {
     let step: Int
 
     var body: some View {
-        Color.clear
+        CupCrop(asset: CupLevel.assetName(setID: CupSide.sugar.cupSetID, step: step))
+            .padding(.vertical, 6)
             .frame(width: 74, height: 110)
-            .overlay(alignment: .bottom) {
-                Image(CupLevel.assetName(setID: CupSide.sugar.cupSetID, step: step))
-                    .resizable()
-                    .scaledToFill()
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(.black.opacity(0.05)))
+            .background(Color.wall, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             .accessibilityHidden(true)
     }
 }

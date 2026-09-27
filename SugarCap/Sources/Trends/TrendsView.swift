@@ -447,26 +447,16 @@ extension DayKey: Identifiable {
     var id: String { rawValue }
 }
 
-/// 선반 위 컵 한 잔. 오늘 화면과 같은 사진을 크게 확대해 잔만 잘라 쓴다(프로토타입 background-size 260%, 위치 50% 92%).
+/// 선반 위 컵 한 잔. 오려 낸 컵 전체를 보여 준다.
 private struct ShelfGlass: View {
     let asset: String
     private static let width: CGFloat = 44
     private static let height: CGFloat = 82
 
+    // 2026-09-27 대표님 베타 피드백: 사진 일부를 확대해 자르지 말고 컵만 누끼 따서 컵 전체로.
     var body: some View {
-        let imageWidth = Self.width * 2.6
-        let imageHeight = imageWidth * 1666 / 937
-        Image(asset)
-            .resizable()
-            .scaledToFill()
-            .frame(width: imageWidth, height: imageHeight)
-            .offset(y: -(imageHeight - Self.height) * 0.92)
-            .frame(width: Self.width, height: Self.height, alignment: .top)
-            .clipShape(UnevenRoundedRectangle(topLeadingRadius: 12, bottomLeadingRadius: 8, bottomTrailingRadius: 8, topTrailingRadius: 12, style: .continuous))
-            .mask {
-                LinearGradient(stops: [.init(color: .clear, location: 0), .init(color: .black, location: 0.12)], startPoint: .top, endPoint: .bottom)
-            }
-            .accessibilityHidden(true)
+        CupCrop(asset: asset)
+            .frame(width: Self.width, height: Self.height)
     }
 }
 

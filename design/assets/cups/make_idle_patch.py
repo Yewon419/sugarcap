@@ -20,7 +20,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 RES = os.path.join(REPO, "SugarCap", "Resources")
 CANVAS_W, CANVAS_H = 937, 1666
-MOTION_BOTTOM = 1000  # 기본값. 이 아래(잠긴 얼음 아래·잔 바닥)는 움직임이 없어 패치에서 뺀다
+# 기본값. 이 아래(잠긴 얼음 아래·잔 바닥)는 움직임이 없어 패치에서 뺀다.
+MOTION_BOTTOM = 1000
 # 단계마다 움직이는 높이가 달라 --bottom으로 바꾼다(2026-09-28 측정: 딸기 라떼는 딸기층까지 움직여 잔 전체,
 # 아메리카노 30 = 잔 전체, 50 = 1250, 80 = 1100, 100 = 1000).
 FADE = 100  # 패치 아래쪽 경계를 녹이는 높이

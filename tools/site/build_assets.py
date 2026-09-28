@@ -13,7 +13,9 @@ import numpy as np
 from numpy.typing import NDArray
 from PIL import Image
 
-REPO = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+REPO = os.path.abspath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
+)
 CUPS = os.path.join(REPO, "design", "assets", "cups")
 RES = os.path.join(REPO, "SugarCap", "Resources")
 OUT = os.path.join(REPO, "site", "assets", "cups")
@@ -35,13 +37,17 @@ def crop(img: NDArray[np.uint8]) -> NDArray[np.uint8]:
     x, y, w, h = CROP
     part = img[y : y + h, x : x + w]
     height = round(h * WIDTH / w) & ~1
-    return np.asarray(cv2.resize(part, (WIDTH, height), interpolation=cv2.INTER_AREA), dtype=np.uint8)
+    return np.asarray(
+        cv2.resize(part, (WIDTH, height), interpolation=cv2.INTER_AREA), dtype=np.uint8
+    )
 
 
 def write_photo(set_id: str, step: int) -> NDArray[np.uint8]:
     src = read(os.path.join(CUPS, set_id, "9x16", f"{step}.png"), cv2.IMREAD_COLOR)
     rgb = cv2.cvtColor(crop(src), cv2.COLOR_BGR2RGB)
-    Image.fromarray(rgb).save(os.path.join(OUT, f"{SETS[set_id]}-{step}.webp"), quality=82, method=6)
+    Image.fromarray(rgb).save(
+        os.path.join(OUT, f"{SETS[set_id]}-{step}.webp"), quality=82, method=6
+    )
     return src
 
 
@@ -50,9 +56,16 @@ def write_idle(set_id: str, step: int, src: NDArray[np.uint8]) -> None:
     video = os.path.join(RES, "CupIdle", f"{name}-idle.mp4")
     if not os.path.exists(video):
         return
-    mask_png = os.path.join(RES, "Assets.xcassets", f"{name}-idle-mask.imageset", "mask.png")
-    mask = read(mask_png, cv2.IMREAD_UNCHANGED)[:, :, 3].astype(np.float32)[..., None] / 255
-    with open(os.path.join(RES, "CupIdle", f"{name}-idle.json"), encoding="utf-8") as fh:
+    mask_png = os.path.join(
+        RES, "Assets.xcassets", f"{name}-idle-mask.imageset", "mask.png"
+    )
+    mask = (
+        read(mask_png, cv2.IMREAD_UNCHANGED)[:, :, 3].astype(np.float32)[..., None]
+        / 255
+    )
+    with open(
+        os.path.join(RES, "CupIdle", f"{name}-idle.json"), encoding="utf-8"
+    ) as fh:
         rect = json.load(fh)
     x, y, w, h = rect["x"], rect["y"], rect["width"], rect["height"]
     cap = cv2.VideoCapture(video)
@@ -74,7 +87,9 @@ def write_idle(set_id: str, step: int, src: NDArray[np.uint8]) -> None:
             break
         canvas = base.copy()
         region = canvas[y : y + h, x : x + w]
-        canvas[y : y + h, x : x + w] = region * (1 - mask) + frame.astype(np.float32) * mask
+        canvas[y : y + h, x : x + w] = (
+            region * (1 - mask) + frame.astype(np.float32) * mask
+        )
         proc.stdin.write(np.ascontiguousarray(crop(canvas.astype(np.uint8))).tobytes())
     proc.stdin.close()
     if proc.wait() != 0:

@@ -82,18 +82,63 @@
     .gauge { right: 3vw; }
   }
 
-  /* 히어로 아래: 지원 정보(2단계에서 다시 설계). */
-  .info { max-width: 42rem; margin: 0 auto; padding: 72px 24px 64px; }
-  .info h2 { font-weight: 800; font-size: 20px; letter-spacing: -.01em; margin: 40px 0 8px; }
-  .info p { margin: 8px 0; color: #34363C; }
-  footer { max-width: 42rem; margin: 0 auto; padding: 24px 24px 56px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
-  footer p { margin: 6px 0; }
+  /* 밤 먹이기: 앱 먹이기 전환(해질녘 하늘 → 호박색 넘김)을 스크롤 진행으로 옮겼다. 단색 면과 또렷한 원만 쓴다. */
+  .night { position: relative; height: 520svh; }
+  .night .stage { background: var(--wall); }
+  .sky { position: absolute; left: -40px; right: -40px; top: -60px; bottom: -60px; background: #172239; border-radius: 70px; will-change: transform; }
+  .moon { position: absolute; width: 56px; height: 56px; border-radius: 50%; background: var(--wall); right: 16%; top: 13%; }
+  .star { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #fff; }
+  .turn { position: absolute; border-radius: 50%; background: #B8732F; width: 10px; height: 10px; left: 50%; top: 72%; margin: -5px 0 0 -5px; }
+  .pal { position: absolute; bottom: 9svh; height: min(38svh, 84vw); left: 50%; transform-origin: 50% 100%; }
+  .pal img { height: 100%; width: auto; display: block; }
+  .drop { position: absolute; left: 0; top: 0; width: 34px; height: 34px; margin: -17px 0 0 -17px; opacity: 0; }
+  .night .copy { color: #fff; }
+  .night h2 { font-weight: 800; font-size: clamp(30px, 8.4vw, 64px); line-height: 1.12; letter-spacing: -.02em; margin: 0; }
+  .mask { display: block; overflow: hidden; }
+  @media (min-width: 900px) { .pal { height: 50svh; } .drop { width: 46px; height: 46px; margin: -23px 0 0 -23px; } }
+  .mask > span { display: block; transform: translateY(105%); }
+  .night .lines { color: rgba(255, 255, 255, .86); height: 3.2em; line-height: 1.6; }
+  /* 두 줄까지 접히므로 칸 높이만큼 밀어 둔다(자기 높이 110%로는 칸 안에 남는다). */
+  .night .lines span { white-space: normal; max-width: 20em; transform: translateY(3.4em); }
+  .night .lines span.on { transform: translateY(0); }
+  .night .lines span.gone { transform: translateY(-3.4em); }
+
+  /* 수치의 출처: 브랜드 이름이 흐르는 띠. */
+  .sources { padding: 96px 0 72px; }
+  .sources .inner, .promise, .support { max-width: 64rem; margin: 0 auto; padding: 0 24px; }
+  .eyebrow { color: var(--accent); font-weight: 700; font-size: 14px; margin: 0 0 10px; }
+  .sources h2, .promise h2 { font-weight: 800; font-size: clamp(28px, 6.6vw, 52px); line-height: 1.18; letter-spacing: -.02em; margin: 0; }
+  .sources p.note { color: var(--muted); max-width: 34em; margin: 16px 0 0; }
+  .band { margin-top: 44px; overflow: hidden; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .band ul { display: flex; width: max-content; margin: 0; padding: 18px 0; list-style: none; animation: band 36s linear infinite; }
+  .band li { font-weight: 800; font-size: clamp(22px, 5vw, 34px); letter-spacing: -.01em; padding: 0 28px; white-space: nowrap; }
+  .band li::after { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-left: 56px; vertical-align: middle; }
+  @keyframes band { to { transform: translateX(-50%); } }
+
+  /* 약속 */
+  .promise { padding-top: 48px; padding-bottom: 112px; }
+  .promise h2 .mask > span { transition: transform .8s var(--ease-out); }
+  .promise h2 .mask:nth-child(2) > span { transition-delay: .08s; }
+  .promise.in h2 .mask > span { transform: none; }
+  .promise p { color: #34363C; font-size: 17px; max-width: 30em; margin: 20px 0 0; }
+
+  /* 지원 */
+  .support { padding-bottom: 72px; display: grid; gap: 28px; }
+  .support h2 { font-weight: 800; font-size: 20px; letter-spacing: -.01em; margin: 0 0 6px; }
+  .support p { margin: 6px 0; color: #34363C; }
+  .support .mail { font-weight: 800; font-size: clamp(20px, 5vw, 28px); letter-spacing: -.01em; color: var(--ink); text-decoration: none; border-bottom: 2px solid var(--accent); }
+  @media (min-width: 900px) { .support { grid-template-columns: 1fr 1fr; gap: 64px; } }
+  footer { max-width: 64rem; margin: 0 auto; padding: 24px 24px 56px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; display: flex; flex-wrap: wrap; gap: 8px 24px; }
+  footer p { margin: 0; }
 
   @media (prefers-reduced-motion: reduce) {
-    .hero { height: auto; }
+    .hero, .night { height: auto; }
     .stage { position: relative; }
+    .night .stage { min-height: 100svh; }
     .lines span { transition: none; }
     .cup video { display: none; }
+    .band ul { animation: none; flex-wrap: wrap; width: auto; }
+    .promise h2 .mask > span { transform: none; transition: none; }
   }
 </style>
 </head>
@@ -123,17 +168,58 @@
   </div>
 </section>
 
-<main class="info">
-  <h2>지원</h2>
-  <p>앱 사용 중 문제가 있거나 제안이 있으면 아래로 보내 주세요. 보통 2~3일 안에 답합니다.</p>
-  <p><a href="mailto:windgarden05@gmail.com">windgarden05@gmail.com</a></p>
+<section class="night" aria-label="밤 먹이기">
+  <div class="stage" id="nightStage">
+    <div class="sky" id="sky" aria-hidden="true">
+      <div class="moon" id="moon"></div>
+    </div>
+    <div class="turn" id="turn" aria-hidden="true"></div>
+    <div class="pal" id="roshu" aria-hidden="true"><img src="/assets/art/roshu.webp" alt="" width="560" height="613" loading="lazy"></div>
+    <div class="pal" id="kain" aria-hidden="true"><img src="/assets/art/kain.webp" alt="" width="408" height="614" loading="lazy"></div>
+    <div id="drops" aria-hidden="true"></div>
+    <div class="copy">
+      <h2><span class="mask"><span id="nightTitle">밤이 되면</span></span></h2>
+      <div class="lines" id="nightLines">
+        <span data-at="0.17">남은 당은 로슈에게 먹여요.</span>
+        <span data-at="0.6">남은 카페인은 카인에게 먹여요.</span>
+        <span data-at="0.88">많이많이 남겨서 두 친구와 더 가까워져요.</span>
+      </div>
+    </div>
+  </div>
+</section>
 
-  <h2>수치의 출처</h2>
-  <p>카페 메뉴의 당·카페인 수치는 각 브랜드가 공식 홈페이지에 공개한 값을 옮긴 것입니다. 브랜드가 공개하지 않은 값은 "미공개"로 표시하며 추정하지 않습니다.</p>
+<section class="sources" aria-labelledby="sourcesTitle">
+  <div class="inner">
+    <p class="eyebrow">수치의 출처</p>
+    <h2 id="sourcesTitle">8개 브랜드, 메뉴 1,051가지.</h2>
+    <p class="note">카페 메뉴의 당·카페인 수치는 각 브랜드가 공식 홈페이지에 공개한 값을 옮긴 것입니다. 브랜드가 공개하지 않은 값은 "미공개"로 표시하며 추정하지 않습니다.</p>
+  </div>
+  <div class="band" aria-hidden="true">
+    <ul>
+      <li>스타벅스</li><li>메가MGC커피</li><li>컴포즈커피</li><li>이디야커피</li><li>빽다방</li><li>투썸플레이스</li><li>할리스</li><li>더벤티</li>
+      <li>스타벅스</li><li>메가MGC커피</li><li>컴포즈커피</li><li>이디야커피</li><li>빽다방</li><li>투썸플레이스</li><li>할리스</li><li>더벤티</li>
+    </ul>
+  </div>
+</section>
+
+<section class="promise" id="promise" aria-labelledby="promiseTitle">
+  <p class="eyebrow">개인정보</p>
+  <h2 id="promiseTitle"><span class="mask"><span>계정도, 서버도</span></span><span class="mask"><span>없어요.</span></span></h2>
+  <p>기록은 이 기기에만 남아요. 외부로 보내지 않고, 개발자도 볼 수 없어요. 분석 도구나 광고도 넣지 않았어요.</p>
+</section>
+
+<main class="support">
+  <div>
+    <h2>지원</h2>
+    <p>앱 사용 중 문제가 있거나 제안이 있으면 아래로 보내 주세요. 보통 2~3일 안에 답합니다.</p>
+  </div>
+  <div>
+    <p><a class="mail" href="mailto:windgarden05@gmail.com">windgarden05@gmail.com</a></p>
+  </div>
 </main>
 <footer>
+  <p>슈가캡</p>
   <p><a href="/privacy/">개인정보처리방침</a></p>
-  <p>슈가캡 · 계정도 서버도 없는 기록 앱</p>
 </footer>
 
 <script>
@@ -264,6 +350,147 @@
   addEventListener("resize", render);
   render();
   idleTimer = setTimeout(showIdle, 600);
+})();
+
+// 밤 먹이기: 섹션 진행 q(0~1)의 순수 함수로 모든 요소 위치를 정한다(앱 Motion.seg와 같은 방식).
+(() => {
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const section = document.querySelector(".night");
+  const stage = document.getElementById("nightStage");
+  const sky = document.getElementById("sky");
+  const moon = document.getElementById("moon");
+  const turn = document.getElementById("turn");
+  const roshu = document.getElementById("roshu");
+  const kain = document.getElementById("kain");
+  const title = document.getElementById("nightTitle");
+  const lines = [...document.querySelectorAll("#nightLines span")];
+  const dropLayer = document.getElementById("drops");
+
+  const clamp = (v) => Math.min(1, Math.max(0, v));
+  const seg = (q, a, b, ease = (x) => x) => ease(clamp((q - a) / (b - a)));
+  const lerp = (a, b, k) => a + (b - a) * k;
+  const power3InOut = (x) => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+  const power3Out = (x) => 1 - Math.pow(1 - x, 3);
+  const power4Out = (x) => 1 - Math.pow(1 - x, 4);
+  const expoInOut = (x) => x === 0 ? 0 : x === 1 ? 1 : x < .5 ? Math.pow(2, 20 * x - 10) / 2 : (2 - Math.pow(2, -20 * x + 10)) / 2;
+  const backOut = (s) => (x) => 1 + (s + 1) * Math.pow(x - 1, 3) + s * Math.pow(x - 1, 2);
+
+  // 별 자리(무대 비율).
+  const STARS = [[.14, .2], [.3, .11], [.52, .17], [.7, .08], [.86, .27], [.62, .3]];
+  const stars = STARS.map(([x, y]) => {
+    const el = document.createElement("div");
+    el.className = "star";
+    el.style.left = `${x * 100}%`; el.style.top = `${y * 100}%`;
+    sky.appendChild(el);
+    return el;
+  });
+
+  // 방울 5개씩. 착지 시각에 캐릭터가 한 번 눌렸다 돌아온다.
+  const SUGAR = [0, 1, 2, 3, 4].map((i) => ({ a: .24 + i * .045, len: .1, kind: "sugar", i }));
+  const CAFFEINE = [0, 1, 2, 3, 4].map((i) => ({ a: .68 + i * .035, len: .08, kind: "caffeine", i }));
+  const drops = [...SUGAR, ...CAFFEINE].map((d) => {
+    const img = document.createElement("img");
+    img.className = "drop";
+    img.alt = "";
+    img.src = `/assets/art/drop-${d.kind}.webp`;
+    dropLayer.appendChild(img);
+    return { ...d, el: img };
+  });
+  // 캐릭터 이미지 안의 입 위치(비율).
+  const MOUTH = { sugar: [.48, .40], caffeine: [.37, .58] };
+  const ASPECT = { sugar: 560 / 613, caffeine: 408 / 614 };
+
+  function squash(list, q) {
+    let bump = 0;
+    for (const d of list) {
+      const k = seg(q, d.a + d.len, d.a + d.len + .03);
+      bump += Math.sin(Math.PI * k);
+    }
+    return Math.min(1, bump);
+  }
+
+  function progress() {
+    if (reduce) return 0.95;
+    const rect = section.getBoundingClientRect();
+    const span = section.offsetHeight - innerHeight;
+    return clamp(-rect.top / span);
+  }
+
+  function render() {
+    const q = progress();
+    const W = stage.clientWidth, H = stage.clientHeight;
+
+    // 하늘: 아래에서 차오른다.
+    const rise = seg(q, 0, .12, power3InOut);
+    sky.style.transform = `translateY(${(1 - rise) * (H + 140)}px)`;
+    const moonK = seg(q, .03, .16, power3Out);
+    moon.style.transform = `translateY(${(1 - moonK) * 260}px) scale(${lerp(.6, 1, moonK)})`;
+    stars.forEach((el, i) => {
+      const k = seg(q, .07 + i * .012, .13 + i * .012, backOut(3));
+      el.style.transform = `scale(${Math.max(0, k)})`;
+    });
+    title.style.transform = `translateY(${(1 - seg(q, .08, .16, power4Out)) * 105}%)`;
+
+    // 호박색 원: 로슈 → 카인으로 넘길 때 화면을 한 번 덮었다 걷힌다.
+    const grow = seg(q, .5, .58, expoInOut), shrink = seg(q, .6, .68, expoInOut);
+    const radius = Math.hypot(W, H) * grow * (1 - shrink);
+    turn.style.transform = `scale(${radius / 5})`;
+
+    // 캐릭터
+    const palH = roshu.clientHeight;
+    const enter = seg(q, .14, .24, backOut(1.7));
+    const both = seg(q, .9, .97, power3InOut);
+    const roshuIn = q < .58 ? enter : both;
+    const kainIn = seg(q, .6, .7, backOut(1.7));
+    const sq1 = squash(SUGAR, q), sq2 = squash(CAFFEINE, q);
+    const spread = W * lerp(0, .22, both);
+    const small = lerp(1, .82, both);
+    roshu.style.opacity = roshuIn > 0 ? 1 : 0;
+    roshu.style.transform = `translateX(calc(-50% - ${spread}px)) translateY(${(1 - roshuIn) * (palH + 80)}px) scale(${(1 + .05 * sq1) * small}, ${(1 - .07 * sq1) * small})`;
+    kain.style.opacity = kainIn > 0 ? 1 : 0;
+    kain.style.transform = `translateX(calc(-50% + ${spread}px)) translateY(${(1 - kainIn) * (palH + 80)}px) scale(${(1 + .05 * sq2) * small}, ${(1 - .07 * sq2) * small})`;
+
+    // 방울: 화면 아래 가운데에서 입으로 포물선.
+    for (const d of drops) {
+      const k = seg(q, d.a, d.a + d.len);
+      const target = d.kind === "sugar" ? roshu : kain;
+      const [mx, my] = MOUTH[d.kind];
+      const r = target.getBoundingClientRect(), s = stage.getBoundingClientRect();
+      const tx = r.left - s.left + r.width * mx;
+      const ty = r.top - s.top + r.height * my;
+      const sx = W / 2 + (d.i - 2) * 28;
+      const sy = H + 30;
+      const x = lerp(sx, tx, k);
+      const y = lerp(sy, ty, k) - Math.sin(Math.PI * k) * H * .18;
+      const visible = k > 0 && k < 1;
+      d.el.style.opacity = visible ? 1 : 0;
+      d.el.style.transform = `translate(${x}px, ${y}px) scale(${lerp(1, .55, k)})`;
+    }
+
+    let active = -1;
+    lines.forEach((el, i) => { if (q >= Number(el.dataset.at)) active = i; });
+    lines.forEach((el, i) => {
+      el.classList.toggle("on", i === active);
+      el.classList.toggle("gone", i < active);
+    });
+  }
+
+  let ticking = false;
+  addEventListener("scroll", () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => { ticking = false; render(); });
+  }, { passive: true });
+  addEventListener("resize", render);
+  render();
+})();
+
+// 약속 문구: 화면에 들어오면 줄 단위로 올라온다.
+(() => {
+  const el = document.getElementById("promise");
+  new IntersectionObserver((entries, obs) => {
+    if (entries.some((e) => e.isIntersecting)) { el.classList.add("in"); obs.disconnect(); }
+  }, { threshold: .4 }).observe(el);
 })();
 </script>
 </body>

@@ -2,74 +2,134 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>슈가캡 개인정보처리방침</title>
+<meta name="theme-color" content="#F7F8FA">
 <style>
-  :root { color-scheme: light; --ink: #1c1c1e; --muted: #6b6b70; --accent: #0f7a73; }
-  body {
-    margin: 0 auto; padding: 32px 20px 64px; max-width: 42rem;
-    font: 16px/1.7 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif;
-    color: var(--ink); background: #fff;
-  }
-  h1 { font-size: 1.6rem; margin: 0 0 4px; }
-  h2 { font-size: 1.1rem; margin: 32px 0 8px; }
-  p, li { margin: 8px 0; }
-  .updated { color: var(--muted); font-size: 0.9rem; margin-bottom: 24px; }
+  @font-face { font-family: "Pretendard"; font-weight: 500; font-display: swap; src: url("/assets/fonts/pretendard-500.woff") format("woff"); }
+  @font-face { font-family: "Pretendard"; font-weight: 700; font-display: swap; src: url("/assets/fonts/pretendard-700.woff") format("woff"); }
+  @font-face { font-family: "Pretendard"; font-weight: 800; font-display: swap; src: url("/assets/fonts/pretendard-800.woff") format("woff"); }
+
+  /* 법적 문서라 모션은 넣지 않는다. 메인 페이지와 서체·색만 맞춘다. */
+  :root { color-scheme: light; --wall: #F7F8FA; --ink: #141417; --body: #34363C; --muted: #6B6E76; --accent: #5B84AA; --line: #DDE1E8; }
+  * { box-sizing: border-box; }
+  html { background: var(--wall); scroll-behavior: smooth; scroll-padding-top: 24px; }
+  body { margin: 0; font: 500 16px/1.75 "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif; color: var(--body); background: var(--wall); -webkit-font-smoothing: antialiased; }
   a { color: var(--accent); }
-  footer { margin-top: 48px; color: var(--muted); font-size: 0.9rem; }
+
+  .top { max-width: 64rem; margin: 0 auto; padding: max(24px, env(safe-area-inset-top)) 24px 0; }
+  .home { font-weight: 800; font-size: 15px; letter-spacing: -.01em; color: var(--ink); text-decoration: none; }
+
+  .doc { max-width: 64rem; margin: 0 auto; padding: 40px 24px 64px; display: grid; gap: 32px; }
+  h1 { font-weight: 800; font-size: clamp(28px, 6.6vw, 44px); line-height: 1.2; letter-spacing: -.02em; color: var(--ink); margin: 0; }
+  .updated { color: var(--muted); font-size: 14px; margin: 10px 0 28px; }
+  .lead { font-weight: 700; font-size: 18px; color: var(--ink); margin: 0 0 8px; }
+
+  nav ol { list-style: none; margin: 0; padding: 14px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 4px 18px; }
+  nav a { color: var(--muted); text-decoration: none; font-weight: 700; font-size: 14px; }
+  nav a:hover, nav a[aria-current="true"] { color: var(--accent); }
+
+  h2 { font-weight: 800; font-size: 19px; letter-spacing: -.01em; color: var(--ink); margin: 40px 0 8px; }
+  p, li { margin: 8px 0; }
+  ul { padding-left: 1.2em; }
+  footer { max-width: 64rem; margin: 0 auto; padding: 24px 24px 56px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+
+  @media (min-width: 900px) {
+    .doc { grid-template-columns: 14rem minmax(0, 40rem); gap: 64px; padding-top: 64px; }
+    .doc > header { grid-column: 1 / -1; }
+    nav { position: sticky; top: 32px; align-self: start; }
+    nav ol { flex-direction: column; border: 0; padding: 0; gap: 10px; border-left: 1px solid var(--line); }
+    nav a { display: block; padding-left: 16px; margin-left: -1px; border-left: 2px solid transparent; }
+    nav a[aria-current="true"] { border-left-color: var(--accent); }
+  }
 </style>
 </head>
 <body>
-<h1>슈가캡 개인정보처리방침</h1>
-<p class="updated">최종 수정일 2026년 9월 23일</p>
+<div class="top"><a class="home" href="/">슈가캡</a></div>
 
-<p>슈가캡(SugarCap, 이하 "앱")은 이용자의 개인정보를 수집하지 않습니다. 계정도, 서버도 없습니다.</p>
+<div class="doc">
+  <header>
+    <h1>슈가캡 개인정보처리방침</h1>
+    <p class="updated">최종 수정일 2026년 9월 23일</p>
+    <p class="lead">슈가캡(SugarCap, 이하 "앱")은 이용자의 개인정보를 수집하지 않습니다. 계정도, 서버도 없습니다.</p>
+  </header>
 
-<h2>1. 수집하지 않는 것</h2>
-<ul>
-  <li>이름, 이메일, 전화번호 등 신원 정보</li>
-  <li>위치 정보</li>
-  <li>연락처, 사진, 건강 데이터</li>
-  <li>광고 식별자, 사용 분석, 크래시 리포트</li>
-</ul>
-<p>앱에는 분석 도구나 광고 SDK가 들어 있지 않습니다.</p>
+  <nav aria-label="목차">
+    <ol>
+      <li><a href="#p1">1. 수집하지 않는 것</a></li>
+      <li><a href="#p2">2. 기기에만 저장되는 것</a></li>
+      <li><a href="#p3">3. 네트워크 사용</a></li>
+      <li><a href="#p4">4. 결제</a></li>
+      <li><a href="#p5">5. 아동</a></li>
+      <li><a href="#p6">6. 수치의 출처</a></li>
+      <li><a href="#p7">7. 변경</a></li>
+      <li><a href="#p8">8. 문의</a></li>
+    </ol>
+  </nav>
 
-<h2>2. 기기에만 저장되는 것</h2>
-<p>
-  이용자가 기록한 음료, 하루 기준, 마감 기록, 캐릭터 호감도는 기기 안에만 저장됩니다.
-  이 데이터는 외부로 전송되지 않으며, 개발자도 볼 수 없습니다.
-  앱을 삭제하면 함께 삭제됩니다.
-</p>
+  <main>
+    <h2 id="p1">1. 수집하지 않는 것</h2>
+    <ul>
+      <li>이름, 이메일, 전화번호 등 신원 정보</li>
+      <li>위치 정보</li>
+      <li>연락처, 사진, 건강 데이터</li>
+      <li>광고 식별자, 사용 분석, 크래시 리포트</li>
+    </ul>
+    <p>앱에는 분석 도구나 광고 SDK가 들어 있지 않습니다.</p>
 
-<h2>3. 네트워크 사용</h2>
-<p>
-  앱은 카페 메뉴의 당·카페인 수치가 담긴 파일을 내려받기 위해서만 네트워크를 사용합니다.
-  이때 이용자의 기록은 전송되지 않습니다.
-</p>
+    <h2 id="p2">2. 기기에만 저장되는 것</h2>
+    <p>
+      이용자가 기록한 음료, 하루 기준, 마감 기록, 캐릭터 호감도는 기기 안에만 저장됩니다.
+      이 데이터는 외부로 전송되지 않으며, 개발자도 볼 수 없습니다.
+      앱을 삭제하면 함께 삭제됩니다.
+    </p>
 
-<h2>4. 결제</h2>
-<p>
-  슈가캡 Pro 구입은 Apple의 App Store를 통해 처리됩니다.
-  결제 수단 정보는 Apple이 처리하며 앱은 접근하지 않습니다.
-  구입 여부만 기기에서 확인합니다.
-</p>
+    <h2 id="p3">3. 네트워크 사용</h2>
+    <p>
+      앱은 카페 메뉴의 당·카페인 수치가 담긴 파일을 내려받기 위해서만 네트워크를 사용합니다.
+      이때 이용자의 기록은 전송되지 않습니다.
+    </p>
 
-<h2>5. 아동</h2>
-<p>앱은 아동을 대상으로 하지 않으며, 어떤 이용자로부터도 개인정보를 수집하지 않습니다.</p>
+    <h2 id="p4">4. 결제</h2>
+    <p>
+      슈가캡 Pro 구입은 Apple의 App Store를 통해 처리됩니다.
+      결제 수단 정보는 Apple이 처리하며 앱은 접근하지 않습니다.
+      구입 여부만 기기에서 확인합니다.
+    </p>
 
-<h2>6. 수치의 출처</h2>
-<p>
-  앱에 담긴 카페 메뉴의 당·카페인 수치는 각 브랜드가 공식 홈페이지에 공개한 값을 옮긴 것입니다.
-  브랜드가 공개하지 않은 값은 "미공개"로 표시하며 추정하지 않습니다.
-  이 수치는 참고용이며 의학적 조언이 아닙니다.
-</p>
+    <h2 id="p5">5. 아동</h2>
+    <p>앱은 아동을 대상으로 하지 않으며, 어떤 이용자로부터도 개인정보를 수집하지 않습니다.</p>
 
-<h2>7. 변경</h2>
-<p>이 방침이 바뀌면 이 페이지에 수정일과 함께 올립니다.</p>
+    <h2 id="p6">6. 수치의 출처</h2>
+    <p>
+      앱에 담긴 카페 메뉴의 당·카페인 수치는 각 브랜드가 공식 홈페이지에 공개한 값을 옮긴 것입니다.
+      브랜드가 공개하지 않은 값은 "미공개"로 표시하며 추정하지 않습니다.
+      이 수치는 참고용이며 의학적 조언이 아닙니다.
+    </p>
 
-<h2>8. 문의</h2>
-<p>문의: <a href="mailto:windgarden05@gmail.com">windgarden05@gmail.com</a></p>
+    <h2 id="p7">7. 변경</h2>
+    <p>이 방침이 바뀌면 이 페이지에 수정일과 함께 올립니다.</p>
+
+    <h2 id="p8">8. 문의</h2>
+    <p>문의: <a href="mailto:windgarden05@gmail.com">windgarden05@gmail.com</a></p>
+  </main>
+</div>
 
 <footer>슈가캡 · 당과 카페인을 줄이는 기록 앱</footer>
+
+<script>
+// 목차: 지금 읽는 절을 표시한다(넓은 화면에서 옆에 붙어 있다).
+(() => {
+  const links = [...document.querySelectorAll("nav a")];
+  const heads = links.map((a) => document.querySelector(a.getAttribute("href")));
+  const mark = () => {
+    let current = 0;
+    heads.forEach((h, i) => { if (h.getBoundingClientRect().top < innerHeight * 0.35) current = i; });
+    links.forEach((a, i) => a.setAttribute("aria-current", String(i === current)));
+  };
+  addEventListener("scroll", mark, { passive: true });
+  mark();
+})();
+</script>
 </body>
 </html>

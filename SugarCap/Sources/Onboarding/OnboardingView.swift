@@ -100,7 +100,9 @@ struct OnboardingView: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel("다음 장")
-            .accessibilityIdentifier("onboarding-next")
+            // 당 기준 단계의 "다음"(onboarding-next)과 식별자를 나눈다. 같으면 건너뛰기 직후 사라지는 중인
+            // 릴 버튼을 UI 테스트가 눌러 카페인 단계가 안 열렸다(2026-09-27 CI).
+            .accessibilityIdentifier("onboarding-reel-next")
             .padding(.top, 70)
         }
     }

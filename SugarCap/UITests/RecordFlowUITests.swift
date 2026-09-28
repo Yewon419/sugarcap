@@ -211,12 +211,17 @@ extension RecordFlowUITests {
         XCTAssertTrue(replay.waitForExistence(timeout: 5), "닫기 후 설정으로 돌아와야 한다")
 
         Driver(app: app).tap(replay)
-        // 릴 7장은 화면을 누르면 한 장씩 넘어가고, 그 뒤 당 단계의 "다음"도 같은 식별자다.
+        // 릴 7장은 화면을 누르면 한 장씩 넘어가고(onboarding-reel-next), 그 뒤 당 단계에서 "다음"(onboarding-next).
+        let reelNext = app.buttons["onboarding-reel-next"]
         let next = app.buttons["onboarding-next"]
         let finish = app.buttons["onboarding-start"]
         for _ in 0..<12 where !finish.exists {
-            XCTAssertTrue(next.waitForExistence(timeout: 5))
-            next.tap()
+            if reelNext.exists {
+                reelNext.tap()
+            } else {
+                XCTAssertTrue(next.waitForExistence(timeout: 5))
+                next.tap()
+            }
         }
         XCTAssertTrue(finish.waitForExistence(timeout: 5), "마지막 장이 안 열림")
         XCTAssertEqual(finish.label, "완료")

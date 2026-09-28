@@ -5,6 +5,8 @@ import SwiftUI
 ///
 /// 크기(2026-09-26 대표님 지시): 사진 높이를 화면의 84%로 줄여 바닥에 붙이고, 위 빈 곳은 벽 색(#F3F5F8)으로 채운다.
 /// 사진 윗부분 14%는 벽 색으로 녹아들게 가린다. 폭은 화면 폭 그대로 채우기라 양옆 경계선이 생기지 않는다.
+/// 2026-09-28 대표님: 잔 바닥이 페이지 점·탭 바에 가려서 사진을 화면 높이의 8%만큼 올렸다. 아래 빈 곳은
+/// 벽 색이고(식탁 색과 거의 같다, RGB 239~247), 사진 아래 끝 4%를 녹여 경계가 안 보이게 한다.
 struct CupView: View {
     let step: Int
     let setID: String
@@ -17,6 +19,7 @@ struct CupView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     static let heightRatio: CGFloat = 0.84
+    static let liftRatio: CGFloat = 0.08
     static let wallColor = Color(red: 0xF3 / 255, green: 0xF5 / 255, blue: 0xF8 / 255)
 
     private var assetName: String {
@@ -46,10 +49,14 @@ struct CupView: View {
                         .clipped()
                         .mask {
                             LinearGradient(
-                                stops: [.init(color: .clear, location: 0), .init(color: .black, location: 0.14)],
+                                stops: [
+                                    .init(color: .clear, location: 0), .init(color: .black, location: 0.14),
+                                    .init(color: .black, location: 0.96), .init(color: .clear, location: 1),
+                                ],
                                 startPoint: .top, endPoint: .bottom
                             )
                         }
+                        .padding(.bottom, proxy.size.height * Self.liftRatio)
                 }
         }
         // 기록처럼 애니메이션 없이 바뀐 단계도 부드럽게. 넘기기처럼 호출한 쪽이 애니메이션을 주면 그걸 따른다.

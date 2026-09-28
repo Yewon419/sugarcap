@@ -30,6 +30,9 @@ struct CupIdleOverlay: View {
 
 private struct CupIdleLoop {
     static let canvasWidth: CGFloat = 937
+    /// 꺼 둠(2026-09-28 대표님): 100% 잔 사진을 다시 뽑는 중이라 지금 영상(옛 사진 기준)이 새 사진과 안 맞는다.
+    /// 새 사진으로 대기 루프 영상을 다시 만든 뒤 true로 켠다.
+    static let isEnabled = false
 
     let videoURL: URL
     let maskAsset: String
@@ -45,6 +48,7 @@ private struct CupIdleLoop {
     init?(assetName: String) {
         let base = "\(assetName)-idle"
         guard
+            Self.isEnabled,
             let video = Self.resource(base, "mp4"),
             let json = Self.resource(base, "json"),
             let data = try? Data(contentsOf: json),

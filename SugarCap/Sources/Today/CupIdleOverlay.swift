@@ -30,9 +30,8 @@ struct CupIdleOverlay: View {
 
 private struct CupIdleLoop {
     static let canvasWidth: CGFloat = 937
-    /// 꺼 둠(2026-09-28 대표님): 100% 잔 사진을 다시 뽑는 중이라 지금 영상(옛 사진 기준)이 새 사진과 안 맞는다.
-    /// 새 사진으로 대기 루프 영상을 다시 만든 뒤 true로 켠다.
-    static let isEnabled = false
+    /// 5단계(30·50·80·100 × 두 세트) 768p 영상으로 다시 만들어 켰다(2026-09-28). 0%는 빈 잔이라 영상이 없다.
+    static let isEnabled = true
 
     let videoURL: URL
     let maskAsset: String

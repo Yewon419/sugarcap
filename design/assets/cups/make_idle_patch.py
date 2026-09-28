@@ -3,7 +3,7 @@
 # 얼음이 움직이는 윗부분 사각형만 잘라 HEVC로 쓰고, 같은 사각형의 마스크(오린 컵 윤곽 기반)를 PNG로 쓴다.
 # 앱 CupView는 오린 컵 위 같은 자리에 패치 영상을 마스크로 겹친다.
 #
-# 사용: python make_idle_patch.py <세트> <단계> <원본 AI 영상> [--slow 3] [--fps 10]
+# 사용: python make_idle_patch.py <세트> <단계> <원본 AI 영상> [--slow 3] [--fps 10] [--bottom 1000]
 from __future__ import annotations
 
 import argparse
@@ -20,7 +20,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 RES = os.path.join(REPO, "SugarCap", "Resources")
 CANVAS_W, CANVAS_H = 937, 1666
-MOTION_BOTTOM = 1000  # 이 아래(잠긴 얼음 아래·잔 바닥)는 움직임이 없어 패치에서 뺀다
+MOTION_BOTTOM = 1000  # 기본값. 이 아래(잠긴 얼음 아래·잔 바닥)는 움직임이 없어 패치에서 뺀다
+# 단계마다 움직이는 높이가 달라 --bottom으로 바꾼다(2026-09-28 측정: 딸기 라떼는 딸기층까지 움직여 잔 전체,
+# 아메리카노 30 = 잔 전체, 50 = 1250, 80 = 1100, 100 = 1000).
 FADE = 100  # 패치 아래쪽 경계를 녹이는 높이
 GROW = 10  # 얼음이 돌며 윤곽 밖으로 나가는 만큼 마스크를 넓힌다
 
@@ -62,6 +64,7 @@ def main() -> None:
     ap.add_argument("video")
     ap.add_argument("--slow", type=float, default=3.0)
     ap.add_argument("--fps", type=int, default=10)
+    ap.add_argument("--bottom", type=int, default=MOTION_BOTTOM)
     args = ap.parse_args()
 
     name = f"cup-{args.set_id}-{args.step}"
@@ -80,7 +83,7 @@ def main() -> None:
         np.ones((2 * GROW + 1, 2 * GROW + 1), np.uint8),
     )
     mask = cv2.GaussianBlur(grown, (0, 0), 4).astype(np.float32) / 255
-    ramp = np.clip((MOTION_BOTTOM - np.arange(CANVAS_H, dtype=np.float32)) / FADE, 0, 1)
+    ramp = np.clip((args.bottom - np.arange(CANVAS_H, dtype=np.float32)) / FADE, 0, 1)
     mask *= ramp[:, None]
     ys, xs = np.nonzero(mask > 0.01)
     x0, y0 = int(xs.min()) & ~1, int(ys.min()) & ~1

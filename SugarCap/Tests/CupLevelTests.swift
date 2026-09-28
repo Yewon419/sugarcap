@@ -4,16 +4,14 @@ import XCTest
 @testable import SugarCap
 
 final class CupLevelTests: XCTestCase {
-    func testSpecExamplesRoundDownToTheNearestAvailableStep() {
-        // SPEC §9-10에 박힌 예시 그대로.
+    func testFiveStepBands() {
+        // SPEC §9-10(2026-09-28): 0 초과~40% 미만 → 30, 40~65% 미만 → 50, 65~100% 미만 → 80.
+        XCTAssertEqual(CupLevel.steps, [0, 30, 50, 80, 100])
+        XCTAssertEqual(CupLevel.step(remainingRatio: 0.39), 30)
+        XCTAssertEqual(CupLevel.step(remainingRatio: 0.40), 50)
+        XCTAssertEqual(CupLevel.step(remainingRatio: 0.649), 50)
+        XCTAssertEqual(CupLevel.step(remainingRatio: 0.65), 80)
         XCTAssertEqual(CupLevel.step(remainingRatio: 0.95), 80)
-        XCTAssertEqual(CupLevel.step(remainingRatio: 0.65), 50)
-    }
-
-    func testSkippedStepsFallToTheNextLowerOne() {
-        // 60·90은 이미지가 없다.
-        XCTAssertEqual(CupLevel.step(remainingRatio: 0.69), 50)
-        XCTAssertEqual(CupLevel.step(remainingRatio: 0.99), 80)
     }
 
     func testExactStepValuesMapToThemselves() {
@@ -33,12 +31,11 @@ final class CupLevelTests: XCTestCase {
     func testEmptySceneOnlyAtExactlyZero() {
         XCTAssertEqual(CupLevel.step(remainingRatio: 0), 0)
         // 남은 양이 조금이라도 있으면 첫 단계까지는 보인다.
-        XCTAssertEqual(CupLevel.step(remainingRatio: 0.001), 10)
-        XCTAssertEqual(CupLevel.step(remainingRatio: 0.09), 10)
+        XCTAssertEqual(CupLevel.step(remainingRatio: 0.001), 30)
     }
 
     func testRemainingAndLimitAreConvertedToARatio() {
-        XCTAssertEqual(CupLevel.step(remaining: 32.5, limit: 50), 50)
+        XCTAssertEqual(CupLevel.step(remaining: 32.5, limit: 50), 80)
         XCTAssertEqual(CupLevel.step(remaining: 0, limit: 400), 0)
         XCTAssertEqual(CupLevel.step(remaining: 400, limit: 400), 100)
     }
@@ -50,12 +47,12 @@ final class CupLevelTests: XCTestCase {
     func testEveryStepHasAnImageInTheAppBundle() {
         // 호스트 앱에 붙어 도는 테스트라 Bundle.main이 앱이다.
         // 에셋 이름이 어긋나면 화면엔 빈 칸만 뜨고 에러는 안 나므로 여기서 잡는다.
-        for step in CupLevel.steps {
-            let name = CupLevel.assetName(step: step)
-            XCTAssertNotNil(
-                UIImage(named: name, in: .main, with: nil),
-                "\(name) 이미지가 앱 번들에 없음"
-            )
+        for setID in ["iced-americano", "strawberry-latte"] {
+            for step in CupLevel.steps {
+                for name in [CupLevel.assetName(setID: setID, step: step), CupLevel.cutoutName(setID: setID, step: step)] {
+                    XCTAssertNotNil(UIImage(named: name, in: .main, with: nil), "\(name) 이미지가 앱 번들에 없음")
+                }
+            }
         }
     }
 

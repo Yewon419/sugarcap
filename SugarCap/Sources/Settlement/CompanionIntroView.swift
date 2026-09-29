@@ -150,7 +150,7 @@ private struct IntroStage: View {
     }
 
     private func maskedText(_ lines: [String], size: CGFloat, name: String?, revealAt: Double, hideAt: Double?, clock: Double,
-                            accentLast: Bool, color: Color) -> some View {
+                            accentLast: Bool, color: Color, nameColor: Color = .white) -> some View {
         let lineHeight = size * (name == nil && accentLast ? 1.2 : 1.14)
         let all = lines + (name.map { [$0] } ?? [])
         return VStack(alignment: .leading, spacing: 0) {
@@ -163,7 +163,7 @@ private struct IntroStage: View {
                     text: line,
                     font: AppFont.pretendardFixed(isName ? 240 : size, isName ? .black : .extraBold),
                     lineHeight: isName ? 240 * 1.1 : lineHeight,
-                    color: isName ? .white : (isAccent ? Color.accentColor : color),
+                    color: isName ? nameColor : (isAccent ? Color.accentColor : color),
                     tracking: isName ? 0 : AppFont.displayTracking(for: size),
                     reveal: reveal, exit: exit
                 )
@@ -327,7 +327,7 @@ private struct IntroStage: View {
                 ForEach(0..<60, id: \.self) { index in
                     let long = index % 5 == 0
                     Capsule()
-                        .fill(Color.wall)
+                        .fill(Color.kainRing)
                         .frame(width: long ? 6 : 3, height: long ? 40 : 22)
                         .offset(y: -(366 + (long ? 20 : 11)))
                         .rotationEffect(.degrees(Double(index) * 6))
@@ -349,8 +349,9 @@ private struct IntroStage: View {
                 .scaleEffect(caffeineScale)
                 .stagePosition(x: caffeineX, top: caffeineTop, height: 170)
 
+            // 라떼 무대라 흰 이름은 안 읽힌다(대비 약 1.7:1). 카인 링과 같은 진한 갈색으로.
             maskedText(["카페인을", "좋아하는"], size: 150, name: "카인!", revealAt: 4.1, hideAt: 7.05, clock: u,
-                       accentLast: false, color: .ink)
+                       accentLast: false, color: .ink, nameColor: .kainRing)
         }
     }
 

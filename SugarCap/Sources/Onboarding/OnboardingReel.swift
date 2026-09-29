@@ -133,7 +133,7 @@ struct OnboardingReelStage: View {
                 ForEach(0..<60, id: \.self) { index in
                     let long = index % 5 == 0
                     Capsule()
-                        .fill(Color.wall)
+                        .fill(Color.kainRing)
                         .frame(width: long ? 6 : 3, height: long ? 48 : 26)
                         .offset(y: -(452 + (long ? 24 : 13)))
                         .rotationEffect(.degrees(Double(index) * 6))
@@ -230,8 +230,9 @@ struct OnboardingReelStage: View {
             slam("50", size: 540, color: .ink, at: 0.85, out: 1.48)
             slam("20", size: 540, color: .ink, at: 1.5, out: 2.18)
             slam("4", size: 540, color: .ink, at: 2.2, out: 2.62)
-            slam("400", size: 380, color: .wall, at: 3.72, out: 4.52)
-            slam("200", size: 380, color: .wall, at: 4.56, out: 5.2)
+            // 카페인 숫자는 라떼 무대 위라 흰 외곽선이 안 읽힌다. 카인 링 색으로.
+            slam("400", size: 380, color: .kainRing, at: 3.72, out: 4.52)
+            slam("200", size: 380, color: .kainRing, at: 4.56, out: 5.2)
         }
     }
 

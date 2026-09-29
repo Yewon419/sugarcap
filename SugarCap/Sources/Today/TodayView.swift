@@ -232,11 +232,11 @@ struct TodayView: View {
             .ignoresSafeArea(edges: .top)
             .allowsHitTesting(false)
 
-            headline(remaining: remaining, limit: limit, overflow: side.overflow(totals), now: now)
+            headline(remaining: remaining, limit: limit, overflow: side.overflow(totals))
 
             banners(today: today)
                 .padding(.horizontal, 20)
-                .padding(.top, 232)
+                .padding(.top, 191)
         }
         .fullScreenCover(item: $gate, onDismiss: presentGateIfPending) { gate in
             YesterdayGateView(
@@ -255,20 +255,15 @@ struct TodayView: View {
         }
     }
 
-    /// 날짜 → 무엇의 수치인지 → 숫자 순으로 읽힌다. 자간과 크기 대비로 위계를 만든다.
-    private func headline(remaining: Double, limit: Double, overflow: Double, now: Date) -> some View {
+    /// 무엇의 수치인지 → 숫자 순으로 읽힌다. 자간과 크기 대비로 위계를 만든다.
+    /// 날짜 줄은 대표님 지시로 뺐다(2026-09-29). 제목이 그 자리로 올라간다.
+    private func headline(remaining: Double, limit: Double, overflow: Double) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(now.formatted(.dateTime.month().day().weekday(.wide)))
-                .font(.system(.caption2, weight: .medium))
-                .tracking(1.5)
-                .foregroundStyle(.secondary)
-                .padding(.top, 8)
-
             Text("오늘 남은 \(side.label)")
                 .font(.system(.caption2, weight: .semibold))
                 .tracking(1.3)
                 .foregroundStyle(.tint)
-                .padding(.top, 28)
+                .padding(.top, 8)
 
             HStack(alignment: .firstTextBaseline, spacing: 0) {
                 Text(Amount.number(remaining))

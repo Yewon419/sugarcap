@@ -1,4 +1,4 @@
-"""Cut Roshu pose art into a body layer and limb layers for rigged idle motion.
+"""Cut character pose art into a body layer and limb layers for rigged idle motion.
 
 The art is flat colour without outlines, so limbs are cut along hand-measured
 curves (canvas pixels, measured on gridded zooms). Cut edges get the same soft
@@ -9,7 +9,7 @@ and the body is repainted with the body colour underneath.
 
     python design/assets/characters/split_limbs.py
 
-Writes roshu/parts/<pose>/<part>.png (cropped) and roshu/parts/parts.json.
+Writes <character>/parts/<pose>/<part>.png (cropped) and <character>/parts/parts.json.
 """
 
 from __future__ import annotations
@@ -26,11 +26,11 @@ from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parent
 POSES = ROOT / "roshu" / "poses"
+KAIN_POSES = ROOT / "kain" / "poses"
 STAND = (
     ROOT.parents[2]
     / "SugarCap/Resources/Shared.xcassets/character-roshu.imageset/roshu.png"
 )
-OUT = ROOT / "roshu" / "parts"
 
 SUPERSAMPLE = 4
 EDGE_FAINT = 0.2
@@ -46,6 +46,10 @@ STROKE_MIN = 2 / 255
 LEG_TAPER = 0.25
 # The leg starts this far inside the silhouette so it never doubles the soft edge at rest.
 LEG_EDGE = 3
+SEAM_UNDER = 2
+SEAM_KERNEL = cv2.getStructuringElement(
+    cv2.MORPH_RECT, (SEAM_UNDER * 2 + 1, SEAM_UNDER * 2 + 1)
+)
 
 Point = tuple[float, float]
 FloatImage: TypeAlias = NDArray[np.float64]
@@ -88,9 +92,12 @@ class PoseSpec:
     source: Path
     cuts: list[Cut] = field(default_factory=list)
     strokes: list[Stroke] = field(default_factory=list)
+    # Limbs that sit side by side (Kain's legs): a root never reaches into another limb's cut, or a
+    # turned limb carries a hard-edged piece of its neighbour with it.
+    separate_roots: bool = False
 
 
-SPECS: dict[str, PoseSpec] = {
+ROSHU: dict[str, PoseSpec] = {
     "walk": PoseSpec(
         POSES / "walk.png",
         cuts=[
@@ -265,6 +272,101 @@ SPECS: dict[str, PoseSpec] = {
 }
 
 
+# Kain's legs are sticks under a round body. Each leg is cut straight along the body's bottom edge
+# and turns about its hip. Where two legs meet, the cut runs down the seam between their colours
+# (measured every 20 px where the light and dark leg colours cross).
+WALK_SEAM: list[Point] = [
+    (1229, 2244),
+    (1229, 2380),
+    (1226, 2450),
+    (1223, 2500),
+    (1218, 2525),
+    (1207, 2545),
+    (1200, 2580),
+]
+RIM_STAND_SEAM: list[Point] = [
+    (1215, 2118),
+    (1210, 2170),
+    (1208, 2300),
+    (1206, 2360),
+    (1204, 2420),
+]
+# The far (dark) leg comes first so the near (light) leg passes in front of it.
+KAIN: dict[str, PoseSpec] = {
+    "walk": PoseSpec(
+        KAIN_POSES / "walk.png",
+        cuts=[
+            Cut(
+                "leg_far",
+                [*WALK_SEAM, (1335, 2580), (1335, 2244)],
+                pivot=(1270, 2244),
+            ),
+            Cut(
+                "leg_near",
+                [*WALK_SEAM, (930, 2580), (930, 2370), (1085, 2370), (1085, 2244)],
+                pivot=(1145, 2244),
+            ),
+        ],
+        separate_roots=True,
+    ),
+    "rim-stand": PoseSpec(
+        KAIN_POSES / "rim-stand.png",
+        cuts=[
+            Cut(
+                "leg_left",
+                [
+                    (1215, 2100),
+                    *RIM_STAND_SEAM,
+                    (840, 2420),
+                    (840, 2205),
+                    (1040, 2205),
+                    (1040, 2100),
+                ],
+                pivot=(1120, 2100),
+            ),
+            Cut(
+                "leg_right",
+                [
+                    *RIM_STAND_SEAM,
+                    (1600, 2420),
+                    (1600, 2200),
+                    (1355, 2200),
+                    (1355, 2118),
+                ],
+                pivot=(1280, 2118),
+            ),
+        ],
+        separate_roots=True,
+    ),
+    "sit": PoseSpec(KAIN_POSES / "sit.png"),
+    "swim": PoseSpec(
+        KAIN_POSES / "swim.png",
+        cuts=[
+            Cut(
+                "leg_far",
+                [(1585, 2033), (1705, 1905), (1860, 1905), (1860, 2170), (1585, 2170)],
+                pivot=(1650, 1970),
+            ),
+            Cut(
+                "leg_near",
+                [
+                    (1418, 2100),
+                    (1585, 2033),
+                    (1585, 2330),
+                    (1250, 2330),
+                    (1250, 2165),
+                    (1418, 2165),
+                ],
+                pivot=(1500, 2070),
+            ),
+        ],
+        separate_roots=True,
+    ),
+}
+
+CHARACTERS: dict[str, dict[str, PoseSpec]] = {"roshu": ROSHU, "kain": KAIN}
+
+
 def soft_mask(
     size: tuple[int, int], polygon: list[Point], softness: float
 ) -> FloatImage:
@@ -299,7 +401,7 @@ def crop_save(layer: FloatImage, path: Path) -> list[int]:
     return [x0, y0, x1 - x0, y1 - y0]
 
 
-def split(pose: str, spec: PoseSpec) -> dict[str, object]:
+def split(out: Path, pose: str, spec: PoseSpec) -> dict[str, object]:
     rgba = np.asarray(Image.open(spec.source).convert("RGBA"), dtype=np.float64) / 255
     # Faint edge pixels carry junk colour (0 or 255) that bleeds in when a moved layer is resampled.
     # Give them the colour of their opaque neighbourhood instead.
@@ -324,7 +426,7 @@ def split(pose: str, spec: PoseSpec) -> dict[str, object]:
     colour = body_colour(rgba)
     body = rgba.copy()
     parts: list[dict[str, object]] = []
-    out_dir = OUT / pose
+    out_dir = out / pose
     out_dir.mkdir(parents=True, exist_ok=True)
 
     solid = (alpha > 0.5).astype(np.uint8)
@@ -343,8 +445,10 @@ def split(pose: str, spec: PoseSpec) -> dict[str, object]:
     kernel = cv2.getStructuringElement(
         cv2.MORPH_ELLIPSE, (ROOT_REACH * 2 + 1, ROOT_REACH * 2 + 1)
     )
-    for cut, soft in zip(spec.cuts, softs, strict=True):
-        hard = soft_mask((width, height), cut.region, 0) > 0.5
+    edges = [soft_mask((width, height), cut.region, 0) for cut in spec.cuts]
+    hards = [edge > 0.5 for edge in edges]
+    for index, (cut, soft) in enumerate(zip(spec.cuts, softs, strict=True)):
+        hard = hards[index]
         inset = cv2.getStructuringElement(
             cv2.MORPH_ELLIPSE, (cut.root_inset * 2 + 1, cut.root_inset * 2 + 1)
         )
@@ -352,6 +456,10 @@ def split(pose: str, spec: PoseSpec) -> dict[str, object]:
         reach = np.asarray(
             cv2.dilate(hard.astype(np.uint8), kernel), dtype=np.uint8
         ) & np.asarray(inside, dtype=np.uint8)
+        if spec.separate_roots:
+            for other, other_hard in enumerate(hards):
+                if other != index:
+                    reach[other_hard] = 0
         leg = np.zeros_like(hard)
         if cut.leg > 0:
             depth = cv2.distanceTransform(solid, cv2.DIST_L2, 5)
@@ -373,6 +481,16 @@ def split(pose: str, spec: PoseSpec) -> dict[str, object]:
         layer = rgba.copy()
         layer[..., :3][leg] = colour
         layer[..., 3] = np.clip(np.maximum(share, alpha * root), 0, 1)
+        if spec.separate_roots:
+            # The seam to a neighbouring limb stays a sharp 1 px edge instead of the soft cut. A limb
+            # behind reaches SEAM_UNDER px under the one in front so the two antialiased edges composite
+            # back to full alpha.
+            others = sum(
+                cv2.erode(edge, SEAM_KERNEL) if other > index else edge
+                for other, edge in enumerate(edges)
+                if other != index
+            )
+            layer[..., 3] *= np.clip(1 - others, 0, 1)
         box = crop_save(layer, out_dir / f"{cut.name}.png")
         parts.append(
             {"name": cut.name, "z": "back", "frame": box, "pivot": list(cut.pivot)}
@@ -406,11 +524,16 @@ def split(pose: str, spec: PoseSpec) -> dict[str, object]:
 
 
 def main() -> None:
-    OUT.mkdir(parents=True, exist_ok=True)
-    meta = {pose: split(pose, spec) for pose, spec in SPECS.items()}
-    (OUT / "parts.json").write_text(json.dumps(meta, indent=1) + "\n", encoding="utf-8")
-    for pose, spec in SPECS.items():
-        print(pose, [c.name for c in spec.cuts] + [s.name for s in spec.strokes])
+    for name, specs in CHARACTERS.items():
+        out = ROOT / name / "parts"
+        out.mkdir(parents=True, exist_ok=True)
+        meta = {pose: split(out, pose, spec) for pose, spec in specs.items()}
+        (out / "parts.json").write_text(
+            json.dumps(meta, indent=1) + "\n", encoding="utf-8"
+        )
+        for pose, spec in specs.items():
+            names = [c.name for c in spec.cuts] + [s.name for s in spec.strokes]
+            print(name, pose, names)
 
 
 if __name__ == "__main__":

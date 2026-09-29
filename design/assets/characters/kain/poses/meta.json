@@ -1,0 +1,111 @@
+{
+ "rim-stand": {
+  "file": "design/assets/characters/kain/poses/rim-stand.png",
+  "canvas": [
+   2500,
+   2800
+  ],
+  "bbox": [
+   764,
+   448,
+   1685,
+   2395
+  ],
+  "eyes": [
+   {
+    "box": [
+     812,
+     742,
+     989,
+     1062
+    ],
+    "lid": "#382317"
+   },
+   {
+    "box": [
+     1459,
+     742,
+     1636,
+     1062
+    ],
+    "lid": "#382317"
+   }
+  ],
+  "rimLineY": null
+ },
+ "sit": {
+  "file": "design/assets/characters/kain/poses/sit.png",
+  "canvas": [
+   2500,
+   2800
+  ],
+  "bbox": [
+   509,
+   560,
+   1877,
+   2242
+  ],
+  "eyes": [
+   {
+    "box": [
+     853,
+     876,
+     1148,
+     1288
+    ],
+    "lid": "#392418"
+   }
+  ],
+  "rimLineY": null
+ },
+ "swim": {
+  "file": "design/assets/characters/kain/poses/swim.png",
+  "canvas": [
+   2500,
+   2800
+  ],
+  "bbox": [
+   512,
+   623,
+   1880,
+   2302
+  ],
+  "eyes": [
+   {
+    "box": [
+     708,
+     994,
+     1008,
+     1346
+    ],
+    "lid": "#392418"
+   }
+  ],
+  "rimLineY": null
+ },
+ "walk": {
+  "file": "design/assets/characters/kain/poses/walk.png",
+  "canvas": [
+   2500,
+   3200
+  ],
+  "bbox": [
+   593,
+   620,
+   1822,
+   2548
+  ],
+  "eyes": [
+   {
+    "box": [
+     910,
+     901,
+     1179,
+     1276
+    ],
+    "lid": "#392418"
+   }
+  ],
+  "rimLineY": null
+ }
+}

@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<title>슈가캡 · 로슈 대기 자세 실험</title>
+<title>슈가캡 · 로슈·카인 대기 자세 실험</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
   :root {
@@ -36,10 +36,9 @@
   /* UI는 캐릭터보다 위 층. */
   .ui { position: absolute; inset: 0; pointer-events: none; }
   .status { position: absolute; top: 18px; left: 44px; font-size: 17px; font-weight: 600; }
-  .date { position: absolute; top: 66px; left: 24px; font-size: 15px; font-weight: 500; color: var(--grey); letter-spacing: .02em; }
-  .heart { position: absolute; top: 64px; right: 20px; width: 38px; height: 38px; border-radius: 50%; background: rgba(0,0,0,.04); display: grid; place-items: center; }
-  .kicker { position: absolute; top: 108px; left: 24px; font-size: 15px; font-weight: 600; color: var(--grey); }
-  .number { position: absolute; top: 132px; left: 22px; display: flex; align-items: baseline; gap: 4px; }
+  .heart { position: absolute; top: 54px; right: 20px; width: 38px; height: 38px; border-radius: 50%; background: rgba(0,0,0,.04); display: grid; place-items: center; }
+  .kicker { position: absolute; top: 64px; left: 24px; font-size: 15px; font-weight: 600; color: var(--grey); }
+  .number { position: absolute; top: 86px; left: 22px; display: flex; align-items: baseline; gap: 4px; }
   .number b { font-size: 92px; font-weight: 800; letter-spacing: -.04em; line-height: 1; }
   .number i { font-style: normal; font-size: 30px; font-weight: 700; }
   .number span { font-size: 15px; color: var(--grey); margin-left: 8px; }
@@ -71,10 +70,9 @@
     <div class="chars" id="chars"></div>
     <div class="ui">
       <div class="status">1:50</div>
-      <div class="date">9월 29일 화요일</div>
       <div class="heart"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#18181B" stroke-width="2"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></div>
-      <div class="kicker">오늘 남은 당</div>
-      <div class="number"><b id="num">25</b><i>g</i><span>/25 g</span></div>
+      <div class="kicker" id="kicker">오늘 남은 당</div>
+      <div class="number"><b id="num">25</b><i id="unit">g</i><span id="limit">/25 g</span></div>
       <div class="dots"><i></i><i></i></div>
       <div class="fab"><svg width="26" height="26" viewBox="0 0 24 24" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 4v16M4 12h16"/></svg></div>
       <div class="tabbar">
@@ -86,19 +84,19 @@
   </div>
 
   <div class="panel">
-    <h1>로슈 대기 자세</h1>
+    <h1 id="title">대기 자세</h1>
+    <div><h2>캐릭터</h2><div class="row" id="chars-row"></div></div>
     <div><h2>남은 양(컵 단계)</h2><div class="row" id="steps"></div></div>
     <div><h2>자세</h2><div class="row" id="poses"></div></div>
     <div><h2>앱 열기 흉내</h2><div class="row"><button id="reroll">다시 열기(자동 뽑기)</button><button id="reduce" aria-pressed="false">동작 줄이기</button></div></div>
     <p class="now" id="now"></p>
-    <p class="note">규칙: 0%면 철푸덕. 철푸덕은 30% 이하에서도 뽑힌다. 나머지는 앱을 열 때마다 허용된 자세 중 하나를 뽑고, 자세 사이 전환은 없다. 컵 안(가장자리 매달리기)은 50% 이하로 남았을 때만 나온다(0% 제외).</p>
+    <p class="note" id="rule"></p>
   </div>
 
 <script>
 const ASSETS = '../../SugarCap/Resources';
-const POSE_DIR = '../assets/characters/roshu/poses';
+const CHAR_DIR = '../assets/characters';
 const H = 852, W = 393;
-const LIMIT = 25;
 const STEPS = [0, 30, 50, 80, 100];
 
 // CupView 사진 틀: 높이 0.84H, 아래에서 0.08H 올림, 가운데 정렬로 폭을 넘친다(937×1666).
@@ -108,52 +106,93 @@ const PHOTO_TOP = H - H * 0.08 - PHOTO_H;
 const PHOTO_LEFT = (W - PHOTO_W) / 2;
 const photoPoint = (nx, ny) => ({ x: PHOTO_LEFT + nx * PHOTO_W, y: PHOTO_TOP + ny * PHOTO_H });
 
-// 사진 기준 잔 위치: 잔 바닥 y .885. 가장자리 타원(가운데 열의 뒤·앞 가장자리 선)과 음료·얼음 윗면은
-// 단계마다 사진이 달라 따로 쟀다(딸기라떼 원본, 가운데 열 x 467).
-const CUP = { bottom: 0.885 };
-const RIM = { 0: [0.2626, 0.3280], 30: [0.2605, 0.3247], 50: [0.2614, 0.3247], 80: [0.2581, 0.3235], 100: [0.2686, 0.3268] };
-const LIQUID_TOP = { 0: 0.80, 30: 0.557, 50: 0.4466, 80: 0.3511, 100: 0.3397 };
-
-// 대표님 그림은 2500 캔버스 하나의 픽셀 크기로 그렸다. 목업(ScreenShot) 크기에서 잰 배율을 사진 높이에 묶는다.
-const POSE_SCALE = PHOTO_H * 7.96e-5;
-
-const POSES = {
-  'in-cup': { label: '컵 안 가장자리', src: `${POSE_DIR}/in-cup.png`, scale: POSE_SCALE, minStep: 1, maxStep: 50 },
-  watch:   { label: '컵에 붙어 구경', src: `${POSE_DIR}/watch.png`, scale: POSE_SCALE, minStep: 1 },
-  walk:    { label: '컵 밑 걷기', src: `${POSE_DIR}/walk.png`, scale: POSE_SCALE, minStep: 1 },
-  slump:   { label: '철푸덕', src: `${POSE_DIR}/slump.png`, scale: POSE_SCALE, maxStep: 30 },
+// 캐릭터마다 컵 사진·자세·규칙이 다르다. 로슈 = 딸기라떼·당, 카인 = 아이스 아메리카노·카페인.
+// rim: 사진 기준 가장자리 타원(가운데 열의 뒤·앞 가장자리 선), 단계마다 사진이 달라 따로 쟀다(가운데 열 x 467).
+// liquid: 로슈는 음료·얼음 윗면, 카인은 얼음 밑 진한 커피가 시작하는 선(가운데 띠 밝기로 잼).
+// scale: 대표님 그림은 2500 캔버스 픽셀 크기로 그렸다. 목업에서 잰 배율을 사진 높이에 묶는다.
+// 카인 배율: 목업(2026-09-29)의 앉기·헤엄 크기를 잔 가장자리 폭 대비로 옮긴 값(가장자리 폭 683px ↔ 사진 447px)이
+// 작다는 대표님 피드백으로 1.3배. 목업 화면 속 크기(앉기 1.17배·서기 1.44배)의 중간.
+const CHARS = {
+  roshu: {
+    label: '로슈',
+    cup: 'strawberry-latte',
+    kicker: '오늘 남은 당', unit: 'g', limit: 25,
+    bottom: 0.885,
+    rim: { 0: [0.2626, 0.3280], 30: [0.2605, 0.3247], 50: [0.2614, 0.3247], 80: [0.2581, 0.3235], 100: [0.2686, 0.3268] },
+    liquid: { 0: 0.80, 30: 0.557, 50: 0.4466, 80: 0.3511, 100: 0.3397 },
+    // 목업 배율에서 대표님 지시로 0.9배.
+    scale: PHOTO_H * 7.96e-5 * 0.9,
+    lidPad: 0.35,
+    zero: 'slump',
+    poses: {
+      'in-cup': { label: '컵 안 가장자리', minStep: 1, maxStep: 50 },
+      watch:   { label: '컵에 붙어 구경', minStep: 1 },
+      walk:    { label: '컵 밑 걷기', minStep: 1 },
+      slump:   { label: '철푸덕', maxStep: 30 },
+    },
+    // 팔다리는 이음새 한쪽 끝을 축으로, 반대쪽 끝이 몸 안으로 숨는 방향으로만 돈다(CSS 각도 부호. 0은 양쪽 다).
+    limbDir: {
+      walk: { flipper_front: 0, foot_back: -1, foot_front: 1, flipper_side: 0 },
+      watch: { foot_left: -1, foot_right: 1, arm: -1 },
+      slump: { foot_left: 1, foot_right: -1 },
+      'in-cup': { foot_left: -1, foot_right: 1 },
+    },
+    rule: '규칙: 0%면 철푸덕. 철푸덕은 30% 이하에서도 뽑힌다. 나머지는 앱을 열 때마다 허용된 자세 중 하나를 뽑고, 자세 사이 전환은 없다. 컵 안(가장자리 매달리기)은 50% 이하로 남았을 때만 나온다(0% 제외).',
+  },
+  kain: {
+    label: '카인',
+    cup: 'iced-americano',
+    kicker: '오늘 남은 카페인', unit: 'mg', limit: 400,
+    bottom: 0.876,
+    rim: { 0: [0.2629, 0.3283], 30: [0.2629, 0.3271], 50: [0.2641, 0.3259], 80: [0.2629, 0.3271], 100: [0.2683, 0.3265] },
+    liquid: { 0: 0.87, 30: 0.7071, 50: 0.5366, 80: 0.4274, 100: 0.3962 },
+    scale: PHOTO_H * 0.0818 * 1.3 / 1666,
+    // 카인 눈은 흰 고리라 눈꺼풀을 넉넉히 키우면 몸 밖으로 삐져나온다.
+    lidPad: 0.04,
+    zero: 'floor-sit',
+    // art: 그림 파일(자세 두 개가 한 그림을 나눠 쓴다). mirror: 좌우반전(목업에서 앉은 카인은 오른쪽을 본다).
+    poses: {
+      'rim-stand': { label: '가장자리에 서기', minStep: 1 },
+      'rim-sit':   { label: '가장자리 뒤 앉기', art: 'sit', mirror: true, minStep: 1 },
+      // opacity: 커피 속이라 반쯤 비친다(대표님 지시).
+      swim:        { label: '커피 속 헤엄', minStep: 30, opacity: 0.6 },
+      walk:        { label: '컵 밑 걷기', minStep: 1 },
+      'floor-sit': { label: '바닥에 앉기', art: 'sit', mirror: true },
+    },
+    limbDir: {
+      walk: { leg_far: 0, leg_near: 0 },
+      'rim-stand': { leg_left: 0, leg_right: 0 },
+      swim: { leg_far: 0, leg_near: 0 },
+      'rim-sit': {}, 'floor-sit': {},
+    },
+    rule: '규칙(초안): 0%면 바닥에 앉기. 헤엄은 커피가 30% 이상 남았을 때만. 나머지(가장자리에 서기·가장자리 뒤 앉기·걷기·바닥에 앉기)는 1% 이상 어느 단계에서나 뽑힌다. 앱을 열 때마다 허용된 자세 중 하나를 뽑고, 자세 사이 전환은 없다.',
+  },
 };
+let C = CHARS.roshu;
+const artOf = name => C.poses[name].art ?? name;
 
 const allowed = (pose, step) => {
-  const p = POSES[pose];
+  const p = C.poses[pose];
   if (p.maxStep !== undefined && step > p.maxStep) return false;
   if (p.minStep !== undefined && step < p.minStep) return false;
   return true;
 };
 const autoPose = step => {
-  if (step === 0) return 'slump';
-  const pool = Object.keys(POSES).filter(k => allowed(k, step));
+  if (step === 0) return C.zero;
+  const pool = Object.keys(C.poses).filter(k => allowed(k, step));
   return pool[Math.floor(Math.random() * pool.length)];
 };
 
-const state = { step: 100, pose: 'auto', picked: null, reduce: false, meta: null, parts: null };
+const state = { char: 'roshu', step: 100, pose: 'auto', picked: null, reduce: false, meta: null, parts: null };
 
 // ── 스프라이트 ────────────────────────────────────────────
 // 그림 한 장을 몸통과 팔다리 레이어로 나눴다(design/assets/characters/split_limbs.py).
-// 발은 바닥 층이라 몸이 까치발을 해도 제자리다. 팔은 몸 층에 붙어 몸을 따라간다.
-// 팔다리는 이음새 한쪽 끝을 축으로, 반대쪽 끝이 몸 안으로 숨는 방향으로만 돈다(LIMB_DIR, CSS 각도 부호. 0은 양쪽 다).
-const PART_DIR = '../assets/characters/roshu/parts';
-const LIMB_DIR = {
-  walk: { flipper_front: 0, foot_back: -1, foot_front: 1, flipper_side: 0 },
-  watch: { foot_left: -1, foot_right: 1, arm: -1 },
-  slump: { foot_left: 1, foot_right: -1 },
-  'in-cup': { foot_left: -1, foot_right: 1 },
-};
+// 발(foot*)은 바닥 층이라 몸이 까치발을 해도 제자리다. 팔과 카인 다리(leg*)는 몸 층에 붙어 몸을 따라간다.
 const isFoot = n => n.startsWith('foot');
 
 function partImg(pose, name, frame, pivot, s) {
   const img = new Image();
-  img.src = `${PART_DIR}/${pose}/${name}.png`; img.alt = '';
+  img.src = `${CHAR_DIR}/${state.char}/parts/${pose}/${name}.png`; img.alt = '';
   const [x, y, w, h] = frame;
   Object.assign(img.style, { left: `${x * s}px`, top: `${y * s}px`, width: `${w * s}px`, height: `${h * s}px` });
   if (pivot) img.style.transformOrigin = `${(pivot[0] - x) * s}px ${(pivot[1] - y) * s}px`;
@@ -162,10 +201,11 @@ function partImg(pose, name, frame, pivot, s) {
 
 // 기준점 = 그림 bbox 아래 가운데(in-cup만 가장자리 선). 전체 변형은 그 점을 중심으로 한다.
 function makeSprite(name) {
-  const p = POSES[name], m = state.meta[name], rig = state.parts[name], s = p.scale;
+  const art = artOf(name), m = state.meta[art], rig = state.parts[art], s = C.scale;
   const [bx0, , bx1, by1] = m.bbox;
   const el = document.createElement('div');
   el.className = 'sprite';
+  if (C.poses[name].opacity !== undefined) el.style.opacity = String(C.poses[name].opacity);
   el.style.width = `${m.canvas[0] * s}px`;
   el.style.height = `${m.canvas[1] * s}px`;
   const pivotY = name === 'in-cup' ? m.rimLineY : by1;
@@ -178,17 +218,17 @@ function makeSprite(name) {
   body.style.transformOrigin = `${pivot.x}px ${pivot.footY}px`;
   const limbs = {}, draw = [];
   const add = (parent, part) => {
-    const img = partImg(name, part.name, part.frame, part.pivot, s);
+    const img = partImg(art, part.name, part.frame, part.pivot, s);
     parent.appendChild(img);
     limbs[part.name] = img;
     draw.push({ img, frame: part.frame, limb: part.name, pivot: part.pivot, onBody: parent === body });
   };
   for (const part of rig.parts.filter(q => q.z === 'back')) add(isFoot(part.name) ? ground : body, part);
-  const bodyImg = partImg(name, 'body', rig.body, null, s);
+  const bodyImg = partImg(art, 'body', rig.body, null, s);
   body.appendChild(bodyImg);
   draw.push({ img: bodyImg, frame: rig.body, limb: null, pivot: null, onBody: true });
   const lids = m.eyes.map(e => {
-    const [x0, y0, x1, y1] = e.box, pad = 0.35;
+    const [x0, y0, x1, y1] = e.box, pad = C.lidPad;
     const w = (x1 - x0) * (1 + pad * 2), h = (y1 - y0) * (1 + pad * 2);
     const lid = document.createElement('div');
     lid.className = 'lid';
@@ -218,15 +258,41 @@ const smooth = x => { const c = Math.min(Math.max(x, 0), 1); return c * c * (3 -
 // 0→1→0 한 번(길이 len초). 시작 전·끝난 뒤는 0.
 const bump = (u, len) => (u < 0 || u > len) ? 0 : Math.sin(Math.PI * u / len) ** 2;
 
-const place = {
-  'in-cup': () => photoPoint(0.49, RIM[state.step][1]),
-  watch: () => photoPoint(0.25, CUP.bottom - 0.005),
-  walk: () => photoPoint(0.5, CUP.bottom + 0.012),
-  slump: () => photoPoint(0.4, CUP.bottom + 0.02),
+// 자세 기준점(그림 bbox 아래 가운데, 로슈 in-cup만 가장자리 선)이 놓일 사진 위 자리.
+// 카인 자리는 목업에서 잔 가운데로부터 가장자리 폭 단위로 잰 거리다(가장자리 폭 = 사진 폭의 .477, 가운데 .498).
+const KAIN_RIM = { mid: 0.498, width: 0.477 };
+const kainX = u => KAIN_RIM.mid + u * KAIN_RIM.width;
+const PLACE = {
+  roshu: {
+    'in-cup': () => photoPoint(0.49, C.rim[state.step][1]),
+    watch: () => photoPoint(0.25, C.bottom - 0.005),
+    walk: () => photoPoint(0.5, C.bottom + 0.012),
+    slump: () => photoPoint(0.4, C.bottom + 0.02),
+  },
+  kain: {
+    // 발바닥이 앞 가장자리 선 위.
+    'rim-stand': () => photoPoint(kainX(-0.01), C.rim[state.step][1]),
+    // 엉덩이가 뒤 가장자리 선 위, 가운데서 오른쪽으로 가장자리 폭 .23.
+    'rim-sit': () => photoPoint(kainX(0.23), C.rim[state.step][0]),
+    // 잔 왼쪽 바깥 냅킨 위. 목업에서 잔 바닥보다 가장자리 폭의 .088만큼 뒤(위)에 앉았다.
+    'floor-sit': () => photoPoint(kainX(-0.63), C.bottom - 0.024),
+    walk: () => photoPoint(0.5, C.bottom + 0.014),
+    // 얼음 밑 진한 커피 한가운데(커피 윗선~잔 안쪽 바닥 .852의 55% 깊이)에 그림 가운데가 오게 기준점(발끝)을 내린다.
+    swim: () => {
+      const [, by0, , by1] = state.meta.swim.bbox, top = C.liquid[state.step];
+      const mid = photoPoint(kainX(-0.05), top + (0.852 - top) * 0.55);
+      return { x: mid.x, y: mid.y + (by1 - by0) / 2 * C.scale };
+    },
+  },
 };
+const place = () => PLACE[state.char];
 
-// 걷기: 오른쪽 끝(.74) ↔ 왼쪽 끝(.28)을 오가고 끝에서 1.6초 쉰다. 그림은 왼쪽을 본다.
-const WALK = { from: 0.74, to: 0.28, speed: 20, pause: 1.6, stride: 10 };
+// 걷기: 오른쪽 끝(.74) ↔ 왼쪽 끝(.28)을 오가고 끝에서 쉰다. 두 캐릭터 그림 다 왼쪽을 본다.
+// 카인은 몸이 작아 보폭·속도를 줄였다.
+const WALKS = {
+  roshu: { from: 0.74, to: 0.28, speed: 20, pause: 1.6, stride: 10 },
+  kain: { from: 0.74, to: 0.28, speed: 14, pause: 2.2, stride: 6 },
+};
 // 한 발의 한 주기(u 0~1). 앞 절반은 들어서 앞으로(그림 기준 -x) 내딛기, 뒤 절반은 바닥을 딛고 뒤로 밀리기.
 const STEP = { reach: 1.5, lift: 1.6, rot: 8 };
 function step(u) {
@@ -237,6 +303,7 @@ function step(u) {
   return { x: -STEP.reach + 2 * STEP.reach * (u - 0.5) / 0.5, lift: 0, rot: 0 };
 }
 function walkAt(t) {
+  const WALK = WALKS[state.char];
   const dist = (WALK.from - WALK.to) * PHOTO_W, dur = dist / WALK.speed;
   const cycle = 2 * (dur + WALK.pause);
   const u = ((t % cycle) + cycle) % cycle;
@@ -250,8 +317,16 @@ function walkAt(t) {
   return { x, facingLeft, moving, phase };
 }
 
-// 반환: 전체(dx, dy, rot, flip) · 몸 층(bodyDy, sx, sy) · 팔다리 각도(limbs, 크기만. 방향은 LIMB_DIR) · 팔다리 이동(shift, [x, y] px).
+// 반환: 전체(dx, dy, rot, flip) · 몸 층(bodyDy, sx, sy) · 팔다리 각도(limbs, 크기만. 방향은 limbDir) · 팔다리 이동(shift, [x, y] px).
+// 좌우반전 자세(mirror)는 flip에 곱해 CSS·그림자·반사가 한 값을 쓴다.
 function motion(name, t) {
+  const m = MOTION[state.char](name, t);
+  if (C.poses[name].mirror) m.flip = -m.flip;
+  return m;
+}
+const MOTION = { roshu: roshuMotion, kain: kainMotion };
+
+function roshuMotion(name, t) {
   let dx = 0, dy = 0, rot = 0, flip = 1, bodyDy = 0, sx = 1, sy = 1;
   const limbs = {}, shift = {};
   if (name === 'in-cup') {
@@ -272,7 +347,7 @@ function motion(name, t) {
   }
   if (name === 'walk') {
     const w = walkAt(t);
-    dx = w.x - place.walk().x;
+    dx = w.x - place().walk().x;
     flip = w.facingLeft ? 1 : -1;
     if (w.moving) {
       // 몸은 흔들지 않고 다리로 걷는다: 한 발씩 들어 앞으로 내딛고, 딛은 발은 뒤로 밀린다.
@@ -304,19 +379,70 @@ function motion(name, t) {
   return { dx, dy, rot, flip, bodyDy, sx, sy, limbs, shift };
 }
 
+function kainMotion(name, t) {
+  let dx = 0, dy = 0, rot = 0, flip = 1, bodyDy = 0, sx = 1, sy = 1;
+  const limbs = {}, shift = {};
+  if (name === 'walk') {
+    // 뒤뚱 걷기: 두 다리가 엉덩이를 축으로 엇갈려 흔들리고(+가 앞), 앞으로 가는 다리는 살짝 든다.
+    // 몸은 딛는 다리 쪽으로 조금 기운다.
+    const w = walkAt(t);
+    dx = w.x - place().walk().x;
+    flip = w.facingLeft ? 1 : -1;
+    if (w.moving) {
+      const c = (w.phase / 2) % 1, k = Math.sin(TAU * c), lift = Math.cos(TAU * c);
+      limbs.leg_near = 8 * k;
+      limbs.leg_far = -8 * k;
+      shift.leg_near = [0, -0.7 * Math.max(0, lift)];
+      shift.leg_far = [0, -0.7 * Math.max(0, -lift)];
+      rot = 1.5 * k;
+    }
+  }
+  if (name === 'rim-stand') {
+    // 가장자리에서 균형 잡기: 발밑을 축으로 아주 느리게 흔들리고, 6.5초마다 오른발을 두 번 까딱.
+    rot = 0.8 * Math.sin(TAU * t / 3.6);
+    const u = t % 6.5;
+    limbs.leg_right = -7 * (bump(u - 4.6, 0.35) + bump(u - 5.05, 0.35));
+  }
+  if (name === 'rim-sit' || name === 'floor-sit') {
+    // 앉아서 숨쉬기(바닥 기준으로 부풀었다 가라앉음). 가장자리 뒤에서는 8초마다 고개 갸웃.
+    const k = Math.sin(TAU * t / 3.2);
+    sy = 1 + 0.012 * k; sx = 1 - 0.006 * k;
+    if (name === 'rim-sit') rot = -4 * bump((t % 8) - 5.5, 1.4);
+  }
+  if (name === 'swim') {
+    // 커피 속에서 제자리 헤엄: 천천히 좌우로 떠다니며 오르내리고, 두 다리로 번갈아 발차기.
+    dx = 6 * Math.sin(TAU * t / 7);
+    dy = 2.2 * Math.sin(TAU * t / 3.1);
+    rot = 3 * Math.sin(TAU * t / 3.1 + 1.2);
+    const k = Math.sin(TAU * t / 0.9);
+    limbs.leg_near = 10 * k;
+    limbs.leg_far = -10 * k;
+  }
+  return { dx, dy, rot, flip, bodyDy, sx, sy, limbs, shift };
+}
+
 // 그림자: 넓고 옅은 그늘(그림 폭 비율) + 발밑 접지. 걷기는 발마다 접지가 있어 발을 들면 작고 옅어진다.
 // 빛은 왼쪽 앞 위(사진의 컵 밝은 면)라 그늘은 오른쪽 뒤로 조금 밀린다.
 // 철푸덕은 바닥에 누워 몸이 바닥에 닿아 있으니 그늘을 밀지 않고 몸 바로 밑에 좁게 둔다.
-const SHADOW = {
-  walk:  { w: 0.9, h: 0.24, dx: 0.2, dy: -0.05 },
-  watch: { w: 0.8, h: 0.24, dx: 0.2, dy: -0.05 },
-  slump: { w: 0.92, h: 0.1, dx: 0.03, dy: -0.025 },
+// 카인 바닥 앉기도 엉덩이가 바닥에 닿아 몸 밑에 좁게. 가장자리 위 자세와 헤엄은 바닥 그림자가 없다.
+// feet: 발마다 접지(로슈 걷기). 없으면 몸 밑 접지 하나.
+const SHADOWS = {
+  roshu: {
+    walk:  { w: 0.9, h: 0.24, dx: 0.2, dy: -0.05, feet: true },
+    watch: { w: 0.8, h: 0.24, dx: 0.2, dy: -0.05 },
+    slump: { w: 0.92, h: 0.1, dx: 0.03, dy: -0.025 },
+  },
+  kain: {
+    walk:        { w: 0.7, h: 0.2, dx: 0.15, dy: -0.04 },
+    'floor-sit': { w: 0.92, h: 0.12, dx: 0.04, dy: -0.03 },
+  },
 };
 
 function makeShadow(sp) {
+  const SHADOW = SHADOWS[state.char];
   if (!(sp.name in SHADOW)) return [];
-  const [bx0, , bx1] = state.meta[sp.name].bbox;
-  const bw = (bx1 - bx0) * POSES[sp.name].scale;
+  const [bx0, , bx1] = state.meta[artOf(sp.name)].bbox;
+  const bw = (bx1 - bx0) * C.scale;
   const shade = (kind, w, h) => {
     const el = document.createElement('div');
     el.className = `shade ${kind}`;
@@ -325,7 +451,7 @@ function makeShadow(sp) {
   };
   const c = SHADOW[sp.name];
   const out = [{ ...shade('ambient', bw * c.w * 1.35, bw * c.h), dx: bw * c.dx, dy: bw * c.dy }];
-  if (sp.name === 'walk') {
+  if (c.feet) {
     for (const f of sp.feet) out.push({ ...shade('contact', f.w * 1.5, bw * 0.08), foot: f });
   } else {
     out.push({ ...shade('contact', bw * c.w * 0.9, bw * 0.07), dx: bw * c.dx * 0.2, dy: -0.5 });
@@ -335,14 +461,14 @@ function makeShadow(sp) {
 
 // 팔다리 하나의 변형(CSS·캔버스 공용).
 function limbPose(sp, m, limb) {
-  const amount = m.limbs[limb] ?? 0, dir = LIMB_DIR[sp.name][limb];
+  const amount = m.limbs[limb] ?? 0, dir = C.limbDir[sp.name][limb];
   const angle = dir === 0 ? amount : dir * Math.max(0, amount);
   const [mx, my] = m.shift[limb] ?? [0, 0];
   return { angle, mx, my };
 }
 
 function apply(sp, t, blinkOn) {
-  const base = place[sp.name](), m = motion(sp.name, t);
+  const base = place()[sp.name](), m = motion(sp.name, t);
   const cx = base.x + m.dx;
   const x = cx - sp.pivot.x, y = base.y + m.dy - sp.pivot.y;
   sp.el.style.transform = `translate(${x}px, ${y}px) rotate(${m.rot}deg) scaleX(${m.flip})`;
@@ -370,23 +496,39 @@ function apply(sp, t, blinkOn) {
 // 대표님 레퍼런스(2026-09-29 스크린샷 5장)대로: 반사 = 몸통만 있는 매끈한 윤곽(팔다리·얼굴 없음), 크기는 캐릭터 그대로.
 // 캐릭터 중심에서 잔 중심 쪽으로 거리의 toward만큼 당기고 위로 up(pt) 올린다. 유리 밖은 누끼 마스크로 잘리고,
 // 가장자리는 선명하게 둔다(대표님 지시). 값은 레퍼런스에서 쟀다.
-const REFLECT = {
-  walk:  { toward: 0.12, up: 16 },
-  slump: { toward: 0.1, up: 5 },
-  watch: { toward: 0.43, up: 0 },
+// 카인은 대표님 목업(2026-09-29, 바닥에 앉은 카인이 잔 왼쪽 아래에 비침)대로: 그림 전체가 색 그대로 옅게,
+// 좌우반전(부리가 캐릭터 쪽), 가로만 .45배로 눌림, 높이·세로 위치는 캐릭터와 같다. 불투명도는 흰 눈 고리 밝기로 쟀다.
+const REFLECTS = {
+  roshu: {
+    look: { full: false, mirror: false, squeeze: 1, opacity: 0.42 },
+    poses: {
+      walk:  { toward: 0.12, up: 16 },
+      slump: { toward: 0.1, up: 5 },
+      watch: { toward: 0.43, up: 0 },
+    },
+  },
+  kain: {
+    look: { full: true, mirror: true, squeeze: 0.45, opacity: 0.45 },
+    poses: {
+      // 걷기도 바닥 앉기(목업)와 같은 높이·당김으로 비친다. 위로 올리면 눌린 반사가 머리 위로 삐져나온다.
+      'floor-sit': { toward: 0.49, up: 0 },
+      // 걷기는 뒤집지 않는다(대표님: 뒤집으면 반대로 걷는 것처럼 보임).
+      walk:        { toward: 0.49, up: 0, mirror: false },
+    },
+  },
 };
-const GLASS = { opacity: 0.42 };
 const BODY_COLOUR = '#D5D7DD';
 const geo = { ready: false };
 
 const VERT = `attribute vec2 aPos; uniform vec2 uSize; varying vec2 vPos;
 void main() { vPos = vec2((aPos.x * 0.5 + 0.5) * uSize.x, (0.5 - aPos.y * 0.5) * uSize.y); gl_Position = vec4(aPos, 0.0, 1.0); }`;
-// 화면 점 -> 캐릭터 그림 위 점: 반사 자리(uTo)를 캐릭터 자리(uFrom)로 되돌린다.
+// 화면 점 -> 캐릭터 그림 위 점: 반사 자리(uTo)를 캐릭터 자리(uFrom)로 되돌린다. 가로는 반사 가운데를 축으로
+// uFlip(-1 = 좌우반전)과 uSqueeze(가로 눌림)를 되돌린다.
 const FRAG = `precision highp float;
-uniform sampler2D uTex; uniform vec2 uSize, uFrom, uTo; uniform float uAlpha;
+uniform sampler2D uTex; uniform vec2 uSize, uFrom, uTo; uniform float uAlpha, uFlip, uSqueeze;
 varying vec2 vPos;
 void main() {
-  vec2 p = vPos - uTo + uFrom;
+  vec2 p = vec2(uFrom.x + (vPos.x - uTo.x) * uFlip / uSqueeze, vPos.y - uTo.y + uFrom.y);
   if (p.x < 0.0 || p.y < 0.0 || p.x > uSize.x || p.y > uSize.y) { gl_FragColor = vec4(0.0); return; }
   gl_FragColor = texture2D(uTex, p / uSize) * uAlpha;
 }`;
@@ -435,9 +577,9 @@ function measureGlass(step) {
       ctx.drawImage(img, 0, 0);
       const a = ctx.getImageData(0, 0, c.width, c.height).data, iw = c.width, ih = c.height;
       const kx = PHOTO_W / iw, ky = PHOTO_H / ih;
-      const [back, front] = RIM[step];
+      const [back, front] = C.rim[step];
       const rows = [];
-      for (let py = Math.round((front + 0.04) * ih); py < Math.round((CUP.bottom - 0.08) * ih); py += 4) {
+      for (let py = Math.round((front + 0.04) * ih); py < Math.round((C.bottom - 0.08) * ih); py += 4) {
         let x0 = -1, x1 = -1;
         for (let px = 0; px < iw; px++) if (a[(py * iw + px) * 4 + 3] > 128) { if (x0 < 0) x0 = px; x1 = px; }
         if (x0 >= 0) rows.push({ y: PHOTO_TOP + py * ky, half: (x1 - x0) / 2 * kx, mid: PHOTO_LEFT + (x0 + x1) / 2 * kx });
@@ -453,16 +595,16 @@ function measureGlass(step) {
       const rimY = PHOTO_TOP + (back + front) / 2 * PHOTO_H;
       const sin = (front - back) / 2 * PHOTO_H / (aa + b * rimY), cos = Math.sqrt(1 - sin * sin);
       const y0 = (syBottom - aa * sin) / (1 + b * sin);
-      Object.assign(geo, { axis, sin, cos, y0, r0: aa + b * y0, slope: -b * cos, liquid: PHOTO_TOP + LIQUID_TOP[step] * PHOTO_H, step, ready: true });
+      Object.assign(geo, { axis, sin, cos, y0, r0: aa + b * y0, slope: -b * cos, liquid: PHOTO_TOP + C.liquid[step] * PHOTO_H, key: key(step), ready: true });
       resolve();
     };
-    img.src = `${ASSETS}/Assets.xcassets/cutout-strawberry-latte-${step}.imageset/${step}.png`;
+    img.src = cupSrc('cutout', step);
   });
 }
 
-// 반사용 판: 화면과 같은 변형으로 몸통 조각만 그려 몸 색으로 칠한다.
-function paintSide(ctx, sp) {
-  const { base, m, cx } = sp.state, pv = sp.pivot, s = POSES[sp.name].scale;
+// 반사용 판: 화면과 같은 변형으로 그린다. 로슈는 몸통 조각만 그려 몸 색으로 칠하고, 카인은 다리까지 색 그대로.
+function paintSide(ctx, sp, full) {
+  const { base, m, cx } = sp.state, pv = sp.pivot, s = C.scale;
   ctx.save();
   ctx.translate(cx, base.y + m.dy);
   ctx.rotate(m.rot * Math.PI / 180);
@@ -474,19 +616,27 @@ function paintSide(ctx, sp) {
     ctx.translate(-pv.x, -pv.footY);
   };
   for (const d of sp.draw) {
-    if (d.limb) continue;
+    if (d.limb && !full) continue;
     ctx.save();
     if (d.onBody) bodyTransform();
+    if (d.limb) {
+      const l = limbPose(sp, m, d.limb), ox = d.pivot[0] * s, oy = d.pivot[1] * s;
+      ctx.translate(l.mx + ox, l.my + oy);
+      ctx.rotate(l.angle * Math.PI / 180);
+      ctx.translate(-ox, -oy);
+    }
     const [fx, fy, fw, fh] = d.frame;
     ctx.drawImage(d.img, fx * s, fy * s, fw * s, fh * s);
     ctx.restore();
   }
-  ctx.save();
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.globalCompositeOperation = 'source-in';
-  ctx.fillStyle = BODY_COLOUR;
-  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  ctx.restore();
+  if (!full) {
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalCompositeOperation = 'source-in';
+    ctx.fillStyle = BODY_COLOUR;
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.restore();
+  }
   ctx.restore();
 }
 
@@ -496,41 +646,51 @@ function drawGlass() {
   gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
   gl.clearColor(0, 0, 0, 0);
   gl.clear(gl.COLOR_BUFFER_BIT);
-  if (!geo.ready || geo.step !== state.step) return;
+  if (!geo.ready || geo.key !== key(state.step)) return;
   const ctx = paper.getContext('2d');
+  const { look, poses } = REFLECTS[state.char];
   for (const sp of sprites) {
-    if (!(sp.name in REFLECT) || !sp.state) continue;
+    if (!(sp.name in poses) || !sp.state) continue;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, paper.width, paper.height);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    paintSide(ctx, sp);
+    paintSide(ctx, sp, look.full);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, paper);
-    const [bx0, , bx1] = state.meta[sp.name].bbox;
-    const s = POSES[sp.name].scale, f = sp.state.m.flip, c = REFLECT[sp.name];
+    const [bx0, , bx1] = state.meta[artOf(sp.name)].bbox;
+    const s = C.scale, f = sp.state.m.flip, c = poses[sp.name];
     const mid = sp.state.cx + ((bx0 + bx1) / 2 * s - sp.pivot.x) * f;
     gl.uniform2f(u('uSize'), W, H);
     gl.uniform2f(u('uFrom'), mid, 0);
     gl.uniform2f(u('uTo'), mid + (geo.axis - mid) * c.toward, -c.up);
-    gl.uniform1f(u('uAlpha'), GLASS.opacity);
+    gl.uniform1f(u('uFlip'), (c.mirror ?? look.mirror) ? -1 : 1);
+    gl.uniform1f(u('uSqueeze'), look.squeeze);
+    gl.uniform1f(u('uAlpha'), look.opacity);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
 }
 
 // ── 화면 ─────────────────────────────────────────────────
 let sprites = [];
+const cupSrc = (kind, step) => `${ASSETS}/Assets.xcassets/${kind}-${C.cup}-${step}.imageset/${step}.png`;
+const key = step => `${C.cup}-${step}`;
 function currentPoses() {
-  if (state.pose === 'all') return Object.keys(POSES).filter(k => allowed(k, state.step) || (k === 'slump' && state.step === 0));
+  if (state.pose === 'all') return Object.keys(C.poses).filter(k => allowed(k, state.step) || (k === C.zero && state.step === 0));
   if (state.pose === 'auto') return [state.picked];
   return [state.pose];
 }
 function render() {
-  document.getElementById('cup').src = `${ASSETS}/Assets.xcassets/cup-strawberry-latte-${state.step}.imageset/${state.step}.png`;
-  document.getElementById('num').textContent = Math.round(LIMIT * state.step / 100);
+  document.getElementById('cup').src = cupSrc('cup', state.step);
+  document.getElementById('num').textContent = Math.round(C.limit * state.step / 100);
+  document.getElementById('kicker').textContent = C.kicker;
+  document.getElementById('unit').textContent = C.unit;
+  document.getElementById('limit').textContent = `/${C.limit} ${C.unit}`;
+  document.getElementById('title').textContent = `${C.label} 대기 자세`;
+  document.getElementById('rule').textContent = C.rule;
   const layer = document.getElementById('chars'), glass = document.getElementById('glass');
   layer.replaceChildren();
   geo.ready = false;
   geo.pending = measureGlass(state.step);
-  const cutout = `url(${ASSETS}/Assets.xcassets/cutout-strawberry-latte-${state.step}.imageset/${state.step}.png)`;
+  const cutout = `url(${cupSrc('cutout', state.step)})`;
   for (const k of ['maskImage', 'webkitMaskImage']) glass.style[k] = cutout;
   for (const k of ['maskSize', 'webkitMaskSize']) glass.style[k] = `${PHOTO_W}px ${PHOTO_H}px`;
   for (const k of ['maskPosition', 'webkitMaskPosition']) glass.style[k] = `${PHOTO_LEFT}px ${PHOTO_TOP}px`;
@@ -542,13 +702,17 @@ function render() {
     layer.appendChild(sp.el);
     sprites.push(sp);
   }
-  const names = currentPoses().map(k => POSES[k].label).join(', ');
+  const names = currentPoses().map(k => C.poses[k].label).join(', ');
   document.getElementById('now').textContent = `지금: ${names}${state.pose === 'auto' ? ' (자동)' : ''}`;
+  for (const b of document.querySelectorAll('#chars-row button')) b.setAttribute('aria-pressed', String(b.dataset.v === state.char));
   for (const b of document.querySelectorAll('#steps button')) b.setAttribute('aria-pressed', String(Number(b.dataset.v) === state.step));
-  for (const b of document.querySelectorAll('#poses button')) {
+  const row = document.getElementById('poses');
+  row.replaceChildren();
+  buttons('poses', [['auto', '자동'], ...Object.entries(C.poses).map(([k, p]) => [k, p.label]), ['all', '전부 겹쳐 보기']], v => { state.pose = v; render(); });
+  for (const b of row.querySelectorAll('button')) {
     b.setAttribute('aria-pressed', String(b.dataset.v === state.pose));
     const k = b.dataset.v;
-    b.disabled = POSES[k] ? !allowed(k, state.step) : false;
+    b.disabled = C.poses[k] ? !allowed(k, state.step) : false;
   }
 }
 
@@ -570,21 +734,33 @@ function buttons(id, items, onPick) {
   }
 }
 
-// 스크린샷용: ?step=80&pose=in-cup&t=1.2
+// 스크린샷용: ?char=kain&step=80&pose=swim&t=1.2
 const q = new URLSearchParams(location.search);
-Promise.all([fetch(`${POSE_DIR}/meta.json`).then(r => r.json()), fetch(`${PART_DIR}/parts.json`).then(r => r.json())]).then(([meta, parts]) => {
-  state.meta = meta;
-  state.parts = parts;
+const loads = Object.keys(CHARS).map(k => Promise.all([
+  fetch(`${CHAR_DIR}/${k}/poses/meta.json`).then(r => r.json()),
+  fetch(`${CHAR_DIR}/${k}/parts/parts.json`).then(r => r.json()),
+]).then(([meta, parts]) => Object.assign(CHARS[k], { meta, parts })));
+function useChar(k) {
+  state.char = k; C = CHARS[k];
+  state.meta = C.meta; state.parts = C.parts;
+}
+Promise.all(loads).then(() => {
+  useChar(q.get('char') ?? 'roshu');
   if (q.has('step')) state.step = Number(q.get('step'));
   if (q.has('pose')) state.pose = q.get('pose');
   state.picked = autoPose(state.step);
+  buttons('chars-row', Object.entries(CHARS).map(([k, c]) => [k, c.label]), v => {
+    useChar(v);
+    state.pose = 'auto';
+    state.picked = autoPose(state.step);
+    render();
+  });
   buttons('steps', STEPS.map(s => [s, `${s}%`]), v => {
     state.step = Number(v);
     state.picked = autoPose(state.step);
-    if (POSES[state.pose] && !allowed(state.pose, state.step)) state.pose = 'auto';
+    if (C.poses[state.pose] && !allowed(state.pose, state.step)) state.pose = 'auto';
     render();
   });
-  buttons('poses', [['auto', '자동'], ...Object.entries(POSES).map(([k, p]) => [k, p.label]), ['all', '전부 겹쳐 보기']], v => { state.pose = v; render(); });
   document.getElementById('reroll').onclick = () => { state.pose = 'auto'; state.picked = autoPose(state.step); render(); };
   document.getElementById('reduce').onclick = e => { state.reduce = !state.reduce; e.target.setAttribute('aria-pressed', String(state.reduce)); };
   initGlass();

@@ -15,6 +15,8 @@ struct TodayView: View {
     @State private var side: CupSide = .sugar
     /// 넘기는 중 손가락이 끈 거리. 놓으면 0으로 돌아가며 가까운 컵에 붙는다.
     @State private var dragX: CGFloat = 0
+    /// 컵을 넘기는 중(끄는 중 + 놓은 뒤 제자리로 붙는 중). 이 동안 캐릭터 움직임을 멈춰 컵과 한 몸으로 밀리게 한다.
+    @State private var isSliding = false
     @State private var path: [String] = []
     @State private var isManualEntryPresented = false
     /// 먹이기 요청 + 여는 방식을 한 덩어리로 둔다. 따로 두면 전체 화면이 뜨기 전 값을 붙잡아
@@ -159,7 +161,7 @@ struct TodayView: View {
                     let step = cupStep(cupSide, totals: totals)
                     CupView(step: step, setID: cupSide.cupSetID)
                         // 캐릭터 대기 자세(로슈·카인). 같은 틀이라 사진 좌표가 맞는다.
-                        .overlay { IdleCharacterLayer(side: cupSide, step: step, isActive: cupSide == side) }
+                        .overlay { IdleCharacterLayer(side: cupSide, step: step, isActive: cupSide == side && !isSliding) }
                         .frame(width: width)
                 }
             }
@@ -170,6 +172,7 @@ struct TodayView: View {
                 DragGesture(minimumDistance: 12)
                     .onChanged { value in
                         guard abs(value.translation.width) > abs(value.translation.height) else { return }
+                        isSliding = true
                         let pullingPastEdge = (side == .sugar && value.translation.width > 0)
                             || (side == .caffeine && value.translation.width < 0)
                         dragX = pullingPastEdge ? value.translation.width * 0.25 : value.translation.width
@@ -180,6 +183,8 @@ struct TodayView: View {
                         withAnimation(reduceMotion ? .easeInOut(duration: 0.25) : .spring(response: 0.45, dampingFraction: 0.86)) {
                             side = next
                             dragX = 0
+                        } completion: {
+                            isSliding = false
                         }
                     }
             )

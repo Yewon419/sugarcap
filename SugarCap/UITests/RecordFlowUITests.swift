@@ -229,6 +229,29 @@ extension RecordFlowUITests {
         XCTAssertTrue(replay.waitForExistence(timeout: 5), "완료 후 설정으로 돌아와야 한다")
         XCTAssertTrue(app.tabBars.buttons["설정"].isSelected, "다시 보기는 온보딩 완료 상태를 건드리지 않는다")
     }
+
+    /// 컵 넘기기를 천천히 끌어 플로우 녹화에 남긴다. 캐릭터가 컵과 한 몸으로 밀리는지 영상 프레임으로 본다
+    /// (2026-09-29 대표님: 캐릭터가 컵보다 약간 느리게 움직임). 걷기 자세로 고정해 움직이는 중에 넘긴다.
+    @MainActor
+    func testTodayCupSlideCarriesCharacters() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments += ["-initialTab", "today", "-idlePose", "walk", "-idleStep", "100"]
+        app.launch()
+        completeOnboardingIfPresented(app)
+
+        let summary = app.descendants(matching: .any)["cup-summary"]
+        XCTAssertTrue(summary.waitForExistence(timeout: 15))
+        let window = app.windows.firstMatch
+        let right = window.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.5))
+        let left = window.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.5))
+
+        right.press(forDuration: 0.1, thenDragTo: left, withVelocity: .slow, thenHoldForDuration: 0.6)
+        XCTAssertTrue(summary.label.hasPrefix("카페인 남은"), "카페인 컵으로 안 넘어감: \(summary.label)")
+        sleep(1)
+        left.press(forDuration: 0.1, thenDragTo: right, withVelocity: .slow, thenHoldForDuration: 0.6)
+        XCTAssertTrue(summary.label.hasPrefix("당 남은"), "당 컵으로 안 돌아옴: \(summary.label)")
+    }
 }
 
 /// UI 테스트 번들은 앱 코드를 불러오지 않는다. 상품 id는 여기에 따로 적는다.

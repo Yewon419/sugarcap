@@ -26,12 +26,43 @@ struct IdlePoseRule: Sendable {
     /// 팔다리가 도는 방향(CSS 각도 부호). 0이면 양쪽, 1·-1이면 그쪽으로만(반대쪽 끝이 몸 안으로 숨는 방향).
     /// 없는 팔다리는 돌지 않는다.
     var limbDirection: [String: Double] = [:]
+    /// 잔 유리에 비친 모습. 없으면 안 비친다.
+    var reflection: IdleReflection?
+    /// 바닥 그림자. 가장자리 위 자세와 헤엄은 없다.
+    var shadow: IdleShadow?
 
     func allows(step: Int) -> Bool {
         if let maxStep, step > maxStep { return false }
         if let minStep, step < minStep { return false }
         return true
     }
+}
+
+/// 유리 반사 자리(프로토타입 `REFLECTS.poses`). 캐릭터 가운데에서 잔 가운데 쪽으로 거리의 `toward`만큼 당기고
+/// 위로 `up`(393×852 화면 pt) 올린다. `mirror`는 캐릭터별 기본값(`IdleReflectionLook.mirror`)을 덮는다.
+struct IdleReflection: Sendable {
+    let toward: Double
+    var up: Double = 0
+    var mirror: Bool?
+}
+
+/// 반사 모양(프로토타입 `REFLECTS.look`). 로슈는 몸통만 몸 색 한 가지로(`tint`), 카인은 다리까지 색 그대로.
+/// `squeeze`는 가로 눌림.
+struct IdleReflectionLook: Sendable {
+    let tint: String?
+    let mirror: Bool
+    let squeeze: Double
+    let opacity: Double
+}
+
+/// 바닥 그림자(프로토타입 `SHADOWS`). 크기·자리는 그림 폭 비율. 넓고 옅은 그늘 하나 + 접지.
+/// `feet`면 접지를 발마다 두고(로슈 걷기), 아니면 몸 밑에 하나. 그늘은 빛 반대쪽(오른쪽 뒤)으로 밀리고 좌우반전을 따르지 않는다.
+struct IdleShadow: Sendable {
+    let w: Double
+    let h: Double
+    let dx: Double
+    let dy: Double
+    var feet = false
 }
 
 /// 걷기: 오른쪽 끝(from) ↔ 왼쪽 끝(to)을 오가고 끝에서 쉰다(사진 폭 비율). 속도·보폭은 393×852 화면 pt.
@@ -52,6 +83,9 @@ struct IdleCast: Sendable {
     let rim: [Int: (back: Double, front: Double)]
     /// 단계 → 음료 윗면(카인은 얼음 밑 진한 커피가 시작하는 선).
     let liquid: [Int: Double]
+    /// 단계 → 잔 가운데 x(사진 폭 비율). 누끼 알파에서 잔 옆선 가운데를 평균했다(프로토타입 `measureGlass`와 같은 방법).
+    let axis: [Int: Double]
+    let reflectionLook: IdleReflectionLook
     /// 캔버스 픽셀 → pt 배율 = 사진 높이 × 이 값.
     let scalePerPhotoHeight: Double
     /// 눈꺼풀을 눈보다 얼마나 크게 덮을지(눈 크기 비율).
@@ -82,6 +116,10 @@ struct IdleCast: Sendable {
     func liquidTop(step: Int) -> Double {
         liquid[step] ?? bottom
     }
+
+    func glassAxis(step: Int) -> Double {
+        axis[step] ?? 0.497
+    }
 }
 
 extension CupSide {
@@ -104,17 +142,29 @@ extension IdleCast {
             80: (0.2581, 0.3235), 100: (0.2686, 0.3268),
         ],
         liquid: [0: 0.80, 30: 0.557, 50: 0.4466, 80: 0.3511, 100: 0.3397],
+        axis: [0: 0.4975, 30: 0.4973, 50: 0.4973, 80: 0.4935, 100: 0.4944],
+        // 대표님 레퍼런스(2026-09-29): 몸통만 있는 매끈한 윤곽, 크기 그대로.
+        reflectionLook: IdleReflectionLook(tint: "#D5D7DD", mirror: false, squeeze: 1, opacity: 0.42),
         scalePerPhotoHeight: 7.96e-5 * 0.9,
         lidPad: 0.35,
         zero: .slump,
         poses: [
             .inCup: IdlePoseRule(art: "in-cup", minStep: 1, maxStep: 50, limbDirection: ["foot_left": -1, "foot_right": 1]),
-            .watch: IdlePoseRule(art: "watch", minStep: 1, limbDirection: ["foot_left": -1, "foot_right": 1, "arm": -1]),
+            .watch: IdlePoseRule(
+                art: "watch", minStep: 1, limbDirection: ["foot_left": -1, "foot_right": 1, "arm": -1],
+                reflection: IdleReflection(toward: 0.43), shadow: IdleShadow(w: 0.8, h: 0.24, dx: 0.2, dy: -0.05)
+            ),
             .walk: IdlePoseRule(
                 art: "walk", minStep: 1,
-                limbDirection: ["flipper_front": 0, "foot_back": -1, "foot_front": 1, "flipper_side": 0]
+                limbDirection: ["flipper_front": 0, "foot_back": -1, "foot_front": 1, "flipper_side": 0],
+                reflection: IdleReflection(toward: 0.12, up: 16),
+                shadow: IdleShadow(w: 0.9, h: 0.24, dx: 0.2, dy: -0.05, feet: true)
             ),
-            .slump: IdlePoseRule(art: "slump", maxStep: 30, limbDirection: ["foot_left": 1, "foot_right": -1]),
+            // 철푸덕은 몸이 바닥에 닿아 그늘을 밀지 않고 몸 바로 밑에 좁게.
+            .slump: IdlePoseRule(
+                art: "slump", maxStep: 30, limbDirection: ["foot_left": 1, "foot_right": -1],
+                reflection: IdleReflection(toward: 0.1, up: 5), shadow: IdleShadow(w: 0.92, h: 0.1, dx: 0.03, dy: -0.025)
+            ),
         ],
         gait: IdleGait(from: 0.74, to: 0.28, speed: 20, pause: 1.6, stride: 10)
     )
@@ -129,6 +179,9 @@ extension IdleCast {
             80: (0.2629, 0.3271), 100: (0.2683, 0.3265),
         ],
         liquid: [0: 0.87, 30: 0.7071, 50: 0.5366, 80: 0.4274, 100: 0.3962],
+        axis: [0: 0.4974, 30: 0.4974, 50: 0.4971, 80: 0.4973, 100: 0.4953],
+        // 대표님 목업(2026-09-29): 그림 전체가 색 그대로 옅게, 좌우반전(부리가 캐릭터 쪽), 가로만 .45배.
+        reflectionLook: IdleReflectionLook(tint: nil, mirror: true, squeeze: 0.45, opacity: 0.45),
         scalePerPhotoHeight: 0.0818 * 1.3 / 1666,
         // 카인 눈은 흰 고리라 눈꺼풀을 넉넉히 키우면 몸 밖으로 삐져나온다.
         lidPad: 0.04,
@@ -137,8 +190,15 @@ extension IdleCast {
             .rimStand: IdlePoseRule(art: "rim-stand", minStep: 1, limbDirection: ["leg_left": 0, "leg_right": 0]),
             .rimSit: IdlePoseRule(art: "sit", mirror: true, minStep: 1),
             .swim: IdlePoseRule(art: "swim", minStep: 30, opacity: 0.6, limbDirection: ["leg_far": 0, "leg_near": 0]),
-            .walk: IdlePoseRule(art: "walk", minStep: 1, limbDirection: ["leg_far": 0, "leg_near": 0]),
-            .floorSit: IdlePoseRule(art: "sit", mirror: true),
+            // 걷기 반사는 뒤집지 않는다(대표님: 뒤집으면 반대로 걷는 것처럼 보임). 위로 올리면 눌린 반사가 머리 위로 삐져나온다.
+            .walk: IdlePoseRule(
+                art: "walk", minStep: 1, limbDirection: ["leg_far": 0, "leg_near": 0],
+                reflection: IdleReflection(toward: 0.49, mirror: false), shadow: IdleShadow(w: 0.7, h: 0.2, dx: 0.15, dy: -0.04)
+            ),
+            .floorSit: IdlePoseRule(
+                art: "sit", mirror: true,
+                reflection: IdleReflection(toward: 0.49), shadow: IdleShadow(w: 0.92, h: 0.12, dx: 0.04, dy: -0.03)
+            ),
         ],
         gait: IdleGait(from: 0.74, to: 0.28, speed: 14, pause: 2.2, stride: 6)
     )
@@ -167,6 +227,8 @@ struct IdlePhoto: Sendable {
     }
 
     var unit: Double { height / Self.referenceHeight }
+
+    var rect: CGRect { CGRect(x: left, y: top, width: width, height: height) }
 
     func point(_ nx: Double, _ ny: Double) -> CGPoint {
         CGPoint(x: left + nx * width, y: top + ny * height)

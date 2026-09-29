@@ -17,6 +17,8 @@ struct TodayView: View {
     @State private var dragX: CGFloat = 0
     /// 컵을 넘기는 중(끄는 중 + 놓은 뒤 제자리로 붙는 중). 이 동안 캐릭터 움직임을 멈춰 컵과 한 몸으로 밀리게 한다.
     @State private var isSliding = false
+    /// 오늘 화면이 보이는지. 다른 탭·다른 화면으로 가면 캐릭터를 멈춘다(탭 뒤에서도 매 프레임 그리면 앱 전체가 무거워진다).
+    @State private var isOnScreen = false
     @State private var path: [String] = []
     @State private var isManualEntryPresented = false
     /// 먹이기 요청 + 여는 방식을 한 덩어리로 둔다. 따로 두면 전체 화면이 뜨기 전 값을 붙잡아
@@ -161,7 +163,7 @@ struct TodayView: View {
                     let step = cupStep(cupSide, totals: totals)
                     CupView(step: step, setID: cupSide.cupSetID)
                         // 캐릭터 대기 자세(로슈·카인). 같은 틀이라 사진 좌표가 맞는다.
-                        .overlay { IdleCharacterLayer(side: cupSide, step: step, isActive: cupSide == side && !isSliding) }
+                        .overlay { IdleCharacterLayer(side: cupSide, step: step, isActive: cupSide == side && !isSliding && isOnScreen) }
                         .frame(width: width)
                 }
             }
@@ -263,6 +265,8 @@ struct TodayView: View {
         }
         .overlay(alignment: .bottom) { bottomControls(now: now, today: today, totals: totals) }
         .overlay(alignment: .topTrailing) { affinityButton }
+        .onAppear { isOnScreen = true }
+        .onDisappear { isOnScreen = false }
         // 하루가 바뀔 때마다(앱을 켠 날마다) 정산을 한 번 돈다(§4.7).
         .task(id: today) {
             refreshSettlement(today: today)

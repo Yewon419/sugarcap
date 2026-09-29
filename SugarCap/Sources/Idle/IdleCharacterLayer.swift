@@ -202,13 +202,13 @@ struct IdleSprite {
         let baseY = Double(base.y)
         let bw = Double(art.bbox.width) * scale
         drawShade(
-            Self.ambient, blur: 3 * u,
+            Self.ambient,
             center: CGPoint(x: cx + bw * shadow.dx, y: baseY + bw * shadow.dy),
             width: bw * shadow.w * 1.35, height: bw * shadow.h, strength: 1, in: context
         )
         guard shadow.feet else {
             drawShade(
-                Self.contact, blur: u,
+                Self.contact,
                 center: CGPoint(x: cx + bw * shadow.dx * 0.2, y: baseY - 0.5 * u),
                 width: bw * shadow.w * 0.9, height: bw * 0.07, strength: 1, in: context
             )
@@ -221,7 +221,7 @@ struct IdleSprite {
             let lift: Double = -Double(shift.dy) / (IdleMotion.stepLift * u)
             let lifted = min(1.0, max(0.0, lift))
             drawShade(
-                Self.contact, blur: u,
+                Self.contact,
                 center: CGPoint(x: x, y: baseY),
                 width: Double(part.frame.width) * scale * 1.5, height: bw * 0.08,
                 strength: 1 - 0.45 * lifted, in: context
@@ -244,21 +244,20 @@ struct IdleSprite {
 
     /// 타원 하나를 가운데서 바깥으로 흐려지게 칠한다. `strength`만큼 작고 옅어진다.
     private func drawShade(
-        _ gradient: Gradient, blur: Double, center: CGPoint, width: Double, height: Double,
+        _ gradient: Gradient, center: CGPoint, width: Double, height: Double,
         strength: Double, in context: GraphicsContext
     ) {
         guard width > 0, height > 0, strength > 0 else { return }
+        // 흐림 필터 + drawLayer로 그렸을 때 CI 스크린샷에 아무것도 안 나왔다(2026-09-29 빌드 101).
+        // 그라데이션이 가장자리에서 이미 0이라 흐림 없이 늘린 좌표계에 바로 칠한다.
         var shade = context
         shade.opacity = strength
-        shade.addFilter(.blur(radius: blur))
-        shade.drawLayer { layer in
-            layer.translateBy(x: center.x, y: center.y)
-            layer.scaleBy(x: width * strength / 2, y: height * strength / 2)
-            layer.fill(
-                Path(ellipseIn: CGRect(x: -1, y: -1, width: 2, height: 2)),
-                with: .radialGradient(gradient, center: .zero, startRadius: 0, endRadius: 1)
-            )
-        }
+        shade.translateBy(x: center.x, y: center.y)
+        shade.scaleBy(x: width * strength / 2, y: height * strength / 2)
+        shade.fill(
+            Path(ellipseIn: CGRect(x: -1, y: -1, width: 2, height: 2)),
+            with: .radialGradient(gradient, center: .zero, startRadius: 0, endRadius: 1)
+        )
     }
 
     // MARK: 캐릭터

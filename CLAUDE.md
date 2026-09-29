@@ -37,3 +37,4 @@ SSOT = `SPEC.md`. 세션 시작 시 SPEC §0·§8·§9부터 읽는다.
 - 여러 글자가 든 줄(HStack·VStack)에 `accessibilityIdentifier`를 달면 안쪽 글자마다 같은 식별자가 붙는다. UI 테스트가 줄 수를 5배로 셌다(2026-09-26 하루 기록 시트). 줄에는 `.accessibilityElement(children: .contain)`을 먼저 건다.
 - 시각 레퍼런스(스크린샷)를 받으면 대상 부분을 원본 해상도로 잘라 보고 모양·위치·세기를 수치로 잰 뒤 만든다. 축소본만 보고 물리 계산으로 먼저 가면 엇나간다(2026-09-29 로슈 컵 반사: 레퍼런스는 몸통만 있는 옅은 윤곽이었는데 볼록 유리 계산·좌우반전·얼굴까지 넣었다가 되돌림). 로슈 그림자는 대표님 허락으로 에어브러시(부드러운 방사형) 예외.
 - 모션그래픽을 시각 t의 순수 함수로 옮길 때 `.position(x: a + b * lerp(...) * sin(.pi * k), ...)`처럼 한 줄에 몰면 "unable to type-check this expression in reasonable time"으로 빌드가 죽는다. 중간값을 `let x: Double = ...`로 쪼개고 `Double.pi`를 쓴다.
+- 매 프레임 다시 그리는 뷰(`TimelineView` + `Canvas`, 대기 자세)는 넘기는 중·화면 밖이면 멈춘다. 넘길 때 그리면 컵보다 늦게 따라오고(대표님 2026-09-29), 탭 뒤에서 계속 그리면 UI 테스트가 요소를 못 찾고 타임아웃 난다. 워크플로는 `cancel-in-progress`라 푸시 빌드가 끝난 뒤에 TestFlight를 dispatch한다.

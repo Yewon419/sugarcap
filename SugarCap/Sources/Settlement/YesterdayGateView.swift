@@ -53,7 +53,7 @@ struct YesterdayGateView: View {
             .ignoresSafeArea()
             // 글자 자리는 벽 색으로 받쳐 읽히게 한다(번짐 없이 위에서 아래로 한 번).
             LinearGradient(
-                stops: [.init(color: Color.wall, location: 0), .init(color: Color.wall.opacity(0.9), location: 0.34), .init(color: Color.wall.opacity(0), location: 0.52)],
+                stops: [.init(color: CupView.wallColor, location: 0), .init(color: CupView.wallColor.opacity(0.9), location: 0.34), .init(color: CupView.wallColor.opacity(0), location: 0.52)],
                 startPoint: .top, endPoint: .bottom
             )
             .ignoresSafeArea()

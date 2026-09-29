@@ -63,20 +63,21 @@ struct TimedPlayer<Content: View>: View {
 extension Color {
     /// 밤 장면 단색(에어브러시 없이, 대표님 교정 2026-09-26).
     static let nightSky = Color(red: 0x17 / 255, green: 0x22 / 255, blue: 0x39 / 255)
-    static let wall = Color(red: 0xF3 / 255, green: 0xF5 / 255, blue: 0xF8 / 255)
-    static let ink = Color(red: 0x14 / 255, green: 0x1A / 255, blue: 0x24 / 255)
+    /// UI 바탕. 무채색 한 계열(2026-09-29). 컵 사진과 이어 붙이는 곳은 `CupView.wallColor`를 쓴다.
+    static let wall = Color(red: 0xF4 / 255, green: 0xF4 / 255, blue: 0xF5 / 255)
+    static let ink = Color(red: 0x18 / 255, green: 0x18 / 255, blue: 0x1B / 255)
     static let sugarPink = Color(red: 0xE0 / 255, green: 0x7A / 255, blue: 0x91 / 255)
     static let caffeineAmber = Color(red: 0xB8 / 255, green: 0x73 / 255, blue: 0x2F / 255)
     static let kainRing = Color(red: 0x3B / 255, green: 0x1D / 255, blue: 0x0E / 255)
     /// 먹색에서 흰색으로(밤이 되며 글자가 바뀔 때). `Color.mix`는 iOS 18부터라 직접 섞는다.
     static func ink(towardWhite k: Double) -> Color {
         Color(
-            red: Motion.lerp(0x14 / 255, 1, k),
-            green: Motion.lerp(0x1A / 255, 1, k),
-            blue: Motion.lerp(0x24 / 255, 1, k)
+            red: Motion.lerp(0x18 / 255, 1, k),
+            green: Motion.lerp(0x18 / 255, 1, k),
+            blue: Motion.lerp(0x1B / 255, 1, k)
         )
     }
 
     /// 밤 장면 소제목(프로토타입 `.kicker.light`).
-    static let nightKicker = Color(red: 0xB9 / 255, green: 0xCF / 255, blue: 0xE4 / 255)
+    static let nightKicker = Color(red: 0xD4 / 255, green: 0xD4 / 255, blue: 0xD8 / 255)
 }

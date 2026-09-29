@@ -156,11 +156,11 @@ struct TodayView: View {
             let index = CGFloat(CupSide.allCases.firstIndex(of: side) ?? 0)
             HStack(spacing: 0) {
                 ForEach(CupSide.allCases) { cupSide in
-                    CupView(
-                        step: CupLevel.step(remaining: cupSide.remaining(totals), limit: cupSide.limit(limits)),
-                        setID: cupSide.cupSetID
-                    )
-                    .frame(width: width)
+                    let step = cupStep(cupSide, totals: totals)
+                    CupView(step: step, setID: cupSide.cupSetID)
+                        // 캐릭터 대기 자세(로슈·카인). 같은 틀이라 사진 좌표가 맞는다.
+                        .overlay { IdleCharacterLayer(side: cupSide, step: step, isActive: cupSide == side) }
+                        .frame(width: width)
                 }
             }
             .offset(x: -index * width + dragX)
@@ -185,6 +185,16 @@ struct TodayView: View {
             )
         }
         .ignoresSafeArea()
+    }
+
+    private func cupStep(_ cupSide: CupSide, totals: DayTotals) -> Int {
+        #if DEBUG
+        // CI 스크린샷 전용: `-idleStep 100`으로 컵 단계를 고정해 자세마다 찍는다.
+        if UserDefaults.standard.object(forKey: "idleStep") != nil {
+            return UserDefaults.standard.integer(forKey: "idleStep")
+        }
+        #endif
+        return CupLevel.step(remaining: cupSide.remaining(totals), limit: cupSide.limit(limits))
     }
 
     /// 보이스오버의 위아래 쓸기로 컵을 오갈 때.
@@ -623,6 +633,10 @@ struct TodayView: View {
                 sugarLeftG: kind == "ask" ? limits.sugarG : 18, caffeineLeftMg: kind == "ask" ? limits.caffeineMg : 150,
                 limits: limits
             )
+        }
+        // 카페인 컵 면으로 시작(`-screenshotSide caffeine`).
+        if let raw = defaults.string(forKey: "screenshotSide"), let requested = CupSide(rawValue: raw) {
+            side = requested
         }
         if defaults.bool(forKey: "screenshotDayLog") {
             isDayLogPresented = true

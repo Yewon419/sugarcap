@@ -176,6 +176,16 @@ jobs:
           for at in 1.5 4.8 7.4 8.8 12.4 13.6; do
             shoot "intro-$at" light large -screenshotFeeding YES -screenshotIntroAt "$at"
           done
+          # 대기 자세(design/proto/characters.html과 대조). 자세·단계·시각을 고정해 찍는다.
+          shoot idle-roshu-in-cup light large -idlePose in-cup -idleStep 50 -idleAt 2.5
+          shoot idle-roshu-watch light large -idlePose watch -idleStep 100 -idleAt 2.5
+          shoot idle-roshu-walk light large -idlePose walk -idleStep 100 -idleAt 3.2
+          shoot idle-roshu-slump light large -idlePose slump -idleStep 0 -idleAt 2.5
+          shoot idle-kain-rim-stand light large -screenshotSide caffeine -idlePose rim-stand -idleStep 100 -idleAt 2.5
+          shoot idle-kain-rim-sit light large -screenshotSide caffeine -idlePose rim-sit -idleStep 100 -idleAt 2.5
+          shoot idle-kain-swim light large -screenshotSide caffeine -idlePose swim -idleStep 100 -idleAt 2.5
+          shoot idle-kain-walk light large -screenshotSide caffeine -idlePose walk -idleStep 100 -idleAt 3.2
+          shoot idle-kain-floor-sit light large -screenshotSide caffeine -idlePose floor-sit -idleStep 0 -idleAt 2.5
           ls -la "$OUT"
 
       - uses: actions/upload-artifact@v4

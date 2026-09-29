@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>슈가캡 · 로슈 대기 자세 실험</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --wall: #F3F5F8;
+    --ink: #18181B;
+    --grey: #71717A;
+    --font: "SF Pro Display", -apple-system, "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #E4E4E7; font-family: var(--font); color: var(--ink); display: flex; gap: 32px; padding: 32px; align-items: flex-start; }
+
+  /* 393×852 = iPhone 15 Pro. CupView와 같은 비율로 사진을 놓는다. */
+  .phone { position: relative; width: 393px; height: 852px; overflow: hidden; background: var(--wall); border-radius: 48px; flex: none; }
+  .photo { position: absolute; left: 0; right: 0; bottom: calc(852px * 0.08); height: calc(852px * 0.84); overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 96%, transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 96%, transparent 100%); }
+  .photo img { position: absolute; bottom: 0; left: 50%; height: 100%; transform: translateX(-50%); }
+
+  .chars { position: absolute; inset: 0; pointer-events: none; }
+  /* 유리에 비친 모습(WebGL). 컵 누끼로 잘라 유리 안에만 보인다. */
+  .glass { position: absolute; left: 0; top: 0; width: 393px; height: 852px; pointer-events: none; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; }
+  /* 그림자: 넓고 옅은 그늘 + 발밑 진한 접지. 가운데서 바깥으로 흐려진다. */
+  .shade { position: absolute; left: 0; top: 0; border-radius: 50%; will-change: transform, opacity; mix-blend-mode: multiply; }
+  .shade.ambient { background: radial-gradient(closest-side, rgba(120, 104, 108, .55), rgba(120, 104, 108, .3) 45%, rgba(120, 104, 108, .1) 75%, rgba(120, 104, 108, 0)); filter: blur(3px); }
+  .shade.contact { background: radial-gradient(closest-side, rgba(70, 56, 60, .8), rgba(70, 56, 60, .45) 40%, rgba(70, 56, 60, 0)); filter: blur(1px); }
+  .sprite { position: absolute; left: 0; top: 0; will-change: transform; }
+  .sprite .layer { position: absolute; inset: 0; }
+  .sprite img { position: absolute; }
+  .lid { position: absolute; border-radius: 50%; transform-origin: 50% 0; }
+
+  /* UI는 캐릭터보다 위 층. */
+  .ui { position: absolute; inset: 0; pointer-events: none; }
+  .status { position: absolute; top: 18px; left: 44px; font-size: 17px; font-weight: 600; }
+  .date { position: absolute; top: 66px; left: 24px; font-size: 15px; font-weight: 500; color: var(--grey); letter-spacing: .02em; }
+  .heart { position: absolute; top: 64px; right: 20px; width: 38px; height: 38px; border-radius: 50%; background: rgba(0,0,0,.04); display: grid; place-items: center; }
+  .kicker { position: absolute; top: 108px; left: 24px; font-size: 15px; font-weight: 600; color: var(--grey); }
+  .number { position: absolute; top: 132px; left: 22px; display: flex; align-items: baseline; gap: 4px; }
+  .number b { font-size: 92px; font-weight: 800; letter-spacing: -.04em; line-height: 1; }
+  .number i { font-style: normal; font-size: 30px; font-weight: 700; }
+  .number span { font-size: 15px; color: var(--grey); margin-left: 8px; }
+  .dots { position: absolute; top: 722px; left: 50%; transform: translateX(-50%); display: flex; gap: 7px; }
+  .dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(0,0,0,.2); }
+  .dots i:first-child { background: var(--ink); }
+  .fab { position: absolute; top: 698px; right: 20px; width: 58px; height: 58px; border-radius: 50%; background: var(--ink); display: grid; place-items: center; }
+  .tabbar { position: absolute; left: 62px; right: 62px; top: 770px; height: 62px; border-radius: 31px; background: rgba(250,250,250,.92); box-shadow: 0 1px 0 rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.08); display: flex; align-items: center; justify-content: space-around; font-size: 11px; font-weight: 600; }
+  .tabbar div { display: grid; justify-items: center; gap: 3px; color: var(--grey); }
+  .tabbar div:first-child { color: var(--ink); }
+  .tabbar svg { width: 24px; height: 24px; }
+
+  /* 조작 패널 */
+  .panel { width: 300px; display: grid; gap: 20px; }
+  .panel h1 { font-size: 20px; margin: 0; letter-spacing: -.01em; }
+  .panel h2 { font-size: 13px; margin: 0 0 8px; color: var(--grey); font-weight: 600; }
+  .row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .panel button { font: inherit; font-size: 14px; border: 1px solid #D4D4D8; background: #fff; color: var(--ink); border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+  .panel button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .panel button:disabled { opacity: .35; cursor: default; }
+  .note { font-size: 13px; line-height: 1.6; color: #52525B; margin: 0; }
+  .now { font-size: 14px; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="phone" id="phone">
+    <div class="photo"><img id="cup" alt=""></div>
+    <canvas class="glass" id="glass"></canvas>
+    <div class="chars" id="chars"></div>
+    <div class="ui">
+      <div class="status">1:50</div>
+      <div class="date">9월 29일 화요일</div>
+      <div class="heart"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#18181B" stroke-width="2"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></div>
+      <div class="kicker">오늘 남은 당</div>
+      <div class="number"><b id="num">25</b><i>g</i><span>/25 g</span></div>
+      <div class="dots"><i></i><i></i></div>
+      <div class="fab"><svg width="26" height="26" viewBox="0 0 24 24" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 4v16M4 12h16"/></svg></div>
+      <div class="tabbar">
+        <div><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 8h13v5a6 6 0 0 1-6 6h-1a6 6 0 0 1-6-6zM17 9h1.5a2.5 2.5 0 0 1 0 5H17"/></svg>오늘</div>
+        <div><svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="11" width="4" height="9" rx="1"/><rect x="10" y="6" width="4" height="14" rx="1"/><rect x="16" y="9" width="4" height="11" rx="1"/></svg>추이</div>
+        <div><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3" fill="#FAFAFA"/></svg>설정</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h1>로슈 대기 자세</h1>
+    <div><h2>남은 양(컵 단계)</h2><div class="row" id="steps"></div></div>
+    <div><h2>자세</h2><div class="row" id="poses"></div></div>
+    <div><h2>앱 열기 흉내</h2><div class="row"><button id="reroll">다시 열기(자동 뽑기)</button><button id="reduce" aria-pressed="false">동작 줄이기</button></div></div>
+    <p class="now" id="now"></p>
+    <p class="note">규칙: 0%면 철푸덕. 철푸덕은 30% 이하에서도 뽑힌다. 나머지는 앱을 열 때마다 허용된 자세 중 하나를 뽑고, 자세 사이 전환은 없다. 컵 안(가장자리 매달리기)은 50% 이하로 남았을 때만 나온다(0% 제외).</p>
+  </div>
+
+<script>
+const ASSETS = '../../SugarCap/Resources';
+const POSE_DIR = '../assets/characters/roshu/poses';
+const H = 852, W = 393;
+const LIMIT = 25;
+const STEPS = [0, 30, 50, 80, 100];
+
+// CupView 사진 틀: 높이 0.84H, 아래에서 0.08H 올림, 가운데 정렬로 폭을 넘친다(937×1666).
+const PHOTO_H = H * 0.84;
+const PHOTO_W = PHOTO_H * 937 / 1666;
+const PHOTO_TOP = H - H * 0.08 - PHOTO_H;
+const PHOTO_LEFT = (W - PHOTO_W) / 2;
+const photoPoint = (nx, ny) => ({ x: PHOTO_LEFT + nx * PHOTO_W, y: PHOTO_TOP + ny * PHOTO_H });
+
+// 사진 기준 잔 위치: 잔 바닥 y .885. 가장자리 타원(가운데 열의 뒤·앞 가장자리 선)과 음료·얼음 윗면은
+// 단계마다 사진이 달라 따로 쟀다(딸기라떼 원본, 가운데 열 x 467).
+const CUP = { bottom: 0.885 };
+const RIM = { 0: [0.2626, 0.3280], 30: [0.2605, 0.3247], 50: [0.2614, 0.3247], 80: [0.2581, 0.3235], 100: [0.2686, 0.3268] };
+const LIQUID_TOP = { 0: 0.80, 30: 0.557, 50: 0.4466, 80: 0.3511, 100: 0.3397 };
+
+// 대표님 그림은 2500 캔버스 하나의 픽셀 크기로 그렸다. 목업(ScreenShot) 크기에서 잰 배율을 사진 높이에 묶는다.
+const POSE_SCALE = PHOTO_H * 7.96e-5;
+
+const POSES = {
+  'in-cup': { label: '컵 안 가장자리', src: `${POSE_DIR}/in-cup.png`, scale: POSE_SCALE, minStep: 1, maxStep: 50 },
+  watch:   { label: '컵에 붙어 구경', src: `${POSE_DIR}/watch.png`, scale: POSE_SCALE, minStep: 1 },
+  walk:    { label: '컵 밑 걷기', src: `${POSE_DIR}/walk.png`, scale: POSE_SCALE, minStep: 1 },
+  slump:   { label: '철푸덕', src: `${POSE_DIR}/slump.png`, scale: POSE_SCALE, maxStep: 30 },
+};
+
+const allowed = (pose, step) => {
+  const p = POSES[pose];
+  if (p.maxStep !== undefined && step > p.maxStep) return false;
+  if (p.minStep !== undefined && step < p.minStep) return false;
+  return true;
+};
+const autoPose = step => {
+  if (step === 0) return 'slump';
+  const pool = Object.keys(POSES).filter(k => allowed(k, step));
+  return pool[Math.floor(Math.random() * pool.length)];
+};
+
+const state = { step: 100, pose: 'auto', picked: null, reduce: false, meta: null, parts: null };
+
+// ── 스프라이트 ────────────────────────────────────────────
+// 그림 한 장을 몸통과 팔다리 레이어로 나눴다(design/assets/characters/split_limbs.py).
+// 발은 바닥 층이라 몸이 까치발을 해도 제자리다. 팔은 몸 층에 붙어 몸을 따라간다.
+// 팔다리는 이음새 한쪽 끝을 축으로, 반대쪽 끝이 몸 안으로 숨는 방향으로만 돈다(LIMB_DIR, CSS 각도 부호. 0은 양쪽 다).
+const PART_DIR = '../assets/characters/roshu/parts';
+const LIMB_DIR = {
+  walk: { flipper_front: 0, foot_back: -1, foot_front: 1, flipper_side: 0 },
+  watch: { foot_left: -1, foot_right: 1, arm: -1 },
+  slump: { foot_left: 1, foot_right: -1 },
+  'in-cup': { foot_left: -1, foot_right: 1 },
+};
+const isFoot = n => n.startsWith('foot');
+
+function partImg(pose, name, frame, pivot, s) {
+  const img = new Image();
+  img.src = `${PART_DIR}/${pose}/${name}.png`; img.alt = '';
+  const [x, y, w, h] = frame;
+  Object.assign(img.style, { left: `${x * s}px`, top: `${y * s}px`, width: `${w * s}px`, height: `${h * s}px` });
+  if (pivot) img.style.transformOrigin = `${(pivot[0] - x) * s}px ${(pivot[1] - y) * s}px`;
+  return img;
+}
+
+// 기준점 = 그림 bbox 아래 가운데(in-cup만 가장자리 선). 전체 변형은 그 점을 중심으로 한다.
+function makeSprite(name) {
+  const p = POSES[name], m = state.meta[name], rig = state.parts[name], s = p.scale;
+  const [bx0, , bx1, by1] = m.bbox;
+  const el = document.createElement('div');
+  el.className = 'sprite';
+  el.style.width = `${m.canvas[0] * s}px`;
+  el.style.height = `${m.canvas[1] * s}px`;
+  const pivotY = name === 'in-cup' ? m.rimLineY : by1;
+  const pivot = { x: (bx0 + bx1) / 2 * s, y: pivotY * s, footY: by1 * s };
+  el.style.transformOrigin = `${pivot.x}px ${pivot.y}px`;
+
+  const ground = document.createElement('div');
+  const body = document.createElement('div');
+  for (const g of [ground, body]) { g.className = 'layer'; el.appendChild(g); }
+  body.style.transformOrigin = `${pivot.x}px ${pivot.footY}px`;
+  const limbs = {}, draw = [];
+  const add = (parent, part) => {
+    const img = partImg(name, part.name, part.frame, part.pivot, s);
+    parent.appendChild(img);
+    limbs[part.name] = img;
+    draw.push({ img, frame: part.frame, limb: part.name, pivot: part.pivot, onBody: parent === body });
+  };
+  for (const part of rig.parts.filter(q => q.z === 'back')) add(isFoot(part.name) ? ground : body, part);
+  const bodyImg = partImg(name, 'body', rig.body, null, s);
+  body.appendChild(bodyImg);
+  draw.push({ img: bodyImg, frame: rig.body, limb: null, pivot: null, onBody: true });
+  const lids = m.eyes.map(e => {
+    const [x0, y0, x1, y1] = e.box, pad = 0.35;
+    const w = (x1 - x0) * (1 + pad * 2), h = (y1 - y0) * (1 + pad * 2);
+    const lid = document.createElement('div');
+    lid.className = 'lid';
+    Object.assign(lid.style, { left: `${(x0 - (x1 - x0) * pad) * s}px`, top: `${(y0 - (y1 - y0) * pad) * s}px`, width: `${w * s}px`, height: `${h * s}px`, background: e.lid, transform: 'scaleY(0)' });
+    body.appendChild(lid);
+    return lid;
+  });
+  for (const part of rig.parts.filter(q => q.z === 'front')) add(body, part);
+  const feet = rig.parts.filter(q => isFoot(q.name)).map(q => ({ name: q.name, x: (q.frame[0] + q.frame[2] / 2) * s, w: q.frame[2] * s }));
+  return { name, el, body, limbs, draw, feet, pivot, lids, blink: newBlinker() };
+}
+
+// 눈 깜빡임: 2.5~5.5초 간격, 가끔 두 번. 닫힘 0.07초·열림 0.1초.
+function newBlinker() {
+  let next = 1 + Math.random() * 2, double = false;
+  return t => {
+    const d = t - next;
+    if (d > 0.4) { double = Math.random() < 0.2; next = t + 2.5 + Math.random() * 3; return 0; }
+    const one = x => x < 0 ? 0 : x < 0.07 ? x / 0.07 : x < 0.17 ? 1 - (x - 0.07) / 0.1 : 0;
+    return Math.max(one(d), double ? one(d - 0.22) : 0);
+  };
+}
+
+// ── 자세별 동작(시각 t의 순수 함수) ───────────────────────
+const TAU = Math.PI * 2;
+const smooth = x => { const c = Math.min(Math.max(x, 0), 1); return c * c * (3 - 2 * c); };
+// 0→1→0 한 번(길이 len초). 시작 전·끝난 뒤는 0.
+const bump = (u, len) => (u < 0 || u > len) ? 0 : Math.sin(Math.PI * u / len) ** 2;
+
+const place = {
+  'in-cup': () => photoPoint(0.49, RIM[state.step][1]),
+  watch: () => photoPoint(0.25, CUP.bottom - 0.005),
+  walk: () => photoPoint(0.5, CUP.bottom + 0.012),
+  slump: () => photoPoint(0.4, CUP.bottom + 0.02),
+};
+
+// 걷기: 오른쪽 끝(.74) ↔ 왼쪽 끝(.28)을 오가고 끝에서 1.6초 쉰다. 그림은 왼쪽을 본다.
+const WALK = { from: 0.74, to: 0.28, speed: 20, pause: 1.6, stride: 10 };
+// 한 발의 한 주기(u 0~1). 앞 절반은 들어서 앞으로(그림 기준 -x) 내딛기, 뒤 절반은 바닥을 딛고 뒤로 밀리기.
+const STEP = { reach: 1.5, lift: 1.6, rot: 8 };
+function step(u) {
+  if (u < 0.5) {
+    const v = u / 0.5, arc = Math.sin(Math.PI * v);
+    return { x: STEP.reach - 2 * STEP.reach * smooth(v), lift: STEP.lift * arc, rot: STEP.rot * arc };
+  }
+  return { x: -STEP.reach + 2 * STEP.reach * (u - 0.5) / 0.5, lift: 0, rot: 0 };
+}
+function walkAt(t) {
+  const dist = (WALK.from - WALK.to) * PHOTO_W, dur = dist / WALK.speed;
+  const cycle = 2 * (dur + WALK.pause);
+  const u = ((t % cycle) + cycle) % cycle;
+  let d, facingLeft, moving;
+  if (u < dur) { d = u * WALK.speed; facingLeft = true; moving = true; }
+  else if (u < dur + WALK.pause) { d = dist; facingLeft = true; moving = false; }
+  else if (u < 2 * dur + WALK.pause) { d = dist - (u - dur - WALK.pause) * WALK.speed; facingLeft = false; moving = true; }
+  else { d = 0; facingLeft = false; moving = false; }
+  const x = PHOTO_LEFT + WALK.from * PHOTO_W - d;
+  const phase = moving ? (u < dur ? d : dist * 2 - d) / WALK.stride : 0;
+  return { x, facingLeft, moving, phase };
+}
+
+// 반환: 전체(dx, dy, rot, flip) · 몸 층(bodyDy, sx, sy) · 팔다리 각도(limbs, 크기만. 방향은 LIMB_DIR) · 팔다리 이동(shift, [x, y] px).
+function motion(name, t) {
+  let dx = 0, dy = 0, rot = 0, flip = 1, bodyDy = 0, sx = 1, sy = 1;
+  const limbs = {}, shift = {};
+  if (name === 'in-cup') {
+    // 음료에 떠 있다: 그림의 가장자리 틈이 컵 가장자리에서 벗어나지 않게 위아래로는 안 움직이고,
+    // 틈 가운데를 축으로 아주 살짝만 기운다. 물속에서 발장구.
+    rot = 0.6 * Math.sin(TAU * t / 3.4);
+    const k = Math.sin(TAU * t / 1.3);
+    limbs.foot_left = 12 * Math.max(0, k);
+    limbs.foot_right = 12 * Math.max(0, -k);
+  }
+  if (name === 'watch') {
+    // 5.5초마다 까치발로 들여다본다: 몸만 올라가고 발은 바닥에 남는다. 컵 잡은 팔로 몸을 끌어올린다.
+    const u = t % 5.5;
+    const e = smooth(u < 0.6 ? u / 0.6 : u < 1.8 ? 1 : 1 - (u - 1.8) / 0.6);
+    // 발은 돌리지 않는다: 몸이 뜨면 발 뿌리가 드러나며 다리가 늘어나 보인다(뿌리 폭 = 윤곽 폭).
+    bodyDy = -2.2 * e;
+    limbs.arm = 6 * e;
+  }
+  if (name === 'walk') {
+    const w = walkAt(t);
+    dx = w.x - place.walk().x;
+    flip = w.facingLeft ? 1 : -1;
+    if (w.moving) {
+      // 몸은 흔들지 않고 다리로 걷는다: 한 발씩 들어 앞으로 내딛고, 딛은 발은 뒤로 밀린다.
+      const c = (w.phase / 2) % 1, k = Math.sin(TAU * c);
+      for (const [foot, u] of [['foot_back', c], ['foot_front', (c + 0.5) % 1]]) {
+        const g = step(u);
+        limbs[foot] = g.rot;
+        shift[foot] = [g.x, -g.lift];
+      }
+      // 팔은 반대쪽 다리와 같이 앞뒤로: 앞 지느러미는 어깨를 축으로 +가 앞(바깥), 옆 지느러미는 반대 박자.
+      const swing = Math.cos(TAU * c);
+      limbs.flipper_front = 12 * swing;
+      limbs.flipper_side = -8 * swing;
+    } else {
+      limbs.flipper_side = 3 * Math.sin(TAU * t / 3.0);
+    }
+  }
+  if (name === 'slump') {
+    // 7초마다 한숨: 부풀었다가 푹 꺼지고, 끝에 왼발이 한 번 까딱.
+    const u = t % 7;
+    if (u > 4.5 && u < 6.5) {
+      const k = (u - 4.5) / 2;
+      const puff = Math.sin(Math.PI * Math.min(k / 0.45, 1)) * (k < 0.45 ? 1 : 0);
+      const sag = k >= 0.45 ? Math.sin(Math.PI * (k - 0.45) / 0.55) : 0;
+      sy = 1 + 0.035 * puff - 0.05 * sag; sx = 1 - 0.015 * puff + 0.03 * sag;
+    }
+    limbs.foot_left = 7 * bump(u - 6.3, 0.6);
+  }
+  return { dx, dy, rot, flip, bodyDy, sx, sy, limbs, shift };
+}
+
+// 그림자: 넓고 옅은 그늘(그림 폭 비율) + 발밑 접지. 걷기는 발마다 접지가 있어 발을 들면 작고 옅어진다.
+// 빛은 왼쪽 앞 위(사진의 컵 밝은 면)라 그늘은 오른쪽 뒤로 조금 밀린다.
+// 철푸덕은 바닥에 누워 몸이 바닥에 닿아 있으니 그늘을 밀지 않고 몸 바로 밑에 좁게 둔다.
+const SHADOW = {
+  walk:  { w: 0.9, h: 0.24, dx: 0.2, dy: -0.05 },
+  watch: { w: 0.8, h: 0.24, dx: 0.2, dy: -0.05 },
+  slump: { w: 0.92, h: 0.1, dx: 0.03, dy: -0.025 },
+};
+
+function makeShadow(sp) {
+  if (!(sp.name in SHADOW)) return [];
+  const [bx0, , bx1] = state.meta[sp.name].bbox;
+  const bw = (bx1 - bx0) * POSES[sp.name].scale;
+  const shade = (kind, w, h) => {
+    const el = document.createElement('div');
+    el.className = `shade ${kind}`;
+    Object.assign(el.style, { width: `${w}px`, height: `${h}px` });
+    return { el, w, h };
+  };
+  const c = SHADOW[sp.name];
+  const out = [{ ...shade('ambient', bw * c.w * 1.35, bw * c.h), dx: bw * c.dx, dy: bw * c.dy }];
+  if (sp.name === 'walk') {
+    for (const f of sp.feet) out.push({ ...shade('contact', f.w * 1.5, bw * 0.08), foot: f });
+  } else {
+    out.push({ ...shade('contact', bw * c.w * 0.9, bw * 0.07), dx: bw * c.dx * 0.2, dy: -0.5 });
+  }
+  return out;
+}
+
+// 팔다리 하나의 변형(CSS·캔버스 공용).
+function limbPose(sp, m, limb) {
+  const amount = m.limbs[limb] ?? 0, dir = LIMB_DIR[sp.name][limb];
+  const angle = dir === 0 ? amount : dir * Math.max(0, amount);
+  const [mx, my] = m.shift[limb] ?? [0, 0];
+  return { angle, mx, my };
+}
+
+function apply(sp, t, blinkOn) {
+  const base = place[sp.name](), m = motion(sp.name, t);
+  const cx = base.x + m.dx;
+  const x = cx - sp.pivot.x, y = base.y + m.dy - sp.pivot.y;
+  sp.el.style.transform = `translate(${x}px, ${y}px) rotate(${m.rot}deg) scaleX(${m.flip})`;
+  sp.body.style.transform = `translateY(${m.bodyDy}px) scale(${m.sx}, ${m.sy})`;
+  for (const [limb, img] of Object.entries(sp.limbs)) {
+    const l = limbPose(sp, m, limb);
+    img.style.transform = `translate(${l.mx}px, ${l.my}px) rotate(${l.angle}deg)`;
+  }
+  const b = blinkOn ? sp.blink(t) : 0;
+  for (const lid of sp.lids) lid.style.transform = `scaleY(${b})`;
+  for (const sh of sp.shades) {
+    let sx = cx + (sh.dx ?? 0), sy = base.y + (sh.dy ?? 0), k = 1;
+    if (sh.foot) {
+      const [mx, my] = m.shift[sh.foot.name] ?? [0, 0];
+      sx = cx + (sh.foot.x + mx - sp.pivot.x) * m.flip;
+      k = 1 - 0.45 * Math.min(1, -my / STEP.lift);
+    }
+    sh.el.style.transform = `translate(${sx - sh.w / 2}px, ${sy - sh.h / 2}px) scale(${k})`;
+    sh.el.style.opacity = String(k);
+  }
+  sp.state = { base, m, cx };
+}
+
+// ── 유리 반사 ─────────────────────────────────────────────
+// 대표님 레퍼런스(2026-09-29 스크린샷 5장)대로: 반사 = 몸통만 있는 매끈한 윤곽(팔다리·얼굴 없음), 크기는 캐릭터 그대로.
+// 캐릭터 중심에서 잔 중심 쪽으로 거리의 toward만큼 당기고 위로 up(pt) 올린다. 유리 밖은 누끼 마스크로 잘리고,
+// 가장자리는 선명하게 둔다(대표님 지시). 값은 레퍼런스에서 쟀다.
+const REFLECT = {
+  walk:  { toward: 0.12, up: 16 },
+  slump: { toward: 0.1, up: 5 },
+  watch: { toward: 0.43, up: 0 },
+};
+const GLASS = { opacity: 0.42 };
+const BODY_COLOUR = '#D5D7DD';
+const geo = { ready: false };
+
+const VERT = `attribute vec2 aPos; uniform vec2 uSize; varying vec2 vPos;
+void main() { vPos = vec2((aPos.x * 0.5 + 0.5) * uSize.x, (0.5 - aPos.y * 0.5) * uSize.y); gl_Position = vec4(aPos, 0.0, 1.0); }`;
+// 화면 점 -> 캐릭터 그림 위 점: 반사 자리(uTo)를 캐릭터 자리(uFrom)로 되돌린다.
+const FRAG = `precision highp float;
+uniform sampler2D uTex; uniform vec2 uSize, uFrom, uTo; uniform float uAlpha;
+varying vec2 vPos;
+void main() {
+  vec2 p = vPos - uTo + uFrom;
+  if (p.x < 0.0 || p.y < 0.0 || p.x > uSize.x || p.y > uSize.y) { gl_FragColor = vec4(0.0); return; }
+  gl_FragColor = texture2D(uTex, p / uSize) * uAlpha;
+}`;
+
+function initGlass() {
+  const canvas = document.getElementById('glass'), dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+  const gl = canvas.getContext('webgl', { premultipliedAlpha: true, alpha: true });
+  const shader = (type, src) => {
+    const sh = gl.createShader(type); gl.shaderSource(sh, src); gl.compileShader(sh);
+    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(sh));
+    return sh;
+  };
+  const prog = gl.createProgram();
+  gl.attachShader(prog, shader(gl.VERTEX_SHADER, VERT));
+  gl.attachShader(prog, shader(gl.FRAGMENT_SHADER, FRAG));
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, 'aPos');
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  const tex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
+  gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+  const u = name => gl.getUniformLocation(prog, name);
+  const paper = document.createElement('canvas');
+  paper.width = canvas.width; paper.height = canvas.height;
+  geo.gl = gl; geo.u = u; geo.paper = paper; geo.dpr = dpr;
+}
+
+// 누끼 알파에서 잔 옆선을 재 원뿔을 맞춘다(한 번, 단계마다).
+function measureGlass(step) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = img.naturalWidth; c.height = img.naturalHeight;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      const a = ctx.getImageData(0, 0, c.width, c.height).data, iw = c.width, ih = c.height;
+      const kx = PHOTO_W / iw, ky = PHOTO_H / ih;
+      const [back, front] = RIM[step];
+      const rows = [];
+      for (let py = Math.round((front + 0.04) * ih); py < Math.round((CUP.bottom - 0.08) * ih); py += 4) {
+        let x0 = -1, x1 = -1;
+        for (let px = 0; px < iw; px++) if (a[(py * iw + px) * 4 + 3] > 128) { if (x0 < 0) x0 = px; x1 = px; }
+        if (x0 >= 0) rows.push({ y: PHOTO_TOP + py * ky, half: (x1 - x0) / 2 * kx, mid: PHOTO_LEFT + (x0 + x1) / 2 * kx });
+      }
+      const n = rows.length, my = rows.reduce((t, r) => t + r.y, 0) / n, mh = rows.reduce((t, r) => t + r.half, 0) / n;
+      const b = rows.reduce((t, r) => t + (r.y - my) * (r.half - mh), 0) / rows.reduce((t, r) => t + (r.y - my) ** 2, 0);
+      const aa = mh - b * my;
+      const axis = rows.reduce((t, r) => t + r.mid, 0) / n;
+      const axisPx = Math.round((axis - PHOTO_LEFT) / kx);
+      let bottomPx = 0;
+      for (let py = ih - 1; py > 0; py--) if (a[(py * iw + axisPx) * 4 + 3] > 128) { bottomPx = py; break; }
+      const syBottom = PHOTO_TOP + bottomPx * ky;
+      const rimY = PHOTO_TOP + (back + front) / 2 * PHOTO_H;
+      const sin = (front - back) / 2 * PHOTO_H / (aa + b * rimY), cos = Math.sqrt(1 - sin * sin);
+      const y0 = (syBottom - aa * sin) / (1 + b * sin);
+      Object.assign(geo, { axis, sin, cos, y0, r0: aa + b * y0, slope: -b * cos, liquid: PHOTO_TOP + LIQUID_TOP[step] * PHOTO_H, step, ready: true });
+      resolve();
+    };
+    img.src = `${ASSETS}/Assets.xcassets/cutout-strawberry-latte-${step}.imageset/${step}.png`;
+  });
+}
+
+// 반사용 판: 화면과 같은 변형으로 몸통 조각만 그려 몸 색으로 칠한다.
+function paintSide(ctx, sp) {
+  const { base, m, cx } = sp.state, pv = sp.pivot, s = POSES[sp.name].scale;
+  ctx.save();
+  ctx.translate(cx, base.y + m.dy);
+  ctx.rotate(m.rot * Math.PI / 180);
+  ctx.scale(m.flip, 1);
+  ctx.translate(-pv.x, -pv.y);
+  const bodyTransform = () => {
+    ctx.translate(pv.x, pv.footY + m.bodyDy);
+    ctx.scale(m.sx, m.sy);
+    ctx.translate(-pv.x, -pv.footY);
+  };
+  for (const d of sp.draw) {
+    if (d.limb) continue;
+    ctx.save();
+    if (d.onBody) bodyTransform();
+    const [fx, fy, fw, fh] = d.frame;
+    ctx.drawImage(d.img, fx * s, fy * s, fw * s, fh * s);
+    ctx.restore();
+  }
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.globalCompositeOperation = 'source-in';
+  ctx.fillStyle = BODY_COLOUR;
+  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  ctx.restore();
+  ctx.restore();
+}
+
+function drawGlass() {
+  const { gl, u, paper, dpr } = geo;
+  if (!gl) return;
+  gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+  gl.clearColor(0, 0, 0, 0);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  if (!geo.ready || geo.step !== state.step) return;
+  const ctx = paper.getContext('2d');
+  for (const sp of sprites) {
+    if (!(sp.name in REFLECT) || !sp.state) continue;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, paper.width, paper.height);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    paintSide(ctx, sp);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, paper);
+    const [bx0, , bx1] = state.meta[sp.name].bbox;
+    const s = POSES[sp.name].scale, f = sp.state.m.flip, c = REFLECT[sp.name];
+    const mid = sp.state.cx + ((bx0 + bx1) / 2 * s - sp.pivot.x) * f;
+    gl.uniform2f(u('uSize'), W, H);
+    gl.uniform2f(u('uFrom'), mid, 0);
+    gl.uniform2f(u('uTo'), mid + (geo.axis - mid) * c.toward, -c.up);
+    gl.uniform1f(u('uAlpha'), GLASS.opacity);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  }
+}
+
+// ── 화면 ─────────────────────────────────────────────────
+let sprites = [];
+function currentPoses() {
+  if (state.pose === 'all') return Object.keys(POSES).filter(k => allowed(k, state.step) || (k === 'slump' && state.step === 0));
+  if (state.pose === 'auto') return [state.picked];
+  return [state.pose];
+}
+function render() {
+  document.getElementById('cup').src = `${ASSETS}/Assets.xcassets/cup-strawberry-latte-${state.step}.imageset/${state.step}.png`;
+  document.getElementById('num').textContent = Math.round(LIMIT * state.step / 100);
+  const layer = document.getElementById('chars'), glass = document.getElementById('glass');
+  layer.replaceChildren();
+  geo.ready = false;
+  geo.pending = measureGlass(state.step);
+  const cutout = `url(${ASSETS}/Assets.xcassets/cutout-strawberry-latte-${state.step}.imageset/${state.step}.png)`;
+  for (const k of ['maskImage', 'webkitMaskImage']) glass.style[k] = cutout;
+  for (const k of ['maskSize', 'webkitMaskSize']) glass.style[k] = `${PHOTO_W}px ${PHOTO_H}px`;
+  for (const k of ['maskPosition', 'webkitMaskPosition']) glass.style[k] = `${PHOTO_LEFT}px ${PHOTO_TOP}px`;
+  sprites = [];
+  for (const name of currentPoses()) {
+    const sp = makeSprite(name);
+    sp.shades = makeShadow(sp);
+    for (const sh of sp.shades) layer.appendChild(sh.el);
+    layer.appendChild(sp.el);
+    sprites.push(sp);
+  }
+  const names = currentPoses().map(k => POSES[k].label).join(', ');
+  document.getElementById('now').textContent = `지금: ${names}${state.pose === 'auto' ? ' (자동)' : ''}`;
+  for (const b of document.querySelectorAll('#steps button')) b.setAttribute('aria-pressed', String(Number(b.dataset.v) === state.step));
+  for (const b of document.querySelectorAll('#poses button')) {
+    b.setAttribute('aria-pressed', String(b.dataset.v === state.pose));
+    const k = b.dataset.v;
+    b.disabled = POSES[k] ? !allowed(k, state.step) : false;
+  }
+}
+
+const t0 = performance.now();
+function frame(now) {
+  const t = state.reduce ? 0 : (now - t0) / 1000;
+  for (const sp of sprites) apply(sp, t, !state.reduce);
+  drawGlass();
+  requestAnimationFrame(frame);
+}
+
+function buttons(id, items, onPick) {
+  const row = document.getElementById(id);
+  for (const [v, label] of items) {
+    const b = document.createElement('button');
+    b.dataset.v = v; b.textContent = label;
+    b.onclick = () => onPick(v);
+    row.appendChild(b);
+  }
+}
+
+// 스크린샷용: ?step=80&pose=in-cup&t=1.2
+const q = new URLSearchParams(location.search);
+Promise.all([fetch(`${POSE_DIR}/meta.json`).then(r => r.json()), fetch(`${PART_DIR}/parts.json`).then(r => r.json())]).then(([meta, parts]) => {
+  state.meta = meta;
+  state.parts = parts;
+  if (q.has('step')) state.step = Number(q.get('step'));
+  if (q.has('pose')) state.pose = q.get('pose');
+  state.picked = autoPose(state.step);
+  buttons('steps', STEPS.map(s => [s, `${s}%`]), v => {
+    state.step = Number(v);
+    state.picked = autoPose(state.step);
+    if (POSES[state.pose] && !allowed(state.pose, state.step)) state.pose = 'auto';
+    render();
+  });
+  buttons('poses', [['auto', '자동'], ...Object.entries(POSES).map(([k, p]) => [k, p.label]), ['all', '전부 겹쳐 보기']], v => { state.pose = v; render(); });
+  document.getElementById('reroll').onclick = () => { state.pose = 'auto'; state.picked = autoPose(state.step); render(); };
+  document.getElementById('reduce').onclick = e => { state.reduce = !state.reduce; e.target.setAttribute('aria-pressed', String(state.reduce)); };
+  initGlass();
+  render();
+  if (q.has('t')) {
+    state.reduce = true;
+    for (const sp of sprites) apply(sp, Number(q.get('t')), false);
+    Promise.all([...document.images].map(i => i.decode().catch(() => null)), geo.pending).then(() => {
+      drawGlass();
+      document.body.dataset.ready = '1';
+    });
+    return;
+  }
+  requestAnimationFrame(frame);
+  document.body.dataset.ready = '1';
+});
+</script>
+</body>
+</html>

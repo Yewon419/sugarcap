@@ -1,0 +1,163 @@
+{
+ "in-cup": {
+  "file": "design/assets/characters/roshu/poses/in-cup.png",
+  "canvas": [
+   2500,
+   2800
+  ],
+  "bbox": [
+   534,
+   482,
+   1856,
+   2296
+  ],
+  "eyes": [
+   {
+    "box": [
+     1081,
+     613,
+     1141,
+     673
+    ],
+    "lid": "#D5D7DD"
+   },
+   {
+    "box": [
+     1226,
+     603,
+     1283,
+     662
+    ],
+    "lid": "#D5D7DD"
+   }
+  ],
+  "rimLineY": 1100
+ },
+ "slump": {
+  "file": "design/assets/characters/roshu/poses/slump.png",
+  "canvas": [
+   2500,
+   2800
+  ],
+  "bbox": [
+   444,
+   515,
+   1929,
+   2403
+  ],
+  "eyes": [
+   {
+    "box": [
+     788,
+     1247,
+     881,
+     1334
+    ],
+    "lid": "#D5D7DD"
+   },
+   {
+    "box": [
+     974,
+     1253,
+     1059,
+     1338
+    ],
+    "lid": "#D5D7DD"
+   }
+  ],
+  "rimLineY": null
+ },
+ "walk": {
+  "file": "design/assets/characters/roshu/poses/walk.png",
+  "canvas": [
+   2500,
+   2800
+  ],
+  "bbox": [
+   511,
+   587,
+   1877,
+   2275
+  ],
+  "eyes": [
+   {
+    "box": [
+     805,
+     1086,
+     875,
+     1152
+    ],
+    "lid": "#D5D7DD"
+   },
+   {
+    "box": [
+     957,
+     1097,
+     1030,
+     1170
+    ],
+    "lid": "#D5D7DD"
+   }
+  ],
+  "rimLineY": null
+ },
+ "watch": {
+  "file": "design/assets/characters/roshu/poses/watch.png",
+  "canvas": [
+   2500,
+   2800
+  ],
+  "bbox": [
+   544,
+   499,
+   1947,
+   2385
+  ],
+  "eyes": [
+   {
+    "box": [
+     1821,
+     974,
+     1876,
+     1129
+    ],
+    "lid": "#D5D7DD"
+   }
+  ],
+  "rimLineY": null
+ },
+ "stand": {
+  "file": "SugarCap/Resources/Shared.xcassets/character-roshu.imageset/roshu.png",
+  "canvas": [
+   935,
+   1024
+  ],
+  "bbox": [
+   41,
+   40,
+   893,
+   983
+  ],
+  "eyes": [
+   {
+    "box": [
+     380,
+     270,
+     423,
+     314
+    ],
+    "lid": "#D5D7DD"
+   },
+   {
+    "box": [
+     458,
+     268,
+     499,
+     311
+    ],
+    "lid": "#D5D7DD"
+   }
+  ],
+  "rimLineY": null
+ }
+}

@@ -130,12 +130,12 @@ struct FeedFxOverlay: View {
             VStack(spacing: 6) {
                 Text("다음은")
                     .font(AppFont.pretendardFixed(15, .semibold))
-                    .foregroundStyle(.white.opacity(0.72))
+                    .foregroundStyle(Color.ink.opacity(0.72))
                     .opacity(small)
                     .offset(y: 8 * (1 - small))
                 MaskLine(
                     text: "카인 차례!", font: AppFont.pretendardFixed(56, .extraBold), lineHeight: 64,
-                    color: .white, tracking: AppFont.displayTracking(for: 56),
+                    color: .ink, tracking: AppFont.displayTracking(for: 56),
                     reveal: seg(t, 0.36, 0.86, Ease.power4Out)
                 )
             }

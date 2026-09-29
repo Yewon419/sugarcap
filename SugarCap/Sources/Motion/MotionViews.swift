@@ -66,8 +66,10 @@ extension Color {
     /// UI 바탕. 무채색 한 계열(2026-09-29). 컵 사진과 이어 붙이는 곳은 `CupView.wallColor`를 쓴다.
     static let wall = Color(red: 0xF4 / 255, green: 0xF4 / 255, blue: 0xF5 / 255)
     static let ink = Color(red: 0x18 / 255, green: 0x18 / 255, blue: 0x1B / 255)
-    static let sugarPink = Color(red: 0xE0 / 255, green: 0x7A / 255, blue: 0x91 / 255)
-    static let caffeineAmber = Color(red: 0xB8 / 255, green: 0x73 / 255, blue: 0x2F / 255)
+    /// 캐릭터 무대 색(대표님 확정 2026-09-29): 당·로슈 딸기 #E5566F, 카페인·카인 밝은 라떼 #E3C29F.
+    /// 라떼는 밝아서 위에 얹는 글자는 흰색이 아니라 먹색을 쓴다.
+    static let sugarPink = Color(red: 0xE5 / 255, green: 0x56 / 255, blue: 0x6F / 255)
+    static let caffeineAmber = Color(red: 0xE3 / 255, green: 0xC2 / 255, blue: 0x9F / 255)
     static let kainRing = Color(red: 0x3B / 255, green: 0x1D / 255, blue: 0x0E / 255)
     /// 먹색에서 흰색으로(밤이 되며 글자가 바뀔 때). `Color.mix`는 iOS 18부터라 직접 섞는다.
     static func ink(towardWhite k: Double) -> Color {

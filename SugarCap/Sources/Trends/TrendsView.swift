@@ -219,7 +219,7 @@ struct TrendsView: View {
                             .fixedSize()
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(Color(white: 0.11), in: Capsule())
+                            .background(Color.accentColor, in: Capsule())
                     }
                 }
                 Text(weekday)
@@ -509,7 +509,7 @@ private extension View {
             let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
             shape.fill(.white.opacity(0.78))
                 .overlay(shape.strokeBorder(.white))
-                .shadow(color: Color(red: 20 / 255, green: 30 / 255, blue: 50 / 255).opacity(0.06), radius: 15, y: 10)
+                .shadow(color: Color.black.opacity(0.06), radius: 15, y: 10)
         }
     }
 

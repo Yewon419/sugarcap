@@ -60,7 +60,7 @@ struct ReductionGoalSheet: View {
                                         .foregroundStyle(isOn ? Color.white : Color.primary)
                                         .padding(.horizontal, 14)
                                         .frame(minHeight: 32)
-                                        .background(isOn ? Color(white: 0.11) : Color(.tertiarySystemFill), in: Capsule())
+                                        .background(isOn ? Color.accentColor : Color(.tertiarySystemFill), in: Capsule())
                                 }
                                 .buttonStyle(.plain)
                                 .accessibilityAddTraits(isOn ? .isSelected : [])

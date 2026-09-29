@@ -544,7 +544,7 @@ private extension View {
             let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
             shape.fill(.white.opacity(0.78))
                 .overlay(shape.strokeBorder(.white))
-                .shadow(color: Color(red: 20 / 255, green: 30 / 255, blue: 50 / 255).opacity(0.05), radius: 15, y: 10)
+                .shadow(color: Color.black.opacity(0.05), radius: 15, y: 10)
         }
     }
 

@@ -161,10 +161,11 @@ struct TodayView: View {
             HStack(spacing: 0) {
                 ForEach(CupSide.allCases) { cupSide in
                     let step = cupStep(cupSide, totals: totals)
-                    CupView(step: step, setID: cupSide.cupSetID)
-                        // 캐릭터 대기 자세(로슈·카인). 같은 틀이라 사진 좌표가 맞는다.
-                        .overlay { IdleCharacterLayer(side: cupSide, step: step, isActive: cupSide == side && !isSliding && isOnScreen) }
-                        .frame(width: width)
+                    CupView(
+                        step: step, setID: cupSide.cupSetID,
+                        idle: IdleCharacterLayer(side: cupSide, step: step, isActive: cupSide == side && !isSliding && isOnScreen)
+                    )
+                    .frame(width: width)
                 }
             }
             .offset(x: -index * width + dragX)

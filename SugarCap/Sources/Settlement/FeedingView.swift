@@ -326,7 +326,8 @@ struct FeedingView: View {
             Image(side.characterAsset)
                 .resizable()
                 .scaledToFit()
-                .frame(height: side == .sugar ? 150 : 128)
+                // 오늘 화면 대기 자세 비율(카인 키 ≈ 로슈의 0.91배)에 맞춘다(마무리 요약과 같은 값).
+                .frame(height: side == .sugar ? 150 : 137)
                 .modifier(CharacterPose(
                     pose: pose(over: over),
                     bounceTrigger: bounceTrigger,
@@ -463,7 +464,8 @@ struct FeedingView: View {
             Image(side.characterAsset)
                 .resizable()
                 .scaledToFit()
-                .frame(height: side == .sugar ? 150 : 104)
+                // 오늘 화면 대기 자세 비율(카인 키 ≈ 로슈의 0.91배)에 맞춘다(대표님 빌드 103 피드백).
+                .frame(height: side == .sugar ? 150 : 137)
             HStack(alignment: .firstTextBaseline, spacing: 3) {
                 Text(Amount.number(summaryIn ? request.left(side) : 0))
                     .font(AppFont.pretendard(44, .bold, relativeTo: .largeTitle))

@@ -204,8 +204,8 @@ extension IdleCast {
     )
 }
 
-/// 컵 사진 틀(`CupView`와 같은 계산): 높이 84%, 아래에서 8% 올림, 가운데 정렬로 채우기(937×1666).
-/// `unit`은 393×852 화면 기준으로 잰 pt 값(속도·흔들림 폭)을 이 화면에 맞추는 배율이다.
+/// 컵 사진 틀(`CupView`와 같은 계산). 크기는 `CupView`의 사진 칸(화면 높이 84%)이고, 사진은 칸 아래에 붙여
+/// 가운데 정렬로 채운다(937×1666). `unit`은 393×852 화면 기준으로 잰 pt 값(속도·흔들림 폭)을 이 화면에 맞추는 배율이다.
 struct IdlePhoto: Sendable {
     let left: Double
     let top: Double
@@ -216,13 +216,11 @@ struct IdlePhoto: Sendable {
     /// 프로토타입 화면(393×852)의 사진 높이.
     static let referenceHeight = 852 * 0.84
 
-    init(size: CGSize) {
-        let slotHeight = Double(size.height) * Double(CupView.heightRatio)
-        let scale = max(Double(size.width) / Self.canvas.width, slotHeight / Self.canvas.height)
+    init(slot size: CGSize) {
+        let scale = max(Double(size.width) / Self.canvas.width, Double(size.height) / Self.canvas.height)
         width = Self.canvas.width * scale
         height = Self.canvas.height * scale
-        let bottom = Double(size.height) * (1 - Double(CupView.liftRatio))
-        top = bottom - height
+        top = Double(size.height) - height
         left = (Double(size.width) - width) / 2
     }
 

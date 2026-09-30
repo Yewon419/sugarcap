@@ -1,7 +1,8 @@
 import SwiftUI
 
 /// 오늘 화면 컵 장면 위의 캐릭터 대기 자세(프로토타입 `design/proto/characters.html`을 옮김).
-/// 컵 장면(`CupView`)의 overlay로 붙인다. 같은 틀이라 사진 좌표가 그대로 맞는다.
+/// 컵 장면(`CupView`)의 사진 칸 안에 사진과 한 묶음으로 그린다. 바깥에 overlay로 얹으면 컵을 넘길 때
+/// 한 박자 늦게 따라왔다(대표님 2026-09-29).
 ///
 /// 규칙: 앱을 열 때마다 허용된 자세 중 하나를 뽑고, 자세 사이 전환 동작은 없다. 기록으로 단계가 바뀌어
 /// 지금 자세가 허용되지 않게 되면 그때만 다시 뽑는다. 0%면 로슈는 철푸덕, 카인은 바닥에 앉기.
@@ -112,7 +113,7 @@ struct IdleSprite {
               let rule = cast.rule(pose),
               let art = IdleRig.arts[cast.character]?[rule.art]
         else { return nil }
-        let photo = IdlePhoto(size: size)
+        let photo = IdlePhoto(slot: size)
         let scale = photo.height * cast.scalePerPhotoHeight
         self.cast = cast
         self.rule = rule

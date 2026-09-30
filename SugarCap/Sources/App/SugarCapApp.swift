@@ -1,3 +1,4 @@
+import AVFoundation
 import OSLog
 import SwiftData
 import SwiftUI
@@ -25,6 +26,14 @@ struct SugarCapApp: App {
                 .fault("번들 카탈로그 로드 실패: \(String(describing: error), privacy: .public)")
         }
         catalog = loaded
+
+        // 기본 카테고리 .soloAmbient는 소리 없는 컵 대기 루프(AVPlayer)만 돌아도 다른 앱 음악을 끊는다. 소리를 내지 않는 앱이라 섞어 둔다.
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.ambient)
+        } catch {
+            Logger(subsystem: "com.sugarcap.app", category: "audio")
+                .error("오디오 세션을 ambient로 못 바꿈: \(String(describing: error), privacy: .public)")
+        }
 
         if SharedStore.groupContainerURL == nil {
             // 실기기에서 이 로그가 보이면 entitlement가 빠진 빌드다. 위젯이 기록을 못 읽는다.

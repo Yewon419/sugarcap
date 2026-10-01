@@ -1,7 +1,11 @@
 """Build `catalog.json` from every registered brand scraper.
 
 Usage:
-    python -m sugarcap_scrape.build --out ../../data/catalog.json [--only starbucks,mega]
+    python -m sugarcap_scrape.build --out ../../data/catalog.json --kfind .raw/<가공식품DB>.xlsx
+    python -m sugarcap_scrape.build --out ... [--only starbucks,mega] [--kfind ...]
+
+`--kfind` is the hand-downloaded K-FIND 가공식품 xlsx behind the `cvs` brand
+(see `brands/cvs.py`). A full build requires it so the brand cannot drop out.
 """
 
 from __future__ import annotations
@@ -14,7 +18,7 @@ from collections import defaultdict
 from datetime import UTC, datetime
 from pathlib import Path
 
-from sugarcap_scrape.brands import registry
+from sugarcap_scrape.brands import cvs, registry
 from sugarcap_scrape.http import make_client
 from sugarcap_scrape.ids import drink_id, serving_id, slugify
 from sugarcap_scrape.models import Brand, Catalog, Drink, RawServing, Serving
@@ -77,7 +81,23 @@ def summarize(brand: Brand, rows: list[RawServing]) -> str:
     )
 
 
-def build(only: set[str] | None) -> Catalog:
+def _add_brand(
+    brand: Brand, rows: list[RawServing], brands: list[Brand], all_rows: list[RawServing]
+) -> None:
+    if not rows:
+        raise RuntimeError(f"{brand.id}: scraper returned zero rows")
+    if all(row.caffeine_mg is None for row in rows):
+        log.info("%s: no caffeine published for any of %d rows", brand.id, len(rows))
+    else:
+        for row in rows:
+            if row.caffeine_mg is None:
+                log.info("%s: no caffeine published for %s", brand.id, row.drink_name)
+    print(summarize(brand, rows), file=sys.stderr)
+    brands.append(brand)
+    all_rows.extend(rows)
+
+
+def build(only: set[str] | None, kfind: Path | None) -> Catalog:
     brands: list[Brand] = []
     all_rows: list[RawServing] = []
     with make_client() as client:
@@ -85,15 +105,10 @@ def build(only: set[str] | None) -> Catalog:
             if only is not None and brand_id not in only:
                 continue
             log.info("scraping %s", brand_id)
-            rows = scrape(client)
-            if not rows:
-                raise RuntimeError(f"{brand_id}: scraper returned zero rows")
-            for row in rows:
-                if row.caffeine_mg is None:
-                    log.info("%s: no caffeine published for %s", brand_id, row.drink_name)
-            print(summarize(brand, rows), file=sys.stderr)
-            brands.append(brand)
-            all_rows.extend(rows)
+            _add_brand(brand, scrape(client), brands, all_rows)
+    if kfind is not None and (only is None or cvs.BRAND.id in only):
+        log.info("reading %s for %s", kfind, cvs.BRAND.id)
+        _add_brand(cvs.BRAND, cvs.scrape(kfind), brands, all_rows)
     return Catalog(
         schema_version=SCHEMA_VERSION,
         built_at=datetime.now(UTC).isoformat(timespec="seconds"),
@@ -112,11 +127,14 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--only", type=str, default=None, help="comma-separated brand ids")
+    parser.add_argument("--kfind", type=Path, default=None, help="K-FIND 가공식품 DB xlsx")
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
     only = set(args.only.split(",")) if args.only else None
-    catalog = build(only)
+    if only is None and args.kfind is None:
+        parser.error(f"a full build needs --kfind for the {cvs.BRAND.id} brand")
+    catalog = build(only, args.kfind)
     problems = validate(catalog) if only is None else []
     if problems:
         for problem in problems:

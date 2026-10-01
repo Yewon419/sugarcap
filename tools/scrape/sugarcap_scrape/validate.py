@@ -36,6 +36,8 @@ MIN_DRINKS_PER_BRAND = {
     "twosome": 35,
     "hollys": 35,
     "theventi": 60,
+    # K-FIND export of 2026-08-28 gave 17,845 in-scope products.
+    "cvs": 9000,
 }
 
 

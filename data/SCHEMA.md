@@ -8,8 +8,11 @@
 
 ```
 cd tools\scrape
-..\..\.venv\Scripts\python -m sugarcap_scrape.build --out ..\..\data\catalog.json
+..\..\.venv\Scripts\python -m sugarcap_scrape.build --out ..\..\data\catalog.json --kfind .raw\kfind_20260828.xlsx
 ```
+
+`--kfind`는 편의점(`cvs`) 출처인 식약처 K-FIND 가공식품 엑셀이다. 사람이 내려받아 gitignore된
+`tools/scrape/.raw/`에 둔다(SPEC §2 편의점 절). 전체 빌드는 이 인자 없이 실행되지 않는다.
 
 빌더는 쓰기 전에 `sugarcap_scrape.validate.validate()`를 돌린다. 문제가 하나라도 있으면
 `INVALID ...`를 찍고 **파일을 쓰지 않은 채 exit 1**. `--only`로 일부 브랜드만 돌릴 때는
@@ -28,10 +31,10 @@ cd tools\scrape
 
 | 필드 | 타입 | 설명 |
 |---|---|---|
-| `id` | string | `starbucks` `mega` `compose` `ediya` `paik` `twosome` `hollys` `theventi` |
+| `id` | string | `starbucks` `mega` `compose` `ediya` `paik` `twosome` `hollys` `theventi` `cvs` |
 | `name` | string | 한국어 표시명 |
 | `serving_note` | string | 이 브랜드 수치가 어느 잔 기준인지 한 줄. 상세 화면에 그대로 노출 |
-| `has_size_choice` | bool | true면 사이즈 선택 UI를 켠다. 현재 `ediya`, `twosome`만 true |
+| `has_size_choice` | bool | true면 사이즈 선택 UI를 켠다. 현재 `ediya`, `twosome`, `cvs`만 true |
 
 `has_size_choice`가 false인 브랜드의 drink는 serving이 정확히 1개다(검증이 강제).
 
@@ -43,7 +46,7 @@ cd tools\scrape
 | `brand_id` | string | Brand.id 참조 |
 | `name` | string | 브랜드 표기 그대로(앞뒤 공백 없음) |
 | `name_en` | string \| null | 브랜드가 영문명을 주는 경우만 |
-| `category` | string | 브랜드의 자체 분류명. 표준화하지 않는다 |
+| `category` | string | 브랜드의 자체 분류명. 표준화하지 않는다. `cvs`는 K-FIND 대표식품명(`액상커피` `탄산음료` ...) |
 | `temperature` | `"hot"` \| `"iced"` \| `"both"` | `both`는 브랜드가 온도를 구분해 게시하지 않았다는 뜻 |
 | `servings` | Serving[] | 최소 1개 |
 
@@ -52,10 +55,10 @@ cd tools\scrape
 | 필드 | 타입 | 설명 |
 |---|---|---|
 | `id` | string | `{drink.id}:{사이즈 slug}` |
-| `size_label` | string | 브랜드 표기 그대로(`Tall` `레귤러` `라지` `L` `EX` `기본`...) |
-| `volume_ml` | int \| null | 브랜드가 게시한 컵용량. **ml 환산·추정 금지**, 미게시는 null |
-| `sugar_g` | float \| null | null = 브랜드 미공개 |
-| `caffeine_mg` | float \| null | null = 브랜드 미공개. 변형이 있으면 첫 변형 값과 같다 |
+| `size_label` | string | 브랜드 표기 그대로(`Tall` `레귤러` `라지` `L` `EX` `기본`...). `cvs`는 총내용량(`250ml` `150g`) |
+| `volume_ml` | int \| null | 브랜드가 게시한 컵용량. **ml 환산·추정 금지**, 미게시는 null. `cvs`에서 g 표기 제품은 null |
+| `sugar_g` | float \| null | null = 브랜드 미공개. `cvs`는 100ml(g)당 값 × 총내용량, 소수 1자리 |
+| `caffeine_mg` | float \| null | null = 브랜드 미공개. 변형이 있으면 첫 변형 값과 같다. `cvs`는 항상 null(출처에 카페인 없음) |
 | `caffeine_variants` | CaffeineVariant[] | 원두 선택에 따라 카페인이 갈리는 경우만. 없으면 `[]` |
 
 ### CaffeineVariant

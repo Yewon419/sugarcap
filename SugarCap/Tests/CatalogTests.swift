@@ -232,16 +232,23 @@ final class CatalogIndexTests: XCTestCase {
         XCTAssertLessThan(decode + index, 5, "카탈로그 로드가 너무 느림: decode \(decode)s, index \(index)s")
     }
 
-    func testSearchListsCafeBrandsBeforeConvenienceStore() throws {
+    func testSearchKeepsBrandGridOrderWithinEachGroup() throws {
         let catalog = try CatalogStore.loadBundled(from: Bundle(for: Self.self))
         let index = CatalogIndex(catalog: catalog)
         let order = Dictionary(uniqueKeysWithValues: catalog.brands.enumerated().map { ($1.id, $0) })
 
+        // 이름 앞부분 일치 묶음과 나머지 묶음 각각 안에서 브랜드 격자 순서다(2026-10-01).
+        // 앞부분 일치가 먼저라 "라떼…"로 시작하는 편의점 제품이 "카페라떼"보다 위에 올 수 있다.
+        let query = DrinkQuery("라떼")
         let hits = index.search("라떼", limit: 500)
         XCTAssertFalse(hits.isEmpty)
-        let ranks = hits.map { order[$0.brandId] ?? -1 }
-        XCTAssertEqual(ranks, ranks.sorted(), "검색 결과가 브랜드 격자 순서가 아님")
-        XCTAssertNotEqual(hits.first?.brandId, "cvs")
+        let leading = hits.prefix { query.isPrefix(of: $0.searchKey) }
+        let others = hits.dropFirst(leading.count)
+        for group in [Array(leading), Array(others)] {
+            let ranks = group.map { order[$0.brandId] ?? -1 }
+            XCTAssertEqual(ranks, ranks.sorted(), "검색 결과가 묶음 안에서 브랜드 격자 순서가 아님")
+        }
+        XCTAssertNotEqual(others.first?.brandId, "cvs", "앞부분 일치가 아닌 결과에서 편의점이 카페보다 먼저 옴")
     }
 
     func testNamesStartingWithTheQueryComeFirst() throws {

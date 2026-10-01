@@ -19,6 +19,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from sugarcap_scrape.brands import cvs, registry
+from sugarcap_scrape.colors import liquid_color
 from sugarcap_scrape.http import make_client
 from sugarcap_scrape.ids import drink_id, serving_id, slugify
 from sugarcap_scrape.models import Brand, Catalog, Drink, RawServing, Serving
@@ -66,6 +67,7 @@ def group_rows(rows: list[RawServing]) -> list[Drink]:
                 name_en=head.drink_name_en,
                 category=head.category,
                 temperature=head.temperature,
+                liquid_color=liquid_color(head.drink_name, head.category),
                 servings=tuple(servings),
             )
         )

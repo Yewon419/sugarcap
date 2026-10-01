@@ -49,6 +49,7 @@ def _drink(
         name_en=None,
         category="커피",
         temperature=Temperature.HOT,
+        liquid_color="#C49A6C",
         servings=(
             _serving(drink_id, sugar=sugar, caffeine=caffeine, volume=volume, variants=variants),
         ),

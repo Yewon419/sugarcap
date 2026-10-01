@@ -83,6 +83,8 @@ class Drink(BaseModel):
     name_en: str | None
     category: str
     temperature: Temperature
+    # Thumbnail liquid colour guessed from the name (`colors.py`), not brand data.
+    liquid_color: str = Field(pattern=r"^#[0-9A-F]{6}$")
     servings: tuple[Serving, ...]
 
 

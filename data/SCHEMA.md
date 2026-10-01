@@ -48,6 +48,7 @@ cd tools\scrape
 | `name_en` | string \| null | 브랜드가 영문명을 주는 경우만 |
 | `category` | string | 브랜드의 자체 분류명. 표준화하지 않는다. `cvs`는 K-FIND 대표식품명(`액상커피` `탄산음료` ...) |
 | `temperature` | `"hot"` \| `"iced"` \| `"both"` | `both`는 브랜드가 온도를 구분해 게시하지 않았다는 뜻 |
+| `liquid_color` | string | 목록 썸네일 액체 색 `#RRGGBB`(대문자). 브랜드 데이터가 아니라 이름·분류 키워드로 고른 표시용 값(`sugarcap_scrape/colors.py`, SPEC §9.7). 항상 있다 |
 | `servings` | Serving[] | 최소 1개 |
 
 ## Serving

@@ -4,6 +4,8 @@ import SwiftUI
 /// 온보딩 마지막 질문 "오늘의 분량을 남기면 어디로 가냐고요...?"의 답이다.
 /// 4장(문구 = 대표님): 오늘 남긴 만큼은/이 친구들에게 가요 → 달달한 걸 좋아하는 로슈! → 카페인을 좋아하는 카인!
 /// → 많이많이 남겨서 두 친구와 더 가까워져요 → 밤 → "먹이러 가기".
+/// v2(2026-10-01 `design/proto/intro-v2.html` 확정): 캐릭터는 대기 자세 리그(`RigPainter`)로 그린다. 걸어 들어오고 숨 쉬고 깜빡이며,
+/// 크기는 오늘 화면 배율 비(카인 = 로슈 × 0.891), 카인은 회전 대신 갸웃 → 콩콩, 마지막 장에서 점프하며 정면으로 돈다.
 /// 무대는 1080×1920 픽셀 좌표로 짜고 화면 높이에 맞춰 줄인다(온보딩 릴과 같은 방식). 그림은 전부 시각 t의 순수 함수다.
 /// 화면을 누르면 다음 장, 건너뛰기는 끝(버튼 화면)으로.
 struct CompanionIntroView: View {
@@ -25,7 +27,7 @@ struct CompanionIntroView: View {
             GeometryReader { proxy in
                 let scale = proxy.size.height / 1920
                 ZStack(alignment: .topLeading) {
-                    IntroStage(t: t)
+                    IntroStage(t: t, scale: scale, blinks: frozenAt == nil)
                         .frame(width: 1080, height: 1920)
                         .scaleEffect(scale, anchor: .topLeading)
                         .offset(x: (proxy.size.width - 1080 * scale) / 2)
@@ -74,13 +76,14 @@ struct CompanionIntroView: View {
         .padding(.top, 8)
     }
 
+    /// 밤에 뜨는 버튼이라 흰 바탕에 진한 글자(남색 위 진한 버튼은 안 보인다, 대표님 2026-10-01). 마무리 요약 버튼과 같다.
     private func cta(t: Double) -> some View {
         let k = Motion.seg(t, Self.open + 10.45, Self.open + 10.9, Ease.power3Out)
         return Button(action: onFinish) {
             Text("먹이러 가기")
                 .ctaLabel()
-                .foregroundStyle(.white)
-                .background(Color.accentColor, in: Capsule())
+                .foregroundStyle(Color.ink)
+                .background(Color.wall, in: Capsule())
         }
         .buttonStyle(PressScaleStyle())
         .padding(.horizontal, 24)
@@ -95,6 +98,10 @@ struct CompanionIntroView: View {
 /// 1080×1920 무대. 좌표·시각은 프로토타입과 같다. 가로 위치는 무대 가운데(540) 기준, 세로는 윗변 기준.
 private struct IntroStage: View {
     let t: Double
+    /// 무대 → 화면 배율. 캐릭터 캔버스를 화면 해상도로 그리는 데 쓴다.
+    let scale: Double
+    /// 멈춘 스크린샷에선 깜빡이지 않는다.
+    let blinks: Bool
 
     private static let open = CompanionIntroView.open
     private static let rain: [(x: Double, side: CupSide)] = [
@@ -111,6 +118,10 @@ private struct IntroStage: View {
 
     private func useg(_ a: Double, _ b: Double, _ ease: (Double) -> Double = Ease.linear) -> Double {
         Motion.seg(u, a, b, ease)
+    }
+
+    private func blink(at time: Double, seed: UInt64) -> Double {
+        blinks ? IdleMotion.blink(t: time, seed: seed) : 0
     }
 
     var body: some View {
@@ -228,17 +239,25 @@ private struct IntroStage: View {
         }
     }
 
+    /// 분홍 면이 번진 뒤 오른쪽에서 걸어 들어와 가운데 선다 → 멈추며 한 번 눌림 → 옆 지느러미 흔들어 인사.
+    private var roshuFigures: [IntroRig.Figure] {
+        guard u > 1.0, u < 4.5, let painter = IntroRig.roshuWalkArt else { return [] }
+        let walk = IntroRig.entrance(u, 1.2, 2.25, from: 760, to: 0)
+        var m = IdleFrame()
+        IntroRig.roshuWalk(&m, travelled: walk.travelled, moving: walk.moving)
+        let wave: Double = useg(2.4, 2.55) * (1 - useg(3.25, 3.45))
+        let flap: Double = wave * 26 * sin(2 * Double.pi * (u - 2.4) / 0.32)
+        m.limbs["flipper_side", default: 0] += flap
+        if u > 2.3 { RigMotion.breathe(&m, t: u - 2.3, period: 1.6, amount: 0.018) }
+        return [IntroRig.Figure(
+            painter: painter, base: CGPoint(x: 540 + walk.x, y: 1540), frame: m,
+            squash: IntroRig.roshuSquash * RigMotion.bump(u, 2.2, 0.28), blink: blink(at: u - 2.4, seed: 1)
+        )]
+    }
+
     private var chapterRoshu: some View {
         let radius = 2300 * useg(0.7, 1.45, Ease.expoInOut)
-        let rise = useg(1.35, 1.95) { Ease.backOut($0, overshoot: 1.5) }
-        let land = useg(1.9, 2.0, Ease.power2Out) - useg(2.0, 2.1, Ease.power2Out)
-        let wobble = [2.4, 2.7, 3.0, 3.3].enumerated().reduce(0.0) { sum, item in
-            let k = useg(item.element, item.element + 0.3, Ease.sineInOut)
-            return sum + (item.offset % 2 == 0 ? k : -k)
-        }
-        let orbitOn = useg(2.05, 2.4, Ease.power3Out)
-        let burst = useg(1.9, 2.5, Ease.power3Out)
-        let burstRadius = u < 1.9 ? 0 : 20 * (1 - useg(2.1, 2.55))
+        let orbitOn = useg(2.35, 2.7, Ease.power3Out)
 
         return ZStack(alignment: .topLeading) {
             Circle()
@@ -246,26 +265,9 @@ private struct IntroStage: View {
                 .frame(width: radius * 2, height: radius * 2)
                 .position(x: 540, y: 1190)
 
-            ForEach(0..<14, id: \.self) { index in
-                let angle: Double = Double(index) / 14 * Double.pi * 2 + 0.2
-                let distance: Double = 300 + Double(index % 3) * 70
-                let x: Double = 540 + cos(angle) * distance * burst
-                let y: Double = 1320 + sin(angle) * distance * burst * 0.8
-                Circle()
-                    .fill(index % 2 == 0 ? Color.ink : Color.white)
-                    .frame(width: burstRadius * 2, height: burstRadius * 2)
-                    .position(x: x, y: y)
-            }
-
             // 뒤쪽 궤도 방울 → 로슈 → 앞쪽 궤도 방울
             orbit(front: false, on: orbitOn)
-            Image(CupSide.sugar.characterAsset)
-                .resizable()
-                .scaledToFit()
-                .frame(height: 480)
-                .scaleEffect(x: 1 + 0.1 * land, y: 1 - 0.12 * land, anchor: .bottom)
-                .rotationEffect(.degrees(-7 * wobble), anchor: .bottom)
-                .stagePosition(x: 0, top: Motion.lerp(2000, 1060, rise), height: 480)
+            IntroRigLayer(scale: scale, figures: roshuFigures)
             orbit(front: true, on: orbitOn)
 
             maskedText(["달달한 걸", "좋아하는"], size: 150, name: "로슈!", revealAt: 1.05, hideAt: 3.45, clock: u,
@@ -276,14 +278,14 @@ private struct IntroStage: View {
     private func orbit(front: Bool, on: Double) -> some View {
         // 식을 쪼개 둔다. 한 줄에 몰면 컴파일러가 타입을 제때 못 푼다(CI 오류).
         ForEach(0..<3, id: \.self) { index in
-            let angle: Double = (u - 2.05) * 3.1 + Double(index) * Double.pi * 2 / 3
+            let angle: Double = (u - 2.35) * 3.1 + Double(index) * Double.pi * 2 / 3
             let depth: Double = sin(angle)
-            let scale: Double = max(0, on * (0.8 + 0.25 * depth))
+            let size: Double = max(0, on * (0.8 + 0.25 * depth))
             let x: Double = 360 * cos(angle)
-            let top: Double = 1300 + 120 * depth - 55
+            let top: Double = 1360 + 110 * depth - 55
             if (depth > 0) == front {
                 dropImage(.sugar, size: 110)
-                    .scaleEffect(scale)
+                    .scaleEffect(size)
                     .stagePosition(x: x, top: top, height: 110)
             }
         }
@@ -291,26 +293,41 @@ private struct IntroStage: View {
 
     // MARK: 카인
 
+    /// 왼쪽에서 뒤뚱 걸어 들어와 오른쪽(방울 오는 쪽)을 본다 → 방울 꿀꺽(눌림) → 고개 갸웃 → 제자리 콩콩 두 번.
+    private var kainFigures: [IntroRig.Figure] {
+        guard u > 4.0, u < 7.4, let painter = IntroRig.kainWalkArt else { return [] }
+        let walk = IntroRig.entrance(u, 4.15, 4.95, from: -780, to: 0)
+        var m = IdleFrame()
+        m.flip = -1
+        IntroRig.kainWalk(&m, travelled: walk.travelled, moving: walk.moving)
+        // 갸웃: 발밑 축으로 뒤로 젖힌다(5.5~5.78 기울고, 6.08까지 멈춤, 6.32에 돌아오며 살짝 넘침).
+        let tiltIn: Double = useg(5.5, 5.78, Ease.power3Out)
+        let tiltOut: Double = useg(6.08, 6.32) { Ease.backOut($0, overshoot: 2.2) }
+        m.rot += 13 * tiltIn * (1 - tiltOut)
+        var squash: Double = RigMotion.bump(u, 5.25, 0.22)
+        var hopY = 0.0
+        for start in [6.4, 6.74] {
+            let k: Double = RigMotion.bump(u, start, 0.3)
+            hopY += 95 * k
+            m.limbs["leg_near", default: 0] += 20 * k
+            m.limbs["leg_far", default: 0] -= 14 * k
+            squash += RigMotion.bump(u, start - 0.06, 0.08) + RigMotion.bump(u, start + 0.3, 0.1)
+        }
+        m.dy = -hopY
+        if u > 4.95 { RigMotion.breathe(&m, t: u - 4.95, period: 1.9, amount: 0.012) }
+        return [IntroRig.Figure(
+            painter: painter, base: CGPoint(x: 540 + walk.x, y: 1495), frame: m, squash: squash, blink: blink(at: u - 5.0, seed: 2)
+        )]
+    }
+
     private var chapterKain: some View {
         let cover = useg(3.65, 4.3, Ease.power4InOut)
-        let enter = useg(4.15, 4.7, Ease.power3Out)
-        let hop = useg(4.15, 4.42, Ease.power2Out) - useg(4.42, 4.69, Ease.power2In)
-        let jitter: Double = {
-            guard u >= 5.3, u <= 5.75 else { return 0 }
-            let phase = (u - 5.3) / 0.045
-            let within = phase.truncatingRemainder(dividingBy: 2)
-            return 18 * (within < 1 ? within : 2 - within)
-        }()
-        let spin = useg(5.85, 6.65, Ease.power3InOut)
-        let pulse = useg(6.65, 6.85, Ease.power2Out) - useg(6.85, 7.05, Ease.power2Out)
         let bounce = useg(4.55, 5.25)
         let ring = useg(5.25, 5.8, Ease.power3Out)
         let caffeineScale: Double = u < 4.55 ? 0 : 1 - useg(5.15, 5.3)
         let caffeineX: Double = Motion.lerp(760, 0, bounce)
         let bounceHeight: Double = 520 * abs(sin(Double.pi * bounce * 2.5)) * (1 - bounce)
-        let caffeineTop: Double = 1080 - bounceHeight
-        let kainX: Double = Motion.lerp(-900, 0, enter) + jitter
-        let kainTop: Double = 1060 - 180 * hop
+        let caffeineTop: Double = 1180 - bounceHeight
 
         return ZStack(alignment: .topLeading) {
             Color.caffeineAmber
@@ -337,13 +354,7 @@ private struct IntroStage: View {
             }
             .position(x: 540, y: 1290)
 
-            Image(CupSide.caffeine.characterAsset)
-                .resizable()
-                .scaledToFit()
-                .frame(height: 420)
-                .rotationEffect(.degrees(360 * spin), anchor: UnitPoint(x: 0.5, y: 0.55))
-                .scaleEffect(1 + 0.08 * pulse, anchor: UnitPoint(x: 0.5, y: 0.55))
-                .stagePosition(x: kainX, top: kainTop, height: 420)
+            IntroRigLayer(scale: scale, figures: kainFigures)
 
             dropImage(.caffeine, size: 170)
                 .scaleEffect(caffeineScale)
@@ -357,24 +368,94 @@ private struct IntroStage: View {
 
     // MARK: 함께
 
-    private var chapterTogether: some View {
-        let radius = 2300 * useg(7.25, 7.95, Ease.expoInOut)
-        let enter = useg(7.65, 8.15, Ease.power3Out)
-        let hitDelay = 0.5
+    private static let hitDelay = 0.5
+
+    /// 방울 비 받은 양(0~7)과 받을 때 튀는 정도(0~1).
+    private var rainState: (gotSugar: Double, gotCaffeine: Double, hopSugar: Double, hopCaffeine: Double) {
         var gotSugar = 0.0, gotCaffeine = 0.0, hopSugar = 0.0, hopCaffeine = 0.0
         for (index, drop) in Self.rain.enumerated() {
             let at = 8.2 + Double(index) * 0.1
-            let got = useg(at + hitDelay, at + hitDelay + 0.3, Ease.power3Out)
-            let hop = Motion.decay(u, at: at + hitDelay, rate: 9)
+            let got = useg(at + Self.hitDelay, at + Self.hitDelay + 0.3, Ease.power3Out)
+            let hop = Motion.decay(u, at: at + Self.hitDelay, rate: 9)
             if drop.side == .sugar { gotSugar += got; hopSugar += hop } else { gotCaffeine += got; hopCaffeine += hop }
         }
-        let roshuX = Motion.lerp(-1000, -225, enter) + 80 * gotSugar / 7
-        let kainX = Motion.lerp(1000, 245, enter) - 80 * gotCaffeine / 7
+        return (gotSugar, gotCaffeine, min(1, hopSugar), min(1, hopCaffeine))
+    }
+
+    /// 마지막 장 두 캐릭터의 가로 자리(무대 가운데 기준). 방울 비가 이 자리로 날아간다.
+    private var togetherX: (roshu: Double, kain: Double) {
+        let rain = rainState
+        let roshu = IntroRig.entrance(u, 7.45, 8.3, from: -1000, to: -225).x + 80 * rain.gotSugar / 7
+        let kain = IntroRig.entrance(u, 7.5, 8.35, from: 1000, to: 245).x - 80 * rain.gotCaffeine / 7
+        return (roshu, kain)
+    }
+
+    /// 둘이 양쪽에서 걸어 들어와 마주 본다 → 방울 받을 때마다 통 튀며 다가온다 →
+    /// "처음 만난 사이"가 뜰 때 콩 뛰어 공중에서 정면으로 돈다(그림 교체를 점프 꼭대기에 숨긴다).
+    private var togetherFigures: [IntroRig.Figure] {
+        guard u > 7.3 else { return [] }
+        let rain = rainState
+        let x = togetherX
+        let turnLength = 0.3
+        func turnHop(_ at: Double) -> Double { RigMotion.bump(u, at, turnLength) }
+        func landSquash(_ at: Double) -> Double { IntroRig.roshuSquash * RigMotion.bump(u, at + turnLength, 0.12) }
+        var figures: [IntroRig.Figure] = []
+
+        let roshuTurn = 9.66
+        let roshuWalk = IntroRig.entrance(u, 7.45, 8.3, from: -1000, to: -225)
+        var roshu = IdleFrame()
+        let roshuFront = u >= roshuTurn + turnLength / 2
+        if roshuFront {
+            roshu.limbs["arm_left"] = 16 * rain.hopSugar
+            roshu.limbs["arm_right"] = -16 * rain.hopSugar
+        } else {
+            roshu.flip = -1
+            IntroRig.roshuWalk(&roshu, travelled: roshuWalk.travelled, moving: roshuWalk.moving)
+            roshu.limbs["foot_back", default: 0] += 14 * rain.hopSugar
+            roshu.limbs["foot_front", default: 0] += 14 * rain.hopSugar
+            roshu.limbs["flipper_front", default: 0] += 6 * rain.hopSugar
+        }
+        roshu.dy = -(46 * rain.hopSugar + 70 * turnHop(roshuTurn))
+        if u > 8.3 { RigMotion.breathe(&roshu, t: u - 8.3, period: 1.6, amount: 0.018) }
+        if let painter = roshuFront ? IntroRig.roshuStandArt : IntroRig.roshuWalkArt {
+            figures.append(IntroRig.Figure(
+                painter: painter, base: CGPoint(x: 540 + x.roshu, y: 1530), frame: roshu,
+                squash: landSquash(roshuTurn), blink: blink(at: u - 8.0, seed: 3)
+            ))
+        }
+
+        let kainTurn = 9.72
+        let kainWalk = IntroRig.entrance(u, 7.5, 8.35, from: 1000, to: 245)
+        var kain = IdleFrame()
+        let kainFront = u >= kainTurn + turnLength / 2
+        if kainFront {
+            kain.limbs["leg_left"] = 10 * rain.hopCaffeine
+            kain.limbs["leg_right"] = -10 * rain.hopCaffeine
+        } else {
+            IntroRig.kainWalk(&kain, travelled: kainWalk.travelled, moving: kainWalk.moving)
+            kain.limbs["leg_near", default: 0] += 16 * rain.hopCaffeine
+            kain.limbs["leg_far", default: 0] -= 12 * rain.hopCaffeine
+        }
+        kain.dy = -(46 * rain.hopCaffeine + 70 * turnHop(kainTurn))
+        if u > 8.35 { RigMotion.breathe(&kain, t: u - 8.35, period: 1.9, amount: 0.012) }
+        if let painter = kainFront ? IntroRig.kainStandArt : IntroRig.kainWalkArt {
+            figures.append(IntroRig.Figure(
+                painter: painter, base: CGPoint(x: 540 + x.kain, y: 1530), frame: kain,
+                squash: landSquash(kainTurn), blink: blink(at: u - 8.2, seed: 4)
+            ))
+        }
+        return figures
+    }
+
+    private var chapterTogether: some View {
+        let radius = 2300 * useg(7.25, 7.95, Ease.expoInOut)
+        let hitDelay = Self.hitDelay
+        let x = togetherX
+        let roshuX = x.roshu
+        let kainX = x.kain
         let night = useg(10.2, 11.0, Ease.power2InOut)
         let bondIn = useg(9.75, 10.25, Ease.power3Out)
         let textColor = Color.ink(towardWhite: night)
-        let roshuTop: Double = 1040 - 46 * min(1, hopSugar)
-        let kainTop: Double = 1110 - 46 * min(1, hopCaffeine)
 
         return ZStack(alignment: .topLeading) {
             Circle()
@@ -401,16 +482,7 @@ private struct IntroStage: View {
                     .stagePosition(x: x, top: top, height: 96)
             }
 
-            Image(CupSide.sugar.characterAsset)
-                .resizable()
-                .scaledToFit()
-                .frame(height: 480)
-                .stagePosition(x: roshuX, top: roshuTop, height: 480)
-            Image(CupSide.caffeine.characterAsset)
-                .resizable()
-                .scaledToFit()
-                .frame(height: 420)
-                .stagePosition(x: kainX, top: kainTop, height: 420)
+            IntroRigLayer(scale: scale, figures: togetherFigures)
 
             maskedText(["많이많이 남겨서", "두 친구와", "더 가까워져요"], size: 96, name: nil, revealAt: 7.85, hideAt: nil, clock: u,
                        accentLast: true, color: textColor)
@@ -433,6 +505,120 @@ private struct IntroStage: View {
             .opacity(bondIn)
             .stagePosition(x: 0, top: 1590 + 30 * (1 - bondIn), height: 120)
         }
+    }
+}
+
+/// 소개 무대의 리그 캐릭터(시안 `intro-v2.html`과 같은 조각·축·방향). 단위는 무대 픽셀.
+private enum IntroRig {
+    struct Figure {
+        let painter: RigPainter
+        let base: CGPoint
+        let frame: IdleFrame
+        let squash: Double
+        let blink: Double
+    }
+
+    /// 로슈 걷기 그림 높이(무대 px). 정면 그림도 같은 높이로 맞춘다(캔버스 크기가 달라서).
+    private static let roshuHeight = 400.0
+    private static let roshuPx = CupSide.sugar.idleCast.scalePerPhotoHeight
+    private static let kainPx = CupSide.caffeine.idleCast.scalePerPhotoHeight
+
+    /// 무대 배율 = 로슈 높이 400 기준. 카인은 오늘 화면 배율 비(× 0.891)를 따른다.
+    private static let roshuScale: Double = scale(fitting: "walk", of: "roshu")
+    private static let kainScale: Double = roshuScale * kainPx / roshuPx
+    /// 오늘 화면 대비 무대 배율(걷기 발 들기·내딛기 pt를 키울 때 쓴다).
+    private static let stageK: Double = roshuScale / (IdlePhoto.referenceHeight * roshuPx)
+    /// RigPainter의 눌림(세로 8%)을 로슈 시안 값(세로 7%)으로 맞춘다.
+    static let roshuSquash = 0.875
+
+    // 로슈 앞 지느러미는 몸 안쪽(-)으로만 돈다. 바깥으로 젖히면 자른 선이 드러난다(무대 400px에서 눈에 띔).
+    static let roshuWalkArt = RigPainter(
+        character: "roshu", art: "walk", scale: roshuScale, lidPad: 0.35,
+        limbDirection: ["flipper_front": -1, "foot_back": -1, "foot_front": 1, "flipper_side": 0]
+    )
+    static let roshuStandArt = RigPainter(
+        character: "roshu", art: "stand", scale: scale(fitting: "stand", of: "roshu"), lidPad: 0.35,
+        limbDirection: ["arm_left": 0, "arm_right": 0, "foot_left": 0, "foot_right": 0]
+    )
+    static let kainWalkArt = RigPainter(
+        character: "kain", art: "walk", scale: kainScale, lidPad: 0.04, limbDirection: ["leg_far": 0, "leg_near": 0]
+    )
+    static let kainStandArt = RigPainter(
+        character: "kain", art: "rim-stand", scale: kainScale, lidPad: 0.04, limbDirection: ["leg_left": 0, "leg_right": 0]
+    )
+
+    private static func scale(fitting art: String, of character: String) -> Double {
+        guard let height = IdleRig.arts[character]?[art]?.bbox.height, height > 0 else { return 0 }
+        return roshuHeight / Double(height)
+    }
+
+    /// 입장 걷기: a→b를 감속으로 가고, 걸음 위상은 지나온 거리로 잰다. 끝 0.14초 동안 다리를 모은다.
+    static func entrance(_ t: Double, _ a: Double, _ b: Double, from x0: Double, to x1: Double)
+        -> (x: Double, travelled: Double, moving: Double) {
+        let x = Motion.lerp(x0, x1, Motion.seg(t, a, b, Ease.power2Out))
+        let moving: Double = t > b ? 0 : (t < a ? 1 : 1 - Motion.seg(t, b - 0.14, b))
+        return (x, abs(x - x0), moving)
+    }
+
+    /// 한 발의 한 주기. 옆으로 미는 폭은 오늘 화면 배율 그대로, 발 들기만 `liftBoost`배.
+    private static func footStep(_ c: Double, liftBoost: Double) -> (x: Double, lift: Double, rot: Double) {
+        let reach = 1.5, lift = 1.6, rot = 8.0
+        if c < 0.5 {
+            let v = c / 0.5
+            let arc = sin(Double.pi * v)
+            return ((reach - 2 * reach * RigMotion.smooth(v)) * stageK, lift * arc * stageK * liftBoost, rot * arc * 1.4)
+        }
+        return ((-reach + 2 * reach * (c - 0.5) / 0.5) * stageK, 0, 0)
+    }
+
+    /// 로슈 걷기: 다리로 걷고 지느러미는 반대 박자, 몸이 발 박자에 맞춰 살짝 들썩인다. `moving`으로 멈출 때 다리를 모은다.
+    static func roshuWalk(_ m: inout IdleFrame, travelled: Double, moving: Double) {
+        let c = RigMotion.remainder(travelled / 125 / 2, 1)
+        for (foot, phase) in [("foot_back", c), ("foot_front", RigMotion.remainder(c + 0.5, 1))] {
+            let g = footStep(phase, liftBoost: 2.2)
+            m.limbs[foot] = g.rot * moving
+            m.shift[foot] = CGVector(dx: g.x * moving, dy: -g.lift * moving)
+        }
+        let swing = cos(2 * Double.pi * c) * moving
+        m.limbs["flipper_front"] = 6 * swing
+        m.limbs["flipper_side"] = -12 * swing
+        m.bodyDy = -6 * abs(sin(2 * Double.pi * c)) * moving
+    }
+
+    /// 카인 뒤뚱 걷기: 다리가 엉덩이를 축으로 엇갈리고 몸이 딛는 쪽으로 기운다.
+    static func kainWalk(_ m: inout IdleFrame, travelled: Double, moving: Double) {
+        let c = RigMotion.remainder(travelled / 95 / 2, 1)
+        let k = sin(2 * Double.pi * c)
+        let lift = cos(2 * Double.pi * c)
+        let raise: Double = 2.1 * stageK * moving
+        m.limbs["leg_near"] = 16 * k * moving
+        m.limbs["leg_far"] = -16 * k * moving
+        m.shift["leg_near"] = CGVector(dx: 0, dy: -raise * max(0, lift))
+        m.shift["leg_far"] = CGVector(dx: 0, dy: -raise * max(0, -lift))
+        m.rot += 4 * k * moving
+    }
+}
+
+/// 리그 캐릭터 캔버스. 무대(1080×1920) 크기로 그리면 줄이기 전 해상도로 래스터화돼 메모리가 크다.
+/// 화면 크기로 그리고 무대 좌표로 되돌려 키운다(무대 전체 배율과 상쇄돼 화면 해상도 그대로 보인다).
+private struct IntroRigLayer: View {
+    let scale: Double
+    let figures: [IntroRig.Figure]
+
+    var body: some View {
+        let s = max(scale, 0.01)
+        Canvas { context, _ in
+            var stage = context
+            stage.scaleBy(x: s, y: s)
+            for figure in figures {
+                figure.painter.draw(in: stage, base: figure.base, m: figure.frame, squash: figure.squash, blink: figure.blink)
+            }
+        }
+        .frame(width: 1080 * s, height: 1920 * s)
+        .scaleEffect(1 / s, anchor: .topLeading)
+        .frame(width: 1080, height: 1920, alignment: .topLeading)
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 }
 

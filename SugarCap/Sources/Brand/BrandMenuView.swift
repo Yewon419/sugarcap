@@ -2,6 +2,7 @@ import SwiftUI
 
 /// 브랜드 메뉴(2026-09-26 HTML 프로토타입 확정, SPEC §4.2). 오늘 스택에 푸시되고, "추가"하면 오늘 루트로 돌아간다.
 /// 소제목(잔 기준 안내) → 큰 브랜드 이름 → 검색 → 분류 칩 → 메뉴 줄. 메뉴를 누르면 영향 미리보기 패널이 뜬다.
+/// 편의점처럼 메뉴가 수천 개면 분류 칩·전체 목록 없이 검색부터 보여 준다(2026-10-01).
 struct BrandMenuView: View {
     let brand: Brand
     let catalog: CatalogIndex
@@ -10,21 +11,38 @@ struct BrandMenuView: View {
     let onAdd: (ServingSelection) -> Void
     let onManualEntry: () -> Void
 
-    @State private var query = ""
+    @State private var query = BrandMenuView.initialQuery
     @State private var category = BrandMenuView.allCategory
     @State private var panelDrink: Drink?
 
     private static let allCategory = "전체"
+    /// 이보다 메뉴가 많으면(편의점) 전체 목록·분류 칩 대신 검색부터 보여 준다. 카페 최대는 빽다방 296개.
+    private static let searchFirstThreshold = 1000
+    /// 검색 우선 브랜드에서 한 번에 그리는 결과 수. 넘치면 더 입력하라고 안내한다.
+    private static let searchFirstLimit = 100
+
+    /// CI 스크린샷이 검색 결과를 찍게 검색어를 미리 넣는다(`-screenshotBrandQuery 바나나`, Debug 빌드만).
+    private static var initialQuery: String {
+        #if DEBUG
+        UserDefaults.standard.string(forKey: "screenshotBrandQuery") ?? ""
+        #else
+        ""
+        #endif
+    }
 
     private var drinks: [Drink] { catalog.drinks(brandID: brand.id) }
 
-    private var results: [Drink] {
-        drinks.filter { $0.matches(query) && (category == Self.allCategory || $0.category == category) }
+    private var isSearchFirst: Bool { drinks.count > Self.searchFirstThreshold }
+
+    private func results() -> [Drink] {
+        let found = catalog.drinks(brandID: brand.id, matching: DrinkQuery(query))
+        guard category != Self.allCategory else { return found }
+        return found.filter { $0.category == category }
     }
 
     /// 브랜드 잔 기준 안내가 짧으면 소제목으로, 길면 메뉴 수로(길면 줄이 넘친다).
     private var kicker: String {
-        brand.servingNote.count <= 20 ? brand.servingNote : "메뉴 \(drinks.count)"
+        brand.servingNote.count <= 20 ? brand.servingNote : "메뉴 \(drinks.count.formatted())"
     }
 
     var body: some View {
@@ -41,38 +59,15 @@ struct BrandMenuView: View {
                 .padding(.top, 2)
                 .padding(.bottom, 12)
 
-                SearchField(prompt: "메뉴 검색", text: $query)
+                SearchField(prompt: isSearchFirst ? "제품 이름 검색" : "메뉴 검색", text: $query)
                     .padding(.horizontal, 20)
                     .padding(.bottom, 8)
 
-                chips
-
-                if results.isEmpty {
-                    CaptionNote(text: "맞는 메뉴가 없어요.")
-                    Button(action: onManualEntry) {
-                        Label("직접 입력", systemImage: "plus")
-                            .glassPill()
-                    }
-                    .buttonStyle(.plain)
-                    .padding(.horizontal, 24)
-                    .accessibilityIdentifier("brand-manual-entry")
+                if isSearchFirst {
+                    searchFirstList
                 } else {
-                    ForEach(results) { drink in
-                        Button {
-                            panelDrink = drink
-                        } label: {
-                            DrinkLine(
-                                title: drink.name,
-                                meta: meta(drink),
-                                figure: DrinkFigure(
-                                    sugarG: drink.servings.first?.sugarG,
-                                    caffeineMg: drink.servings.first.flatMap { $0.caffeineVariants.first?.caffeineMg ?? $0.caffeineMg }
-                                )
-                            )
-                        }
-                        .buttonStyle(RowPressStyle())
-                        .accessibilityIdentifier("drink-\(drink.id)")
-                    }
+                    chips
+                    menuList(results())
                 }
                 Color.clear.frame(height: 40)
             }
@@ -85,6 +80,51 @@ struct BrandMenuView: View {
                 // 패널을 먼저 닫고 기록한다. 기록하면 오늘 루트로 돌아간다(§4.2).
                 panelDrink = nil
                 onAdd(selection)
+            }
+        }
+    }
+
+    /// 편의점처럼 메뉴가 수천 개인 브랜드: 검색어가 없으면 안내만, 결과는 앞 `searchFirstLimit`개만 그린다.
+    @ViewBuilder
+    private var searchFirstList: some View {
+        if DrinkQuery(query).isEmpty {
+            CaptionNote(text: "제품 이름으로 찾아 주세요. 띄어쓰기는 상관없어요. 예: 바나나맛우유")
+        } else {
+            let found = results()
+            menuList(Array(found.prefix(Self.searchFirstLimit)))
+            if found.count > Self.searchFirstLimit {
+                CaptionNote(text: "\(found.count.formatted())개 중 \(Self.searchFirstLimit)개만 보여요. 이름을 더 입력해 주세요.")
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func menuList(_ found: [Drink]) -> some View {
+        if found.isEmpty {
+            CaptionNote(text: "맞는 메뉴가 없어요.")
+            Button(action: onManualEntry) {
+                Label("직접 입력", systemImage: "plus")
+                    .glassPill()
+            }
+            .buttonStyle(.plain)
+            .padding(.horizontal, 24)
+            .accessibilityIdentifier("brand-manual-entry")
+        } else {
+            ForEach(found) { drink in
+                Button {
+                    panelDrink = drink
+                } label: {
+                    DrinkLine(
+                        title: drink.name,
+                        meta: meta(drink),
+                        figure: DrinkFigure(
+                            sugarG: drink.servings.first?.sugarG,
+                            caffeineMg: drink.servings.first.flatMap { $0.caffeineVariants.first?.caffeineMg ?? $0.caffeineMg }
+                        )
+                    )
+                }
+                .buttonStyle(RowPressStyle())
+                .accessibilityIdentifier("drink-\(drink.id)")
             }
         }
     }

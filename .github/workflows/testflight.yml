@@ -160,6 +160,11 @@ jobs:
           shoot daylog light large -seedDemo YES -screenshotDayLog YES
           shoot daylog-type-ax-xl light accessibility-extra-large -seedDemo YES -screenshotDayLog YES
           shoot brand light large -seedDemo YES -screenshotBrand starbucks
+          # 편의점은 검색 우선 화면(2026-10-01): 검색 전 안내, 띄어쓰기 섞은 검색 결과, 결과가 넘칠 때 안내.
+          shoot brand-cvs light large -seedDemo YES -screenshotBrand cvs
+          shoot brand-cvs-query light large -seedDemo YES -screenshotBrand cvs -screenshotBrandQuery "바나나 맛우유"
+          shoot brand-cvs-many light large -seedDemo YES -screenshotBrand cvs -screenshotBrandQuery "커피"
+          shoot brand-cvs-type-ax-xl light accessibility-extra-large -seedDemo YES -screenshotBrand cvs -screenshotBrandQuery "바나나"
           shoot gate-feed light large -seedDemo YES -screenshotGate feed
           shoot gate-ask light large -screenshotGate ask
           shoot gate-feed-type-ax-xl light accessibility-extra-large -seedDemo YES -screenshotGate feed

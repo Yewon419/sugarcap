@@ -62,11 +62,33 @@ extension Drink {
         }
     }
 
-    /// 브랜드 안 검색. 이름과 영문명에서 부분 일치, 대소문자 무시(prototype.html:335).
     func matches(_ query: String) -> Bool {
-        let needle = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        guard !needle.isEmpty else { return true }
-        return name.lowercased().contains(needle)
-            || (nameEn?.lowercased().contains(needle) ?? false)
+        DrinkQuery(query).matches(searchKey)
+    }
+
+    /// 검색 비교용 이름: 이름과 영문명을 각각 접어서 줄바꿈으로 잇는다(두 이름에 걸친 일치를 막는다).
+    var searchKey: String {
+        [name, nameEn].compactMap { $0 }.map(DrinkQuery.fold).joined(separator: "\n")
+    }
+}
+
+/// 메뉴 검색어. 이름과 영문명에서 부분 일치, 대소문자·띄어쓰기 무시(prototype.html:335).
+/// 띄어쓰기는 편의점 제품명이 "핫식스 제로"·"핫식스제로"처럼 섞여 있어서 무시한다(2026-10-01).
+/// 메뉴마다 다시 접지 않게 검색어는 한 번만 접는다.
+struct DrinkQuery {
+    let needle: String
+
+    init(_ text: String) {
+        needle = Self.fold(text)
+    }
+
+    var isEmpty: Bool { needle.isEmpty }
+
+    func matches(_ searchKey: String) -> Bool {
+        needle.isEmpty || searchKey.contains(needle)
+    }
+
+    static func fold(_ text: String) -> String {
+        String(text.lowercased().unicodeScalars.filter { !CharacterSet.whitespacesAndNewlines.contains($0) })
     }
 }

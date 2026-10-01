@@ -317,6 +317,38 @@ private struct Driver {
 }
 
 extension RecordFlowUITests {
+    /// 편의점은 메뉴가 수천 개라 검색 우선 화면이다(2026-10-01). 검색 전에는 목록이 없고,
+    /// 띄어쓰기를 섞어 쳐도 붙여 쓴 제품명이 나와야 한다. 기록은 남기지 않는다.
+    /// 이름을 testRecording… 뒤에 오게 둔다(첫 테스트가 새 시뮬레이터의 온보딩을 확인한다).
+    @MainActor
+    func testStoreDrinkSearchIgnoresSpaces() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launch()
+        completeOnboardingIfPresented(app)
+        let ui = Driver(app: app)
+
+        let add = app.buttons["record-add"]
+        XCTAssertTrue(add.waitForExistence(timeout: 15))
+        add.tap()
+        let cvs = app.buttons["brand-cvs"]
+        XCTAssertTrue(cvs.waitForExistence(timeout: 5), "기록 시트에 편의점이 없음")
+        ui.tap(cvs)
+
+        let field = app.textFields.matching(NSPredicate(format: "placeholderValue == %@", "제품 이름 검색")).firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 10), "편의점 화면에 검색 칸이 없음")
+        let rows = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "drink-cvs:"))
+        XCTAssertEqual(rows.count, 0, "검색 전에 편의점 목록이 그려짐")
+
+        ui.type("바나나 맛우유", into: field)
+        let banana = app.buttons.matching(
+            NSPredicate(format: "identifier BEGINSWITH %@ AND label CONTAINS %@", "drink-cvs:", "바나나맛우유")
+        ).firstMatch
+        XCTAssertTrue(banana.waitForExistence(timeout: 10), "띄어 쓴 검색어로 바나나맛우유가 안 나옴")
+    }
+}
+
+extension RecordFlowUITests {
     /// 단독 실행이면 온보딩부터 뜬다. 건너뛰기 → 당 "다음" → 카페인 "시작". 이미 지났으면 아무것도 안 한다.
     @MainActor
     func completeOnboardingIfPresented(_ app: XCUIApplication) {

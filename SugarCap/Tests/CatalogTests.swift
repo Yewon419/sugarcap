@@ -205,4 +205,42 @@ final class CatalogIndexTests: XCTestCase {
         XCTAssertEqual(index.serving(id: anyServing.id)?.id, anyServing.id)
         XCTAssertNil(index.serving(id: "없는:아이디:regular"))
     }
+
+    func testBundledCatalogLoadTime() throws {
+        // 편의점이 들어와 카탈로그가 약 8.3MB가 됐고, 앱은 `App.init`에서 동기로 읽는다(2026-10-01).
+        // 시뮬레이터 값이라 실기기와 다르다. 크게 늘면 비동기 로드·포맷 변경을 다시 검토한다.
+        let start = Date()
+        let catalog = try CatalogStore.loadBundled(from: Bundle(for: Self.self))
+        let decoded = Date()
+        _ = CatalogIndex(catalog: catalog)
+        let indexed = Date()
+
+        let decode = decoded.timeIntervalSince(start)
+        let index = indexed.timeIntervalSince(decoded)
+        print("catalog load: decode \(decode)s, index \(index)s, drinks \(catalog.drinks.count)")
+        XCTAssertLessThan(decode + index, 5, "카탈로그 로드가 너무 느림: decode \(decode)s, index \(index)s")
+    }
+
+    func testSearchListsCafeBrandsBeforeConvenienceStore() throws {
+        let catalog = try CatalogStore.loadBundled(from: Bundle(for: Self.self))
+        let index = CatalogIndex(catalog: catalog)
+        let order = Dictionary(uniqueKeysWithValues: catalog.brands.enumerated().map { ($1.id, $0) })
+
+        let hits = index.search("라떼", limit: 500)
+        XCTAssertFalse(hits.isEmpty)
+        let ranks = hits.map { order[$0.brandId] ?? -1 }
+        XCTAssertEqual(ranks, ranks.sorted(), "검색 결과가 브랜드 격자 순서가 아님")
+        XCTAssertNotEqual(hits.first?.brandId, "cvs")
+    }
+
+    func testConvenienceStoreSearchIgnoresSpaces() throws {
+        let catalog = try CatalogStore.loadBundled(from: Bundle(for: Self.self))
+        let index = CatalogIndex(catalog: catalog)
+
+        let spaced = index.drinks(brandID: "cvs", matching: DrinkQuery("바나나 맛 우유"))
+        XCTAssertTrue(spaced.contains { $0.name == "바나나맛우유" }, "띄어 쓴 검색어로 바나나맛우유를 못 찾음")
+
+        let all = index.drinks(brandID: "cvs", matching: DrinkQuery("  "))
+        XCTAssertEqual(all.count, index.drinks(brandID: "cvs").count, "공백만 친 검색어는 전체여야 함")
+    }
 }

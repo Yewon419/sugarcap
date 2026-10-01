@@ -6,7 +6,7 @@ import UIKit
 
 @main
 struct SugarCapApp: App {
-    /// 번들 카탈로그는 앱 수명 동안 한 번만 읽는다(약 620KB, 1,583 servings).
+    /// 번들 카탈로그는 앱 수명 동안 한 번만 읽는다(약 8.3MB, 9개 브랜드. 편의점이 대부분이다. 로드 시간은 `CatalogTests`가 잰다).
     private let catalog: Result<CatalogIndex, any Error>
     /// App Group 컨테이너에 둔다(§4.6). 위젯이 같은 파일을 읽는다.
     private let container: ModelContainer

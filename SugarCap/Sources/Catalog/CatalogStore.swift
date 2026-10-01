@@ -84,6 +84,7 @@ struct CatalogIndex {
     private let drinksByBrandID: [String: [Drink]]
     private let servingsByID: [String: Serving]
     private let drinksByServingID: [String: Drink]
+    private let searchKeysByDrinkID: [String: String]
 
     init(catalog: Catalog) {
         self.catalog = catalog
@@ -95,6 +96,9 @@ struct CatalogIndex {
         self.drinksByServingID = Dictionary(
             uniqueKeysWithValues: catalog.drinks.flatMap { drink in drink.servings.map { ($0.id, drink) } }
         )
+        self.searchKeysByDrinkID = Dictionary(
+            uniqueKeysWithValues: catalog.drinks.map { ($0.id, $0.searchKey) }
+        )
     }
 
     func brand(id: String) -> Brand? { brandsByID[id] }
@@ -102,10 +106,19 @@ struct CatalogIndex {
     func serving(id: String) -> Serving? { servingsByID[id] }
     func drink(servingID: String) -> Drink? { drinksByServingID[servingID] }
 
-    /// 기록 시트 검색(8개 브랜드 전체). 브랜드 안 검색과 같은 일치 규칙, 카탈로그 순서, 최대 `limit`개.
+    /// 기록 시트 검색(브랜드 전체). 브랜드 안 검색과 같은 일치 규칙, 최대 `limit`개.
+    /// 브랜드 격자 순서로 찾는다. 카탈로그 순서(브랜드 id 알파벳)면 편의점(`cvs`)이 카페보다 먼저 결과를 채운다.
     func search(_ query: String, limit: Int = 60) -> [Drink] {
-        guard !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return [] }
-        return Array(catalog.drinks.lazy.filter { $0.matches(query) }.prefix(limit))
+        let query = DrinkQuery(query)
+        guard !query.isEmpty else { return [] }
+        let hits = catalog.brands.lazy.flatMap { drinks(brandID: $0.id, matching: query) }
+        return Array(hits.prefix(limit))
+    }
+
+    /// 브랜드 안 검색. 빈 검색어면 브랜드 메뉴 전체. 검색 키는 색인을 만들 때 한 번만 접어 둔다.
+    func drinks(brandID: String, matching query: DrinkQuery) -> [Drink] {
+        guard !query.isEmpty else { return drinks(brandID: brandID) }
+        return drinks(brandID: brandID).filter { query.matches(searchKeysByDrinkID[$0.id] ?? $0.searchKey) }
     }
 
     /// 브랜드 메뉴 분류 칩: 메뉴가 많은 분류부터. 같은 수면 이름순(화면이 실행마다 흔들리지 않게).

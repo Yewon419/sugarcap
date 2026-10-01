@@ -86,12 +86,17 @@ private struct SettingsContent: View {
                 proCard
                 etcCard
 
-                Text("슈가캡 \(Self.appVersion) · 메뉴 데이터 \(catalog.builtAtDate?.formatted(date: .abbreviated, time: .omitted) ?? catalog.builtAt)")
-                    .font(AppFont.pretendard(11, .regular, relativeTo: .caption2))
-                    .tracking(0.5)
-                    .foregroundStyle(.tertiary)
-                    .frame(maxWidth: .infinity)
-                    .padding(.top, 4)
+                // 편의점 음료 출처 표기는 필수다(SPEC §2, 식약처 공공데이터).
+                VStack(spacing: 4) {
+                    Text("슈가캡 \(Self.appVersion) · 메뉴 데이터 \(catalog.builtAtDate?.formatted(date: .abbreviated, time: .omitted) ?? catalog.builtAt)")
+                    Text("편의점 음료: 식품의약품안전처 식품영양성분 데이터베이스")
+                }
+                .font(AppFont.pretendard(11, .regular, relativeTo: .caption2))
+                .tracking(0.5)
+                .foregroundStyle(.tertiary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
+                .padding(.top, 4)
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 110)

@@ -144,7 +144,7 @@ struct RecordSheet: View {
                 Button {
                     onBrand(brand.id)
                 } label: {
-                    brandCard(name: brand.name, detail: "메뉴 \(catalog.drinks(brandID: brand.id).count)", dashed: false)
+                    brandCard(name: brand.name, detail: "메뉴 \(catalog.drinks(brandID: brand.id).count.formatted())", dashed: false)
                 }
                 .buttonStyle(PressScaleStyle())
                 .accessibilityIdentifier("brand-\(brand.id)")

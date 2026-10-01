@@ -82,6 +82,17 @@ final class ServingSelectionTests: XCTestCase {
         XCTAssertTrue(drink.matches(english.uppercased()))
         XCTAssertFalse(drink.matches("존재하지않는메뉴명zzz"))
     }
+
+    func testSearchIgnoresSpacesOnBothSides() throws {
+        // 편의점 제품명은 "핫식스 제로"·"핫식스제로"처럼 띄어쓰기가 섞여 있다(2026-10-01).
+        let drink = try firstDrink(in: catalog()) { $0.name.contains(" ") }
+        let joined = drink.name.replacingOccurrences(of: " ", with: "")
+        let spaced = joined.map(String.init).joined(separator: " ")
+
+        XCTAssertTrue(drink.matches(joined))
+        XCTAssertTrue(drink.matches(spaced))
+        XCTAssertTrue(drink.matches("   "), "공백만 친 검색어는 빈 검색어와 같다")
+    }
 }
 
 final class ManualAmountTests: XCTestCase {

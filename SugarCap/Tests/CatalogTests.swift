@@ -244,6 +244,21 @@ final class CatalogIndexTests: XCTestCase {
         XCTAssertNotEqual(hits.first?.brandId, "cvs")
     }
 
+    func testNamesStartingWithTheQueryComeFirst() throws {
+        let catalog = try CatalogStore.loadBundled(from: Bundle(for: Self.self))
+        let index = CatalogIndex(catalog: catalog)
+        let query = DrinkQuery("커피")
+
+        let found = index.drinks(brandID: "cvs", matching: query)
+        let starts = found.map { query.isPrefix(of: $0.searchKey) }
+        XCTAssertEqual(starts.first, true, "커피로 시작하는 제품이 맨 위가 아님: \(found.first?.name ?? "-")")
+        XCTAssertEqual(starts, starts.sorted { $0 && !$1 }, "앞부분 일치가 나머지보다 뒤에 섞임")
+
+        let anywhere = index.search("라떼", limit: 5_000)
+        let leading = anywhere.prefix { DrinkQuery("라떼").isPrefix(of: $0.searchKey) }
+        XCTAssertFalse(anywhere.dropFirst(leading.count).contains { DrinkQuery("라떼").isPrefix(of: $0.searchKey) })
+    }
+
     func testConvenienceStoreSearchIgnoresSpaces() throws {
         let catalog = try CatalogStore.loadBundled(from: Bundle(for: Self.self))
         let index = CatalogIndex(catalog: catalog)

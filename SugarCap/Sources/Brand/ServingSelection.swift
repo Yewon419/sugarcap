@@ -88,6 +88,11 @@ struct DrinkQuery {
         needle.isEmpty || searchKey.contains(needle)
     }
 
+    /// 이름이나 영문명이 검색어로 시작하는지. 검색 키는 두 이름을 줄바꿈으로 이어 둔 것이다.
+    func isPrefix(of searchKey: String) -> Bool {
+        !needle.isEmpty && (searchKey.hasPrefix(needle) || searchKey.contains("\n" + needle))
+    }
+
     static func fold(_ text: String) -> String {
         String(text.lowercased().unicodeScalars.filter { !CharacterSet.whitespacesAndNewlines.contains($0) })
     }

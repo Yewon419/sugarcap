@@ -106,19 +106,34 @@ struct CatalogIndex {
     func serving(id: String) -> Serving? { servingsByID[id] }
     func drink(servingID: String) -> Drink? { drinksByServingID[servingID] }
 
-    /// 기록 시트 검색(브랜드 전체). 브랜드 안 검색과 같은 일치 규칙, 최대 `limit`개.
-    /// 브랜드 격자 순서로 찾는다. 카탈로그 순서(브랜드 id 알파벳)면 편의점(`cvs`)이 카페보다 먼저 결과를 채운다.
+    /// 기록 시트 검색(브랜드 전체). 브랜드 안 검색과 같은 일치·정렬 규칙, 최대 `limit`개.
+    /// 이름 앞부분 일치 전부 → 나머지 순이고, 각각 안에서는 브랜드 격자 순서다.
+    /// 카탈로그 순서(브랜드 id 알파벳)면 편의점(`cvs`)이 카페보다 먼저 결과를 채운다.
     func search(_ query: String, limit: Int = 60) -> [Drink] {
         let query = DrinkQuery(query)
         guard !query.isEmpty else { return [] }
-        let hits = catalog.brands.lazy.flatMap { drinks(brandID: $0.id, matching: query) }
-        return Array(hits.prefix(limit))
+        let hits = catalog.brands.flatMap { brand in
+            drinks(brandID: brand.id).filter { query.matches(searchKey($0)) }
+        }
+        return Array(prefixFirst(hits, query).prefix(limit))
     }
 
-    /// 브랜드 안 검색. 빈 검색어면 브랜드 메뉴 전체. 검색 키는 색인을 만들 때 한 번만 접어 둔다.
+    /// 브랜드 안 검색. 빈 검색어면 브랜드 메뉴 전체.
+    /// 이름 앞부분이 검색어와 같은 메뉴를 먼저, 그 안팎은 카탈로그 순서 그대로(2026-10-01, "커피"에 "10% 코나…"가 먼저 오던 문제).
     func drinks(brandID: String, matching query: DrinkQuery) -> [Drink] {
         guard !query.isEmpty else { return drinks(brandID: brandID) }
-        return drinks(brandID: brandID).filter { query.matches(searchKeysByDrinkID[$0.id] ?? $0.searchKey) }
+        return prefixFirst(drinks(brandID: brandID).filter { query.matches(searchKey($0)) }, query)
+    }
+
+    /// 검색 키는 색인을 만들 때 한 번만 접어 둔다.
+    private func searchKey(_ drink: Drink) -> String {
+        searchKeysByDrinkID[drink.id] ?? drink.searchKey
+    }
+
+    private func prefixFirst(_ drinks: [Drink], _ query: DrinkQuery) -> [Drink] {
+        let leading = drinks.filter { query.isPrefix(of: searchKey($0)) }
+        let others = drinks.filter { !query.isPrefix(of: searchKey($0)) }
+        return leading + others
     }
 
     /// 브랜드 메뉴 분류 칩: 메뉴가 많은 분류부터. 같은 수면 이름순(화면이 실행마다 흔들리지 않게).

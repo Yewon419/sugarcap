@@ -68,7 +68,7 @@ struct FeedingSnapshot: Equatable {
 }
 
 /// 먹이기(2026-09-26 HTML 프로토타입 확정). 밤 장면, 당(로슈)·카페인(카인) 화면을 나눠 차례로 먹인다.
-///  1) 컵 아래에서 캐릭터가 달라는 몸짓, 컵에 "눌러요" 신호
+///  1) 캐릭터가 컵에 붙어 조른다(로슈 = 컵 옆에 매달려 까치발, 카인 = 가장자리에서 발 동동, `FeedingCharacter`). 컵에 "눌러요" 신호
 ///  2) 컵을 누르면 흔들리며 빈 컵이 되고 남은 양 방울이 나온다
 ///  3) 방울을 캐릭터에게 끌어다 놓으면(또는 방울을 누르면) 먹는다
 ///  4) 카페인도 같은 과정 → 마무리 요약으로 넘어가는 순간에만 저장한다. 중간에 닫으면 남기지 않는다.
@@ -102,6 +102,8 @@ struct FeedingView: View {
     @State private var isDropEaten = false
     @State private var characterFrame: CGRect = .zero
     @State private var summaryIn = false
+    /// 요약 바닥 면 윗선(캐릭터 발밑, 좌표 공간 "summary").
+    @State private var summaryFloorY: CGFloat = 0
 
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "feeding")
 
@@ -161,22 +163,24 @@ struct FeedingView: View {
             let sx = proxy.size.width / 402
             let sy = proxy.size.height / 874
             ZStack(alignment: .topLeading) {
+                // 흔들 때 컵 장면이 돌아도 모서리에 검은 바탕이 비치지 않게 벽은 따로 고정해 깐다.
+                CupView.wallColor.ignoresSafeArea()
                 CupView(step: stage == .ask ? cupStart : 0, setID: side.cupSetID)
-                    .keyframeAnimator(initialValue: 0.0, trigger: shakeTrigger) { content, angle in
-                        content.rotationEffect(.degrees(angle), anchor: UnitPoint(x: 0.5, y: 0.9))
-                    } keyframes: { _ in
-                        KeyframeTrack {
-                            CubicKeyframe(-4.0, duration: 0.09)
-                            CubicKeyframe(3.5, duration: 0.09)
-                            CubicKeyframe(-3.0, duration: 0.09)
-                            CubicKeyframe(2.0, duration: 0.09)
-                            CubicKeyframe(-1.0, duration: 0.09)
-                            CubicKeyframe(0.0, duration: 0.1)
-                        }
-                    }
+                    .modifier(CupShake(trigger: shakeTrigger))
                     .ignoresSafeArea()
 
                 NightScrim()
+
+                // 캐릭터는 덮개 위(덮개 밑이면 칙칙해진다). 컵과 같이 흔들린다.
+                FeedingCharacter(
+                    side: side, step: stage == .ask ? cupStart : 0,
+                    mood: mood(over: over), bubble: bubble(left: left, over: over),
+                    targetFrame: $characterFrame
+                )
+                .id(side)
+                .modifier(CupShake(trigger: shakeTrigger))
+                .ignoresSafeArea()
+                .allowsHitTesting(false)
 
                 if stage == .ask {
                     Button(action: tapCup) {
@@ -201,10 +205,6 @@ struct FeedingView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .overlay(alignment: .bottom) {
-                asker(left: left, over: over)
-                    .padding(.bottom, 150 * sy - 34)
-            }
             .overlay(alignment: .bottom) { foot }
             .overlay(alignment: .topTrailing) { closeButton }
         }
@@ -311,46 +311,19 @@ struct FeedingView: View {
         .accessibilityIdentifier("feeding-drop")
     }
 
-    private func asker(left: Double, over: Double) -> some View {
-        let bubble: String = {
-            switch stage {
-            case .ask: return "주세요!"
-            case .dropped: return "여기요!"
-            case .eaten: return over > 0 ? "조금 아쉬워요" : "냠, \(Amount.number(left)) \(side.unit)"
-            }
-        }()
-        return VStack(spacing: 8) {
-            NightBubble(text: bubble)
-                .id("\(side)-\(stage)")
-                .transition(.scale(scale: 0.85).combined(with: .opacity))
-            Image(side.characterAsset)
-                .resizable()
-                .scaledToFit()
-                // 오늘 화면 대기 자세 비율(카인 키 ≈ 로슈의 0.91배)에 맞춘다(마무리 요약과 같은 값).
-                .frame(height: side == .sugar ? 150 : 137)
-                .modifier(CharacterPose(
-                    pose: pose(over: over),
-                    bounceTrigger: bounceTrigger,
-                    reduceMotion: reduceMotion
-                ))
-                .background {
-                    GeometryReader { geo in
-                        Color.clear
-                            .onAppear { characterFrame = geo.frame(in: .named("feed")) }
-                            .onChange(of: geo.frame(in: .named("feed"))) { _, frame in characterFrame = frame }
-                    }
-                }
-                .accessibilityLabel(side.characterName)
+    private func bubble(left: Double, over: Double) -> String {
+        switch stage {
+        case .ask: return "주세요!"
+        case .dropped: return "여기요!"
+        case .eaten: return over > 0 ? "조금 아쉬워요" : "냠, \(Amount.number(left)) \(side.unit)"
         }
-        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: stage)
-        .allowsHitTesting(false)
     }
 
-    private func pose(over: Double) -> CharacterPose.Pose {
+    private func mood(over: Double) -> FeedingCharacter.Mood {
         switch stage {
-        case .ask: return over > 0 ? .sulk : .asking
-        case .dropped: return isOverCharacter ? .ready : (over > 0 ? .sulk : .waiting)
-        case .eaten: return .rest
+        case .ask: return over > 0 ? .sulking : .asking
+        case .dropped: return isOverCharacter ? .ready : (over > 0 ? .sulking : .waiting)
+        case .eaten: return .eaten
         }
     }
 
@@ -395,11 +368,16 @@ struct FeedingView: View {
 
     // MARK: - 마무리 요약
 
+    /// 밤 전환(남색)에서 이어지는 남색 밤(2026-10-01 HTML 시안 확정). 둘이 정면으로 나란히 서고 아래에 먹은 양.
+    /// 캐릭터가 허공에 뜨지 않게 발밑부터 한 톤 밝은 남색 바닥 면을 깐다. 완료 버튼은 남색 위에서 보이게 흰 바탕.
     private var summary: some View {
         ZStack(alignment: .topLeading) {
-            CupView(step: 0, setID: CupSide.sugar.cupSetID)
-                .ignoresSafeArea()
-            NightScrim()
+            Color.nightSky.ignoresSafeArea()
+            NightSkyDecor(isIn: summaryIn).ignoresSafeArea()
+            Color(red: 0x1F / 255, green: 0x2C / 255, blue: 0x47 / 255)
+                .padding(.top, summaryFloorY)
+                .ignoresSafeArea(edges: .bottom)
+                .opacity(summaryFloorY > 0 ? 1 : 0)
 
             VStack(alignment: .leading, spacing: 0) {
                 NightDateLabel(text: dateText)
@@ -430,14 +408,14 @@ struct FeedingView: View {
         .overlay(alignment: .bottom) {
             VStack(spacing: 28) {
                 HStack(alignment: .bottom, spacing: 0) {
-                    summaryColumn(.sugar).summaryEntrance(summaryIn, delay: 0.2, distance: 60)
-                    summaryColumn(.caffeine).summaryEntrance(summaryIn, delay: 0.32, distance: 60)
+                    summaryColumn(.sugar, delay: 0.2)
+                    summaryColumn(.caffeine, delay: 0.32)
                 }
                 Button { dismiss() } label: {
                     Text("완료")
                         .ctaLabel()
-                        .foregroundStyle(.white)
-                        .background(Color.accentColor, in: Capsule())
+                        .foregroundStyle(Color.ink)
+                        .background(Color.wall, in: Capsule())
                 }
                 .buttonStyle(PressScaleStyle())
                 .accessibilityIdentifier("feeding-done")
@@ -446,6 +424,7 @@ struct FeedingView: View {
             .padding(.bottom, 8)
         }
         .overlay(alignment: .topTrailing) { closeButton }
+        .coordinateSpace(.named("summary"))
         // 하루 한 번 보는 한 장짜리 요약이라 제목·캐릭터·숫자가 한 화면에 들어가야 한다. 글자 상한을 둔다.
         .dynamicTypeSize(...DynamicTypeSize.xxLarge)
         .onAppear {
@@ -453,7 +432,8 @@ struct FeedingView: View {
         }
     }
 
-    private func summaryColumn(_ side: CupSide) -> some View {
+    /// 말풍선·숫자는 아래에서 올라오고, 캐릭터는 따로 위에서 떨어져 들어온다(`SummaryCharacter`).
+    private func summaryColumn(_ side: CupSide, delay: Double) -> some View {
         let result = results?.first { $0.side == side }
         let note: String = {
             if let result, result.leveledUp { return "\(AffinityMath.stageName(level: result.levelAfter))가 됐어요" }
@@ -461,11 +441,29 @@ struct FeedingView: View {
         }()
         return VStack(spacing: 10) {
             NightBubble(text: note)
-            Image(side.characterAsset)
-                .resizable()
-                .scaledToFit()
-                // 오늘 화면 대기 자세 비율(카인 키 ≈ 로슈의 0.91배)에 맞춘다(대표님 빌드 103 피드백).
-                .frame(height: side == .sugar ? 150 : 137)
+                .summaryEntrance(summaryIn, delay: delay + 0.4)
+            SummaryCharacter(side: side, isIn: summaryIn, delay: delay)
+                // 틀 위 여유(떨어져 들어오는 자리)는 말풍선과 겹쳐 둔다.
+                .padding(.top, -SummaryCharacter.headroom)
+                .background {
+                    if side == .sugar {
+                        GeometryReader { geo in
+                            Color.clear
+                                .onAppear { summaryFloorY = geo.frame(in: .named("summary")).maxY - 4 }
+                                .onChange(of: geo.frame(in: .named("summary")).maxY) { _, y in summaryFloorY = y - 4 }
+                        }
+                    }
+                }
+                .accessibilityLabel(side.characterName)
+            summaryAmount(side)
+                .summaryEntrance(summaryIn, delay: delay, distance: 60)
+        }
+        .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .combine)
+    }
+
+    private func summaryAmount(_ side: CupSide) -> some View {
+        VStack(spacing: 10) {
             HStack(alignment: .firstTextBaseline, spacing: 3) {
                 Text(Amount.number(summaryIn ? request.left(side) : 0))
                     .font(AppFont.pretendard(44, .bold, relativeTo: .largeTitle))
@@ -486,8 +484,6 @@ struct FeedingView: View {
                 .tracking(1.3)
                 .foregroundStyle(Color.nightKicker)
         }
-        .frame(maxWidth: .infinity)
-        .accessibilityElement(children: .combine)
     }
 
     // MARK: - 동작
@@ -603,7 +599,7 @@ private struct NightDateLabel: View {
     }
 }
 
-private struct NightBubble: View {
+struct NightBubble: View {
     let text: String
 
     var body: some View {
@@ -663,41 +659,24 @@ private struct DropEmerge: ViewModifier {
     }
 }
 
-/// 캐릭터 몸짓. 원화는 정지 그림 1장이라 transform으로 흉내 낸다(§5, 애니메이션 원화가 오면 교체).
-private struct CharacterPose: ViewModifier {
-    enum Pose { case asking, waiting, sulk, ready, rest }
-    let pose: Pose
-    let bounceTrigger: Int
-    let reduceMotion: Bool
+/// 컵을 누르면 잔 바닥 근처를 축으로 흔들린다. 컵 장면과 캐릭터 층에 같이 건다(같은 박자로 흔들리게).
+private struct CupShake: ViewModifier {
+    let trigger: Int
 
     func body(content: Content) -> some View {
         content
-            .phaseAnimator([false, true]) { view, up in
-                view
-                    .rotationEffect(.degrees(pose == .asking && !reduceMotion ? (up ? 3 : -4) : 0), anchor: .bottom)
-                    .offset(y: pose == .asking && !reduceMotion ? (up ? -6 : 0) : 0)
-            } animation: { _ in .easeInOut(duration: 0.55) }
-            .rotationEffect(.degrees(pose == .sulk ? -8 : 0), anchor: .bottom)
-            .scaleEffect(scale, anchor: .bottom)
-            .offset(y: pose == .waiting ? -4 : 0)
-            .animation(.spring(response: 0.35, dampingFraction: 0.8), value: pose)
-            .keyframeAnimator(initialValue: 1.0, trigger: bounceTrigger) { view, bounce in
-                view.scaleEffect(reduceMotion ? 1 : bounce, anchor: .bottom)
+            .keyframeAnimator(initialValue: 0.0, trigger: trigger) { view, angle in
+                view.rotationEffect(.degrees(angle), anchor: UnitPoint(x: 0.5, y: 0.9))
             } keyframes: { _ in
                 KeyframeTrack {
-                    SpringKeyframe(1.12, duration: 0.2)
-                    SpringKeyframe(1.0, duration: 0.3)
+                    CubicKeyframe(-4.0, duration: 0.09)
+                    CubicKeyframe(3.5, duration: 0.09)
+                    CubicKeyframe(-3.0, duration: 0.09)
+                    CubicKeyframe(2.0, duration: 0.09)
+                    CubicKeyframe(-1.0, duration: 0.09)
+                    CubicKeyframe(0.0, duration: 0.1)
                 }
             }
-    }
-
-    private var scale: CGFloat {
-        switch pose {
-        case .sulk: return 0.94
-        case .waiting: return 1.03
-        case .ready: return 1.12
-        case .asking, .rest: return 1
-        }
     }
 }
 

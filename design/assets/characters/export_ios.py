@@ -25,11 +25,13 @@ CATALOG = APP / "Idle.xcassets"
 RIG = APP / "idle-rig.json"
 SCALE = 0.2
 
-# Poses the app uses (the proto's wall pose "stand" was dropped).
+# Arts the app draws. Roshu "stand" is the front-facing character art (feeding summary, intro).
 ARTS: dict[str, list[str]] = {
-    "roshu": ["in-cup", "watch", "walk", "slump"],
+    "roshu": ["in-cup", "watch", "walk", "slump", "stand"],
     "kain": ["rim-stand", "sit", "swim", "walk"],
 }
+# Arts whose canvas is not 2500 px. Roshu "stand" is 935x1024 and draws at 150 pt.
+ART_SCALE: dict[str, float] = {"stand": 0.5}
 
 
 class Eye(TypedDict):
@@ -57,12 +59,12 @@ def asset_name(character: str, art: str, part: str) -> str:
     return f"idle-{character}-{art}-{part}"
 
 
-def write_imageset(name: str, source: Path) -> None:
+def write_imageset(name: str, source: Path, scale: float) -> None:
     folder = CATALOG / f"{name}.imageset"
     folder.mkdir(parents=True)
     with Image.open(source) as image:
         rgba = image.convert("RGBA")
-        size = (max(1, round(rgba.width * SCALE)), max(1, round(rgba.height * SCALE)))
+        size = (max(1, round(rgba.width * scale)), max(1, round(rgba.height * scale)))
         rgba.resize(size, Image.Resampling.LANCZOS).save(
             folder / "part.png", optimize=True
         )
@@ -89,10 +91,13 @@ def export_character(character: str) -> dict[str, Art]:
         pose_meta = meta[art]
         rig = parts[art]
         folder = ROOT / character / "parts" / art
-        write_imageset(asset_name(character, art, "body"), folder / "body.png")
+        scale = ART_SCALE.get(art, SCALE)
+        write_imageset(asset_name(character, art, "body"), folder / "body.png", scale)
         for part in rig["parts"]:
             write_imageset(
-                asset_name(character, art, part["name"]), folder / f"{part['name']}.png"
+                asset_name(character, art, part["name"]),
+                folder / f"{part['name']}.png",
+                scale,
             )
         out[art] = Art(
             canvas=pose_meta["canvas"],

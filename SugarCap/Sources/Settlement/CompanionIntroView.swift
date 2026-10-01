@@ -161,7 +161,7 @@ private struct IntroStage: View {
     }
 
     private func maskedText(_ lines: [String], size: CGFloat, name: String?, revealAt: Double, hideAt: Double?, clock: Double,
-                            accentLast: Bool, color: Color, nameColor: Color = .white) -> some View {
+                            accentLast: Bool, color: Color, nameColor: Color = .white, accent: Color = .accentColor) -> some View {
         let lineHeight = size * (name == nil && accentLast ? 1.2 : 1.14)
         let all = lines + (name.map { [$0] } ?? [])
         return VStack(alignment: .leading, spacing: 0) {
@@ -174,7 +174,7 @@ private struct IntroStage: View {
                     text: line,
                     font: AppFont.pretendardFixed(isName ? 240 : size, isName ? .black : .extraBold),
                     lineHeight: isName ? 240 * 1.1 : lineHeight,
-                    color: isName ? nameColor : (isAccent ? Color.accentColor : color),
+                    color: isName ? nameColor : (isAccent ? accent : color),
                     tracking: isName ? 0 : AppFont.displayTracking(for: size),
                     reveal: reveal, exit: exit
                 )
@@ -485,7 +485,7 @@ private struct IntroStage: View {
             IntroRigLayer(scale: scale, figures: togetherFigures)
 
             maskedText(["많이많이 남겨서", "두 친구와", "더 가까워져요"], size: 96, name: nil, revealAt: 7.85, hideAt: nil, clock: u,
-                       accentLast: true, color: textColor)
+                       accentLast: true, color: textColor, accent: textColor)
 
             VStack(spacing: 26) {
                 Text("처음 만난 사이")
@@ -495,7 +495,8 @@ private struct IntroStage: View {
                 GeometryReader { bar in
                     Capsule().fill(Color(white: 0.5, opacity: 0.3))
                         .overlay(alignment: .leading) {
-                            Capsule().fill(Color.accentColor)
+                            // 강조색(진한 잉크)은 밤 남색에 묻힌다. 글자와 같이 흰색으로 넘어간다.
+                            Capsule().fill(textColor)
                                 .frame(width: bar.size.width * 0.1 * useg(9.95, 10.75, Ease.power3Out))
                         }
                 }

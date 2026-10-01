@@ -5,12 +5,15 @@ name: iOS
 on:
   push:
     branches: [main]
+    # 앱이 data/catalog.json을 그대로 번들한다. 카탈로그만 바뀐 푸시도 앱 테스트를 돌린다(2026-10-01).
     paths:
       - "SugarCap/**"
+      - "data/catalog.json"
       - ".github/workflows/testflight.yml"
   pull_request:
     paths:
       - "SugarCap/**"
+      - "data/catalog.json"
   workflow_dispatch:
 
 concurrency:

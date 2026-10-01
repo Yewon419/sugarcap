@@ -183,6 +183,11 @@ jobs:
           shoot feeding-caffeine light large -screenshotFeeding YES -screenshotFeedingStage caffeine
           shoot feeding-summary light large -screenshotFeeding YES -screenshotFeedingStage summary
           shoot feeding-summary-type-ax-xl light accessibility-extra-large -screenshotFeeding YES -screenshotFeedingStage summary
+          # 먹일 게 없는 날(빈 컵 털기): 조르기, 톡톡, 작은 방울, 카인 조르기(짧게 끊은 설명 글이 카인과 안 겹치는지).
+          shoot feeding-empty light large -screenshotFeeding YES -screenshotFeedingEmpty YES
+          shoot feeding-empty-patting light large -screenshotFeeding YES -screenshotFeedingEmpty YES -screenshotFeedingStage patting
+          shoot feeding-empty-dropped light large -screenshotFeeding YES -screenshotFeedingEmpty YES -screenshotFeedingStage dropped
+          shoot feeding-empty-caffeine light large -screenshotFeeding YES -screenshotFeedingEmpty YES -screenshotFeedingStage caffeine
           shoot fx-dusk light large -screenshotFeeding YES -screenshotFx dusk -screenshotFxAt 0.8
           shoot fx-turn light large -screenshotFeeding YES -screenshotFeedingStage eaten -screenshotFx turn -screenshotFxAt 0.7
           shoot fx-night light large -screenshotFeeding YES -screenshotFeedingStage caffeine -screenshotFx night -screenshotFxAt 1.3

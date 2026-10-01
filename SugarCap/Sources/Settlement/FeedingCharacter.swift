@@ -7,7 +7,9 @@ import SwiftUI
 /// 화면 전체(`ignoresSafeArea`)에 깔아 컵 사진 틀(`CupView`: 높이 84%, 아래 8% 띄움)과 같은 좌표를 쓴다.
 /// 말풍선은 머리 오른쪽에 왼쪽 끝을 붙인다(글자가 길어져도 머리를 안 가린다).
 struct FeedingCharacter: View {
-    enum Mood: Equatable { case asking, sulking, waiting, ready, eaten }
+    /// emptied·puzzled·patting·savoring = 먹일 게 없는 날(남은 0) 빈 컵 털기(2026-10-02 시안 `design/proto/feeding-empty.html`):
+    /// 눌러도 안 나옴 → 갸웃 → 컵을 톡톡 세 번 → 작은 방울을 눈 감고 아껴 먹기.
+    enum Mood: Equatable { case asking, sulking, waiting, ready, eaten, emptied, puzzled, patting, savoring }
 
     let side: CupSide
     /// 지금 보이는 컵 단계(가장자리 선).
@@ -32,7 +34,8 @@ struct FeedingCharacter: View {
                     let since: Double = frozen == nil ? timeline.date.timeIntervalSince(moodSince) : 10
                     let unit: Double = Double(size.height * CupView.heightRatio) / IdlePhoto.referenceHeight
                     let rigPose = Self.pose(side: side, mood: mood, t: t, since: since, unit: unit)
-                    let blink: Double = frozen == nil ? IdleMotion.blink(t: t, seed: side == .sugar ? 11 : 12) : 0
+                    let idleBlink: Double = frozen == nil ? IdleMotion.blink(t: t, seed: side == .sugar ? 11 : 12) : 0
+                    let blink: Double = max(idleBlink, rigPose.eyesClosed)
                     Canvas { context, _ in
                         painter.draw(in: context, base: base, m: rigPose.frame, squash: rigPose.squash, blink: blink)
                     }
@@ -121,6 +124,25 @@ struct FeedingCharacter: View {
     struct Pose {
         var frame = IdleFrame()
         var squash = 0.0
+        /// 눈 감기(0~1). 깜빡임과 큰 쪽을 쓴다.
+        var eyesClosed = 0.0
+    }
+
+    /// 톡톡 치는 시각(patting이 된 뒤 초). 방울은 세 번째에 나온다(`FeedingView`가 같은 박자로 컵을 흔든다).
+    static let patTimes = [0.3, 0.7, 1.1]
+
+    private static func ramp(_ t: Double, _ a: Double, _ b: Double) -> Double {
+        RigMotion.smooth((t - a) / (b - a))
+    }
+
+    /// 아껴 먹기: 한 번 콩 → 눈 감고 좌우로 살랑 → 눈 뜨고 숨쉬기.
+    private static func savor(_ p: inout Pose, since: Double, hop: Double, sway: Double, period: Double) {
+        p.frame.dy = -hop * RigMotion.bump(since, 0.05, 0.28)
+        p.squash = RigMotion.bump(since, -0.01, 0.08) + RigMotion.bump(since, 0.33, 0.1)
+        let closed: Double = ramp(since, 0.4, 0.5) * (1 - ramp(since, 1.35, 1.45))
+        p.eyesClosed = closed
+        p.frame.rot += sway * sin(2 * Double.pi * (since - 0.45) / 0.8) * closed
+        RigMotion.breathe(&p.frame, t: since, period: period, amount: 0.014)
     }
 
     /// t = 화면을 연 뒤 시각, since = 지금 기분이 된 뒤 시각. unit = 393×852 기준 pt 배율.
@@ -159,6 +181,30 @@ struct FeedingCharacter: View {
             p.squash = hop.squash
             p.frame.limbs["arm"] = 20 * (1 - RigMotion.smooth((since - 0.7) / 0.3))
             RigMotion.breathe(&p.frame, t: since, period: 1.7, amount: 0.016)
+        case .emptied:
+            // 누르는 순간 기대하며 까치발 → 아무것도 안 나오자 내려앉는다.
+            let up: Double = ramp(since, 0, 0.22) * (1 - ramp(since, 0.45, 0.65))
+            p.frame.bodyDy = -4 * up * unit
+            p.frame.limbs["arm"] = 14 * up
+        case .puzzled:
+            // 갸웃: 컵에서 몸을 떼며 바깥으로 기운다.
+            p.frame.rot = -9 * ramp(since, 0, 0.28)
+            p.squash = 0.75 * RigMotion.bump(since, -0.02, 0.12)
+        case .patting:
+            // 팔이 작아서(watch 그림) 몸으로 읽히게: 치기 전 뒤로 빠졌다가 칠 때 컵 쪽으로 쏠린다.
+            var arm = 0.0, lean = 0.0, wind = 0.0, dip = 0.0
+            for a in patTimes {
+                arm += ramp(since, a - 0.24, a - 0.05) * (1 - ramp(since, a - 0.02, a + 0.03))
+                wind += RigMotion.bump(since, a - 0.24, 0.22)
+                lean += RigMotion.bump(since, a - 0.03, 0.17)
+                dip += RigMotion.bump(since, a, 0.12)
+            }
+            p.frame.limbs["arm"] = 34 * arm
+            p.frame.rot = -9 * (1 - ramp(since, 0, 0.18)) + 6 * lean - 4 * wind
+            p.frame.bodyDy = 1.4 * dip * unit
+        case .savoring:
+            p.frame.limbs["arm"] = 20 * (1 - ramp(since, 0.3, 0.6))
+            savor(&p, since: since, hop: 9 * unit, sway: 4, period: 1.8)
         }
         return p
     }
@@ -193,6 +239,26 @@ struct FeedingCharacter: View {
             p.frame.limbs["leg_left"] = 12 * hop.air
             p.frame.limbs["leg_right"] = -12 * hop.air
             RigMotion.breathe(&p.frame, t: since, period: 1.9, amount: 0.012)
+        case .emptied:
+            let up: Double = ramp(since, 0, 0.22) * (1 - ramp(since, 0.45, 0.65))
+            p.frame.bodyDy = -1.8 * up * unit
+            p.frame.sy = 1 + 0.03 * up
+        case .puzzled:
+            // 갸웃: 발밑 축으로 고개를 젖힌다(소개의 카인 갸웃과 같은 몸짓).
+            p.frame.rot += 13 * ramp(since, 0, 0.28)
+        case .patting:
+            // 쿵쿵: 오른발을 들었다가 가장자리를 쿵. 디딜 때 몸이 눌린다.
+            var lift = 0.0, squash = 0.0
+            for a in patTimes {
+                lift += ramp(since, a - 0.24, a - 0.05) * (1 - ramp(since, a - 0.02, a + 0.02))
+                squash += RigMotion.bump(since, a, 0.12)
+            }
+            p.frame.rot += 13 * (1 - ramp(since, 0, 0.18))
+            p.frame.limbs["leg_right"] = -24 * lift
+            p.frame.bodyDy = -1.2 * lift * unit
+            p.squash = 0.875 * squash
+        case .savoring:
+            savor(&p, since: since, hop: 8 * unit, sway: 5, period: 1.9)
         }
         return p
     }

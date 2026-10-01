@@ -60,7 +60,7 @@ enum FeedingOpening: Equatable {
 
 /// CI 스크린샷 전용(Debug 인자). 특정 단계·전환 시각에 멈춘 화면을 찍는다.
 struct FeedingSnapshot: Equatable {
-    enum Stage: String { case ask, dropped, eaten, caffeine, summary }
+    enum Stage: String { case ask, patting, dropped, eaten, caffeine, summary }
     var stage: Stage = .ask
     var fx: FeedFx?
     var fxAt: Double = 0
@@ -80,13 +80,18 @@ struct FeedingView: View {
     var snapshot: FeedingSnapshot?
 
     enum Step { case sugar, caffeine, done }
-    enum Stage { case ask, dropped, eaten }
+    /// searching = 먹일 게 없는 날(남은 0) 컵을 누른 뒤 방울이 나올 때까지(빈 컵 털기, 2026-10-02 시안 `feeding-empty.html`).
+    enum Stage { case ask, searching, dropped, eaten }
+    /// 빈 컵 털기 박자: 눌러도 안 나옴 → 갸웃 → 컵을 톡톡 세 번(세 번째에 작은 방울).
+    enum SearchBeat { case emptied, puzzled, patting }
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var step: Step = .sugar
     @State private var stage: Stage = .ask
+    @State private var searchBeat: SearchBeat = .emptied
+    @State private var patTrigger = 0
     @State private var results: [FeedResult]?
     @State private var errorText: String?
     /// 소개 릴을 보는 중.
@@ -167,6 +172,7 @@ struct FeedingView: View {
                 CupView.wallColor.ignoresSafeArea()
                 CupView(step: stage == .ask ? cupStart : 0, setID: side.cupSetID)
                     .modifier(CupShake(trigger: shakeTrigger))
+                    .modifier(CupTap(trigger: patTrigger))
                     .ignoresSafeArea()
 
                 NightScrim()
@@ -174,11 +180,12 @@ struct FeedingView: View {
                 // 캐릭터는 덮개 위(덮개 밑이면 칙칙해진다). 컵과 같이 흔들린다.
                 FeedingCharacter(
                     side: side, step: stage == .ask ? cupStart : 0,
-                    mood: mood(over: over), bubble: bubble(left: left, over: over),
+                    mood: mood(left: left, over: over), bubble: bubble(left: left),
                     targetFrame: $characterFrame
                 )
                 .id(side)
                 .modifier(CupShake(trigger: shakeTrigger))
+                .modifier(CupTap(trigger: patTrigger))
                 .ignoresSafeArea()
                 .allowsHitTesting(false)
 
@@ -198,9 +205,11 @@ struct FeedingView: View {
 
                 headline(left: left, over: over)
 
-                if stage != .ask {
-                    drop(left: left, limit: limit)
-                        .position(x: proxy.size.width / 2, y: 400 * sy - proxy.safeAreaInsets.top + 60)
+                if stage == .dropped || stage == .eaten {
+                    // 먹일 게 없는 날의 작은 방울은 컵 입구 바로 아래에 뜬다(이름표 없음).
+                    let dropY: CGFloat = left <= 0 ? 372 * sy : 400 * sy + 60
+                    drop(left: left, limit: limit, rise: 76 * sy)
+                        .position(x: proxy.size.width / 2, y: dropY - proxy.safeAreaInsets.top)
                         .offset(dragOffset)
                 }
             }
@@ -210,17 +219,24 @@ struct FeedingView: View {
         }
         .coordinateSpace(.named("feed"))
         .sensoryFeedback(.impact(weight: .light), trigger: shakeTrigger)
+        .sensoryFeedback(.impact(weight: .light, intensity: 0.6), trigger: patTrigger)
         .sensoryFeedback(.success, trigger: bounceTrigger)
     }
 
     private func headline(left: Double, over: Double) -> some View {
         let caption: String = {
+            // 줄을 짧게 끊는다. 길면 가장자리 오른쪽에 선 카인 몸 밑으로 글이 들어간다.
             switch stage {
             case .ask:
                 return over > 0
-                    ? "오늘은 \(side.label)을 \(Amount.number(over)) \(side.unit) 넘겼어요.\n그래도 \(side.characterNameWithIga) 기다려요. 컵을 눌러 주세요."
+                    ? "\(Amount.number(over)) \(side.unit) 넘겼어요.\n그래도 \(side.characterNameWithIga) 기다려요.\n컵을 눌러 주세요."
                     : "\(side.characterNameWithIga) 기다려요.\n컵을 눌러 주세요."
-            case .dropped: return "방울을 \(side.characterName)에게 끌어다 주세요."
+            case .searching:
+                return searchBeat == .patting ? "컵이 비었어요.\n\(side.characterNameWithIga) 털어 보는 중이에요." : "컵이 비었어요."
+            case .dropped:
+                return left <= 0
+                    ? "마지막 한 방울이 나왔어요.\n\(side.characterName)에게 끌어다 주세요."
+                    : "방울을 \(side.characterName)에게 끌어다 주세요."
             case .eaten: return side == .sugar ? "다음은 카인 차례예요." : "둘 다 먹었어요."
             }
         }()
@@ -265,24 +281,33 @@ struct FeedingView: View {
     }
 
     /// 방울. 남은 비율만큼 크되 너무 작아지지 않게. 기준을 넘긴 날(0)도 먹이면 1점이니 방울은 준다.
-    private func drop(left: Double, limit: Double) -> some View {
+    /// 먹일 게 없는 날은 이름표 없는 아주 작은 방울(22pt)이 컵 입구에서 톡 튀어나온다. 잡기 쉽게 누르는 영역은 44pt.
+    /// `rise` = 컵 입구에서 방울 자리까지 내려오는 거리.
+    private func drop(left: Double, limit: Double, rise: CGFloat) -> some View {
+        let isCrumb = left <= 0
         let ratio = limit > 0 ? min(1, left / limit) : 0
-        let size = 58 + 30 * ratio
+        let size: CGFloat = isCrumb ? 22 : 58 + 30 * ratio
+        let isMoving = !reduceMotion && stage == .dropped
         return VStack(spacing: 8) {
             Image(side.dropAsset)
                 .resizable()
                 .scaledToFit()
                 .frame(width: size, height: size)
-            Text("\(Amount.number(left)) \(side.unit)")
-                .font(AppFont.pretendard(13, .bold, relativeTo: .footnote))
-                .monospacedDigit()
-                .foregroundStyle(.white)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
-                .background(.black.opacity(0.26), in: Capsule())
-                .overlay(Capsule().strokeBorder(.white.opacity(0.28)))
+            if !isCrumb {
+                Text("\(Amount.number(left)) \(side.unit)")
+                    .font(AppFont.pretendard(13, .bold, relativeTo: .footnote))
+                    .monospacedDigit()
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(.black.opacity(0.26), in: Capsule())
+                    .overlay(Capsule().strokeBorder(.white.opacity(0.28)))
+            }
         }
-        .modifier(DropEmerge(isActive: !reduceMotion && stage == .dropped))
+        .padding(isCrumb ? 11 : 0)
+        .contentShape(Rectangle())
+        .modifier(DropEmerge(isActive: isMoving && !isCrumb))
+        .modifier(DropPop(isActive: isMoving && isCrumb, rise: rise))
         .scaleEffect(isDropEaten ? 0.3 : 1)
         .opacity(isDropEaten || stage == .eaten ? 0 : 1)
         .animation(.easeIn(duration: 0.18), value: isDropEaten)
@@ -305,25 +330,41 @@ struct FeedingView: View {
                 }
         )
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(side.label) \(Amount.number(left)) \(side.unit)를 \(side.characterName)에게 주기")
+        .accessibilityLabel(
+            isCrumb
+                ? "마지막 한 방울을 \(side.characterName)에게 주기"
+                : "\(side.label) \(Amount.number(left)) \(side.unit)를 \(side.characterName)에게 주기"
+        )
         .accessibilityAddTraits(.isButton)
         .accessibilityAction { feedDrop() }
         .accessibilityIdentifier("feeding-drop")
     }
 
-    private func bubble(left: Double, over: Double) -> String {
+    private func bubble(left: Double) -> String {
         switch stage {
         case .ask: return "주세요!"
+        case .searching:
+            switch searchBeat {
+            case .emptied: return "주세요!"
+            case .puzzled: return "어라?"
+            case .patting: return "톡, 톡"
+            }
         case .dropped: return "여기요!"
-        case .eaten: return over > 0 ? "조금 아쉬워요" : "냠, \(Amount.number(left)) \(side.unit)"
+        case .eaten: return left <= 0 ? "냠, 고마워요" : "냠, \(Amount.number(left)) \(side.unit)"
         }
     }
 
-    private func mood(over: Double) -> FeedingCharacter.Mood {
+    private func mood(left: Double, over: Double) -> FeedingCharacter.Mood {
         switch stage {
         case .ask: return over > 0 ? .sulking : .asking
-        case .dropped: return isOverCharacter ? .ready : (over > 0 ? .sulking : .waiting)
-        case .eaten: return .eaten
+        case .searching:
+            switch searchBeat {
+            case .emptied: return .emptied
+            case .puzzled: return .puzzled
+            case .patting: return .patting
+            }
+        case .dropped: return isOverCharacter ? .ready : .waiting
+        case .eaten: return left <= 0 ? .savoring : .eaten
         }
     }
 
@@ -491,7 +532,35 @@ struct FeedingView: View {
     private func tapCup() {
         guard stage == .ask else { return }
         if !reduceMotion { shakeTrigger += 1 }
-        withAnimation(.easeInOut(duration: 0.6)) { stage = .dropped }
+        if request.left(side) <= 0, !reduceMotion {
+            searchBeat = .emptied
+            stage = .searching
+            searchEmptyCup()
+        } else {
+            withAnimation(.easeInOut(duration: 0.6)) { stage = .dropped }
+        }
+    }
+
+    /// 빈 컵 털기: 0.65초 뒤 갸웃, 0.4초 뒤 톡톡(`FeedingCharacter.patTimes`), 세 번째 톡에 작은 방울.
+    private func searchEmptyCup() {
+        let current = side
+        Task {
+            func wait(_ seconds: Double) async -> Bool {
+                try? await Task.sleep(for: .milliseconds(Int(seconds * 1000)))
+                return stage == .searching && side == current
+            }
+            guard await wait(0.65) else { return }
+            searchBeat = .puzzled
+            guard await wait(0.4) else { return }
+            searchBeat = .patting
+            var last = 0.0
+            for at in FeedingCharacter.patTimes {
+                guard await wait(at - last) else { return }
+                last = at
+                patTrigger += 1
+            }
+            stage = .dropped
+        }
     }
 
     private func feedDrop() {
@@ -524,6 +593,7 @@ struct FeedingView: View {
         case .turn:
             step = .caffeine
             stage = .ask
+            searchBeat = .emptied
             resetDrop()
         case .night:
             do {
@@ -553,6 +623,9 @@ struct FeedingView: View {
         guard let snapshot else { return }
         switch snapshot.stage {
         case .ask: break
+        case .patting:
+            stage = .searching
+            searchBeat = .patting
         case .dropped: stage = .dropped
         case .eaten: stage = .eaten
         case .caffeine: step = .caffeine
@@ -654,6 +727,56 @@ private struct DropEmerge: ViewModifier {
                     withAnimation(.spring(response: 0.55, dampingFraction: 0.6).delay(0.2)) { emerged = true }
                 } else {
                     emerged = true
+                }
+            }
+    }
+}
+
+/// 먹일 게 없는 날의 작은 방울: 컵 입구(`rise`만큼 위)에서 톡 튀어 올랐다가 제자리로 떨어지고, 그 뒤 살짝 둥실거린다.
+private struct DropPop: ViewModifier {
+    let isActive: Bool
+    let rise: CGFloat
+    @State private var fired = false
+
+    func body(content: Content) -> some View {
+        content
+            // 끝 값(1)을 처음 값으로 둬서 재생이 끝나도 제자리에 남는다.
+            .keyframeAnimator(initialValue: 1.0, trigger: fired) { view, k in
+                let arc: Double = Double(rise) * 1.6 * sin(Double.pi * k)
+                let fall: Double = Double(rise) * (1 - k)
+                view
+                    .scaleEffect(min(1, 0.3 + k * 3))
+                    .offset(y: -fall - arc)
+            } keyframes: { _ in
+                KeyframeTrack {
+                    MoveKeyframe(0.0)
+                    CubicKeyframe(1.0, duration: 0.6, startVelocity: 3, endVelocity: 0)
+                }
+            }
+            .phaseAnimator([0.0, -3.0]) { view, lift in
+                view.offset(y: isActive ? lift : 0)
+            } animation: { _ in .easeInOut(duration: 1.6) }
+            .opacity(fired || !isActive ? 1 : 0)
+            .onAppear {
+                if isActive { fired = true }
+            }
+    }
+}
+
+/// 캐릭터가 빈 컵을 톡톡 칠 때마다 컵이 작게 떨린다(누를 때 흔들림 `CupShake`의 축소판). 컵 장면과 캐릭터 층에 같이 건다.
+private struct CupTap: ViewModifier {
+    let trigger: Int
+
+    func body(content: Content) -> some View {
+        content
+            .keyframeAnimator(initialValue: 0.0, trigger: trigger) { view, angle in
+                view.rotationEffect(.degrees(angle), anchor: UnitPoint(x: 0.5, y: 0.9))
+            } keyframes: { _ in
+                KeyframeTrack {
+                    CubicKeyframe(1.3, duration: 0.04)
+                    CubicKeyframe(-0.9, duration: 0.08)
+                    CubicKeyframe(0.4, duration: 0.08)
+                    CubicKeyframe(0.0, duration: 0.1)
                 }
             }
     }

@@ -619,10 +619,16 @@ struct TodayView: View {
             if defaults.object(forKey: "screenshotIntroAt") != nil {
                 snapshot.introAt = defaults.double(forKey: "screenshotIntroAt")
             }
-            let request = FeedingRequest(
-                kind: .closeToday, sugarLeftG: totals.leftSugarG, caffeineLeftMg: totals.leftCaffeineMg,
-                limits: limits, sugarOverG: totals.overSugarG, caffeineOverMg: totals.overCaffeineMg
-            )
+            // `-screenshotFeedingEmpty YES` = 기준을 넘겨 먹일 게 없는 날(빈 컵 털기).
+            let isEmptyDay = defaults.bool(forKey: "screenshotFeedingEmpty")
+            let request = isEmptyDay
+                ? FeedingRequest(
+                    kind: .closeToday, sugarLeftG: 0, caffeineLeftMg: 0, limits: limits, sugarOverG: 12, caffeineOverMg: 85
+                )
+                : FeedingRequest(
+                    kind: .closeToday, sugarLeftG: totals.leftSugarG, caffeineLeftMg: totals.leftCaffeineMg,
+                    limits: limits, sugarOverG: totals.overSugarG, caffeineOverMg: totals.overCaffeineMg
+                )
             feeding = FeedingPresentation(
                 request: request, opening: snapshot.introAt != nil ? .companionIntro : .immediate, snapshot: snapshot
             )

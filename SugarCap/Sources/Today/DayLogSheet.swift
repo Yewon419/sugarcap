@@ -9,6 +9,8 @@ struct DayLogSheet: View {
     /// 그날 기록, 최신순.
     let entries: [Entry]
     let limits: DailyLimits
+    /// 기록 줄 썸네일 색을 찾는 데만 쓴다.
+    let catalog: CatalogIndex
     let onDelete: ([Entry]) -> Void
 
     @Environment(\.dismiss) private var dismiss
@@ -105,7 +107,11 @@ struct DayLogSheet: View {
         let meta = [entry.loggedAt.formatted(date: .omitted, time: .shortened), entry.brandName, size]
             .filter { !$0.isEmpty }
             .joined(separator: " · ")
-        return DrinkLine(title: name, meta: meta, figure: DrinkFigure(sugarG: entry.sugarG, caffeineMg: entry.caffeineMg)) {
+        // 직접 입력 기록(servingID 없음)이나 카탈로그에서 빠진 메뉴는 기본색 원.
+        let liquid = entry.servingID.flatMap(catalog.drink(servingID:))?.liquid ?? LiquidBadge.fallback
+        return DrinkLine(
+            title: name, meta: meta, figure: DrinkFigure(sugarG: entry.sugarG, caffeineMg: entry.caffeineMg), liquid: liquid
+        ) {
             if isEditing {
                 Button {
                     onDelete([entry])

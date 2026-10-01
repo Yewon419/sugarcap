@@ -75,6 +75,7 @@ struct BrandMenuView: View {
         .scrollDismissesKeyboard(.immediately)
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear(perform: openPanelForScreenshot)
         .sheet(item: $panelDrink) { drink in
             ServingPanel(drink: drink, brand: brand, todayTotals: todayTotals, limits: limits) { selection in
                 // 패널을 먼저 닫고 기록한다. 기록하면 오늘 루트로 돌아간다(§4.2).
@@ -96,6 +97,14 @@ struct BrandMenuView: View {
                 CaptionNote(text: "\(found.count.formatted())개 중 \(Self.searchFirstLimit)개만 보여요. 이름을 더 입력해 주세요.")
             }
         }
+    }
+
+    /// CI 스크린샷이 메뉴 패널(출렁이는 큰 원)을 찍게 첫 결과를 연다(`-screenshotBrandPanel YES`, Debug 빌드만).
+    private func openPanelForScreenshot() {
+        #if DEBUG
+        guard UserDefaults.standard.bool(forKey: "screenshotBrandPanel"), panelDrink == nil else { return }
+        panelDrink = results().first
+        #endif
     }
 
     @ViewBuilder
@@ -120,7 +129,8 @@ struct BrandMenuView: View {
                         figure: DrinkFigure(
                             sugarG: drink.servings.first?.sugarG,
                             caffeineMg: drink.servings.first.flatMap { $0.caffeineVariants.first?.caffeineMg ?? $0.caffeineMg }
-                        )
+                        ),
+                        liquid: drink.liquid
                     )
                 }
                 .buttonStyle(RowPressStyle())

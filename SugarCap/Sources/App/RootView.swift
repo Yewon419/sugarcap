@@ -60,7 +60,7 @@ struct RootView: View {
             TodayView(catalog: index)
                 .tabItem { Label("오늘", systemImage: "cup.and.saucer") }
                 .tag(AppTab.today)
-            TrendsView()
+            TrendsView(catalog: index)
                 .tabItem { Label("추이", systemImage: "chart.bar") }
                 .tag(AppTab.trends)
             SettingsView(catalog: index.catalog)

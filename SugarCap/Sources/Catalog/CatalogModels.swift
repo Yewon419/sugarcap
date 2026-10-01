@@ -32,6 +32,8 @@ struct Drink: Decodable, Identifiable, Hashable {
     /// 브랜드의 자체 분류명. 표준화하지 않는다.
     let category: String
     let temperature: Temperature
+    /// 썸네일 액체 색 "#RRGGBB"(SPEC §9.7). 이름으로 고른 표시용 값이다. 옛 형식 카탈로그엔 없다.
+    let liquidColor: String?
     let servings: [Serving]
 
     enum Temperature: String, Decodable {

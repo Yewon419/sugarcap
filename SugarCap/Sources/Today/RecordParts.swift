@@ -11,6 +11,8 @@ struct DrinkLine<Leading: View, Trailing: View>: View {
     let meta: String
     /// 오른쪽 수치. 즐겨찾기 줄처럼 수치를 메타에 넣는 곳은 nil.
     let figure: DrinkFigure?
+    /// 왼쪽 동그란 액체 썸네일(SPEC §9.7). 직접 입력 기록처럼 카탈로그 음료가 아니면 기본색.
+    var liquid: Color?
     @ViewBuilder var leading: Leading
     @ViewBuilder var trailing: Trailing
 
@@ -19,6 +21,9 @@ struct DrinkLine<Leading: View, Trailing: View>: View {
     var body: some View {
         HStack(spacing: 12) {
             leading
+            if let liquid {
+                LiquidBadge(color: liquid, size: typeSize.isAccessibilitySize ? 56 : 44)
+            }
             // 큰 글자에서는 수치를 이름 옆에 두면 둘 다 부서진다. 이름 아래로 내린다.
             let layout = typeSize.isAccessibilitySize
                 ? AnyLayout(VStackLayout(alignment: .leading, spacing: 6))
@@ -48,8 +53,8 @@ struct DrinkLine<Leading: View, Trailing: View>: View {
 }
 
 extension DrinkLine where Leading == EmptyView, Trailing == EmptyView {
-    init(title: String, meta: String, figure: DrinkFigure?) {
-        self.init(title: title, meta: meta, figure: figure, leading: { EmptyView() }, trailing: { EmptyView() })
+    init(title: String, meta: String, figure: DrinkFigure?, liquid: Color? = nil) {
+        self.init(title: title, meta: meta, figure: figure, liquid: liquid, leading: { EmptyView() }, trailing: { EmptyView() })
     }
 }
 

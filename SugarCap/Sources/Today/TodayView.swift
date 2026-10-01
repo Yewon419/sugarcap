@@ -123,6 +123,7 @@ struct TodayView: View {
                 isToday: true,
                 entries: todaysEntries(now: now),
                 limits: limits,
+                catalog: catalog,
                 onDelete: delete
             )
         }

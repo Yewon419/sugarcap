@@ -109,7 +109,8 @@ struct RecordSheet: View {
         DrinkLine(
             title: drink.name,
             meta: "\(drink.meta) · 당 \(Amount.text(drink.selection.sugarG, unit: CupSide.sugar.unit))",
-            figure: nil
+            figure: nil,
+            liquid: drink.selection.drink.liquid
         ) {
             StarButton(isOn: isStarred) { toggleFavorite(drink.selection) }
                 .padding(.leading, -6)
@@ -212,7 +213,8 @@ struct RecordSheet: View {
                         figure: DrinkFigure(
                             sugarG: first?.sugarG,
                             caffeineMg: first.flatMap { $0.caffeineVariants.first?.caffeineMg ?? $0.caffeineMg }
-                        )
+                        ),
+                        liquid: drink.liquid
                     )
                 }
                 .buttonStyle(RowPressStyle())

@@ -8,6 +8,9 @@ import WidgetKit
 ///  - 주: 영웅 카드(기준 안에서 마신 날 N/7) → 이번 주 컵 선반(누르면 그날 기록) → 준 양 · 지난주 대비(Pro)
 ///  - 월(Pro): 영웅 카드(이번 달 준 양) → 방울 달력(남긴 만큼 방울이 커진다)
 struct TrendsView: View {
+    /// 하루 기록 시트의 줄 썸네일 색에만 쓴다.
+    let catalog: CatalogIndex
+
     @Query private var settingsRows: [AppSettings]
     @Query(sort: \Entry.loggedAt, order: .reverse) private var entries: [Entry]
     @Environment(\.modelContext) private var context
@@ -60,6 +63,7 @@ struct TrendsView: View {
                 isToday: day == today,
                 entries: entries.filter { $0.dayKey(boundaryHour: boundaryHour) == day },
                 limits: limits,
+                catalog: catalog,
                 onDelete: delete
             )
         }

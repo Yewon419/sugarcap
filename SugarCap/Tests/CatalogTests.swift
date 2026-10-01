@@ -1,3 +1,4 @@
+import SwiftUI
 import XCTest
 
 @testable import SugarCap
@@ -121,6 +122,16 @@ final class CatalogTests: XCTestCase {
             if let volume = serving.volumeMl {
                 XCTAssertTrue((20...1200).contains(volume), "\(serving.id) 용량 \(volume)ml")
             }
+        }
+    }
+
+    func testEveryDrinkHasAReadableLiquidColor() throws {
+        // 썸네일 색(SPEC §9.7). 빠지면 기본색으로 그려지지만 번들 카탈로그에선 빠지면 안 된다.
+        let catalog = try loadCatalog()
+
+        for drink in catalog.drinks {
+            let hex = try XCTUnwrap(drink.liquidColor, "\(drink.id)에 liquid_color가 없음")
+            XCTAssertNotNil(Color(liquidHex: hex), "\(drink.id)의 liquid_color 형식이 틀림: \(hex)")
         }
     }
 

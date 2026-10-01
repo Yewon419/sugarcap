@@ -36,6 +36,9 @@ struct ServingPanel: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .top) {
+                    // 고른 메뉴만 천천히 출렁인다(목록 썸네일은 정지, SPEC §9.7).
+                    LiquidBadge(color: selection.drink.liquid, size: 56, isFlowing: true)
+                        .padding(.trailing, 4)
                     VStack(alignment: .leading, spacing: 6) {
                         Text(kicker).kicker()
                         Text(selection.drink.name)

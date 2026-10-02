@@ -55,7 +55,6 @@ const freshState = () => ({
   points: { roshu: 0, kain: 0 },
   firstDay: null,
   favorites: [],
-  talks: {},
   onboarded: false,
 });
 

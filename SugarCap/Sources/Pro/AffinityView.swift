@@ -1,22 +1,20 @@
 import SwiftData
 import SwiftUI
 
-/// 호감도(Pro, 2026-09-26 HTML 프로토타입 확정, SPEC §4.8). 단계 숫자·점수는 보이지 않는다.
-/// 초상(캐릭터 + "로슈와" + 사이 이름 + 다음 사이까지 막대) → 말걸기.
-/// 말걸기: 캐릭터마다 하루 한 번, 오늘의 선택지 3개 중 하나. 캐릭터는 말을 못 하고 몸짓으로만 반응한다(+2점).
-/// 표정 칸은 뺐다(대표님). 반응 몸짓은 대표님 애니메이션이 오기 전까지 transform으로 흉내 낸다.
+/// 호감도(Pro, SPEC §4.8). 단계 숫자·점수는 보이지 않는다.
+/// 캐릭터 하나 + "로슈와" + 사이 이름 + 다음 사이까지 막대. 캐릭터를 건드리면 몸짓으로 반응하고,
+/// 이어서 여러 번 건드리면 특이한 반응이 한 번 나온다(2026-10-03, 말걸기 대체, 점수 없음).
+/// 반응 몸짓은 대표님 애니메이션이 오기 전까지 transform으로 흉내 낸다.
 struct AffinityView: View {
     @Query private var affinities: [Affinity]
-    @Query private var talkLogs: [TalkLog]
-    @Query private var settingsRows: [AppSettings]
-    @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var side: CupSide = .sugar
-    /// 이번에 말을 걸어 단계가 올랐는지(다시 열면 모른다 → "조금 더 가까워졌어요").
-    @State private var leveledUp: Set<CupSide> = []
+    @State private var reaction: PokeReaction?
     @State private var reactionStart: Date?
-    @State private var failureMessage: String?
+    @State private var lastTap: Date?
+    @State private var combo = 0
+    @State private var taps = 0
 
     private var points: Int {
         affinities.first { $0.character == side.characterID }?.points ?? 0
@@ -24,8 +22,6 @@ struct AffinityView: View {
 
     private var level: Int { AffinityMath.level(points: points) }
     private var isLastStage: Bool { level >= AffinityMath.maxLevel }
-    private var today: DayKey { DayKey(at: Date(), boundaryHour: settingsRows.first?.dayBoundaryHour ?? 4) }
-    private var todaysLog: TalkLog? { TalkStore.log(for: side, day: today, in: talkLogs) }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -35,7 +31,7 @@ struct AffinityView: View {
                     .accessibilityIdentifier("affinity-close")
             }
             ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
+                VStack(spacing: 0) {
                     Picker("캐릭터", selection: $side) {
                         ForEach(CupSide.allCases) { cupSide in
                             Text(cupSide.characterName).tag(cupSide)
@@ -45,12 +41,11 @@ struct AffinityView: View {
                     .padding(.horizontal, 24)
                     .padding(.top, 8)
 
-                    portrait
-                        .padding(.top, 26)
-                        .padding(.horizontal, 24)
+                    character
+                        .padding(.top, 40)
 
-                    SectionKicker(title: "말 걸기")
-                    talk
+                    portrait
+                        .padding(.top, 28)
                         .padding(.horizontal, 24)
                     Color.clear.frame(height: 40)
                 }
@@ -61,39 +56,52 @@ struct AffinityView: View {
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(38)
         .presentationBackground(.regularMaterial)
-        .onChange(of: side) { _, _ in reactionStart = nil }
-        .alert(failureMessage ?? "", isPresented: Binding(get: { failureMessage != nil }, set: { if !$0 { failureMessage = nil } })) {
-            Button("확인", role: .cancel) {}
+        .sensoryFeedback(trigger: taps) { _, _ in
+            reaction == .squish || reaction == .flip ? .impact(weight: .heavy) : .impact(weight: .light)
+        }
+        .onChange(of: side) { _, _ in
+            reaction = nil
+            reactionStart = nil
+            lastTap = nil
+            combo = 0
         }
     }
 
-    /// 캐릭터 → "로슈와" → 사이 이름 → 다음 사이까지 막대.
+    /// 건드릴 수 있는 캐릭터. 반응은 누를 때마다 처음부터 다시 재생한다.
+    private var character: some View {
+        TimelineView(.animation(paused: reactionStart == nil || reduceMotion)) { timeline in
+            let elapsed = reactionStart.map { timeline.date.timeIntervalSince($0) } ?? .infinity
+            let pose = ReactionMotion.pose(reaction, at: reduceMotion ? .infinity : elapsed)
+            Image(side.characterAsset)
+                .resizable()
+                .scaledToFit()
+                .frame(height: side == .sugar ? 250 : 210)
+                .scaleEffect(x: pose.scaleX, y: pose.scaleY, anchor: .bottom)
+                .rotationEffect(.degrees(pose.rotation), anchor: side == .sugar ? .bottom : UnitPoint(x: 0.5, y: 0.55))
+                .offset(x: pose.x, y: pose.y)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 250, alignment: .bottom)
+        .contentShape(Rectangle())
+        .onTapGesture(perform: poke)
+        .id(side)
+        .transition(.opacity)
+        .accessibilityElement()
+        .accessibilityLabel("\(side.characterName) 건드리기")
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction(perform: poke)
+        .accessibilityIdentifier("affinity-character")
+    }
+
+    /// "로슈와" → 사이 이름 → 다음 사이까지 막대.
     private var portrait: some View {
         let stage = AffinityMath.stageName(level: level)
         let next = AffinityMath.stageName(level: level + 1)
-        let reaction = todaysLog.flatMap { TalkReaction(rawValue: $0.reaction) }
 
         return VStack(spacing: 0) {
-            TimelineView(.animation(paused: reactionStart == nil || reduceMotion)) { timeline in
-                let elapsed = reactionStart.map { timeline.date.timeIntervalSince($0) } ?? .infinity
-                let pose = ReactionMotion.pose(reaction, at: reduceMotion ? .infinity : elapsed)
-                Image(side.characterAsset)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: side == .sugar ? 190 : 160)
-                    .scaleEffect(x: pose.scaleX, y: pose.scaleY, anchor: .bottom)
-                    .rotationEffect(.degrees(pose.rotation), anchor: side == .sugar ? .bottom : UnitPoint(x: 0.5, y: 0.55))
-                    .offset(x: pose.x, y: pose.y)
-            }
-            .frame(height: 190, alignment: .bottom)
-            .id(side)
-            .transition(.opacity)
-            .accessibilityHidden(true)
-
             Text(side.characterNameWithGwa)
                 .font(AppFont.pretendard(15, .regular, relativeTo: .subheadline))
                 .foregroundStyle(.secondary)
-                .padding(.top, 20)
 
             Text(stage)
                 .font(AppFont.pretendard(34, .bold, relativeTo: .largeTitle))
@@ -128,75 +136,13 @@ struct AffinityView: View {
         )
     }
 
-    @ViewBuilder
-    private var talk: some View {
-        if let log = todaysLog, let reaction = TalkReaction(rawValue: log.reaction) {
-            let said = TalkMath.choices.first { $0.id == log.choiceID }?.text ?? ""
-            VStack(alignment: .leading, spacing: 0) {
-                Text("\"\(said)\"")
-                    .font(AppFont.pretendard(13, .semibold, relativeTo: .footnote))
-                    .foregroundStyle(.tint)
-                Text("\(side.characterNameWithIga) \(reaction.line)")
-                    .font(AppFont.pretendard(18, .semibold, relativeTo: .headline))
-                    .tracking(-0.3)
-                    .lineSpacing(4)
-                    .padding(.top, 8)
-                    .padding(.bottom, 12)
-                Text(
-                    (leveledUp.contains(side)
-                        ? "\(side.characterNameWithGwa) \(AffinityMath.stageName(level: level))가 됐어요."
-                        : "조금 더 가까워졌어요.") + " 내일 또 말 걸어 주세요."
-                )
-                .font(AppFont.pretendard(12, .regular, relativeTo: .caption))
-                .foregroundStyle(.secondary)
-            }
-            .padding(18)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background {
-                let shape = RoundedRectangle(cornerRadius: 20, style: .continuous)
-                shape.fill(.white.opacity(0.72)).overlay(shape.strokeBorder(.white.opacity(0.95)))
-            }
-            .transition(.scale(scale: 0.95).combined(with: .opacity))
-            .accessibilityElement(children: .combine)
-            .accessibilityIdentifier("talk-result")
-        } else {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("\(side.characterName)에게 뭐라고 할까요?")
-                    .font(AppFont.pretendard(20, .bold, relativeTo: .title3))
-                    .tracking(-0.3)
-                    .padding(.bottom, 6)
-                ForEach(TalkMath.todaysChoices(day: today, side: side), id: \.id) { choice in
-                    Button {
-                        say(choice)
-                    } label: {
-                        Text(choice.text)
-                            .font(AppFont.pretendard(16, .medium, relativeTo: .callout))
-                            .foregroundStyle(.primary)
-                            .padding(.horizontal, 20)
-                            .frame(maxWidth: .infinity, minHeight: 50, alignment: .leading)
-                            .background {
-                                Capsule().fill(.white.opacity(0.72)).overlay(Capsule().strokeBorder(.white.opacity(0.95)))
-                            }
-                    }
-                    .buttonStyle(PressScaleStyle())
-                    .accessibilityIdentifier("talk-\(choice.id)")
-                }
-                Text("\(side.characterName)는 말은 못 하지만 몸으로 대답해요. 하루에 한 번 말 걸 수 있어요.")
-                    .font(AppFont.pretendard(13, .regular, relativeTo: .footnote))
-                    .foregroundStyle(.secondary)
-                    .padding(.top, 10)
-            }
-        }
-    }
-
-    private func say(_ choice: TalkMath.Choice) {
-        do {
-            let outcome = try TalkStore.talk(side: side, choiceID: choice.id, day: today, logs: talkLogs, in: context)
-            if outcome.leveledUp { leveledUp.insert(side) }
-            reactionStart = Date()
-        } catch {
-            failureMessage = "저장하지 못했어요. 다시 시도해 주세요."
-        }
+    private func poke() {
+        let now = Date()
+        combo = PokeMath.combo(previous: combo, lastTap: lastTap, now: now)
+        reaction = PokeMath.reaction(side: side, level: level, combo: combo, tap: taps)
+        reactionStart = now
+        lastTap = now
+        taps += 1
     }
 }
 
@@ -225,7 +171,7 @@ enum ReactionMotion {
         )
     }
 
-    static func pose(_ reaction: TalkReaction?, at t: Double) -> Pose {
+    static func pose(_ reaction: PokeReaction?, at t: Double) -> Pose {
         guard let reaction else { return Pose() }
         switch reaction {
         case .wary:
@@ -249,6 +195,21 @@ enum ReactionMotion {
             return Pose(rotation: 360 * Ease.power3InOut(max(0, t)))
         case .hop:
             return track([(0.4, Pose(y: -28))], duration: 0.8, t: t, ease: Ease.power2Out)
+        case .squish:
+            // 연타: 납작하게 눌렸다가 튀어 올라 출렁이며 제자리로
+            return track([
+                (0.15, Pose(y: 6, scaleX: 1.3, scaleY: 0.62)), (0.3, Pose(y: 6, scaleX: 1.3, scaleY: 0.62)),
+                (0.5, Pose(y: -46, scaleX: 0.88, scaleY: 1.14)), (0.68, Pose(scaleX: 1.12, scaleY: 0.88)),
+                (0.84, Pose(y: -8, scaleX: 0.97, scaleY: 1.03)),
+            ], duration: 1.3, t: t, ease: Ease.power2Out)
+        case .flip:
+            // 연타: 높이 뛰어 공중에서 두 바퀴
+            let duration = 1.3
+            guard t < duration else { return Pose() }
+            let p: Double = max(0, t) / duration
+            let lift: Double = -70 * sin(Double.pi * p)
+            let turn: Double = -720 * Ease.power3InOut(p)
+            return Pose(y: lift, rotation: turn)
         }
     }
 }

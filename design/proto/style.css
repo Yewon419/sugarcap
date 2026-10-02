@@ -367,22 +367,12 @@ input { font: inherit; }
 .bond-bar i { display: block; height: 100%; border-radius: 3px; background: var(--accent); min-width: 6px; transition: width .6s cubic-bezier(.23, 1, .32, 1); }
 .bond-note { font-size: 13px; color: var(--secondary); margin-top: 8px; }
 .portrait { display: flex; flex-direction: column; align-items: center; padding: 26px 24px 6px; text-align: center; }
-.portrait-char { height: 190px; transform-origin: 50% 100%; }
-.portrait-char.caffeine { height: 160px; margin-top: 30px; }
+.portrait-char { height: 250px; margin-top: 32px; transform-origin: 50% 100%; cursor: pointer; }
+.portrait-char.caffeine { height: 210px; margin-top: 72px; transform-origin: 50% 55%; }
 .portrait-with { font-size: 15px; color: var(--secondary); margin-top: 20px; }
 .portrait-stage { font-size: 34px; font-weight: 700; letter-spacing: -.7px; margin: 4px 0 22px; }
 .portrait .bond-note { align-self: flex-start; }
 
-.talk { padding: 0 24px; }
-.talk-ask { font-size: 20px; font-weight: 700; letter-spacing: -.3px; margin-bottom: 14px; }
-.talk-choices { display: flex; flex-direction: column; gap: 8px; }
-.talk-choice { height: 50px; border-radius: 25px; padding: 0 20px; text-align: left; font-size: 16px; font-weight: 500;
-  background: rgba(255,255,255,.72); border: 1px solid rgba(255,255,255,.95); box-shadow: 0 2px 8px rgba(0,0,0,.04); transition: transform .12s ease-out; }
-.talk-choice:active { transform: scale(.97); background: rgba(91,132,170,.1); }
-.talk-result { border-radius: 20px; padding: 18px 18px 16px; background: rgba(255,255,255,.72); border: 1px solid rgba(255,255,255,.95); animation: pop .35s cubic-bezier(.23, 1, .32, 1); }
-.talk-said { font-size: 13px; color: var(--accent); font-weight: 600; }
-.talk-line { font-size: 18px; font-weight: 600; letter-spacing: -.3px; line-height: 1.45; margin: 8px 0 12px; }
-.talk-foot { font-size: 12px; color: var(--secondary); }
 
 /* 몸짓 자리 채움: 대표님 애니메이션 6개(로슈 wary·happy·aegyo, 카인 tilt·spin·hop)가 오면 교체한다. 한 번만 재생 */
 .react-wary { animation: r-wary 1.4s ease-in-out; }
@@ -397,6 +387,10 @@ input { font: inherit; }
 @keyframes r-spin { to { transform: rotate(360deg); } }
 .react-hop { animation: r-hop .8s cubic-bezier(.3, 1.6, .5, 1); }
 @keyframes r-hop { 40% { transform: translateY(-28px); } }
+.react-squish { animation: r-squish 1.3s cubic-bezier(.33, 1, .68, 1); }
+@keyframes r-squish { 15%, 30% { transform: translateY(6px) scale(1.3, .62); } 50% { transform: translateY(-46px) scale(.88, 1.14); } 68% { transform: scale(1.12, .88); } 84% { transform: translateY(-8px) scale(.97, 1.03); } }
+.react-flip { animation: r-flip 1.3s cubic-bezier(.65, 0, .35, 1); }
+@keyframes r-flip { 50% { transform: translateY(-70px) rotate(-360deg); } to { transform: rotate(-720deg); } }
 @media (prefers-reduced-motion: reduce) { [class*="react-"] { animation: none !important; } }
 
 /* ---------- 추이 공통 머리(확정안 스타일은 trends-casual.css) ---------- */

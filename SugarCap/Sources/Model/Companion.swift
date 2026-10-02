@@ -32,25 +32,6 @@ enum DrinkKey {
     }
 }
 
-/// 말걸기 한 번(§4.8, 캐릭터마다 하루 한 번). 무엇을 골랐고 어떤 몸짓이 나왔는지 남겨 그날 다시 열면 그대로 보인다.
-@Model
-final class TalkLog {
-    /// `CupSide.characterID` ("roshu" | "kain").
-    var character: String
-    /// `DayKey.rawValue`.
-    var day: String
-    var choiceID: String
-    /// 반응 애니메이션 이름(`TalkReaction.rawValue`).
-    var reaction: String
-
-    init(character: String, day: String, choiceID: String, reaction: String) {
-        self.character = character
-        self.day = day
-        self.choiceID = choiceID
-        self.reaction = reaction
-    }
-}
-
 /// 로슈·카인 소개(첫 마감 때 한 번, §4.5)를 봤는지. 기기 단위 플래그라 온보딩 완료처럼 UserDefaults에 둔다.
 enum CompanionIntro {
     static let seenKey = "companionIntroSeen"

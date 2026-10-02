@@ -57,22 +57,51 @@ final class IdlePoseBookTests: XCTestCase {
         var generator = SystemRandomNumberGenerator()
         for cast in casts {
             let set = try XCTUnwrap(cast.poseSet)
-            XCTAssertEqual(set.pick(step: 0, using: &generator), set.zero)
+            XCTAssertEqual(set.pick(step: 0, unlockedLevel: 1, using: &generator), set.zero)
             for step in steps where step > 0 {
-                for _ in 0..<40 {
-                    let pose = set.pick(step: step, using: &generator)
-                    XCTAssertTrue(set.allows(pose, step: step), "\(cast.character) \(pose) at \(step)")
+                for level in [1, 3, AffinityMath.maxLevel] {
+                    for _ in 0..<40 {
+                        let pose = set.pick(step: step, unlockedLevel: level, using: &generator)
+                        XCTAssertTrue(set.allows(pose, step: step, unlockedLevel: level), "\(cast.character) \(pose) at \(step) Lv\(level)")
+                    }
                 }
             }
         }
+        let top = AffinityMath.maxLevel
         let roshu = try XCTUnwrap(IdleCast.roshu.poseSet)
-        XCTAssertFalse(roshu.allows("in-cup", step: 80))
-        XCTAssertFalse(roshu.allows("slump", step: 50))
-        XCTAssertTrue(roshu.allows("slump", step: 0))
+        XCTAssertFalse(roshu.allows("in-cup", step: 80, unlockedLevel: top))
+        XCTAssertFalse(roshu.allows("slump", step: 50, unlockedLevel: top))
+        XCTAssertTrue(roshu.allows("slump", step: 0, unlockedLevel: 1))
         let kain = try XCTUnwrap(IdleCast.kain.poseSet)
-        XCTAssertFalse(kain.allows("swim", step: 10))
-        XCTAssertTrue(kain.allows("swim", step: 30))
-        XCTAssertFalse(kain.allows("rim-stand", step: 0))
+        XCTAssertFalse(kain.allows("swim", step: 10, unlockedLevel: top))
+        XCTAssertTrue(kain.allows("swim", step: 30, unlockedLevel: top))
+        XCTAssertFalse(kain.allows("rim-stand", step: 0, unlockedLevel: top))
+    }
+
+    /// 단계 보상(SPEC §9.8): 자세는 풀린 단계까지만. 0% 자세는 해금과 상관없다.
+    func testUnlockGatesPoses() throws {
+        let roshu = try XCTUnwrap(IdleCast.roshu.poseSet)
+        XCTAssertTrue(roshu.allows("walk", step: 30, unlockedLevel: 1))
+        XCTAssertFalse(roshu.allows("in-cup", step: 30, unlockedLevel: 2))
+        XCTAssertTrue(roshu.allows("in-cup", step: 30, unlockedLevel: 3))
+        let kain = try XCTUnwrap(IdleCast.kain.poseSet)
+        XCTAssertFalse(kain.allows("rim-stand", step: 80, unlockedLevel: 1))
+        XCTAssertTrue(kain.allows("rim-stand", step: 80, unlockedLevel: 2))
+        XCTAssertFalse(kain.allows("swim", step: 80, unlockedLevel: 2))
+        XCTAssertTrue(kain.allows("floor-sit", step: 0, unlockedLevel: 1))
+        // Lv1이어도 1% 이상이면 뽑을 자세가 있다(빈 풀이면 0% 자세로 떨어져 엉뚱해진다).
+        for cast in casts {
+            let set = try XCTUnwrap(cast.poseSet)
+            for step in steps where step > 0 {
+                XCTAssertTrue(set.poses.keys.contains { set.allows($0, step: step, unlockedLevel: 1) }, "\(cast.character) \(step)")
+            }
+        }
+    }
+
+    func testFreeUnlockStopsAtCap() {
+        XCTAssertEqual(AffinityMath.unlockedLevel(level: 2, isPro: false), 2)
+        XCTAssertEqual(AffinityMath.unlockedLevel(level: 7, isPro: false), AffinityMath.freeLevelCap)
+        XCTAssertEqual(AffinityMath.unlockedLevel(level: 7, isPro: true), 7)
     }
 
     func testRejectsUnknownTarget() {

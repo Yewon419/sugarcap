@@ -9,8 +9,8 @@ canvas pixels; the app draws each downscaled image stretched to its frame.
 Writes SugarCap/Resources/Idle.xcassets/idle-<character>-<art>-<part>.imageset
 and SugarCap/Resources/idle-rig.json. The previous Idle.xcassets is replaced.
 Pose definitions (<character>/poses.json: placement, motion, unlock stage) are
-merged into SugarCap/Resources/idle-poses.json after checking every pose names
-an exported art.
+merged into SugarCap/Resources/idle-poses.json. The arts exported are the ones
+poses.json names plus EXTRA_ARTS, so a new pose needs no change here.
 """
 
 from __future__ import annotations
@@ -29,11 +29,10 @@ RIG = APP / "idle-rig.json"
 POSES = APP / "idle-poses.json"
 SCALE = 0.2
 
-# Arts the app draws. Roshu "stand" is the front-facing character art (feeding summary, intro).
-ARTS: dict[str, list[str]] = {
-    "roshu": ["in-cup", "watch", "walk", "slump", "stand"],
-    "kain": ["rim-stand", "sit", "swim", "walk"],
-}
+CHARACTER_IDS = ["roshu", "kain"]
+# Arts the app draws that no idle pose uses. Roshu "stand" is the front-facing character art
+# (feeding summary, intro).
+EXTRA_ARTS: dict[str, list[str]] = {"roshu": ["stand"]}
 # Arts whose canvas is not 2500 px. Roshu "stand" is 935x1024 and draws at 150 pt.
 ART_SCALE: dict[str, float] = {"stand": 0.5}
 
@@ -81,7 +80,12 @@ def write_imageset(name: str, source: Path, scale: float) -> None:
     )
 
 
-def export_character(character: str) -> dict[str, Art]:
+def arts_for(character: str, book: PoseBook) -> list[str]:
+    used = dict.fromkeys(pose["art"] for pose in book["poses"].values())
+    return [*used, *(a for a in EXTRA_ARTS.get(character, []) if a not in used)]
+
+
+def export_character(character: str, arts: list[str]) -> dict[str, Art]:
     meta = json.loads(
         (ROOT / character / "poses" / "meta.json").read_text(encoding="utf-8")
     )
@@ -89,9 +93,12 @@ def export_character(character: str) -> dict[str, Art]:
         (ROOT / character / "parts" / "parts.json").read_text(encoding="utf-8")
     )
     out: dict[str, Art] = {}
-    for art in ARTS[character]:
+    for art in arts:
         if art not in meta or art not in parts:
-            raise KeyError(f"{character}/{art}: missing from meta.json or parts.json")
+            raise KeyError(
+                f"{character}/{art}: missing from poses/meta.json or parts/parts.json"
+                " (run import_layers.py for layered art)"
+            )
         pose_meta = meta[art]
         rig = parts[art]
         folder = ROOT / character / "parts" / art
@@ -129,9 +136,6 @@ def load_poses(character: str) -> PoseBook:
     )
     if book["zero"] not in book["poses"]:
         raise KeyError(f"{character}: zero pose {book['zero']!r} is not defined")
-    for name, pose in book["poses"].items():
-        if pose["art"] not in ARTS[character]:
-            raise KeyError(f"{character}/{name}: art {pose['art']!r} is not exported")
     return book
 
 
@@ -143,11 +147,14 @@ def main() -> None:
         json.dumps({"info": {"author": "xcode", "version": 1}}, indent=2) + "\n",
         encoding="utf-8",
     )
-    rig = {character: export_character(character) for character in ARTS}
+    poses = {character: load_poses(character) for character in CHARACTER_IDS}
+    rig = {
+        character: export_character(character, arts_for(character, poses[character]))
+        for character in CHARACTER_IDS
+    }
     RIG.write_text(
         json.dumps(rig, indent=1, ensure_ascii=False) + "\n", encoding="utf-8"
     )
-    poses = {character: load_poses(character) for character in ARTS}
     POSES.write_text(
         json.dumps(poses, indent=1, ensure_ascii=False) + "\n", encoding="utf-8"
     )

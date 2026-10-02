@@ -3,8 +3,13 @@ import Foundation
 /// 호감도 적립·단계 계산(SPEC §9.5). 순수 함수만 둔다.
 enum AffinityMath {
     static let maxLevel = 10
-    /// 무료로 표정이 풀리는 마지막 단계(§9.5). 잠금은 Phase 3에서 StoreKit과 함께 건다.
+    /// 무료로 대기 자세가 풀리는 마지막 단계(§9.5·§9.8). 그 위 단계의 자세는 Pro.
     static let freeLevelCap = 3
+
+    /// 대기 자세가 풀린 단계. Pro는 지금 단계까지, 무료는 `freeLevelCap`까지(§9.8).
+    static func unlockedLevel(level: Int, isPro: Bool) -> Int {
+        isPro ? level : min(level, freeLevelCap)
+    }
 
     /// 먹이기 1회 적립 = `1 + round(남은 양 / 하루 기준 × 9)`, 1~10점.
     /// 기준을 넘긴 날(남은 0)도 먹이면 1점이다.

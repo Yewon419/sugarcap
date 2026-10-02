@@ -6,6 +6,7 @@ import SwiftUI
 ///
 /// 규칙: 앱을 열 때마다 허용된 자세 중 하나를 뽑고, 자세 사이 전환 동작은 없다. 기록으로 단계가 바뀌어
 /// 지금 자세가 허용되지 않게 되면 그때만 다시 뽑는다. 0%면 로슈는 철푸덕, 카인은 바닥에 앉기.
+/// 자세는 풀린 단계(`AffinityMath.unlockedLevel`)까지만 나온다. Pro가 끝나 지금 자세가 잠기면 다시 뽑는다.
 /// 동작 줄이기면 자세는 그대로 두고 움직임·깜빡임을 멈춘다.
 struct IdleCharacterLayer: View {
     let side: CupSide
@@ -13,6 +14,8 @@ struct IdleCharacterLayer: View {
     /// 움직여도 되는지. 옆 면이거나 컵을 넘기는 중(끄는 중·제자리로 붙는 중)이면 멈춘다.
     /// 넘기는 동안 매 프레임 다시 그리면 캐릭터가 컵보다 한 박자 늦게 따라온다(대표님 2026-09-29).
     let isActive: Bool
+    /// 대기 자세가 풀린 호감도 단계(§9.8).
+    let unlockedLevel: Int
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
@@ -49,7 +52,11 @@ struct IdleCharacterLayer: View {
             }
         }
         .onChange(of: step) { _, newStep in
-            if let pose, side.idleCast.poseSet?.allows(pose, step: newStep) == true { return }
+            if isAllowed(step: newStep, unlockedLevel: unlockedLevel) { return }
+            repick()
+        }
+        .onChange(of: unlockedLevel) { _, newLevel in
+            if isAllowed(step: step, unlockedLevel: newLevel) { return }
             repick()
         }
         .onChange(of: scenePhase) { old, new in
@@ -68,11 +75,16 @@ struct IdleCharacterLayer: View {
         return reduceMotion ? 0 : nil
     }
 
+    private func isAllowed(step: Int, unlockedLevel: Int) -> Bool {
+        guard let pose else { return false }
+        return side.idleCast.poseSet?.allows(pose, step: step, unlockedLevel: unlockedLevel) == true
+    }
+
     private func repick() {
         start = Date()
         if pausedAt != nil { pausedAt = start }
         #if DEBUG
-        // CI 스크린샷 전용: `-idlePose swim`. 이 캐릭터에 없는 자세면 무시한다.
+        // CI 스크린샷 전용: `-idlePose swim`. 이 캐릭터에 없는 자세면 무시한다. 해금과 상관없이 보인다.
         if let forced = UserDefaults.standard.string(forKey: "idlePose"),
            side.idleCast.poseSet?.poses[forced] != nil {
             pose = forced
@@ -80,7 +92,7 @@ struct IdleCharacterLayer: View {
         }
         #endif
         var generator = SystemRandomNumberGenerator()
-        pose = side.idleCast.poseSet?.pick(step: step, using: &generator)
+        pose = side.idleCast.poseSet?.pick(step: step, unlockedLevel: unlockedLevel, using: &generator)
     }
 }
 

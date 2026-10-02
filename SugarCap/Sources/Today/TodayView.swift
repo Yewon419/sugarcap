@@ -11,6 +11,7 @@ struct TodayView: View {
     @Query private var settingsRows: [AppSettings]
     @Query(sort: \Entry.loggedAt, order: .reverse) private var entries: [Entry]
     @Query private var settlements: [DaySettlement]
+    @Query private var affinities: [Affinity]
 
     @State private var side: CupSide = .sugar
     /// 넘기는 중 손가락이 끈 거리. 놓으면 0으로 돌아가며 가까운 컵에 붙는다.
@@ -48,6 +49,11 @@ struct TodayView: View {
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "today")
 
     private var limits: DailyLimits { settingsRows.first?.limits ?? .default }
+
+    private func unlockedLevel(_ side: CupSide) -> Int {
+        let points = affinities.first { $0.character == side.characterID }?.points ?? 0
+        return AffinityMath.unlockedLevel(level: AffinityMath.level(points: points), isPro: pro.isPro)
+    }
     private var boundaryHour: Int { settingsRows.first?.dayBoundaryHour ?? 4 }
     private var closeFromHour: Int { settingsRows.first?.closeFromHour ?? 20 }
 
@@ -164,7 +170,10 @@ struct TodayView: View {
                     let step = cupStep(cupSide, totals: totals)
                     CupView(
                         step: step, setID: cupSide.cupSetID,
-                        idle: IdleCharacterLayer(side: cupSide, step: step, isActive: cupSide == side && !isSliding && isOnScreen)
+                        idle: IdleCharacterLayer(
+                            side: cupSide, step: step, isActive: cupSide == side && !isSliding && isOnScreen,
+                            unlockedLevel: unlockedLevel(cupSide)
+                        )
                     )
                     .frame(width: width)
                 }

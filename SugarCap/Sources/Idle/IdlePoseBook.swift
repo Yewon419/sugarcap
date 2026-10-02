@@ -124,15 +124,17 @@ struct IdlePoseSet: Sendable {
     let zero: String
     let poses: [String: IdlePoseSpec]
 
-    func allows(_ pose: String, step: Int) -> Bool {
+    /// 남은 양 조건과 해금(`unlock` ≤ 풀린 단계)을 둘 다 맞아야 한다. 0%면 `zero`만, 해금과 상관없다.
+    func allows(_ pose: String, step: Int, unlockedLevel: Int) -> Bool {
         if step == 0 { return pose == zero }
-        return poses[pose]?.rule.allows(step: step) ?? false
+        guard let spec = poses[pose] else { return false }
+        return spec.unlock <= unlockedLevel && spec.rule.allows(step: step)
     }
 
     /// 앱을 열 때마다 허용된 자세 중 하나를 뽑는다. 0%면 늘 `zero`.
-    func pick<G: RandomNumberGenerator>(step: Int, using generator: inout G) -> String {
+    func pick<G: RandomNumberGenerator>(step: Int, unlockedLevel: Int, using generator: inout G) -> String {
         if step == 0 { return zero }
-        let pool = poses.keys.sorted().filter { allows($0, step: step) }
+        let pool = poses.keys.sorted().filter { allows($0, step: step, unlockedLevel: unlockedLevel) }
         return pool.randomElement(using: &generator) ?? zero
     }
 }

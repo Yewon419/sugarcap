@@ -527,7 +527,10 @@ def main() -> None:
     for name, specs in CHARACTERS.items():
         out = ROOT / name / "parts"
         out.mkdir(parents=True, exist_ok=True)
-        meta = {pose: split(out, pose, spec) for pose, spec in specs.items()}
+        # Arts imported from separate layers (import_layers.py) live in the same file; keep them.
+        path = out / "parts.json"
+        meta = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+        meta.update({pose: split(out, pose, spec) for pose, spec in specs.items()})
         (out / "parts.json").write_text(
             json.dumps(meta, indent=1) + "\n", encoding="utf-8"
         )

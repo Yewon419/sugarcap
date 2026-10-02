@@ -89,7 +89,7 @@ struct AffinityView: View {
         .accessibilityElement()
         .accessibilityLabel("\(side.characterName) 건드리기")
         .accessibilityAddTraits(.isButton)
-        .accessibilityAction(perform: poke)
+        .accessibilityAction(.default, poke)
         .accessibilityIdentifier("affinity-character")
     }
 

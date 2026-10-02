@@ -1,19 +1,6 @@
 import CoreGraphics
 import Foundation
 
-/// 대기 자세 이름. 프로토타입(`design/proto/characters.html`)의 이름과 같다.
-/// 로슈 = in-cup·watch·walk·slump, 카인 = rim-stand·rim-sit·swim·walk·floor-sit.
-enum IdlePose: String, CaseIterable, Sendable {
-    case inCup = "in-cup"
-    case watch
-    case walk
-    case slump
-    case rimStand = "rim-stand"
-    case rimSit = "rim-sit"
-    case swim
-    case floorSit = "floor-sit"
-}
-
 /// 자세 하나의 규칙. `art`는 그림 이름(카인 가장자리 뒤 앉기·바닥 앉기는 `sit` 그림을 같이 쓴다).
 struct IdlePoseRule: Sendable {
     let art: String
@@ -90,24 +77,10 @@ struct IdleCast: Sendable {
     let scalePerPhotoHeight: Double
     /// 눈꺼풀을 눈보다 얼마나 크게 덮을지(눈 크기 비율).
     let lidPad: Double
-    /// 0%일 때 자세.
-    let zero: IdlePose
-    let poses: [IdlePose: IdlePoseRule]
     let gait: IdleGait
 
-    func rule(_ pose: IdlePose) -> IdlePoseRule? { poses[pose] }
-
-    func allows(_ pose: IdlePose, step: Int) -> Bool {
-        if step == 0 { return pose == zero }
-        return poses[pose]?.allows(step: step) ?? false
-    }
-
-    /// 앱을 열 때마다 허용된 자세 중 하나를 뽑는다. 0%면 늘 `zero`.
-    func pick<G: RandomNumberGenerator>(step: Int, using generator: inout G) -> IdlePose {
-        if step == 0 { return zero }
-        let pool = IdlePose.allCases.filter { allows($0, step: step) }
-        return pool.randomElement(using: &generator) ?? zero
-    }
+    /// 자세 묶음(`IdlePoseBook`). 번들을 못 읽었으면 nil이고 캐릭터가 안 보인다.
+    var poseSet: IdlePoseSet? { IdlePoseBook.sets[character] }
 
     func rimLine(step: Int) -> (back: Double, front: Double) {
         rim[step] ?? rim[100] ?? (0.27, 0.33)
@@ -132,8 +105,7 @@ extension CupSide {
 }
 
 extension IdleCast {
-    /// 로슈 · 딸기라떼. 배율은 목업에서 잰 값의 0.9배(대표님 2026-09-29).
-    /// 0%면 철푸덕(30% 이하에서도 뽑힌다). 컵 안 가장자리 매달리기는 50% 이하일 때만.
+    /// 로슈 · 딸기라떼. 배율은 목업에서 잰 값의 0.9배(대표님 2026-09-29). 자세는 `roshu/poses.json`.
     static let roshu = IdleCast(
         character: "roshu",
         bottom: 0.885,
@@ -147,30 +119,11 @@ extension IdleCast {
         reflectionLook: IdleReflectionLook(tint: "#D5D7DD", mirror: false, squeeze: 1, opacity: 0.42),
         scalePerPhotoHeight: 7.96e-5 * 0.9,
         lidPad: 0.35,
-        zero: .slump,
-        poses: [
-            .inCup: IdlePoseRule(art: "in-cup", minStep: 1, maxStep: 50, limbDirection: ["foot_left": -1, "foot_right": 1]),
-            .watch: IdlePoseRule(
-                art: "watch", minStep: 1, limbDirection: ["foot_left": -1, "foot_right": 1, "arm": -1],
-                reflection: IdleReflection(toward: 0.43), shadow: IdleShadow(w: 0.8, h: 0.24, dx: 0.2, dy: -0.05)
-            ),
-            .walk: IdlePoseRule(
-                art: "walk", minStep: 1,
-                limbDirection: ["flipper_front": 0, "foot_back": -1, "foot_front": 1, "flipper_side": 0],
-                reflection: IdleReflection(toward: 0.12, up: 16),
-                shadow: IdleShadow(w: 0.9, h: 0.24, dx: 0.2, dy: -0.05, feet: true)
-            ),
-            // 철푸덕은 몸이 바닥에 닿아 그늘을 밀지 않고 몸 바로 밑에 좁게.
-            .slump: IdlePoseRule(
-                art: "slump", maxStep: 30, limbDirection: ["foot_left": 1, "foot_right": -1],
-                reflection: IdleReflection(toward: 0.1, up: 5), shadow: IdleShadow(w: 0.92, h: 0.1, dx: 0.03, dy: -0.025)
-            ),
-        ],
         gait: IdleGait(from: 0.74, to: 0.28, speed: 20, pause: 1.6, stride: 10)
     )
 
     /// 카인 · 아이스 아메리카노. 배율은 목업의 앉기·헤엄 크기(잔 가장자리 폭 대비)의 1.3배(대표님 2026-09-29).
-    /// 0%면 바닥에 앉기. 헤엄은 커피가 30% 이상 남았을 때만, 나머지는 1% 이상 어디서나.
+    /// 자세는 `kain/poses.json`.
     static let kain = IdleCast(
         character: "kain",
         bottom: 0.876,
@@ -185,21 +138,6 @@ extension IdleCast {
         scalePerPhotoHeight: 0.0818 * 1.3 / 1666,
         // 카인 눈은 흰 고리라 눈꺼풀을 넉넉히 키우면 몸 밖으로 삐져나온다.
         lidPad: 0.04,
-        zero: .floorSit,
-        poses: [
-            .rimStand: IdlePoseRule(art: "rim-stand", minStep: 1, limbDirection: ["leg_left": 0, "leg_right": 0]),
-            .rimSit: IdlePoseRule(art: "sit", mirror: true, minStep: 1),
-            .swim: IdlePoseRule(art: "swim", minStep: 30, opacity: 0.6, limbDirection: ["leg_far": 0, "leg_near": 0]),
-            // 걷기 반사는 뒤집지 않는다(대표님: 뒤집으면 반대로 걷는 것처럼 보임). 위로 올리면 눌린 반사가 머리 위로 삐져나온다.
-            .walk: IdlePoseRule(
-                art: "walk", minStep: 1, limbDirection: ["leg_far": 0, "leg_near": 0],
-                reflection: IdleReflection(toward: 0.49, mirror: false), shadow: IdleShadow(w: 0.7, h: 0.2, dx: 0.15, dy: -0.04)
-            ),
-            .floorSit: IdlePoseRule(
-                art: "sit", mirror: true,
-                reflection: IdleReflection(toward: 0.49), shadow: IdleShadow(w: 0.92, h: 0.12, dx: 0.04, dy: -0.03)
-            ),
-        ],
         gait: IdleGait(from: 0.74, to: 0.28, speed: 14, pause: 2.2, stride: 6)
     )
 }

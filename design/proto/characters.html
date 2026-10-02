@@ -106,7 +106,7 @@ const PHOTO_TOP = H - H * 0.08 - PHOTO_H;
 const PHOTO_LEFT = (W - PHOTO_W) / 2;
 const photoPoint = (nx, ny) => ({ x: PHOTO_LEFT + nx * PHOTO_W, y: PHOTO_TOP + ny * PHOTO_H });
 
-// 캐릭터마다 컵 사진·자세·규칙이 다르다. 로슈 = 딸기라떼·당, 카인 = 아이스 아메리카노·카페인.
+// 캐릭터마다 컵 사진·규칙이 다르다. 자세(그림·자리·움직임·단계)는 <캐릭터>/poses.json(앱과 같은 파일). 로슈 = 딸기라떼·당, 카인 = 아이스 아메리카노·카페인.
 // rim: 사진 기준 가장자리 타원(가운데 열의 뒤·앞 가장자리 선), 단계마다 사진이 달라 따로 쟀다(가운데 열 x 467).
 // liquid: 로슈는 음료·얼음 윗면, 카인은 얼음 밑 진한 커피가 시작하는 선(가운데 띠 밝기로 잼).
 // scale: 대표님 그림은 2500 캔버스 픽셀 크기로 그렸다. 목업에서 잰 배율을 사진 높이에 묶는다.
@@ -123,20 +123,6 @@ const CHARS = {
     // 목업 배율에서 대표님 지시로 0.9배.
     scale: PHOTO_H * 7.96e-5 * 0.9,
     lidPad: 0.35,
-    zero: 'slump',
-    poses: {
-      'in-cup': { label: '컵 안 가장자리', minStep: 1, maxStep: 50 },
-      watch:   { label: '컵에 붙어 구경', minStep: 1 },
-      walk:    { label: '컵 밑 걷기', minStep: 1 },
-      slump:   { label: '철푸덕', maxStep: 30 },
-    },
-    // 팔다리는 이음새 한쪽 끝을 축으로, 반대쪽 끝이 몸 안으로 숨는 방향으로만 돈다(CSS 각도 부호. 0은 양쪽 다).
-    limbDir: {
-      walk: { flipper_front: 0, foot_back: -1, foot_front: 1, flipper_side: 0 },
-      watch: { foot_left: -1, foot_right: 1, arm: -1 },
-      slump: { foot_left: 1, foot_right: -1 },
-      'in-cup': { foot_left: -1, foot_right: 1 },
-    },
     rule: '규칙: 0%면 철푸덕. 철푸덕은 30% 이하에서도 뽑힌다. 나머지는 앱을 열 때마다 허용된 자세 중 하나를 뽑고, 자세 사이 전환은 없다. 컵 안(가장자리 매달리기)은 50% 이하로 남았을 때만 나온다(0% 제외).',
   },
   kain: {
@@ -149,27 +135,11 @@ const CHARS = {
     scale: PHOTO_H * 0.0818 * 1.3 / 1666,
     // 카인 눈은 흰 고리라 눈꺼풀을 넉넉히 키우면 몸 밖으로 삐져나온다.
     lidPad: 0.04,
-    zero: 'floor-sit',
-    // art: 그림 파일(자세 두 개가 한 그림을 나눠 쓴다). mirror: 좌우반전(목업에서 앉은 카인은 오른쪽을 본다).
-    poses: {
-      'rim-stand': { label: '가장자리에 서기', minStep: 1 },
-      'rim-sit':   { label: '가장자리 뒤 앉기', art: 'sit', mirror: true, minStep: 1 },
-      // opacity: 커피 속이라 반쯤 비친다(대표님 지시).
-      swim:        { label: '커피 속 헤엄', minStep: 30, opacity: 0.6 },
-      walk:        { label: '컵 밑 걷기', minStep: 1 },
-      'floor-sit': { label: '바닥에 앉기', art: 'sit', mirror: true },
-    },
-    limbDir: {
-      walk: { leg_far: 0, leg_near: 0 },
-      'rim-stand': { leg_left: 0, leg_right: 0 },
-      swim: { leg_far: 0, leg_near: 0 },
-      'rim-sit': {}, 'floor-sit': {},
-    },
     rule: '규칙(초안): 0%면 바닥에 앉기. 헤엄은 커피가 30% 이상 남았을 때만. 나머지(가장자리에 서기·가장자리 뒤 앉기·걷기·바닥에 앉기)는 1% 이상 어느 단계에서나 뽑힌다. 앱을 열 때마다 허용된 자세 중 하나를 뽑고, 자세 사이 전환은 없다.',
   },
 };
 let C = CHARS.roshu;
-const artOf = name => C.poses[name].art ?? name;
+const artOf = name => C.poses[name].art;
 
 const allowed = (pose, step) => {
   const p = C.poses[pose];
@@ -199,7 +169,7 @@ function partImg(pose, name, frame, pivot, s) {
   return img;
 }
 
-// 기준점 = 그림 bbox 아래 가운데(in-cup만 가장자리 선). 전체 변형은 그 점을 중심으로 한다.
+// 기준점 = 그림 bbox 아래 가운데(pivot: rimLine이면 그림 속 가장자리 틈). 전체 변형은 그 점을 중심으로 한다.
 function makeSprite(name) {
   const art = artOf(name), m = state.meta[art], rig = state.parts[art], s = C.scale;
   const [bx0, , bx1, by1] = m.bbox;
@@ -208,7 +178,7 @@ function makeSprite(name) {
   if (C.poses[name].opacity !== undefined) el.style.opacity = String(C.poses[name].opacity);
   el.style.width = `${m.canvas[0] * s}px`;
   el.style.height = `${m.canvas[1] * s}px`;
-  const pivotY = name === 'in-cup' ? m.rimLineY : by1;
+  const pivotY = C.poses[name].pivot === 'rimLine' ? m.rimLineY : by1;
   const pivot = { x: (bx0 + bx1) / 2 * s, y: pivotY * s, footY: by1 * s };
   el.style.transformOrigin = `${pivot.x}px ${pivot.y}px`;
 
@@ -258,34 +228,25 @@ const smooth = x => { const c = Math.min(Math.max(x, 0), 1); return c * c * (3 -
 // 0→1→0 한 번(길이 len초). 시작 전·끝난 뒤는 0.
 const bump = (u, len) => (u < 0 || u > len) ? 0 : Math.sin(Math.PI * u / len) ** 2;
 
-// 자세 기준점(그림 bbox 아래 가운데, 로슈 in-cup만 가장자리 선)이 놓일 사진 위 자리.
-// 카인 자리는 목업에서 잔 가운데로부터 가장자리 폭 단위로 잰 거리다(가장자리 폭 = 사진 폭의 .477, 가운데 .498).
-const KAIN_RIM = { mid: 0.498, width: 0.477 };
-const kainX = u => KAIN_RIM.mid + u * KAIN_RIM.width;
-const PLACE = {
-  roshu: {
-    'in-cup': () => photoPoint(0.49, C.rim[state.step][1]),
-    watch: () => photoPoint(0.25, C.bottom - 0.005),
-    walk: () => photoPoint(0.5, C.bottom + 0.012),
-    slump: () => photoPoint(0.4, C.bottom + 0.02),
-  },
-  kain: {
-    // 발바닥이 앞 가장자리 선 위.
-    'rim-stand': () => photoPoint(kainX(-0.01), C.rim[state.step][1]),
-    // 엉덩이가 뒤 가장자리 선 위, 가운데서 오른쪽으로 가장자리 폭 .23.
-    'rim-sit': () => photoPoint(kainX(0.23), C.rim[state.step][0]),
-    // 잔 왼쪽 바깥 냅킨 위. 목업에서 잔 바닥보다 가장자리 폭의 .088만큼 뒤(위)에 앉았다.
-    'floor-sit': () => photoPoint(kainX(-0.63), C.bottom - 0.024),
-    walk: () => photoPoint(0.5, C.bottom + 0.014),
-    // 얼음 밑 진한 커피 한가운데(커피 윗선~잔 안쪽 바닥 .852의 55% 깊이)에 그림 가운데가 오게 기준점(발끝)을 내린다.
-    swim: () => {
-      const [, by0, , by1] = state.meta.swim.bbox, top = C.liquid[state.step];
-      const mid = photoPoint(kainX(-0.05), top + (0.852 - top) * 0.55);
-      return { x: mid.x, y: mid.y + (by1 - by0) / 2 * C.scale };
-    },
-  },
-};
-const place = () => PLACE[state.char];
+// 자세 기준점이 놓일 사진 위 자리(poses.json place, 앱 IdlePlace와 같다).
+// x = 사진 폭 비율, xRim = 잔 가운데로부터 가장자리 폭 단위(가장자리 폭 = 사진 폭의 .477, 가운데 .498. 카인 목업에서 잰 값).
+// y = bottom(잔 바닥)·rimFront·rimBack(가장자리 선)에 dy를 더하거나, liquid(음료 윗면~floor 사이 depth 깊이).
+// centered면 그림 가운데가 그 자리에 오게 기준점(발끝)을 그림 높이 절반만큼 내린다.
+const RIM = { mid: 0.498, width: 0.477 };
+function placeOf(name) {
+  const p = C.poses[name].place;
+  const x = p.x ?? RIM.mid + p.xRim * RIM.width;
+  if (p.y === 'liquid') {
+    const top = C.liquid[state.step];
+    const mid = photoPoint(x, top + (p.floor - top) * p.depth);
+    if (!p.centered) return mid;
+    const [, by0, , by1] = state.meta[artOf(name)].bbox;
+    return { x: mid.x, y: mid.y + (by1 - by0) / 2 * C.scale };
+  }
+  const [back, front] = C.rim[state.step];
+  const y = { bottom: C.bottom, rimFront: front, rimBack: back }[p.y];
+  return photoPoint(x, y + (p.dy ?? 0));
+}
 
 // 걷기: 오른쪽 끝(.74) ↔ 왼쪽 끝(.28)을 오가고 끝에서 쉰다. 두 캐릭터 그림 다 왼쪽을 본다.
 // 카인은 몸이 작아 보폭·속도를 줄였다.
@@ -317,130 +278,95 @@ function walkAt(t) {
   return { x, facingLeft, moving, phase };
 }
 
-// 반환: 전체(dx, dy, rot, flip) · 몸 층(bodyDy, sx, sy) · 팔다리 각도(limbs, 크기만. 방향은 limbDir) · 팔다리 이동(shift, [x, y] px).
+// 반환: 전체(dx, dy, rot, flip) · 몸 층(bodyDy, sx, sy) · 팔다리 각도(limbs, 크기만. 방향은 limbDirection) · 팔다리 이동(shift, [x, y] px).
+// 움직임 = poses.json motion 줄마다 amp × 파형(t)을 더한다(앱 IdleChannel과 같다). walk가 있으면 정해진 걷기 동작.
 // 좌우반전 자세(mirror)는 flip에 곱해 CSS·그림자·반사가 한 값을 쓴다.
+const mod = (v, p) => ((v % p) + p) % p;
+const SHAPES = {
+  wave: (c, t) => {
+    const k = Math.sin(TAU * t / c.period + (c.phase ?? 0));
+    return c.rectify === 'pos' ? Math.max(0, k) : c.rectify === 'neg' ? Math.max(0, -k) : k;
+  },
+  plateau: (c, t) => {
+    const v = mod(t, c.period);
+    return smooth(v < c.rise ? v / c.rise : v < c.rise + c.hold ? 1 : 1 - (v - c.rise - c.hold) / c.fall);
+  },
+  bump: (c, t) => bump(mod(t, c.period) - c.at, c.length),
+  arch: (c, t) => {
+    const u = mod(t, c.period) - c.at;
+    return (u < 0 || u > c.length) ? 0 : Math.sin(Math.PI * u / c.length);
+  },
+};
+const still = () => ({ dx: 0, dy: 0, rot: 0, flip: 1, bodyDy: 0, sx: 1, sy: 1, limbs: {}, shift: {} });
 function motion(name, t) {
-  const m = MOTION[state.char](name, t);
-  if (C.poses[name].mirror) m.flip = -m.flip;
+  const pose = C.poses[name];
+  let m;
+  if (pose.walk) {
+    m = WALK_STYLES[pose.walk](name, t);
+  } else {
+    m = still();
+    for (const c of pose.motion ?? []) {
+      const v = c.amp * SHAPES[c.shape](c, t);
+      if (c.to.startsWith('limb.')) {
+        const limb = c.to.slice(5);
+        m.limbs[limb] = (m.limbs[limb] ?? 0) + v;
+      } else {
+        m[c.to] += v;
+      }
+    }
+  }
+  if (pose.mirror) m.flip = -m.flip;
   return m;
 }
-const MOTION = { roshu: roshuMotion, kain: kainMotion };
 
-function roshuMotion(name, t) {
-  let dx = 0, dy = 0, rot = 0, flip = 1, bodyDy = 0, sx = 1, sy = 1;
-  const limbs = {}, shift = {};
-  if (name === 'in-cup') {
-    // 음료에 떠 있다: 그림의 가장자리 틈이 컵 가장자리에서 벗어나지 않게 위아래로는 안 움직이고,
-    // 틈 가운데를 축으로 아주 살짝만 기운다. 물속에서 발장구.
-    rot = 0.6 * Math.sin(TAU * t / 3.4);
-    const k = Math.sin(TAU * t / 1.3);
-    limbs.foot_left = 12 * Math.max(0, k);
-    limbs.foot_right = 12 * Math.max(0, -k);
-  }
-  if (name === 'watch') {
-    // 5.5초마다 까치발로 들여다본다: 몸만 올라가고 발은 바닥에 남는다. 컵 잡은 팔로 몸을 끌어올린다.
-    const u = t % 5.5;
-    const e = smooth(u < 0.6 ? u / 0.6 : u < 1.8 ? 1 : 1 - (u - 1.8) / 0.6);
-    // 발은 돌리지 않는다: 몸이 뜨면 발 뿌리가 드러나며 다리가 늘어나 보인다(뿌리 폭 = 윤곽 폭).
-    bodyDy = -2.2 * e;
-    limbs.arm = 6 * e;
-  }
-  if (name === 'walk') {
-    const w = walkAt(t);
-    dx = w.x - place().walk().x;
-    flip = w.facingLeft ? 1 : -1;
+const WALK_STYLES = {
+  // 로슈: 몸은 흔들지 않고 다리로 걷는다. 한 발씩 들어 앞으로 내딛고, 딛은 발은 뒤로 밀린다.
+  step(name, t) {
+    const m = still(), w = walkAt(t);
+    m.dx = w.x - placeOf(name).x;
+    m.flip = w.facingLeft ? 1 : -1;
     if (w.moving) {
-      // 몸은 흔들지 않고 다리로 걷는다: 한 발씩 들어 앞으로 내딛고, 딛은 발은 뒤로 밀린다.
-      const c = (w.phase / 2) % 1, k = Math.sin(TAU * c);
+      const c = (w.phase / 2) % 1;
       for (const [foot, u] of [['foot_back', c], ['foot_front', (c + 0.5) % 1]]) {
         const g = step(u);
-        limbs[foot] = g.rot;
-        shift[foot] = [g.x, -g.lift];
+        m.limbs[foot] = g.rot;
+        m.shift[foot] = [g.x, -g.lift];
       }
       // 팔은 반대쪽 다리와 같이 앞뒤로: 앞 지느러미는 어깨를 축으로 +가 앞(바깥), 옆 지느러미는 반대 박자.
       const swing = Math.cos(TAU * c);
-      limbs.flipper_front = 12 * swing;
-      limbs.flipper_side = -8 * swing;
+      m.limbs.flipper_front = 12 * swing;
+      m.limbs.flipper_side = -8 * swing;
     } else {
-      limbs.flipper_side = 3 * Math.sin(TAU * t / 3.0);
+      m.limbs.flipper_side = 3 * Math.sin(TAU * t / 3.0);
     }
-  }
-  if (name === 'slump') {
-    // 7초마다 한숨: 부풀었다가 푹 꺼지고, 끝에 왼발이 한 번 까딱.
-    const u = t % 7;
-    if (u > 4.5 && u < 6.5) {
-      const k = (u - 4.5) / 2;
-      const puff = Math.sin(Math.PI * Math.min(k / 0.45, 1)) * (k < 0.45 ? 1 : 0);
-      const sag = k >= 0.45 ? Math.sin(Math.PI * (k - 0.45) / 0.55) : 0;
-      sy = 1 + 0.035 * puff - 0.05 * sag; sx = 1 - 0.015 * puff + 0.03 * sag;
-    }
-    limbs.foot_left = 7 * bump(u - 6.3, 0.6);
-  }
-  return { dx, dy, rot, flip, bodyDy, sx, sy, limbs, shift };
-}
-
-function kainMotion(name, t) {
-  let dx = 0, dy = 0, rot = 0, flip = 1, bodyDy = 0, sx = 1, sy = 1;
-  const limbs = {}, shift = {};
-  if (name === 'walk') {
-    // 뒤뚱 걷기: 두 다리가 엉덩이를 축으로 엇갈려 흔들리고(+가 앞), 앞으로 가는 다리는 살짝 든다.
-    // 몸은 딛는 다리 쪽으로 조금 기운다.
-    const w = walkAt(t);
-    dx = w.x - place().walk().x;
-    flip = w.facingLeft ? 1 : -1;
+    return m;
+  },
+  // 카인 뒤뚱 걷기: 두 다리가 엉덩이를 축으로 엇갈려 흔들리고(+가 앞), 앞으로 가는 다리는 살짝 든다.
+  // 몸은 딛는 다리 쪽으로 조금 기운다.
+  waddle(name, t) {
+    const m = still(), w = walkAt(t);
+    m.dx = w.x - placeOf(name).x;
+    m.flip = w.facingLeft ? 1 : -1;
     if (w.moving) {
       const c = (w.phase / 2) % 1, k = Math.sin(TAU * c), lift = Math.cos(TAU * c);
-      limbs.leg_near = 8 * k;
-      limbs.leg_far = -8 * k;
-      shift.leg_near = [0, -0.7 * Math.max(0, lift)];
-      shift.leg_far = [0, -0.7 * Math.max(0, -lift)];
-      rot = 1.5 * k;
+      m.limbs.leg_near = 8 * k;
+      m.limbs.leg_far = -8 * k;
+      m.shift.leg_near = [0, -0.7 * Math.max(0, lift)];
+      m.shift.leg_far = [0, -0.7 * Math.max(0, -lift)];
+      m.rot = 1.5 * k;
     }
-  }
-  if (name === 'rim-stand') {
-    // 가장자리에서 균형 잡기: 발밑을 축으로 아주 느리게 흔들리고, 6.5초마다 오른발을 두 번 까딱.
-    rot = 0.8 * Math.sin(TAU * t / 3.6);
-    const u = t % 6.5;
-    limbs.leg_right = -7 * (bump(u - 4.6, 0.35) + bump(u - 5.05, 0.35));
-  }
-  if (name === 'rim-sit' || name === 'floor-sit') {
-    // 앉아서 숨쉬기(바닥 기준으로 부풀었다 가라앉음). 가장자리 뒤에서는 8초마다 고개 갸웃.
-    const k = Math.sin(TAU * t / 3.2);
-    sy = 1 + 0.012 * k; sx = 1 - 0.006 * k;
-    if (name === 'rim-sit') rot = -4 * bump((t % 8) - 5.5, 1.4);
-  }
-  if (name === 'swim') {
-    // 커피 속에서 제자리 헤엄: 천천히 좌우로 떠다니며 오르내리고, 두 다리로 번갈아 발차기.
-    dx = 6 * Math.sin(TAU * t / 7);
-    dy = 2.2 * Math.sin(TAU * t / 3.1);
-    rot = 3 * Math.sin(TAU * t / 3.1 + 1.2);
-    const k = Math.sin(TAU * t / 0.9);
-    limbs.leg_near = 10 * k;
-    limbs.leg_far = -10 * k;
-  }
-  return { dx, dy, rot, flip, bodyDy, sx, sy, limbs, shift };
-}
+    return m;
+  },
+};
 
 // 그림자: 넓고 옅은 그늘(그림 폭 비율) + 발밑 접지. 걷기는 발마다 접지가 있어 발을 들면 작고 옅어진다.
 // 빛은 왼쪽 앞 위(사진의 컵 밝은 면)라 그늘은 오른쪽 뒤로 조금 밀린다.
 // 철푸덕은 바닥에 누워 몸이 바닥에 닿아 있으니 그늘을 밀지 않고 몸 바로 밑에 좁게 둔다.
 // 카인 바닥 앉기도 엉덩이가 바닥에 닿아 몸 밑에 좁게. 가장자리 위 자세와 헤엄은 바닥 그림자가 없다.
-// feet: 발마다 접지(로슈 걷기). 없으면 몸 밑 접지 하나.
-const SHADOWS = {
-  roshu: {
-    walk:  { w: 0.9, h: 0.24, dx: 0.2, dy: -0.05, feet: true },
-    watch: { w: 0.8, h: 0.24, dx: 0.2, dy: -0.05 },
-    slump: { w: 0.92, h: 0.1, dx: 0.03, dy: -0.025 },
-  },
-  kain: {
-    walk:        { w: 0.7, h: 0.2, dx: 0.15, dy: -0.04 },
-    'floor-sit': { w: 0.92, h: 0.12, dx: 0.04, dy: -0.03 },
-  },
-};
-
+// 값은 poses.json shadow(그림 폭 비율). feet: 발마다 접지(로슈 걷기). 없으면 몸 밑 접지 하나.
 function makeShadow(sp) {
-  const SHADOW = SHADOWS[state.char];
-  if (!(sp.name in SHADOW)) return [];
+  const c = C.poses[sp.name].shadow;
+  if (!c) return [];
   const [bx0, , bx1] = state.meta[artOf(sp.name)].bbox;
   const bw = (bx1 - bx0) * C.scale;
   const shade = (kind, w, h) => {
@@ -449,7 +375,6 @@ function makeShadow(sp) {
     Object.assign(el.style, { width: `${w}px`, height: `${h}px` });
     return { el, w, h };
   };
-  const c = SHADOW[sp.name];
   const out = [{ ...shade('ambient', bw * c.w * 1.35, bw * c.h), dx: bw * c.dx, dy: bw * c.dy }];
   if (c.feet) {
     for (const f of sp.feet) out.push({ ...shade('contact', f.w * 1.5, bw * 0.08), foot: f });
@@ -459,16 +384,17 @@ function makeShadow(sp) {
   return out;
 }
 
-// 팔다리 하나의 변형(CSS·캔버스 공용).
+// 팔다리 하나의 변형(CSS·캔버스 공용). 팔다리는 이음새 한쪽 끝을 축으로, 반대쪽 끝이 몸 안으로 숨는 방향으로만 돈다
+// (limbDirection: CSS 각도 부호. 0은 양쪽 다). limbDirection에 없는 팔다리는 돌지 않는다(앱과 같다).
 function limbPose(sp, m, limb) {
-  const amount = m.limbs[limb] ?? 0, dir = C.limbDir[sp.name][limb];
-  const angle = dir === 0 ? amount : dir * Math.max(0, amount);
+  const amount = m.limbs[limb] ?? 0, dir = C.poses[sp.name].limbDirection?.[limb];
+  const angle = dir === undefined ? 0 : dir === 0 ? amount : dir * Math.max(0, amount);
   const [mx, my] = m.shift[limb] ?? [0, 0];
   return { angle, mx, my };
 }
 
 function apply(sp, t, blinkOn) {
-  const base = place()[sp.name](), m = motion(sp.name, t);
+  const base = placeOf(sp.name), m = motion(sp.name, t);
   const cx = base.x + m.dx;
   const x = cx - sp.pivot.x, y = base.y + m.dy - sp.pivot.y;
   sp.el.style.transform = `translate(${x}px, ${y}px) rotate(${m.rot}deg) scaleX(${m.flip})`;
@@ -498,24 +424,10 @@ function apply(sp, t, blinkOn) {
 // 가장자리는 선명하게 둔다(대표님 지시). 값은 레퍼런스에서 쟀다.
 // 카인은 대표님 목업(2026-09-29, 바닥에 앉은 카인이 잔 왼쪽 아래에 비침)대로: 그림 전체가 색 그대로 옅게,
 // 좌우반전(부리가 캐릭터 쪽), 가로만 .45배로 눌림, 높이·세로 위치는 캐릭터와 같다. 불투명도는 흰 눈 고리 밝기로 쟀다.
+// 자세별 자리(toward·up·mirror)는 poses.json reflection, 캐릭터별 모양은 여기.
 const REFLECTS = {
-  roshu: {
-    look: { full: false, mirror: false, squeeze: 1, opacity: 0.42 },
-    poses: {
-      walk:  { toward: 0.12, up: 16 },
-      slump: { toward: 0.1, up: 5 },
-      watch: { toward: 0.43, up: 0 },
-    },
-  },
-  kain: {
-    look: { full: true, mirror: true, squeeze: 0.45, opacity: 0.45 },
-    poses: {
-      // 걷기도 바닥 앉기(목업)와 같은 높이·당김으로 비친다. 위로 올리면 눌린 반사가 머리 위로 삐져나온다.
-      'floor-sit': { toward: 0.49, up: 0 },
-      // 걷기는 뒤집지 않는다(대표님: 뒤집으면 반대로 걷는 것처럼 보임).
-      walk:        { toward: 0.49, up: 0, mirror: false },
-    },
-  },
+  roshu: { look: { full: false, mirror: false, squeeze: 1, opacity: 0.42 } },
+  kain: { look: { full: true, mirror: true, squeeze: 0.45, opacity: 0.45 } },
 };
 const BODY_COLOUR = '#D5D7DD';
 const geo = { ready: false };
@@ -648,20 +560,21 @@ function drawGlass() {
   gl.clear(gl.COLOR_BUFFER_BIT);
   if (!geo.ready || geo.key !== key(state.step)) return;
   const ctx = paper.getContext('2d');
-  const { look, poses } = REFLECTS[state.char];
+  const { look } = REFLECTS[state.char];
   for (const sp of sprites) {
-    if (!(sp.name in poses) || !sp.state) continue;
+    const c = C.poses[sp.name].reflection;
+    if (!c || !sp.state) continue;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, paper.width, paper.height);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     paintSide(ctx, sp, look.full);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, paper);
     const [bx0, , bx1] = state.meta[artOf(sp.name)].bbox;
-    const s = C.scale, f = sp.state.m.flip, c = poses[sp.name];
+    const s = C.scale, f = sp.state.m.flip;
     const mid = sp.state.cx + ((bx0 + bx1) / 2 * s - sp.pivot.x) * f;
     gl.uniform2f(u('uSize'), W, H);
     gl.uniform2f(u('uFrom'), mid, 0);
-    gl.uniform2f(u('uTo'), mid + (geo.axis - mid) * c.toward, -c.up);
+    gl.uniform2f(u('uTo'), mid + (geo.axis - mid) * c.toward, -(c.up ?? 0));
     gl.uniform1f(u('uFlip'), (c.mirror ?? look.mirror) ? -1 : 1);
     gl.uniform1f(u('uSqueeze'), look.squeeze);
     gl.uniform1f(u('uAlpha'), look.opacity);
@@ -739,7 +652,8 @@ const q = new URLSearchParams(location.search);
 const loads = Object.keys(CHARS).map(k => Promise.all([
   fetch(`${CHAR_DIR}/${k}/poses/meta.json`).then(r => r.json()),
   fetch(`${CHAR_DIR}/${k}/parts/parts.json`).then(r => r.json()),
-]).then(([meta, parts]) => Object.assign(CHARS[k], { meta, parts })));
+  fetch(`${CHAR_DIR}/${k}/poses.json`).then(r => r.json()),
+]).then(([meta, parts, book]) => Object.assign(CHARS[k], { meta, parts, zero: book.zero, poses: book.poses })));
 function useChar(k) {
   state.char = k; C = CHARS[k];
   state.meta = C.meta; state.parts = C.parts;

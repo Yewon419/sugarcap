@@ -16,7 +16,7 @@ struct IdleCharacterLayer: View {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
-    @State private var pose: IdlePose?
+    @State private var pose: String?
     @State private var start = Date()
     /// 멈춘 시각. 다시 움직일 때 멈춘 만큼 `start`를 미뤄 동작이 이어지게 한다(걷던 자리에서 튀지 않게).
     @State private var pausedAt: Date?
@@ -49,7 +49,7 @@ struct IdleCharacterLayer: View {
             }
         }
         .onChange(of: step) { _, newStep in
-            if let pose, side.idleCast.allows(pose, step: newStep) { return }
+            if let pose, side.idleCast.poseSet?.allows(pose, step: newStep) == true { return }
             repick()
         }
         .onChange(of: scenePhase) { old, new in
@@ -73,14 +73,14 @@ struct IdleCharacterLayer: View {
         if pausedAt != nil { pausedAt = start }
         #if DEBUG
         // CI 스크린샷 전용: `-idlePose swim`. 이 캐릭터에 없는 자세면 무시한다.
-        if let forced = UserDefaults.standard.string(forKey: "idlePose").flatMap(IdlePose.init(rawValue:)),
-           side.idleCast.rule(forced) != nil {
+        if let forced = UserDefaults.standard.string(forKey: "idlePose"),
+           side.idleCast.poseSet?.poses[forced] != nil {
             pose = forced
             return
         }
         #endif
         var generator = SystemRandomNumberGenerator()
-        pose = side.idleCast.pick(step: step, using: &generator)
+        pose = side.idleCast.poseSet?.pick(step: step, using: &generator)
     }
 }
 
@@ -91,7 +91,7 @@ struct IdleCharacterLayer: View {
 struct IdleSprite {
     let cast: IdleCast
     let rule: IdlePoseRule
-    let pose: IdlePose
+    let spec: IdlePoseSpec
     let art: IdleArt
     let photo: IdlePhoto
     /// 컵 누끼. 반사를 유리 안으로 자른다.
@@ -107,32 +107,31 @@ struct IdleSprite {
     /// 그림 안 발끝 선(pt). 몸 층 숨쉬기의 기준.
     let footY: Double
 
-    init?(side: CupSide, pose: IdlePose, step: Int, size: CGSize) {
+    init?(side: CupSide, pose: String, step: Int, size: CGSize) {
         let cast = side.idleCast
         guard size.width > 0, size.height > 0,
-              let rule = cast.rule(pose),
-              let art = IdleRig.arts[cast.character]?[rule.art]
+              let spec = cast.poseSet?.poses[pose],
+              let art = IdleRig.arts[cast.character]?[spec.rule.art]
         else { return nil }
         let photo = IdlePhoto(slot: size)
         let scale = photo.height * cast.scalePerPhotoHeight
         self.cast = cast
-        self.rule = rule
-        self.pose = pose
+        rule = spec.rule
+        self.spec = spec
         self.art = art
         self.photo = photo
         self.step = step
         self.scale = scale
         cutout = CupLevel.cutoutName(setID: side.cupSetID, step: step)
         bounds = CGRect(origin: .zero, size: size)
-        base = IdleMotion.place(pose, cast: cast, step: step, photo: photo, art: art, scale: scale)
-        // 로슈 컵 안 자세만 그림 속 가장자리 틈이 기준이다(가장자리 선에 맞춘다).
-        let pivotY = pose == .inCup ? (art.rimLineY ?? Double(art.bbox.maxY)) : Double(art.bbox.maxY)
+        base = IdleMotion.place(spec, cast: cast, step: step, photo: photo, art: art, scale: scale)
+        let pivotY = spec.pivotOnRim ? (art.rimLineY ?? Double(art.bbox.maxY)) : Double(art.bbox.maxY)
         pivot = CGPoint(x: Double(art.bbox.midX) * scale, y: pivotY * scale)
         footY = Double(art.bbox.maxY) * scale
     }
 
     func draw(in context: inout GraphicsContext, t: Double, blink: Double) {
-        let m = IdleMotion.frame(pose, cast: cast, rule: rule, t: t, photo: photo, walkBaseX: base.x)
+        let m = IdleMotion.frame(spec, cast: cast, t: t, photo: photo, walkBaseX: base.x)
         if let reflection = rule.reflection {
             drawReflection(reflection, in: context, m: m)
         }

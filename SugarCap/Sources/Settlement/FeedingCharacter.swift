@@ -77,8 +77,8 @@ struct FeedingCharacter: View {
 
     private static func painter(side: CupSide, height: Double) -> RigPainter? {
         let cast = side.idleCast
-        let pose: IdlePose = side == .sugar ? .watch : .rimStand
-        guard let rule = cast.rule(pose), height > 0 else { return nil }
+        let pose = side == .sugar ? "watch" : "rim-stand"
+        guard let rule = cast.poseSet?.poses[pose]?.rule, height > 0 else { return nil }
         let photoHeight = height * CupView.heightRatio
         return RigPainter(
             character: cast.character, art: rule.art, scale: photoHeight * cast.scalePerPhotoHeight,

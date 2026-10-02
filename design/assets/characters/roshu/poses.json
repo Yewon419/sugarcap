@@ -2,6 +2,8 @@
  "zero": "slump",
  "poses": {
   "in-cup": {
+   "label": "컵 안 가장자리",
+   "note": "음료에 떠 있다. 그림의 가장자리 틈(rimLineY)을 앞 가장자리 선에 맞춘다. 틈이 가장자리에서 벗어나지 않게 위아래로는 안 움직이고 틈 가운데를 축으로 아주 살짝만 기운다. 물속에서 발장구. 50% 이하일 때만.",
    "art": "in-cup", "unlock": 3, "minStep": 1, "maxStep": 50, "pivot": "rimLine",
    "place": { "x": 0.49, "y": "rimFront" },
    "limbDirection": { "foot_left": -1, "foot_right": 1 },
@@ -12,6 +14,8 @@
    ]
   },
   "watch": {
+   "label": "컵에 붙어 구경",
+   "note": "5.5초마다 까치발로 들여다본다: 몸만 올라가고 발은 바닥에 남는다. 컵 잡은 팔로 몸을 끌어올린다. 발은 돌리지 않는다: 몸이 뜨면 발 뿌리가 드러나며 다리가 늘어나 보인다(뿌리 폭 = 윤곽 폭).",
    "art": "watch", "unlock": 1, "minStep": 1,
    "place": { "x": 0.25, "y": "bottom", "dy": -0.005 },
    "limbDirection": { "foot_left": -1, "foot_right": 1, "arm": -1 },
@@ -23,6 +27,8 @@
    ]
   },
   "walk": {
+   "label": "컵 밑 걷기",
+   "note": "몸은 흔들지 않고 다리로 걷는다(step): 한 발씩 들어 앞으로 내딛고 딛은 발은 뒤로 밀린다. 팔은 반대쪽 다리와 같이 앞뒤로.",
    "art": "walk", "unlock": 1, "minStep": 1,
    "place": { "x": 0.5, "y": "bottom", "dy": 0.012 },
    "limbDirection": { "flipper_front": 0, "foot_back": -1, "foot_front": 1, "flipper_side": 0 },
@@ -31,6 +37,8 @@
    "walk": "step"
   },
   "slump": {
+   "label": "철푸덕",
+   "note": "0% 자세(30% 이하에서도 뽑힌다). 7초마다 한숨: 부풀었다가 푹 꺼지고 끝에 왼발이 한 번 까딱. 몸이 바닥에 닿아 그늘을 밀지 않고 몸 바로 밑에 좁게.",
    "art": "slump", "unlock": 1, "maxStep": 30,
    "place": { "x": 0.4, "y": "bottom", "dy": 0.02 },
    "limbDirection": { "foot_left": 1, "foot_right": -1 },

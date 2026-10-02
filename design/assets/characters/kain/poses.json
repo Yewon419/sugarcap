@@ -2,6 +2,8 @@
  "zero": "floor-sit",
  "poses": {
   "rim-stand": {
+   "label": "가장자리에 서기",
+   "note": "발바닥이 앞 가장자리 선 위. 발밑을 축으로 아주 느리게 흔들리고 6.5초마다 오른발을 두 번 까딱.",
    "art": "rim-stand", "unlock": 2, "minStep": 1,
    "place": { "xRim": -0.01, "y": "rimFront" },
    "limbDirection": { "leg_left": 0, "leg_right": 0 },
@@ -12,6 +14,8 @@
    ]
   },
   "rim-sit": {
+   "label": "가장자리 뒤 앉기",
+   "note": "엉덩이가 뒤 가장자리 선 위, 가운데서 오른쪽으로 가장자리 폭 .23. 앉아서 숨쉬기, 8초마다 고개 갸웃.",
    "art": "sit", "mirror": true, "unlock": 1, "minStep": 1,
    "place": { "xRim": 0.23, "y": "rimBack" },
    "motion": [
@@ -21,6 +25,8 @@
    ]
   },
   "swim": {
+   "label": "커피 속 헤엄",
+   "note": "얼음 밑 진한 커피 한가운데(커피 윗선~잔 안쪽 바닥 .852의 55% 깊이)에 그림 가운데가 오게 한다. 반쯤 비친다(대표님 지시). 천천히 좌우로 떠다니며 오르내리고 두 다리로 번갈아 발차기. 커피 30% 이상일 때만.",
    "art": "swim", "unlock": 3, "minStep": 30, "opacity": 0.6,
    "place": { "xRim": -0.05, "y": "liquid", "floor": 0.852, "depth": 0.55, "centered": true },
    "limbDirection": { "leg_far": 0, "leg_near": 0 },
@@ -33,6 +39,8 @@
    ]
   },
   "walk": {
+   "label": "컵 밑 걷기",
+   "note": "뒤뚱 걷기(waddle). 반사는 뒤집지 않는다(대표님: 뒤집으면 반대로 걷는 것처럼 보임). 반사를 위로 올리면 눌린 반사가 머리 위로 삐져나온다.",
    "art": "walk", "unlock": 1, "minStep": 1,
    "place": { "x": 0.5, "y": "bottom", "dy": 0.014 },
    "limbDirection": { "leg_far": 0, "leg_near": 0 },
@@ -41,6 +49,8 @@
    "walk": "waddle"
   },
   "floor-sit": {
+   "label": "바닥에 앉기",
+   "note": "0% 자세. 잔 왼쪽 바깥 냅킨 위, 목업에서 잔 바닥보다 가장자리 폭의 .088만큼 뒤(위)에 앉았다. 앉아서 숨쉬기. 엉덩이가 바닥에 닿아 그림자를 몸 밑에 좁게.",
    "art": "sit", "mirror": true, "unlock": 1,
    "place": { "xRim": -0.63, "y": "bottom", "dy": -0.024 },
    "reflection": { "toward": 0.49 },

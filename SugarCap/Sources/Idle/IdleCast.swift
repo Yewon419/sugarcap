@@ -40,7 +40,7 @@ struct IdlePoseRule: Sendable {
 
 /// 유리 반사 자리(프로토타입 `REFLECTS.poses`). 캐릭터 가운데에서 잔 가운데 쪽으로 거리의 `toward`만큼 당기고
 /// 위로 `up`(393×852 화면 pt) 올린다. `mirror`는 캐릭터별 기본값(`IdleReflectionLook.mirror`)을 덮는다.
-struct IdleReflection: Sendable {
+struct IdleReflection: Sendable, Equatable {
     let toward: Double
     var up: Double = 0
     var mirror: Bool?
@@ -57,7 +57,7 @@ struct IdleReflectionLook: Sendable {
 
 /// 바닥 그림자(프로토타입 `SHADOWS`). 크기·자리는 그림 폭 비율. 넓고 옅은 그늘 하나 + 접지.
 /// `feet`면 접지를 발마다 두고(로슈 걷기), 아니면 몸 밑에 하나. 그늘은 빛 반대쪽(오른쪽 뒤)으로 밀리고 좌우반전을 따르지 않는다.
-struct IdleShadow: Sendable {
+struct IdleShadow: Sendable, Equatable {
     let w: Double
     let h: Double
     let dx: Double

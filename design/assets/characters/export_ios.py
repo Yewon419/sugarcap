@@ -8,6 +8,9 @@ canvas pixels; the app draws each downscaled image stretched to its frame.
 
 Writes SugarCap/Resources/Idle.xcassets/idle-<character>-<art>-<part>.imageset
 and SugarCap/Resources/idle-rig.json. The previous Idle.xcassets is replaced.
+Pose definitions (<character>/poses.json: placement, motion, unlock stage) are
+merged into SugarCap/Resources/idle-poses.json after checking every pose names
+an exported art.
 """
 
 from __future__ import annotations
@@ -23,6 +26,7 @@ ROOT = Path(__file__).resolve().parent
 APP = ROOT.parents[2] / "SugarCap" / "Resources"
 CATALOG = APP / "Idle.xcassets"
 RIG = APP / "idle-rig.json"
+POSES = APP / "idle-poses.json"
 SCALE = 0.2
 
 # Arts the app draws. Roshu "stand" is the front-facing character art (feeding summary, intro).
@@ -110,6 +114,27 @@ def export_character(character: str) -> dict[str, Art]:
     return out
 
 
+class PoseSpec(TypedDict):
+    art: str
+
+
+class PoseBook(TypedDict):
+    zero: str
+    poses: dict[str, PoseSpec]
+
+
+def load_poses(character: str) -> PoseBook:
+    book: PoseBook = json.loads(
+        (ROOT / character / "poses.json").read_text(encoding="utf-8")
+    )
+    if book["zero"] not in book["poses"]:
+        raise KeyError(f"{character}: zero pose {book['zero']!r} is not defined")
+    for name, pose in book["poses"].items():
+        if pose["art"] not in ARTS[character]:
+            raise KeyError(f"{character}/{name}: art {pose['art']!r} is not exported")
+    return book
+
+
 def main() -> None:
     if CATALOG.exists():
         shutil.rmtree(CATALOG)
@@ -122,9 +147,14 @@ def main() -> None:
     RIG.write_text(
         json.dumps(rig, indent=1, ensure_ascii=False) + "\n", encoding="utf-8"
     )
+    poses = {character: load_poses(character) for character in ARTS}
+    POSES.write_text(
+        json.dumps(poses, indent=1, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
     count = sum(1 for _ in CATALOG.glob("*.imageset"))
     print(f"{count} images -> {CATALOG}")
     print(f"rig -> {RIG}")
+    print(f"poses -> {POSES}")
 
 
 if __name__ == "__main__":

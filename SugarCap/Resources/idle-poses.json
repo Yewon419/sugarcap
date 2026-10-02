@@ -1,0 +1,364 @@
+{
+ "roshu": {
+  "zero": "slump",
+  "poses": {
+   "in-cup": {
+    "art": "in-cup",
+    "unlock": 3,
+    "minStep": 1,
+    "maxStep": 50,
+    "pivot": "rimLine",
+    "place": {
+     "x": 0.49,
+     "y": "rimFront"
+    },
+    "limbDirection": {
+     "foot_left": -1,
+     "foot_right": 1
+    },
+    "motion": [
+     {
+      "to": "rot",
+      "shape": "wave",
+      "amp": 0.6,
+      "period": 3.4
+     },
+     {
+      "to": "limb.foot_left",
+      "shape": "wave",
+      "amp": 12,
+      "period": 1.3,
+      "rectify": "pos"
+     },
+     {
+      "to": "limb.foot_right",
+      "shape": "wave",
+      "amp": 12,
+      "period": 1.3,
+      "rectify": "neg"
+     }
+    ]
+   },
+   "watch": {
+    "art": "watch",
+    "unlock": 1,
+    "minStep": 1,
+    "place": {
+     "x": 0.25,
+     "y": "bottom",
+     "dy": -0.005
+    },
+    "limbDirection": {
+     "foot_left": -1,
+     "foot_right": 1,
+     "arm": -1
+    },
+    "reflection": {
+     "toward": 0.43
+    },
+    "shadow": {
+     "w": 0.8,
+     "h": 0.24,
+     "dx": 0.2,
+     "dy": -0.05
+    },
+    "motion": [
+     {
+      "to": "bodyDy",
+      "shape": "plateau",
+      "amp": -2.2,
+      "period": 5.5,
+      "rise": 0.6,
+      "hold": 1.2,
+      "fall": 0.6
+     },
+     {
+      "to": "limb.arm",
+      "shape": "plateau",
+      "amp": 6,
+      "period": 5.5,
+      "rise": 0.6,
+      "hold": 1.2,
+      "fall": 0.6
+     }
+    ]
+   },
+   "walk": {
+    "art": "walk",
+    "unlock": 1,
+    "minStep": 1,
+    "place": {
+     "x": 0.5,
+     "y": "bottom",
+     "dy": 0.012
+    },
+    "limbDirection": {
+     "flipper_front": 0,
+     "foot_back": -1,
+     "foot_front": 1,
+     "flipper_side": 0
+    },
+    "reflection": {
+     "toward": 0.12,
+     "up": 16
+    },
+    "shadow": {
+     "w": 0.9,
+     "h": 0.24,
+     "dx": 0.2,
+     "dy": -0.05,
+     "feet": true
+    },
+    "walk": "step"
+   },
+   "slump": {
+    "art": "slump",
+    "unlock": 1,
+    "maxStep": 30,
+    "place": {
+     "x": 0.4,
+     "y": "bottom",
+     "dy": 0.02
+    },
+    "limbDirection": {
+     "foot_left": 1,
+     "foot_right": -1
+    },
+    "reflection": {
+     "toward": 0.1,
+     "up": 5
+    },
+    "shadow": {
+     "w": 0.92,
+     "h": 0.1,
+     "dx": 0.03,
+     "dy": -0.025
+    },
+    "motion": [
+     {
+      "to": "sy",
+      "shape": "arch",
+      "amp": 0.035,
+      "period": 7,
+      "at": 4.5,
+      "length": 0.9
+     },
+     {
+      "to": "sx",
+      "shape": "arch",
+      "amp": -0.015,
+      "period": 7,
+      "at": 4.5,
+      "length": 0.9
+     },
+     {
+      "to": "sy",
+      "shape": "arch",
+      "amp": -0.05,
+      "period": 7,
+      "at": 5.4,
+      "length": 1.1
+     },
+     {
+      "to": "sx",
+      "shape": "arch",
+      "amp": 0.03,
+      "period": 7,
+      "at": 5.4,
+      "length": 1.1
+     },
+     {
+      "to": "limb.foot_left",
+      "shape": "bump",
+      "amp": 7,
+      "period": 7,
+      "at": 6.3,
+      "length": 0.6
+     }
+    ]
+   }
+  }
+ },
+ "kain": {
+  "zero": "floor-sit",
+  "poses": {
+   "rim-stand": {
+    "art": "rim-stand",
+    "unlock": 2,
+    "minStep": 1,
+    "place": {
+     "xRim": -0.01,
+     "y": "rimFront"
+    },
+    "limbDirection": {
+     "leg_left": 0,
+     "leg_right": 0
+    },
+    "motion": [
+     {
+      "to": "rot",
+      "shape": "wave",
+      "amp": 0.8,
+      "period": 3.6
+     },
+     {
+      "to": "limb.leg_right",
+      "shape": "bump",
+      "amp": -7,
+      "period": 6.5,
+      "at": 4.6,
+      "length": 0.35
+     },
+     {
+      "to": "limb.leg_right",
+      "shape": "bump",
+      "amp": -7,
+      "period": 6.5,
+      "at": 5.05,
+      "length": 0.35
+     }
+    ]
+   },
+   "rim-sit": {
+    "art": "sit",
+    "mirror": true,
+    "unlock": 1,
+    "minStep": 1,
+    "place": {
+     "xRim": 0.23,
+     "y": "rimBack"
+    },
+    "motion": [
+     {
+      "to": "sy",
+      "shape": "wave",
+      "amp": 0.012,
+      "period": 3.2
+     },
+     {
+      "to": "sx",
+      "shape": "wave",
+      "amp": -0.006,
+      "period": 3.2
+     },
+     {
+      "to": "rot",
+      "shape": "bump",
+      "amp": -4,
+      "period": 8,
+      "at": 5.5,
+      "length": 1.4
+     }
+    ]
+   },
+   "swim": {
+    "art": "swim",
+    "unlock": 3,
+    "minStep": 30,
+    "opacity": 0.6,
+    "place": {
+     "xRim": -0.05,
+     "y": "liquid",
+     "floor": 0.852,
+     "depth": 0.55,
+     "centered": true
+    },
+    "limbDirection": {
+     "leg_far": 0,
+     "leg_near": 0
+    },
+    "motion": [
+     {
+      "to": "dx",
+      "shape": "wave",
+      "amp": 6,
+      "period": 7
+     },
+     {
+      "to": "dy",
+      "shape": "wave",
+      "amp": 2.2,
+      "period": 3.1
+     },
+     {
+      "to": "rot",
+      "shape": "wave",
+      "amp": 3,
+      "period": 3.1,
+      "phase": 1.2
+     },
+     {
+      "to": "limb.leg_near",
+      "shape": "wave",
+      "amp": 10,
+      "period": 0.9
+     },
+     {
+      "to": "limb.leg_far",
+      "shape": "wave",
+      "amp": -10,
+      "period": 0.9
+     }
+    ]
+   },
+   "walk": {
+    "art": "walk",
+    "unlock": 1,
+    "minStep": 1,
+    "place": {
+     "x": 0.5,
+     "y": "bottom",
+     "dy": 0.014
+    },
+    "limbDirection": {
+     "leg_far": 0,
+     "leg_near": 0
+    },
+    "reflection": {
+     "toward": 0.49,
+     "mirror": false
+    },
+    "shadow": {
+     "w": 0.7,
+     "h": 0.2,
+     "dx": 0.15,
+     "dy": -0.04
+    },
+    "walk": "waddle"
+   },
+   "floor-sit": {
+    "art": "sit",
+    "mirror": true,
+    "unlock": 1,
+    "place": {
+     "xRim": -0.63,
+     "y": "bottom",
+     "dy": -0.024
+    },
+    "reflection": {
+     "toward": 0.49
+    },
+    "shadow": {
+     "w": 0.92,
+     "h": 0.12,
+     "dx": 0.04,
+     "dy": -0.03
+    },
+    "motion": [
+     {
+      "to": "sy",
+      "shape": "wave",
+      "amp": 0.012,
+      "period": 3.2
+     },
+     {
+      "to": "sx",
+      "shape": "wave",
+      "amp": -0.006,
+      "period": 3.2
+     }
+    ]
+   }
+  }
+ }
+}

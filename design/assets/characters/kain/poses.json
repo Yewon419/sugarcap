@@ -1,0 +1,54 @@
+{
+ "zero": "floor-sit",
+ "poses": {
+  "rim-stand": {
+   "art": "rim-stand", "unlock": 2, "minStep": 1,
+   "place": { "xRim": -0.01, "y": "rimFront" },
+   "limbDirection": { "leg_left": 0, "leg_right": 0 },
+   "motion": [
+    { "to": "rot", "shape": "wave", "amp": 0.8, "period": 3.6 },
+    { "to": "limb.leg_right", "shape": "bump", "amp": -7, "period": 6.5, "at": 4.6, "length": 0.35 },
+    { "to": "limb.leg_right", "shape": "bump", "amp": -7, "period": 6.5, "at": 5.05, "length": 0.35 }
+   ]
+  },
+  "rim-sit": {
+   "art": "sit", "mirror": true, "unlock": 1, "minStep": 1,
+   "place": { "xRim": 0.23, "y": "rimBack" },
+   "motion": [
+    { "to": "sy", "shape": "wave", "amp": 0.012, "period": 3.2 },
+    { "to": "sx", "shape": "wave", "amp": -0.006, "period": 3.2 },
+    { "to": "rot", "shape": "bump", "amp": -4, "period": 8, "at": 5.5, "length": 1.4 }
+   ]
+  },
+  "swim": {
+   "art": "swim", "unlock": 3, "minStep": 30, "opacity": 0.6,
+   "place": { "xRim": -0.05, "y": "liquid", "floor": 0.852, "depth": 0.55, "centered": true },
+   "limbDirection": { "leg_far": 0, "leg_near": 0 },
+   "motion": [
+    { "to": "dx", "shape": "wave", "amp": 6, "period": 7 },
+    { "to": "dy", "shape": "wave", "amp": 2.2, "period": 3.1 },
+    { "to": "rot", "shape": "wave", "amp": 3, "period": 3.1, "phase": 1.2 },
+    { "to": "limb.leg_near", "shape": "wave", "amp": 10, "period": 0.9 },
+    { "to": "limb.leg_far", "shape": "wave", "amp": -10, "period": 0.9 }
+   ]
+  },
+  "walk": {
+   "art": "walk", "unlock": 1, "minStep": 1,
+   "place": { "x": 0.5, "y": "bottom", "dy": 0.014 },
+   "limbDirection": { "leg_far": 0, "leg_near": 0 },
+   "reflection": { "toward": 0.49, "mirror": false },
+   "shadow": { "w": 0.7, "h": 0.2, "dx": 0.15, "dy": -0.04 },
+   "walk": "waddle"
+  },
+  "floor-sit": {
+   "art": "sit", "mirror": true, "unlock": 1,
+   "place": { "xRim": -0.63, "y": "bottom", "dy": -0.024 },
+   "reflection": { "toward": 0.49 },
+   "shadow": { "w": 0.92, "h": 0.12, "dx": 0.04, "dy": -0.03 },
+   "motion": [
+    { "to": "sy", "shape": "wave", "amp": 0.012, "period": 3.2 },
+    { "to": "sx", "shape": "wave", "amp": -0.006, "period": 3.2 }
+   ]
+  }
+ }
+}

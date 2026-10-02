@@ -1,7 +1,7 @@
 name: iOS
 
-# private 리포의 macOS 러너는 분당 10배로 과금된다(무료 2,000분 = macOS 실질 200분).
-# 그래서 푸시에는 서명 없는 컴파일 검증만 돌리고, TestFlight 업로드는 수동 실행으로만 연다.
+# 리포는 public이라 macOS 러너가 무료다(2026-09-24 전환, 그전엔 private이라 분당 10배 과금).
+# 푸시에는 서명 없는 컴파일 검증만 돌리고, TestFlight 업로드(시크릿 사용)는 수동 실행으로만 연다.
 on:
   push:
     branches: [main]

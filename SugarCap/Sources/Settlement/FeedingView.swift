@@ -215,7 +215,12 @@ struct FeedingView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .overlay(alignment: .bottom) { foot }
-            .overlay(alignment: .topTrailing) { closeButton }
+            .overlay(alignment: .topTrailing) {
+                HStack(spacing: 0) {
+                    skipButton
+                    closeButton
+                }
+            }
         }
         .coordinateSpace(.named("feed"))
         .sensoryFeedback(.impact(weight: .light), trigger: shakeTrigger)
@@ -405,6 +410,17 @@ struct FeedingView: View {
         }
         .padding(.trailing, 16)
         .accessibilityIdentifier("feeding-close")
+    }
+
+    /// 컵 누르기·방울 끌기를 건너뛰고 바로 먹인다(2026-10-02 대표님). 적립은 끝까지 먹였을 때와 같다.
+    private var skipButton: some View {
+        Button(action: skip) {
+            Text("건너뛰기")
+                .font(AppFont.pretendard(15, .regular, relativeTo: .subheadline))
+                .foregroundStyle(.white)
+                .tapTarget()
+        }
+        .accessibilityIdentifier("feeding-skip")
     }
 
     // MARK: - 마무리 요약
@@ -603,6 +619,21 @@ struct FeedingView: View {
                 Self.logger.error("먹이기 저장 실패(\(request.id, privacy: .public)): \(String(describing: error), privacy: .public)")
                 errorText = "저장하지 못했어요. 다시 시도해 주세요."
             }
+        }
+    }
+
+    /// 도는 중인 전환은 끊고, 빈 컵 털기 태스크는 stage가 바뀌면 스스로 멈춘다.
+    private func skip() {
+        guard step != .done else { return }
+        fx = nil
+        stage = .ask
+        resetDrop()
+        do {
+            results = try onFeed()
+            step = .done
+        } catch {
+            Self.logger.error("건너뛰기 저장 실패(\(request.id, privacy: .public)): \(String(describing: error), privacy: .public)")
+            errorText = "저장하지 못했어요. 다시 시도해 주세요."
         }
     }
 

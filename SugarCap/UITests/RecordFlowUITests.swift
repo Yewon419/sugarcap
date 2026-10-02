@@ -317,6 +317,27 @@ private struct Driver {
 }
 
 extension RecordFlowUITests {
+    /// 건너뛰기는 컵 누르기·방울 끌기 없이 바로 마무리 요약으로 간다(2026-10-02).
+    /// 오늘을 마감한 채로 남지만 오늘 화면은 마감 버튼 글자만 바뀌어 뒤 테스트에 영향이 없다.
+    @MainActor
+    func testSkippingFeedingGoesStraightToSummary() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments += ["-screenshotFeeding", "YES"]
+        app.launch()
+        completeOnboardingIfPresented(app)
+
+        let skip = app.buttons["feeding-skip"]
+        XCTAssertTrue(skip.waitForExistence(timeout: 15), "먹이기 화면에 건너뛰기가 없음")
+        XCTAssertTrue(app.buttons["feeding-cup"].exists, "건너뛰기 전에 컵 누르기 단계가 아님")
+        skip.tap()
+
+        XCTAssertTrue(app.buttons["feeding-done"].waitForExistence(timeout: 5), "건너뛰기 뒤 요약이 안 뜸")
+        XCTAssertFalse(app.buttons["feeding-skip"].exists, "요약에 건너뛰기가 남음")
+        app.buttons["feeding-done"].tap()
+        XCTAssertTrue(app.buttons["feeding-done"].waitForNonExistence(timeout: 5), "완료를 눌러도 먹이기 화면이 안 닫힘")
+    }
+
     /// 편의점은 메뉴가 수천 개라 검색 우선 화면이다(2026-10-01). 검색 전에는 목록이 없고,
     /// 띄어쓰기를 섞어 쳐도 붙여 쓴 제품명이 나와야 한다. 기록은 남기지 않는다.
     /// 이름을 testRecording… 뒤에 오게 둔다(첫 테스트가 새 시뮬레이터의 온보딩을 확인한다).

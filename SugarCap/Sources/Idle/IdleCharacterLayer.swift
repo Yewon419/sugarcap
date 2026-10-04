@@ -24,6 +24,8 @@ struct IdleCharacterLayer: View {
     /// 멈춘 시각. 다시 움직일 때 멈춘 만큼 `start`를 미뤄 동작이 이어지게 한다(걷던 자리에서 튀지 않게).
     @State private var pausedAt: Date?
     @State private var seed = UInt64.random(in: 0 ... UInt64.max)
+    /// 마지막으로 눌린 시각. 누르면 살짝 움찔한다(대표님 2026-10-04: "살짝 움찔하는 정도").
+    @State private var flinchAt: Date?
 
     var body: some View {
         GeometryReader { proxy in
@@ -32,13 +34,21 @@ struct IdleCharacterLayer: View {
                 TimelineView(.animation(minimumInterval: nil, paused: frozen != nil || pausedAt != nil)) { timeline in
                     let t = frozen ?? (pausedAt ?? timeline.date).timeIntervalSince(start)
                     let blink = frozen == nil ? IdleMotion.blink(t: t, seed: seed) : 0
+                    let flinch = flinchAt.map { IdleMotion.flinch(age: timeline.date.timeIntervalSince($0)) } ?? 0
                     Canvas { context, _ in
-                        sprite.draw(in: &context, t: t, blink: blink)
+                        sprite.draw(in: &context, t: t, blink: blink, flinch: flinch)
                     }
+                }
+                // 캐릭터 위를 누를 때만 반응한다. 컵 넘기기(부모의 끌기)는 손가락이 움직이면 그쪽으로 간다.
+                .contentShape(Rectangle())
+                .onTapGesture { location in
+                    let now = Date()
+                    if sprite.contains(location, t: now.timeIntervalSince(start)) { flinchAt = now }
                 }
             }
         }
-        .allowsHitTesting(false)
+        // 동작 줄이기·멈춘 화면·넘기는 중에는 누르기를 받지 않는다(움찔도 움직임이라).
+        .allowsHitTesting(isActive && frozenTime == nil)
         .accessibilityHidden(true)
         .onAppear {
             if pose == nil { repick() }
@@ -142,15 +152,16 @@ struct IdleSprite {
         footY = Double(art.bbox.maxY) * scale
     }
 
-    func draw(in context: inout GraphicsContext, t: Double, blink: Double) {
+    /// `flinch`: 눌렸을 때 움찔(0 ~ 1, `IdleMotion.flinch`). 기준점을 축으로 아래로 눌렸다 돌아온다.
+    func draw(in context: inout GraphicsContext, t: Double, blink: Double, flinch: Double) {
         let m = IdleMotion.frame(spec, cast: cast, t: t, photo: photo, walkBaseX: base.x)
         if let reflection = rule.reflection {
-            drawReflection(reflection, in: context, m: m)
+            drawReflection(reflection, in: context, m: m, flinch: flinch)
         }
         if let shadow = rule.shadow {
             drawShadow(shadow, in: context, m: m)
         }
-        let sprite = placed(context, m: m)
+        let sprite = placed(context, m: m, flinch: flinch)
         if rule.opacity < 1 {
             // 한 덩어리로 비치게 층으로 묶는다. 조각마다 투명도를 주면 몸 밑 팔다리 뿌리가 비친다.
             var layer = sprite
@@ -162,20 +173,42 @@ struct IdleSprite {
     }
 
     /// 화면 좌표 → 그림 좌표(pt): 기준점을 자리에 놓고 돌리고 뒤집는다.
-    private func placed(_ parent: GraphicsContext, m: IdleFrame) -> GraphicsContext {
+    private func placed(_ parent: GraphicsContext, m: IdleFrame, flinch: Double) -> GraphicsContext {
         var sprite = parent
         sprite.translateBy(x: base.x + m.dx, y: base.y + m.dy)
+        if flinch > 0 {
+            sprite.scaleBy(x: 1 + Self.flinchWiden * flinch, y: 1 - Self.flinchSquash * flinch)
+        }
         sprite.rotate(by: .degrees(m.rot))
         sprite.scaleBy(x: m.flip, y: 1)
         sprite.translateBy(x: -pivot.x, y: -pivot.y)
         return sprite
     }
 
+    /// 움찔할 때 세로로 눌리고 가로로 퍼지는 비율.
+    private static let flinchSquash = 0.07
+    private static let flinchWiden = 0.035
+
+    /// 화면 위 점이 시각 t의 캐릭터 위인지. 그림 틀을 놓인 자리로 옮긴 사각형에 손가락 여유를 둔다.
+    func contains(_ point: CGPoint, t: Double) -> Bool {
+        let m = IdleMotion.frame(spec, cast: cast, t: t, photo: photo, walkBaseX: base.x)
+        let box = CGRect(
+            x: Double(art.bbox.minX) * scale, y: Double(art.bbox.minY) * scale,
+            width: Double(art.bbox.width) * scale, height: Double(art.bbox.height) * scale
+        )
+        let radians: Double = m.rot * Double.pi / 180
+        let transform = CGAffineTransform(translationX: -pivot.x, y: -pivot.y)
+            .concatenating(CGAffineTransform(scaleX: m.flip, y: 1))
+            .concatenating(CGAffineTransform(rotationAngle: radians))
+            .concatenating(CGAffineTransform(translationX: base.x + m.dx, y: base.y + m.dy))
+        return box.applying(transform).insetBy(dx: -8, dy: -8).contains(point)
+    }
+
     // MARK: 유리 반사
 
     /// 캐릭터를 잔 가운데 쪽으로 당겨 옅게 한 번 더 그리고 누끼로 잘라 유리 안에만 남긴다(프로토타입 `drawGlass`).
     /// 가로는 반사 가운데를 축으로 뒤집고(`mirror`) 누른다(`squeeze`). 가장자리는 선명하게 둔다(대표님 지시).
-    private func drawReflection(_ reflection: IdleReflection, in context: GraphicsContext, m: IdleFrame) {
+    private func drawReflection(_ reflection: IdleReflection, in context: GraphicsContext, m: IdleFrame, flinch: Double) {
         let look = cast.reflectionLook
         let cx: Double = Double(base.x) + m.dx
         let axis = photo.left + cast.glassAxis(step: step) * photo.width
@@ -191,7 +224,7 @@ struct IdleSprite {
             mirrored.translateBy(x: toX, y: -reflection.up * photo.unit)
             mirrored.scaleBy(x: flip * look.squeeze, y: 1)
             mirrored.translateBy(x: -cx, y: 0)
-            let sprite = placed(mirrored, m: m)
+            let sprite = placed(mirrored, m: m, flinch: flinch)
             if let tint = look.tint {
                 // 로슈: 몸통 조각만 그려 몸 색 한 가지로 칠한다(팔다리·얼굴 없는 윤곽).
                 drawImage("body", frame: art.body, in: bodyLayer(sprite, m: m))

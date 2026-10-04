@@ -7,7 +7,8 @@ import XCTest
 /// 자세를 poses.json에 더할 때 그림·팔다리 이름 오타나 단계 규칙 실수를 여기서 잡는다.
 /// 코드에 박혀 있던 자세와의 1:1 대조는 데이터화 커밋(2026-10-03)의 CI에서 통과한 뒤 옛 코드와 함께 지웠다.
 final class IdlePoseBookTests: XCTestCase {
-    private let photo = IdlePhoto(slot: CGSize(width: 393, height: 852 * 0.84))
+    private let slot = CGSize(width: 393, height: 852 * 0.84)
+    private var photo: IdlePhoto { IdlePhoto(slot: slot) }
     private let steps = [0, 1, 30, 50, 80, 100]
     private let casts = [IdleCast.roshu, IdleCast.kain]
 
@@ -102,6 +103,35 @@ final class IdlePoseBookTests: XCTestCase {
         XCTAssertEqual(AffinityMath.unlockedLevel(level: 2, isPro: false), 2)
         XCTAssertEqual(AffinityMath.unlockedLevel(level: 7, isPro: false), AffinityMath.freeLevelCap)
         XCTAssertEqual(AffinityMath.unlockedLevel(level: 7, isPro: true), 7)
+    }
+
+    /// 누르면 움찔(2026-10-04): 짧게 움츠렸다가 풀리고, 끝나면 정확히 0으로 돌아온다.
+    func testFlinchRisesThenSettles() {
+        XCTAssertEqual(IdleMotion.flinch(age: -0.1), 0)
+        XCTAssertEqual(IdleMotion.flinch(age: 0), 0)
+        XCTAssertEqual(IdleMotion.flinch(age: 0.06), 1, accuracy: 1e-9)
+        XCTAssertEqual(IdleMotion.flinch(age: IdleMotion.flinchDuration), 0)
+        var previous = 1.0
+        for i in 1...30 {
+            let age = 0.06 + Double(i) * (IdleMotion.flinchDuration - 0.06) / 30
+            let value = IdleMotion.flinch(age: age)
+            XCTAssertLessThanOrEqual(value, previous, "age \(age)")
+            previous = value
+        }
+    }
+
+    /// 캐릭터 위를 눌렀는지: 자세마다 놓인 자리(기준점 바로 위)는 맞고, 화면 구석은 아니다.
+    func testSpriteHitTest() throws {
+        for side in CupSide.allCases {
+            let set = try XCTUnwrap(side.idleCast.poseSet)
+            for name in set.poses.keys {
+                let sprite = try XCTUnwrap(IdleSprite(side: side, pose: name, step: 50, size: slot), name)
+                let m = IdleMotion.frame(sprite.spec, cast: sprite.cast, t: 0, photo: photo, walkBaseX: sprite.base.x)
+                let onBody = CGPoint(x: sprite.base.x + m.dx, y: sprite.base.y + m.dy - 4)
+                XCTAssertTrue(sprite.contains(onBody, t: 0), "\(side) \(name)")
+                XCTAssertFalse(sprite.contains(CGPoint(x: -100, y: -100), t: 0), "\(side) \(name)")
+            }
+        }
     }
 
     func testRejectsUnknownTarget() {

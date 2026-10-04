@@ -88,6 +88,16 @@ enum IdleMotion {
         return 0
     }
 
+    /// 눌렀을 때 움찔하는 정도(0 ~ 1). 0.06초 만에 움츠렸다가 0.3초에 걸쳐 풀린다.
+    static func flinch(age: Double) -> Double {
+        if age < 0 || age >= flinchDuration { return 0 }
+        if age < 0.06 { return age / 0.06 }
+        let release = 1 - (age - 0.06) / (flinchDuration - 0.06)
+        return release * release
+    }
+
+    static let flinchDuration = 0.36
+
     /// splitmix64 → [0, 1).
     static func unitHash(_ value: UInt64, seed: UInt64) -> Double {
         var z = value &+ seed &+ 0x9E37_79B9_7F4A_7C15

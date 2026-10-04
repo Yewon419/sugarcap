@@ -135,7 +135,11 @@ struct TodayView: View {
         }
         .fullScreenCover(item: $feeding) { presentation in
             let request = presentation.request
-            FeedingView(request: request, opening: presentation.opening, snapshot: presentation.snapshot, onFeed: { try feed(request) })
+            FeedingView(
+                request: request, opening: presentation.opening, catalog: catalog, snapshot: presentation.snapshot,
+                onFeed: { try feed(request) },
+                onAddDrink: { entry in try addDrink(entry, to: request) }
+            )
         }
         .sheet(item: $paywall, onDismiss: {
             if pro.isPro, pendingAffinity { isAffinityPresented = true }
@@ -270,7 +274,9 @@ struct TodayView: View {
             YesterdayGateView(
                 gate: gate,
                 opening: feedingOpening(),
+                catalog: catalog,
                 onFeed: { request in try feed(request) },
+                onAddDrink: { entry, request in try addDrink(entry, to: request) },
                 onDrank: { dismissPastDay(gate.day) }
             )
         }
@@ -583,17 +589,45 @@ struct TodayView: View {
         case .closeToday:
             let today = DayKey(at: now, boundaryHour: boundaryHour)
             let row = try SettlementStore.row(for: today, in: context)
-            SettlementStore.close(row, totals: totals(for: today), now: now)
+            SettlementStore.close(row, totals: try storedTotals(for: today), now: now)
             results = []
         case .pastDay(let day):
             results = try SettlementStore.feedPastDay(
-                day, entries: entries, limits: limits, boundaryHour: boundaryHour,
+                day, entries: try context.fetch(FetchDescriptor<Entry>()), limits: limits, boundaryHour: boundaryHour,
                 now: now, in: context
             )
             prompt = nil
         }
         try context.save()
         return results
+    }
+
+    /// 정산 화면에서 음료를 더 기록하고(§4.7), 그날 남은 양으로 요청을 다시 만든다.
+    private func addDrink(_ entry: Entry, to request: FeedingRequest) throws -> FeedingRequest {
+        context.insert(entry)
+        try context.save()
+        let day: DayKey
+        switch request.kind {
+        case .closeToday: day = DayKey(at: Date(), boundaryHour: boundaryHour)
+        case .pastDay(let past): day = past
+        }
+        let dayTotals = try storedTotals(for: day)
+        return FeedingRequest(
+            kind: request.kind,
+            sugarLeftG: dayTotals.leftSugarG,
+            caffeineLeftMg: dayTotals.leftCaffeineMg,
+            limits: limits,
+            sugarOverG: dayTotals.overSugarG,
+            caffeineOverMg: dayTotals.overCaffeineMg
+        )
+    }
+
+    /// 정산 화면은 열 때의 뷰를 붙잡고 있어 `@Query` 값이 늦을 수 있다. 저장소에서 바로 읽는다.
+    private func storedTotals(for day: DayKey) throws -> DayTotals {
+        let consumptions = try context.fetch(FetchDescriptor<Entry>())
+            .filter { $0.dayKey(boundaryHour: boundaryHour) == day }
+            .map(\.consumption)
+        return DayMath.totals(consumptions, limits: limits)
     }
 
     private func dismissPastDay(_ day: DayKey) {

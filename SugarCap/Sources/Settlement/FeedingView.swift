@@ -26,6 +26,18 @@ struct FeedingRequest: Identifiable, Equatable {
         }
     }
 
+    /// 그날 합계. 정산 화면에서 연 기록 시트의 서빙 패널이 "마시면 남는 양"을 계산할 때 쓴다.
+    var totals: DayTotals {
+        DayTotals(
+            sugarG: limits.sugarG - sugarLeftG + sugarOverG,
+            caffeineMg: limits.caffeineMg - caffeineLeftMg + caffeineOverMg,
+            leftSugarG: sugarLeftG,
+            leftCaffeineMg: caffeineLeftMg,
+            overSugarG: sugarOverG,
+            overCaffeineMg: caffeineOverMg
+        )
+    }
+
     func left(_ side: CupSide) -> Double {
         switch side {
         case .sugar: return sugarLeftG
@@ -74,10 +86,16 @@ struct FeedingSnapshot: Equatable {
 ///  4) 카페인도 같은 과정 → 마무리 요약으로 넘어가는 순간에만 저장한다. 중간에 닫으면 남기지 않는다.
 /// 하루 한 번 보는 장면이라 연출을 허용한다. 모션 줄이기면 흔들기·전환·튀기를 빼고 결과만 바꾼다.
 struct FeedingView: View {
-    let request: FeedingRequest
     let opening: FeedingOpening
+    let catalog: CatalogIndex
     let onFeed: () throws -> [FeedResult]
+    /// 정산 화면에서 음료를 더 기록한다. 그날 남은 양을 다시 계산한 요청을 돌려준다.
+    let onAddDrink: (Entry) throws -> FeedingRequest
     var snapshot: FeedingSnapshot?
+
+    /// 음료를 더 기록하면 바뀐다.
+    @State private var request: FeedingRequest
+    @State private var isRecordPresented = false
 
     enum Step { case sugar, caffeine, done }
     /// searching = 먹일 게 없는 날(남은 0) 컵을 누른 뒤 방울이 나올 때까지(빈 컵 털기, 2026-10-02 시안 `feeding-empty.html`).
@@ -112,11 +130,20 @@ struct FeedingView: View {
 
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "feeding")
 
-    init(request: FeedingRequest, opening: FeedingOpening, snapshot: FeedingSnapshot? = nil, onFeed: @escaping () throws -> [FeedResult]) {
-        self.request = request
+    init(
+        request: FeedingRequest,
+        opening: FeedingOpening,
+        catalog: CatalogIndex,
+        snapshot: FeedingSnapshot? = nil,
+        onFeed: @escaping () throws -> [FeedResult],
+        onAddDrink: @escaping (Entry) throws -> FeedingRequest
+    ) {
+        _request = State(initialValue: request)
         self.opening = opening
+        self.catalog = catalog
         self.snapshot = snapshot
         self.onFeed = onFeed
+        self.onAddDrink = onAddDrink
         _isIntroPlaying = State(initialValue: opening == .companionIntro)
         _isSceneVisible = State(initialValue: opening == .immediate)
         _fx = State(initialValue: opening == .dusk ? .dusk(title: request.kind == .closeToday ? "오늘 마감" : "어제 마감") : nil)
@@ -154,6 +181,11 @@ struct FeedingView: View {
         .presentationBackground(isSceneVisible || isIntroPlaying ? Color.black : Color.clear)
         .preferredColorScheme(isIntroPlaying ? .light : .dark)
         .onAppear(perform: applySnapshot)
+        .sheet(isPresented: $isRecordPresented) {
+            FeedingRecordSheet(catalog: catalog, request: request, onRecord: addDrink)
+                // 앱은 라이트 전용(§5)이다. 밤 장면의 다크가 시트로 번지지 않게 한다.
+                .preferredColorScheme(.light)
+        }
     }
 
     // MARK: - 밤 장면(당·카페인)
@@ -385,6 +417,17 @@ struct FeedingView: View {
                     }
                     .buttonStyle(PressScaleStyle())
                     .accessibilityIdentifier("feeding-next")
+                    .transition(.opacity)
+                } else if step == .sugar && stage == .ask {
+                    // 깜빡한 음료를 먹이기 전에 넣는다(2026-10-02 대표님). 먹이기를 시작하면 숨긴다.
+                    Button { isRecordPresented = true } label: {
+                        Label("음료 추가", systemImage: "plus")
+                            .font(AppFont.pretendard(15, .semibold, relativeTo: .subheadline))
+                            .foregroundStyle(.white)
+                            .glassPill()
+                    }
+                    .buttonStyle(PressScaleStyle())
+                    .accessibilityIdentifier("feeding-add-drink")
                     .transition(.opacity)
                 }
             }
@@ -619,6 +662,16 @@ struct FeedingView: View {
                 Self.logger.error("먹이기 저장 실패(\(request.id, privacy: .public)): \(String(describing: error), privacy: .public)")
                 errorText = "저장하지 못했어요. 다시 시도해 주세요."
             }
+        }
+    }
+
+    private func addDrink(_ entry: Entry) {
+        do {
+            request = try onAddDrink(entry)
+            errorText = nil
+        } catch {
+            Self.logger.error("정산 중 음료 추가 실패(\(request.id, privacy: .public)): \(String(describing: error), privacy: .public)")
+            errorText = "음료를 저장하지 못했어요. 다시 시도해 주세요."
         }
     }
 

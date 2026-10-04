@@ -317,6 +317,36 @@ private struct Driver {
 }
 
 extension RecordFlowUITests {
+    /// 정산 화면에서 깜빡한 음료를 더 넣으면 남은 양이 그 자리에서 바뀐다(2026-10-02).
+    /// 앞 테스트 기록으로 남은 당이 0일 수 있다. 그때는 "넘겼어요" 줄이 바뀌므로 문구 전체가 달라졌는지 본다.
+    @MainActor
+    func testSettlementAddDrinkUpdatesLeftover() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments += ["-screenshotFeeding", "YES"]
+        app.launch()
+        completeOnboardingIfPresented(app)
+        let ui = Driver(app: app)
+
+        let headline = ui.element("feeding-headline")
+        XCTAssertTrue(headline.waitForExistence(timeout: 15), "먹이기 화면이 안 열림")
+        let before = headline.label
+
+        let add = app.buttons["feeding-add-drink"]
+        XCTAssertTrue(add.waitForExistence(timeout: 5), "정산 화면에 음료 추가가 없음")
+        add.tap()
+        let manual = app.buttons["manual-entry"]
+        XCTAssertTrue(manual.waitForExistence(timeout: 5), "음료 추가가 기록 시트를 안 엶")
+        manual.tap()
+        ui.type("5", into: app.textFields["manual-sugar"])
+        app.buttons["manual-save"].tap()
+
+        XCTAssertTrue(add.waitForExistence(timeout: 10), "저장 뒤 정산 화면으로 안 돌아옴")
+        let changed = NSPredicate(format: "label != %@", before)
+        let result = XCTWaiter().wait(for: [expectation(for: changed, evaluatedWith: headline)], timeout: 5)
+        XCTAssertEqual(result, .completed, "음료를 넣었는데 남은 양이 그대로: \(headline.label)")
+    }
+
     /// 건너뛰기는 컵 누르기·방울 끌기 없이 바로 마무리 요약으로 간다(2026-10-02).
     /// 오늘을 마감한 채로 남지만 오늘 화면은 마감 버튼 글자만 바뀌어 뒤 테스트에 영향이 없다.
     @MainActor

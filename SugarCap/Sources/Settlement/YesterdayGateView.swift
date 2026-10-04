@@ -25,14 +25,20 @@ struct YesterdayGate: Identifiable, Equatable {
 struct YesterdayGateView: View {
     let gate: YesterdayGate
     let opening: FeedingOpening
+    let catalog: CatalogIndex
     let onFeed: (FeedingRequest) throws -> [FeedResult]
+    let onAddDrink: (Entry, FeedingRequest) throws -> FeedingRequest
     let onDrank: () -> Void
 
     @State private var feeding: FeedingRequest?
 
     var body: some View {
         if let feeding {
-            FeedingView(request: feeding, opening: opening, onFeed: { try onFeed(feeding) })
+            FeedingView(
+                request: feeding, opening: opening, catalog: catalog,
+                onFeed: { try onFeed(feeding) },
+                onAddDrink: { entry in try onAddDrink(entry, feeding) }
+            )
         } else {
             gateScreen
         }

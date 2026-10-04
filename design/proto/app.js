@@ -208,7 +208,7 @@ const VARIANTS = {
   // 2026-09-26 확정: 밤 장면 + 당·카페인 분리 + 끌어서 주기.
   feeding: { 확정: renderFeeding },
   // 2026-09-26 확정: 캐주얼(캐릭터 카드·컵 선반·모은 방울·방울 달력).
-  trends: { 확정: renderTrendsCasual },
+  trends: { 확정: renderTrendsCasual, 'A 식탁': renderTrendsTable },
   // 추이와 같은 캐주얼 문법으로 한 안만 만들었다(2026-09-26).
   settings: { 확정: renderSettings },
   // 2026-09-26 확정: 초상 + 말걸기(표정 칸 없음).

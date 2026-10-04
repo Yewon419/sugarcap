@@ -106,9 +106,10 @@ struct RecordSheet: View {
     }
 
     private func quickRow(_ drink: QuickDrink, isStarred: Bool) -> some View {
-        DrinkLine(
+        let side = drink.selection.primarySide
+        return DrinkLine(
             title: drink.name,
-            meta: "\(drink.meta) · 당 \(Amount.text(drink.selection.sugarG, unit: CupSide.sugar.unit))",
+            meta: "\(drink.meta) · \(side.label) \(Amount.text(drink.selection.amount(side), unit: side.unit))",
             figure: nil,
             liquid: drink.selection.drink.liquid
         ) {

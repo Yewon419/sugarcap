@@ -92,6 +92,13 @@ enum CupSide: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
+    func used(_ totals: DayTotals) -> Double {
+        switch self {
+        case .sugar: return totals.sugarG
+        case .caffeine: return totals.caffeineMg
+        }
+    }
+
     func remaining(_ totals: DayTotals) -> Double {
         switch self {
         case .sugar: return totals.leftSugarG
@@ -104,5 +111,25 @@ enum CupSide: String, CaseIterable, Identifiable, Sendable {
         case .sugar: return totals.overSugarG
         case .caffeine: return totals.overCaffeineMg
         }
+    }
+
+    var other: CupSide {
+        switch self {
+        case .sugar: return .caffeine
+        case .caffeine: return .sugar
+        }
+    }
+
+    /// 이 정도 카페인이면 카페인 음료로 본다. 에스프레소 한 샷 안팎.
+    static let caffeineDrinkMinMg: Double = 50
+
+    /// 음료 한 잔이 주로 어느 쪽 음료인지. 목록 수치와 메뉴 패널이 이 면을 크게 보여 준다.
+    /// 카페인이 기준 이상이거나, 당이 0인데 카페인이 있으면 카페인 음료. 나머지는 당 음료다.
+    /// 하루 기준 대비 비율로 가르면 같은 바닐라라떼가 HOT은 당·ICED는 카페인으로 갈려서 카페인 절대량으로 정했다
+    /// (2026-10-04, 아이스카페라떼가 우유 당 때문에 당 음료로 뜨던 문제).
+    static func primary(sugarG: Double?, caffeineMg: Double?) -> CupSide {
+        guard let caffeineMg, caffeineMg > 0 else { return .sugar }
+        if caffeineMg >= caffeineDrinkMinMg { return .caffeine }
+        return (sugarG ?? 0) > 0 ? .sugar : .caffeine
     }
 }

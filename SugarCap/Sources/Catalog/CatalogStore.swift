@@ -84,7 +84,7 @@ struct CatalogIndex {
     private let drinksByBrandID: [String: [Drink]]
     private let servingsByID: [String: Serving]
     private let drinksByServingID: [String: Drink]
-    private let searchKeysByDrinkID: [String: String]
+    private let searchNamesByDrinkID: [String: [DrinkSearchName]]
 
     init(catalog: Catalog) {
         self.catalog = catalog
@@ -96,8 +96,8 @@ struct CatalogIndex {
         self.drinksByServingID = Dictionary(
             uniqueKeysWithValues: catalog.drinks.flatMap { drink in drink.servings.map { ($0.id, drink) } }
         )
-        self.searchKeysByDrinkID = Dictionary(
-            uniqueKeysWithValues: catalog.drinks.map { ($0.id, $0.searchKey) }
+        self.searchNamesByDrinkID = Dictionary(
+            uniqueKeysWithValues: catalog.drinks.map { ($0.id, $0.searchNames) }
         )
     }
 
@@ -106,34 +106,42 @@ struct CatalogIndex {
     func serving(id: String) -> Serving? { servingsByID[id] }
     func drink(servingID: String) -> Drink? { drinksByServingID[servingID] }
 
-    /// 기록 시트 검색(브랜드 전체). 브랜드 안 검색과 같은 일치·정렬 규칙, 최대 `limit`개.
-    /// 이름 앞부분 일치 전부 → 나머지 순이고, 각각 안에서는 브랜드 격자 순서다.
-    /// 카탈로그 순서(브랜드 id 알파벳)면 편의점(`cvs`)이 카페보다 먼저 결과를 채운다.
+    /// 편의점은 같은 순위 안에서 카페 뒤에 둔다. 제품이 만 개가 넘어 카페 메뉴를 밀어낸다.
+    static let convenienceStoreID = "cvs"
+
+    /// 기록 시트 검색(브랜드 전체). 브랜드 안 검색과 같은 순위 규칙(`DrinkSearchRank`), 최대 `limit`개.
+    /// 같은 순위 안에서는 카페 → 편의점, 그다음 브랜드 격자 순서다.
     func search(_ query: String, limit: Int = 60) -> [Drink] {
         let query = DrinkQuery(query)
         guard !query.isEmpty else { return [] }
-        let hits = catalog.brands.flatMap { brand in
-            drinks(brandID: brand.id).filter { query.matches(searchKey($0)) }
-        }
-        return Array(prefixFirst(hits, query).prefix(limit))
+        return Array(ranked(catalog.brands.flatMap { drinks(brandID: $0.id) }, query).prefix(limit))
     }
 
-    /// 브랜드 안 검색. 빈 검색어면 브랜드 메뉴 전체.
-    /// 이름 앞부분이 검색어와 같은 메뉴를 먼저, 그 안팎은 카탈로그 순서 그대로(2026-10-01, "커피"에 "10% 코나…"가 먼저 오던 문제).
+    /// 브랜드 안 검색. 빈 검색어면 브랜드 메뉴 전체. 같은 순위 안에서는 카탈로그 순서다.
     func drinks(brandID: String, matching query: DrinkQuery) -> [Drink] {
         guard !query.isEmpty else { return drinks(brandID: brandID) }
-        return prefixFirst(drinks(brandID: brandID).filter { query.matches(searchKey($0)) }, query)
+        return ranked(drinks(brandID: brandID), query)
     }
 
-    /// 검색 키는 색인을 만들 때 한 번만 접어 둔다.
-    private func searchKey(_ drink: Drink) -> String {
-        searchKeysByDrinkID[drink.id] ?? drink.searchKey
+    /// 검색 이름은 색인을 만들 때 한 번만 접어 둔다.
+    private func searchNames(_ drink: Drink) -> [DrinkSearchName] {
+        searchNamesByDrinkID[drink.id] ?? drink.searchNames
     }
 
-    private func prefixFirst(_ drinks: [Drink], _ query: DrinkQuery) -> [Drink] {
-        let leading = drinks.filter { query.isPrefix(of: searchKey($0)) }
-        let others = drinks.filter { !query.isPrefix(of: searchKey($0)) }
-        return leading + others
+    /// 순서가 같으면 들어온 순서를 지키도록 위치를 마지막 기준으로 쓴다.
+    private func ranked(_ drinks: [Drink], _ query: DrinkQuery) -> [Drink] {
+        drinks.enumerated()
+            .compactMap { offset, drink -> (rank: DrinkSearchRank, isStore: Bool, offset: Int, drink: Drink)? in
+                guard let rank = query.rank(searchNames(drink)) else { return nil }
+                return (rank, drink.brandId == Self.convenienceStoreID, offset, drink)
+            }
+            .sorted { lhs, rhs in
+                if lhs.rank.isExact != rhs.rank.isExact { return lhs.rank.isExact }
+                if lhs.isStore != rhs.isStore { return !lhs.isStore }
+                if lhs.rank != rhs.rank { return lhs.rank < rhs.rank }
+                return lhs.offset < rhs.offset
+            }
+            .map(\.drink)
     }
 
     /// 브랜드 메뉴 분류 칩: 메뉴가 많은 분류부터. 같은 수면 이름순(화면이 실행마다 흔들리지 않게).

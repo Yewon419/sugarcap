@@ -232,38 +232,57 @@ final class CatalogIndexTests: XCTestCase {
         XCTAssertLessThan(decode + index, 5, "카탈로그 로드가 너무 느림: decode \(decode)s, index \(index)s")
     }
 
-    func testSearchKeepsBrandGridOrderWithinEachGroup() throws {
+    func testLatteSearchPutsCafeLatteAboveFlavoredLattes() throws {
+        let catalog = try CatalogStore.loadBundled(from: Bundle(for: Self.self))
+        let index = CatalogIndex(catalog: catalog)
+
+        // 2026-10-04: "라떼"에 딸기 콜드폼 딸기 라떼·편의점 "라떼는 말이야…"가 카페 라떼보다 먼저 왔다.
+        let hits = index.search("라떼")
+        let first = try XCTUnwrap(hits.first)
+        XCTAssertNotEqual(first.brandId, CatalogIndex.convenienceStoreID)
+        XCTAssertTrue(DrinkQuery.fold(first.name).hasSuffix("카페라떼"), "맨 위가 카페 라떼가 아님: \(first.name)")
+        XCTAssertFalse(hits.prefix(10).contains { $0.name.contains("딸기") }, "딸기라떼가 카페 라떼 묶음에 섞임")
+
+        let starbucks = index.drinks(brandID: "starbucks", matching: DrinkQuery("라떼"))
+        XCTAssertTrue(["카페 라떼", "아이스 카페 라떼"].contains(starbucks.first?.name ?? "-"), "브랜드 안 검색 맨 위: \(starbucks.first?.name ?? "-")")
+    }
+
+    func testSearchOrderFollowsRankThenCafeBeforeStoreThenBrandGrid() throws {
         let catalog = try CatalogStore.loadBundled(from: Bundle(for: Self.self))
         let index = CatalogIndex(catalog: catalog)
         let order = Dictionary(uniqueKeysWithValues: catalog.brands.enumerated().map { ($1.id, $0) })
 
-        // 이름 앞부분 일치 묶음과 나머지 묶음 각각 안에서 브랜드 격자 순서다(2026-10-01).
-        // 앞부분 일치가 먼저라 "라떼…"로 시작하는 편의점 제품이 "카페라떼"보다 위에 올 수 있다.
-        let query = DrinkQuery("라떼")
-        let hits = index.search("라떼", limit: 500)
-        XCTAssertFalse(hits.isEmpty)
-        let leading = hits.prefix { query.isPrefix(of: $0.searchKey) }
-        let others = hits.dropFirst(leading.count)
-        for group in [Array(leading), Array(others)] {
-            let ranks = group.map { order[$0.brandId] ?? -1 }
-            XCTAssertEqual(ranks, ranks.sorted(), "검색 결과가 묶음 안에서 브랜드 격자 순서가 아님")
+        for text in ["라떼", "아메리카노", "콜라", "커피"] {
+            let query = DrinkQuery(text)
+            let hits = index.search(text, limit: 5_000)
+            XCTAssertFalse(hits.isEmpty, text)
+            let keys = try hits.map { drink -> [Int] in
+                let rank = try XCTUnwrap(query.rank(drink.searchNames))
+                return [
+                    rank.isExact ? 0 : 1,
+                    drink.brandId == CatalogIndex.convenienceStoreID ? 1 : 0,
+                    rank.extraLength,
+                    rank.isPrefix ? 0 : 1,
+                    order[drink.brandId] ?? -1,
+                ]
+            }
+            XCTAssertEqual(keys, keys.sorted { $0.lexicographicallyPrecedes($1) }, "\(text) 검색 순서가 규칙과 다름")
         }
-        XCTAssertNotEqual(others.first?.brandId, "cvs", "앞부분 일치가 아닌 결과에서 편의점이 카페보다 먼저 옴")
     }
 
-    func testNamesStartingWithTheQueryComeFirst() throws {
-        let catalog = try CatalogStore.loadBundled(from: Bundle(for: Self.self))
-        let index = CatalogIndex(catalog: catalog)
-        let query = DrinkQuery("커피")
+    func testShorterNamesBeatPrefixMatches() throws {
+        let index = CatalogIndex(catalog: try CatalogStore.loadBundled(from: Bundle(for: Self.self)))
 
-        let found = index.drinks(brandID: "cvs", matching: query)
-        let starts = found.map { query.isPrefix(of: $0.searchKey) }
-        XCTAssertEqual(starts.first, true, "커피로 시작하는 제품이 맨 위가 아님: \(found.first?.name ?? "-")")
-        XCTAssertEqual(starts, starts.sorted { $0 && !$1 }, "앞부분 일치가 나머지보다 뒤에 섞임")
+        // 앞부분 일치를 길이보다 앞에 두면 콜라겐 제품이 코카콜라를 덮는다.
+        let hits = index.search("콜라", limit: 100).map(\.name)
+        let cola = try XCTUnwrap(hits.firstIndex(of: "코카콜라"), "코카콜라가 상위 100개에 없음")
+        XCTAssertLessThan(cola, 10, "코카콜라가 너무 아래: \(hits.prefix(cola + 1))")
 
-        let anywhere = index.search("라떼", limit: 5_000)
-        let leading = anywhere.prefix { DrinkQuery("라떼").isPrefix(of: $0.searchKey) }
-        XCTAssertFalse(anywhere.dropFirst(leading.count).contains { DrinkQuery("라떼").isPrefix(of: $0.searchKey) })
+        // 떼어 내는 앞말은 띄어 쓴 낱말만: "아이스크림"의 본체는 "크림"이 아니다.
+        XCTAssertEqual(DrinkSearchName("아이스크림 카페라떼").core, "아이스크림카페라떼")
+        XCTAssertEqual(DrinkSearchName("아이스 카페 라떼").core, "라떼")
+        XCTAssertEqual(DrinkSearchName("Caffe Latte").core, "latte")
+        XCTAssertEqual(DrinkSearchName("카페").core, "카페", "이름 전체를 떼지는 않는다")
     }
 
     func testConvenienceStoreSearchIgnoresSpaces() throws {

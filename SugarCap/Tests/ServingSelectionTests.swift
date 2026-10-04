@@ -32,6 +32,29 @@ final class ServingSelectionTests: XCTestCase {
         XCTAssertNil(entry.variantLabel)
     }
 
+    func testPrimarySideSplitsCaffeineDrinksFromSugarDrinks() {
+        XCTAssertEqual(CupSide.primary(sugarG: 8, caffeineMg: 75), .caffeine, "우유 당이 있는 카페라떼")
+        XCTAssertEqual(CupSide.primary(sugarG: 43, caffeineMg: 75), .caffeine, "카페인이 한 샷 이상이면 단 커피도 카페인")
+        XCTAssertEqual(CupSide.primary(sugarG: 41, caffeineMg: 0), .sugar, "딸기라떼")
+        XCTAssertEqual(CupSide.primary(sugarG: 0, caffeineMg: 25), .caffeine, "당 없는 차")
+        XCTAssertEqual(CupSide.primary(sugarG: 30, caffeineMg: 30), .sugar, "카페인이 적은 단 음료")
+        XCTAssertEqual(CupSide.primary(sugarG: 20, caffeineMg: nil), .sugar, "카페인 미공개는 당 음료")
+        XCTAssertEqual(CupSide.primary(sugarG: nil, caffeineMg: nil), .sugar)
+    }
+
+    func testIcedCafeLatteIsACaffeineDrinkAndStaysSoWhenQuantityChanges() throws {
+        let catalog = try catalog()
+        let latte = try firstDrink(in: catalog) { $0.brandId == "starbucks" && $0.name == "아이스 카페 라떼" }
+        let strawberry = try firstDrink(in: catalog) { $0.brandId == "mega" && $0.name == "딸기라떼" }
+
+        var selection = ServingSelection(drink: latte)
+        XCTAssertEqual(selection.primarySide, .caffeine)
+        selection.quantity = 9
+        XCTAssertEqual(selection.primarySide, .caffeine)
+        XCTAssertEqual(selection.amount(.caffeine), selection.caffeineMg)
+        XCTAssertEqual(ServingSelection(drink: strawberry).primarySide, .sugar)
+    }
+
     func testUndisclosedValuesStayNilAfterMultiplying() throws {
         let drink = try firstDrink(in: catalog()) { $0.servings[0].caffeineMg == nil }
 

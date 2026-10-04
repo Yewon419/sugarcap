@@ -2,7 +2,7 @@ import SwiftData
 import SwiftUI
 
 /// 영향 미리보기 패널(2026-09-26 HTML 프로토타입 확정, SPEC §4.2). 브랜드 메뉴와 기록 시트 검색에서 메뉴를 누르면 뜬다.
-/// 사이즈·원두 → "마시면 남는 당"(지금 → 마신 뒤, 컵 전후 사진) → 수량 + 추가.
+/// 사이즈·원두 → "마시면 남는 당/카페인"(지금 → 마신 뒤, 컵 전후 사진) → 수량 + 추가.
 /// 사이즈는 사이즈 선택 브랜드만, 원두는 더벤티만 나온다.
 struct ServingPanel: View {
     let brand: Brand
@@ -108,25 +108,30 @@ struct ServingPanel: View {
         }
     }
 
-    // MARK: - 마시면 남는 당
+    // MARK: - 마시면 남는 양
 
+    /// 음료의 대표 면(`ServingSelection.primarySide`)으로 보여 준다. 카페라떼는 카페인 컵, 딸기라떼는 당 컵.
     private var impact: some View {
-        let limit = limits.sugarG
-        let sugar = selection.sugarG
-        let beforeLeft = todayTotals.leftSugarG
-        let afterUsed = todayTotals.sugarG + (sugar ?? 0)
+        let side = selection.primarySide
+        let other = side.other
+        let limit = side.limit(limits)
+        let amount = selection.amount(side)
+        let beforeLeft = side.remaining(todayTotals)
+        let afterUsed = side.used(todayTotals) + (amount ?? 0)
         let afterLeft = max(0, limit - afterUsed)
         let afterOver = max(0, afterUsed - limit)
-        let caffeineAfter = max(0, limits.caffeineMg - todayTotals.caffeineMg - (selection.caffeineMg ?? 0))
+        let otherAfter = max(0, other.limit(limits) - other.used(todayTotals) - (selection.amount(other) ?? 0))
         let note: String = {
-            guard let sugar else { return "당 미공개 메뉴라 컵은 그대로예요" }
-            return afterOver > 0 ? "하루 기준을 \(Amount.number(afterOver)) g 넘겨요" : "이 잔은 당 \(Amount.number(sugar)) g"
+            guard let amount else { return "\(side.label) 미공개 메뉴라 컵은 그대로예요" }
+            return afterOver > 0
+                ? "하루 기준을 \(Amount.number(afterOver)) \(side.unit) 넘겨요"
+                : "이 잔은 \(side.label) \(Amount.number(amount)) \(side.unit)"
         }()
 
         return HStack(spacing: 12) {
-            ImpactCup(step: CupLevel.step(remaining: beforeLeft, limit: limit))
+            ImpactCup(side: side, step: CupLevel.step(remaining: beforeLeft, limit: limit))
             VStack(spacing: 4) {
-                Text("마시면 남는 당").kicker()
+                Text("마시면 남는 \(side.label)").kicker()
                 HStack(alignment: .firstTextBaseline, spacing: 0) {
                     Text(Amount.number(beforeLeft))
                     Text("→")
@@ -134,7 +139,7 @@ struct ServingPanel: View {
                         .foregroundStyle(.secondary)
                         .padding(.horizontal, 6)
                     Text(Amount.number(afterLeft))
-                    Text("g")
+                    Text(side.unit)
                         .font(AppFont.pretendard(15, .medium, relativeTo: .subheadline))
                         .padding(.leading, 2)
                 }
@@ -146,13 +151,13 @@ struct ServingPanel: View {
                 .contentTransition(.numericText())
                 .animation(.snappy, value: afterLeft)
                 Text(note)
-                Text("카페인은 \(Amount.number(caffeineAfter)) mg 남아요")
+                Text("\(other.label)은 \(Amount.number(otherAfter)) \(other.unit) 남아요")
             }
             .font(AppFont.pretendard(12, .regular, relativeTo: .caption))
             .foregroundStyle(.secondary)
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity)
-            ImpactCup(step: CupLevel.step(remaining: afterLeft, limit: limit))
+            ImpactCup(side: side, step: CupLevel.step(remaining: afterLeft, limit: limit))
         }
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier("serving-impact")
@@ -167,12 +172,13 @@ struct ServingPanel: View {
     }
 }
 
-/// 당 컵 한 장(패널 좌우). 오늘 화면과 같은 사진을 작게, 바닥 기준으로 자른다.
+/// 컵 한 장(패널 좌우). 오늘 화면과 같은 사진을 작게, 바닥 기준으로 자른다.
 private struct ImpactCup: View {
+    let side: CupSide
     let step: Int
 
     var body: some View {
-        CupCrop(asset: CupLevel.cutoutName(setID: CupSide.sugar.cupSetID, step: step))
+        CupCrop(asset: CupLevel.cutoutName(setID: side.cupSetID, step: step))
             .padding(.vertical, 6)
             .frame(width: 74, height: 110)
             .background(Color.wall, in: RoundedRectangle(cornerRadius: 14, style: .continuous))

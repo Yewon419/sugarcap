@@ -58,7 +58,8 @@ extension DrinkLine where Leading == EmptyView, Trailing == EmptyView {
     }
 }
 
-/// 당은 크게, 카페인은 작게. nil은 "미공개"(0으로 적지 않는다, SPEC §9.2).
+/// 음료의 대표 면(`CupSide.primary`)은 크게, 다른 면은 작게. 카페라떼는 카페인이, 딸기라떼는 당이 크다.
+/// nil은 "미공개"(0으로 적지 않는다, SPEC §9.2).
 struct DrinkFigure: View {
     let sugarG: Double?
     let caffeineMg: Double?
@@ -68,14 +69,22 @@ struct DrinkFigure: View {
         DrinkFigure(sugarG: sugarG, caffeineMg: caffeineMg, alignment: value)
     }
 
+    private func amount(_ side: CupSide) -> Double? {
+        switch side {
+        case .sugar: return sugarG
+        case .caffeine: return caffeineMg
+        }
+    }
+
     var body: some View {
+        let primary = CupSide.primary(sugarG: sugarG, caffeineMg: caffeineMg)
         VStack(alignment: alignment, spacing: 2) {
-            if let sugarG {
+            if let value = amount(primary) {
                 HStack(alignment: .firstTextBaseline, spacing: 1) {
-                    Text(Amount.number(sugarG))
+                    Text(Amount.number(value))
                         .font(AppFont.pretendard(22, .bold, relativeTo: .title2))
                         .tracking(-0.6)
-                    Text(CupSide.sugar.unit)
+                    Text(primary.unit)
                         .font(AppFont.pretendard(13, .medium, relativeTo: .footnote))
                 }
                 .monospacedDigit()
@@ -84,7 +93,7 @@ struct DrinkFigure: View {
                     .font(AppFont.pretendard(13, .regular, relativeTo: .footnote))
                     .foregroundStyle(.secondary)
             }
-            Text("카페인 \(Amount.text(caffeineMg, unit: CupSide.caffeine.unit))")
+            Text("\(primary.other.label) \(Amount.text(amount(primary.other), unit: primary.other.unit))")
                 .font(AppFont.pretendard(12, .regular, relativeTo: .caption))
                 .monospacedDigit()
                 .foregroundStyle(.secondary)

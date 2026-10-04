@@ -37,6 +37,18 @@ struct ServingSelection: Equatable {
         (variant?.caffeineMg ?? serving.caffeineMg).map { $0 * Double(quantity) }
     }
 
+    func amount(_ side: CupSide) -> Double? {
+        switch side {
+        case .sugar: return sugarG
+        case .caffeine: return caffeineMg
+        }
+    }
+
+    /// 한 잔 값으로 가른다. 수량을 곱해서 가르면 잔 수를 바꿀 때 패널이 당↔카페인으로 뒤집힌다.
+    var primarySide: CupSide {
+        CupSide.primary(sugarG: serving.sugarG, caffeineMg: variant?.caffeineMg ?? serving.caffeineMg)
+    }
+
     func makeEntry(brandName: String, at date: Date) -> Entry {
         Entry(
             servingID: serving.id,
@@ -70,6 +82,10 @@ extension Drink {
     var searchKey: String {
         [name, nameEn].compactMap { $0 }.map(DrinkQuery.fold).joined(separator: "\n")
     }
+
+    var searchNames: [DrinkSearchName] {
+        [name, nameEn].compactMap { $0 }.map(DrinkSearchName.init)
+    }
 }
 
 /// 메뉴 검색어. 이름과 영문명에서 부분 일치, 대소문자·띄어쓰기 무시(prototype.html:335).
@@ -88,12 +104,58 @@ struct DrinkQuery {
         needle.isEmpty || searchKey.contains(needle)
     }
 
-    /// 이름이나 영문명이 검색어로 시작하는지. 검색 키는 두 이름을 줄바꿈으로 이어 둔 것이다.
-    func isPrefix(of searchKey: String) -> Bool {
-        !needle.isEmpty && (searchKey.hasPrefix(needle) || searchKey.contains("\n" + needle))
+    /// 검색 순위. 이름과 영문명 중 더 나은 쪽. 일치하지 않으면 nil.
+    func rank(_ names: [DrinkSearchName]) -> DrinkSearchRank? {
+        guard !needle.isEmpty else { return nil }
+        return names.compactMap { rank(name: $0) }.min()
+    }
+
+    private func rank(name: DrinkSearchName) -> DrinkSearchRank? {
+        guard name.folded.contains(needle) else { return nil }
+        let isExact = name.core == needle || name.core == "카페" + needle
+        // 검색어가 떼어 낸 앞말에만 걸리면("아이스") 본체 대신 전체 이름 길이로 잰다.
+        let body = name.core.contains(needle) ? name.core : name.folded
+        return DrinkSearchRank(
+            isExact: isExact,
+            extraLength: isExact ? 0 : body.count - needle.count,
+            isPrefix: name.core.hasPrefix(needle) || name.folded.hasPrefix(needle)
+        )
     }
 
     static func fold(_ text: String) -> String {
         String(text.lowercased().unicodeScalars.filter { !CharacterSet.whitespacesAndNewlines.contains($0) })
+    }
+}
+
+/// 검색 순위를 매길 이름 하나. 맨 앞의 온도·"카페" 낱말을 뗀 본체(`core`)를 같이 들고 있다.
+/// "아이스 카페 라떼"·"카페라떼"의 본체는 "라떼"라서 "라떼" 검색의 맨 위에 온다.
+struct DrinkSearchName {
+    let folded: String
+    let core: String
+
+    /// 띄어 쓴 낱말 단위로만 뗀다. 붙여 쓴 이름까지 떼면 "아이스크림"이 "크림", "핫식스"가 "식스"가 된다.
+    static let leadingWords: Set<String> = ["아이스", "핫", "카페", "iced", "hot", "caffe", "cafe", "café"]
+
+    init(_ name: String) {
+        folded = DrinkQuery.fold(name)
+        var words = name.lowercased().split(whereSeparator: \.isWhitespace).map(String.init)
+        while words.count > 1, let first = words.first, Self.leadingWords.contains(first) {
+            words.removeFirst()
+        }
+        core = words.joined()
+    }
+}
+
+/// 작을수록 위. 본체가 검색어와 같은 이름 → 검색어 밖 글자가 적은 이름 → 검색어로 시작하는 이름 순
+/// (2026-10-04, "라떼"에 딸기 콜드폼 딸기 라떼가 카페 라떼보다 먼저 오던 문제).
+/// 앞부분 일치를 길이보다 앞에 두면 "콜라"에 콜라겐 제품이 코카콜라보다 먼저 온다.
+struct DrinkSearchRank: Comparable {
+    let isExact: Bool
+    let extraLength: Int
+    let isPrefix: Bool
+
+    static func < (lhs: DrinkSearchRank, rhs: DrinkSearchRank) -> Bool {
+        (lhs.isExact ? 0 : 1, lhs.extraLength, lhs.isPrefix ? 0 : 1)
+            < (rhs.isExact ? 0 : 1, rhs.extraLength, rhs.isPrefix ? 0 : 1)
     }
 }

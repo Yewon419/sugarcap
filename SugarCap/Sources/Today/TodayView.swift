@@ -36,6 +36,9 @@ struct TodayView: View {
     @State private var isGateRehearsal = false
     /// 설정 테스트 카드에서 고른 일. 시트가 다 닫힌 뒤 실행한다.
     @State private var pendingTestAction: SettingsTestAction?
+    /// 이번 실행에서 실제로 먹였는지. 먹이기 화면이 닫히면 첫 마감 뒤 알림을 한 번 묻는 데 쓴다.
+    @State private var didFeed = false
+    @State private var asksReminder = false
     /// "어젯밤 이후 마신 만큼 빠졌어요"를 X로 닫은 날. 그날엔 다시 띄우지 않는다.
     @AppStorage("dismissedShrankNoticeDay") private var dismissedShrankDay = ""
     /// 지난 마감분이 방금 확정됐을 때만 채운다. 이번 실행 동안만 보인다.
@@ -151,7 +154,7 @@ struct TodayView: View {
                 onDelete: delete
             )
         }
-        .fullScreenCover(item: $feeding) { presentation in
+        .fullScreenCover(item: $feeding, onDismiss: askReminderAfterFirstFeed) { presentation in
             let request = presentation.request
             FeedingView(
                 request: request, opening: presentation.opening, catalog: catalog, snapshot: presentation.snapshot,
@@ -178,6 +181,16 @@ struct TodayView: View {
             )
         ) {
             Button("확인", role: .cancel) {}
+        }
+        .alert("내일도 이 시간에 알려 줄까요?", isPresented: $asksReminder) {
+            Button("알려 줘요") {
+                Task { _ = await CloseReminder.enable(closeFromHour: closeFromHour) }
+            }
+            .accessibilityIdentifier("reminder-yes")
+            Button("괜찮아요", role: .cancel) {}
+                .accessibilityIdentifier("reminder-no")
+        } message: {
+            Text("매일 \(HourChoices.label(closeFromHour))에 오늘 마감이 열리면 알려 줘요. 설정에서 언제든 끌 수 있어요.")
         }
         // 기록할 때만 햅틱 1회(§4.1). 삭제로 줄어들 때는 울리지 않는다.
         .sensoryFeedback(.success, trigger: entries.count) { old, new in new > old }
@@ -332,6 +345,7 @@ struct TodayView: View {
         .fullScreenCover(item: $gate, onDismiss: {
             isGateRehearsal = false
             presentGateIfPending()
+            if gate == nil { askReminderAfterFirstFeed() }
         }) { gate in
             YesterdayGateView(
                 gate: gate,
@@ -673,7 +687,18 @@ struct TodayView: View {
             prompt = nil
         }
         try context.save()
+        didFeed = true
         return results
+    }
+
+    /// 첫 마감(먹이기)을 마친 뒤 한 번만 마감 알림을 묻는다(2026-10-05 대표님). 테스트 카드 먹이기는 세지 않는다.
+    private func askReminderAfterFirstFeed() {
+        guard didFeed else { return }
+        didFeed = false
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: CloseReminder.askedKey), !defaults.bool(forKey: CloseReminder.enabledKey) else { return }
+        defaults.set(true, forKey: CloseReminder.askedKey)
+        asksReminder = true
     }
 
     /// 정산 화면에서 음료를 더 기록하고(§4.7), 그날 남은 양으로 요청을 다시 만든다.
@@ -746,6 +771,7 @@ struct TodayView: View {
         case .firstRun:
             // 루트가 완료 플래그를 지켜보다 온보딩으로 바꾼다. 기록·정산·호감도는 그대로다.
             UserDefaults.standard.removeObject(forKey: CompanionIntro.seenKey)
+            UserDefaults.standard.removeObject(forKey: CloseReminder.askedKey)
             UserDefaults.standard.set(false, forKey: OnboardingView.completedKey)
         }
     }

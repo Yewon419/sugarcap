@@ -58,6 +58,7 @@ private struct SettingsContent: View {
     @State private var alertMessage: String?
     @State private var isTestBuild = false
     @State private var confirmsFirstRun = false
+    @AppStorage(CloseReminder.enabledKey) private var isReminderOn = false
 
     @Query private var affinities: [Affinity]
     @Environment(\.modelContext) private var context
@@ -72,6 +73,14 @@ private struct SettingsContent: View {
                 hourPicker("오늘 마감을 여는 시각", selection: $settings.closeFromHour, choices: HourChoices.closeFrom)
             } footer: {
                 Text("하루가 바뀌는 시각 전에 마신 음료는 전날 몫으로 들어가요.")
+            }
+
+            Section {
+                Toggle("마감 알림", isOn: Binding(get: { isReminderOn }, set: setReminder))
+                    .rowText()
+                    .accessibilityIdentifier("close-reminder")
+            } footer: {
+                Text("매일 \(HourChoices.label(settings.closeFromHour))에 오늘 마감이 열리면 알려 줘요.")
             }
 
             Section {
@@ -119,7 +128,13 @@ private struct SettingsContent: View {
         }
         .scrollContentBackground(.hidden)
         .background(Color.wall.ignoresSafeArea())
-        .task { isTestBuild = await TestBuild.isActive() }
+        .task {
+            await CloseReminder.refresh(closeFromHour: settings.closeFromHour)
+            isTestBuild = await TestBuild.isActive()
+        }
+        .onChange(of: settings.closeFromHour) { _, hour in
+            Task { await CloseReminder.refresh(closeFromHour: hour) }
+        }
         .confirmationDialog("첫 실행으로 되돌릴까요?", isPresented: $confirmsFirstRun, titleVisibility: .visible) {
             Button("되돌리기", role: .destructive) { onTestAction(.firstRun) }
                 .accessibilityIdentifier("confirm-first-run")
@@ -142,6 +157,20 @@ private struct SettingsContent: View {
                 onStart: { showsOnboarding = false },
                 onClose: { showsOnboarding = false }
             )
+        }
+    }
+
+    /// 켜면 권한부터 묻는다. 거절돼 있으면 스위치는 꺼진 채로 iOS 설정을 안내한다.
+    private func setReminder(_ on: Bool) {
+        guard on else {
+            CloseReminder.disable()
+            return
+        }
+        Task {
+            let granted = await CloseReminder.enable(closeFromHour: settings.closeFromHour)
+            if !granted {
+                alertMessage = "iOS 설정 > 슈가캡 > 알림에서 알림을 허용해 주세요."
+            }
         }
     }
 

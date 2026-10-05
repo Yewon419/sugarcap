@@ -2,27 +2,26 @@ import OSLog
 import SwiftData
 import SwiftUI
 
-/// 탭 식별자. 탭 간 슬라이드 없음, 각 탭이 자기 스택을 가진다(SPEC §4).
+/// 시작 화면. 하단 탭은 없다(2026-10-05 대표님): 오늘이 집이고, 추이는 오늘 위로 밀어 넣고, 설정은 시트로 연다.
 enum AppTab: String {
     case today
     case trends
     case settings
 
-    /// CI 스크린샷이 `simctl launch … -initialTab settings`로 시작 탭을 고른다.
-    /// 실행 인자 도메인이라 저장되지 않는다. 인자가 없으면 오늘 탭이다.
+    /// CI 스크린샷이 `simctl launch … -initialTab settings`로 시작 화면을 고른다(추이는 밀어 넣은 채, 설정은 시트를 연 채).
+    /// 실행 인자 도메인이라 저장되지 않는다. 인자가 없으면 오늘이다.
     static var initial: AppTab {
         UserDefaults.standard.string(forKey: "initialTab").flatMap(AppTab.init(rawValue:)) ?? .today
     }
 }
 
-/// 앱 루트. 온보딩을 마치기 전에는 온보딩만, 마친 뒤에는 탭만 그린다.
+/// 앱 루트. 온보딩을 마치기 전에는 온보딩만, 마친 뒤에는 오늘 화면만 그린다.
 /// 온보딩은 스택에 쌓지 않고 통째로 갈아 끼우므로 뒤로 돌아갈 수 없다(§4.5).
 struct RootView: View {
     let catalog: Result<CatalogIndex, any Error>
 
     @Environment(\.modelContext) private var context
     @AppStorage(OnboardingView.completedKey) private var onboardingCompleted = false
-    @State private var tab = AppTab.initial
     @State private var pro = ProStore.make()
 
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "root")
@@ -32,7 +31,7 @@ struct RootView: View {
             switch catalog {
             case .success(let index):
                 if onboardingCompleted {
-                    tabs(index)
+                    TodayView(catalog: index)
                 } else {
                     OnboardingView(brands: index.catalog.brands) {
                         withAnimation(.easeOut(duration: 0.25)) { onboardingCompleted = true }
@@ -55,21 +54,7 @@ struct RootView: View {
         }
     }
 
-    private func tabs(_ index: CatalogIndex) -> some View {
-        TabView(selection: $tab) {
-            TodayView(catalog: index)
-                .tabItem { Label("오늘", systemImage: "cup.and.saucer") }
-                .tag(AppTab.today)
-            TrendsView(catalog: index)
-                .tabItem { Label("추이", systemImage: "chart.bar") }
-                .tag(AppTab.trends)
-            SettingsView(catalog: index.catalog)
-                .tabItem { Label("설정", systemImage: "gearshape") }
-                .tag(AppTab.settings)
-        }
-    }
-
-    /// 스토어 스크린샷용 데모 기록(Debug 빌드만). 어느 탭으로 시작하든 돌아야 해서 루트에 둔다.
+    /// 스토어 스크린샷용 데모 기록(Debug 빌드만). 어느 화면으로 시작하든 돌아야 해서 루트에 둔다.
     private func seedDemoIfRequested() {
         #if DEBUG
         guard DemoData.isRequested else { return }
@@ -82,7 +67,7 @@ struct RootView: View {
         #endif
     }
 
-    /// 설정 행은 앱 전체에서 하나다. 오늘·설정 탭 둘 다 읽으므로 루트에서 한 번 만든다.
+    /// 설정 행은 앱 전체에서 하나다. 오늘·설정 둘 다 읽으므로 루트에서 한 번 만든다.
     private func ensureSettings() {
         do {
             _ = try AppSettings.current(in: context)

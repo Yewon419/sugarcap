@@ -2,7 +2,7 @@ import OSLog
 import SwiftData
 import SwiftUI
 
-/// 설정 탭(SPEC §4.4). 2026-09-26 HTML 프로토타입 확정 = 추이 캐주얼과 같은 문법(흰 유리 카드, 큰 숫자, 방울·캐릭터).
+/// 설정(SPEC §4.4). 오늘 화면 모서리 버튼으로 여는 시트다(2026-10-05 하단 탭 제거). 2026-09-26 HTML 프로토타입 확정 = 추이 캐주얼과 같은 문법(흰 유리 카드, 큰 숫자, 방울·캐릭터).
 /// 하루 기준 → 조금씩 줄이기 → 시간 → Pro → 기타. 조작 컨트롤(프리셋·슬라이더·시각 메뉴·확인 창)은 네이티브 그대로다.
 struct SettingsView: View {
     let catalog: Catalog
@@ -10,6 +10,7 @@ struct SettingsView: View {
     @Query private var settingsRows: [AppSettings]
     @Query private var goals: [ReductionGoal]
     @Environment(\.modelContext) private var context
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
@@ -21,7 +22,14 @@ struct SettingsView: View {
                     ProgressView()
                 }
             }
-            .toolbar(.hidden, for: .navigationBar)
+            .navigationTitle("설정")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("닫기") { dismiss() }
+                        .accessibilityIdentifier("settings-close")
+                }
+            }
         }
     }
 }
@@ -75,11 +83,6 @@ private struct SettingsContent: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
-                Text("설정")
-                    .dateLabel()
-                    .padding(.top, 8)
-                    .padding(.horizontal, 4)
-
                 limitsCard
                 goalsCard
                 timeCard
@@ -99,7 +102,8 @@ private struct SettingsContent: View {
                 .padding(.top, 4)
             }
             .padding(.horizontal, 16)
-            .padding(.bottom, 110)
+            .padding(.top, 8)
+            .padding(.bottom, 32)
         }
         .background(Color.wall.ignoresSafeArea())
         .sheet(item: $paywall, onDismiss: {

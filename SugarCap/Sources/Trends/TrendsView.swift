@@ -43,7 +43,7 @@ struct TrendsView: View {
                     } else {
                         weekContent(today: today)
                     }
-                    Color.clear.frame(height: 110)
+                    Color.clear.frame(height: 32)
                 }
             }
             .background(background)

@@ -101,17 +101,17 @@ extension RecordFlowUITests {
         XCTAssertTrue(summary.waitForExistence(timeout: 15))
         XCTAssertTrue(summary.label.contains("/ 50 g"), "기본 당 기준이 50 g이 아님: \(summary.label)")
 
-        app.tabBars.buttons["설정"].tap()
+        app.buttons["open-settings"].tap()
         let preset100 = app.buttons["100 g"]
         XCTAssertTrue(preset100.waitForExistence(timeout: 5), "당 프리셋이 안 보임:\n\(app.debugDescription)")
         preset100.tap()
 
-        app.tabBars.buttons["오늘"].tap()
+        app.buttons["settings-close"].tap()
         XCTAssertTrue(summary.waitForExistence(timeout: 5))
         XCTAssertTrue(summary.label.contains("/ 100 g"), "프리셋 변경이 오늘 화면에 안 반영됨: \(summary.label)")
 
         // 되돌리기도 확인한다. 확인 없이 탭만 하면 실패해도 통과하고, 스크린샷이 100 g 상태로 찍힌다.
-        app.tabBars.buttons["설정"].tap()
+        app.buttons["open-settings"].tap()
         let preset50 = app.buttons["50 g"]
         XCTAssertTrue(preset50.waitForExistence(timeout: 5))
         preset50.tap()
@@ -119,7 +119,7 @@ extension RecordFlowUITests {
         expectation(for: restored, evaluatedWith: preset50)
         waitForExpectations(timeout: 5)
 
-        app.tabBars.buttons["오늘"].tap()
+        app.buttons["settings-close"].tap()
         XCTAssertTrue(summary.waitForExistence(timeout: 5))
         XCTAssertTrue(summary.label.contains("/ 50 g"), "기본값으로 안 돌아옴: \(summary.label)")
     }
@@ -136,7 +136,7 @@ extension RecordFlowUITests {
         app.launch()
 
         completeOnboardingIfPresented(app)
-        app.tabBars.buttons["설정"].tap()
+        app.buttons["open-settings"].tap()
 
         let startGoal = app.buttons["start-goal-sugar"]
         XCTAssertTrue(startGoal.waitForExistence(timeout: 10))
@@ -199,7 +199,7 @@ extension RecordFlowUITests {
         app.launch()
 
         completeOnboardingIfPresented(app)
-        app.tabBars.buttons["설정"].tap()
+        app.buttons["open-settings"].tap()
 
         let replay = app.buttons["replay-onboarding"]
         Driver(app: app).tap(replay)
@@ -227,7 +227,22 @@ extension RecordFlowUITests {
         XCTAssertEqual(finish.label, "완료")
         finish.tap()
         XCTAssertTrue(replay.waitForExistence(timeout: 5), "완료 후 설정으로 돌아와야 한다")
-        XCTAssertTrue(app.tabBars.buttons["설정"].isSelected, "다시 보기는 온보딩 완료 상태를 건드리지 않는다")
+        XCTAssertTrue(app.buttons["settings-close"].exists, "다시 보기는 온보딩 완료 상태를 건드리지 않는다(설정 시트가 그대로 남는다)")
+    }
+
+    /// 하단 탭은 없다. 추이는 오늘 위로 밀어 넣고, 뒤로 가면 오늘로 돌아온다(2026-10-05).
+    @MainActor
+    func testOpenTrendsAndGoBack() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launch()
+
+        completeOnboardingIfPresented(app)
+        app.buttons["open-trends"].tap()
+        XCTAssertTrue(app.descendants(matching: .any)["trend-range"].waitForExistence(timeout: 5), "추이가 안 열림")
+
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.descendants(matching: .any)["cup-summary"].waitForExistence(timeout: 5), "뒤로 가기로 오늘에 안 돌아옴")
     }
 
     /// 컵 넘기기를 천천히 끌어 플로우 녹화에 남긴다. 캐릭터가 컵과 한 몸으로 밀리는지 영상 프레임으로 본다

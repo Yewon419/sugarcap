@@ -18,8 +18,11 @@ struct TodayView: View {
     @State private var dragX: CGFloat = 0
     /// 컵을 넘기는 중(끄는 중 + 놓은 뒤 제자리로 붙는 중). 이 동안 캐릭터 움직임을 멈춰 컵과 한 몸으로 밀리게 한다.
     @State private var isSliding = false
-    /// 오늘 화면이 보이는지. 다른 탭·다른 화면으로 가면 캐릭터를 멈춘다(탭 뒤에서도 매 프레임 그리면 앱 전체가 무거워진다).
+    /// 오늘 화면이 보이는지. 다른 화면으로 가면 캐릭터를 멈춘다(뒤에서도 매 프레임 그리면 앱 전체가 무거워진다).
     @State private var isOnScreen = false
+    /// 하단 탭 대신 모서리 버튼으로 연다(2026-10-05). 추이는 밀어 넣고, 설정은 시트.
+    @State private var isTrendsPresented = AppTab.initial == .trends
+    @State private var isSettingsPresented = AppTab.initial == .settings
     @State private var path: [String] = []
     @State private var isManualEntryPresented = false
     /// 먹이기 요청 + 여는 방식을 한 덩어리로 둔다. 따로 두면 전체 화면이 뜨기 전 값을 붙잡아
@@ -81,6 +84,14 @@ struct TodayView: View {
                     )
                 }
             }
+            .navigationDestination(isPresented: $isTrendsPresented) {
+                TrendsView(catalog: catalog)
+                    .navigationTitle("")
+                    .navigationBarTitleDisplayMode(.inline)
+            }
+        }
+        .sheet(isPresented: $isSettingsPresented) {
+            SettingsView(catalog: catalog.catalog)
         }
         .overlay(alignment: .bottom) {
             if let undoToast {
@@ -175,7 +186,7 @@ struct TodayView: View {
                     CupView(
                         step: step, setID: cupSide.cupSetID,
                         idle: IdleCharacterLayer(
-                            side: cupSide, step: step, isActive: cupSide == side && !isSliding && isOnScreen,
+                            side: cupSide, step: step, isActive: cupSide == side && !isSliding && isOnScreen && !isSettingsPresented,
                             unlockedLevel: unlockedLevel(cupSide)
                         )
                     )
@@ -281,7 +292,7 @@ struct TodayView: View {
             )
         }
         .overlay(alignment: .bottom) { bottomControls(now: now, today: today, totals: totals) }
-        .overlay(alignment: .topTrailing) { affinityButton }
+        .overlay(alignment: .topTrailing) { cornerButtons }
         .onAppear { isOnScreen = true }
         .onDisappear { isOnScreen = false }
         // 하루가 바뀔 때마다(앱을 켠 날마다) 정산을 한 번 돈다(§4.7).
@@ -349,6 +360,30 @@ struct TodayView: View {
         .accessibilityHint("눌러서 오늘 기록을 봐요. 위아래로 쓸어 당과 카페인 컵을 오가요")
     }
 
+    /// 추이 · 설정 · 호감도. 셋 다 같은 36pt 옅은 원이다.
+    private var cornerButtons: some View {
+        HStack(spacing: 0) {
+            Button { isTrendsPresented = true } label: { cornerCircle(NavGlyphView(glyph: .trends)) }
+                .accessibilityLabel("추이")
+                .accessibilityIdentifier("open-trends")
+            Button { isSettingsPresented = true } label: { cornerCircle(NavGlyphView(glyph: .settings)) }
+                .accessibilityLabel("설정")
+                .accessibilityIdentifier("open-settings")
+            affinityButton
+        }
+        .padding(.trailing, 16)
+        .padding(.top, 2)
+    }
+
+    /// 보이는 원은 36pt 그대로, 누르는 영역만 44pt.
+    private func cornerCircle(_ icon: some View) -> some View {
+        icon
+            .foregroundStyle(.primary.opacity(0.7))
+            .frame(width: 36, height: 36)
+            .background(.white.opacity(0.22), in: Circle())
+            .tapTarget()
+    }
+
     private var affinityButton: some View {
         Button {
             // 무료는 페이월, Pro는 호감도 화면(§4.8).
@@ -359,16 +394,8 @@ struct TodayView: View {
                 paywall = .affinityDetail
             }
         } label: {
-            // 보이는 원은 36pt 그대로, 누르는 영역만 44pt.
-            Image(systemName: "heart")
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(.primary.opacity(0.7))
-                .frame(width: 36, height: 36)
-                .background(.white.opacity(0.22), in: Circle())
-                .tapTarget()
+            cornerCircle(Image(systemName: "heart").font(.system(size: 15, weight: .semibold)))
         }
-        .padding(.trailing, 16)
-        .padding(.top, 2)
         .accessibilityLabel("호감도")
         .accessibilityIdentifier("affinity")
     }

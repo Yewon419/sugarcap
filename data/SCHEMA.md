@@ -34,7 +34,7 @@ cd tools\scrape
 | `id` | string | `starbucks` `mega` `compose` `ediya` `paik` `twosome` `hollys` `theventi` `gongcha` `cvs` |
 | `name` | string | 한국어 표시명 |
 | `serving_note` | string | 이 브랜드 수치가 어느 잔 기준인지 한 줄. 상세 화면에 그대로 노출 |
-| `has_size_choice` | bool | true면 사이즈 선택 UI를 켠다. 현재 `ediya`, `twosome`, `cvs`만 true |
+| `has_size_choice` | bool | true면 사이즈 선택 UI를 켠다. 현재 `ediya`, `twosome`, `gongcha`, `cvs`만 true |
 
 `has_size_choice`가 false인 브랜드의 drink는 serving이 정확히 1개다(검증이 강제).
 

@@ -1,6 +1,6 @@
 {
  "schema_version": 1,
- "built_at": "2026-10-01T05:19:35+00:00",
+ "built_at": "2026-10-05T05:59:43+00:00",
  "brands": [
   {
    "id": "starbucks",
@@ -49,6 +49,12 @@
    "name": "더벤티",
    "serving_note": "더벤티가 영양성분 기준으로 밝힌 사이즈(대부분 라지 600ml) 기준입니다.",
    "has_size_choice": false
+  },
+  {
+   "id": "gongcha",
+   "name": "공차",
+   "serving_note": "사이즈별 컵용량 기준. 공차 공식 영양정보 게시값이며, 당류는 기본 레시피(당도 0%, 스무디는 고정 당도) 기준입니다. 당도를 올리면 당이 더 많아요.",
+   "has_size_choice": true
   },
   {
    "id": "cvs",
@@ -338929,6 +338935,3909 @@
      "volume_ml": 670,
      "sugar_g": 79.0,
      "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:공차슈페너-drip:iced",
+   "brand_id": "gongcha",
+   "name": "공차슈페너 (DRIP)",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "gongcha:공차슈페너-drip:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 1.0,
+     "caffeine_mg": 250.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:공차슈페너-esp:iced",
+   "brand_id": "gongcha",
+   "name": "공차슈페너 (ESP)",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "gongcha:공차슈페너-esp:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 1.0,
+     "caffeine_mg": 178.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:납작복숭아-아이스티-블랙-+-미니펄:iced",
+   "brand_id": "gongcha",
+   "name": "납작복숭아 아이스티 블랙 + 미니펄",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#F7A57A",
+   "servings": [
+    {
+     "id": "gongcha:납작복숭아-아이스티-블랙-+-미니펄:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 7.0,
+     "caffeine_mg": 96.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:납작복숭아-아이스티-얼그레이-+-미니펄:iced",
+   "brand_id": "gongcha",
+   "name": "납작복숭아 아이스티 얼그레이 + 미니펄",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#F7A57A",
+   "servings": [
+    {
+     "id": "gongcha:납작복숭아-아이스티-얼그레이-+-미니펄:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 7.0,
+     "caffeine_mg": 122.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:납작복숭아-아이스티-얼그레이-+-샷-drip:iced",
+   "brand_id": "gongcha",
+   "name": "납작복숭아 아이스티 얼그레이 + 샷 (DRIP)",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#F7A57A",
+   "servings": [
+    {
+     "id": "gongcha:납작복숭아-아이스티-얼그레이-+-샷-drip:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 0.0,
+     "caffeine_mg": 268.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:납작복숭아-아이스티-얼그레이-+-샷-esp:iced",
+   "brand_id": "gongcha",
+   "name": "납작복숭아 아이스티 얼그레이 + 샷 (ESP)",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#F7A57A",
+   "servings": [
+    {
+     "id": "gongcha:납작복숭아-아이스티-얼그레이-+-샷-esp:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 0.0,
+     "caffeine_mg": 251.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:대만식-수박-빙수-밀크:iced",
+   "brand_id": "gongcha",
+   "name": "대만식 수박 빙수 밀크",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#E5413A",
+   "servings": [
+    {
+     "id": "gongcha:대만식-수박-빙수-밀크:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 48.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:더블-말차-밀크티:hot",
+   "brand_id": "gongcha",
+   "name": "더블 말차 밀크티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "hot",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "gongcha:더블-말차-밀크티:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 39.0,
+     "caffeine_mg": 174.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:더블-말차-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "더블 말차 밀크티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "gongcha:더블-말차-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 43.0,
+     "caffeine_mg": 174.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:더블-말차-밀크티-+-펄:hot",
+   "brand_id": "gongcha",
+   "name": "더블 말차 밀크티 + 펄",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "hot",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "gongcha:더블-말차-밀크티-+-펄:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 41.0,
+     "caffeine_mg": 174.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:더블-말차-밀크티-+-펄:iced",
+   "brand_id": "gongcha",
+   "name": "더블 말차 밀크티 + 펄",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "gongcha:더블-말차-밀크티-+-펄:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 51.0,
+     "caffeine_mg": 201.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:딸기-쥬얼리-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "딸기 쥬얼리 밀크티",
+   "name_en": null,
+   "category": "베스트셀러",
+   "temperature": "iced",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "gongcha:딸기-쥬얼리-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 26.0,
+     "caffeine_mg": 29.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:딸기-쥬얼리-시그니처-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "딸기 쥬얼리 시그니처 밀크티",
+   "name_en": null,
+   "category": "베스트셀러",
+   "temperature": "iced",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "gongcha:딸기-쥬얼리-시그니처-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 38.0,
+     "caffeine_mg": 146.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:딸기-쥬얼리-요구르트-크러쉬:iced",
+   "brand_id": "gongcha",
+   "name": "딸기 쥬얼리 요구르트 크러쉬",
+   "name_en": null,
+   "category": "스무디",
+   "temperature": "iced",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "gongcha:딸기-쥬얼리-요구르트-크러쉬:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 56.0,
+     "caffeine_mg": 29.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:딸기-쿠키-스무디:iced",
+   "brand_id": "gongcha",
+   "name": "딸기 쿠키 스무디",
+   "name_en": null,
+   "category": "스무디",
+   "temperature": "iced",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "gongcha:딸기-쿠키-스무디:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 56.0,
+     "caffeine_mg": 49.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:딸기-쿠키-스무디-+-펄:iced",
+   "brand_id": "gongcha",
+   "name": "딸기 쿠키 스무디 + 펄",
+   "name_en": null,
+   "category": "베스트셀러",
+   "temperature": "iced",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "gongcha:딸기-쿠키-스무디-+-펄:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 58.0,
+     "caffeine_mg": 49.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:레몬-요구르트:iced",
+   "brand_id": "gongcha",
+   "name": "레몬 요구르트",
+   "name_en": null,
+   "category": "프룻티&모어",
+   "temperature": "iced",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "gongcha:레몬-요구르트:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 44.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:레몬-요구르트:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 56.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:레몬-요구르트-스무디:iced",
+   "brand_id": "gongcha",
+   "name": "레몬 요구르트 스무디",
+   "name_en": null,
+   "category": "스무디",
+   "temperature": "iced",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "gongcha:레몬-요구르트-스무디:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 66.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:레몬-자스민티:hot",
+   "brand_id": "gongcha",
+   "name": "레몬 자스민티",
+   "name_en": null,
+   "category": "프룻티&모어",
+   "temperature": "hot",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "gongcha:레몬-자스민티:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 27.0,
+     "caffeine_mg": 90.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:레몬-자스민티:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 33.0,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:레몬-자스민티:iced",
+   "brand_id": "gongcha",
+   "name": "레몬 자스민티",
+   "name_en": null,
+   "category": "프룻티&모어",
+   "temperature": "iced",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "gongcha:레몬-자스민티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 27.0,
+     "caffeine_mg": 75.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:레몬-자스민티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 33.0,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:리얼-수박-주스-big-컵:iced",
+   "brand_id": "gongcha",
+   "name": "리얼 수박 주스 BIG 컵",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#E5413A",
+   "servings": [
+    {
+     "id": "gongcha:리얼-수박-주스-big-컵:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 42.0,
+     "caffeine_mg": 30.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:리얼-애플-오미자티:hot",
+   "brand_id": "gongcha",
+   "name": "리얼 애플 오미자티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "hot",
+   "liquid_color": "#C0283E",
+   "servings": [
+    {
+     "id": "gongcha:리얼-애플-오미자티:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 25.0,
+     "caffeine_mg": 75.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:리얼-애플-오미자티:iced",
+   "brand_id": "gongcha",
+   "name": "리얼 애플 오미자티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#C0283E",
+   "servings": [
+    {
+     "id": "gongcha:리얼-애플-오미자티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 25.0,
+     "caffeine_mg": 50.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:리얼-애플-카라멜-밀크티:hot",
+   "brand_id": "gongcha",
+   "name": "리얼 애플 카라멜 밀크티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "hot",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "gongcha:리얼-애플-카라멜-밀크티:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 38.0,
+     "caffeine_mg": 30.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:리얼-애플-카라멜-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "리얼 애플 카라멜 밀크티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "gongcha:리얼-애플-카라멜-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 38.0,
+     "caffeine_mg": 26.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:리얼-참외-주스-big-컵:iced",
+   "brand_id": "gongcha",
+   "name": "리얼 참외 주스 BIG 컵",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#F2A541",
+   "servings": [
+    {
+     "id": "gongcha:리얼-참외-주스-big-컵:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 49.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:말차-쥬얼리-시그니처-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "말차 쥬얼리 시그니처 밀크티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "gongcha:말차-쥬얼리-시그니처-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 40.0,
+     "caffeine_mg": 80.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:말차-초코-스무디:iced",
+   "brand_id": "gongcha",
+   "name": "말차 초코 스무디",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "gongcha:말차-초코-스무디:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 42.0,
+     "caffeine_mg": 89.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:말차샷-타로-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "말차샷 타로 밀크티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "gongcha:말차샷-타로-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 26.0,
+     "caffeine_mg": 163.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:망고-가득-모찌-빙수-쉐이크:iced",
+   "brand_id": "gongcha",
+   "name": "망고 가득 모찌 빙수 쉐이크",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#F7B32B",
+   "servings": [
+    {
+     "id": "gongcha:망고-가득-모찌-빙수-쉐이크:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 61.0,
+     "caffeine_mg": 20.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:망고-스무디:iced",
+   "brand_id": "gongcha",
+   "name": "망고 스무디",
+   "name_en": null,
+   "category": "스무디",
+   "temperature": "iced",
+   "liquid_color": "#F7B32B",
+   "servings": [
+    {
+     "id": "gongcha:망고-스무디:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 56.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:망고-요구르트:iced",
+   "brand_id": "gongcha",
+   "name": "망고 요구르트",
+   "name_en": null,
+   "category": "프룻티&모어",
+   "temperature": "iced",
+   "liquid_color": "#F7B32B",
+   "servings": [
+    {
+     "id": "gongcha:망고-요구르트:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 31.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:망고-요구르트:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 44.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:망고-요구르트-+-화이트펄:iced",
+   "brand_id": "gongcha",
+   "name": "망고 요구르트 + 화이트펄",
+   "name_en": null,
+   "category": "베스트셀러",
+   "temperature": "iced",
+   "liquid_color": "#F7B32B",
+   "servings": [
+    {
+     "id": "gongcha:망고-요구르트-+-화이트펄:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 36.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:망고-요구르트-+-화이트펄:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 51.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:망고-주스:iced",
+   "brand_id": "gongcha",
+   "name": "망고 주스",
+   "name_en": null,
+   "category": "프룻티&모어",
+   "temperature": "iced",
+   "liquid_color": "#F7B32B",
+   "servings": [
+    {
+     "id": "gongcha:망고-주스:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 20.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:망고-주스:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 26.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:망고-쥬얼리-시그니처-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "망고 쥬얼리 시그니처 밀크티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#F7B32B",
+   "servings": [
+    {
+     "id": "gongcha:망고-쥬얼리-시그니처-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 35.0,
+     "caffeine_mg": 15.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:망고-트로피컬-블러쉬-스무디:iced",
+   "brand_id": "gongcha",
+   "name": "망고 트로피컬 블러쉬 스무디",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#F7B32B",
+   "servings": [
+    {
+     "id": "gongcha:망고-트로피컬-블러쉬-스무디:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 69.0,
+     "caffeine_mg": 25.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:미니펄-딸기-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "미니펄 딸기 밀크티",
+   "name_en": null,
+   "category": "밀크티",
+   "temperature": "iced",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "gongcha:미니펄-딸기-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 40.0,
+     "caffeine_mg": 49.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:미니펄-딸기-밀크티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 55.0,
+     "caffeine_mg": 58.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:미니펄-딸기-크러쉬:iced",
+   "brand_id": "gongcha",
+   "name": "미니펄 딸기 크러쉬",
+   "name_en": null,
+   "category": "스무디",
+   "temperature": "iced",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "gongcha:미니펄-딸기-크러쉬:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 53.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:미니펄-망고-밀크:iced",
+   "brand_id": "gongcha",
+   "name": "미니펄 망고 밀크",
+   "name_en": null,
+   "category": "밀크티",
+   "temperature": "iced",
+   "liquid_color": "#F7B32B",
+   "servings": [
+    {
+     "id": "gongcha:미니펄-망고-밀크:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 33.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:미니펄-망고-밀크:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 47.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:미니펄-망고-밀크-+-리얼-망고:iced",
+   "brand_id": "gongcha",
+   "name": "미니펄 망고 밀크 + 리얼 망고",
+   "name_en": null,
+   "category": "베스트셀러",
+   "temperature": "iced",
+   "liquid_color": "#F7B32B",
+   "servings": [
+    {
+     "id": "gongcha:미니펄-망고-밀크-+-리얼-망고:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 40.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:미니펄-망고-밀크-+-리얼-망고:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 54.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:미니펄-망고-크러쉬:iced",
+   "brand_id": "gongcha",
+   "name": "미니펄 망고 크러쉬",
+   "name_en": null,
+   "category": "스무디",
+   "temperature": "iced",
+   "liquid_color": "#F7B32B",
+   "servings": [
+    {
+     "id": "gongcha:미니펄-망고-크러쉬:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 42.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:밀크-쿠앤크-스무디:iced",
+   "brand_id": "gongcha",
+   "name": "밀크 쿠앤크 스무디",
+   "name_en": null,
+   "category": "스무디",
+   "temperature": "iced",
+   "liquid_color": "#8C8580",
+   "servings": [
+    {
+     "id": "gongcha:밀크-쿠앤크-스무디:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 37.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:밀크티-모찌-빙수-쉐이크:iced",
+   "brand_id": "gongcha",
+   "name": "밀크티 모찌 빙수 쉐이크",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:밀크티-모찌-빙수-쉐이크:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 69.0,
+     "caffeine_mg": 49.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:밀크티-모찌-빙수-쉐이크-+-소프트-아이스크림:iced",
+   "brand_id": "gongcha",
+   "name": "밀크티 모찌 빙수 쉐이크 + 소프트 아이스크림",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:밀크티-모찌-빙수-쉐이크-+-소프트-아이스크림:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 88.0,
+     "caffeine_mg": 87.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:바닐라-카페라떼-drip:hot",
+   "brand_id": "gongcha",
+   "name": "바닐라 카페라떼 (DRIP)",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "hot",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "gongcha:바닐라-카페라떼-drip:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 22.0,
+     "caffeine_mg": 145.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:바닐라-카페라떼-drip:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 28.0,
+     "caffeine_mg": 182.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:바닐라-카페라떼-drip:iced",
+   "brand_id": "gongcha",
+   "name": "바닐라 카페라떼 (DRIP)",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "gongcha:바닐라-카페라떼-drip:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 20.0,
+     "caffeine_mg": 145.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:바닐라-카페라떼-drip:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 27.0,
+     "caffeine_mg": 182.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:바닐라-카페라떼-esp:hot",
+   "brand_id": "gongcha",
+   "name": "바닐라 카페라떼 (ESP)",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "hot",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "gongcha:바닐라-카페라떼-esp:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 25.0,
+     "caffeine_mg": 129.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:바닐라-카페라떼-esp:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 29.0,
+     "caffeine_mg": 171.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:바닐라-카페라떼-esp:iced",
+   "brand_id": "gongcha",
+   "name": "바닐라 카페라떼 (ESP)",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "gongcha:바닐라-카페라떼-esp:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 23.0,
+     "caffeine_mg": 129.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:바닐라-카페라떼-esp:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 31.0,
+     "caffeine_mg": 171.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:밤-크림-밀크티+펄:hot",
+   "brand_id": "gongcha",
+   "name": "밤 크림 밀크티+펄",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "hot",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:밤-크림-밀크티+펄:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 32.0,
+     "caffeine_mg": 51.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:밤-크림-밀크티+펄:iced",
+   "brand_id": "gongcha",
+   "name": "밤 크림 밀크티+펄",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:밤-크림-밀크티+펄:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 27.0,
+     "caffeine_mg": 64.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:브라운슈가-시그니처-밀크티-+미니펄:iced",
+   "brand_id": "gongcha",
+   "name": "브라운슈가 시그니처 밀크티 +미니펄",
+   "name_en": null,
+   "category": "밀크티",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:브라운슈가-시그니처-밀크티-+미니펄:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 40.0,
+     "caffeine_mg": 92.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:브라운슈가-시그니처-밀크티-+미니펄:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 54.0,
+     "caffeine_mg": 142.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:브라운슈가-시그니처-밀크티-+펄:hot",
+   "brand_id": "gongcha",
+   "name": "브라운슈가 시그니처 밀크티 +펄",
+   "name_en": null,
+   "category": "베스트셀러",
+   "temperature": "hot",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:브라운슈가-시그니처-밀크티-+펄:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 33.0,
+     "caffeine_mg": 142.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:브라운슈가-시그니처-밀크티-+펄:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 40.0,
+     "caffeine_mg": 163.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:브라운슈가-시그니처-밀크티-+펄:iced",
+   "brand_id": "gongcha",
+   "name": "브라운슈가 시그니처 밀크티 +펄",
+   "name_en": null,
+   "category": "베스트셀러",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:브라운슈가-시그니처-밀크티-+펄:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 37.0,
+     "caffeine_mg": 92.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:브라운슈가-시그니처-밀크티-+펄:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 49.0,
+     "caffeine_mg": 142.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:브라운슈가-시그니처-얼그레이-밀크티-+-펄:hot",
+   "brand_id": "gongcha",
+   "name": "브라운슈가 시그니처 얼그레이 밀크티 + 펄",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "hot",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:브라운슈가-시그니처-얼그레이-밀크티-+-펄:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 34.0,
+     "caffeine_mg": 195.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:브라운슈가-시그니처-얼그레이-밀크티-+-펄:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 40.0,
+     "caffeine_mg": 224.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:브라운슈가-시그니처-얼그레이-밀크티-+-펄:iced",
+   "brand_id": "gongcha",
+   "name": "브라운슈가 시그니처 얼그레이 밀크티 + 펄",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:브라운슈가-시그니처-얼그레이-밀크티-+-펄:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 37.0,
+     "caffeine_mg": 126.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:브라운슈가-시그니처-얼그레이-밀크티-+-펄:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 49.0,
+     "caffeine_mg": 195.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:브라운슈가-시그니처-우롱-밀크티-+-펄:hot",
+   "brand_id": "gongcha",
+   "name": "브라운슈가 시그니처 우롱 밀크티 + 펄",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "hot",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:브라운슈가-시그니처-우롱-밀크티-+-펄:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 34.0,
+     "caffeine_mg": 86.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:브라운슈가-시그니처-우롱-밀크티-+-펄:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 40.0,
+     "caffeine_mg": 99.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:브라운슈가-시그니처-우롱-밀크티-+-펄:iced",
+   "brand_id": "gongcha",
+   "name": "브라운슈가 시그니처 우롱 밀크티 + 펄",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:브라운슈가-시그니처-우롱-밀크티-+-펄:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 37.0,
+     "caffeine_mg": 56.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:브라운슈가-시그니처-우롱-밀크티-+-펄:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 49.0,
+     "caffeine_mg": 86.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:브라운슈가-쥬얼리-밀크티:hot",
+   "brand_id": "gongcha",
+   "name": "브라운슈가 쥬얼리 밀크티",
+   "name_en": null,
+   "category": "밀크티",
+   "temperature": "hot",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:브라운슈가-쥬얼리-밀크티:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 28.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:브라운슈가-쥬얼리-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "브라운슈가 쥬얼리 밀크티",
+   "name_en": null,
+   "category": "밀크티",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:브라운슈가-쥬얼리-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 32.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:브라운슈가-쥬얼리-치즈폼-스무디:iced",
+   "brand_id": "gongcha",
+   "name": "브라운슈가 쥬얼리 치즈폼 스무디",
+   "name_en": null,
+   "category": "스무디",
+   "temperature": "iced",
+   "liquid_color": "#EADBC8",
+   "servings": [
+    {
+     "id": "gongcha:브라운슈가-쥬얼리-치즈폼-스무디:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 48.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:블랙-밀크티:hot",
+   "brand_id": "gongcha",
+   "name": "블랙 밀크티",
+   "name_en": null,
+   "category": "밀크티",
+   "temperature": "hot",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:블랙-밀크티:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 4.0,
+     "caffeine_mg": 106.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:블랙-밀크티:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 6.0,
+     "caffeine_mg": 121.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:블랙-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "블랙 밀크티",
+   "name_en": null,
+   "category": "밀크티",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:블랙-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 2.0,
+     "caffeine_mg": 128.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:블랙-밀크티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 3.0,
+     "caffeine_mg": 163.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:블랙-밀크티-+-펄:hot",
+   "brand_id": "gongcha",
+   "name": "블랙 밀크티 + 펄",
+   "name_en": null,
+   "category": "베스트셀러",
+   "temperature": "hot",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:블랙-밀크티-+-펄:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 7.0,
+     "caffeine_mg": 106.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:블랙-밀크티-+-펄:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 10.0,
+     "caffeine_mg": 121.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:블랙-밀크티-+-펄:iced",
+   "brand_id": "gongcha",
+   "name": "블랙 밀크티 + 펄",
+   "name_en": null,
+   "category": "베스트셀러",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:블랙-밀크티-+-펄:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 5.0,
+     "caffeine_mg": 128.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:블랙-밀크티-+-펄:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 7.0,
+     "caffeine_mg": 163.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:블랙티:hot",
+   "brand_id": "gongcha",
+   "name": "블랙티",
+   "name_en": null,
+   "category": "오리지널 티",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "gongcha:블랙티:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 0.0,
+     "caffeine_mg": 128.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:블랙티:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 0.0,
+     "caffeine_mg": 163.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:블랙티:iced",
+   "brand_id": "gongcha",
+   "name": "블랙티",
+   "name_en": null,
+   "category": "오리지널 티",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "gongcha:블랙티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 0.0,
+     "caffeine_mg": 106.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:블랙티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 0.0,
+     "caffeine_mg": 142.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:수박-밀크티+펄:iced",
+   "brand_id": "gongcha",
+   "name": "수박 밀크티+펄",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#E5413A",
+   "servings": [
+    {
+     "id": "gongcha:수박-밀크티+펄:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 38.0,
+     "caffeine_mg": 40.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:수박-밀크티+펄:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 54.0,
+     "caffeine_mg": 60.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:쑥-크림-밀크티+펄:hot",
+   "brand_id": "gongcha",
+   "name": "쑥 크림 밀크티+펄",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "hot",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:쑥-크림-밀크티+펄:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 21.0,
+     "caffeine_mg": 117.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:쑥-크림-밀크티+펄:iced",
+   "brand_id": "gongcha",
+   "name": "쑥 크림 밀크티+펄",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:쑥-크림-밀크티+펄:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 21.0,
+     "caffeine_mg": 58.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:아메리카노-drip:hot",
+   "brand_id": "gongcha",
+   "name": "아메리카노 (DRIP)",
+   "name_en": null,
+   "category": "베스트셀러",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "gongcha:아메리카노-drip:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 0.0,
+     "caffeine_mg": 273.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:아메리카노-drip:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 0.0,
+     "caffeine_mg": 364.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:아메리카노-drip:iced",
+   "brand_id": "gongcha",
+   "name": "아메리카노 (DRIP)",
+   "name_en": null,
+   "category": "베스트셀러",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "gongcha:아메리카노-drip:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 0.0,
+     "caffeine_mg": 273.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:아메리카노-drip:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 0.0,
+     "caffeine_mg": 364.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:아메리카노-esp:hot",
+   "brand_id": "gongcha",
+   "name": "아메리카노 (ESP)",
+   "name_en": null,
+   "category": "베스트셀러",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "gongcha:아메리카노-esp:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 0.0,
+     "caffeine_mg": 129.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:아메리카노-esp:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 0.0,
+     "caffeine_mg": 171.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:아메리카노-esp:iced",
+   "brand_id": "gongcha",
+   "name": "아메리카노 (ESP)",
+   "name_en": null,
+   "category": "베스트셀러",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "gongcha:아메리카노-esp:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 0.0,
+     "caffeine_mg": 129.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:아메리카노-esp:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 0.0,
+     "caffeine_mg": 171.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:아삭-참외-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "아삭 참외 밀크티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:아삭-참외-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 64.0,
+     "caffeine_mg": 40.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:아삭-참외-스무디:iced",
+   "brand_id": "gongcha",
+   "name": "아삭 참외 스무디",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#EADBC8",
+   "servings": [
+    {
+     "id": "gongcha:아삭-참외-스무디:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 59.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:얼그레이-말차-밀크티-+-펄:iced",
+   "brand_id": "gongcha",
+   "name": "얼그레이 말차 밀크티 + 펄",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "gongcha:얼그레이-말차-밀크티-+-펄:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 63.0,
+     "caffeine_mg": 186.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:얼그레이-밀크티:hot",
+   "brand_id": "gongcha",
+   "name": "얼그레이 밀크티",
+   "name_en": null,
+   "category": "밀크티",
+   "temperature": "hot",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:얼그레이-밀크티:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 4.0,
+     "caffeine_mg": 146.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:얼그레이-밀크티:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 6.0,
+     "caffeine_mg": 165.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:얼그레이-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "얼그레이 밀크티",
+   "name_en": null,
+   "category": "밀크티",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:얼그레이-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 2.0,
+     "caffeine_mg": 175.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:얼그레이-밀크티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 3.0,
+     "caffeine_mg": 224.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:얼그레이-아메리카노-drip:hot",
+   "brand_id": "gongcha",
+   "name": "얼그레이 아메리카노 (DRIP)",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "gongcha:얼그레이-아메리카노-drip:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 0.0,
+     "caffeine_mg": 239.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:얼그레이-아메리카노-drip:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 0.0,
+     "caffeine_mg": 313.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:얼그레이-아메리카노-drip:iced",
+   "brand_id": "gongcha",
+   "name": "얼그레이 아메리카노 (DRIP)",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "gongcha:얼그레이-아메리카노-drip:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 0.0,
+     "caffeine_mg": 239.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:얼그레이-아메리카노-drip:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 0.0,
+     "caffeine_mg": 313.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:얼그레이-아메리카노-esp:hot",
+   "brand_id": "gongcha",
+   "name": "얼그레이 아메리카노 (ESP)",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "gongcha:얼그레이-아메리카노-esp:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 0.0,
+     "caffeine_mg": 168.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:얼그레이-아메리카노-esp:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 0.0,
+     "caffeine_mg": 230.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:얼그레이-아메리카노-esp:iced",
+   "brand_id": "gongcha",
+   "name": "얼그레이 아메리카노 (ESP)",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "gongcha:얼그레이-아메리카노-esp:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 0.0,
+     "caffeine_mg": 168.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:얼그레이-아메리카노-esp:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 0.0,
+     "caffeine_mg": 230.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:얼그레이티:hot",
+   "brand_id": "gongcha",
+   "name": "얼그레이티",
+   "name_en": null,
+   "category": "오리지널 티",
+   "temperature": "hot",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "gongcha:얼그레이티:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 0.0,
+     "caffeine_mg": 175.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:얼그레이티:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 0.0,
+     "caffeine_mg": 224.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:얼그레이티:iced",
+   "brand_id": "gongcha",
+   "name": "얼그레이티",
+   "name_en": null,
+   "category": "오리지널 티",
+   "temperature": "iced",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "gongcha:얼그레이티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 0.0,
+     "caffeine_mg": 146.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:얼그레이티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 0.0,
+     "caffeine_mg": 195.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:완두말차-모찌-빙수-쉐이크:iced",
+   "brand_id": "gongcha",
+   "name": "완두말차 모찌 빙수 쉐이크",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "gongcha:완두말차-모찌-빙수-쉐이크:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 78.0,
+     "caffeine_mg": 69.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:우롱-밀크티:hot",
+   "brand_id": "gongcha",
+   "name": "우롱 밀크티",
+   "name_en": null,
+   "category": "밀크티",
+   "temperature": "hot",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:우롱-밀크티:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 4.0,
+     "caffeine_mg": 64.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:우롱-밀크티:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 6.0,
+     "caffeine_mg": 73.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:우롱-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "우롱 밀크티",
+   "name_en": null,
+   "category": "밀크티",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:우롱-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 2.0,
+     "caffeine_mg": 77.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:우롱-밀크티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 3.0,
+     "caffeine_mg": 99.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:우롱티:hot",
+   "brand_id": "gongcha",
+   "name": "우롱티",
+   "name_en": null,
+   "category": "오리지널 티",
+   "temperature": "hot",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "gongcha:우롱티:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 0.0,
+     "caffeine_mg": 77.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:우롱티:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 0.0,
+     "caffeine_mg": 99.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:우롱티:iced",
+   "brand_id": "gongcha",
+   "name": "우롱티",
+   "name_en": null,
+   "category": "오리지널 티",
+   "temperature": "iced",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "gongcha:우롱티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 0.0,
+     "caffeine_mg": 64.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:우롱티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 0.0,
+     "caffeine_mg": 86.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:우롱티-+-코코넛-+-밀크폼:hot",
+   "brand_id": "gongcha",
+   "name": "우롱티 + 코코넛 + 밀크폼",
+   "name_en": null,
+   "category": "베스트셀러",
+   "temperature": "hot",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "gongcha:우롱티-+-코코넛-+-밀크폼:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 13.0,
+     "caffeine_mg": 95.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:우롱티-+-코코넛-+-밀크폼:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 19.0,
+     "caffeine_mg": 120.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:우롱티-+-코코넛-+-밀크폼:iced",
+   "brand_id": "gongcha",
+   "name": "우롱티 + 코코넛 + 밀크폼",
+   "name_en": null,
+   "category": "베스트셀러",
+   "temperature": "iced",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "gongcha:우롱티-+-코코넛-+-밀크폼:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 13.0,
+     "caffeine_mg": 64.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:우롱티-+-코코넛-+-밀크폼:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 19.0,
+     "caffeine_mg": 86.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:자몽-요구르트:iced",
+   "brand_id": "gongcha",
+   "name": "자몽 요구르트",
+   "name_en": null,
+   "category": "프룻티&모어",
+   "temperature": "iced",
+   "liquid_color": "#F06B5B",
+   "servings": [
+    {
+     "id": "gongcha:자몽-요구르트:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 27.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:자몽-요구르트:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 36.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:자몽-자스민티:hot",
+   "brand_id": "gongcha",
+   "name": "자몽 자스민티",
+   "name_en": null,
+   "category": "프룻티&모어",
+   "temperature": "hot",
+   "liquid_color": "#F06B5B",
+   "servings": [
+    {
+     "id": "gongcha:자몽-자스민티:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 11.0,
+     "caffeine_mg": 90.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:자몽-자스민티:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 15.0,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:자몽-자스민티:iced",
+   "brand_id": "gongcha",
+   "name": "자몽 자스민티",
+   "name_en": null,
+   "category": "프룻티&모어",
+   "temperature": "iced",
+   "liquid_color": "#F06B5B",
+   "servings": [
+    {
+     "id": "gongcha:자몽-자스민티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 11.0,
+     "caffeine_mg": 75.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:자몽-자스민티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 15.0,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:자스민-밀크티:hot",
+   "brand_id": "gongcha",
+   "name": "자스민 밀크티",
+   "name_en": null,
+   "category": "밀크티",
+   "temperature": "hot",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:자스민-밀크티:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 4.0,
+     "caffeine_mg": 75.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:자스민-밀크티:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 6.0,
+     "caffeine_mg": 85.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:자스민-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "자스민 밀크티",
+   "name_en": null,
+   "category": "밀크티",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:자스민-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 2.0,
+     "caffeine_mg": 90.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:자스민-밀크티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 3.0,
+     "caffeine_mg": 114.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:자스민-코코-with-말차폼:iced",
+   "brand_id": "gongcha",
+   "name": "자스민 코코 with 말차폼",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "gongcha:자스민-코코-with-말차폼:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 7.0,
+     "caffeine_mg": 115.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:자스민티:hot",
+   "brand_id": "gongcha",
+   "name": "자스민티",
+   "name_en": null,
+   "category": "오리지널 티",
+   "temperature": "hot",
+   "liquid_color": "#D9A441",
+   "servings": [
+    {
+     "id": "gongcha:자스민티:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 0.0,
+     "caffeine_mg": 90.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:자스민티:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 0.0,
+     "caffeine_mg": 114.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:자스민티:iced",
+   "brand_id": "gongcha",
+   "name": "자스민티",
+   "name_en": null,
+   "category": "오리지널 티",
+   "temperature": "iced",
+   "liquid_color": "#D9A441",
+   "servings": [
+    {
+     "id": "gongcha:자스민티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 0.0,
+     "caffeine_mg": 75.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:자스민티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 0.0,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:저당-블랙-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "저당 블랙 밀크티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:저당-블랙-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 2.0,
+     "caffeine_mg": 128.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:저당-블랙-밀크티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 3.0,
+     "caffeine_mg": 177.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:저당-블랙-밀크티:iced:946ml",
+     "size_label": "946ml",
+     "volume_ml": 946,
+     "sugar_g": 5.0,
+     "caffeine_mg": 255.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:저당-블랙-밀크티-+-펄:iced",
+   "brand_id": "gongcha",
+   "name": "저당 블랙 밀크티 + 펄",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:저당-블랙-밀크티-+-펄:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 5.0,
+     "caffeine_mg": 128.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:저당-블랙-오리지널-티:hot",
+   "brand_id": "gongcha",
+   "name": "저당 블랙 오리지널 티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "gongcha:저당-블랙-오리지널-티:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 0.0,
+     "caffeine_mg": 128.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:저당-블랙-오리지널-티:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 0.0,
+     "caffeine_mg": 163.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:저당-블랙-오리지널-티:iced",
+   "brand_id": "gongcha",
+   "name": "저당 블랙 오리지널 티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "gongcha:저당-블랙-오리지널-티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 0.0,
+     "caffeine_mg": 106.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:저당-블랙-오리지널-티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 0.0,
+     "caffeine_mg": 142.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:저당-얼그레이-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "저당 얼그레이 밀크티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:저당-얼그레이-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 2.0,
+     "caffeine_mg": 175.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:저당-얼그레이-밀크티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 3.0,
+     "caffeine_mg": 243.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:저당-얼그레이-밀크티-+-펄:iced",
+   "brand_id": "gongcha",
+   "name": "저당 얼그레이 밀크티 + 펄",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:저당-얼그레이-밀크티-+-펄:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 5.0,
+     "caffeine_mg": 175.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:저당-얼그레이-오리지널-티:hot",
+   "brand_id": "gongcha",
+   "name": "저당 얼그레이 오리지널 티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "hot",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "gongcha:저당-얼그레이-오리지널-티:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 0.0,
+     "caffeine_mg": 175.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:저당-얼그레이-오리지널-티:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 0.0,
+     "caffeine_mg": 224.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:저당-얼그레이-오리지널-티:iced",
+   "brand_id": "gongcha",
+   "name": "저당 얼그레이 오리지널 티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "gongcha:저당-얼그레이-오리지널-티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 0.0,
+     "caffeine_mg": 146.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:저당-얼그레이-오리지널-티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 0.0,
+     "caffeine_mg": 195.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:저당-우롱-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "저당 우롱 밀크티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:저당-우롱-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 2.0,
+     "caffeine_mg": 77.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:저당-우롱-밀크티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 3.0,
+     "caffeine_mg": 107.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:저당-우롱-밀크티-+-펄:iced",
+   "brand_id": "gongcha",
+   "name": "저당 우롱 밀크티 + 펄",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:저당-우롱-밀크티-+-펄:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 5.0,
+     "caffeine_mg": 77.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:저당-우롱-오리지널-티:hot",
+   "brand_id": "gongcha",
+   "name": "저당 우롱 오리지널 티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "hot",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "gongcha:저당-우롱-오리지널-티:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 0.0,
+     "caffeine_mg": 77.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:저당-우롱-오리지널-티:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 0.0,
+     "caffeine_mg": 99.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:저당-우롱-오리지널-티:iced",
+   "brand_id": "gongcha",
+   "name": "저당 우롱 오리지널 티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "gongcha:저당-우롱-오리지널-티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 0.0,
+     "caffeine_mg": 64.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:저당-우롱-오리지널-티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 0.0,
+     "caffeine_mg": 86.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:저당-자스민-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "저당 자스민 밀크티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:저당-자스민-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 2.0,
+     "caffeine_mg": 90.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:저당-자스민-밀크티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 3.0,
+     "caffeine_mg": 124.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:저당-자스민-밀크티-+-펄:iced",
+   "brand_id": "gongcha",
+   "name": "저당 자스민 밀크티 + 펄",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:저당-자스민-밀크티-+-펄:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 5.0,
+     "caffeine_mg": 90.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:저당-자스민-오리지널-티:hot",
+   "brand_id": "gongcha",
+   "name": "저당 자스민 오리지널 티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "hot",
+   "liquid_color": "#D9A441",
+   "servings": [
+    {
+     "id": "gongcha:저당-자스민-오리지널-티:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 0.0,
+     "caffeine_mg": 90.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:저당-자스민-오리지널-티:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 0.0,
+     "caffeine_mg": 114.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:저당-자스민-오리지널-티:iced",
+   "brand_id": "gongcha",
+   "name": "저당 자스민 오리지널 티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#D9A441",
+   "servings": [
+    {
+     "id": "gongcha:저당-자스민-오리지널-티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 0.0,
+     "caffeine_mg": 75.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:저당-자스민-오리지널-티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 0.0,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:저당-초콜렛-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "저당 초콜렛 밀크티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "gongcha:저당-초콜렛-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 2.0,
+     "caffeine_mg": 16.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:저당-초콜렛-밀크티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 2.0,
+     "caffeine_mg": 20.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:저당-초콜렛-밀크티-+-치즈폼:iced",
+   "brand_id": "gongcha",
+   "name": "저당 초콜렛 밀크티 + 치즈폼",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "gongcha:저당-초콜렛-밀크티-+-치즈폼:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 4.0,
+     "caffeine_mg": 16.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:저당-햅쌀-미숫가루-밀크티-+-펄:iced",
+   "brand_id": "gongcha",
+   "name": "저당 햅쌀 미숫가루 밀크티 + 펄",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#EADBC8",
+   "servings": [
+    {
+     "id": "gongcha:저당-햅쌀-미숫가루-밀크티-+-펄:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 4.0,
+     "caffeine_mg": 77.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:제로-피치-우롱-아이스티-+-알로에:iced",
+   "brand_id": "gongcha",
+   "name": "제로 피치 우롱 아이스티 + 알로에",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#F7A57A",
+   "servings": [
+    {
+     "id": "gongcha:제로-피치-우롱-아이스티-+-알로에:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 6.0,
+     "caffeine_mg": 68.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:제로-피치-우롱-아이스티-+-알로에:iced:946ml",
+     "size_label": "946ml",
+     "volume_ml": 946,
+     "sugar_g": 10.0,
+     "caffeine_mg": 99.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:제주-그린-밀크티:hot",
+   "brand_id": "gongcha",
+   "name": "제주 그린 밀크티",
+   "name_en": null,
+   "category": "밀크티",
+   "temperature": "hot",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:제주-그린-밀크티:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 25.0,
+     "caffeine_mg": 62.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:제주-그린-밀크티:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 29.0,
+     "caffeine_mg": 71.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:제주-그린-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "제주 그린 밀크티",
+   "name_en": null,
+   "category": "밀크티",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:제주-그린-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 16.0,
+     "caffeine_mg": 49.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:제주-그린-밀크티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 22.0,
+     "caffeine_mg": 67.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:제주-그린-밀크티-+-펄:hot",
+   "brand_id": "gongcha",
+   "name": "제주 그린 밀크티 + 펄",
+   "name_en": null,
+   "category": "베스트셀러",
+   "temperature": "hot",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:제주-그린-밀크티-+-펄:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 25.0,
+     "caffeine_mg": 54.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:제주-그린-밀크티-+-펄:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 32.0,
+     "caffeine_mg": 81.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:제주-그린-밀크티-+-펄:iced",
+   "brand_id": "gongcha",
+   "name": "제주 그린 밀크티 + 펄",
+   "name_en": null,
+   "category": "베스트셀러",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:제주-그린-밀크티-+-펄:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 22.0,
+     "caffeine_mg": 54.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:제주-그린-밀크티-+-펄:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 33.0,
+     "caffeine_mg": 81.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:제주-그린-스무디:iced",
+   "brand_id": "gongcha",
+   "name": "제주 그린 스무디",
+   "name_en": null,
+   "category": "스무디",
+   "temperature": "iced",
+   "liquid_color": "#EADBC8",
+   "servings": [
+    {
+     "id": "gongcha:제주-그린-스무디:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 52.0,
+     "caffeine_mg": 109.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:참외-자스민티:iced",
+   "brand_id": "gongcha",
+   "name": "참외 자스민티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#D9A441",
+   "servings": [
+    {
+     "id": "gongcha:참외-자스민티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 55.0,
+     "caffeine_mg": 40.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:청포도-스무디:iced",
+   "brand_id": "gongcha",
+   "name": "청포도 스무디",
+   "name_en": null,
+   "category": "스무디",
+   "temperature": "iced",
+   "liquid_color": "#B8D86B",
+   "servings": [
+    {
+     "id": "gongcha:청포도-스무디:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 69.0,
+     "caffeine_mg": 25.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:청포도-자스민티:hot",
+   "brand_id": "gongcha",
+   "name": "청포도 자스민티",
+   "name_en": null,
+   "category": "프룻티&모어",
+   "temperature": "hot",
+   "liquid_color": "#B8D86B",
+   "servings": [
+    {
+     "id": "gongcha:청포도-자스민티:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 20.0,
+     "caffeine_mg": 90.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:청포도-자스민티:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 27.0,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:청포도-자스민티:iced",
+   "brand_id": "gongcha",
+   "name": "청포도 자스민티",
+   "name_en": null,
+   "category": "프룻티&모어",
+   "temperature": "iced",
+   "liquid_color": "#B8D86B",
+   "servings": [
+    {
+     "id": "gongcha:청포도-자스민티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 20.0,
+     "caffeine_mg": 75.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:청포도-자스민티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 27.0,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:초코멜로-스무디:iced",
+   "brand_id": "gongcha",
+   "name": "초코멜로 스무디",
+   "name_en": null,
+   "category": "스무디",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "gongcha:초코멜로-스무디:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 47.0,
+     "caffeine_mg": 58.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:초코바른-딸기-스무디-with-쿠키:iced",
+   "brand_id": "gongcha",
+   "name": "초코바른 딸기 스무디 with 쿠키",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "gongcha:초코바른-딸기-스무디-with-쿠키:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 44.0,
+     "caffeine_mg": 43.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:초코바른-제주-그린-스무디:iced",
+   "brand_id": "gongcha",
+   "name": "초코바른 제주 그린 스무디",
+   "name_en": null,
+   "category": "스무디",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "gongcha:초코바른-제주-그린-스무디:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 52.0,
+     "caffeine_mg": 112.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:초코바른-초코-스무디:iced",
+   "brand_id": "gongcha",
+   "name": "초코바른 초코 스무디",
+   "name_en": null,
+   "category": "스무디",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "gongcha:초코바른-초코-스무디:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 38.0,
+     "caffeine_mg": 37.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:초코바른-피스타치오-스무디:iced",
+   "brand_id": "gongcha",
+   "name": "초코바른 피스타치오 스무디",
+   "name_en": null,
+   "category": "스무디",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "gongcha:초코바른-피스타치오-스무디:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 49.0,
+     "caffeine_mg": 29.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:초콜렛-밀크티:hot",
+   "brand_id": "gongcha",
+   "name": "초콜렛 밀크티",
+   "name_en": null,
+   "category": "밀크티",
+   "temperature": "hot",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "gongcha:초콜렛-밀크티:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 1.0,
+     "caffeine_mg": 12.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:초콜렛-밀크티:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 2.0,
+     "caffeine_mg": 16.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:초콜렛-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "초콜렛 밀크티",
+   "name_en": null,
+   "category": "밀크티",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "gongcha:초콜렛-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 2.0,
+     "caffeine_mg": 16.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:초콜렛-밀크티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 2.0,
+     "caffeine_mg": 20.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:초콜렛-밀크티-+-치즈폼:hot",
+   "brand_id": "gongcha",
+   "name": "초콜렛 밀크티 + 치즈폼",
+   "name_en": null,
+   "category": "베스트셀러",
+   "temperature": "hot",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "gongcha:초콜렛-밀크티-+-치즈폼:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 4.0,
+     "caffeine_mg": 12.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:초콜렛-밀크티-+-치즈폼:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 5.0,
+     "caffeine_mg": 16.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:초콜렛-밀크티-+-치즈폼:iced",
+   "brand_id": "gongcha",
+   "name": "초콜렛 밀크티 + 치즈폼",
+   "name_en": null,
+   "category": "베스트셀러",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "gongcha:초콜렛-밀크티-+-치즈폼:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 4.0,
+     "caffeine_mg": 16.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:초콜렛-밀크티-+-치즈폼:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 5.0,
+     "caffeine_mg": 20.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:초콜렛-쿠키-&-크림-스무디:iced",
+   "brand_id": "gongcha",
+   "name": "초콜렛 쿠키 & 크림 스무디",
+   "name_en": null,
+   "category": "스무디",
+   "temperature": "iced",
+   "liquid_color": "#8C8580",
+   "servings": [
+    {
+     "id": "gongcha:초콜렛-쿠키-&-크림-스무디:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 30.0,
+     "caffeine_mg": 24.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:초콜릿-시그니처-밀크티+펄:iced",
+   "brand_id": "gongcha",
+   "name": "초콜릿 시그니처 밀크티+펄",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "gongcha:초콜릿-시그니처-밀크티+펄:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 31.0,
+     "caffeine_mg": 43.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:카페-모카-drip:hot",
+   "brand_id": "gongcha",
+   "name": "카페 모카 (DRIP)",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "hot",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "gongcha:카페-모카-drip:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 9.0,
+     "caffeine_mg": 152.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:카페-모카-drip:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 12.0,
+     "caffeine_mg": 190.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:카페-모카-drip:iced",
+   "brand_id": "gongcha",
+   "name": "카페 모카 (DRIP)",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "gongcha:카페-모카-drip:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 8.0,
+     "caffeine_mg": 152.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:카페-모카-drip:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 11.0,
+     "caffeine_mg": 190.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:카페-모카-esp:hot",
+   "brand_id": "gongcha",
+   "name": "카페 모카 (ESP)",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "hot",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "gongcha:카페-모카-esp:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 10.0,
+     "caffeine_mg": 135.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:카페-모카-esp:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 13.0,
+     "caffeine_mg": 180.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:카페-모카-esp:iced",
+   "brand_id": "gongcha",
+   "name": "카페 모카 (ESP)",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "gongcha:카페-모카-esp:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 9.0,
+     "caffeine_mg": 135.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:카페-모카-esp:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 12.0,
+     "caffeine_mg": 180.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:카페-스무디-with-블랙티-공차치노-drip:iced",
+   "brand_id": "gongcha",
+   "name": "카페 스무디 with 블랙티 (공차치노) (DRIP)",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "gongcha:카페-스무디-with-블랙티-공차치노-drip:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 51.0,
+     "caffeine_mg": 160.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:카페-스무디-with-블랙티-공차치노-esp:iced",
+   "brand_id": "gongcha",
+   "name": "카페 스무디 with 블랙티 (공차치노) (ESP)",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "gongcha:카페-스무디-with-블랙티-공차치노-esp:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 51.0,
+     "caffeine_mg": 143.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:카페라떼-esp:hot",
+   "brand_id": "gongcha",
+   "name": "카페라떼 (ESP)",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "hot",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "gongcha:카페라떼-esp:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 11.0,
+     "caffeine_mg": 129.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:카페라떼-esp:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 12.0,
+     "caffeine_mg": 171.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:카페라떼-esp:iced",
+   "brand_id": "gongcha",
+   "name": "카페라떼 (ESP)",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "gongcha:카페라떼-esp:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 9.0,
+     "caffeine_mg": 129.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:카페라떼-esp:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 14.0,
+     "caffeine_mg": 171.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:타로-밀크티:hot",
+   "brand_id": "gongcha",
+   "name": "타로 밀크티",
+   "name_en": null,
+   "category": "밀크티",
+   "temperature": "hot",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:타로-밀크티:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 10.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:타로-밀크티:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 12.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:타로-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "타로 밀크티",
+   "name_en": null,
+   "category": "밀크티",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:타로-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 12.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:타로-밀크티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 15.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:타로-밀크티-+-펄:hot",
+   "brand_id": "gongcha",
+   "name": "타로 밀크티 + 펄",
+   "name_en": null,
+   "category": "베스트셀러",
+   "temperature": "hot",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:타로-밀크티-+-펄:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 11.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:타로-밀크티-+-펄:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 15.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:타로-밀크티-+-펄:iced",
+   "brand_id": "gongcha",
+   "name": "타로 밀크티 + 펄",
+   "name_en": null,
+   "category": "베스트셀러",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:타로-밀크티-+-펄:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 14.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:타로-밀크티-+-펄:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 17.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:타로-스무디:iced",
+   "brand_id": "gongcha",
+   "name": "타로 스무디",
+   "name_en": null,
+   "category": "스무디",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:타로-스무디:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 41.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:타로-쥬얼리-시그니처-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "타로 쥬얼리 시그니처 밀크티",
+   "name_en": null,
+   "category": "베스트셀러",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:타로-쥬얼리-시그니처-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 33.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:타로-쥬얼리-시그니처-밀크티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 44.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:타로-쥬얼리-시그니처-스무디:iced",
+   "brand_id": "gongcha",
+   "name": "타로 쥬얼리 시그니처 스무디",
+   "name_en": null,
+   "category": "스무디",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:타로-쥬얼리-시그니처-스무디:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 56.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:트로피컬-블러쉬-아이스티:iced",
+   "brand_id": "gongcha",
+   "name": "트로피컬 블러쉬 아이스티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#F7B32B",
+   "servings": [
+    {
+     "id": "gongcha:트로피컬-블러쉬-아이스티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 42.0,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:트로피컬-블러쉬-아이스티:iced:946ml",
+     "size_label": "946ml",
+     "volume_ml": 946,
+     "sugar_g": 71.0,
+     "caffeine_mg": 114.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:패션-프룻-히비스커스:hot",
+   "brand_id": "gongcha",
+   "name": "패션 프룻 히비스커스",
+   "name_en": null,
+   "category": "프룻티&모어",
+   "temperature": "hot",
+   "liquid_color": "#C0283E",
+   "servings": [
+    {
+     "id": "gongcha:패션-프룻-히비스커스:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 25.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:패션-프룻-히비스커스:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 33.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:패션-프룻-히비스커스:iced",
+   "brand_id": "gongcha",
+   "name": "패션 프룻 히비스커스",
+   "name_en": null,
+   "category": "프룻티&모어",
+   "temperature": "iced",
+   "liquid_color": "#C0283E",
+   "servings": [
+    {
+     "id": "gongcha:패션-프룻-히비스커스:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 25.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:패션-프룻-히비스커스:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 33.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:포도-말랑-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "포도 말랑 밀크티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#6A2C70",
+   "servings": [
+    {
+     "id": "gongcha:포도-말랑-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 47.0,
+     "caffeine_mg": 175.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:포도-말랑-크러쉬:iced",
+   "brand_id": "gongcha",
+   "name": "포도 말랑 크러쉬",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#6A2C70",
+   "servings": [
+    {
+     "id": "gongcha:포도-말랑-크러쉬:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 57.0,
+     "caffeine_mg": 32.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:피스타치오-밀크티:hot",
+   "brand_id": "gongcha",
+   "name": "피스타치오 밀크티",
+   "name_en": null,
+   "category": "밀크티",
+   "temperature": "hot",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:피스타치오-밀크티:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 26.0,
+     "caffeine_mg": 20.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:피스타치오-밀크티:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 36.0,
+     "caffeine_mg": 25.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:피스타치오-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "피스타치오 밀크티",
+   "name_en": null,
+   "category": "밀크티",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:피스타치오-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 25.0,
+     "caffeine_mg": 20.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:피스타치오-밀크티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 37.0,
+     "caffeine_mg": 25.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:핑크구아바-밀크티:iced",
+   "brand_id": "gongcha",
+   "name": "핑크구아바 밀크티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "gongcha:핑크구아바-밀크티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 47.0,
+     "caffeine_mg": 60.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:핑크구아바-봉봉-아이스티:iced",
+   "brand_id": "gongcha",
+   "name": "핑크구아바 봉봉 아이스티",
+   "name_en": null,
+   "category": "NEW 시즌 메뉴",
+   "temperature": "iced",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "gongcha:핑크구아바-봉봉-아이스티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 35.0,
+     "caffeine_mg": 40.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:핑크구아바-봉봉-아이스티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 46.0,
+     "caffeine_mg": 50.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:허니-자몽-블랙티:hot",
+   "brand_id": "gongcha",
+   "name": "허니 자몽 블랙티",
+   "name_en": null,
+   "category": "프룻티&모어",
+   "temperature": "hot",
+   "liquid_color": "#F06B5B",
+   "servings": [
+    {
+     "id": "gongcha:허니-자몽-블랙티:hot:라지",
+     "size_label": "라지",
+     "volume_ml": 414,
+     "sugar_g": 24.0,
+     "caffeine_mg": 128.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:허니-자몽-블랙티:hot:점보",
+     "size_label": "점보",
+     "volume_ml": 473,
+     "sugar_g": 35.0,
+     "caffeine_mg": 142.0,
+     "caffeine_variants": []
+    }
+   ]
+  },
+  {
+   "id": "gongcha:허니-자몽-블랙티:iced",
+   "brand_id": "gongcha",
+   "name": "허니 자몽 블랙티",
+   "name_en": null,
+   "category": "프룻티&모어",
+   "temperature": "iced",
+   "liquid_color": "#F06B5B",
+   "servings": [
+    {
+     "id": "gongcha:허니-자몽-블랙티:iced:라지",
+     "size_label": "라지",
+     "volume_ml": 473,
+     "sugar_g": 24.0,
+     "caffeine_mg": 106.0,
+     "caffeine_variants": []
+    },
+    {
+     "id": "gongcha:허니-자몽-블랙티:iced:점보",
+     "size_label": "점보",
+     "volume_ml": 651,
+     "sugar_g": 35.0,
+     "caffeine_mg": 142.0,
      "caffeine_variants": []
     }
    ]

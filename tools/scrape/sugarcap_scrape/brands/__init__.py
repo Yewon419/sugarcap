@@ -19,6 +19,7 @@ def registry() -> dict[str, tuple[Brand, Scraper]]:
     from sugarcap_scrape.brands import (
         compose,
         ediya,
+        gongcha,
         hollys,
         mega,
         paik,
@@ -27,5 +28,5 @@ def registry() -> dict[str, tuple[Brand, Scraper]]:
         twosome,
     )
 
-    modules = (starbucks, mega, compose, ediya, paik, twosome, hollys, theventi)
+    modules = (starbucks, mega, compose, ediya, paik, twosome, hollys, theventi, gongcha)
     return {module.BRAND.id: (module.BRAND, module.scrape) for module in modules}

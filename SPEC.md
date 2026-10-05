@@ -38,6 +38,7 @@
 | 투썸 | 레귤러/라지/맥스 × 온도 | `mo.twosome.co.kr` POST JSON 4개 + 상세 HTML | www에는 메뉴 없음. 온도 탭이 HTML에 **두 번** 렌더됨(중복 제거 필수) |
 | 할리스 | Regular 354ml, HOT/ICED | 정적 HTML `/menu/espresso.do` 등 | |
 | 더벤티 | 기준 사이즈(대개 라지 600ml) | 목록(`all.html?mode=N`)→상세 HTML | **카페인 원두별 2값(시그니처/다크)**, 사이즈 표기 미디엄/미디움 혼용 |
+| 공차 (2026-10-05 추가) | L/J(일부 G 946ml) × COLD/HOT | 영양정보 탭 HTML 조각 `/brand/menu/product_nutrition` 1개(분류별 표 7개) | **당류는 당도 0% 기본 레시피 값**(스무디만 고정 당도). 메뉴명·온도는 rowspan, NEW·베스트셀러는 다른 분류와 중복. G는 이름 미게시라 용량으로 표기 |
 
 수집 결과(2026-09-16 실측)는 §10 게이트 기록 표를 본다. 브랜드별 파서는
 `tools/scrape/sugarcap_scrape/brands/<id>.py`, 산출 스키마 계약은 `data/SCHEMA.md`.

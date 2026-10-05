@@ -232,7 +232,7 @@ extension RecordFlowUITests {
 
     /// 하단 탭은 없다. 추이는 오늘 위로 밀어 넣고, 뒤로 가면 오늘로 돌아온다(2026-10-05).
     @MainActor
-    func testOpenTrendsAndGoBack() throws {
+    func testTrendsPushesFromCornerAndGoesBack() throws {
         continueAfterFailure = false
         let app = XCUIApplication()
         app.launch()

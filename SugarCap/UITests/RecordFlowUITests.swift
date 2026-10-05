@@ -93,8 +93,7 @@ extension RecordFlowUITests {
     private func openSugarLimit(_ app: XCUIApplication) {
         app.buttons["open-trends"].tap()
         let row = app.buttons["trend-limit"]
-        XCTAssertTrue(row.waitForExistence(timeout: 10), "추이에 하루 기준 줄이 안 보임:
-\(app.debugDescription)")
+        XCTAssertTrue(row.waitForExistence(timeout: 10), "추이에 하루 기준 줄이 안 보임:\n\(app.debugDescription)")
         row.tap()
     }
 
@@ -123,8 +122,7 @@ extension RecordFlowUITests {
 
         openSugarLimit(app)
         let preset100 = app.buttons["limit-sugar-100"]
-        XCTAssertTrue(preset100.waitForExistence(timeout: 5), "당 칩이 안 보임:
-\(app.debugDescription)")
+        XCTAssertTrue(preset100.waitForExistence(timeout: 5), "당 칩이 안 보임:\n\(app.debugDescription)")
         preset100.tap()
 
         backToToday(app)
@@ -180,8 +178,7 @@ extension RecordFlowUITests {
         XCTAssertTrue(confirmStops.firstMatch.waitForExistence(timeout: 5), "그만두기 확인 창이 안 뜸")
         let confirmStop = try XCTUnwrap(
             confirmStops.allElementsBoundByIndex.first { $0.isHittable },
-            "그만두기 확인 버튼을 누를 수 없음:
-\(app.debugDescription)"
+            "그만두기 확인 버튼을 누를 수 없음:\n\(app.debugDescription)"
         )
         confirmStop.tap()
         XCTAssertTrue(startGoal.waitForExistence(timeout: 5), "그만두면 다시 만들 수 있어야 한다")

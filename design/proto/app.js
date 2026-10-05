@@ -215,6 +215,11 @@ const VARIANTS = {
   affinity: { 확정: renderAffinity },
   // 2026-09-26: 캐주얼 문법 한 안.
   paywall: { 확정: renderPaywall },
+  // 2026-10-04 대표님: 떠 있는 유리 막대가 "AI 디자인 티" → 더 미니멀하고 얇게 + 전용 아이콘.
+  // B 없음: 하단바 없이 오늘 화면이 앱의 집. 추이 = 밀어 넣기, 설정 = 시트.
+  // 2026-10-05 대표님: + 버튼 대신 오늘 컵을 누르면 기록. 먹이기는 컵 누르기가 이미 '쏟기'라 흰 각진 칸 버튼을 둔다.
+  addRecord: { 기존: () => 'button', '컵 누르기': () => 'cup' },
+  tabbar: { 기존: renderTabbar, 'A 얇게': renderTabbarThin, 'B 없음': renderTabbarNone },
 };
 const variantName = screen => ui.variants[screen] ?? Object.keys(VARIANTS[screen])[0];
 const pick = screen => VARIANTS[screen][variantName(screen)];
@@ -245,9 +250,15 @@ function renderToday() {
       ${renderCloseControl(today)}
       <span></span>
       <div class="page-dots">${SIDE_ORDER.map(s => `<i class="${s === side ? 'on' : ''}"></i>`).join('')}</div>
-      <button class="fab" data-a="openRecord" aria-label="기록 추가">${ICON.plus}</button>
-    </div>`;
+      ${cupToAdd() ? '<span></span>' : `<button class="fab" data-a="openRecord" aria-label="기록 추가">${ICON.plus}</button>`}
+    </div>
+    ${cupToAdd() ? `<div class="cup-tap" role="button" data-a="tapTodayCup" aria-label="음료 추가"></div>
+      ${S.entries.length === 0 ? '<p class="cup-hint">컵을 눌러 마신 음료 적기</p>' : ''}` : ''}`;
 }
+
+const cupToAdd = () => pick('addRecord')() === 'cup';
+// 밀고 손을 뗄 때 컵 누르기가 같이 터지지 않게, 막 민 직후의 누르기는 버린다.
+let lastSwipeAt = 0;
 
 function renderCloseControl(today) {
   if (S.days[today]?.closedAt) return `<span class="glass-pill quiet">${ICON.moon} 마감함</span>`;
@@ -326,6 +337,45 @@ function renderSimpleSheet(kicker, text) {
     <p style="padding:20px;color:var(--secondary);font-size:15px;line-height:1.5">${text}</p></div>`;
 }
 
+// 전용 아이콘: 셋 다 슈가캡 잔 한 계열(24 격자, 선 1.6, 둥근 끝, 음료는 늘 채움). 고른 탭은 색으로만 구분한다.
+const TAB_ICON = {
+  today: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M6.2 3.5h11.6l-1.5 16.4a1.7 1.7 0 0 1-1.7 1.6H9.4a1.7 1.7 0 0 1-1.7-1.6Z"/>
+    <path d="M7.4 12h9.2l-.7 7.6a.9.9 0 0 1-.9.8H9a.9.9 0 0 1-.9-.8Z" fill="currentColor" stroke="none"/></svg>`,
+  // 식탁 위 잔 셋, 음료가 왼쪽부터 줄어든다(줄이기).
+  trends: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+    ${[[1.8, 10], [9.7, 13.5], [17.6, 17]].map(([x, y]) => `<path d="M${x} 7.5h4.6l-.5 11.5h-3.6Z"/><path d="M${x + .55} ${y}h3.5l-.35 ${19 - y}h-2.8Z" fill="currentColor" stroke="none"/>`).join('')}
+    <path d="M1 21.5h22"/></svg>`,
+  // 잔을 가로지르는 기준선과 손잡이(하루 기준 조절).
+  settings: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M6.5 3.5h9l-1.2 16.4a1.7 1.7 0 0 1-1.7 1.6H9.4a1.7 1.7 0 0 1-1.7-1.6Z"/>
+    <path d="M2.5 10.5h13.5"/><circle cx="19" cy="10.5" r="2.5" fill="currentColor"/></svg>`,
+};
+
+/** A 얇게: 화면 폭 바닥 막대, 위 가는 선 하나, 배경 = 벽 색. 알약·떠 있는 유리·선택 칸 없음. 고른 탭은 검정, 나머지는 옅은 회색. */
+function renderTabbarThin() {
+  const tabs = [['today', '오늘'], ['trends', '추이'], ['settings', '설정']];
+  return `<nav class="tabbar-thin">${tabs.map(([id, label]) =>
+    `<button class="${ui.tab === id ? 'on' : ''}" data-a="tab" data-v="${id}" aria-label="${label}">${TAB_ICON[id]}<span>${label}</span></button>`).join('')}</nav>`;
+}
+
+const noTabbar = () => variantName('tabbar') === 'B 없음';
+
+/** B 없음: 오늘에선 하트 옆 모서리 버튼 두 개, 추이에선 "‹ 오늘" 뒤로가기. 설정 시트는 render()가 그린다. */
+function renderTabbarNone() {
+  if (ui.tab === 'today') {
+    return `<div class="corner-nav">
+      <button data-a="tab" data-v="trends" aria-label="추이">${TAB_ICON.trends}</button>
+      <button data-a="tab" data-v="settings" aria-label="설정">${TAB_ICON.settings}</button>
+    </div>`;
+  }
+  if (ui.tab === 'trends') {
+    return `<button class="nav-back" data-a="tab" data-v="today" aria-label="오늘로 돌아가기">
+      <svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2 2 10l8 8"/></svg>오늘</button>`;
+  }
+  return '';
+}
+
 function renderTabbar() {
   const tabs = [['today', '오늘', ICON.cup], ['trends', '추이', ICON.chart], ['settings', '설정', ICON.gear]];
   return `<nav class="tabbar">${tabs.map(([id, label, icon]) =>
@@ -337,15 +387,24 @@ function render() {
   refreshSettlement();
   document.getElementById('statusTime').textContent = clockLabel(now());
   const base = document.getElementById('cupBg');
-  base.style.display = ui.tab === 'today' ? '' : 'none';
+  // B 없음에서 설정은 오늘 화면 위 시트라 밑에 오늘이 그대로 있다.
+  const settingsSheet = noTabbar() && ui.tab === 'settings';
+  base.style.display = ui.tab === 'today' || settingsSheet ? '' : 'none';
 
   let html = '';
-  if (ui.tab === 'today') html += `<div class="today">${pick('today')()}</div>`;
+  if (ui.tab === 'today' || settingsSheet) html += `<div class="today">${pick('today')()}</div>`;
+  else if (noTabbar() && ui.tab === 'trends') html += `<div class="nav-push">${pick('trends')()}</div>`;
   else html += pick(ui.tab)();
   if (ui.pushed) html += pick('brand')();
   // 스크롤하는 탭은 내용이 상태 바 밑으로 들어가 글자가 겹친다. 배경색 띠로 옅게 가린다.
-  if (ui.tab !== 'today') html += '<div class="top-fade"></div>';
-  html += renderTabbar();
+  if (ui.tab !== 'today' && !settingsSheet) html += '<div class="top-fade"></div>';
+  html += pick('tabbar')();
+  if (settingsSheet) {
+    html += `<div class="dim light" data-a="tab" data-v="today"></div>
+      <div class="sheet nav-settings"><div class="grabber"></div>
+        <div class="sheet-head"><span class="nav-sheet-title">설정</span><button class="text-button" data-a="tab" data-v="today">닫기</button></div>
+        <div class="nav-settings-body">${pick('settings')()}</div></div>`;
+  }
   if (ui.sheet === 'record') html += pick('record')();
   if (ui.sheet === 'manual') html += renderManualSheet();
   if (ui.sheet === 'daylog') html += renderDayLog();
@@ -387,6 +446,7 @@ function settleOverlays() {
     panel: ui.panelSheet?.drinkId ?? null,
     pushed: ui.pushed?.brandId ?? null,
     cover: ui.cover ? `${ui.cover.kind}:${ui.cover.day}` : null,
+    tab: ui.tab,
   };
   const keep = (selector, key) => {
     if (current[key] && current[key] === lastOverlays[key]) {
@@ -397,6 +457,7 @@ function settleOverlays() {
   keep('.panel-sheet', 'panel');
   keep('.pushed', 'pushed');
   keep('.cover', 'cover');
+  keep('.nav-push, .nav-settings', 'tab');
   if (current.sheet === lastOverlays.sheet && current.panel === lastOverlays.panel) {
     document.querySelectorAll('.dim').forEach(el => el.classList.add('settled'));
   }
@@ -455,6 +516,7 @@ function showToast(text, entryId) {
 const ACTIONS = {
   tab: v => { ui.tab = v; ui.pushed = null; },
   openRecord: () => { ui.sheet = 'record'; ui.globalQuery = ''; },
+  tapTodayCup: () => { if (performance.now() - lastSwipeAt > 350) ACTIONS.openRecord(); },
   openDayLog: v => { ui.sheet = 'daylog'; ui.dayLog = { key: v ?? dayKey(now()), editing: false }; },
   toggleEdit: () => { ui.dayLog.editing = !ui.dayLog.editing; },
   closeSheet: () => { ui.sheet = null; },
@@ -579,6 +641,7 @@ function installSwipe(screen) {
     const dx = e.clientX - start.x, dy = e.clientY - start.y;
     start = null;
     if (Math.abs(dx) < 24 || Math.abs(dx) < Math.abs(dy)) return;
+    lastSwipeAt = performance.now();
     ui.side = dx < 0 ? 'caffeine' : 'sugar';
     render();
   });

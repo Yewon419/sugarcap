@@ -211,7 +211,8 @@ function renderFeedingStep(c) {
       </div>
       <div class="feed-foot">
         <div class="cta-slot">${stage === 'eaten'
-          ? `<button class="cta" data-a="nextStep">${side === 'sugar' ? '다음 · 카인' : '마무리'}</button>` : ''}</div>
+          ? `<button class="cta" data-a="nextStep">${side === 'sugar' ? '다음 · 카인' : '마무리'}</button>`
+          : cupToAdd() && side === 'sugar' && stage === 'ask' ? `<button class="feed-add" data-a="openRecord">${ICON.plus} 음료 추가</button>` : ''}</div>
         ${footNote(c.kind === 'close' && stage !== 'eaten')}
       </div>
     </div>`;

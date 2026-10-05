@@ -1,11 +1,14 @@
+import OSLog
 import SwiftData
 import SwiftUI
 
 /// 설정(SPEC §4.4). 오늘 화면 모서리 버튼으로 여는 시트다(2026-10-05 하단 탭 제거).
 /// 2026-10-05 프로토타입 v4 확정 = 네이티브 목록 하나. 하루 기준·조금씩 줄이기는 추이 화면으로 옮겼다(대표님 "설정 탭에 안 어울리는 기능").
-/// 시간 → Pro·복원·소개·개인정보.
+/// 시간 → Pro·복원·소개·개인정보 → 테스트(TestFlight·Debug만).
 struct SettingsView: View {
     let catalog: Catalog
+    /// 테스트 카드에서 고른 일. 오늘 화면이 시트를 닫은 뒤 실행한다.
+    let onTestAction: (SettingsTestAction) -> Void
 
     @Query private var settingsRows: [AppSettings]
     @Environment(\.dismiss) private var dismiss
@@ -15,7 +18,7 @@ struct SettingsView: View {
             Group {
                 // 설정 행은 루트가 첫 프레임에 만든다(`RootView.ensureSettings`).
                 if let settings = settingsRows.first {
-                    SettingsContent(settings: settings, catalog: catalog)
+                    SettingsContent(settings: settings, catalog: catalog, onTestAction: onTestAction)
                 } else {
                     ProgressView()
                 }
@@ -47,13 +50,20 @@ enum HourChoices {
 private struct SettingsContent: View {
     @Bindable var settings: AppSettings
     let catalog: Catalog
+    let onTestAction: (SettingsTestAction) -> Void
 
     @State private var showsPaywall = false
     @State private var showsOnboarding = false
     @State private var isRestoring = false
     @State private var alertMessage: String?
+    @State private var isTestBuild = false
+    @State private var confirmsFirstRun = false
 
+    @Query private var affinities: [Affinity]
+    @Environment(\.modelContext) private var context
     @Environment(ProStore.self) private var pro
+
+    private static let logger = Logger(subsystem: "com.sugarcap.app", category: "settings")
 
     var body: some View {
         List {
@@ -93,6 +103,8 @@ private struct SettingsContent: View {
                 Text("기록은 이 기기에만 저장돼요. 수집하는 정보는 없어요.")
             }
 
+            if isTestBuild { testSection }
+
             // 편의점 음료 출처 표기는 필수다(SPEC §2, 식약처 공공데이터).
             Section {
             } footer: {
@@ -107,6 +119,13 @@ private struct SettingsContent: View {
         }
         .scrollContentBackground(.hidden)
         .background(Color.wall.ignoresSafeArea())
+        .task { isTestBuild = await TestBuild.isActive() }
+        .confirmationDialog("첫 실행으로 되돌릴까요?", isPresented: $confirmsFirstRun, titleVisibility: .visible) {
+            Button("되돌리기", role: .destructive) { onTestAction(.firstRun) }
+                .accessibilityIdentifier("confirm-first-run")
+        } message: {
+            Text("기록은 그대로 두고 앱 소개와 로슈·카인 소개를 처음부터 다시 봐요.")
+        }
         .sheet(isPresented: $showsPaywall) {
             PaywallView(feature: nil)
         }
@@ -123,6 +142,58 @@ private struct SettingsContent: View {
                 onStart: { showsOnboarding = false },
                 onClose: { showsOnboarding = false }
             )
+        }
+    }
+
+    /// 테스트 카드(2026-10-05 프로토 v4). 먹이기·정산은 저장 없이 열고, Pro 흉내는 앱을 다시 켜면 꺼진다.
+    private var testSection: some View {
+        Section {
+            Button("먹이기 바로 보기") { onTestAction(.feeding) }
+                .font(AppFont.pretendard(16, .regular, relativeTo: .body))
+                .accessibilityIdentifier("test-feeding")
+            Button("어제 정산 바로 보기") { onTestAction(.yesterdayGate) }
+                .font(AppFont.pretendard(16, .regular, relativeTo: .body))
+                .accessibilityIdentifier("test-yesterday")
+            Toggle("Pro 켠 것처럼", isOn: Binding(get: { pro.isProSimulated }, set: { pro.simulatePro($0) }))
+                .rowText()
+                .accessibilityIdentifier("test-pro")
+            affinityStepper(.sugar)
+            affinityStepper(.caffeine)
+            Button("첫 실행으로 되돌리기", role: .destructive) { confirmsFirstRun = true }
+                .font(AppFont.pretendard(16, .regular, relativeTo: .body))
+                .accessibilityIdentifier("test-first-run")
+        } header: {
+            Text("테스트 · TestFlight에서만 보여요")
+        } footer: {
+            Text("여기서 연 먹이기와 정산은 기록에 남지 않아요.")
+        }
+    }
+
+    /// 호감도 단계를 바로 바꾼다. 그 단계의 시작 점수로 맞춘다.
+    private func affinityStepper(_ side: CupSide) -> some View {
+        let level = affinities.first { $0.character == side.characterID }?.level ?? 1
+        return Stepper(
+            value: Binding(get: { level }, set: { setAffinity(side, level: $0) }),
+            in: 1...AffinityMath.maxLevel
+        ) {
+            HStack {
+                Text("\(side.characterName) 호감도")
+                Spacer()
+                Text("\(level)단계").monospacedDigit().foregroundStyle(.secondary)
+            }
+        }
+        .rowText()
+    }
+
+    private func setAffinity(_ side: CupSide, level: Int) {
+        do {
+            let affinity = try SettlementStore.affinity(for: side, in: context)
+            affinity.points = AffinityMath.threshold(level: level)
+            try context.save()
+        } catch {
+            Self.logger.error("호감도 바꾸기 실패(\(side.rawValue, privacy: .public) \(level)): \(String(describing: error), privacy: .public)")
+            context.rollback()
+            alertMessage = "호감도를 바꾸지 못했어요."
         }
     }
 

@@ -12,7 +12,11 @@ final class ProStore {
     private(set) var isLoadingPlans = false
     private(set) var purchasingID: String?
     private(set) var failure: String?
+    /// 설정 테스트 카드의 "Pro 켠 것처럼"(TestFlight·Debug). 저장하지 않아 앱을 다시 켜면 꺼진다.
+    private(set) var isProSimulated = false
 
+    /// 실제 구매 여부. `isPro`는 이 값에 `isProSimulated`를 더한 것이다.
+    private var ownsPro = false
     private var products: [String: Product] = [:]
     private var updatesTask: Task<Void, Never>?
     /// 목 상태에서는 StoreKit을 건드리지 않는다.
@@ -26,7 +30,13 @@ final class ProStore {
     init(previewPlans: [ProPlan], isPro: Bool) {
         self.plans = previewPlans
         self.isPro = isPro
+        self.ownsPro = isPro
         self.isPreview = true
+    }
+
+    func simulatePro(_ on: Bool) {
+        isProSimulated = on
+        isPro = ownsPro || on
     }
 
     /// CI 스크린샷·UI 테스트 전용(Debug 빌드만). 실행 인자로 구매 상태를 흉내 낸다.
@@ -71,10 +81,11 @@ final class ProStore {
                 owned.append(transaction.productID)
             }
         }
-        isPro = ProEntitlement.isPro(productIDs: owned)
-        // 위젯은 StoreKit을 다시 묻지 않고 이 값을 읽는다(§4.6).
-        if SharedDefaults.isPro != isPro {
-            SharedDefaults.isPro = isPro
+        ownsPro = ProEntitlement.isPro(productIDs: owned)
+        isPro = ownsPro || isProSimulated
+        // 위젯은 StoreKit을 다시 묻지 않고 이 값을 읽는다(§4.6). 흉내 낸 Pro는 저장되는 값에 넣지 않는다.
+        if SharedDefaults.isPro != ownsPro {
+            SharedDefaults.isPro = ownsPro
             WidgetCenter.shared.reloadAllTimelines()
         }
     }

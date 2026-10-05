@@ -250,6 +250,33 @@ extension RecordFlowUITests {
         XCTAssertTrue(app.buttons["settings-close"].exists, "다시 보기는 온보딩 완료 상태를 건드리지 않는다(설정 시트가 그대로 남는다)")
     }
 
+    /// 설정 테스트 카드(Debug·TestFlight)의 "먹이기 바로 보기"는 설정을 닫고 먹이기를 끝까지 보여 주되 오늘을 마감하지 않는다.
+    @MainActor
+    func testSettingsTestCardRehearsesFeeding() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launch()
+
+        completeOnboardingIfPresented(app)
+        app.buttons["open-settings"].tap()
+        Driver(app: app).tap(app.buttons["test-feeding"])
+
+        // 첫 먹이기면 로슈·카인 소개부터 뜬다.
+        let introSkip = app.buttons["intro-skip"]
+        if introSkip.waitForExistence(timeout: 5) { introSkip.tap() }
+
+        let skip = app.buttons["feeding-skip"]
+        XCTAssertTrue(skip.waitForExistence(timeout: 15), "테스트 카드에서 먹이기가 안 열림")
+        skip.tap()
+        let done = app.buttons["feeding-done"]
+        XCTAssertTrue(done.waitForExistence(timeout: 5), "건너뛰기 뒤 요약이 안 뜸")
+        done.tap()
+        XCTAssertTrue(done.waitForNonExistence(timeout: 5), "완료를 눌러도 먹이기 화면이 안 닫힘")
+
+        XCTAssertTrue(app.buttons["open-settings"].waitForExistence(timeout: 5), "먹이기 뒤 오늘 화면으로 안 돌아옴")
+        XCTAssertFalse(app.staticTexts["마감함"].exists, "테스트 먹이기가 오늘을 마감해 버림")
+    }
+
     /// 하단 탭은 없다. 추이는 오늘 위로 밀어 넣고, 뒤로 가면 오늘로 돌아온다(2026-10-05).
     @MainActor
     func testTrendsPushesFromCornerAndGoesBack() throws {

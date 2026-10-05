@@ -32,6 +32,10 @@ struct TodayView: View {
     @State private var prompt: SettlementPlan.Prompt?
     /// 어젯밤 처리할 게 있으면 앱을 열자마자 전체 화면으로 띄운다(2026-09-27 대표님). 처리 전까지 계속 뜬다.
     @State private var gate: YesterdayGate?
+    /// 지금 뜬 어젯밤 화면이 설정 테스트 카드에서 연 것인지. 그렇다면 아무것도 저장하지 않는다.
+    @State private var isGateRehearsal = false
+    /// 설정 테스트 카드에서 고른 일. 시트가 다 닫힌 뒤 실행한다.
+    @State private var pendingTestAction: SettingsTestAction?
     /// "어젯밤 이후 마신 만큼 빠졌어요"를 X로 닫은 날. 그날엔 다시 띄우지 않는다.
     @AppStorage("dismissedShrankNoticeDay") private var dismissedShrankDay = ""
     /// 지난 마감분이 방금 확정됐을 때만 채운다. 이번 실행 동안만 보인다.
@@ -90,8 +94,11 @@ struct TodayView: View {
                     .navigationBarTitleDisplayMode(.inline)
             }
         }
-        .sheet(isPresented: $isSettingsPresented) {
-            SettingsView(catalog: catalog.catalog)
+        .sheet(isPresented: $isSettingsPresented, onDismiss: runPendingTestAction) {
+            SettingsView(catalog: catalog.catalog) { action in
+                pendingTestAction = action
+                isSettingsPresented = false
+            }
         }
         .overlay(alignment: .bottom) {
             if let undoToast {
@@ -148,8 +155,10 @@ struct TodayView: View {
             let request = presentation.request
             FeedingView(
                 request: request, opening: presentation.opening, catalog: catalog, snapshot: presentation.snapshot,
-                onFeed: { try feed(request) },
-                onAddDrink: { entry in try addDrink(entry, to: request) }
+                onFeed: { try presentation.isRehearsal ? [] : feed(request) },
+                onAddDrink: { entry in
+                    try presentation.isRehearsal ? Self.rehearse(entry, on: request) : addDrink(entry, to: request)
+                }
             )
         }
         .sheet(item: $paywall, onDismiss: {
@@ -320,14 +329,21 @@ struct TodayView: View {
                 .padding(.horizontal, 20)
                 .padding(.top, 191)
         }
-        .fullScreenCover(item: $gate, onDismiss: presentGateIfPending) { gate in
+        .fullScreenCover(item: $gate, onDismiss: {
+            isGateRehearsal = false
+            presentGateIfPending()
+        }) { gate in
             YesterdayGateView(
                 gate: gate,
                 opening: feedingOpening(),
                 catalog: catalog,
-                onFeed: { request in try feed(request) },
-                onAddDrink: { entry, request in try addDrink(entry, to: request) },
-                onDrank: { dismissPastDay(gate.day) }
+                onFeed: { request in try isGateRehearsal ? [] : feed(request) },
+                onAddDrink: { entry, request in
+                    try isGateRehearsal ? Self.rehearse(entry, on: request) : addDrink(entry, to: request)
+                },
+                onDrank: {
+                    if isGateRehearsal { self.gate = nil } else { dismissPastDay(gate.day) }
+                }
             )
         }
         .overlay(alignment: .bottom) { bottomControls(now: now, today: today, totals: totals) }
@@ -698,6 +714,54 @@ struct TodayView: View {
             Self.logger.error("어제 닫기 실패(\(day.rawValue, privacy: .public)): \(String(describing: error), privacy: .public)")
             failureMessage = "저장하지 못했어요. 다시 시도해 주세요."
         }
+    }
+
+    /// 설정 테스트 카드(TestFlight·Debug)에서 고른 일. 설정 시트가 다 닫힌 뒤에 부른다.
+    /// 먹이기·어젯밤 화면은 실제와 같은 값·같은 여는 방식으로 띄우되 아무것도 저장하지 않는다.
+    private func runPendingTestAction() {
+        guard let action = pendingTestAction else { return }
+        pendingTestAction = nil
+        let now = Date()
+        switch action {
+        case .feeding:
+            let todayTotals = todayTotals(now: now)
+            let request = FeedingRequest(
+                kind: .closeToday, sugarLeftG: todayTotals.leftSugarG, caffeineLeftMg: todayTotals.leftCaffeineMg,
+                limits: limits, sugarOverG: todayTotals.overSugarG, caffeineOverMg: todayTotals.overCaffeineMg
+            )
+            let opening = feedingOpening()
+            var transaction = Transaction()
+            transaction.disablesAnimations = true
+            withTransaction(transaction) {
+                feeding = FeedingPresentation(request: request, opening: opening, snapshot: nil, isRehearsal: true)
+            }
+        case .yesterdayGate:
+            let yesterday = DayKey(at: now, boundaryHour: boundaryHour).shifted(by: -1)
+            let dayTotals = totals(for: yesterday)
+            isGateRehearsal = true
+            gate = YesterdayGate(
+                kind: .feed, day: yesterday, sugarLeftG: dayTotals.leftSugarG, caffeineLeftMg: dayTotals.leftCaffeineMg,
+                limits: limits, sugarOverG: dayTotals.overSugarG, caffeineOverMg: dayTotals.overCaffeineMg
+            )
+        case .firstRun:
+            // 루트가 완료 플래그를 지켜보다 온보딩으로 바꾼다. 기록·정산·호감도는 그대로다.
+            UserDefaults.standard.removeObject(forKey: CompanionIntro.seenKey)
+            UserDefaults.standard.set(false, forKey: OnboardingView.completedKey)
+        }
+    }
+
+    /// 테스트 카드 먹이기의 음료 추가. 저장하지 않고 요청의 남은 양만 그 음료만큼 줄인다.
+    private static func rehearse(_ entry: Entry, on request: FeedingRequest) -> FeedingRequest {
+        let limits = request.limits
+        let drunk = Consumption(
+            sugarG: limits.sugarG - request.sugarLeftG + request.sugarOverG,
+            caffeineMg: limits.caffeineMg - request.caffeineLeftMg + request.caffeineOverMg
+        )
+        let totals = DayMath.totals([drunk, entry.consumption], limits: limits)
+        return FeedingRequest(
+            kind: request.kind, sugarLeftG: totals.leftSugarG, caffeineLeftMg: totals.leftCaffeineMg,
+            limits: limits, sugarOverG: totals.overSugarG, caffeineOverMg: totals.overCaffeineMg
+        )
     }
 
     /// CI 스크린샷 전용(Debug 빌드만). 실행 인자로 덮인 화면을 바로 띄운다.

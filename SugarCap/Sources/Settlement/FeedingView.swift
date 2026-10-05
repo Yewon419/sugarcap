@@ -58,6 +58,8 @@ struct FeedingPresentation: Identifiable, Equatable {
     let request: FeedingRequest
     let opening: FeedingOpening
     let snapshot: FeedingSnapshot?
+    /// 설정 테스트 카드에서 연 먹이기. 마감·적립·음료 추가를 저장하지 않는다.
+    var isRehearsal = false
 
     var id: String { request.id }
 }

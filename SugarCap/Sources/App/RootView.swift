@@ -57,9 +57,10 @@ struct RootView: View {
     /// 스토어 스크린샷용 데모 기록(Debug 빌드만). 어느 화면으로 시작하든 돌아야 해서 루트에 둔다.
     private func seedDemoIfRequested() {
         #if DEBUG
-        guard DemoData.isRequested else { return }
         do {
             let settings = try AppSettings.current(in: context)
+            DemoData.seedGoalIfRequested(into: context, settings: settings)
+            guard DemoData.isRequested else { return }
             DemoData.seed(into: context, boundaryHour: settings.dayBoundaryHour)
         } catch {
             Self.logger.error("데모 시드 실패: \(String(describing: error), privacy: .public)")

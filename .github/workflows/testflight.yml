@@ -156,6 +156,9 @@ jobs:
           shoot trends-type-ax-xl light accessibility-extra-large -initialTab trends
           shoot trends-caffeine light large -seedDemo YES -initialTab trends -trendSide caffeine
           shoot trends-month light large -seedDemo YES -mockProOwned YES -initialTab trends -trendRange month
+          # 하루 기준 화면(추이에서 push). 줄이는 중 화면은 맨 끝에서 찍는다.
+          shoot limit-sugar light large -initialTab trends -trendLimit sugar
+          shoot limit-sugar-type-ax-xl light accessibility-extra-large -initialTab trends -trendLimit sugar
           shoot feeding light large -screenshotFeeding YES
           shoot paywall light large -mockPro YES -screenshotPaywall YES
           shoot paywall-type-ax-xl light accessibility-extra-large -mockPro YES -screenshotPaywall YES
@@ -207,6 +210,9 @@ jobs:
           shoot idle-kain-swim light large -screenshotSide caffeine -idlePose swim -idleStep 100 -idleAt 2.5
           shoot idle-kain-walk light large -screenshotSide caffeine -idlePose walk -idleStep 100 -idleAt 3.2
           shoot idle-kain-floor-sit light large -screenshotSide caffeine -idlePose floor-sit -idleStep 0 -idleAt 2.5
+          # 감소 목표는 저장돼 남는다. 맨 끝에 찍고 앱을 지워 스토어 스크린샷(같은 기기일 수 있음)에 넘기지 않는다.
+          shoot limit-caffeine-reducing light large -mockProOwned YES -seedGoal caffeine -initialTab trends -trendLimit caffeine
+          xcrun simctl uninstall "$SIM_UDID" com.sugarcap.app
           ls -la "$OUT"
 
       - uses: actions/upload-artifact@v4

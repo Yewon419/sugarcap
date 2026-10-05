@@ -66,6 +66,21 @@ enum DemoData {
         }
     }
 
+    /// 하루 기준 화면의 "줄이는 중" 스크린샷용. `-seedGoal caffeine`이면 카페인 목표(8주 중 3주 지킴)를 만든다.
+    static func seedGoalIfRequested(into context: ModelContext, settings: AppSettings, now: Date = Date()) {
+        guard let raw = UserDefaults.standard.string(forKey: "seedGoal"), let side = CupSide(rawValue: raw) else { return }
+        do {
+            let today = DayKey(at: now, boundaryHour: settings.dayBoundaryHour)
+            let goal = try ReductionStore.start(
+                side: side, target: side == .sugar ? 25 : 200, weeks: 8, settings: settings, today: today, in: context
+            )
+            goal.achievedWeeks = 3
+            try context.save()
+        } catch {
+            logger.error("데모 목표 주입 실패: \(String(describing: error), privacy: .public)")
+        }
+    }
+
     private static func insert(
         _ context: ModelContext, _ name: String, _ brand: String, _ size: String,
         sugar: Double, caffeine: Double, at date: Date

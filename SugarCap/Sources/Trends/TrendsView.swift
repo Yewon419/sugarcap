@@ -13,6 +13,7 @@ struct TrendsView: View {
 
     @Query private var settingsRows: [AppSettings]
     @Query(sort: \Entry.loggedAt, order: .reverse) private var entries: [Entry]
+    @Query private var goals: [ReductionGoal]
     @Environment(\.modelContext) private var context
     @Environment(ProStore.self) private var pro
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -24,6 +25,8 @@ struct TrendsView: View {
     @State private var pendingMonth = false
     @State private var dayLog: DayKey?
     @State private var failureMessage: String?
+    /// 하루 기준 화면으로 넘어간 쪽(2026-10-05 설정에서 옮겨 옴).
+    @State private var limitSide: CupSide?
 
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "trends")
     private static let weekdays = ["일", "월", "화", "수", "목", "금", "토"]
@@ -66,6 +69,9 @@ struct TrendsView: View {
                 catalog: catalog,
                 onDelete: delete
             )
+        }
+        .navigationDestination(item: $limitSide) { side in
+            LimitDetailView(side: side)
         }
         .alert(failureMessage ?? "", isPresented: Binding(get: { failureMessage != nil }, set: { if !$0 { failureMessage = nil } })) {
             Button("확인", role: .cancel) {}
@@ -117,6 +123,7 @@ struct TrendsView: View {
                 : "하루 평균 \(Amount.number(week.dailyAverage)) \(side.unit) 마셨어요",
             cheer: week.isGoodWeek
         )
+        limitRow
         shelf(week: week, today: today)
         ViewThatFits(in: .horizontal) {
             HStack(spacing: 12) { statCards(week: week, today: today) }
@@ -172,6 +179,54 @@ struct TrendsView: View {
         .card(radius: 28)
         .padding(.horizontal, 16)
         .padding(.top, 22)
+    }
+
+    /// 지금 보는 쪽의 하루 기준. 누르면 기준·조금씩 줄이기 화면으로 간다.
+    private var limitRow: some View {
+        let isReducing = goals.contains { $0.side == side.rawValue }
+        return Button {
+            limitSide = side
+        } label: {
+            HStack(spacing: 12) {
+                Image(side.dropAsset)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 32, height: 32)
+                    .accessibilityHidden(true)
+                Text("하루 기준")
+                    .font(AppFont.pretendard(15, .semibold, relativeTo: .subheadline))
+                    .foregroundStyle(Color.ink)
+                Spacer(minLength: 8)
+                HStack(alignment: .firstTextBaseline, spacing: 2) {
+                    if isReducing {
+                        Text("줄이는 중 · ")
+                            .font(AppFont.pretendard(13, .regular, relativeTo: .footnote))
+                    }
+                    Text(Amount.number(limit))
+                        .font(AppFont.pretendard(17, .bold, relativeTo: .body))
+                        .monospacedDigit()
+                    Text(side.unit)
+                        .font(AppFont.pretendard(13, .medium, relativeTo: .footnote))
+                }
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                Image(systemName: "chevron.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+            }
+            .padding(.horizontal, 18)
+            .frame(maxWidth: .infinity, minHeight: 60)
+            .card(radius: 20)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(PressScaleStyle())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(side.label) 하루 기준 \(Amount.number(limit)) \(side.unit)\(isReducing ? ", 줄이는 중" : "")")
+        .accessibilityAddTraits(.isButton)
+        .accessibilityIdentifier("trend-limit")
+        .padding(.horizontal, 16)
+        .padding(.top, 12)
     }
 
     private func shelf(week: WeekSummary, today: DayKey) -> some View {
@@ -337,6 +392,7 @@ struct TrendsView: View {
             caption: "기준 안에서 마신 날 \(month.withinDays)일 / \(month.elapsedDays)일",
             cheer: false
         )
+        limitRow
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .firstTextBaseline) {
                 Text("방울 달력").kicker()
@@ -428,12 +484,13 @@ struct TrendsView: View {
         }
     }
 
-    /// CI 스크린샷 전용(Debug). `-trendSide caffeine`, `-trendRange month`.
+    /// CI 스크린샷 전용(Debug). `-trendSide caffeine`, `-trendRange month`, `-trendLimit sugar`(하루 기준 화면을 바로 연다).
     private func applyScreenshotArguments() {
         #if DEBUG
         let defaults = UserDefaults.standard
         if defaults.string(forKey: "trendSide") == "caffeine" { side = .caffeine }
         if defaults.string(forKey: "trendRange") == "month" { range = .month }
+        if let raw = defaults.string(forKey: "trendLimit"), let limitSide = CupSide(rawValue: raw) { self.limitSide = limitSide }
         #endif
     }
 }

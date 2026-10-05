@@ -88,7 +88,25 @@ final class RecordFlowUITests: XCTestCase {
 }
 
 extension RecordFlowUITests {
-    /// 설정에서 당 하루 기준을 바꾸면 오늘 화면 수치의 분모가 바로 바뀐다(§4.4).
+    /// 추이 → 하루 기준 화면을 연다(2026-10-05 설정에서 옮겨 옴). 지금 보는 쪽이 당이어야 한다.
+    @MainActor
+    private func openSugarLimit(_ app: XCUIApplication) {
+        app.buttons["open-trends"].tap()
+        let row = app.buttons["trend-limit"]
+        XCTAssertTrue(row.waitForExistence(timeout: 10), "추이에 하루 기준 줄이 안 보임:
+\(app.debugDescription)")
+        row.tap()
+    }
+
+    /// 하루 기준 화면 → 추이 → 오늘로 두 번 뒤로 간다.
+    @MainActor
+    private func backToToday(_ app: XCUIApplication) {
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.buttons["trend-limit"].waitForExistence(timeout: 5), "추이로 안 돌아옴")
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+    }
+
+    /// 추이의 하루 기준 화면에서 당 기준을 바꾸면 오늘 화면 수치의 분모가 바로 바뀐다(§4.4).
     /// 끝나면 기본값 50 g으로 되돌린다. 뒤이은 CI 스크린샷이 기본 상태를 찍어야 한다.
     @MainActor
     func testSugarPresetChangesTodayLimit() throws {
@@ -103,25 +121,26 @@ extension RecordFlowUITests {
         XCTAssertTrue(summary.waitForExistence(timeout: 15))
         XCTAssertTrue(summary.label.contains("/ 50 g"), "기본 당 기준이 50 g이 아님: \(summary.label)")
 
-        app.buttons["open-settings"].tap()
-        let preset100 = app.buttons["100 g"]
-        XCTAssertTrue(preset100.waitForExistence(timeout: 5), "당 프리셋이 안 보임:\n\(app.debugDescription)")
+        openSugarLimit(app)
+        let preset100 = app.buttons["limit-sugar-100"]
+        XCTAssertTrue(preset100.waitForExistence(timeout: 5), "당 칩이 안 보임:
+\(app.debugDescription)")
         preset100.tap()
 
-        app.buttons["settings-close"].tap()
+        backToToday(app)
         XCTAssertTrue(summary.waitForExistence(timeout: 5))
-        XCTAssertTrue(summary.label.contains("/ 100 g"), "프리셋 변경이 오늘 화면에 안 반영됨: \(summary.label)")
+        XCTAssertTrue(summary.label.contains("/ 100 g"), "기준 변경이 오늘 화면에 안 반영됨: \(summary.label)")
 
         // 되돌리기도 확인한다. 확인 없이 탭만 하면 실패해도 통과하고, 스크린샷이 100 g 상태로 찍힌다.
-        app.buttons["open-settings"].tap()
-        let preset50 = app.buttons["50 g"]
+        openSugarLimit(app)
+        let preset50 = app.buttons["limit-sugar-50"]
         XCTAssertTrue(preset50.waitForExistence(timeout: 5))
         preset50.tap()
         let restored = NSPredicate(format: "isSelected == true")
         expectation(for: restored, evaluatedWith: preset50)
         waitForExpectations(timeout: 5)
 
-        app.buttons["settings-close"].tap()
+        backToToday(app)
         XCTAssertTrue(summary.waitForExistence(timeout: 5))
         XCTAssertTrue(summary.label.contains("/ 50 g"), "기본값으로 안 돌아옴: \(summary.label)")
     }
@@ -138,7 +157,7 @@ extension RecordFlowUITests {
         app.launch()
 
         completeOnboardingIfPresented(app)
-        app.buttons["open-settings"].tap()
+        openSugarLimit(app)
 
         let startGoal = app.buttons["start-goal-sugar"]
         XCTAssertTrue(startGoal.waitForExistence(timeout: 10))
@@ -148,10 +167,11 @@ extension RecordFlowUITests {
         XCTAssertTrue(confirm.waitForExistence(timeout: 5), "목표 시트가 안 열림")
         confirm.tap()
 
-        // 목표가 도는 동안에는 당 프리셋 대신 목표 진행 행이 보인다.
-        let stopGoal = app.buttons["그만두기"]
-        XCTAssertTrue(stopGoal.waitForExistence(timeout: 5), "목표 진행 행이 안 보임")
-        XCTAssertFalse(app.buttons["25 g"].exists, "목표 중에는 프리셋을 만지지 못한다")
+        // 목표가 도는 동안에는 칩 대신 진행 막대와 그만두기가 보인다.
+        let stopGoal = app.buttons["stop-goal"]
+        XCTAssertTrue(stopGoal.waitForExistence(timeout: 5), "목표 진행 화면이 안 보임")
+        XCTAssertTrue(app.descendants(matching: .any)["goal-progress"].exists, "진행 막대가 안 보임")
+        XCTAssertFalse(app.buttons["limit-sugar-25"].exists, "목표 중에는 칩을 만지지 못한다")
 
         stopGoal.tap()
         // 되돌릴 수 없는 동작이라 확인을 한 번 거친다.
@@ -160,11 +180,12 @@ extension RecordFlowUITests {
         XCTAssertTrue(confirmStops.firstMatch.waitForExistence(timeout: 5), "그만두기 확인 창이 안 뜸")
         let confirmStop = try XCTUnwrap(
             confirmStops.allElementsBoundByIndex.first { $0.isHittable },
-            "그만두기 확인 버튼을 누를 수 없음:\n\(app.debugDescription)"
+            "그만두기 확인 버튼을 누를 수 없음:
+\(app.debugDescription)"
         )
         confirmStop.tap()
         XCTAssertTrue(startGoal.waitForExistence(timeout: 5), "그만두면 다시 만들 수 있어야 한다")
-        XCTAssertTrue(app.buttons["25 g"].waitForExistence(timeout: 5), "프리셋이 돌아와야 한다")
+        XCTAssertTrue(app.buttons["limit-sugar-25"].waitForExistence(timeout: 5), "칩이 돌아와야 한다")
     }
 }
 

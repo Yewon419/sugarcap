@@ -35,6 +35,9 @@ class Character:
     extra: dict[str, Path] = field(default_factory=dict)
     # A pose with a transparent line where the cup rim goes (drawn by hand, measured once).
     rim_line_y: dict[str, int] = field(default_factory=dict)
+    # A pose whose white limb bands or half-hidden nose read as eyes: only blobs inside
+    # this box (x0, y0, x1, y1, measured once) count.
+    eye_region: dict[str, tuple[int, int, int, int]] = field(default_factory=dict)
 
 
 CHARACTERS = {
@@ -43,6 +46,7 @@ CHARACTERS = {
         eye_max_area_ratio=0.004,
         extra={"stand": STAND},
         rim_line_y={"in-cup": 1100},
+        eye_region={"hug-strawberry": (1435, 1100, 1500, 1200)},
     ),
     # Kain's eyes are a white ring round a black pupil, about 2.4% of the body.
     "kain": Character(ROOT / "kain" / "poses", eye_max_area_ratio=0.03),
@@ -57,6 +61,7 @@ def measure(path: Path, character: Character) -> dict[str, object]:
     labels, count = ndimage.label(white)
     max_area = opaque.sum() * character.eye_max_area_ratio
     rim = character.rim_line_y.get(path.stem)
+    region = character.eye_region.get(path.stem)
     eyes: list[dict[str, object]] = []
     for index in range(1, count + 1):
         ey, ex = np.nonzero(labels == index)
@@ -65,6 +70,10 @@ def measure(path: Path, character: Character) -> dict[str, object]:
         if rim is not None and ey.max() > rim:
             continue  # highlights on the submerged body, not eyes
         x0, y0, x1, y1 = int(ex.min()), int(ey.min()), int(ex.max()), int(ey.max())
+        if region is not None and not (
+            region[0] <= x0 and region[1] <= y0 and x1 <= region[2] and y1 <= region[3]
+        ):
+            continue
         # Lid colour from the body left of the eye, or right of it when the eye sits at the left edge.
         sample_x = max(x0 - (x1 - x0) // 2, 0)
         if rgba[(y0 + y1) // 2, sample_x, 3] < OPAQUE_MIN:

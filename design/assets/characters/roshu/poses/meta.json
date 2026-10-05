@@ -1,4 +1,29 @@
 {
+ "hug-strawberry": {
+  "file": "design/assets/characters/roshu/poses/hug-strawberry.png",
+  "canvas": [
+   2500,
+   2800
+  ],
+  "bbox": [
+   653,
+   882,
+   1811,
+   2110
+  ],
+  "eyes": [
+   {
+    "box": [
+     1437,
+     1139,
+     1480,
+     1183
+    ],
+    "lid": "#D5D7DD"
+   }
+  ],
+  "rimLineY": null
+ },
  "in-cup": {
   "file": "design/assets/characters/roshu/poses/in-cup.png",
   "canvas": [

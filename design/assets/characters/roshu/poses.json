@@ -51,6 +51,20 @@
     { "to": "sx", "shape": "arch", "amp": 0.03, "period": 7, "at": 5.4, "length": 1.1 },
     { "to": "limb.foot_left", "shape": "bump", "amp": 7, "period": 7, "at": 6.3, "length": 0.6 }
    ]
+  },
+  "hug-strawberry": {
+   "label": "딸기 끌어안기",
+   "note": "Lv4. 딸기를 끌어안고 바닥 기준으로 좌우 흔들흔들, 팔은 살짝 늦게 따라 조인다. 6초마다 오른발이 한 번 까딱. 코·눈은 딸기 밑(대표님). 팔다리는 전부 몸 앞이고, 몸과 겹친 곳의 흰 띠는 그림대로 두되 딸기 위 띠는 지웠다.",
+   "art": "hug-strawberry", "unlock": 4, "minStep": 1,
+   "place": { "x": 0.8, "y": "bottom", "dy": 0.01 },
+   "limbDirection": { "foot_left": 1, "foot_right": -1, "arm": 0 },
+   "reflection": { "toward": 0.1, "up": 5 },
+   "shadow": { "w": 0.85, "h": 0.18, "dx": 0.05, "dy": -0.04 },
+   "motion": [
+    { "to": "rot", "shape": "wave", "amp": 4, "period": 2.6 },
+    { "to": "limb.arm", "shape": "wave", "amp": 3, "period": 2.6, "phase": 0.8 },
+    { "to": "limb.foot_right", "shape": "bump", "amp": 10, "period": 6, "at": 4.2, "length": 0.5 }
+   ]
   }
  }
 }

@@ -138,6 +138,9 @@ jobs:
           shoot light light large
           # 표준 최대치(XXXL)를 넘는 접근성 크기로 레이아웃이 무너지는지 본다.
           shoot type-ax-xl light accessibility-extra-large
+          # 첫 기록 전 안내("컵을 눌러 마신 음료 적기"). 시뮬레이터에 테스트 기록이 남아 있어 인자로 띄운다.
+          shoot cup-hint light large -screenshotCupHint YES
+          shoot cup-hint-type-ax-xl light accessibility-extra-large -screenshotCupHint YES
           shoot settings light large -initialTab settings
           # 온보딩 릴(한 시각에 멈춰) + 하루 기준 두 단계(2 = 당, 3 = 카페인).
           for at in 0.9 2.0 3.9 6.4 8.1 9.8 12.2 14.4; do

@@ -228,6 +228,15 @@ struct TodayView: View {
         .accessibilityIdentifier("record-add")
     }
 
+    /// CI 스크린샷 전용(Debug `-screenshotCupHint YES`). CI 시뮬레이터는 UI 테스트 기록이 남아 첫 안내가 안 찍힌다.
+    private var showsCupHintForScreenshot: Bool {
+        #if DEBUG
+        return UserDefaults.standard.bool(forKey: "screenshotCupHint")
+        #else
+        return false
+        #endif
+    }
+
     /// 컵을 누르면 음료 추가(2026-10-05 대표님, 오른쪽 아래 + 버튼 대신). 위 수치·아래 조작부 자리는 빼고
     /// 잔이 있는 칸만 받는다(프로토 `.cup-tap`과 같은 칸: 양옆 32, 위 35%, 아래 170).
     private func tapCup(at point: CGPoint, screen: CGRect) {
@@ -297,7 +306,7 @@ struct TodayView: View {
                 headline(remaining: remaining, limit: limit, overflow: side.overflow(totals))
                 // 처음 한 번만: 기록 버튼이 따로 없으니 컵을 누르면 된다고 알려 준다. 첫 기록을 남기면 사라진다.
                 // 큰 숫자 바로 아래에 붙여 둔다(글자를 키워도 숫자와 안 겹치게).
-                if entries.isEmpty {
+                if entries.isEmpty || showsCupHintForScreenshot {
                     Text("컵을 눌러 마신 음료 적기")
                         .font(AppFont.pretendard(15, .semibold, relativeTo: .subheadline))
                         .foregroundStyle(.secondary)

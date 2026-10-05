@@ -138,6 +138,8 @@ struct TrendsView: View {
                         .contentTransition(.numericText())
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
+                        // 음수 자간은 마지막 글자 뒤에도 붙어 끝자리가 단위에 덮인다(베타 피드백 "숫자 잘림"). 줄인 만큼 돌려준다.
+                        .padding(.trailing, 4.5)
                     Text(unit)
                         .heroUnit()
                         .padding(.leading, 2)

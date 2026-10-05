@@ -22,6 +22,8 @@ extension View {
         font(AppFont.pretendardFixed(96, .bold))
             .tracking(-5.8)
             .monospacedDigit()
+            // 음수 자간은 마지막 글자 뒤에도 붙어 끝자리가 단위에 덮인다(베타 피드백 "숫자 잘림"). 줄인 만큼 돌려준다.
+            .padding(.trailing, 5.8)
     }
 
     /// 주인공 숫자 옆에 붙는 단위.

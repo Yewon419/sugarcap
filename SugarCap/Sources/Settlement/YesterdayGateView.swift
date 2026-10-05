@@ -100,7 +100,8 @@ struct YesterdayGateView: View {
         .overlay(alignment: .bottom) {
             VStack(spacing: 18) {
                 HStack(alignment: .bottom, spacing: 18) {
-                    waiting(.sugar, height: 130)
+                    // 카인 = 로슈 × 0.91(오늘 화면 비율). 로슈 130은 카인보다 너무 커 보였다(베타 피드백 "로슈 사이즈 줄여").
+                    waiting(.sugar, height: 114)
                     waiting(.caffeine, height: 104)
                 }
                 actions

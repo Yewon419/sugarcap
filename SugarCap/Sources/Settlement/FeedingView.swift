@@ -856,35 +856,35 @@ private struct CupTap: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .keyframeAnimator(initialValue: 0.0, trigger: trigger) { view, angle in
-                view.rotationEffect(.degrees(angle), anchor: UnitPoint(x: 0.5, y: 0.9))
+            .keyframeAnimator(initialValue: 0.0, trigger: trigger) { view, x in
+                view.offset(x: x)
             } keyframes: { _ in
                 KeyframeTrack {
-                    CubicKeyframe(1.3, duration: 0.04)
-                    CubicKeyframe(-0.9, duration: 0.08)
-                    CubicKeyframe(0.4, duration: 0.08)
+                    CubicKeyframe(1.2, duration: 0.05)
+                    CubicKeyframe(-0.6, duration: 0.08)
                     CubicKeyframe(0.0, duration: 0.1)
                 }
             }
     }
 }
 
-/// 컵을 누르면 잔 바닥 근처를 축으로 흔들린다. 컵 장면과 캐릭터 층에 같이 건다(같은 박자로 흔들리게).
+/// 컵을 누르면 짧게 떨린다. 컵 장면과 캐릭터 층에 같이 건다(같은 박자로 흔들리게).
+/// 장면이 식탁까지 든 사진 한 장이라 돌리면 식탁째 기울어 부자연스러웠다(대표님 2026-10-05: ±4° 회전 → 너무 크다).
+/// 돌리지 않고 옆으로만 몇 pt 떨고 빠르게 잦아든다.
 private struct CupShake: ViewModifier {
     let trigger: Int
 
     func body(content: Content) -> some View {
         content
-            .keyframeAnimator(initialValue: 0.0, trigger: trigger) { view, angle in
-                view.rotationEffect(.degrees(angle), anchor: UnitPoint(x: 0.5, y: 0.9))
+            .keyframeAnimator(initialValue: 0.0, trigger: trigger) { view, x in
+                view.offset(x: x)
             } keyframes: { _ in
                 KeyframeTrack {
-                    CubicKeyframe(-4.0, duration: 0.09)
-                    CubicKeyframe(3.5, duration: 0.09)
-                    CubicKeyframe(-3.0, duration: 0.09)
-                    CubicKeyframe(2.0, duration: 0.09)
-                    CubicKeyframe(-1.0, duration: 0.09)
-                    CubicKeyframe(0.0, duration: 0.1)
+                    CubicKeyframe(-3.0, duration: 0.05)
+                    CubicKeyframe(2.4, duration: 0.07)
+                    CubicKeyframe(-1.4, duration: 0.07)
+                    CubicKeyframe(0.6, duration: 0.07)
+                    CubicKeyframe(0.0, duration: 0.08)
                 }
             }
     }

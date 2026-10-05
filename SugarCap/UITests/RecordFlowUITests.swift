@@ -10,6 +10,8 @@ final class RecordFlowUITests: XCTestCase {
     func testRecordingFromBrandMenuAndManualEntryShrinksTheCup() throws {
         continueAfterFailure = false
         let app = XCUIApplication()
+        // 기록은 컵을 눌러 연다(record-add = 컵 장면). 캐릭터가 누른 자리에 있으면 움찔만 하므로 자세를 멈춰 둔다.
+        app.launchArguments += ["-idleAt", "0"]
         app.launch()
         let ui = Driver(app: app)
 
@@ -390,6 +392,8 @@ extension RecordFlowUITests {
     func testStoreDrinkSearchIgnoresSpaces() throws {
         continueAfterFailure = false
         let app = XCUIApplication()
+        // 기록은 컵을 눌러 연다(record-add = 컵 장면). 캐릭터가 누른 자리에 있으면 움찔만 하므로 자세를 멈춰 둔다.
+        app.launchArguments += ["-idleAt", "0"]
         app.launch()
         completeOnboardingIfPresented(app)
         let ui = Driver(app: app)

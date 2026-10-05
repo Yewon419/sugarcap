@@ -16,6 +16,8 @@ struct IdleCharacterLayer: View {
     let isActive: Bool
     /// 대기 자세가 풀린 호감도 단계(§9.8).
     let unlockedLevel: Int
+    /// 캐릭터 밖을 누른 자리(전역 좌표). 오늘 화면은 이걸 컵 누르기로 받는다(2026-10-05).
+    var onMiss: (CGPoint) -> Void = { _ in }
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
@@ -39,11 +41,17 @@ struct IdleCharacterLayer: View {
                         sprite.draw(in: &context, t: t, blink: blink, flinch: flinch)
                     }
                 }
-                // 캐릭터 위를 누를 때만 반응한다. 컵 넘기기(부모의 끌기)는 손가락이 움직이면 그쪽으로 간다.
+                // 캐릭터 위를 누를 때만 움찔하고, 그 밖은 `onMiss`로 넘긴다. 컵 넘기기(부모의 끌기)는 손가락이 움직이면 그쪽으로 간다.
                 .contentShape(Rectangle())
-                .onTapGesture { location in
+                .onTapGesture(coordinateSpace: .global) { location in
+                    let origin = proxy.frame(in: .global).origin
+                    let local = CGPoint(x: location.x - origin.x, y: location.y - origin.y)
                     let now = Date()
-                    if sprite.contains(location, t: now.timeIntervalSince(start)) { flinchAt = now }
+                    if sprite.contains(local, t: now.timeIntervalSince(start)) {
+                        flinchAt = now
+                    } else {
+                        onMiss(location)
+                    }
                 }
             }
         }

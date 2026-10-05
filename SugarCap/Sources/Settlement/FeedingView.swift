@@ -420,11 +420,14 @@ struct FeedingView: View {
                     .transition(.opacity)
                 } else if step == .sugar && stage == .ask {
                     // 깜빡한 음료를 먹이기 전에 넣는다(2026-10-02 대표님). 먹이기를 시작하면 숨긴다.
+                    // 유리 알약이 "구리다"(2026-10-05 대표님) → 밤 장면 위 흰 단색 칸. 그림자·유리 없음.
                     Button { isRecordPresented = true } label: {
                         Label("음료 추가", systemImage: "plus")
-                            .font(AppFont.pretendard(15, .semibold, relativeTo: .subheadline))
-                            .foregroundStyle(.white)
-                            .glassPill()
+                            .font(AppFont.pretendard(15, .bold, relativeTo: .subheadline))
+                            .foregroundStyle(Color.accentColor)
+                            .padding(.horizontal, 20)
+                            .frame(minHeight: 48)
+                            .background(.white, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                     }
                     .buttonStyle(PressScaleStyle())
                     .accessibilityIdentifier("feeding-add-drink")

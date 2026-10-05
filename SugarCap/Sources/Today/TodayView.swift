@@ -187,7 +187,8 @@ struct TodayView: View {
                         step: step, setID: cupSide.cupSetID,
                         idle: IdleCharacterLayer(
                             side: cupSide, step: step, isActive: cupSide == side && !isSliding && isOnScreen && !isSettingsPresented,
-                            unlockedLevel: unlockedLevel(cupSide)
+                            unlockedLevel: unlockedLevel(cupSide),
+                            onMiss: { tapCup(at: $0, screen: proxy.frame(in: .global)) }
                         )
                     )
                     .frame(width: width)
@@ -196,6 +197,8 @@ struct TodayView: View {
             .offset(x: -index * width + dragX)
             .frame(width: width, alignment: .leading)
             .contentShape(Rectangle())
+            // 캐릭터가 누르기를 안 받을 때(동작 줄이기·넘기는 중) 여기로 온다. 받을 때는 캐릭터 밖 누르기가 `onMiss`로 온다.
+            .onTapGesture(coordinateSpace: .global) { tapCup(at: $0, screen: proxy.frame(in: .global)) }
             .gesture(
                 DragGesture(minimumDistance: 12)
                     .onChanged { value in
@@ -218,6 +221,21 @@ struct TodayView: View {
             )
         }
         .ignoresSafeArea()
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("음료 추가")
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction { isRecordSheetPresented = true }
+        .accessibilityIdentifier("record-add")
+    }
+
+    /// 컵을 누르면 음료 추가(2026-10-05 대표님, 오른쪽 아래 + 버튼 대신). 위 수치·아래 조작부 자리는 빼고
+    /// 잔이 있는 칸만 받는다(프로토 `.cup-tap`과 같은 칸: 양옆 32, 위 35%, 아래 170).
+    private func tapCup(at point: CGPoint, screen: CGRect) {
+        let area = CGRect(
+            x: screen.minX + 32, y: screen.minY + screen.height * 0.35,
+            width: screen.width - 64, height: screen.height * 0.65 - 170
+        )
+        if area.contains(point) { isRecordSheetPresented = true }
     }
 
     private func cupStep(_ cupSide: CupSide, totals: DayTotals) -> Int {
@@ -275,7 +293,19 @@ struct TodayView: View {
             .ignoresSafeArea(edges: .top)
             .allowsHitTesting(false)
 
-            headline(remaining: remaining, limit: limit, overflow: side.overflow(totals))
+            VStack(alignment: .leading, spacing: 6) {
+                headline(remaining: remaining, limit: limit, overflow: side.overflow(totals))
+                // 처음 한 번만: 기록 버튼이 따로 없으니 컵을 누르면 된다고 알려 준다. 첫 기록을 남기면 사라진다.
+                // 큰 숫자 바로 아래에 붙여 둔다(글자를 키워도 숫자와 안 겹치게).
+                if entries.isEmpty {
+                    Text("컵을 눌러 마신 음료 적기")
+                        .font(AppFont.pretendard(15, .semibold, relativeTo: .subheadline))
+                        .foregroundStyle(.secondary)
+                        .padding(.leading, 24)
+                        .allowsHitTesting(false)
+                        .accessibilityHidden(true)
+                }
+            }
 
             banners(today: today)
                 .padding(.horizontal, 20)
@@ -400,26 +430,16 @@ struct TodayView: View {
         .accessibilityIdentifier("affinity")
     }
 
-    /// 아래에서 위로: 마감 버튼(시간대에만) → 페이지 점 → 기록 버튼.
+    /// 왼쪽부터: 마감 버튼(시간대에만) → 페이지 점(가운데).
     @ViewBuilder
     private func bottomControls(now: Date, today: DayKey, totals: DayTotals) -> some View {
-        // 액센트는 기록 버튼 하나만 쓴다. 마감은 조용한 유리 알약으로 왼쪽에 둔다.
+        // 기록은 컵을 눌러서 한다(2026-10-05, + 버튼 제거). 마감은 조용한 유리 알약으로 왼쪽에 둔다.
+        // 높이는 예전 + 버튼(59) 그대로 잡아 페이지 점 자리가 안 움직이게 한다.
         HStack(alignment: .center, spacing: 12) {
             closeControl(now: now, today: today, totals: totals)
             Spacer(minLength: 0)
-            Button {
-                isRecordSheetPresented = true
-            } label: {
-                Image(systemName: "plus")
-                    .font(.system(size: 26, weight: .regular))
-                    .foregroundStyle(.white)
-                    .frame(width: 59, height: 59)
-                    .background(Color.accentColor, in: Circle())
-                    .shadow(color: .black.opacity(0.18), radius: 12, y: 6)
-            }
-            .accessibilityLabel("기록 추가")
-            .accessibilityIdentifier("record-add")
         }
+        .frame(minHeight: 59)
         .overlay { pageDots }
         .padding(.horizontal, 20)
         .padding(.bottom, 12)

@@ -261,9 +261,15 @@ extension RecordFlowUITests {
         app.buttons["open-settings"].tap()
         Driver(app: app).tap(app.buttons["test-feeding"])
 
-        // 첫 먹이기면 로슈·카인 소개부터 뜬다.
+        // 첫 먹이기면 로슈·카인 소개부터 뜬다. 건너뛰기는 끝 장면으로 넘길 뿐이라 "먹이러 가기"를 한 번 더 누른다.
         let introSkip = app.buttons["intro-skip"]
-        if introSkip.waitForExistence(timeout: 5) { introSkip.tap() }
+        if introSkip.waitForExistence(timeout: 5) {
+            introSkip.tap()
+            let introDone = app.buttons["intro-done"]
+            XCTAssertTrue(introDone.waitForExistence(timeout: 5), "소개 끝에 먹이러 가기가 없음")
+            sleep(1)
+            introDone.tap()
+        }
 
         let skip = app.buttons["feeding-skip"]
         XCTAssertTrue(skip.waitForExistence(timeout: 15), "테스트 카드에서 먹이기가 안 열림")

@@ -238,7 +238,8 @@
     "minStep": 1,
     "place": {
      "xRim": 0.23,
-     "y": "rimBack"
+     "y": "rimBack",
+     "dy": 0.012
     },
     "motion": [
      {

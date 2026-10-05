@@ -7,6 +7,7 @@ import SwiftUI
 /// 사진 윗부분 14%는 벽 색으로 녹아들게 가린다. 폭은 화면 폭 그대로 채우기라 양옆 경계선이 생기지 않는다.
 /// 2026-09-28 대표님: 잔 바닥이 페이지 점·탭 바에 가려서 사진을 화면 높이의 8%만큼 올렸다. 아래 빈 곳은
 /// 벽 색이고(식탁 색과 거의 같다, RGB 239~247), 사진 아래 끝 4%를 녹여 경계가 안 보이게 한다.
+/// 2026-10-05 대표님 베타 피드백 "하단바 없어졌으니 컵 더 아래로": 탭 바를 없앤 만큼 8% → 4%로 내렸다.
 struct CupView: View {
     let step: Int
     let setID: String
@@ -22,7 +23,7 @@ struct CupView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     static let heightRatio: CGFloat = 0.84
-    static let liftRatio: CGFloat = 0.08
+    static let liftRatio: CGFloat = 0.04
     static let wallColor = Color(red: 0xF3 / 255, green: 0xF5 / 255, blue: 0xF8 / 255)
 
     private var assetName: String {

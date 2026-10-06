@@ -155,7 +155,12 @@ struct IdleSprite {
         cutout = CupLevel.cutoutName(setID: side.cupSetID, step: step)
         bounds = CGRect(origin: .zero, size: size)
         base = IdleMotion.place(spec, cast: cast, step: step, photo: photo, art: art, scale: scale)
-        let pivotY = spec.pivotOnRim ? (art.rimLineY ?? Double(art.bbox.maxY)) : Double(art.bbox.maxY)
+        let pivotY: Double =
+            switch spec.pivot {
+            case .feet: Double(art.bbox.maxY)
+            case .rimLine: art.rimLineY ?? Double(art.bbox.maxY)
+            case .center: Double(art.bbox.midY)
+            }
         pivot = CGPoint(x: Double(art.bbox.midX) * scale, y: pivotY * scale)
         footY = Double(art.bbox.maxY) * scale
     }
@@ -177,6 +182,11 @@ struct IdleSprite {
             layer.drawLayer { inner in drawParts(in: inner, m: m, blink: blink) }
         } else {
             drawParts(in: sprite, m: m, blink: blink)
+        }
+        for bubble in IdleMotion.bubbles(spec, cast: cast, t: t, photo: photo, base: base, pivot: pivot, scale: scale) {
+            let r = bubble.radius
+            let dot = CGRect(x: bubble.center.x - r, y: bubble.center.y - r, width: 2 * r, height: 2 * r)
+            context.fill(Path(ellipseIn: dot), with: .color(.white.opacity(bubble.alpha)))
         }
     }
 

@@ -213,7 +213,8 @@ jobs:
           shoot idle-kain-rim-stand light large -screenshotSide caffeine -idlePose rim-stand -idleStep 100 -idleAt 2.5
           shoot idle-kain-doze-one-leg light large -screenshotSide caffeine -idlePose doze-one-leg -idleStep 100 -idleAt 3.0
           shoot idle-kain-rim-sit light large -screenshotSide caffeine -idlePose rim-sit -idleStep 100 -idleAt 2.5
-          shoot idle-kain-swim light large -screenshotSide caffeine -idlePose swim -idleStep 100 -idleAt 2.5
+          shoot idle-kain-swim light large -screenshotSide caffeine -idlePose swim -idleStep 100 -idleAt 3.7
+          shoot idle-kain-swim-spin light large -screenshotSide caffeine -idlePose swim -idleStep 30 -idleAt 5.75
           shoot idle-kain-walk light large -screenshotSide caffeine -idlePose walk -idleStep 100 -idleAt 3.2
           shoot idle-kain-floor-sit light large -screenshotSide caffeine -idlePose floor-sit -idleStep 0 -idleAt 2.5
           # 감소 목표는 저장돼 남는다. 맨 끝에 찍고 앱을 지워 스토어 스크린샷(같은 기기일 수 있음)에 넘기지 않는다.

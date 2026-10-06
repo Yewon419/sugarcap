@@ -28,7 +28,7 @@ final class IdlePoseBookTests: XCTestCase {
                     let overlays = Set(art.parts.filter(\.isOverlay).map(\.name))
                     XCTAssertTrue(Set(frame.show.keys).isSubset(of: overlays), "\(label) show \(frame.show.keys)")
                 }
-                if spec.pivotOnRim {
+                if spec.pivot == .rimLine {
                     XCTAssertNotNil(art.rimLineY, "\(label) pivot rimLine")
                 }
                 XCTAssertGreaterThanOrEqual(spec.unlock, 1, label)
@@ -118,6 +118,46 @@ final class IdlePoseBookTests: XCTestCase {
         XCTAssertTrue(at(2.5).shows("eye_closed"))
         XCTAssertFalse(at(3.3).shows("eye_closed"))
         XCTAssertFalse(at(5.0).shows("eye_closed"))
+    }
+
+    /// 카인 헤엄 한 바퀴(2026-10-06): 그림 가운데를 축으로 360도 돌고, 주기 끝과 처음의 각도가 같아 이음매가 없다.
+    func testSwimSpinsFullTurnSeamlessly() throws {
+        let set = try XCTUnwrap(IdleCast.kain.poseSet)
+        let spec = try XCTUnwrap(set.poses["swim"])
+        XCTAssertEqual(spec.pivot, .center)
+        guard case .channels(let channels) = spec.motion else { return XCTFail("swim motion") }
+        let spin = try XCTUnwrap(channels.first { if case .spin = $0.shape { true } else { false } })
+        guard case let .spin(period, at, length) = spin.shape else { return XCTFail("spin") }
+        XCTAssertEqual(abs(spin.amp), 360)
+        XCTAssertEqual(spin.value(at: at - 0.01), 0)
+        XCTAssertEqual(spin.value(at: at + length / 2), spin.amp / 2, accuracy: 1e-9)
+        XCTAssertEqual(spin.value(at: period - 0.001), spin.amp)
+        XCTAssertEqual(spin.value(at: period), 0)
+    }
+
+    /// 기포: 같은 시각이면 같은 값(순수 함수), 헤엄에만 나오고, 몇 개 안 되며 화면 안 유한한 값.
+    func testBubblesArePureAndSparse() throws {
+        let cast = IdleCast.kain
+        let set = try XCTUnwrap(cast.poseSet)
+        let scale = photo.height * cast.scalePerPhotoHeight
+        let base = CGPoint(x: 180, y: 500)
+        let pivot = CGPoint(x: 40, y: 40)
+        for (name, spec) in set.poses {
+            var seen = 0
+            for i in 0..<300 {
+                let t = Double(i) * 0.053
+                let a = IdleMotion.bubbles(spec, cast: cast, t: t, photo: photo, base: base, pivot: pivot, scale: scale)
+                let b = IdleMotion.bubbles(spec, cast: cast, t: t, photo: photo, base: base, pivot: pivot, scale: scale)
+                XCTAssertEqual(a, b, "\(name) t=\(t)")
+                XCTAssertLessThanOrEqual(a.count, 6, "\(name) t=\(t)")
+                for bubble in a {
+                    XCTAssertTrue(bubble.center.x.isFinite && bubble.center.y.isFinite && bubble.radius > 0, name)
+                    XCTAssertTrue((0...1).contains(bubble.alpha), name)
+                }
+                seen += a.count
+            }
+            XCTAssertEqual(seen > 0, name == "swim", name)
+        }
     }
 
     func testFreeUnlockStopsAtCap() {

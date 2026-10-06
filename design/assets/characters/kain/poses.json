@@ -26,14 +26,17 @@
   },
   "swim": {
    "label": "커피 속 헤엄",
-   "note": "얼음 밑 진한 커피 한가운데(커피 윗선~잔 안쪽 바닥 .852의 55% 깊이)에 그림 가운데가 오게 한다. 반쯤 비친다(대표님 지시). 천천히 좌우로 떠다니며 오르내리고 두 다리로 번갈아 발차기. 커피 30% 이상일 때만.",
+   "note": "얼음 밑 진한 커피 한가운데(커피 윗선~잔 안쪽 바닥 .852의 55% 깊이)에 그림 가운데가 오게 한다. 반쯤 비친다(대표님 지시). 천천히 좌우로 떠다니며 오르내리고 두 다리로 번갈아 발차기. 9초마다 그림 가운데를 축으로 한 바퀴(360도) 돈다(대표님 2026-10-06, 카인 한 바퀴 금지의 유일한 예외). 숨 쉬듯 3.2초마다 부리 앞에서 흰 기포 점 3개가 올라온다. 커피 30% 이상일 때만.",
    "art": "swim", "unlock": 3, "minStep": 30, "opacity": 0.6,
-   "place": { "xRim": -0.05, "y": "liquid", "floor": 0.852, "depth": 0.55, "centered": true },
+   "pivot": "center",
+   "place": { "xRim": -0.05, "y": "liquid", "floor": 0.852, "depth": 0.55 },
    "limbDirection": { "leg_far": 0, "leg_near": 0 },
+   "bubbles": { "from": [540, 1450], "every": 3.2, "count": 3, "gap": 0.2, "life": 1.6, "rise": 30, "size": 1.4 },
    "motion": [
     { "to": "dx", "shape": "wave", "amp": 6, "period": 7 },
     { "to": "dy", "shape": "wave", "amp": 2.2, "period": 3.1 },
     { "to": "rot", "shape": "wave", "amp": 3, "period": 3.1, "phase": 1.2 },
+    { "to": "rot", "shape": "spin", "amp": 360, "period": 9, "at": 5, "length": 1.8 },
     { "to": "limb.leg_near", "shape": "wave", "amp": 10, "period": 0.9 },
     { "to": "limb.leg_far", "shape": "wave", "amp": -10, "period": 0.9 }
    ]

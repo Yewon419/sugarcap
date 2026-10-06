@@ -25,6 +25,7 @@
   /* 유리에 비친 모습(WebGL). 컵 누끼로 잘라 유리 안에만 보인다. */
   .glass { position: absolute; left: 0; top: 0; width: 393px; height: 852px; pointer-events: none; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; }
   /* 그림자: 넓고 옅은 그늘 + 발밑 진한 접지. 가운데서 바깥으로 흐려진다. */
+  .bubble { position: absolute; left: 0; top: 0; border-radius: 50%; background: #fff; display: none; }
   .shade { position: absolute; left: 0; top: 0; border-radius: 50%; will-change: transform, opacity; mix-blend-mode: multiply; }
   .shade.ambient { background: radial-gradient(closest-side, rgba(120, 104, 108, .55), rgba(120, 104, 108, .3) 45%, rgba(120, 104, 108, .1) 75%, rgba(120, 104, 108, 0)); filter: blur(3px); }
   .shade.contact { background: radial-gradient(closest-side, rgba(70, 56, 60, .8), rgba(70, 56, 60, .45) 40%, rgba(70, 56, 60, 0)); filter: blur(1px); }
@@ -169,16 +170,16 @@ function partImg(pose, name, frame, pivot, s) {
   return img;
 }
 
-// 기준점 = 그림 bbox 아래 가운데(pivot: rimLine이면 그림 속 가장자리 틈). 전체 변형은 그 점을 중심으로 한다.
+// 기준점 = 그림 bbox 아래 가운데(pivot: rimLine이면 그림 속 가장자리 틈, center면 bbox 가운데). 전체 변형은 그 점을 중심으로 한다.
 function makeSprite(name) {
   const art = artOf(name), m = state.meta[art], rig = state.parts[art], s = C.scale;
-  const [bx0, , bx1, by1] = m.bbox;
+  const [bx0, by0, bx1, by1] = m.bbox;
   const el = document.createElement('div');
   el.className = 'sprite';
   if (C.poses[name].opacity !== undefined) el.style.opacity = String(C.poses[name].opacity);
   el.style.width = `${m.canvas[0] * s}px`;
   el.style.height = `${m.canvas[1] * s}px`;
-  const pivotY = C.poses[name].pivot === 'rimLine' ? m.rimLineY : by1;
+  const pivotY = { rimLine: m.rimLineY, center: (by0 + by1) / 2 }[C.poses[name].pivot] ?? by1;
   const pivot = { x: (bx0 + bx1) / 2 * s, y: pivotY * s, footY: by1 * s };
   el.style.transformOrigin = `${pivot.x}px ${pivot.y}px`;
 
@@ -304,6 +305,8 @@ const SHAPES = {
     const u = mod(t, c.period) - c.at;
     return (u < 0 || u > c.length) ? 0 : Math.sin(Math.PI * u / c.length);
   },
+  // at초부터 length초 동안 0→1, 끝나면 1로 있다가 다음 주기에 0. amp 360이면 한 바퀴가 이음매 없이 이어진다.
+  spin: (c, t) => smooth((mod(t, c.period) - c.at) / c.length),
 };
 const still = () => ({ dx: 0, dy: 0, rot: 0, flip: 1, bodyDy: 0, sx: 1, sy: 1, limbs: {}, shift: {}, show: {} });
 function motion(name, t) {
@@ -427,7 +430,49 @@ function apply(sp, t, blinkOn) {
     sh.el.style.transform = `translate(${sx - sh.w / 2}px, ${sy - sh.h / 2}px) scale(${k})`;
     sh.el.style.opacity = String(k);
   }
+  if (sp.bubbles) {
+    const dots = bubblesAt(sp, base, t);
+    sp.bubbles.forEach((el, i) => {
+      const d = dots[i];
+      el.style.display = d ? 'block' : 'none';
+      if (d) Object.assign(el.style, { transform: `translate(${d.x - d.r}px, ${d.y - d.r}px)`, width: `${2 * d.r}px`, height: `${2 * d.r}px`, opacity: String(d.alpha) });
+    });
+  }
   sp.state = { base, m, cx };
+}
+
+// 숨 쉬듯 나오는 흰 기포 점(poses.json bubbles, 앱 IdleMotion.bubbles와 같다). every초마다 count개를 gap초 간격으로.
+// 나오는 자리는 그 순간 그림 속 from(부리 끝)이 있던 화면 자리, 나온 뒤엔 몸을 따라가지 않고 life초 동안 rise만큼 곧게 오른다.
+function bubblesAt(sp, base, t) {
+  const b = C.poses[sp.name].bubbles, s = C.scale, out = [];
+  const spread = (b.count - 1) * b.gap;
+  for (let k = Math.trunc((t - b.life - spread) / b.every) - 1; k <= Math.trunc(t / b.every) + 1; k++) {
+    for (let j = 0; j < b.count; j++) {
+      const emit = k * b.every + j * b.gap, age = t - emit;
+      if (age < 0 || age >= b.life) continue;
+      const m = motion(sp.name, emit), r = m.rot * Math.PI / 180;
+      const lx = (b.from[0] * s - sp.pivot.x) * m.flip, ly = b.from[1] * s - sp.pivot.y;
+      const p = age / b.life;
+      out.push({
+        x: base.x + m.dx + Math.cos(r) * lx - Math.sin(r) * ly + 0.8 * Math.sin(TAU * age / 0.7 + j * 1.7),
+        y: base.y + m.dy + Math.sin(r) * lx + Math.cos(r) * ly - b.rise * p,
+        r: b.size * Math.max(0.4, 1 - 0.22 * j) * (1 + 0.25 * p),
+        alpha: 0.85 * Math.min(1, age / 0.1) * Math.min(1, (1 - p) / 0.4),
+      });
+    }
+  }
+  return out;
+}
+
+function makeBubbles(sp) {
+  const b = C.poses[sp.name].bubbles;
+  if (!b) return null;
+  const n = b.count * (Math.ceil(b.life / b.every) + 1);
+  return Array.from({ length: n }, () => {
+    const el = document.createElement('div');
+    el.className = 'bubble';
+    return el;
+  });
 }
 
 // ── 유리 반사 ─────────────────────────────────────────────
@@ -625,6 +670,8 @@ function render() {
     sp.shades = makeShadow(sp);
     for (const sh of sp.shades) layer.appendChild(sh.el);
     layer.appendChild(sp.el);
+    sp.bubbles = makeBubbles(sp);
+    for (const el of sp.bubbles ?? []) layer.appendChild(el);
     sprites.push(sp);
   }
   const names = currentPoses().map(k => C.poses[k].label).join(', ');

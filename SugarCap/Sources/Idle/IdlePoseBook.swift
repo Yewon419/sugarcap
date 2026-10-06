@@ -9,12 +9,21 @@ struct IdlePoseSpec: Sendable {
     /// 이 자세가 풀리는 사이 단계(SPEC §9.8). 0%일 때 자세는 해금과 상관없이 쓴다.
     let unlock: Int
     let place: IdlePlace
-    /// 회전·반전 중심을 그림 속 가장자리 틈(`rimLineY`)에 둔다(로슈 컵 안). 아니면 그림 발밑.
-    let pivotOnRim: Bool
+    let pivot: IdlePivot
     let motion: IdleMotionSpec
 }
 
-/// 자세 기준점(그림 bbox 아래 가운데, `pivotOnRim`이면 가장자리 틈)이 놓일 사진 위 자리.
+/// 회전·반전 중심(= 자세 기준점). 가로는 늘 그림 bbox 가운데.
+enum IdlePivot: String, Sendable, Equatable {
+    /// 그림 발밑(bbox 아래).
+    case feet
+    /// 그림 속 가장자리 틈(`rimLineY`, 로슈 컵 안).
+    case rimLine
+    /// 그림 bbox 가운데(카인 헤엄 한 바퀴).
+    case center
+}
+
+/// 자세 기준점(`IdlePivot`)이 놓일 사진 위 자리.
 struct IdlePlace: Sendable, Equatable {
     enum Horizontal: Sendable, Equatable {
         /// 사진 폭 비율.
@@ -91,6 +100,9 @@ struct IdleChannel: Sendable, Equatable {
         case bump(period: Double, at: Double, length: Double)
         /// period 안 at초부터 length초 동안 0→1→0 한 번(sin 반 주기).
         case arch(period: Double, at: Double, length: Double)
+        /// period 안 at초부터 length초 동안 0→1(smoothstep), 끝나면 1로 있다가 다음 주기에 0. amp 360이면
+        /// 한 바퀴 돌고 이음매 없이 이어진다.
+        case spin(period: Double, at: Double, length: Double)
     }
 
     let target: Target
@@ -116,6 +128,9 @@ struct IdleChannel: Sendable, Equatable {
             let u = IdleMotion.positiveRemainder(t, period) - at
             guard u >= 0, u <= length else { return 0 }
             return amp * sin(Double.pi * u / length)
+        case let .spin(period, at, length):
+            let u = IdleMotion.positiveRemainder(t, period) - at
+            return amp * IdleMotion.smooth(u / length)
         }
     }
 }
@@ -152,6 +167,8 @@ enum IdlePoseBook {
         case badTarget(pose: String, target: String)
         case badShape(pose: String, shape: String)
         case badPlace(pose: String)
+        case badPivot(pose: String, pivot: String)
+        case badBubbles(pose: String)
     }
 
     static func load(bundle: Bundle) -> [String: IdlePoseSet] {
@@ -212,6 +229,16 @@ enum IdlePoseBook {
         let feet: Bool?
     }
 
+    private struct RawBubbles: Decodable {
+        let from: [Double]
+        let every: Double
+        let count: Int
+        let gap: Double
+        let life: Double
+        let rise: Double
+        let size: Double
+    }
+
     private struct RawChannel: Decodable {
         let to: String
         let shape: String
@@ -238,6 +265,7 @@ enum IdlePoseBook {
         let limbDirection: [String: Double]?
         let reflection: RawReflection?
         let shadow: RawShadow?
+        let bubbles: RawBubbles?
         let motion: [RawChannel]?
         let walk: IdleWalkStyle?
 
@@ -247,6 +275,22 @@ enum IdlePoseBook {
             rule.limbDirection = limbDirection ?? [:]
             rule.reflection = reflection.map { IdleReflection(toward: $0.toward, up: $0.up ?? 0, mirror: $0.mirror) }
             rule.shadow = shadow.map { IdleShadow(w: $0.w, h: $0.h, dx: $0.dx, dy: $0.dy, feet: $0.feet ?? false) }
+            if let bubbles {
+                guard bubbles.from.count == 2, bubbles.count > 0, bubbles.every > 0, bubbles.life > 0,
+                      bubbles.gap >= 0, Double(bubbles.count - 1) * bubbles.gap < bubbles.every
+                else { throw BookError.badBubbles(pose: name) }
+                rule.bubbles = IdleBubbles(
+                    from: CGPoint(x: bubbles.from[0], y: bubbles.from[1]), every: bubbles.every, count: bubbles.count,
+                    gap: bubbles.gap, life: bubbles.life, rise: bubbles.rise, size: bubbles.size
+                )
+            }
+            let pivotSpec: IdlePivot
+            if let pivot {
+                guard let value = IdlePivot(rawValue: pivot) else { throw BookError.badPivot(pose: name, pivot: pivot) }
+                pivotSpec = value
+            } else {
+                pivotSpec = .feet
+            }
 
             let motionSpec: IdleMotionSpec
             if let walk {
@@ -256,7 +300,7 @@ enum IdlePoseBook {
             }
             return IdlePoseSpec(
                 rule: rule, unlock: unlock, place: try placeSpec(name: name),
-                pivotOnRim: pivot == "rimLine", motion: motionSpec
+                pivot: pivotSpec, motion: motionSpec
             )
         }
 
@@ -302,6 +346,8 @@ enum IdlePoseBook {
                 shape = .bump(period: raw.period, at: at, length: length)
             case ("arch", _, _, _, let at?, let length?):
                 shape = .arch(period: raw.period, at: at, length: length)
+            case ("spin", _, _, _, let at?, let length?):
+                shape = .spin(period: raw.period, at: at, length: length)
             default:
                 throw BookError.badShape(pose: pose, shape: raw.shape)
             }
@@ -353,6 +399,41 @@ extension IdleMotion {
         }
         if spec.rule.mirror { f.flip = -f.flip }
         return f
+    }
+
+    /// 시각 t에 떠 있는 기포들(`IdleBubbles`). `base`·`pivot`·`scale`은 `IdleSprite`와 같은 값.
+    static func bubbles(
+        _ spec: IdlePoseSpec, cast: IdleCast, t: Double, photo: IdlePhoto, base: CGPoint, pivot: CGPoint, scale: Double
+    ) -> [IdleBubble] {
+        guard let b = spec.rule.bubbles else { return [] }
+        let u = photo.unit
+        let spread = Double(b.count - 1) * b.gap
+        let first = Int((t - b.life - spread) / b.every) - 1
+        let last = Int(t / b.every) + 1
+        var out: [IdleBubble] = []
+        for k in first...last {
+            for j in 0..<b.count {
+                let emit: Double = Double(k) * b.every + Double(j) * b.gap
+                let age = t - emit
+                guard age >= 0, age < b.life else { continue }
+                let m = frame(spec, cast: cast, t: emit, photo: photo, walkBaseX: base.x)
+                let radians: Double = m.rot * Double.pi / 180
+                let transform = CGAffineTransform(translationX: -pivot.x, y: -pivot.y)
+                    .concatenating(CGAffineTransform(scaleX: m.flip, y: 1))
+                    .concatenating(CGAffineTransform(rotationAngle: radians))
+                    .concatenating(CGAffineTransform(translationX: base.x + m.dx, y: base.y + m.dy))
+                let start = CGPoint(x: Double(b.from.x) * scale, y: Double(b.from.y) * scale).applying(transform)
+                let p = age / b.life
+                let wobble: Double = 0.8 * u * sin(tau * age / 0.7 + Double(j) * 1.7)
+                let x = Double(start.x) + wobble
+                let y = Double(start.y) - b.rise * u * p
+                let shrink: Double = 1 - 0.22 * Double(j)
+                let radius: Double = b.size * u * max(0.4, shrink) * (1 + 0.25 * p)
+                let alpha: Double = 0.85 * min(1, age / 0.1) * min(1, (1 - p) / 0.4)
+                out.append(IdleBubble(center: CGPoint(x: x, y: y), radius: radius, alpha: alpha))
+            }
+        }
+        return out
     }
 
     private static func walkFrame(_ style: IdleWalkStyle, t: Double, cast: IdleCast, photo: IdlePhoto, walkBaseX: Double) -> IdleFrame {

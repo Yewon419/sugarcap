@@ -17,6 +17,8 @@ struct IdlePoseRule: Sendable {
     var reflection: IdleReflection?
     /// 바닥 그림자. 가장자리 위 자세와 헤엄은 없다.
     var shadow: IdleShadow?
+    /// 숨 쉬듯 올라오는 기포(카인 헤엄). 없으면 안 나온다.
+    var bubbles: IdleBubbles?
 
     func allows(step: Int) -> Bool {
         if let maxStep, step > maxStep { return false }
@@ -50,6 +52,26 @@ struct IdleShadow: Sendable, Equatable {
     let dx: Double
     let dy: Double
     var feet = false
+}
+
+/// 숨 쉬듯 나오는 흰 기포 점(프로토타입 `bubblesAt`). `every`초마다 `count`개를 `gap`초 간격으로 내보낸다.
+/// 나오는 자리는 그 순간 그림 속 `from`(캔버스 픽셀, 부리 끝)이 있던 화면 위 자리이고, 나온 뒤엔 몸을 따라가지 않고
+/// `life`초 동안 `rise`(393×852 화면 pt)만큼 곧게 올라가며 살짝 흔들리다 사라진다. `size`는 첫 기포 반지름(pt).
+struct IdleBubbles: Sendable, Equatable {
+    let from: CGPoint
+    let every: Double
+    let count: Int
+    let gap: Double
+    let life: Double
+    let rise: Double
+    let size: Double
+}
+
+/// 기포 한 개의 한 시각 모습.
+struct IdleBubble: Sendable, Equatable {
+    let center: CGPoint
+    let radius: Double
+    let alpha: Double
 }
 
 /// 걷기: 오른쪽 끝(from) ↔ 왼쪽 끝(to)을 오가고 끝에서 쉰다(사진 폭 비율). 속도·보폭은 393×852 화면 pt.

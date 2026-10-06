@@ -5,9 +5,12 @@ Put full-canvas PNGs of the same size in <character>/layers/<art>/:
     body.png      required
     <part>.png    one per limb; the file name is the part name (foot_* stays on the
                   ground layer, every other part moves with the body)
-    rig.json      optional: {"pivots": {"arm": [x, y]}, "front": ["arm"]}
+    rig.json      optional: {"pivots": {"arm": [x, y]}, "front": ["arm"], "overlays": ["eye_closed"]}
 
 Limbs go behind the body unless listed in "front". A limb turns around its pivot.
+An overlay (a swapped face part such as closed eyes) sits on the body above the lids,
+never turns, is left out of the composite and shows only while its "show.<name>"
+motion value is at least 0.5.
 The pivot defaults to the middle of where the limb meets the body (limb pixels within
 CONTACT px of the body); set it in rig.json when the guess is wrong. A preview with
 the pivots marked is written next to the layers.
@@ -44,6 +47,7 @@ PART_NAME = re.compile(r"^[a-z][a-z0-9_]*$")
 class RigFile(TypedDict, total=False):
     pivots: dict[str, list[int]]
     front: list[str]
+    overlays: list[str]
 
 
 class PartEntry(TypedDict):
@@ -139,6 +143,11 @@ def import_art(source: Path, parts_out: Path) -> tuple[ArtEntry, FloatImage]:
         rig = json.loads(rig_path.read_text(encoding="utf-8"))
     pivots = rig.get("pivots", {})
     front = set(rig.get("front", []))
+    overlays = set(rig.get("overlays", []))
+    if front & overlays:
+        raise ValueError(
+            f"rig.json: {sorted(front & overlays)} are both front and overlay"
+        )
 
     limbs: list[Layer] = []
     for path in sorted(source.glob("*.png")):
@@ -150,7 +159,7 @@ def import_art(source: Path, parts_out: Path) -> tuple[ArtEntry, FloatImage]:
     if not limbs:
         raise ValueError(f"{source}: no limb layers next to body.png")
     names = {limb.name for limb in limbs}
-    for name in [*pivots, *front]:
+    for name in [*pivots, *front, *overlays]:
         if name not in names:
             raise ValueError(f"rig.json names {name!r} but there is no {name}.png")
 
@@ -159,19 +168,24 @@ def import_art(source: Path, parts_out: Path) -> tuple[ArtEntry, FloatImage]:
         stale.unlink()
     parts: list[PartEntry] = []
     composite = np.zeros_like(body)
-    for limb in (limb for limb in limbs if limb.name not in front):
+    for limb in (limb for limb in limbs if limb.name not in front | overlays):
         composite = over(limb.pixels, composite)
     composite = over(body, composite)
     for limb in (limb for limb in limbs if limb.name in front):
         composite = over(limb.pixels, composite)
 
     for limb in limbs:
-        pivot = pivots.get(limb.name) or guess_pivot(limb.pixels, body, limb.name)
         frame = crop_save(limb.pixels, parts_out / f"{limb.name}.png")
+        if limb.name in overlays:
+            pivot = [frame[0] + frame[2] // 2, frame[1] + frame[3] // 2]
+            z = "overlay"
+        else:
+            pivot = pivots.get(limb.name) or guess_pivot(limb.pixels, body, limb.name)
+            z = "front" if limb.name in front else "back"
         parts.append(
             PartEntry(
                 name=limb.name,
-                z="front" if limb.name in front else "back",
+                z=z,
                 frame=frame,
                 pivot=[int(pivot[0]), int(pivot[1])],
             )

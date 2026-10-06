@@ -13,11 +13,16 @@ struct IdleArt: Sendable {
     struct Part: Sendable {
         let name: String
         let isFront: Bool
+        /// 바꿔 끼우는 얼굴 조각(감은 눈 등): 몸 위·눈꺼풀 위에 그리고, 돌지 않으며, `show.<이름>`이 0.5 이상일 때만 보인다.
+        let isOverlay: Bool
         let frame: CGRect
         let pivot: CGPoint
 
         /// 발은 바닥 층이라 몸이 숨 쉬거나 까치발을 해도 제자리다.
-        var isFoot: Bool { name.hasPrefix("foot") }
+        var isFoot: Bool { !isOverlay && name.hasPrefix("foot") }
+
+        /// 몸 뒤에 그리는 팔다리.
+        var isBack: Bool { !isFront && !isOverlay }
     }
 
     let bbox: CGRect
@@ -85,9 +90,9 @@ enum IdleRig {
                 },
                 body: try IdleRig.frame(body),
                 parts: try parts.map { part in
-                    guard part.z == "back" || part.z == "front" else { throw RigError.badLayer(part.z) }
+                    guard ["back", "front", "overlay"].contains(part.z) else { throw RigError.badLayer(part.z) }
                     return IdleArt.Part(
-                        name: part.name, isFront: part.z == "front",
+                        name: part.name, isFront: part.z == "front", isOverlay: part.z == "overlay",
                         frame: try IdleRig.frame(part.frame), pivot: try IdleRig.point(part.pivot)
                     )
                 }

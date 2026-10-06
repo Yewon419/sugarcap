@@ -151,6 +151,20 @@
   ],
   "parts": [
    {
+    "name": "eye_closed",
+    "z": "overlay",
+    "frame": [
+     753,
+     1267,
+     240,
+     227
+    ],
+    "pivot": [
+     873,
+     1380
+    ]
+   },
+   {
     "name": "leg_stand",
     "z": "back",
     "frame": [

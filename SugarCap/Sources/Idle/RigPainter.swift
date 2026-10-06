@@ -38,14 +38,14 @@ struct RigPainter {
         ground.scaleBy(x: m.flip * (1 + 0.06 * squash), y: 1 - 0.08 * squash)
         ground.translateBy(x: -p.x, y: -p.y)
 
-        for part in art.parts where !part.isFront && part.isFoot {
+        for part in art.parts where part.isBack && part.isFoot {
             drawLimb(part, in: ground, m: m)
         }
         var body = ground
         body.translateBy(x: p.x, y: p.y + m.bodyDy)
         body.scaleBy(x: m.sx, y: m.sy)
         body.translateBy(x: -p.x, y: -p.y)
-        for part in art.parts where !part.isFront && !part.isFoot {
+        for part in art.parts where part.isBack && !part.isFoot {
             drawLimb(part, in: body, m: m)
         }
         drawImage("body", frame: art.body, in: body)
@@ -61,6 +61,9 @@ struct RigPainter {
                 )
                 body.fill(Path(ellipseIn: rect), with: .color(IdleSprite.color(hex: eye.lid)))
             }
+        }
+        for part in art.parts where part.isOverlay && m.shows(part.name) {
+            drawImage(part.name, frame: part.frame, in: body)
         }
         for part in art.parts where part.isFront {
             drawLimb(part, in: body, m: m)

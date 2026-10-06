@@ -71,6 +71,8 @@ struct IdleChannel: Sendable, Equatable {
     enum Target: Sendable, Equatable {
         case dx, dy, rot, bodyDy, sx, sy
         case limb(String)
+        /// 바꿔 끼우는 조각을 켠다(값 0.5 이상).
+        case show(String)
     }
 
     enum Rectify: String, Sendable, Equatable, Decodable {
@@ -282,10 +284,13 @@ enum IdlePoseBook {
             case "sx": target = .sx
             case "sy": target = .sy
             default:
-                guard raw.to.hasPrefix("limb."), raw.to.count > 5 else {
+                if raw.to.hasPrefix("limb."), raw.to.count > 5 {
+                    target = .limb(String(raw.to.dropFirst(5)))
+                } else if raw.to.hasPrefix("show."), raw.to.count > 5 {
+                    target = .show(String(raw.to.dropFirst(5)))
+                } else {
                     throw BookError.badTarget(pose: pose, target: raw.to)
                 }
-                target = .limb(String(raw.to.dropFirst(5)))
             }
             let shape: IdleChannel.Shape
             switch (raw.shape, raw.rise, raw.hold, raw.fall, raw.at, raw.length) {
@@ -342,6 +347,7 @@ extension IdleMotion {
                 case .sx: f.sx += v
                 case .sy: f.sy += v
                 case .limb(let name): f.limbs[name, default: 0] += v
+                case .show(let name): f.show[name, default: 0] += v
                 }
             }
         }

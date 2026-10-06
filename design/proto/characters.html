@@ -206,9 +206,17 @@ function makeSprite(name) {
     body.appendChild(lid);
     return lid;
   });
+  // 바꿔 끼우는 조각(감은 눈 등): 눈꺼풀 위, 돌지 않고 show.<이름>이 0.5 이상일 때만 보인다(앱과 같다).
+  const overlays = {};
+  for (const part of rig.parts.filter(q => q.z === 'overlay')) {
+    const img = partImg(art, part.name, part.frame, null, s);
+    img.style.visibility = 'hidden';
+    body.appendChild(img);
+    overlays[part.name] = img;
+  }
   for (const part of rig.parts.filter(q => q.z === 'front')) add(body, part);
   const feet = rig.parts.filter(q => isFoot(q.name)).map(q => ({ name: q.name, x: (q.frame[0] + q.frame[2] / 2) * s, w: q.frame[2] * s }));
-  return { name, el, body, limbs, draw, feet, pivot, lids, blink: newBlinker() };
+  return { name, el, body, limbs, overlays, draw, feet, pivot, lids, blink: newBlinker() };
 }
 
 // 눈 깜빡임: 2.5~5.5초 간격, 가끔 두 번. 닫힘 0.07초·열림 0.1초.
@@ -297,7 +305,7 @@ const SHAPES = {
     return (u < 0 || u > c.length) ? 0 : Math.sin(Math.PI * u / c.length);
   },
 };
-const still = () => ({ dx: 0, dy: 0, rot: 0, flip: 1, bodyDy: 0, sx: 1, sy: 1, limbs: {}, shift: {} });
+const still = () => ({ dx: 0, dy: 0, rot: 0, flip: 1, bodyDy: 0, sx: 1, sy: 1, limbs: {}, shift: {}, show: {} });
 function motion(name, t) {
   const pose = C.poses[name];
   let m;
@@ -310,6 +318,9 @@ function motion(name, t) {
       if (c.to.startsWith('limb.')) {
         const limb = c.to.slice(5);
         m.limbs[limb] = (m.limbs[limb] ?? 0) + v;
+      } else if (c.to.startsWith('show.')) {
+        const part = c.to.slice(5);
+        m.show[part] = (m.show[part] ?? 0) + v;
       } else {
         m[c.to] += v;
       }
@@ -403,6 +414,7 @@ function apply(sp, t, blinkOn) {
     const l = limbPose(sp, m, limb);
     img.style.transform = `translate(${l.mx}px, ${l.my}px) rotate(${l.angle}deg)`;
   }
+  for (const [part, img] of Object.entries(sp.overlays)) img.style.visibility = (m.show?.[part] ?? 0) >= 0.5 ? 'visible' : 'hidden';
   const b = blinkOn ? sp.blink(t) : 0;
   for (const lid of sp.lids) lid.style.transform = `scaleY(${b})`;
   for (const sh of sp.shades) {

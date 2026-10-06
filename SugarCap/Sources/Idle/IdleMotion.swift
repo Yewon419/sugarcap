@@ -14,6 +14,10 @@ struct IdleFrame: Sendable, Equatable {
     var sy: Double = 1
     var limbs: [String: Double] = [:]
     var shift: [String: CGVector] = [:]
+    /// 바꿔 끼우는 조각(`IdleArt.Part.isOverlay`)별 값. 0.5 이상이면 보인다.
+    var show: [String: Double] = [:]
+
+    func shows(_ part: String) -> Bool { (show[part] ?? 0) >= 0.5 }
 }
 
 /// 대기 동작 공용 함수. 전부 시각 t(초)의 순수 함수다. 자세별 움직임은 `IdlePoseBook`(poses.json).

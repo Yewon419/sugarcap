@@ -325,11 +325,11 @@ struct IdleSprite {
     }
 
     private func drawParts(in ground: GraphicsContext, m: IdleFrame, blink: Double) {
-        for part in art.parts where !part.isFront && part.isFoot {
+        for part in art.parts where part.isBack && part.isFoot {
             drawLimb(part, in: ground, m: m)
         }
         let body = bodyLayer(ground, m: m)
-        for part in art.parts where !part.isFront && !part.isFoot {
+        for part in art.parts where part.isBack && !part.isFoot {
             drawLimb(part, in: body, m: m)
         }
         drawImage("body", frame: art.body, in: body)
@@ -347,6 +347,9 @@ struct IdleSprite {
                 )
                 body.fill(Path(ellipseIn: rect), with: .color(Self.color(hex: eye.lid)))
             }
+        }
+        for part in art.parts where part.isOverlay && m.shows(part.name) {
+            drawImage(part.name, frame: part.frame, in: body)
         }
         for part in art.parts where part.isFront {
             drawLimb(part, in: body, m: m)

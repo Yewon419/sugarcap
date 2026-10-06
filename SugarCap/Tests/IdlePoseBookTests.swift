@@ -25,6 +25,8 @@ final class IdlePoseBookTests: XCTestCase {
                     let frame = IdleMotion.frame(spec, cast: cast, t: t, photo: photo, walkBaseX: 200)
                     XCTAssertTrue(Set(frame.limbs.keys).isSubset(of: parts), "\(label) limbs \(frame.limbs.keys)")
                     XCTAssertTrue(Set(frame.shift.keys).isSubset(of: parts), "\(label) shift")
+                    let overlays = Set(art.parts.filter(\.isOverlay).map(\.name))
+                    XCTAssertTrue(Set(frame.show.keys).isSubset(of: overlays), "\(label) show \(frame.show.keys)")
                 }
                 if spec.pivotOnRim {
                     XCTAssertNotNil(art.rimLineY, "\(label) pivot rimLine")
@@ -105,6 +107,17 @@ final class IdlePoseBookTests: XCTestCase {
                 XCTAssertTrue(set.poses.keys.contains { set.allows($0, step: step, unlockedLevel: 1) }, "\(cast.character) \(step)")
             }
         }
+    }
+
+    /// 바꿔 끼우는 조각(2026-10-06): 카인 졸기는 고개가 반 넘게 떨어지면 감은 눈, 번쩍 뒤엔 반 감은 눈.
+    func testDozeSwapsToClosedEyes() throws {
+        let set = try XCTUnwrap(IdleCast.kain.poseSet)
+        let spec = try XCTUnwrap(set.poses["doze-one-leg"])
+        let at = { (t: Double) in IdleMotion.frame(spec, cast: .kain, t: t, photo: self.photo, walkBaseX: 200) }
+        XCTAssertFalse(at(0.5).shows("eye_closed"))
+        XCTAssertTrue(at(2.5).shows("eye_closed"))
+        XCTAssertFalse(at(3.3).shows("eye_closed"))
+        XCTAssertFalse(at(5.0).shows("eye_closed"))
     }
 
     func testFreeUnlockStopsAtCap() {

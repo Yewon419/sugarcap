@@ -34,7 +34,7 @@ function tableDates(first, last) {
   return `${f(first)} – ${f(last)}`;
 }
 
-// 매거진 지면처럼: 머리(기간·날짜) + 검은 가는 선 → 두 줄 제목 → 아래쪽에 큰 숫자(단위는 어깨 위) → 가는 선 + 한 줄.
+// 매거진 지면처럼: 머리(기간·날짜) + 검은 가는 선 → 제목(2026-10-06 대표님: "로슈한테" 빼고 "남긴 당"만) → 아래쪽에 큰 숫자(단위는 어깨 위) → 가는 선 + 한 줄.
 // 숫자는 자리 수가 늘면 줄여서 한 줄에 둔다.
 function tableShell({ side, meta, period, dates, total, note, row, at, n }) {
   const range = trendRange();
@@ -46,11 +46,14 @@ function tableShell({ side, meta, period, dates, total, note, row, at, n }) {
         <button class="table-period" data-a="trendRange" data-v="${other}" aria-label="기간 바꾸기, 지금 ${period}">${period} <span class="chev" aria-hidden="true"></span></button>
         <span class="table-dates">${dates}</span>
       </div>
-      <h2 class="table-head">${meta.name}한테<br>남긴 ${meta.label}</h2>
+      <h2 class="table-head">남긴 ${meta.label}</h2>
       <div class="table-figure" style="--fs:${digits <= 2 ? 150 : digits === 3 ? 124 : digits <= 5 ? 100 : 80}px">
         <span class="table-number">${tableNum(total)}</span><span class="table-unit">${meta.unit}</span>
       </div>
-      ${note ? `<p class="table-deck">${note}</p>` : ''}
+      <div class="table-deck">
+        ${note ? `<p>${note}</p>` : ''}
+        ${tableLimitLink(side, meta)}
+      </div>
     </div>
     <div class="table-scene">
       <div class="table-wall" style="--at:${at};--n:${n}"><img class="table-char ${at < n / 2 ? 'from-left' : ''}" src="${characterAsset(meta.char)}" alt="${meta.name}"></div>
@@ -61,6 +64,15 @@ function tableShell({ side, meta, period, dates, total, note, row, at, n }) {
       </div>
     </div>
   </div>`;
+}
+
+/** 하루 기준(2026-10-05 설정에서 추이로 옮김). 큰 숫자가 이 기준에서 남긴 양이라 그 바로 아래 지면 끝줄에 둔다.
+ *  누르면 앱의 하루 기준 화면(컵 끌기·칩·조금씩 줄이기)으로 간다. 프로토에선 화면을 따로 그리지 않았다. */
+function tableLimitLink(side, meta) {
+  const goal = goalOf(side);
+  return `<button class="table-limit" aria-label="${meta.label} 하루 기준 ${num(limitOf(side))} ${meta.unit}${goal ? ', 줄이는 중' : ''}">
+    <span>${goal ? '줄이는 중' : '하루 기준'}</span><b>${tableNum(limitOf(side))} ${meta.unit}</b><span class="chev" aria-hidden="true"></span>
+  </button>`;
 }
 
 function renderTrendsTable() {

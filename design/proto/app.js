@@ -208,7 +208,8 @@ const VARIANTS = {
   // 2026-09-26 확정: 밤 장면 + 당·카페인 분리 + 끌어서 주기.
   feeding: { 확정: renderFeeding },
   // 2026-09-26 확정: 캐주얼(캐릭터 카드·컵 선반·모은 방울·방울 달력).
-  trends: { 확정: renderTrendsCasual, 'A 식탁': renderTrendsTable },
+  // 2026-10-06: 식탁 안을 하단바 없는 구조 + 하루 기준 줄에 맞춰 기본으로 올렸다(앱 이식 전 확인용).
+  trends: { 'A 식탁': renderTrendsTable, 기존: renderTrendsCasual },
   // 추이와 같은 캐주얼 문법으로 한 안만 만들었다(2026-09-26).
   settings: { 확정: renderSettings },
   // 2026-09-26 확정: 초상 + 말걸기(표정 칸 없음).
@@ -218,8 +219,8 @@ const VARIANTS = {
   // 2026-10-04 대표님: 떠 있는 유리 막대가 "AI 디자인 티" → 더 미니멀하고 얇게 + 전용 아이콘.
   // B 없음: 하단바 없이 오늘 화면이 앱의 집. 추이 = 밀어 넣기, 설정 = 시트.
   // 2026-10-05 대표님: + 버튼 대신 오늘 컵을 누르면 기록. 먹이기는 컵 누르기가 이미 '쏟기'라 흰 각진 칸 버튼을 둔다.
-  addRecord: { 기존: () => 'button', '컵 누르기': () => 'cup' },
-  tabbar: { 기존: renderTabbar, 'A 얇게': renderTabbarThin, 'B 없음': renderTabbarNone },
+  addRecord: { '컵 누르기': () => 'cup', 기존: () => 'button' },
+  tabbar: { 'B 없음': renderTabbarNone, 기존: renderTabbar, 'A 얇게': renderTabbarThin },
 };
 const variantName = screen => ui.variants[screen] ?? Object.keys(VARIANTS[screen])[0];
 const pick = screen => VARIANTS[screen][variantName(screen)];

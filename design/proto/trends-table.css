@@ -12,12 +12,20 @@
 .table-period:active { opacity: .6; }
 .table-dates { font-size: 13px; font-weight: 500; color: var(--secondary); font-variant-numeric: tabular-nums; }
 .table-head { margin: 18px 0 0; font-size: 34px; font-weight: 800; line-height: 1.18; letter-spacing: -0.02em; }
-/* 큰 숫자는 제목에서 떨어뜨려 장면 바로 위에 앉힌다. 가운데 빈 벽을 이 간격이 맡는다. */
-.table-figure { margin-top: auto; display: flex; align-items: flex-start; }
+/* 큰 숫자는 제목 바로 아래. 2026-10-06 대표님 "글씨가 밑 그림과 너무 가깝다" → "남긴 당 아래 붙게". 남는 공간은 글씨와 장면 사이로 간다. */
+.table-figure { margin-top: 4px; display: flex; align-items: flex-start; }
 .table-number { font-size: var(--fs); font-weight: 800; line-height: .9; letter-spacing: -0.045em; font-variant-numeric: tabular-nums; }
 .table-unit { margin: .2em 0 0 6px; font-size: 22px; font-weight: 700; }
-.table-deck { margin: 22px 0 0; padding-top: 10px; border-top: 1px solid rgba(60, 60, 67, .18); font-size: 15px; color: var(--secondary); }
-.table-deck b { color: var(--label); font-weight: 700; }
+/* 지면 끝줄: 왼쪽 지난주 비교(Pro), 오른쪽 하루 기준. 비교가 없으면 기준만 오른쪽에 남는다. */
+.table-deck { margin: 22px 0 0; border-top: 1px solid rgba(60, 60, 67, .18); display: flex; align-items: center; gap: 12px; min-height: 44px;
+  font-size: 15px; color: var(--secondary); }
+.table-deck p { margin: 0; flex: 1; }
+.table-deck p b { color: var(--label); font-weight: 700; }
+.table-limit { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0; background: none; border: 0;
+  font: inherit; font-size: 15px; color: var(--secondary); white-space: nowrap; }
+.table-limit b { color: var(--label); font-weight: 700; font-variant-numeric: tabular-nums; }
+.table-limit .chev { width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-top: 1.5px solid currentColor; transform: rotate(45deg); opacity: .5; }
+.table-limit:active { opacity: .6; }
 
 /* 장면: 로슈는 맨 끝 잔(오늘) 뒤에서 엿보고, 잔 일곱 개는 식탁 앞쪽에 한 줄로 선다. */
 .table-scene { flex: 0 0 auto; display: flex; flex-direction: column; }

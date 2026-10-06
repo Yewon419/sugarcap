@@ -27,6 +27,13 @@ struct TrendsView: View {
     @State private var failureMessage: String?
     /// 하루 기준 화면으로 넘어간 쪽(2026-10-05 설정에서 옮겨 옴).
     @State private var limitSide: CupSide?
+    /// 당↔카페인 넘기기. 잔 층과 캐릭터 층은 쪽 번호(당 0, 카페인 1)를 따로 움직인다.
+    @State private var dragX: CGFloat = 0
+    @State private var cupPage: CGFloat = 0
+    @State private var castPage: CGFloat = 0
+    /// 넘길 때마다 캐릭터 젖힘을 한 번 돌린다. 방향은 화면에서 움직인 쪽(왼쪽 -1, 오른쪽 +1).
+    @State private var leanTrigger = 0
+    @State private var leanDirection: Double = 1
 
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "trends")
     private static let weekdays = ["일", "월", "화", "수", "목", "금", "토"]
@@ -50,7 +57,7 @@ struct TrendsView: View {
     private var isMonth: Bool { range == .month && pro.isPro }
 
     /// 기준을 넘긴 숫자에만 쓰는 색. 당 = 딸기, 카페인 = 라떼 갈색.
-    private var overColor: Color {
+    private static func overColor(_ side: CupSide) -> Color {
         switch side {
         case .sugar: return Color(red: 0xD2 / 255, green: 0x3B / 255, blue: 0x55 / 255)
         case .caffeine: return Color(red: 0x9A / 255, green: 0x5B / 255, blue: 0x2A / 255)
@@ -60,17 +67,22 @@ struct TrendsView: View {
     var body: some View {
         TimelineView(.everyMinute) { timeline in
             let today = DayKey(at: timeline.date, boundaryHour: boundaryHour)
-            let table = makeTable(today: today)
+            let tables: [CupSide: TrendTable] = Dictionary(
+                uniqueKeysWithValues: CupSide.allCases.map { ($0, makeTable(today: today, side: $0)) }
+            )
             GeometryReader { proxy in
                 ScrollView {
                     VStack(spacing: 0) {
-                        page(table: table, today: today)
+                        if let table = tables[side] {
+                            page(table: table, today: today)
+                        }
                         Spacer(minLength: 32)
-                        scene(table: table)
+                        scene(tables: tables, width: proxy.size.width)
                     }
                     .frame(minHeight: proxy.size.height)
                 }
                 .scrollBounceBehavior(.basedOnSize)
+                .simultaneousGesture(sideDrag(width: proxy.size.width))
                 // 식탁 색이 홈 인디케이터 밑까지 이어지게 한다.
                 .background {
                     VStack(spacing: 0) {
@@ -80,7 +92,6 @@ struct TrendsView: View {
                     .ignoresSafeArea()
                 }
             }
-            .simultaneousGesture(sideSwipe)
             .onAppear(perform: applyScreenshotArguments)
         }
         .sheet(item: $paywall, onDismiss: {
@@ -109,7 +120,8 @@ struct TrendsView: View {
         }
     }
 
-    private func makeTable(today: DayKey) -> TrendTable {
+    private func makeTable(today: DayKey, side: CupSide) -> TrendTable {
+        let limit = side.limit(limits)
         if isMonth {
             return TrendTable.month(entries: entries, boundaryHour: boundaryHour, today: today, side: side, limit: limit)
         }
@@ -290,88 +302,129 @@ struct TrendsView: View {
     // MARK: - 장면
 
     /// 벽(캐릭터) 위로 잔 끝이 올라오고, 잔 몸통부터 식탁이다. 점은 식탁 위.
-    private func scene(table: TrendTable) -> some View {
+    /// 당↔카페인을 넘길 때 글자는 제자리에서 바뀌고 그림만 옆으로 밀린다(2026-10-06 대표님 "페이드 말고 슬라이드").
+    /// 캐릭터 층은 잔 층보다 빨리, 더 탱탱한 스프링으로 움직여 앞서 달려 나가고 멈출 때 통 튄다.
+    private func scene(tables: [CupSide: TrendTable], width: CGFloat) -> some View {
         VStack(spacing: 0) {
             Color.clear.frame(height: Self.wallHeight - Self.cupRise)
-            HStack(alignment: .bottom, spacing: 0) {
-                ForEach(Array(table.cups.enumerated()), id: \.element.id) { index, cup in
-                    cupColumn(cup, index: index)
-                }
+            pager(width: width, page: cupPage, drag: dragX) { pageSide in
+                cupRow(table: tables[pageSide], side: pageSide)
             }
-            .padding(.horizontal, 8)
             sideDots
                 .padding(.top, 10)
                 .padding(.bottom, 20)
         }
         .background(alignment: .top) {
             VStack(spacing: 0) {
-                characterWall(table: table)
-                    .frame(height: Self.wallHeight)
+                pager(width: width, page: castPage, drag: dragX * castLead) { pageSide in
+                    characterWall(table: tables[pageSide], side: pageSide, width: width)
+                }
+                .frame(height: Self.wallHeight)
+                .clipped()
                 Self.tableTop
                     .overlay(alignment: .top) { Self.tableEdge.frame(height: 1) }
             }
         }
     }
 
-    /// 캐릭터는 지금 잔 뒤에 선다. 몸 가장자리를 그 잔 가운데에 맞추고, 왼쪽 절반이면 반대쪽으로 비켜 선다.
-    /// 식탁 모서리 아래는 잘린다(식탁 뒤에 서 있다).
-    private func characterWall(table: TrendTable) -> some View {
-        GeometryReader { proxy in
-            let count = CGFloat(max(table.cups.count, 1))
-            let at = CGFloat(table.nowIndex)
-            let cupX: CGFloat = 8 + (proxy.size.width - 16) * (at + 0.5) / count
-            let height: CGFloat = side == .sugar ? 190 : 168
-            let sink: CGFloat = side == .sugar ? 64 : 40
-            let fromLeft = at < count / 2
-            let boxWidth: CGFloat = fromLeft ? max(0, proxy.size.width - cupX + 4) : cupX + 4
-            Image(side.characterAsset)
-                .resizable()
-                .scaledToFit()
-                .frame(height: height)
-                .frame(width: boxWidth, alignment: fromLeft ? .leading : .trailing)
-                .frame(maxWidth: .infinity, alignment: fromLeft ? .trailing : .leading)
-                .offset(y: proxy.size.height - height + sink)
+    /// 캐릭터가 손가락보다 앞서 가는 비율. 동작 줄이기면 잔과 같이 움직인다.
+    private var castLead: CGFloat { reduceMotion ? 1 : 1.3 }
+
+    /// 두 쪽을 옆으로 나란히 놓고 지금 쪽만 화면에 둔다. 안 보이는 쪽은 보이스오버에서 뺀다.
+    private func pager<Content: View>(
+        width: CGFloat, page: CGFloat, drag: CGFloat, @ViewBuilder content: @escaping (CupSide) -> Content
+    ) -> some View {
+        HStack(spacing: 0) {
+            ForEach(CupSide.allCases) { pageSide in
+                content(pageSide)
+                    .frame(width: width)
+                    .accessibilityHidden(pageSide != side)
+            }
         }
-        .clipped()
-        .accessibilityHidden(true)
+        .frame(width: width, alignment: .leading)
+        .offset(x: -page * width + drag)
     }
 
     @ViewBuilder
-    private func cupColumn(_ cup: TableCup, index: Int) -> some View {
+    private func cupRow(table: TrendTable?, side pageSide: CupSide) -> some View {
+        if let table {
+            HStack(alignment: .bottom, spacing: 0) {
+                ForEach(Array(table.cups.enumerated()), id: \.element.id) { index, cup in
+                    cupColumn(cup, index: index, side: pageSide)
+                }
+            }
+            .padding(.horizontal, 8)
+        }
+    }
+
+    /// 캐릭터는 지금 잔 뒤에 선다. 몸 가장자리를 그 잔 가운데에 맞추고, 왼쪽 절반이면 반대쪽으로 비켜 선다.
+    /// 식탁 모서리 아래는 잘린다(식탁 뒤에 서 있다).
+    @ViewBuilder
+    private func characterWall(table: TrendTable?, side pageSide: CupSide, width: CGFloat) -> some View {
+        if let table {
+            let count = CGFloat(max(table.cups.count, 1))
+            let at = CGFloat(table.nowIndex)
+            let cupX: CGFloat = 8 + (width - 16) * (at + 0.5) / count
+            let height: CGFloat = pageSide == .sugar ? 190 : 168
+            let sink: CGFloat = pageSide == .sugar ? 64 : 40
+            let fromLeft = at < count / 2
+            let boxWidth: CGFloat = fromLeft ? max(0, width - cupX + 4) : cupX + 4
+            CastMember(
+                asset: pageSide.characterAsset, height: height, dragLean: dragLean(width: width),
+                direction: leanDirection, trigger: leanTrigger, animates: !reduceMotion
+            )
+            .frame(width: boxWidth, alignment: fromLeft ? .leading : .trailing)
+            .frame(maxWidth: .infinity, alignment: fromLeft ? .trailing : .leading)
+            .frame(height: Self.wallHeight, alignment: .top)
+            .offset(y: Self.wallHeight - height + sink)
+            .accessibilityHidden(true)
+        }
+    }
+
+    /// 끄는 동안 캐릭터는 끌려가듯 뒤로 젖혀진다(도). 왼쪽으로 끌면 머리가 오른쪽에 남는다.
+    private func dragLean(width: CGFloat) -> Double {
+        guard !reduceMotion, width > 0 else { return 0 }
+        return min(8, max(-8, Double(-dragX / width) * 14))
+    }
+
+    @ViewBuilder
+    private func cupColumn(_ cup: TableCup, index: Int, side pageSide: CupSide) -> some View {
         if isMonth {
-            cupFace(cup, label: "\(index + 1)주", width: 58, dimmed: !cup.recorded || cup.isFuture)
+            cupFace(cup, label: "\(index + 1)주", width: 58, dimmed: !cup.recorded || cup.isFuture, side: pageSide)
                 .accessibilityElement(children: .ignore)
-                .accessibilityLabel("\(index + 1)주차 \(cupDescription(cup, average: true))")
+                .accessibilityLabel("\(index + 1)주차 \(cupDescription(cup, average: true, side: pageSide))")
         } else {
             let weekday = Self.weekdays[cup.day.weekday() - 1]
             Button {
                 dayLog = cup.day
             } label: {
-                cupFace(cup, label: cup.isNow ? "오늘" : weekday, width: 50, dimmed: !cup.recorded)
+                cupFace(cup, label: cup.isNow ? "오늘" : weekday, width: 50, dimmed: !cup.recorded, side: pageSide)
             }
             .buttonStyle(PressScaleStyle())
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("\(weekday)요일 \(cupDescription(cup, average: false))")
+            .accessibilityLabel("\(weekday)요일 \(cupDescription(cup, average: false, side: pageSide))")
             .accessibilityAddTraits(.isButton)
             .accessibilityIdentifier("shelf-\(cup.day.rawValue)")
         }
     }
 
-    private func cupDescription(_ cup: TableCup, average: Bool) -> String {
+    private func cupDescription(_ cup: TableCup, average: Bool, side pageSide: CupSide) -> String {
         guard cup.recorded else { return "기록 없음" }
+        let limit = pageSide.limit(limits)
         let over = cup.used - limit
-        if over > 0 { return "기준보다 \(Amount.number(over.rounded())) \(side.unit) 더 마심" }
-        return "\(average ? "하루 평균 " : "")남은 \(side.label) \(Amount.number(max(0, limit - cup.used).rounded())) \(side.unit)"
+        if over > 0 { return "기준보다 \(Amount.number(over.rounded())) \(pageSide.unit) 더 마심" }
+        return "\(average ? "하루 평균 " : "")남은 \(pageSide.label) \(Amount.number(max(0, limit - cup.used).rounded())) \(pageSide.unit)"
     }
 
-    private func cupFace(_ cup: TableCup, label: String, width: CGFloat, dimmed: Bool) -> some View {
+    private func cupFace(_ cup: TableCup, label: String, width: CGFloat, dimmed: Bool, side pageSide: CupSide) -> some View {
+        let limit = pageSide.limit(limits)
         let left = max(0, limit - cup.used)
         let step = cup.recorded ? CupLevel.step(remaining: left, limit: limit) : 0
         return VStack(spacing: 2) {
-            CupCrop(asset: CupLevel.cutoutName(setID: side.cupSetID, step: step))
+            CupCrop(asset: CupLevel.cutoutName(setID: pageSide.cupSetID, step: step))
                 .frame(width: width, height: width * Self.glassAspect)
                 .opacity(dimmed ? 0.4 : 1)
-            amountText(cup, left: left)
+            amountText(cup, left: left, over: cup.used - limit, side: pageSide)
                 .padding(.top, 8)
             Text(label)
                 .font(AppFont.pretendard(12, cup.isNow ? .semibold : .regular, relativeTo: .caption))
@@ -384,9 +437,7 @@ struct TrendsView: View {
     }
 
     /// 잔 아래 숫자: 남긴 양, 넘겼으면 +넘긴 양(색), 기록 없으면 -. 단위는 큰 숫자에만 붙인다.
-    @ViewBuilder
-    private func amountText(_ cup: TableCup, left: Double) -> some View {
-        let over = cup.used - limit
+    private func amountText(_ cup: TableCup, left: Double, over: Double, side pageSide: CupSide) -> some View {
         Group {
             if !cup.recorded {
                 Text("-")
@@ -395,7 +446,7 @@ struct TrendsView: View {
             } else if over > 0 {
                 Text("+\(Amount.number(over.rounded()))")
                     .font(AppFont.pretendard(17, .bold, relativeTo: .body))
-                    .foregroundStyle(overColor)
+                    .foregroundStyle(Self.overColor(pageSide))
             } else {
                 Text(Amount.number(left.rounded()))
                     .font(AppFont.pretendard(17, .bold, relativeTo: .body))
@@ -414,7 +465,7 @@ struct TrendsView: View {
         HStack(spacing: 0) {
             ForEach(CupSide.allCases) { cupSide in
                 Button {
-                    switchSide(to: cupSide)
+                    settle(on: cupSide)
                 } label: {
                     Circle()
                         .fill(cupSide == side ? Color.ink : Self.dotOff)
@@ -430,20 +481,39 @@ struct TrendsView: View {
         }
     }
 
-    /// 오늘 탭처럼 옆으로 밀어 바꾼다. 왼쪽으로 밀면 카페인, 오른쪽으로 밀면 당.
-    private var sideSwipe: some Gesture {
-        DragGesture(minimumDistance: 20)
+    /// 오늘 탭처럼 손가락을 따라 밀린다. 왼쪽으로 밀면 카페인, 오른쪽으로 밀면 당. 끝에서는 고무줄처럼 덜 밀린다.
+    private func sideDrag(width: CGFloat) -> some Gesture {
+        DragGesture(minimumDistance: 12)
+            .onChanged { value in
+                guard abs(value.translation.width) > abs(value.translation.height) else { return }
+                let pullingPastEdge = (side == .sugar && value.translation.width > 0)
+                    || (side == .caffeine && value.translation.width < 0)
+                dragX = pullingPastEdge ? value.translation.width * 0.25 : value.translation.width
+            }
             .onEnded { value in
-                let dx = value.translation.width
-                guard abs(dx) >= 50, abs(dx) > abs(value.translation.height) else { return }
-                switchSide(to: dx < 0 ? .caffeine : .sugar)
+                guard abs(value.translation.width) > abs(value.translation.height) else {
+                    settle(on: side)
+                    return
+                }
+                let travel = value.predictedEndTranslation.width
+                settle(on: travel < -width / 3 ? .caffeine : (travel > width / 3 ? .sugar : side))
             }
     }
 
-    private func switchSide(to next: CupSide) {
-        guard next != side else { return }
-        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.22)) {
+    /// 잔 층은 오늘 탭과 같은 스프링, 캐릭터 층은 더 빠르고 덜 감쇠된 스프링이라 먼저 도착해 살짝 지나쳤다 선다.
+    private func settle(on next: CupSide) {
+        let target: CGFloat = next == .sugar ? 0 : 1
+        if next != side {
+            leanDirection = next == .caffeine ? -1 : 1
+            leanTrigger += 1
+        }
+        withAnimation(reduceMotion ? .easeInOut(duration: 0.25) : .spring(response: 0.45, dampingFraction: 0.86)) {
             side = next
+            cupPage = target
+            dragX = 0
+        }
+        withAnimation(reduceMotion ? .easeInOut(duration: 0.25) : .spring(response: 0.36, dampingFraction: 0.7)) {
+            castPage = target
         }
     }
 
@@ -465,7 +535,11 @@ struct TrendsView: View {
     private func applyScreenshotArguments() {
         #if DEBUG
         let defaults = UserDefaults.standard
-        if defaults.string(forKey: "trendSide") == "caffeine" { side = .caffeine }
+        if defaults.string(forKey: "trendSide") == "caffeine" {
+            side = .caffeine
+            cupPage = 1
+            castPage = 1
+        }
         if defaults.string(forKey: "trendRange") == "month" { range = .month }
         if let raw = defaults.string(forKey: "trendLimit"), let limitSide = CupSide(rawValue: raw) { self.limitSide = limitSide }
         #endif
@@ -481,4 +555,46 @@ enum TrendRange: String, CaseIterable, Identifiable {
 
 extension DayKey: Identifiable {
     var id: String { rawValue }
+}
+
+/// 넘길 때의 캐릭터. 출발하면 끌려가듯 뒤로 젖혀지고 몸이 늘어나며, 도착하면 앞으로 쏠리고 납작해졌다 통 튀며 선다.
+/// 그림 한 장을 바닥 기준으로 기울이고 늘리기만 한다(에어브러시·잔상 없음).
+private struct CastMember: View {
+    let asset: String
+    let height: CGFloat
+    /// 손가락으로 끄는 동안의 젖힘(도).
+    let dragLean: Double
+    /// 화면에서 움직인 방향. 왼쪽 -1, 오른쪽 +1.
+    let direction: Double
+    let trigger: Int
+    let animates: Bool
+
+    var body: some View {
+        Image(asset)
+            .resizable()
+            .scaledToFit()
+            .frame(height: height)
+            .keyframeAnimator(initialValue: CastPose(), trigger: trigger) { view, pose in
+                view
+                    .scaleEffect(x: animates ? pose.stretch : 1, y: animates ? 1 / pose.stretch : 1, anchor: .bottom)
+                    .rotationEffect(.degrees(dragLean + (animates ? pose.lean * direction : 0)), anchor: .bottom)
+            } keyframes: { _ in
+                // lean은 움직이는 쪽 기준: 음수 = 뒤로 젖힘, 양수 = 앞으로 쏠림.
+                KeyframeTrack(\.lean) {
+                    CubicKeyframe(-9, duration: 0.12)
+                    CubicKeyframe(7, duration: 0.2)
+                    SpringKeyframe(0, duration: 0.45, spring: .bouncy)
+                }
+                KeyframeTrack(\.stretch) {
+                    CubicKeyframe(1.07, duration: 0.12)
+                    CubicKeyframe(0.94, duration: 0.2)
+                    SpringKeyframe(1, duration: 0.45, spring: .bouncy)
+                }
+            }
+    }
+}
+
+private struct CastPose {
+    var lean: Double = 0
+    var stretch: Double = 1
 }

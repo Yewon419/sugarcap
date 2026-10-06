@@ -297,6 +297,13 @@ extension RecordFlowUITests {
         app.buttons["open-trends"].tap()
         XCTAssertTrue(app.descendants(matching: .any)["trend-range"].waitForExistence(timeout: 5), "추이가 안 열림")
 
+        // 당↔카페인은 옆으로 밀어 넘긴다(2026-10-06 슬라이드). 녹화 영상으로 움직임을 본다.
+        let caffeineDot = app.buttons["trend-side-caffeine"]
+        app.swipeLeft()
+        XCTAssertTrue(caffeineDot.waitForSelected(), "왼쪽으로 밀어도 카페인으로 안 넘어감")
+        app.swipeRight()
+        XCTAssertTrue(app.buttons["trend-side-sugar"].waitForSelected(), "오른쪽으로 밀어도 당으로 안 돌아옴")
+
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.descendants(matching: .any)["cup-summary"].waitForExistence(timeout: 5), "뒤로 가기로 오늘에 안 돌아옴")
     }
@@ -485,5 +492,13 @@ extension RecordFlowUITests {
         let start = app.buttons["onboarding-start"]
         XCTAssertTrue(start.waitForExistence(timeout: 5), "온보딩 마지막 장이 안 열림")
         start.tap()
+    }
+}
+
+private extension XCUIElement {
+    /// 넘김 애니메이션이 끝나 선택 표시가 바뀔 때까지 기다린다.
+    func waitForSelected(timeout: TimeInterval = 3) -> Bool {
+        let expectation = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isSelected == true"), object: self)
+        return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
     }
 }

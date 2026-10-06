@@ -292,6 +292,72 @@
       "fall": 0.4
      }
     ]
+   },
+   "doze-lean": {
+    "label": "컵에 기대 졸기",
+    "note": "Lv5. 천천히 숨쉰다(부풀었다 꺼짐, 배 위 팔이 같이 들썩). 7초마다 고개가 스르르 기울다가 화들짝 돌아온다. 팔은 배 위에 얹혀 몸 앞, 발도 몸 앞.",
+    "art": "doze-lean",
+    "unlock": 5,
+    "minStep": 1,
+    "place": {
+     "x": 0.22,
+     "y": "bottom",
+     "dy": 0.012
+    },
+    "limbDirection": {
+     "arm_left": 0,
+     "arm_right": 0,
+     "foot_left": 1,
+     "foot_right": -1
+    },
+    "reflection": {
+     "toward": 0.3
+    },
+    "shadow": {
+     "w": 0.85,
+     "h": 0.18,
+     "dx": 0.05,
+     "dy": -0.04
+    },
+    "motion": [
+     {
+      "to": "sy",
+      "shape": "wave",
+      "amp": 0.012,
+      "period": 3.6
+     },
+     {
+      "to": "limb.arm_left",
+      "shape": "wave",
+      "amp": 2,
+      "period": 3.6,
+      "phase": 0.4
+     },
+     {
+      "to": "limb.arm_right",
+      "shape": "wave",
+      "amp": -2,
+      "period": 3.6,
+      "phase": 0.4
+     },
+     {
+      "to": "rot",
+      "shape": "plateau",
+      "amp": -4,
+      "period": 7,
+      "rise": 2.4,
+      "hold": 0.4,
+      "fall": 0.15
+     },
+     {
+      "to": "dy",
+      "shape": "bump",
+      "amp": -3,
+      "period": 7,
+      "at": 2.8,
+      "length": 0.3
+     }
+    ]
    }
   }
  },

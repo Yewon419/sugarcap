@@ -209,6 +209,7 @@ jobs:
           shoot idle-roshu-slump light large -idlePose slump -idleStep 0 -idleAt 2.5
           shoot idle-roshu-hug-strawberry light large -idlePose hug-strawberry -idleStep 100 -idleAt 0.65
           shoot idle-roshu-wave light large -idlePose wave -idleStep 100 -idleAt 0.3
+          shoot idle-roshu-doze-lean light large -idlePose doze-lean -idleStep 100 -idleAt 2.7
           shoot idle-kain-rim-stand light large -screenshotSide caffeine -idlePose rim-stand -idleStep 100 -idleAt 2.5
           shoot idle-kain-rim-sit light large -screenshotSide caffeine -idlePose rim-sit -idleStep 100 -idleAt 2.5
           shoot idle-kain-swim light large -screenshotSide caffeine -idlePose swim -idleStep 100 -idleAt 2.5

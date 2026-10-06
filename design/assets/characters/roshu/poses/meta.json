@@ -243,5 +243,39 @@
    }
   ],
   "rimLineY": null
+ },
+ "doze-lean": {
+  "file": "design/assets/characters/roshu/poses/doze-lean.png",
+  "canvas": [
+   2500,
+   2800
+  ],
+  "bbox": [
+   451,
+   514,
+   1923,
+   2411
+  ],
+  "eyes": [
+   {
+    "box": [
+     797,
+     1353,
+     873,
+     1392
+    ],
+    "lid": "#D5D7DD"
+   },
+   {
+    "box": [
+     976,
+     1365,
+     1047,
+     1404
+    ],
+    "lid": "#D5D7DD"
+   }
+  ],
+  "rimLineY": null
  }
 }

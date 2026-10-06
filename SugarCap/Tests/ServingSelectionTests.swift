@@ -33,13 +33,19 @@ final class ServingSelectionTests: XCTestCase {
     }
 
     func testPrimarySideSplitsCaffeineDrinksFromSugarDrinks() {
-        XCTAssertEqual(CupSide.primary(sugarG: 8, caffeineMg: 75), .caffeine, "우유 당이 있는 카페라떼")
-        XCTAssertEqual(CupSide.primary(sugarG: 43, caffeineMg: 75), .caffeine, "카페인이 한 샷 이상이면 단 커피도 카페인")
-        XCTAssertEqual(CupSide.primary(sugarG: 41, caffeineMg: 0), .sugar, "딸기라떼")
-        XCTAssertEqual(CupSide.primary(sugarG: 0, caffeineMg: 25), .caffeine, "당 없는 차")
-        XCTAssertEqual(CupSide.primary(sugarG: 30, caffeineMg: 30), .sugar, "카페인이 적은 단 음료")
-        XCTAssertEqual(CupSide.primary(sugarG: 20, caffeineMg: nil), .sugar, "카페인 미공개는 당 음료")
-        XCTAssertEqual(CupSide.primary(sugarG: nil, caffeineMg: nil), .sugar)
+        XCTAssertEqual(CupSide.primary(name: "", sugarG: 8, caffeineMg: 75), .caffeine, "우유 당이 있는 카페라떼")
+        XCTAssertEqual(CupSide.primary(name: "", sugarG: 43, caffeineMg: 75), .caffeine, "카페인이 한 샷 이상이면 단 커피도 카페인")
+        XCTAssertEqual(CupSide.primary(name: "", sugarG: 41, caffeineMg: 0), .sugar, "딸기라떼")
+        XCTAssertEqual(CupSide.primary(name: "", sugarG: 0, caffeineMg: 25), .caffeine, "당 없는 차")
+        XCTAssertEqual(CupSide.primary(name: "", sugarG: 30, caffeineMg: 30), .sugar, "카페인이 적은 단 음료")
+        XCTAssertEqual(CupSide.primary(name: "", sugarG: 20, caffeineMg: nil), .sugar, "카페인 미공개는 당 음료")
+        XCTAssertEqual(CupSide.primary(name: "", sugarG: nil, caffeineMg: nil), .sugar)
+        XCTAssertEqual(CupSide.primary(name: "흑당 카페라떼", sugarG: 40.6, caffeineMg: 123.87), .sugar, "흑당은 카페인과 상관없이 당")
+    }
+
+    func testBrownSugarCafeLatteIsASugarDrink() throws {
+        let latte = try firstDrink(in: catalog()) { $0.brandId == "compose" && $0.name == "흑당 카페라떼" }
+        XCTAssertEqual(ServingSelection(drink: latte).primarySide, .sugar)
     }
 
     func testIcedCafeLatteIsACaffeineDrinkAndStaysSoWhenQuantityChanges() throws {

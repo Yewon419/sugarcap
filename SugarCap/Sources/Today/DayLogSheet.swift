@@ -110,7 +110,7 @@ struct DayLogSheet: View {
         // 직접 입력 기록(servingID 없음)이나 카탈로그에서 빠진 메뉴는 기본색 원.
         let liquid = entry.servingID.flatMap(catalog.drink(servingID:))?.liquid ?? LiquidBadge.fallback
         return DrinkLine(
-            title: name, meta: meta, figure: DrinkFigure(sugarG: entry.sugarG, caffeineMg: entry.caffeineMg), liquid: liquid
+            title: name, meta: meta, figure: DrinkFigure(name: entry.drinkName, sugarG: entry.sugarG, caffeineMg: entry.caffeineMg), liquid: liquid
         ) {
             if isEditing {
                 Button {

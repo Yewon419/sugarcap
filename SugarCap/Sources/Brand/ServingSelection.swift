@@ -46,7 +46,7 @@ struct ServingSelection: Equatable {
 
     /// 한 잔 값으로 가른다. 수량을 곱해서 가르면 잔 수를 바꿀 때 패널이 당↔카페인으로 뒤집힌다.
     var primarySide: CupSide {
-        CupSide.primary(sugarG: serving.sugarG, caffeineMg: variant?.caffeineMg ?? serving.caffeineMg)
+        CupSide.primary(name: drink.name, sugarG: serving.sugarG, caffeineMg: variant?.caffeineMg ?? serving.caffeineMg)
     }
 
     func makeEntry(brandName: String, at date: Date) -> Entry {

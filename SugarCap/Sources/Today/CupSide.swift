@@ -127,7 +127,9 @@ enum CupSide: String, CaseIterable, Identifiable, Sendable {
     /// 카페인이 기준 이상이거나, 당이 0인데 카페인이 있으면 카페인 음료. 나머지는 당 음료다.
     /// 하루 기준 대비 비율로 가르면 같은 바닐라라떼가 HOT은 당·ICED는 카페인으로 갈려서 카페인 절대량으로 정했다
     /// (2026-10-04, 아이스카페라떼가 우유 당 때문에 당 음료로 뜨던 문제).
-    static func primary(sugarG: Double?, caffeineMg: Double?) -> CupSide {
+    /// 이름에 "흑당"이 들어간 메뉴는 카페인과 상관없이 당 음료다(대표님 2026-10-06, 흑당 카페라떼).
+    static func primary(name: String, sugarG: Double?, caffeineMg: Double?) -> CupSide {
+        if name.contains("흑당") { return .sugar }
         guard let caffeineMg, caffeineMg > 0 else { return .sugar }
         if caffeineMg >= caffeineDrinkMinMg { return .caffeine }
         return (sugarG ?? 0) > 0 ? .sugar : .caffeine

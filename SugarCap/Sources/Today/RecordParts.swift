@@ -61,12 +61,13 @@ extension DrinkLine where Leading == EmptyView, Trailing == EmptyView {
 /// 음료의 대표 면(`CupSide.primary`)은 크게, 다른 면은 작게. 카페라떼는 카페인이, 딸기라떼는 당이 크다.
 /// nil은 "미공개"(0으로 적지 않는다, SPEC §9.2).
 struct DrinkFigure: View {
+    let name: String
     let sugarG: Double?
     let caffeineMg: Double?
     var alignment: HorizontalAlignment = .trailing
 
     func aligned(_ value: HorizontalAlignment) -> DrinkFigure {
-        DrinkFigure(sugarG: sugarG, caffeineMg: caffeineMg, alignment: value)
+        DrinkFigure(name: name, sugarG: sugarG, caffeineMg: caffeineMg, alignment: value)
     }
 
     private func amount(_ side: CupSide) -> Double? {
@@ -77,7 +78,7 @@ struct DrinkFigure: View {
     }
 
     var body: some View {
-        let primary = CupSide.primary(sugarG: sugarG, caffeineMg: caffeineMg)
+        let primary = CupSide.primary(name: name, sugarG: sugarG, caffeineMg: caffeineMg)
         VStack(alignment: alignment, spacing: 2) {
             if let value = amount(primary) {
                 HStack(alignment: .firstTextBaseline, spacing: 1) {

@@ -127,6 +127,7 @@ struct BrandMenuView: View {
                         title: drink.name,
                         meta: meta(drink),
                         figure: DrinkFigure(
+                            name: drink.name,
                             sugarG: drink.servings.first?.sugarG,
                             caffeineMg: drink.servings.first.flatMap { $0.caffeineVariants.first?.caffeineMg ?? $0.caffeineMg }
                         ),

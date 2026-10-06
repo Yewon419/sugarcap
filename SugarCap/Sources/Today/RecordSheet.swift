@@ -212,6 +212,7 @@ struct RecordSheet: View {
                         meta: [catalog.brand(id: drink.brandId)?.name, drink.temperatureLabel, first?.sizeLabel]
                             .compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · "),
                         figure: DrinkFigure(
+                            name: drink.name,
                             sugarG: first?.sugarG,
                             caffeineMg: first.flatMap { $0.caffeineVariants.first?.caffeineMg ?? $0.caffeineMg }
                         ),

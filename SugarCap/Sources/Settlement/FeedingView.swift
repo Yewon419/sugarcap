@@ -99,7 +99,8 @@ struct FeedingView: View {
     @State private var request: FeedingRequest
     @State private var isRecordPresented = false
 
-    enum Step { case sugar, caffeine, done }
+    /// 먹이는 차례. 설정 "기록할 것"에서 켠 면만 차례로 먹인다(한 면만 켰으면 한 번).
+    enum Step: Equatable { case side(Int), done }
     /// searching = 먹일 게 없는 날(남은 0) 컵을 누른 뒤 방울이 나올 때까지(빈 컵 털기, 2026-10-02 시안 `feeding-empty.html`).
     enum Stage { case ask, searching, dropped, eaten }
     /// 빈 컵 털기 박자: 눌러도 안 나옴 → 갸웃 → 컵을 톡톡 세 번(세 번째에 작은 방울).
@@ -107,8 +108,9 @@ struct FeedingView: View {
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.trackedSides) private var sides
 
-    @State private var step: Step = .sugar
+    @State private var step: Step = .side(0)
     @State private var stage: Stage = .ask
     @State private var searchBeat: SearchBeat = .emptied
     @State private var patTrigger = 0
@@ -151,7 +153,12 @@ struct FeedingView: View {
         _fx = State(initialValue: opening == .dusk ? .dusk(title: request.kind == .closeToday ? "오늘 마감" : "어제 마감") : nil)
     }
 
-    private var side: CupSide { step == .caffeine ? .caffeine : .sugar }
+    private var stepIndex: Int {
+        if case .side(let index) = step { return min(index, sides.count - 1) }
+        return sides.count - 1
+    }
+    private var side: CupSide { sides[max(stepIndex, 0)] }
+    private var isLastSide: Bool { stepIndex >= sides.count - 1 }
 
     private var dateText: String {
         Date().formatted(.dateTime.month().day().weekday(.wide))
@@ -277,7 +284,9 @@ struct FeedingView: View {
                 return left <= 0
                     ? "마지막 한 방울이 나왔어요.\n\(side.characterName)에게 끌어다 주세요."
                     : "방울을 \(side.characterName)에게 끌어다 주세요."
-            case .eaten: return side == .sugar ? "다음은 카인 차례예요." : "둘 다 먹었어요."
+            case .eaten:
+                if !isLastSide { return "다음은 \(sides[stepIndex + 1].characterName) 차례예요." }
+                return sides.count > 1 ? "둘 다 먹었어요." : "\(side.characterNameWithIga) 다 먹었어요."
             }
         }()
         let kind = request.kind == .closeToday ? "오늘 마감" : "어제 남은 음료"
@@ -285,7 +294,7 @@ struct FeedingView: View {
         return VStack(alignment: .leading, spacing: 0) {
             NightDateLabel(text: dateText)
                 .padding(.top, 8)
-            Text("\(kind) · \(side == .sugar ? 1 : 2)/2")
+            Text(sides.count > 1 ? "\(kind) · \(stepIndex + 1)/\(sides.count)" : kind)
                 .font(AppFont.pretendard(11, .semibold, relativeTo: .caption2))
                 .tracking(1.3)
                 .foregroundStyle(Color.nightKicker)
@@ -413,7 +422,7 @@ struct FeedingView: View {
             ZStack {
                 if stage == .eaten {
                     Button(action: nextStep) {
-                        Text(side == .sugar ? "다음 · 카인" : "마무리")
+                        Text(isLastSide ? "마무리" : "다음 · \(sides[stepIndex + 1].characterName)")
                             .ctaLabel()
                             .foregroundStyle(.white)
                             .background(Color.accentColor, in: Capsule())
@@ -421,7 +430,7 @@ struct FeedingView: View {
                     .buttonStyle(PressScaleStyle())
                     .accessibilityIdentifier("feeding-next")
                     .transition(.opacity)
-                } else if step == .sugar && stage == .ask {
+                } else if step == .side(0) && stage == .ask {
                     // 깜빡한 음료를 먹이기 전에 넣는다(2026-10-02 대표님). 먹이기를 시작하면 숨긴다.
                     // 유리 알약이 "구리다"(2026-10-05 대표님) → 밤 장면 위 흰 단색 칸. 그림자·유리 없음.
                     Button { isRecordPresented = true } label: {
@@ -514,8 +523,9 @@ struct FeedingView: View {
         .overlay(alignment: .bottom) {
             VStack(spacing: 28) {
                 HStack(alignment: .bottom, spacing: 0) {
-                    summaryColumn(.sugar, delay: 0.2)
-                    summaryColumn(.caffeine, delay: 0.32)
+                    ForEach(Array(sides.enumerated()), id: \.element) { index, side in
+                        summaryColumn(side, delay: 0.2 + 0.12 * Double(index))
+                    }
                 }
                 Button { dismiss() } label: {
                     Text("완료")
@@ -552,7 +562,7 @@ struct FeedingView: View {
                 // 틀 위 여유(떨어져 들어오는 자리)는 말풍선과 겹쳐 둔다.
                 .padding(.top, -SummaryCharacter.headroom)
                 .background {
-                    if side == .sugar {
+                    if side == sides.first {
                         GeometryReader { geo in
                             Color.clear
                                 .onAppear { summaryFloorY = geo.frame(in: .named("summary")).maxY - 4 }
@@ -641,7 +651,7 @@ struct FeedingView: View {
 
     private func nextStep() {
         guard stage == .eaten else { return }
-        let next: FeedFx = side == .sugar ? .turn : .night
+        let next: FeedFx = isLastSide ? .night : .turn
         if reduceMotion {
             swap(for: next)
         } else {
@@ -656,7 +666,7 @@ struct FeedingView: View {
         case .dusk:
             isSceneVisible = true
         case .turn:
-            step = .caffeine
+            step = .side(stepIndex + 1)
             stage = .ask
             searchBeat = .emptied
             resetDrop()
@@ -718,7 +728,7 @@ struct FeedingView: View {
             searchBeat = .patting
         case .dropped: stage = .dropped
         case .eaten: stage = .eaten
-        case .caffeine: step = .caffeine
+        case .caffeine: step = .side(sides.firstIndex(of: .caffeine) ?? 0)
         case .summary:
             results = []
             step = .done

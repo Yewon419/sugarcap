@@ -495,7 +495,7 @@ struct TodayView: View {
     private func banners(today: DayKey) -> some View {
         let yesterday = today.shifted(by: -1)
         let yesterdayRow = settlements.first { $0.day == yesterday.rawValue }
-        let showsShrank = yesterdayRow?.shrankAfterClose == true && dismissedShrankDay != yesterday.rawValue
+        let showsShrank = yesterdayRow?.shrankAfterClose(on: trackedSides) == true && dismissedShrankDay != yesterday.rawValue
 
         return VStack(spacing: 10) {
             if let creditNotice {
@@ -636,7 +636,7 @@ struct TodayView: View {
             for day in plan.finalize {
                 let row = try SettlementStore.row(for: day, in: context)
                 credited += try SettlementStore.finalize(
-                    row, entries: entries, limits: limits, boundaryHour: boundaryHour,
+                    row, entries: entries, limits: limits, boundaryHour: boundaryHour, sides: trackedSides,
                     now: Date(), in: context
                 )
             }
@@ -673,7 +673,7 @@ struct TodayView: View {
         case .pastDay(let day):
             results = try SettlementStore.feedPastDay(
                 day, entries: try context.fetch(FetchDescriptor<Entry>()), limits: limits, boundaryHour: boundaryHour,
-                now: now, in: context
+                sides: trackedSides, now: now, in: context
             )
             prompt = nil
         }

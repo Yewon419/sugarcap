@@ -236,7 +236,8 @@ final class SettlementScenarioTests: XCTestCase {
 
         XCTAssertEqual(row.finalSugarLeftG, 20, "마감 뒤 경계 전 기록은 그날 몫으로 빠진다")
         XCTAssertEqual(row.finalCaffeineLeftMg, 250, "카페인 미공개 기록은 카인 컵을 줄이지 않는다")
-        XCTAssertTrue(row.shrankAfterClose)
+        XCTAssertTrue(row.shrankAfterClose())
+        XCTAssertFalse(row.shrankAfterClose(on: [.caffeine]), "카페인만 기록하면 당이 줄어든 건 안내하지 않는다")
         // 당 20/50 → 1 + round(3.6) = 5, 카페인 250/400 → 1 + round(5.625) = 7
         XCTAssertEqual(try h.points(.sugar), 5)
         XCTAssertEqual(try h.points(.caffeine), 7)
@@ -247,6 +248,24 @@ final class SettlementScenarioTests: XCTestCase {
             row, entries: entries, limits: h.limits, boundaryHour: h.boundaryHour, now: now, in: h.context
         )
         XCTAssertEqual(try h.points(.sugar), 5)
+    }
+
+    /// 설정에서 카페인을 끄면 로슈만 적립하고, 카페인 남은 값은 행에 그대로 남긴다(2026-10-06).
+    func testOnlyTrackedSidesAreCredited() throws {
+        let h = try Harness()
+        let yesterday = DayKey(year: 2026, month: 9, day: 21)
+        let entries = [h.log(sugar: 30, caffeine: 100, at: h.at(9, 21, 15))]
+
+        let results = try SettlementStore.feedPastDay(
+            yesterday, entries: entries, limits: h.limits, boundaryHour: h.boundaryHour, sides: [.sugar],
+            now: h.at(9, 22, 9), in: h.context
+        )
+
+        XCTAssertEqual(results.map(\.side), [.sugar])
+        XCTAssertEqual(try h.points(.caffeine), 0, "끈 카인은 적립하지 않는다")
+        XCTAssertGreaterThan(try h.points(.sugar), 0)
+        let row = try SettlementStore.row(for: yesterday, in: h.context)
+        XCTAssertEqual(row.finalCaffeineLeftMg, 300, "끈 면도 남은 값은 남긴다")
     }
 
     func testFeedingUnclosedYesterdayCreditsFinalValueOnce() throws {

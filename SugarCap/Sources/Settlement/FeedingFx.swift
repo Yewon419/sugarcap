@@ -33,6 +33,9 @@ struct FeedFxOverlay: View {
     let t: Double
     let date: String
 
+    /// 밤 전환 방울은 먹인 면만(설정 "기록할 것").
+    @Environment(\.trackedSides) private var sides
+
     private static let stars: [CGPoint] = [
         CGPoint(x: 46, y: 150), CGPoint(x: 330, y: 118), CGPoint(x: 262, y: 226), CGPoint(x: 104, y: 292),
         CGPoint(x: 356, y: 318), CGPoint(x: 30, y: 404), CGPoint(x: 190, y: 96), CGPoint(x: 300, y: 430),
@@ -179,7 +182,7 @@ struct FeedFxOverlay: View {
                 .offset(x: -60, y: -skyHeight * (1 - down) - 70 * down + 0)
                 .opacity(1 - fade)
 
-            ForEach(CupSide.allCases) { side in
+            ForEach(sides) { side in
                 let sign: Double = side == .sugar ? -1 : 1
                 let start: Double = side == .sugar ? 0.35 : 0.42
                 let enter: Double = seg(t, start, start + 0.55, Ease.power3Out)

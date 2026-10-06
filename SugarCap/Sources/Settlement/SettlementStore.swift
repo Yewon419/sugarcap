@@ -43,11 +43,13 @@ enum SettlementStore {
     }
 
     /// 하루가 끝난 날을 최종 값으로 확정하고 적립한다. 이미 확정된 행은 건드리지 않는다.
+    /// 적립은 `sides`(설정 "기록할 것"에서 켠 면)의 캐릭터만 한다. 남은 값은 두 면 다 행에 남긴다.
     static func finalize(
         _ row: DaySettlement,
         entries: [Entry],
         limits: DailyLimits,
         boundaryHour: Int,
+        sides: [CupSide] = CupSide.allCases,
         now: Date,
         in context: ModelContext
     ) throws -> [FeedResult] {
@@ -61,7 +63,7 @@ enum SettlementStore {
         row.finalCaffeineLeftMg = totals.leftCaffeineMg
         row.finalizedAt = now
 
-        return try CupSide.allCases.map { side in
+        return try sides.map { side in
             try credit(side, left: side.remaining(totals), limit: side.limit(limits), in: context)
         }
     }
@@ -72,6 +74,7 @@ enum SettlementStore {
         entries: [Entry],
         limits: DailyLimits,
         boundaryHour: Int,
+        sides: [CupSide] = CupSide.allCases,
         now: Date,
         in context: ModelContext
     ) throws -> [FeedResult] {
@@ -81,7 +84,7 @@ enum SettlementStore {
             .map(\.consumption)
         close(row, totals: DayMath.totals(consumptions, limits: limits), now: now)
         return try finalize(
-            row, entries: entries, limits: limits, boundaryHour: boundaryHour, now: now, in: context
+            row, entries: entries, limits: limits, boundaryHour: boundaryHour, sides: sides, now: now, in: context
         )
     }
 

@@ -26,11 +26,17 @@ final class DaySettlement {
     var isClosed: Bool { closedAt != nil }
 
     /// 마감 뒤에 마신 음료가 있었는지(§4.1 다음 날 배너 "어젯밤 이후 마신 만큼 빠졌어요").
-    var shrankAfterClose: Bool {
+    /// `sides`(설정 "기록할 것"에서 켠 면) 중 하나라도 줄었으면 참이다.
+    func shrankAfterClose(on sides: [CupSide] = CupSide.allCases) -> Bool {
         guard let sugarAtClose = sugarLeftAtCloseG, let caffeineAtClose = caffeineLeftAtCloseMg,
               let finalSugar = finalSugarLeftG, let finalCaffeine = finalCaffeineLeftMg
         else { return false }
-        return finalSugar < sugarAtClose || finalCaffeine < caffeineAtClose
+        return sides.contains { side in
+            switch side {
+            case .sugar: return finalSugar < sugarAtClose
+            case .caffeine: return finalCaffeine < caffeineAtClose
+            }
+        }
     }
 }
 

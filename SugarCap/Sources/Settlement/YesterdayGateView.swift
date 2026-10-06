@@ -31,6 +31,7 @@ struct YesterdayGateView: View {
     let onDrank: () -> Void
 
     @State private var feeding: FeedingRequest?
+    @Environment(\.trackedSides) private var sides
 
     var body: some View {
         if let feeding {
@@ -53,8 +54,8 @@ struct YesterdayGateView: View {
     private var gateScreen: some View {
         ZStack(alignment: .topLeading) {
             CupView(
-                step: CupLevel.step(remaining: gate.sugarLeftG, limit: gate.limits.sugarG),
-                setID: CupSide.sugar.cupSetID
+                step: CupLevel.step(remaining: left(firstSide), limit: firstSide.limit(gate.limits)),
+                setID: firstSide.cupSetID
             )
             .ignoresSafeArea()
             // 글자 자리는 벽 색으로 받쳐 읽히게 한다(번짐 없이 위에서 아래로 한 번).
@@ -80,7 +81,7 @@ struct YesterdayGateView: View {
                     .accessibilityAddTraits(.isHeader)
                 Text(
                     gate.kind == .feed
-                        ? "로슈와 카인이 기다리고 있어요. 먹이고 오늘을 시작해요."
+                        ? "\(waitingNames) 기다리고 있어요. 먹이고 오늘을 시작해요."
                         : "안 마셨다면 하루 기준만큼 가득 먹일 수 있어요."
                 )
                 .font(AppFont.pretendard(13, .regular, relativeTo: .footnote))
@@ -89,8 +90,7 @@ struct YesterdayGateView: View {
                 .padding(.top, 10)
                 if gate.kind == .feed {
                     HStack(spacing: 24) {
-                        amount(gate.sugarLeftG, side: .sugar)
-                        amount(gate.caffeineLeftMg, side: .caffeine)
+                        ForEach(sides) { side in amount(left(side), side: side) }
                     }
                     .padding(.top, 18)
                 }
@@ -101,13 +101,26 @@ struct YesterdayGateView: View {
             VStack(spacing: 18) {
                 HStack(alignment: .bottom, spacing: 18) {
                     // 카인 = 로슈 × 0.91(오늘 화면 비율). 로슈 130은 카인보다 너무 커 보였다(베타 피드백 "로슈 사이즈 줄여").
-                    waiting(.sugar, height: 114)
-                    waiting(.caffeine, height: 104)
+                    ForEach(sides) { side in waiting(side, height: side == .sugar ? 114 : 104) }
                 }
                 actions
             }
             .padding(.horizontal, 24)
             .padding(.bottom, 8)
+        }
+    }
+
+    /// 설정 "기록할 것"에서 켠 면만 보인다. 배경 컵도 그 면.
+    private var firstSide: CupSide { sides.first ?? .sugar }
+
+    private var waitingNames: String {
+        sides.count > 1 ? "로슈와 카인이" : firstSide.characterNameWithIga
+    }
+
+    private func left(_ side: CupSide) -> Double {
+        switch side {
+        case .sugar: return gate.sugarLeftG
+        case .caffeine: return gate.caffeineLeftMg
         }
     }
 

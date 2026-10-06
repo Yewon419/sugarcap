@@ -19,7 +19,8 @@ struct TrendsView: View {
     @Environment(ProStore.self) private var pro
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    @State private var side: CupSide = .sugar
+    /// 고른 면. 그 면을 설정에서 껐으면 켜진 면을 보여 준다(`side`).
+    @State private var pickedSide: CupSide = .sugar
     @State private var range: TrendRange = .week
     @State private var paywall: ProFeature?
     @State private var pendingMonth = false
@@ -27,7 +28,7 @@ struct TrendsView: View {
     @State private var failureMessage: String?
     /// 하루 기준 화면으로 넘어간 쪽(2026-10-05 설정에서 옮겨 옴).
     @State private var limitSide: CupSide?
-    /// 당↔카페인 넘기기. 잔 층과 캐릭터 층은 쪽 번호(당 0, 카페인 1)를 따로 움직인다.
+    /// 당↔카페인 넘기기. 잔 층과 캐릭터 층은 쪽 번호(켜진 면 순서)를 따로 움직인다.
     @State private var dragX: CGFloat = 0
     @State private var cupPage: CGFloat = 0
     @State private var castPage: CGFloat = 0
@@ -58,6 +59,10 @@ struct TrendsView: View {
     private var limits: DailyLimits { settingsRows.first?.limits ?? .default }
     private var boundaryHour: Int { settingsRows.first?.dayBoundaryHour ?? 4 }
     private var limit: Double { side.limit(limits) }
+    /// 설정 "기록할 것"에서 켠 면. 한 면만 켜면 넘기지 않고 점도 없다.
+    private var trackedSides: [CupSide] { settingsRows.first?.trackedSides ?? CupSide.allCases }
+    private var side: CupSide { CupSide.visible(pickedSide, in: trackedSides) }
+    private func pageIndex(_ cupSide: CupSide) -> CGFloat { CGFloat(trackedSides.firstIndex(of: cupSide) ?? 0) }
     /// 월 보기는 Pro다(§6). Pro가 끝나면 주로 돌아간다.
     private var isMonth: Bool { range == .month && pro.isPro }
 
@@ -73,7 +78,7 @@ struct TrendsView: View {
         TimelineView(.everyMinute) { timeline in
             let today = DayKey(at: timeline.date, boundaryHour: boundaryHour)
             let tables: [CupSide: TrendTable] = Dictionary(
-                uniqueKeysWithValues: CupSide.allCases.map { ($0, makeTable(today: today, side: $0)) }
+                uniqueKeysWithValues: trackedSides.map { ($0, makeTable(today: today, side: $0)) }
             )
             GeometryReader { proxy in
                 ScrollView {
@@ -365,7 +370,7 @@ struct TrendsView: View {
         width: CGFloat, page: CGFloat, drag: CGFloat, @ViewBuilder content: @escaping (CupSide) -> Content
     ) -> some View {
         HStack(spacing: 0) {
-            ForEach(CupSide.allCases) { pageSide in
+            ForEach(trackedSides) { pageSide in
                 content(pageSide)
                     .frame(width: width)
                     .accessibilityHidden(pageSide != side)
@@ -437,8 +442,9 @@ struct TrendsView: View {
     // MARK: - 가끔 나오는 등장
 
     /// 카인은 지면 끝줄 왼쪽이 비어 있을 때만 매달린다. 지난주 비교 글이 있으면 글을 가려서 평소처럼 선다.
+    /// 카페인을 껐으면 매달리지 않는다.
     private func kainHangs(today: DayKey) -> Bool {
-        kainHanging && weekChange(.caffeine, today: today) == nil
+        kainHanging && trackedSides.contains(.caffeine) && weekChange(.caffeine, today: today) == nil
     }
 
     /// 끝줄 선에 발을 건 카인. 글자는 제자리지만 카인은 카페인 쪽 캐릭터라 캐릭터 층과 같이 밀린다.
@@ -446,7 +452,7 @@ struct TrendsView: View {
         let box = TrendHangingKain.box
         // 지면 안쪽 좌표(가로 여백 24 안). 화면 너비의 34% 자리 = 오른쪽 하루 기준 글자와 겹치지 않는 곳.
         let hookX: CGFloat = width * 0.34 - 24
-        let slide: CGFloat = (1 - castPage) * width + dragX * castLead
+        let slide: CGFloat = (pageIndex(.caffeine) - castPage) * width + dragX * castLead
         return TrendHangingKain(
             isActive: side == .caffeine && dragX == 0,
             frozenAt: entranceFrozenAt ?? (reduceMotion ? 0 : nil)
@@ -563,7 +569,7 @@ struct TrendsView: View {
 
     private var sideDots: some View {
         HStack(spacing: 0) {
-            ForEach(CupSide.allCases) { cupSide in
+            ForEach(trackedSides.count > 1 ? trackedSides : []) { cupSide in
                 Button {
                     settle(on: cupSide)
                 } label: {
@@ -582,13 +588,14 @@ struct TrendsView: View {
     }
 
     /// 오늘 탭처럼 손가락을 따라 밀린다. 왼쪽으로 밀면 카페인, 오른쪽으로 밀면 당. 끝에서는 고무줄처럼 덜 밀린다.
+    /// 한 면만 켰으면 양쪽 다 끝이라 고무줄만 남는다.
     private func sideDrag(width: CGFloat) -> some Gesture {
         DragGesture(minimumDistance: 12)
             .onChanged { value in
                 guard abs(value.translation.width) > abs(value.translation.height) else { return }
                 standRoshu()
-                let pullingPastEdge = (side == .sugar && value.translation.width > 0)
-                    || (side == .caffeine && value.translation.width < 0)
+                let pullingPastEdge = (side == trackedSides.first && value.translation.width > 0)
+                    || (side == trackedSides.last && value.translation.width < 0)
                 dragX = pullingPastEdge ? value.translation.width * 0.25 : value.translation.width
             }
             .onEnded { value in
@@ -597,20 +604,27 @@ struct TrendsView: View {
                     return
                 }
                 let travel = value.predictedEndTranslation.width
-                settle(on: travel < -width / 3 ? .caffeine : (travel > width / 3 ? .sugar : side))
+                let step = travel < -width / 3 ? 1 : (travel > width / 3 ? -1 : 0)
+                settle(on: neighbor(step: step))
             }
+    }
+
+    /// 켜진 면 순서에서 step만큼 옆 면. 끝을 넘으면 끝 면.
+    private func neighbor(step: Int) -> CupSide {
+        guard let index = trackedSides.firstIndex(of: side) else { return side }
+        return trackedSides[min(max(index + step, 0), trackedSides.count - 1)]
     }
 
     /// 잔 층은 오늘 탭과 같은 스프링, 캐릭터 층은 더 빠르고 덜 감쇠된 스프링이라 먼저 도착해 살짝 지나쳤다 선다.
     private func settle(on next: CupSide) {
-        let target: CGFloat = next == .sugar ? 0 : 1
+        let target = pageIndex(next)
         if next != side {
             standRoshu()
             leanDirection = next == .caffeine ? -1 : 1
             leanTrigger += 1
         }
         withAnimation(reduceMotion ? .easeInOut(duration: 0.25) : .spring(response: 0.45, dampingFraction: 0.86)) {
-            side = next
+            pickedSide = next
             cupPage = target
             dragX = 0
         }
@@ -639,9 +653,10 @@ struct TrendsView: View {
         #if DEBUG
         let defaults = UserDefaults.standard
         if defaults.string(forKey: "trendSide") == "caffeine" {
-            side = .caffeine
-            cupPage = 1
-            castPage = 1
+            pickedSide = .caffeine
+            let shown = CupSide.visible(.caffeine, in: trackedSides)
+            cupPage = pageIndex(shown)
+            castPage = pageIndex(shown)
         }
         if defaults.string(forKey: "trendRange") == "month" { range = .month }
         if let raw = defaults.string(forKey: "trendLimit"), let limitSide = CupSide(rawValue: raw) { self.limitSide = limitSide }
@@ -663,7 +678,7 @@ extension DayKey: Identifiable {
 /// 넘길 때의 캐릭터. 출발하면 끌려가듯 뒤로 젖혀지고 몸이 늘어나며, 도착하면 앞으로 쏠리고 납작해졌다 통 튀며 선다.
 /// 그림 한 장을 바닥 기준으로 기울이고 늘리기만 한다(에어브러시·잔상 없음).
 /// 누르면 호감도 화면에 있던 몸짓으로 반응한다(`PokeMath`·`ReactionMotion`, 2026-10-06 대표님 "추이에서도 터치").
-private struct CastMember: View {
+struct CastMember: View {
     let asset: String
     let side: CupSide
     let level: Int

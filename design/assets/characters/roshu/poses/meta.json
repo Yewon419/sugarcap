@@ -184,5 +184,30 @@
    }
   ],
   "rimLineY": null
+ },
+ "gift-carry": {
+  "file": "design/assets/characters/roshu/poses/gift-carry.png",
+  "canvas": [
+   2500,
+   2800
+  ],
+  "bbox": [
+   525,
+   560,
+   1826,
+   2295
+  ],
+  "eyes": [
+   {
+    "box": [
+     1684,
+     1387,
+     1733,
+     1436
+    ],
+    "lid": "#D3D6DC"
+   }
+  ],
+  "rimLineY": null
  }
 }

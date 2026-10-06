@@ -46,7 +46,10 @@ CHARACTERS = {
         eye_max_area_ratio=0.004,
         extra={"stand": STAND},
         rim_line_y={"in-cup": 1100},
-        eye_region={"hug-strawberry": (1435, 1100, 1500, 1200)},
+        eye_region={
+            "hug-strawberry": (1435, 1100, 1500, 1200),
+            "gift-carry": (1680, 1380, 1740, 1440),
+        },
     ),
     # Kain's eyes are a white ring round a black pupil, about 2.4% of the body.
     "kain": Character(ROOT / "kain" / "poses", eye_max_area_ratio=0.03),

@@ -1,0 +1,4 @@
+{
+ "pivots": {"arm_left": [890, 1800], "arm_right": [1470, 1795], "foot_left": [1030, 2050], "foot_right": [1525, 2055]},
+ "front": ["arm_left", "arm_right", "foot_left", "foot_right"]
+}

@@ -57,7 +57,7 @@ struct AffinityView: View {
         .presentationCornerRadius(38)
         .presentationBackground(.regularMaterial)
         .sensoryFeedback(trigger: taps) { _, _ in
-            reaction == .squish || reaction == .flip ? .impact(weight: .heavy) : .impact(weight: .light)
+            reaction == .squish || reaction == .bounce ? .impact(weight: .heavy) : .impact(weight: .light)
         }
         .onChange(of: side) { _, _ in
             reaction = nil
@@ -190,9 +190,6 @@ enum ReactionMotion {
             ], duration: 1.2, t: t, ease: Ease.sineInOut)
         case .tilt:
             return track([(0.3, Pose(rotation: -38)), (0.8, Pose(rotation: -38))], duration: 1.4, t: t, ease: Ease.sineInOut)
-        case .spin:
-            guard t < 1 else { return Pose() }
-            return Pose(rotation: 360 * Ease.power3InOut(max(0, t)))
         case .hop:
             return track([(0.4, Pose(y: -28))], duration: 0.8, t: t, ease: Ease.power2Out)
         case .squish:
@@ -202,14 +199,14 @@ enum ReactionMotion {
                 (0.5, Pose(y: -46, scaleX: 0.88, scaleY: 1.14)), (0.68, Pose(scaleX: 1.12, scaleY: 0.88)),
                 (0.84, Pose(y: -8, scaleX: 0.97, scaleY: 1.03)),
             ], duration: 1.3, t: t, ease: Ease.power2Out)
-        case .flip:
-            // 연타: 높이 뛰어 공중에서 두 바퀴
-            let duration = 1.3
-            guard t < duration else { return Pose() }
-            let p: Double = max(0, t) / duration
-            let lift: Double = -70 * sin(Double.pi * p)
-            let turn: Double = -720 * Ease.power3InOut(p)
-            return Pose(y: lift, rotation: turn)
+        case .bounce:
+            // 연타: 웅크렸다 높이 뛰어 늘어나고, 착지하며 납작 눌렸다 한 번 더 통. 카인은 돌지 않는다(대표님 2026-10-06 "360도 회전 절대 넣지 마").
+            return track([
+                (0.15, Pose(y: 5, scaleX: 1.16, scaleY: 0.84)),
+                (0.45, Pose(y: -70, scaleX: 0.9, scaleY: 1.12)),
+                (0.66, Pose(y: 4, scaleX: 1.18, scaleY: 0.82)),
+                (0.82, Pose(y: -14, scaleX: 0.97, scaleY: 1.03)),
+            ], duration: 1.3, t: t, ease: Ease.power2Out)
         }
     }
 }

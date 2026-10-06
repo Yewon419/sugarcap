@@ -701,7 +701,7 @@ private struct CastMember: View {
         .contentShape(Rectangle())
         .onTapGesture(perform: poke)
         .sensoryFeedback(trigger: taps) { _, _ in
-            reaction == .squish || reaction == .flip ? .impact(weight: .heavy) : .impact(weight: .light)
+            reaction == .squish || reaction == .bounce ? .impact(weight: .heavy) : .impact(weight: .light)
         }
         .task(id: taps) {
             guard reactionStart != nil else { return }

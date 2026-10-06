@@ -42,3 +42,4 @@ SSOT = `SPEC.md`. 세션 시작 시 SPEC §0·§8·§9부터 읽는다.
 - 모션그래픽을 시각 t의 순수 함수로 옮길 때 `.position(x: a + b * lerp(...) * sin(.pi * k), ...)`처럼 한 줄에 몰면 "unable to type-check this expression in reasonable time"으로 빌드가 죽는다. 중간값을 `let x: Double = ...`로 쪼개고 `Double.pi`를 쓴다.
 - Swift 소스를 셸 heredoc + Python 치환으로 고치면 `\n`·`\(`의 역슬래시가 한 겹 벗겨져 문자열 안에 실제 줄바꿈이 들어간다(2026-10-05 UI 테스트 "unterminated string literal"로 CI 실패). 역슬래시가 든 Swift 문자열은 Edit 도구로 고친다.
 - 매 프레임 다시 그리는 뷰(`TimelineView` + `Canvas`, 대기 자세)는 넘기는 중·화면 밖이면 멈춘다. 넘길 때 그리면 컵보다 늦게 따라오고(대표님 2026-09-29), 탭 뒤에서 계속 그리면 UI 테스트가 요소를 못 찾고 타임아웃 난다. 워크플로는 `cancel-in-progress`라 푸시 빌드가 끝난 뒤에 TestFlight를 dispatch한다.
+- 카인 동작에 한 바퀴(360도) 이상 도는 회전을 넣지 않는다. 반응·연타·대기 자세·매달리기 전부(대표님 2026-10-06 "절대 넣지 마"). 갸웃처럼 기울였다 돌아오는 건 괜찮다.

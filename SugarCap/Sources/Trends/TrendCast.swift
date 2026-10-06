@@ -88,7 +88,7 @@ struct TrendWalkIn: View {
 }
 
 /// 카인이 지면 끝줄 선에 발을 걸고 거꾸로 매달려 정면을 본다. 정면 그림(rim-stand)을 발끝 기준으로 뒤집는다.
-/// 천천히 흔들리며 숨 쉬고 깜빡인다. 누르면 크게 그네 타고, 이어서 다섯 번 누르면 선을 축으로 한 바퀴 돈다.
+/// 천천히 흔들리며 숨 쉬고 깜빡인다. 누르면 크게 그네 타고, 이어서 다섯 번 누르면 더 세게 한 번 그네 탄다. 한 바퀴 회전은 넣지 않는다(대표님 2026-10-06).
 /// 옆 면이거나 넘기는 중이면 멈춘다(CLAUDE.md: 매 프레임 그리는 뷰는 넘길 때 멈춘다). 멈춘 만큼 시계를 미뤄 이어서 흔들린다.
 struct TrendHangingKain: View {
     let isActive: Bool
@@ -97,18 +97,18 @@ struct TrendHangingKain: View {
 
     /// 그림(다리 포함) 높이.
     static let height: CGFloat = 124
-    /// 그림 틀 한 변. 발끝이 가운데이고 한 바퀴 돌아도 안 잘리게 높이의 두 배보다 크게 둔다.
+    /// 그림 틀 한 변. 발끝이 가운데이고 크게 그네 타도(±50도) 안 잘리게 높이의 두 배보다 크게 둔다.
     static let box: CGFloat = height * 2.3
 
     @State private var start = Date()
     @State private var pausedAt: Date? = Date()
     @State private var running = false
     @State private var tapAt: Date?
-    @State private var loopAt: Date?
     @State private var lastTap: Date?
     @State private var combo = 0
     @State private var taps = 0
-    @State private var looped = false
+    /// 이번 그네 세기(도). 연타면 크다.
+    @State private var kickStrength: Double = 26
 
     private static let painter: RigPainter? = {
         guard let bbox = IdleRig.arts["kain"]?["rim-stand"]?.bbox, bbox.height > 0 else { return nil }
@@ -123,9 +123,8 @@ struct TrendHangingKain: View {
             let now = timeline.date
             let t: Double = frozenAt ?? (pausedAt ?? now).timeIntervalSince(start)
             let sinceTap: Double? = frozenAt == nil ? tapAt.map { now.timeIntervalSince($0) } : nil
-            let sinceLoop: Double? = frozenAt == nil ? loopAt.map { now.timeIntervalSince($0) } : nil
             Canvas { context, size in
-                draw(in: context, size: size, t: t, sinceTap: sinceTap, sinceLoop: sinceLoop)
+                draw(in: context, size: size, t: t, sinceTap: sinceTap)
             }
         }
         .frame(width: Self.box, height: Self.box)
@@ -134,7 +133,7 @@ struct TrendHangingKain: View {
         .allowsHitTesting(isActive && frozenAt == nil)
         .accessibilityHidden(true)
         .sensoryFeedback(trigger: taps) { _, _ in
-            looped ? .impact(weight: .heavy) : .impact(weight: .light)
+            kickStrength > 26 ? .impact(weight: .heavy) : .impact(weight: .light)
         }
         // 넘긴 직후 스프링이 다 서기 전에 그리기 시작하면 따라오다 늦는다. 잠깐 기다렸다 움직인다.
         .task(id: isActive) {
@@ -157,10 +156,10 @@ struct TrendHangingKain: View {
         return Path(CGRect(x: box / 2 - width / 2, y: box / 2 - 6, width: width, height: height + 12))
     }
 
-    private func draw(in context: GraphicsContext, size: CGSize, t: Double, sinceTap: Double?, sinceLoop: Double?) {
+    private func draw(in context: GraphicsContext, size: CGSize, t: Double, sinceTap: Double?) {
         guard let painter = Self.painter else { return }
         var m = IdleFrame()
-        m.rot = 180 + Self.swing(t: t, sinceTap: sinceTap, sinceLoop: sinceLoop)
+        m.rot = 180 + Self.swing(t: t, sinceTap: sinceTap, strength: kickStrength)
         let blink: Double = frozenAt == nil ? IdleMotion.blink(t: t, seed: 14) : 0
         if frozenAt == nil { RigMotion.breathe(&m, t: t, period: 1.9, amount: 0.012) }
         let squash: Double = sinceTap.map { 0.8 * RigMotion.bump($0, 0, 0.18) } ?? 0
@@ -169,29 +168,21 @@ struct TrendHangingKain: View {
         painter.draw(in: context, base: hook, m: m, squash: squash, blink: blink)
     }
 
-    /// 흔들림(도). 평소 ±4도로 느리게, 누르면 크게 흔들렸다 잦아들고, 연타면 한 바퀴.
-    static func swing(t: Double, sinceTap: Double?, sinceLoop: Double?) -> Double {
+    /// 흔들림(도). 평소 ±4도로 느리게, 누르면 `strength`만큼 흔들렸다 잦아든다.
+    static func swing(t: Double, sinceTap: Double?, strength: Double) -> Double {
         let idle: Double = 4 * sin(2 * Double.pi * t / 2.8)
         var kick: Double = 0
         if let a = sinceTap, a >= 0, a < 4 {
-            kick = 26 * exp(-1.4 * a) * sin(2 * Double.pi * a / 1.1)
+            kick = strength * exp(-1.4 * a) * sin(2 * Double.pi * a / 1.1)
         }
-        var loop: Double = 0
-        if let a = sinceLoop, a >= 0 {
-            loop = 360 * Ease.power3InOut(min(1, a / 1.2))
-        }
-        return idle + kick + loop
+        return idle + kick
     }
 
     private func poke() {
         let now = Date()
         combo = PokeMath.combo(previous: combo, lastTap: lastTap, now: now)
-        looped = combo >= PokeMath.comboCount
-        if looped {
-            loopAt = now
-        } else {
-            tapAt = now
-        }
+        kickStrength = combo >= PokeMath.comboCount ? 44 : 26
+        tapAt = now
         lastTap = now
         taps += 1
     }

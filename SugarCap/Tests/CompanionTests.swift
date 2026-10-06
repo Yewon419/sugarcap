@@ -23,12 +23,12 @@ final class PokeMathTests: XCTestCase {
 
     func testComboTriggersSpecialReaction() {
         XCTAssertEqual(PokeMath.reaction(side: .sugar, level: 1, combo: PokeMath.comboCount, tap: 4), .squish)
-        XCTAssertEqual(PokeMath.reaction(side: .caffeine, level: 1, combo: PokeMath.comboCount, tap: 4), .flip)
+        XCTAssertEqual(PokeMath.reaction(side: .caffeine, level: 1, combo: PokeMath.comboCount, tap: 4), .bounce)
     }
 
     func testKainVariesAcrossTapsAndIgnoresLevel() {
         let reactions = (0..<30).map { PokeMath.reaction(side: .caffeine, level: 1, combo: 1, tap: $0) }
-        XCTAssertEqual(Set(reactions), [.tilt, .spin, .hop])
+        XCTAssertEqual(Set(reactions), [.tilt, .hop])
         for tap in 0..<10 {
             XCTAssertEqual(
                 PokeMath.reaction(side: .caffeine, level: 1, combo: 1, tap: tap),

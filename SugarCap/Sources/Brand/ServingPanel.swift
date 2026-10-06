@@ -14,6 +14,7 @@ struct ServingPanel: View {
     @Query private var favorites: [FavoriteDrink]
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.recordCup) private var recordCup
     @State private var failureMessage: String?
 
     init(drink: Drink, brand: Brand, todayTotals: DayTotals, limits: DailyLimits, onAdd: @escaping (ServingSelection) -> Void) {
@@ -111,8 +112,9 @@ struct ServingPanel: View {
     // MARK: - 마시면 남는 양
 
     /// 음료의 대표 면(`ServingSelection.primarySide`)으로 보여 준다. 카페라떼는 카페인 컵, 딸기라떼는 당 컵.
+    /// 카페인 컵에서 연 기록이면 늘 카페인 컵(`CupSide.shown`).
     private var impact: some View {
-        let side = selection.primarySide
+        let side = CupSide.shown(in: recordCup, primary: selection.primarySide)
         let other = side.other
         let limit = side.limit(limits)
         let amount = selection.amount(side)

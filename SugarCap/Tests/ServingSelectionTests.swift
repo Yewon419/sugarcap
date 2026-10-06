@@ -43,6 +43,13 @@ final class ServingSelectionTests: XCTestCase {
         XCTAssertEqual(CupSide.primary(name: "흑당 카페라떼", sugarG: 40.6, caffeineMg: 123.87), .sugar, "흑당은 카페인과 상관없이 당")
     }
 
+    func testCaffeineCupShowsCaffeineForEveryDrink() {
+        XCTAssertEqual(CupSide.shown(in: .caffeine, primary: .sugar), .caffeine, "카페인 컵에서 연 딸기라떼")
+        XCTAssertEqual(CupSide.shown(in: .sugar, primary: .caffeine), .caffeine, "당 컵에서도 카페인 음료는 카페인")
+        XCTAssertEqual(CupSide.shown(in: .sugar, primary: .sugar), .sugar)
+        XCTAssertEqual(CupSide.shown(in: nil, primary: .sugar), .sugar, "하루 기록처럼 컵 밖")
+    }
+
     func testBrownSugarCafeLatteIsASugarDrink() throws {
         let latte = try firstDrink(in: catalog()) { $0.brandId == "compose" && $0.name == "흑당 카페라떼" }
         XCTAssertEqual(ServingSelection(drink: latte).primarySide, .sugar)

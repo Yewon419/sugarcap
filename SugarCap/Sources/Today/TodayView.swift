@@ -86,6 +86,7 @@ struct TodayView: View {
                         },
                         onManualEntry: { isManualEntryPresented = true }
                     )
+                    .environment(\.recordCup, side)
                 }
             }
             .navigationDestination(isPresented: $isTrendsPresented) {
@@ -139,6 +140,7 @@ struct TodayView: View {
                     undoToast = UndoToast(entryID: entry.id, text: "\(drink.name) 기록했어요")
                 }
             )
+            .environment(\.recordCup, side)
         }
         .sheet(isPresented: $isDayLogPresented) {
             let now = Date()

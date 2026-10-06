@@ -20,6 +20,7 @@ struct RecordSheet: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     @Environment(\.dynamicTypeSize) private var typeSize
+    @Environment(\.recordCup) private var recordCup
 
     @State private var query = ""
     @State private var panelDrink: Drink?
@@ -106,7 +107,7 @@ struct RecordSheet: View {
     }
 
     private func quickRow(_ drink: QuickDrink, isStarred: Bool) -> some View {
-        let side = drink.selection.primarySide
+        let side = CupSide.shown(in: recordCup, primary: drink.selection.primarySide)
         return DrinkLine(
             title: drink.name,
             meta: "\(drink.meta) · \(side.label) \(Amount.text(drink.selection.amount(side), unit: side.unit))",

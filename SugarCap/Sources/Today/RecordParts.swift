@@ -5,6 +5,19 @@ import SwiftUI
 // 기록 시트·브랜드 메뉴·하루 기록 시트가 같이 쓰는 조각(2026-09-26 HTML 프로토타입 확정 모양).
 // 글자 위계: 이름 16 semibold → 12 보조 메타 / 오른쪽에 당 22 bold 숫자 + 카페인 12. 액센트는 주 동작 하나.
 
+extension EnvironmentValues {
+    /// 기록을 연 컵. 기록 시트·브랜드 메뉴·메뉴 패널이 어느 면을 크게 보일지 고른다(`CupSide.shown`).
+    @Entry var recordCup: CupSide?
+}
+
+extension CupSide {
+    /// 기록 화면에서 크게 보일 면. 카페인 컵에서 열면 늘 카페인(대표님 2026-10-06, 빌드 105 베타 피드백).
+    /// 당 컵이나 컵 밖(하루 기록)에서는 음료의 대표 면이라 카페인 음료는 그대로 카페인이 크다.
+    static func shown(in cup: CupSide?, primary: CupSide) -> CupSide {
+        cup == .caffeine ? .caffeine : primary
+    }
+}
+
 /// 음료 한 줄. 왼쪽 장식(별표·지우기) → 이름·메타 → 수치 → 오른쪽 장식(+).
 struct DrinkLine<Leading: View, Trailing: View>: View {
     let title: String
@@ -59,12 +72,14 @@ extension DrinkLine where Leading == EmptyView, Trailing == EmptyView {
 }
 
 /// 음료의 대표 면(`CupSide.primary`)은 크게, 다른 면은 작게. 카페라떼는 카페인이, 딸기라떼는 당이 크다.
-/// nil은 "미공개"(0으로 적지 않는다, SPEC §9.2).
+/// 카페인 컵에서 연 기록이면 늘 카페인이 크다(`CupSide.shown`). nil은 "미공개"(0으로 적지 않는다, SPEC §9.2).
 struct DrinkFigure: View {
     let name: String
     let sugarG: Double?
     let caffeineMg: Double?
     var alignment: HorizontalAlignment = .trailing
+
+    @Environment(\.recordCup) private var recordCup
 
     func aligned(_ value: HorizontalAlignment) -> DrinkFigure {
         DrinkFigure(name: name, sugarG: sugarG, caffeineMg: caffeineMg, alignment: value)
@@ -78,7 +93,7 @@ struct DrinkFigure: View {
     }
 
     var body: some View {
-        let primary = CupSide.primary(name: name, sugarG: sugarG, caffeineMg: caffeineMg)
+        let primary = CupSide.shown(in: recordCup, primary: CupSide.primary(name: name, sugarG: sugarG, caffeineMg: caffeineMg))
         VStack(alignment: alignment, spacing: 2) {
             if let value = amount(primary) {
                 HStack(alignment: .firstTextBaseline, spacing: 1) {

@@ -325,10 +325,10 @@ extension RecordFlowUITests {
         let left = window.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.5))
 
         right.press(forDuration: 0.1, thenDragTo: left, withVelocity: .slow, thenHoldForDuration: 0.6)
-        XCTAssertTrue(summary.label.hasPrefix("카페인 남은"), "카페인 컵으로 안 넘어감: \(summary.label)")
+        XCTAssertTrue(summary.waitForLabel(prefix: "카페인 남은"), "카페인 컵으로 안 넘어감: \(summary.label)")
         sleep(1)
         left.press(forDuration: 0.1, thenDragTo: right, withVelocity: .slow, thenHoldForDuration: 0.6)
-        XCTAssertTrue(summary.label.hasPrefix("당 남은"), "당 컵으로 안 돌아옴: \(summary.label)")
+        XCTAssertTrue(summary.waitForLabel(prefix: "당 남은"), "당 컵으로 안 돌아옴: \(summary.label)")
     }
 }
 
@@ -499,6 +499,12 @@ private extension XCUIElement {
     /// 넘김 애니메이션이 끝나 선택 표시가 바뀔 때까지 기다린다.
     func waitForSelected(timeout: TimeInterval = 3) -> Bool {
         let expectation = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isSelected == true"), object: self)
+        return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
+    }
+
+    /// 라벨이 바뀔 때까지 기다린다. 끌기 직후 바로 읽으면 제자리로 붙는 중이라 옛 라벨이 읽힌다.
+    func waitForLabel(prefix: String, timeout: TimeInterval = 3) -> Bool {
+        let expectation = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label BEGINSWITH %@", prefix), object: self)
         return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
     }
 }

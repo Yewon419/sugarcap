@@ -209,5 +209,39 @@
    }
   ],
   "rimLineY": null
+ },
+ "wave": {
+  "file": "design/assets/characters/roshu/poses/wave.png",
+  "canvas": [
+   2500,
+   2800
+  ],
+  "bbox": [
+   693,
+   801,
+   1953,
+   2266
+  ],
+  "eyes": [
+   {
+    "box": [
+     1244,
+     1090,
+     1315,
+     1156
+    ],
+    "lid": "#D6D8DE"
+   },
+   {
+    "box": [
+     1393,
+     1151,
+     1458,
+     1218
+    ],
+    "lid": "#D5D7DD"
+   }
+  ],
+  "rimLineY": null
  }
 }

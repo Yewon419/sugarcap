@@ -65,6 +65,21 @@
     { "to": "limb.arm", "shape": "wave", "amp": 3, "period": 2.6, "phase": 0.8 },
     { "to": "limb.foot_right", "shape": "bump", "amp": 10, "period": 6, "at": 4.2, "length": 0.5 }
    ]
+  },
+  "wave": {
+   "label": "손 흔들기",
+   "note": "Lv6. 사용자 쪽으로 든 왼팔을 좌우로 흔들고 몸도 살짝 따라 흔들린다. 6초마다 까치발: watch처럼 몸만 올라가고 발은 바닥에 남는다. 팔다리는 전부 몸 뒤(같은 색이라 윤곽은 같고 관절 이음매가 가려진다).",
+   "art": "wave", "unlock": 6, "minStep": 1,
+   "place": { "x": 0.5, "y": "bottom", "dy": 0.012 },
+   "limbDirection": { "arm_left": 0, "arm_right": 0, "foot_left": 1, "foot_right": -1 },
+   "reflection": { "toward": 0.12, "up": 16 },
+   "shadow": { "w": 0.85, "h": 0.2, "dx": 0.1, "dy": -0.04 },
+   "motion": [
+    { "to": "limb.arm_left", "shape": "wave", "amp": 22, "period": 0.9 },
+    { "to": "rot", "shape": "wave", "amp": 1.5, "period": 1.8 },
+    { "to": "limb.arm_right", "shape": "wave", "amp": 3, "period": 1.8, "phase": 1.2 },
+    { "to": "bodyDy", "shape": "plateau", "amp": -2.2, "period": 6, "rise": 0.4, "hold": 0.8, "fall": 0.4 }
+   ]
   }
  }
 }

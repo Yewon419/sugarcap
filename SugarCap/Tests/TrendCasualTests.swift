@@ -66,4 +66,43 @@ final class TrendCasualTests: XCTestCase {
         XCTAssertEqual(DropCalendar.dropSize(left: 25, limit: 50), 25)
         XCTAssertEqual(DropCalendar.dropSize(left: 0, limit: 50), 0)
     }
+    // MARK: - 식탁 위 일주일(2026-10-06)
+
+    func testTableWeekCountsOnlyRecordedDaysAndToday() {
+        let entries = [entry(25, sugar: 20), entry(23, sugar: 70)]
+        let table = TrendTable.week(
+            entries: entries, boundaryHour: 4, today: today, side: .sugar, limit: 50, calendar: calendar
+        )
+        XCTAssertEqual(table.cups.map(\.day.day), [20, 21, 22, 23, 24, 25, 26])
+        XCTAssertEqual(table.cups.map(\.recorded), [false, false, false, true, false, true, true])
+        XCTAssertEqual(table.total, 30 + 0 + 50, accuracy: 1e-9, "25일 30 + 넘긴 23일 0 + 오늘 50, 기록 없는 날은 안 센다")
+        XCTAssertEqual(table.nowIndex, 6)
+        XCTAssertEqual(table.first, DayKey(year: 2026, month: 9, day: 20))
+        XCTAssertEqual(table.last, today)
+    }
+
+    func testTableWeekChangeNeedsLastWeekRecords() {
+        XCTAssertNil(TrendTable.weekChange(
+            entries: [entry(25, sugar: 20)], boundaryHour: 4, today: today, side: .sugar, limit: 50, calendar: calendar
+        ))
+        let change = TrendTable.weekChange(
+            entries: [entry(25, sugar: 20), entry(18, sugar: 10)], boundaryHour: 4, today: today, side: .sugar,
+            limit: 50, calendar: calendar
+        )
+        XCTAssertEqual(change ?? 0, (30 + 50) - 40, accuracy: 1e-9)
+    }
+
+    func testTableMonthAveragesEachCalendarRow() {
+        let entries = [entry(1, sugar: 10), entry(2, sugar: 30), entry(25, sugar: 60)]
+        let table = TrendTable.month(
+            entries: entries, boundaryHour: 4, today: today, side: .sugar, limit: 50, calendar: calendar
+        )
+        XCTAssertEqual(table.cups.map(\.day.day), [1, 6, 13, 20, 27], "9월 1일은 화요일, 일요일마다 새 줄")
+        XCTAssertEqual(table.cups[0].used, 20, accuracy: 1e-9, "1·2일만 센다")
+        XCTAssertEqual(table.cups.map(\.recorded), [true, false, false, true, false])
+        XCTAssertEqual(table.cups[3].used, 30, accuracy: 1e-9, "25일 60과 오늘 0의 평균")
+        XCTAssertTrue(table.cups[4].isFuture)
+        XCTAssertEqual(table.nowIndex, 3)
+        XCTAssertEqual(table.total, 40 + 20 + 0 + 50, accuracy: 1e-9)
+    }
 }

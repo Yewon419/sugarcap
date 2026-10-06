@@ -158,3 +158,100 @@ extension DayKey {
         return calendar.component(.weekday, from: date)
     }
 }
+
+/// 추이 "식탁 위 일주일"(2026-10-06 이식, 프로토 `design/proto/screens-trends-table.js`)의 잔 한 칸.
+/// 주 = 하루, 월 = 그 주의 하루 평균.
+struct TableCup: Identifiable, Equatable, Sendable {
+    /// 그 칸의 첫날. 주 보기에서는 그날이다.
+    let day: DayKey
+    let used: Double
+    /// 기록한 날이나 오늘이 하나라도 들었는지. 기록 없는 지난날은 "남겼다"고 셀 수 없다(안 적었을 수도 있다).
+    let recorded: Bool
+    let isFuture: Bool
+    /// 지금 칸(주 = 오늘, 월 = 이번 주). 캐릭터가 이 잔 뒤에 선다.
+    let isNow: Bool
+
+    var id: String { day.rawValue }
+}
+
+struct TrendTable: Equatable, Sendable {
+    let cups: [TableCup]
+    /// 큰 숫자: 기록한 날과 오늘 남긴 양의 합.
+    let total: Double
+    let first: DayKey
+    let last: DayKey
+
+    var nowIndex: Int { cups.firstIndex(where: \.isNow) ?? max(0, cups.count - 1) }
+
+    /// 오늘로 끝나는 7일. `weeksAgo`만큼 앞 주로 옮긴다.
+    static func week(
+        entries: [Entry], boundaryHour: Int, today: DayKey, side: CupSide, limit: Double, weeksAgo: Int = 0,
+        calendar: Calendar = .current
+    ) -> TrendTable {
+        let recordedDays = recordedDays(entries: entries, boundaryHour: boundaryHour, calendar: calendar)
+        let end = today.shifted(by: -7 * weeksAgo, calendar: calendar)
+        let days = TrendMath.daily(entries: entries, boundaryHour: boundaryHour, today: end, days: 7, calendar: calendar)
+        let cups = days.map { point in
+            TableCup(
+                day: point.day, used: point.value(side),
+                recorded: recordedDays.contains(point.day) || point.day == today,
+                isFuture: false, isNow: point.day == today
+            )
+        }
+        let total = cups.filter(\.recorded).reduce(0) { $0 + max(0, limit - $1.used) }
+        return TrendTable(cups: cups, total: total, first: days.first?.day ?? end, last: end)
+    }
+
+    /// 이번 주와 지난주 큰 숫자의 차이(Pro 한 줄). 지난주 기록이 없으면 비교하지 않는다.
+    static func weekChange(
+        entries: [Entry], boundaryHour: Int, today: DayKey, side: CupSide, limit: Double,
+        calendar: Calendar = .current
+    ) -> Double? {
+        let previous = week(
+            entries: entries, boundaryHour: boundaryHour, today: today, side: side, limit: limit, weeksAgo: 1,
+            calendar: calendar
+        )
+        guard previous.cups.contains(where: \.recorded) else { return nil }
+        let current = week(
+            entries: entries, boundaryHour: boundaryHour, today: today, side: side, limit: limit, calendar: calendar
+        )
+        return current.total - previous.total
+    }
+
+    /// 이번 달, 달력 한 줄(일~토)마다 한 잔. 잔 = 그 주에 센 날의 하루 평균.
+    static func month(
+        entries: [Entry], boundaryHour: Int, today: DayKey, side: CupSide, limit: Double,
+        calendar: Calendar = .current
+    ) -> TrendTable {
+        let recordedDays = recordedDays(entries: entries, boundaryHour: boundaryHour, calendar: calendar)
+        let month = DropCalendar.make(
+            entries: entries, boundaryHour: boundaryHour, today: today, side: side, limit: limit, calendar: calendar
+        )
+        let counted: (DropCalendar.Cell) -> Bool = { cell in
+            cell.used != nil && (recordedDays.contains(cell.day) || cell.day == today)
+        }
+        var rows: [[DropCalendar.Cell]] = []
+        for (index, cell) in month.cells.enumerated() {
+            let row = (index + month.leadingBlanks) / 7
+            if row == rows.count { rows.append([]) }
+            rows[row].append(cell)
+        }
+        let cups = rows.compactMap { row -> TableCup? in
+            guard let start = row.first else { return nil }
+            let days = row.filter(counted)
+            let average = days.isEmpty ? 0 : days.reduce(0) { $0 + ($1.used ?? 0) } / Double(days.count)
+            return TableCup(
+                day: start.day, used: average, recorded: !days.isEmpty,
+                isFuture: start.day > today, isNow: row.contains { $0.day == today }
+            )
+        }
+        let total = month.cells.filter(counted).reduce(0) { $0 + max(0, limit - ($1.used ?? 0)) }
+        return TrendTable(
+            cups: cups, total: total, first: month.cells.first?.day ?? today, last: month.cells.last?.day ?? today
+        )
+    }
+
+    private static func recordedDays(entries: [Entry], boundaryHour: Int, calendar: Calendar) -> Set<DayKey> {
+        Set(entries.map { $0.dayKey(boundaryHour: boundaryHour, calendar: calendar) })
+    }
+}

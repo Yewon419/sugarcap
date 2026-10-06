@@ -3,10 +3,11 @@ import SwiftData
 import SwiftUI
 import WidgetKit
 
-/// 추이 탭(2026-09-26 HTML 프로토타입 확정 = 캐주얼, 대표님 "그래픽으로 캐주얼하고 멋지게"). SPEC §4.3.
-/// 기존 그림 자산(컵 사진·방울·캐릭터)만 쓴다. 당·카페인은 단위가 달라 따로 본다.
-///  - 주: 영웅 카드(기준 안에서 마신 날 N/7) → 이번 주 컵 선반(누르면 그날 기록) → 준 양 · 지난주 대비(Pro)
-///  - 월(Pro): 영웅 카드(이번 달 준 양) → 방울 달력(남긴 만큼 방울이 커진다)
+/// 추이(SPEC §4.3). 2026-10-06 HTML 프로토타입 "식탁 위 일주일"(`design/proto/screens-trends-table.js`) 이식.
+/// 대표님 "버튼과 글자가 너무 많다, 척 보고 알아야 한다" → 화면 글자는 기간·제목·큰 숫자·잔 숫자·요일뿐이다.
+///  - 지면: 기간 메뉴 + 날짜 → "남긴 당" → 큰 숫자(기록한 날과 오늘 남긴 양의 합) → 지난주 대비(Pro) · 하루 기준.
+///  - 장면: 오늘 탭과 같은 벽·식탁. 잔 = 하루(주) 또는 그 주 하루 평균(월, Pro). 캐릭터는 지금 잔 뒤에서 엿본다.
+///  - 당↔카페인은 옆으로 밀기 + 점 두 개.
 struct TrendsView: View {
     /// 하루 기록 시트의 줄 썸네일 색에만 쓴다.
     let catalog: CatalogIndex
@@ -17,7 +18,6 @@ struct TrendsView: View {
     @Environment(\.modelContext) private var context
     @Environment(ProStore.self) private var pro
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.dynamicTypeSize) private var typeSize
 
     @State private var side: CupSide = .sugar
     @State private var range: TrendRange = .week
@@ -31,25 +31,56 @@ struct TrendsView: View {
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "trends")
     private static let weekdays = ["일", "월", "화", "수", "목", "금", "토"]
 
+    /// 오늘 탭 사진에서 잰 벽·식탁 색(프로토 `trends-table.css`).
+    private static let tableTop = Color(red: 0xEC / 255, green: 0xEF / 255, blue: 0xF2 / 255)
+    private static let tableEdge = Color(red: 0xE1 / 255, green: 0xE5 / 255, blue: 0xE9 / 255)
+    private static let hairline = Color(red: 60 / 255, green: 60 / 255, blue: 67 / 255).opacity(0.18)
+    private static let dotOff = Color(red: 60 / 255, green: 60 / 255, blue: 67 / 255).opacity(0.22)
+    private static let noRecord = Color(red: 60 / 255, green: 60 / 255, blue: 67 / 255).opacity(0.3)
+    /// 잔이 식탁 모서리 위로 올라오는 높이와 그 위 벽 높이.
+    private static let wallHeight: CGFloat = 150
+    private static let cupRise: CGFloat = 52
+    /// `CupCrop` 잔 영역의 세로/가로.
+    private static let glassAspect: CGFloat = 1100.0 / 564.0
+
     private var limits: DailyLimits { settingsRows.first?.limits ?? .default }
     private var boundaryHour: Int { settingsRows.first?.dayBoundaryHour ?? 4 }
     private var limit: Double { side.limit(limits) }
+    /// 월 보기는 Pro다(§6). Pro가 끝나면 주로 돌아간다.
+    private var isMonth: Bool { range == .month && pro.isPro }
+
+    /// 기준을 넘긴 숫자에만 쓰는 색. 당 = 딸기, 카페인 = 라떼 갈색.
+    private var overColor: Color {
+        switch side {
+        case .sugar: return Color(red: 0xD2 / 255, green: 0x3B / 255, blue: 0x55 / 255)
+        case .caffeine: return Color(red: 0x9A / 255, green: 0x5B / 255, blue: 0x2A / 255)
+        }
+    }
 
     var body: some View {
         TimelineView(.everyMinute) { timeline in
             let today = DayKey(at: timeline.date, boundaryHour: boundaryHour)
-            ScrollView {
-                VStack(spacing: 0) {
-                    header
-                    if range == .month, pro.isPro {
-                        monthContent(today: today)
-                    } else {
-                        weekContent(today: today)
+            let table = makeTable(today: today)
+            GeometryReader { proxy in
+                ScrollView {
+                    VStack(spacing: 0) {
+                        page(table: table, today: today)
+                        Spacer(minLength: 32)
+                        scene(table: table)
                     }
-                    Color.clear.frame(height: 32)
+                    .frame(minHeight: proxy.size.height)
+                }
+                .scrollBounceBehavior(.basedOnSize)
+                // 식탁 색이 홈 인디케이터 밑까지 이어지게 한다.
+                .background {
+                    VStack(spacing: 0) {
+                        CupView.wallColor
+                        Self.tableTop.frame(height: proxy.safeAreaInsets.bottom + 1)
+                    }
+                    .ignoresSafeArea()
                 }
             }
-            .background(background)
+            .simultaneousGesture(sideSwipe)
             .onAppear(perform: applyScreenshotArguments)
         }
         .sheet(item: $paywall, onDismiss: {
@@ -78,395 +109,338 @@ struct TrendsView: View {
         }
     }
 
-    /// 벽 색 단색. 프로토타입의 옅은 물빛 번짐은 에어브러시 계열이라 뺐다(대표님 교정 2026-09-26).
-    private var background: some View {
-        Color.wall.ignoresSafeArea()
+    private func makeTable(today: DayKey) -> TrendTable {
+        if isMonth {
+            return TrendTable.month(entries: entries, boundaryHour: boundaryHour, today: today, side: side, limit: limit)
+        }
+        return TrendTable.week(entries: entries, boundaryHour: boundaryHour, today: today, side: side, limit: limit)
     }
 
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("추이")
-                .dateLabel()
-                .padding(.top, 8)
-            HStack(spacing: 10) {
-                Picker("당·카페인", selection: $side) {
-                    ForEach(CupSide.allCases) { Text($0.label).tag($0) }
-                }
-                .pickerStyle(.segmented)
-                Picker("기간", selection: $range) {
-                    ForEach(TrendRange.allCases) { Text(range == $0 || pro.isPro || $0 == .week ? $0.label : "\($0.label) · Pro").tag($0) }
-                }
-                .pickerStyle(.segmented)
-                .accessibilityIdentifier("trend-range")
-                // 월 보기는 Pro다(§6). 무료가 고르면 주 보기로 되돌리고 페이월을 연다.
-                .onChange(of: range) { _, newValue in
-                    guard newValue == .month, !pro.isPro else { return }
-                    range = .week
+    // MARK: - 지면
+
+    /// 매거진 지면처럼: 머리(기간·날짜) + 검은 가는 선 → 제목 → 바로 아래 큰 숫자 → 가는 선 + 한 줄.
+    /// 2026-10-06 대표님 "남긴 당 아래 붙게": 남는 공간은 지면과 장면 사이로 간다.
+    private func page(table: TrendTable, today: DayKey) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            masthead(table: table, today: today)
+            Text("남긴 \(side.label)")
+                .font(AppFont.pretendard(34, .extraBold, relativeTo: .largeTitle))
+                .tracking(AppFont.displayTracking(for: 34))
+                .foregroundStyle(Color.ink)
+                .padding(.top, 18)
+                .accessibilityAddTraits(.isHeader)
+            figure(total: table.total)
+                .padding(.top, 4)
+            deck(today: today)
+                .padding(.top, 22)
+        }
+        .padding(.horizontal, 24)
+        .padding(.top, 8)
+    }
+
+    private func masthead(table: TrendTable, today: DayKey) -> some View {
+        HStack(spacing: 8) {
+            periodMenu(today: today)
+            Spacer(minLength: 8)
+            Text("\(table.first.month).\(table.first.day) – \(table.last.month).\(table.last.day)")
+                .font(AppFont.pretendard(13, .medium, relativeTo: .footnote))
+                .monospacedDigit()
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+        }
+        .overlay(alignment: .bottom) {
+            Rectangle().fill(Color.ink).frame(height: 1)
+        }
+    }
+
+    /// 주↔월. 무료가 월을 고르면 주에 머물고 페이월을 연다.
+    private func periodMenu(today: DayKey) -> some View {
+        let selection = Binding<TrendRange>(
+            get: { isMonth ? .month : .week },
+            set: { newValue in
+                if newValue == .month, !pro.isPro {
                     pendingMonth = true
                     paywall = .monthlyTrends
+                } else {
+                    range = newValue
                 }
             }
-        }
-        .padding(.horizontal, 20)
-    }
-
-    // MARK: - 주
-
-    @ViewBuilder
-    private func weekContent(today: DayKey) -> some View {
-        let week = WeekSummary.make(entries: entries, boundaryHour: boundaryHour, today: today, side: side, limit: limit)
-        heroCard(
-            kicker: "이번 주 기준 안에서 마신 날",
-            number: "\(week.withinDays)", unit: "일", suffix: "/7일",
-            caption: week.isGoodWeek
-                ? "\(side.characterNameWithGwa) 사이가 쑥쑥 가까워지는 중"
-                : "하루 평균 \(Amount.number(week.dailyAverage)) \(side.unit) 마셨어요",
-            cheer: week.isGoodWeek
         )
-        limitRow
-        shelf(week: week, today: today)
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 12) { statCards(week: week, today: today) }
-            VStack(spacing: 12) { statCards(week: week, today: today) }
-        }
-        .padding(.horizontal, 16)
-        .padding(.top, 12)
-    }
-
-    private func heroCard(kicker: String, number: String, unit: String, suffix: String?, caption: String, cheer: Bool) -> some View {
-        HStack(alignment: .bottom, spacing: 0) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(kicker).kicker()
-                HStack(alignment: .firstTextBaseline, spacing: 0) {
-                    Text(number)
-                        .font(AppFont.pretendardFixed(84, .bold))
-                        .tracking(-4.5)
-                        .monospacedDigit()
-                        .contentTransition(.numericText())
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                        // 음수 자간은 마지막 글자 뒤에도 붙어 끝자리가 단위에 덮인다(베타 피드백 "숫자 잘림"). 줄인 만큼 돌려준다.
-                        .padding(.trailing, 4.5)
-                    Text(unit)
-                        .heroUnit()
-                        .padding(.leading, 2)
-                    if let suffix {
-                        Text(suffix)
-                            .font(AppFont.pretendard(13, .regular, relativeTo: .footnote))
-                            .foregroundStyle(.secondary)
-                            .padding(.leading, 10)
-                    }
-                }
-                Text(caption)
-                    .font(AppFont.pretendard(13, .regular, relativeTo: .footnote))
+        let monthLabel = "\(today.month)월"
+        return Menu {
+            Picker("기간", selection: selection) {
+                Text("이번 주").tag(TrendRange.week)
+                Text(pro.isPro ? monthLabel : "\(monthLabel) · Pro").tag(TrendRange.month)
+            }
+        } label: {
+            HStack(spacing: 6) {
+                Text(isMonth ? monthLabel : "이번 주")
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 11, weight: .semibold))
                     .foregroundStyle(.secondary)
-                    .lineSpacing(3)
-                    .fixedSize(horizontal: false, vertical: true)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .accessibilityElement(children: .combine)
-            .accessibilityIdentifier("trend-hero")
-
-            if !typeSize.isAccessibilitySize {
-                CheerCharacter(side: side, isCheering: cheer && !reduceMotion)
-                    .padding(.bottom, -28)
-            }
+            .font(AppFont.pretendard(15, .bold, relativeTo: .subheadline))
+            .foregroundStyle(Color.ink)
+            .frame(minHeight: 44)
+            .contentShape(Rectangle())
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 22)
-        .padding(.bottom, 20)
-        .frame(minHeight: 196, alignment: .bottom)
-        .card(radius: 28)
-        .padding(.horizontal, 16)
-        .padding(.top, 22)
+        .accessibilityLabel("기간")
+        .accessibilityValue(isMonth ? monthLabel : "이번 주")
+        .accessibilityIdentifier("trend-range")
     }
 
-    /// 지금 보는 쪽의 하루 기준. 누르면 기준·조금씩 줄이기 화면으로 간다.
-    private var limitRow: some View {
+    /// 단위는 숫자 어깨 위. 자리 수가 늘면 글자를 줄여 한 줄에 둔다.
+    private func figure(total: Double) -> some View {
+        let text = Amount.number(total.rounded())
+        let size = Self.figureSize(digits: text.count)
+        return HStack(alignment: .top, spacing: 6) {
+            Text(text)
+                .font(AppFont.pretendardFixed(size, .extraBold))
+                .tracking(-0.045 * size)
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+                // 음수 자간은 마지막 글자 뒤에도 붙어 끝자리가 단위에 덮인다. 줄인 만큼 돌려준다.
+                .padding(.trailing, 0.045 * size)
+                .contentTransition(.numericText())
+            Text(side.unit)
+                .font(AppFont.pretendard(22, .bold, relativeTo: .title2))
+                .padding(.top, size * 0.14)
+        }
+        .foregroundStyle(Color.ink)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("남긴 \(side.label) \(text) \(side.unit)")
+        .accessibilityIdentifier("trend-total")
+    }
+
+    private static func figureSize(digits: Int) -> CGFloat {
+        switch digits {
+        case ...2: return 150
+        case 3: return 124
+        case 4...5: return 100
+        default: return 80
+        }
+    }
+
+    /// 지면 끝줄: 왼쪽 지난주 비교(Pro), 오른쪽 하루 기준. 비교가 없으면 기준만 오른쪽에 남는다.
+    private func deck(today: DayKey) -> some View {
+        HStack(spacing: 12) {
+            if let note = compareNote(today: today) {
+                note
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.8)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityIdentifier("trend-compare")
+            } else {
+                Spacer(minLength: 0)
+            }
+            limitLink
+        }
+        .font(AppFont.pretendard(15, .regular, relativeTo: .subheadline))
+        .foregroundStyle(.secondary)
+        .frame(minHeight: 44)
+        .overlay(alignment: .top) {
+            Rectangle().fill(Self.hairline).frame(height: 1)
+        }
+    }
+
+    /// 큰 숫자가 "남긴 양"이라 비교도 남긴 양으로 한다.
+    private func compareNote(today: DayKey) -> Text? {
+        guard pro.isPro, !isMonth,
+              let diff = TrendTable.weekChange(entries: entries, boundaryHour: boundaryHour, today: today, side: side, limit: limit)
+        else { return nil }
+        let rounded = diff.rounded()
+        guard rounded != 0 else { return Text("지난주만큼 남겼어요") }
+        let amount = Text("\(Amount.number(abs(rounded)))\(side.unit) \(rounded > 0 ? "더" : "덜")")
+            .font(AppFont.pretendard(15, .bold, relativeTo: .subheadline))
+            .foregroundStyle(Color.ink)
+        return Text("지난주보다 \(amount) 남겼어요")
+    }
+
+    /// 하루 기준(2026-10-05 설정에서 옮겨 옴). 큰 숫자가 이 기준에서 남긴 양이라 바로 아래 끝줄에 둔다.
+    private var limitLink: some View {
         let isReducing = goals.contains { $0.side == side.rawValue }
         return Button {
             limitSide = side
         } label: {
-            HStack(spacing: 12) {
-                Image(side.dropAsset)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 32, height: 32)
-                    .accessibilityHidden(true)
-                Text("하루 기준")
-                    .font(AppFont.pretendard(15, .semibold, relativeTo: .subheadline))
+            HStack(spacing: 6) {
+                Text(isReducing ? "줄이는 중" : "하루 기준")
+                Text("\(Amount.number(limit)) \(side.unit)")
+                    .font(AppFont.pretendard(15, .bold, relativeTo: .subheadline))
+                    .monospacedDigit()
                     .foregroundStyle(Color.ink)
-                Spacer(minLength: 8)
-                HStack(alignment: .firstTextBaseline, spacing: 2) {
-                    if isReducing {
-                        Text("줄이는 중 · ")
-                            .font(AppFont.pretendard(13, .regular, relativeTo: .footnote))
-                    }
-                    Text(Amount.number(limit))
-                        .font(AppFont.pretendard(17, .bold, relativeTo: .body))
-                        .monospacedDigit()
-                    Text(side.unit)
-                        .font(AppFont.pretendard(13, .medium, relativeTo: .footnote))
-                }
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
                 Image(systemName: "chevron.right")
                     .font(.footnote.weight(.semibold))
                     .foregroundStyle(.tertiary)
             }
-            .padding(.horizontal, 18)
-            .frame(maxWidth: .infinity, minHeight: 60)
-            .card(radius: 20)
+            .lineLimit(1)
+            .frame(minHeight: 44)
             .contentShape(Rectangle())
         }
         .buttonStyle(PressScaleStyle())
+        .fixedSize()
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(side.label) 하루 기준 \(Amount.number(limit)) \(side.unit)\(isReducing ? ", 줄이는 중" : "")")
-        .accessibilityAddTraits(.isButton)
         .accessibilityIdentifier("trend-limit")
-        .padding(.horizontal, 16)
-        .padding(.top, 12)
     }
 
-    private func shelf(week: WeekSummary, today: DayKey) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .firstTextBaseline) {
-                Text("이번 주 컵").kicker()
-                Spacer()
-                Text("컵을 누르면 그날 기록")
-                    .font(AppFont.pretendard(11, .regular, relativeTo: .caption2))
-                    .foregroundStyle(.secondary)
+    // MARK: - 장면
+
+    /// 벽(캐릭터) 위로 잔 끝이 올라오고, 잔 몸통부터 식탁이다. 점은 식탁 위.
+    private func scene(table: TrendTable) -> some View {
+        VStack(spacing: 0) {
+            Color.clear.frame(height: Self.wallHeight - Self.cupRise)
+            HStack(alignment: .bottom, spacing: 0) {
+                ForEach(Array(table.cups.enumerated()), id: \.element.id) { index, cup in
+                    cupColumn(cup, index: index)
+                }
             }
             .padding(.horizontal, 8)
-            HStack(alignment: .bottom, spacing: 2) {
-                ForEach(week.days) { point in
-                    shelfCup(point, today: today)
-                }
+            sideDots
+                .padding(.top, 10)
+                .padding(.bottom, 20)
+        }
+        .background(alignment: .top) {
+            VStack(spacing: 0) {
+                characterWall(table: table)
+                    .frame(height: Self.wallHeight)
+                Self.tableTop
+                    .overlay(alignment: .top) { Self.tableEdge.frame(height: 1) }
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.top, 18)
-        .padding(.bottom, 16)
-        .card(radius: 28)
-        .padding(.horizontal, 16)
-        .padding(.top, 16)
     }
 
-    private func shelfCup(_ point: TrendPoint, today: DayKey) -> some View {
-        let used = point.value(side)
-        let left = max(0, limit - used)
-        let over = used - limit
-        let isToday = point.day == today
-        let hasRecord = used > 0 || entries.contains { $0.dayKey(boundaryHour: boundaryHour) == point.day }
-        let recorded = hasRecord || isToday
-        let weekday = Self.weekdays[point.day.weekday() - 1]
-
-        return Button {
-            dayLog = point.day
-        } label: {
-            VStack(spacing: 8) {
-                ZStack(alignment: .top) {
-                    ShelfGlass(asset: CupLevel.cutoutName(setID: side.cupSetID, step: recorded ? CupLevel.step(remaining: left, limit: limit) : 0))
-                        .opacity(recorded ? 1 : 0.35)
-                        .offset(y: isToday ? -4 : 0)
-                        .padding(.top, 16)
-                    if over > 0 {
-                        Text("+\(Amount.number(over))")
-                            .font(AppFont.pretendard(10, .bold, relativeTo: .caption2))
-                            .monospacedDigit()
-                            .foregroundStyle(.white)
-                            .lineLimit(1)
-                            .fixedSize()
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.accentColor, in: Capsule())
-                    }
-                }
-                Text(weekday)
-                    .font(AppFont.pretendard(12, isToday ? .bold : .regular, relativeTo: .caption))
-                    .foregroundStyle(isToday ? Color.white : Color.secondary)
-                    .padding(.horizontal, isToday ? 8 : 0)
-                    .padding(.vertical, 1)
-                    .background(isToday ? Color.accentColor : Color.clear, in: Capsule())
-            }
-            .frame(maxWidth: .infinity)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(PressScaleStyle())
-        .accessibilityLabel("\(weekday)요일 남은 \(side.label) \(Amount.number(left)) \(side.unit)")
-        .accessibilityIdentifier("shelf-\(point.day.rawValue)")
-    }
-
-    @ViewBuilder
-    private func statCards(week: WeekSummary, today: DayKey) -> some View {
-        HStack(spacing: 12) {
-            Image(side.dropAsset)
+    /// 캐릭터는 지금 잔 뒤에 선다. 몸 가장자리를 그 잔 가운데에 맞추고, 왼쪽 절반이면 반대쪽으로 비켜 선다.
+    /// 식탁 모서리 아래는 잘린다(식탁 뒤에 서 있다).
+    private func characterWall(table: TrendTable) -> some View {
+        GeometryReader { proxy in
+            let count = CGFloat(max(table.cups.count, 1))
+            let at = CGFloat(table.nowIndex)
+            let cupX: CGFloat = 8 + (proxy.size.width - 16) * (at + 0.5) / count
+            let height: CGFloat = side == .sugar ? 190 : 168
+            let sink: CGFloat = side == .sugar ? 64 : 40
+            let fromLeft = at < count / 2
+            let boxWidth: CGFloat = fromLeft ? max(0, proxy.size.width - cupX + 4) : cupX + 4
+            Image(side.characterAsset)
                 .resizable()
                 .scaledToFit()
-                .frame(width: 52, height: 52)
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 2) {
-                statNumber(Amount.number(week.given), unit: side.unit)
-                Text("이번 주 \(side.characterName)에게 준 \(side.label)")
-                    .statLabel()
-            }
-            Spacer(minLength: 0)
+                .frame(height: height)
+                .frame(width: boxWidth, alignment: fromLeft ? .leading : .trailing)
+                .frame(maxWidth: .infinity, alignment: fromLeft ? .trailing : .leading)
+                .offset(y: proxy.size.height - height + sink)
         }
-        .statCard()
-        .accessibilityElement(children: .combine)
-
-        deltaCard(today: today)
+        .clipped()
+        .accessibilityHidden(true)
     }
 
     @ViewBuilder
-    private func deltaCard(today: DayKey) -> some View {
-        if !pro.isPro {
+    private func cupColumn(_ cup: TableCup, index: Int) -> some View {
+        if isMonth {
+            cupFace(cup, label: "\(index + 1)주", width: 58, dimmed: !cup.recorded || cup.isFuture)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("\(index + 1)주차 \(cupDescription(cup, average: true))")
+        } else {
+            let weekday = Self.weekdays[cup.day.weekday() - 1]
             Button {
-                paywall = .weekOverWeek
+                dayLog = cup.day
             } label: {
-                VStack(spacing: 6) {
-                    Image(systemName: "lock.fill")
-                        .font(.system(size: 13))
-                    Text("지난주와\n비교하기")
-                        .statLabel()
-                        .multilineTextAlignment(.center)
-                }
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity)
-                .statCard()
+                cupFace(cup, label: cup.isNow ? "오늘" : weekday, width: 50, dimmed: !cup.recorded)
             }
             .buttonStyle(PressScaleStyle())
-            .accessibilityIdentifier("trend-delta-locked")
-        } else {
-            let current = WeekSummary.make(entries: entries, boundaryHour: boundaryHour, today: today, side: side, limit: limit)
-            let previous = WeekSummary.make(entries: entries, boundaryHour: boundaryHour, today: today, side: side, limit: limit, weeksAgo: 1)
-            if previous.dailyAverage == 0 {
-                Text("지난주 기록이\n없어요")
-                    .statLabel()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .statCard()
-            } else {
-                let diff = current.dailyAverage - previous.dailyAverage
-                HStack(spacing: 12) {
-                    Image(systemName: diff <= 0 ? "arrow.down" : "arrow.up")
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundStyle(.white)
-                        .frame(width: 36, height: 36)
-                        .background(diff <= 0 ? Color.accentColor : Color(white: 0.56), in: Circle())
-                    VStack(alignment: .leading, spacing: 2) {
-                        statNumber(Amount.number(abs(diff)), unit: side.unit)
-                        Text("지난주보다 하루 \(diff <= 0 ? "덜" : "더")")
-                            .statLabel()
-                    }
-                    Spacer(minLength: 0)
-                }
-                .statCard()
-                .accessibilityElement(children: .combine)
-            }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("\(weekday)요일 \(cupDescription(cup, average: false))")
+            .accessibilityAddTraits(.isButton)
+            .accessibilityIdentifier("shelf-\(cup.day.rawValue)")
         }
     }
 
-    /// 카드 폭이 좁아 "2,800"이 두 줄로 쪼개졌다(2026-09-27). 한 줄로 두고 넘치면 줄인다.
-    private func statNumber(_ value: String, unit: String) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: 2) {
-            Text(value)
-                .font(AppFont.pretendard(28, .bold, relativeTo: .title))
-                .tracking(-1)
-                .monospacedDigit()
-            Text(unit)
-                .font(AppFont.pretendard(13, .medium, relativeTo: .footnote))
+    private func cupDescription(_ cup: TableCup, average: Bool) -> String {
+        guard cup.recorded else { return "기록 없음" }
+        let over = cup.used - limit
+        if over > 0 { return "기준보다 \(Amount.number(over.rounded())) \(side.unit) 더 마심" }
+        return "\(average ? "하루 평균 " : "")남은 \(side.label) \(Amount.number(max(0, limit - cup.used).rounded())) \(side.unit)"
+    }
+
+    private func cupFace(_ cup: TableCup, label: String, width: CGFloat, dimmed: Bool) -> some View {
+        let left = max(0, limit - cup.used)
+        let step = cup.recorded ? CupLevel.step(remaining: left, limit: limit) : 0
+        return VStack(spacing: 2) {
+            CupCrop(asset: CupLevel.cutoutName(setID: side.cupSetID, step: step))
+                .frame(width: width, height: width * Self.glassAspect)
+                .opacity(dimmed ? 0.4 : 1)
+            amountText(cup, left: left)
+                .padding(.top, 8)
+            Text(label)
+                .font(AppFont.pretendard(12, cup.isNow ? .semibold : .regular, relativeTo: .caption))
+                .foregroundStyle(cup.isNow ? Color.ink : Color.secondary)
+                .lineLimit(1)
+                .frame(minHeight: 18)
         }
+        .frame(maxWidth: .infinity)
+        .contentShape(Rectangle())
+    }
+
+    /// 잔 아래 숫자: 남긴 양, 넘겼으면 +넘긴 양(색), 기록 없으면 -. 단위는 큰 숫자에만 붙인다.
+    @ViewBuilder
+    private func amountText(_ cup: TableCup, left: Double) -> some View {
+        let over = cup.used - limit
+        Group {
+            if !cup.recorded {
+                Text("-")
+                    .font(AppFont.pretendard(17, .medium, relativeTo: .body))
+                    .foregroundStyle(Self.noRecord)
+            } else if over > 0 {
+                Text("+\(Amount.number(over.rounded()))")
+                    .font(AppFont.pretendard(17, .bold, relativeTo: .body))
+                    .foregroundStyle(overColor)
+            } else {
+                Text(Amount.number(left.rounded()))
+                    .font(AppFont.pretendard(17, .bold, relativeTo: .body))
+                    .foregroundStyle(Color.ink)
+            }
+        }
+        .monospacedDigit()
+        .tracking(-0.3)
         .lineLimit(1)
         .minimumScaleFactor(0.6)
     }
 
-    // MARK: - 월(Pro)
+    // MARK: - 당↔카페인
 
-    @ViewBuilder
-    private func monthContent(today: DayKey) -> some View {
-        let month = DropCalendar.make(entries: entries, boundaryHour: boundaryHour, today: today, side: side, limit: limit)
-        heroCard(
-            kicker: "\(today.month)월 \(side.characterName)에게 준 \(side.label)",
-            number: Amount.number(month.given), unit: side.unit, suffix: nil,
-            caption: "기준 안에서 마신 날 \(month.withinDays)일 / \(month.elapsedDays)일",
-            cheer: false
-        )
-        limitRow
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .firstTextBaseline) {
-                Text("방울 달력").kicker()
-                Spacer()
-                Text("남긴 만큼 방울이 커요")
-                    .font(AppFont.pretendard(11, .regular, relativeTo: .caption2))
-                    .foregroundStyle(.secondary)
-            }
-            .padding(.horizontal, 8)
-            let columns = Array(repeating: GridItem(.flexible(), spacing: 0), count: 7)
-            LazyVGrid(columns: columns, spacing: 0) {
-                ForEach(Self.weekdays, id: \.self) { day in
-                    Text(day)
-                        .font(AppFont.pretendard(11, .regular, relativeTo: .caption2))
-                        .foregroundStyle(.secondary)
-                        .padding(.bottom, 4)
+    private var sideDots: some View {
+        HStack(spacing: 0) {
+            ForEach(CupSide.allCases) { cupSide in
+                Button {
+                    switchSide(to: cupSide)
+                } label: {
+                    Circle()
+                        .fill(cupSide == side ? Color.ink : Self.dotOff)
+                        .frame(width: 7, height: 7)
+                        .frame(width: 30, height: 44)
+                        .contentShape(Rectangle())
                 }
-                ForEach(0..<month.leadingBlanks, id: \.self) { _ in Color.clear.frame(height: 1) }
-                ForEach(month.cells) { cell in
-                    dropCell(cell, month: month, today: today)
-                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(cupSide.label)
+                .accessibilityAddTraits(cupSide == side ? .isSelected : [])
+                .accessibilityIdentifier("trend-side-\(cupSide.rawValue)")
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.top, 18)
-        .padding(.bottom, 16)
-        .card(radius: 28)
-        .padding(.horizontal, 16)
-        .padding(.top, 16)
     }
 
-    @ViewBuilder
-    private func dropCell(_ cell: DropCalendar.Cell, month: DropCalendar, today: DayKey) -> some View {
-        if let left = month.left(cell) {
-            let size = DropCalendar.dropSize(left: left, limit: limit)
-            Button {
-                dayLog = cell.day
-            } label: {
-                VStack(spacing: 2) {
-                    ZStack {
-                        if size > 0 {
-                            Image(side.dropAsset)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: size, height: size)
-                        } else {
-                            Circle().fill(Color.secondary.opacity(0.35)).frame(width: 6, height: 6)
-                        }
-                    }
-                    .frame(height: 40)
-                    Text("\(cell.day.day)")
-                        .font(AppFont.pretendard(11, cell.day == today ? .bold : .regular, relativeTo: .caption2))
-                        .monospacedDigit()
-                        .foregroundStyle(cell.day == today ? Color.primary : Color.secondary)
-                }
-                .padding(.vertical, 4)
-                .frame(maxWidth: .infinity)
-                .background(
-                    cell.day == today ? Color.accentColor.opacity(0.12) : Color.clear,
-                    in: RoundedRectangle(cornerRadius: 12, style: .continuous)
-                )
-                .contentShape(Rectangle())
+    /// 오늘 탭처럼 옆으로 밀어 바꾼다. 왼쪽으로 밀면 카페인, 오른쪽으로 밀면 당.
+    private var sideSwipe: some Gesture {
+        DragGesture(minimumDistance: 20)
+            .onEnded { value in
+                let dx = value.translation.width
+                guard abs(dx) >= 50, abs(dx) > abs(value.translation.height) else { return }
+                switchSide(to: dx < 0 ? .caffeine : .sugar)
             }
-            .buttonStyle(PressScaleStyle())
-            .accessibilityLabel("\(cell.day.day)일 남은 \(Amount.number(left)) \(side.unit)")
-        } else {
-            Text("\(cell.day.day)")
-                .font(AppFont.pretendard(11, .regular, relativeTo: .caption2))
-                .monospacedDigit()
-                .foregroundStyle(.secondary)
-                .opacity(0.35)
-                .frame(maxWidth: .infinity, minHeight: 62, alignment: .bottom)
-                .padding(.bottom, 4)
-                .accessibilityHidden(true)
+    }
+
+    private func switchSide(to next: CupSide) {
+        guard next != side else { return }
+        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.22)) {
+            side = next
         }
     }
 
@@ -500,92 +474,8 @@ enum TrendRange: String, CaseIterable, Identifiable {
     case month
 
     var id: String { rawValue }
-
-    var label: String {
-        switch self {
-        case .week: return "주"
-        case .month: return "월"
-        }
-    }
 }
 
 extension DayKey: Identifiable {
     var id: String { rawValue }
-}
-
-/// 선반 위 컵 한 잔. 오려 낸 컵 전체를 보여 준다.
-private struct ShelfGlass: View {
-    let asset: String
-    private static let width: CGFloat = 44
-    private static let height: CGFloat = 82
-
-    // 2026-09-27 대표님 베타 피드백: 사진 일부를 확대해 자르지 말고 컵만 누끼 따서 컵 전체로.
-    var body: some View {
-        CupCrop(asset: asset)
-            .frame(width: Self.width, height: Self.height)
-    }
-}
-
-/// 영웅 카드 캐릭터. 좋은 주에는 가끔 폴짝 뛰며 응원한다(1.8초마다 한 번).
-private struct CheerCharacter: View {
-    let side: CupSide
-    let isCheering: Bool
-
-    var body: some View {
-        Image(side.characterAsset)
-            .resizable()
-            .scaledToFit()
-            .frame(height: side == .sugar ? 150 : 128)
-            .keyframeAnimator(initialValue: CheerPose(), repeating: isCheering) { view, pose in
-                view
-                    .rotationEffect(.degrees(pose.rotation), anchor: .bottom)
-                    .offset(y: pose.y)
-            } keyframes: { _ in
-                KeyframeTrack(\.y) {
-                    LinearKeyframe(0, duration: 1.08)
-                    CubicKeyframe(-14, duration: 0.18)
-                    CubicKeyframe(0, duration: 0.18)
-                    CubicKeyframe(-6, duration: 0.144)
-                    CubicKeyframe(0, duration: 0.216)
-                }
-                KeyframeTrack(\.rotation) {
-                    LinearKeyframe(0, duration: 1.08)
-                    CubicKeyframe(-4, duration: 0.18)
-                    CubicKeyframe(0, duration: 0.18)
-                    CubicKeyframe(3, duration: 0.144)
-                    CubicKeyframe(0, duration: 0.216)
-                }
-            }
-            .accessibilityHidden(true)
-    }
-}
-
-private struct CheerPose {
-    var y: Double = 0
-    var rotation: Double = 0
-}
-
-private extension View {
-    /// 흰 유리 카드(추이·설정 공통 문법).
-    func card(radius: CGFloat) -> some View {
-        background {
-            let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
-            shape.fill(.white.opacity(0.78))
-                .overlay(shape.strokeBorder(.white))
-                .shadow(color: Color.black.opacity(0.06), radius: 15, y: 10)
-        }
-    }
-
-    /// 두 카드가 한 줄을 나눠 쓴다(한쪽이 다른 쪽을 밀어 세로 한 줄로 찌그러졌던 일, 2026-09-27).
-    func statCard() -> some View {
-        padding(16)
-            .frame(maxWidth: .infinity, minHeight: 96, alignment: .leading)
-            .card(radius: 24)
-    }
-
-    func statLabel() -> some View {
-        font(AppFont.pretendard(12, .regular, relativeTo: .caption))
-            .foregroundStyle(.secondary)
-            .lineSpacing(2)
-    }
 }

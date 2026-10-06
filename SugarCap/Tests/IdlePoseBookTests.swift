@@ -95,6 +95,8 @@ final class IdlePoseBookTests: XCTestCase {
         XCTAssertFalse(kain.allows("rim-stand", step: 80, unlockedLevel: 1))
         XCTAssertTrue(kain.allows("rim-stand", step: 80, unlockedLevel: 2))
         XCTAssertFalse(kain.allows("swim", step: 80, unlockedLevel: 2))
+        XCTAssertFalse(kain.allows("doze-one-leg", step: 80, unlockedLevel: 4))
+        XCTAssertTrue(kain.allows("doze-one-leg", step: 80, unlockedLevel: 5))
         XCTAssertTrue(kain.allows("floor-sit", step: 0, unlockedLevel: 1))
         // Lv1이어도 1% 이상이면 뽑을 자세가 있다(빈 풀이면 0% 자세로 떨어져 엉뚱해진다).
         for cast in casts {

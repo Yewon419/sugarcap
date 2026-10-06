@@ -107,5 +107,30 @@
    }
   ],
   "rimLineY": null
+ },
+ "doze-one-leg": {
+  "file": "design/assets/characters/kain/poses/doze-one-leg.png",
+  "canvas": [
+   2500,
+   3200
+  ],
+  "bbox": [
+   564,
+   743,
+   1823,
+   2550
+  ],
+  "eyes": [
+   {
+    "box": [
+     774,
+     1288,
+     971,
+     1472
+    ],
+    "lid": "#392418"
+   }
+  ],
+  "rimLineY": null
  }
 }

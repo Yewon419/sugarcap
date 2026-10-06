@@ -59,6 +59,19 @@
     { "to": "sy", "shape": "wave", "amp": 0.012, "period": 3.2 },
     { "to": "sx", "shape": "wave", "amp": -0.006, "period": 3.2 }
    ]
+  },
+  "doze-one-leg": {
+   "label": "한 발로 졸기",
+   "note": "Lv5. 앞 가장자리 위에 한 발로 서서 존다. 숨쉬며 7.5초마다 고개가 스르르 앞으로 기울다가 번쩍 돌아오고, 그때 접은 다리가 움찔. 눈은 반 감은 그림(감은 눈 _eye_closed.png는 눈 바꾸기 기능이 생기면 쓴다).",
+   "art": "doze-one-leg", "unlock": 5, "minStep": 1,
+   "place": { "xRim": 0.25, "y": "rimFront" },
+   "limbDirection": { "leg_stand": 0, "leg_tucked": 0 },
+   "motion": [
+    { "to": "sy", "shape": "wave", "amp": 0.01, "period": 3.2 },
+    { "to": "rot", "shape": "plateau", "amp": -5, "period": 7.5, "rise": 2.6, "hold": 0.5, "fall": 0.12 },
+    { "to": "dy", "shape": "bump", "amp": -4, "period": 7.5, "at": 3.1, "length": 0.3 },
+    { "to": "limb.leg_tucked", "shape": "bump", "amp": 8, "period": 7.5, "at": 3.1, "length": 0.4 }
+   ]
   }
  }
 }

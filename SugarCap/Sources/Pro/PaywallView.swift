@@ -9,7 +9,7 @@ enum AppLinks {
 }
 
 /// 페이월(SPEC §6, 2026-09-26 HTML 프로토타입 확정 = 캐주얼). Pro 기능을 누른 자리에서 시트로 열고, 구매하면 그 화면으로 돌아간다.
-/// 방울 두 개 머리 그림 → 제목 → 누르다 온 기능의 한 문장 → 기능 네 칸 → 요금 두 장(첫 화면에 보이게) → 시작 + 갱신 안내·약관.
+/// 방울 두 개 머리 그림 → 제목 → 누르다 온 기능의 한 문장 → 기능 세 칸 → 요금 두 장(첫 화면에 보이게) → 시작 + 갱신 안내·약관.
 /// 자동 갱신 구독이라 갱신·해지 안내와 약관 링크, 구매 복원을 빼면 심사에 걸린다.
 struct PaywallView: View {
     /// 어떤 기능을 누르다 왔는지. 첫 문장과 강조 칸이 그 기능을 말한다. 설정의 "알아보기"처럼 특정 기능이 없으면 nil.
@@ -25,10 +25,9 @@ struct PaywallView: View {
         store.plans.first { $0.id == selectedPlanID } ?? store.plans.first
     }
 
-    /// 기능 이름 대신 얻는 것을 말한다(대표님 문구: "로슈, 카인과 더 친해질 수 있어요").
+    /// 기능 이름 대신 얻는 것을 말한다.
     private var lead: String {
         switch feature {
-        case .affinityDetail: return "로슈, 카인과 더 친해질 수 있어요"
         case .monthlyTrends: return "월 추이는 Pro에서 열려요"
         case .reductionGoal: return "조금씩 줄이기는 Pro에서 열려요"
         case .weekOverWeek: return "지난주 대비는 Pro에서 열려요"
@@ -99,16 +98,10 @@ struct PaywallView: View {
         }
     }
 
-    /// 기능 네 칸. 누르다 온 기능 칸은 액센트 테두리.
+    /// 기능 세 칸. 누르다 온 기능 칸은 액센트 테두리. 호감도 칸은 2026-10-06 호감도 화면 진입을 빼며 뺐다.
     private var features: some View {
-        let columns = Array(repeating: GridItem(.flexible(), spacing: 8), count: typeSize.isAccessibilitySize ? 2 : 4)
+        let columns = Array(repeating: GridItem(.flexible(), spacing: 8), count: typeSize.isAccessibilitySize ? 2 : 3)
         return LazyVGrid(columns: columns, spacing: 8) {
-            featureCard("로슈·카인과 친해지기", focus: feature == .affinityDetail) {
-                HStack(alignment: .bottom, spacing: 2) {
-                    Image(CupSide.sugar.characterAsset).resizable().scaledToFit().frame(height: 40)
-                    Image(CupSide.caffeine.characterAsset).resizable().scaledToFit().frame(height: 32)
-                }
-            }
             featureCard("월 추이", focus: feature == .monthlyTrends) {
                 LazyVGrid(columns: Array(repeating: GridItem(.fixed(10), spacing: 5), count: 4), spacing: 4) {
                     ForEach(Array([0.9, 0.5, 0.7, 0.3, 1, 0.6, 0.8, 0.4].enumerated()), id: \.offset) { _, size in
@@ -371,6 +364,6 @@ private struct PaywallHero: View {
 }
 
 #Preview {
-    PaywallView(feature: .affinityDetail)
+    PaywallView(feature: .monthlyTrends)
         .environment(ProStore(previewPlans: ProStore.mockPlans, isPro: false))
 }

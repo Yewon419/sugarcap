@@ -35,7 +35,7 @@ final class ProFeatureTests: XCTestCase {
     func testLockedFeatureList() {
         XCTAssertEqual(
             Set(ProFeature.allCases.map(\.rawValue)),
-            ["affinityDetail", "monthlyTrends", "weekOverWeek", "reductionGoal"]
+            ["monthlyTrends", "weekOverWeek", "reductionGoal"]
         )
     }
 }

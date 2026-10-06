@@ -197,16 +197,19 @@ extension RecordFlowUITests {
 
         completeOnboardingIfPresented(app)
 
-        let affinity = app.buttons["affinity"]
-        XCTAssertTrue(affinity.waitForExistence(timeout: 15))
-        affinity.tap()
+        // 오늘 화면의 호감도 버튼은 뺐다(2026-10-06). 하루 기준 화면의 "목표 정하기"(조금씩 줄이기)로 연다.
+        openSugarLimit(app)
+        let startGoal = app.buttons["start-goal-sugar"]
+        XCTAssertTrue(startGoal.waitForExistence(timeout: 10))
+        startGoal.tap()
 
         XCTAssertTrue(
             app.buttons["plan-\(ProductIDs.yearly)"].waitForExistence(timeout: 5),
             "페이월에 상품이 안 보임"
         )
         app.buttons["paywall-close"].tap()
-        XCTAssertTrue(affinity.waitForExistence(timeout: 5), "닫으면 원래 화면으로 돌아와야 한다")
+        XCTAssertTrue(startGoal.waitForExistence(timeout: 5), "닫으면 원래 화면으로 돌아와야 한다")
+        backToToday(app)
     }
 }
 

@@ -162,8 +162,6 @@ jobs:
           shoot feeding light large -screenshotFeeding YES
           shoot paywall light large -mockPro YES -screenshotPaywall YES
           shoot paywall-type-ax-xl light accessibility-extra-large -mockPro YES -screenshotPaywall YES
-          shoot affinity light large -mockProOwned YES -screenshotAffinity YES
-          shoot affinity-type-ax-xl light accessibility-extra-large -mockProOwned YES -screenshotAffinity YES
           shoot record light large -seedDemo YES -screenshotRecord YES
           shoot record-type-ax-xl light accessibility-extra-large -seedDemo YES -screenshotRecord YES
           shoot daylog light large -seedDemo YES -screenshotDayLog YES
@@ -271,8 +269,7 @@ jobs:
           store_shot 01-today
           store_shot 02-trends -initialTab trends -mockProOwned YES
           store_shot 03-feeding -screenshotFeeding YES
-          store_shot 04-affinity -mockProOwned YES -screenshotAffinity YES
-          store_shot 05-paywall -mockPro YES -screenshotPaywall YES
+          store_shot 04-paywall -mockPro YES -screenshotPaywall YES
           # 업로드 전에 크기를 찍어 둔다. App Store 6.9인치는 1320x2868이어야 한다.
           for shot in "$OUT"/*.png; do
             sips -g pixelWidth -g pixelHeight "$shot" | xargs echo

@@ -44,13 +44,10 @@ struct TodayView: View {
     /// 지난 마감분이 방금 확정됐을 때만 채운다. 이번 실행 동안만 보인다.
     @State private var creditNotice: [FeedResult]?
     @State private var paywall: ProFeature?
-    @State private var isAffinityPresented = false
     @State private var isRecordSheetPresented = false
     @State private var isDayLogPresented = false
     /// 즐겨찾기 `+`로 방금 기록한 음료. 4초 동안 되돌리기 안내를 띄운다.
     @State private var undoToast: UndoToast?
-    /// 호감도를 누르다 페이월로 간 경우. 구매하고 닫히면 호감도 화면을 이어서 연다.
-    @State private var pendingAffinity = false
     /// 저장·정산 실패를 사용자에게 알린다. 로그만 남기면 기록이 사라져도 모른다.
     @State private var failureMessage: String?
 
@@ -164,14 +161,8 @@ struct TodayView: View {
                 }
             )
         }
-        .sheet(item: $paywall, onDismiss: {
-            if pro.isPro, pendingAffinity { isAffinityPresented = true }
-            pendingAffinity = false
-        }) { feature in
+        .sheet(item: $paywall) { feature in
             PaywallView(feature: feature)
-        }
-        .sheet(isPresented: $isAffinityPresented) {
-            AffinityView()
         }
         .alert(
             failureMessage ?? "",
@@ -431,7 +422,7 @@ struct TodayView: View {
         .accessibilityHint("눌러서 오늘 기록을 봐요. 위아래로 쓸어 당과 카페인 컵을 오가요")
     }
 
-    /// 추이 · 설정 · 호감도. 셋 다 같은 36pt 옅은 원이다.
+    /// 추이 · 설정. 둘 다 같은 36pt 옅은 원이다. 호감도 버튼은 2026-10-06 대표님 지시로 뺐다.
     private var cornerButtons: some View {
         HStack(spacing: 0) {
             Button { isTrendsPresented = true } label: { cornerCircle(NavGlyphView(glyph: .trends)) }
@@ -440,7 +431,6 @@ struct TodayView: View {
             Button { isSettingsPresented = true } label: { cornerCircle(NavGlyphView(glyph: .settings)) }
                 .accessibilityLabel("설정")
                 .accessibilityIdentifier("open-settings")
-            affinityButton
         }
         .padding(.trailing, 16)
         .padding(.top, 2)
@@ -453,22 +443,6 @@ struct TodayView: View {
             .frame(width: 36, height: 36)
             .background(.white.opacity(0.22), in: Circle())
             .tapTarget()
-    }
-
-    private var affinityButton: some View {
-        Button {
-            // 무료는 페이월, Pro는 호감도 화면(§4.8).
-            if pro.isPro {
-                isAffinityPresented = true
-            } else {
-                pendingAffinity = true
-                paywall = .affinityDetail
-            }
-        } label: {
-            cornerCircle(Image(systemName: "heart").font(.system(size: 15, weight: .semibold)))
-        }
-        .accessibilityLabel("호감도")
-        .accessibilityIdentifier("affinity")
     }
 
     /// 왼쪽부터: 마감 버튼(시간대에만) → 페이지 점(가운데).
@@ -825,10 +799,7 @@ struct TodayView: View {
             )
         }
         if defaults.bool(forKey: "screenshotPaywall") {
-            paywall = .affinityDetail
-        }
-        if defaults.bool(forKey: "screenshotAffinity") {
-            isAffinityPresented = true
+            paywall = .monthlyTrends
         }
         if defaults.bool(forKey: "screenshotRecord") {
             isRecordSheetPresented = true

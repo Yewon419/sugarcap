@@ -31,7 +31,6 @@ enum ProEntitlement {
 
 /// Pro로 잠그는 기능(SPEC §6). 무료가 쓸 수 있는 것은 여기에 없다.
 enum ProFeature: String, CaseIterable, Identifiable, Sendable {
-    case affinityDetail
     case monthlyTrends
     case weekOverWeek
     case reductionGoal
@@ -40,7 +39,6 @@ enum ProFeature: String, CaseIterable, Identifiable, Sendable {
 
     var title: String {
         switch self {
-        case .affinityDetail: return "호감도 자세히 보기"
         case .monthlyTrends: return "추이 월 보기"
         case .weekOverWeek: return "지난주 대비"
         case .reductionGoal: return "감소 목표"

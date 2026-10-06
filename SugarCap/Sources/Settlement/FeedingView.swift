@@ -290,7 +290,7 @@ struct FeedingView: View {
                 .foregroundStyle(Color.nightKicker)
                 .padding(.top, 28)
             HStack(alignment: .firstTextBaseline, spacing: 0) {
-                Text(Amount.number(stage == .eaten ? 0 : left))
+                Text(AttributedString.heroDigits(Amount.number(stage == .eaten ? 0 : left)))
                     .heroNumber()
                     .contentTransition(.numericText(countsDown: true))
                 Text(side.unit)

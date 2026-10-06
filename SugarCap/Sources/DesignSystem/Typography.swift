@@ -17,13 +17,10 @@ extension View {
             .foregroundStyle(.secondary)
     }
 
-    /// 화면의 주인공 숫자. 자간을 좁혀 덩어리로 읽힌다.
+    /// 화면의 주인공 숫자. 글자는 `AttributedString.heroDigits`로 만든다(자간이 거기 들어 있다).
     func heroNumber() -> some View {
         font(AppFont.pretendardFixed(96, .bold))
-            .tracking(-5.8)
             .monospacedDigit()
-            // 음수 자간은 마지막 글자 뒤에도 붙어 끝자리가 단위에 덮인다(베타 피드백 "숫자 잘림"). 줄인 만큼 돌려준다.
-            .padding(.trailing, 5.8)
     }
 
     /// 주인공 숫자 옆에 붙는 단위.
@@ -57,5 +54,17 @@ extension View {
             .background(.ultraThinMaterial, in: Capsule())
             .overlay(Capsule().strokeBorder(.white.opacity(0.45), lineWidth: 1))
             .shadow(color: .black.opacity(0.10), radius: 8, y: 3)
+    }
+}
+
+extension AttributedString {
+    /// 주인공 숫자. 자간을 좁혀 덩어리로 읽히되 마지막 글자에는 자간을 주지 않는다.
+    /// 마지막 글자 뒤까지 좁히면 글자 틀이 끝자리 잉크보다 좁아지고, 숫자 전환(`numericText`)이 틀 밖을 잘라
+    /// 끝자리 오른쪽이 세로로 잘린다(베타 피드백 "숫자 잘림", 빌드 121). 틀 바깥 여백은 잘림을 못 고쳤다(CI 스크린샷 실측).
+    static func heroDigits(_ number: String) -> AttributedString {
+        var digits = AttributedString(number)
+        guard let last = digits.characters.indices.last else { return digits }
+        digits[digits.startIndex ..< last].tracking = -5.8
+        return digits
     }
 }

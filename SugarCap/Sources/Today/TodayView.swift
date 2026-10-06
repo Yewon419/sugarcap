@@ -373,13 +373,10 @@ struct TodayView: View {
                 .padding(.top, 8)
 
             HStack(alignment: .firstTextBaseline, spacing: 0) {
-                Text(Amount.number(remaining))
+                Text(AttributedString.heroDigits(Amount.number(remaining)))
                     .font(.system(size: 96, weight: .bold))
-                    .tracking(-5.8)
                     .monospacedDigit()
                     .contentTransition(.numericText())
-                    // 음수 자간은 마지막 글자 뒤에도 붙어 끝자리가 단위에 덮인다(베타 피드백 "숫자 잘림"). 줄인 만큼 돌려준다.
-                    .padding(.trailing, 5.8)
                 Text(side.unit)
                     .font(.system(size: 30, weight: .medium))
                     .opacity(0.85)

@@ -156,6 +156,10 @@ jobs:
           shoot trends-type-ax-xl light accessibility-extra-large -initialTab trends
           shoot trends-caffeine light large -seedDemo YES -initialTab trends -trendSide caffeine
           shoot trends-month light large -seedDemo YES -mockProOwned YES -initialTab trends -trendRange month
+          # 가끔 나오는 등장: 로슈 늦게 걸어오기(걷는 중·멈춘 순간), 카인 끝줄 선에 거꾸로 매달리기.
+          shoot trends-walk-1.7 light large -seedDemo YES -initialTab trends -trendEntrance walk -trendEntranceAt 1.7
+          shoot trends-walk-2.6 light large -seedDemo YES -initialTab trends -trendEntrance walk -trendEntranceAt 2.6
+          shoot trends-hang light large -seedDemo YES -initialTab trends -trendSide caffeine -trendEntrance hang -trendEntranceAt 0
           # 하루 기준 화면(추이에서 push). 줄이는 중 화면은 맨 끝에서 찍는다.
           shoot limit-sugar light large -initialTab trends -trendLimit sugar
           shoot limit-sugar-type-ax-xl light accessibility-extra-large -initialTab trends -trendLimit sugar

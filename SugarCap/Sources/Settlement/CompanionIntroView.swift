@@ -510,7 +510,7 @@ private struct IntroStage: View {
 }
 
 /// 소개 무대의 리그 캐릭터(시안 `intro-v2.html`과 같은 조각·축·방향). 단위는 무대 픽셀.
-private enum IntroRig {
+enum IntroRig {
     struct Figure {
         let painter: RigPainter
         let base: CGPoint

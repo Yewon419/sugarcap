@@ -34,6 +34,11 @@ struct TrendsView: View {
     /// 넘길 때마다 캐릭터 젖힘을 한 번 돌린다. 방향은 화면에서 움직인 쪽(왼쪽 -1, 오른쪽 +1).
     @State private var leanTrigger = 0
     @State private var leanDirection: Double = 1
+    /// 가끔 나오는 등장(`TrendEntrance`). 로슈가 걸어 들어오기 시작한 시각, 카인이 매달려 있는지. 화면을 열 때 한 번 뽑는다.
+    @State private var roshuWalkAt: Date?
+    @State private var kainHanging = false
+    @State private var entrancePicked = false
+    @Query private var affinities: [Affinity]
 
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "trends")
     private static let weekdays = ["일", "월", "화", "수", "목", "금", "토"]
@@ -74,10 +79,10 @@ struct TrendsView: View {
                 ScrollView {
                     VStack(spacing: 0) {
                         if let table = tables[side] {
-                            page(table: table, today: today)
+                            page(table: table, today: today, width: proxy.size.width, kainHangs: kainHangs(today: today))
                         }
                         Spacer(minLength: 32)
-                        scene(tables: tables, width: proxy.size.width)
+                        scene(tables: tables, width: proxy.size.width, kainHangs: kainHangs(today: today))
                     }
                     .frame(minHeight: proxy.size.height)
                 }
@@ -92,7 +97,18 @@ struct TrendsView: View {
                     .ignoresSafeArea()
                 }
             }
-            .onAppear(perform: applyScreenshotArguments)
+            .onAppear {
+                applyScreenshotArguments()
+                pickEntrance()
+            }
+        }
+        .task(id: roshuWalkAt) {
+            // 다 걸어 들어오면 서 있는 그림으로 바꿔 끼운다(같은 자리·크기).
+            guard let start = roshuWalkAt, entranceFrozenAt == nil else { return }
+            let left = TrendWalkIn.duration - Date().timeIntervalSince(start)
+            if left > 0 { try? await Task.sleep(for: .seconds(left)) }
+            guard !Task.isCancelled else { return }
+            roshuWalkAt = nil
         }
         .sheet(item: $paywall, onDismiss: {
             // 구매하고 닫히면 누르려던 월 보기로 바로 넘어간다(§6 "구매 후 그 화면으로").
@@ -132,7 +148,7 @@ struct TrendsView: View {
 
     /// 매거진 지면처럼: 머리(기간·날짜) + 검은 가는 선 → 제목 → 바로 아래 큰 숫자 → 가는 선 + 한 줄.
     /// 2026-10-06 대표님 "남긴 당 아래 붙게": 남는 공간은 지면과 장면 사이로 간다.
-    private func page(table: TrendTable, today: DayKey) -> some View {
+    private func page(table: TrendTable, today: DayKey, width: CGFloat, kainHangs: Bool) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             masthead(table: table, today: today)
             Text("남긴 \(side.label)")
@@ -144,6 +160,9 @@ struct TrendsView: View {
             figure(total: table.total)
                 .padding(.top, 4)
             deck(today: today)
+                .overlay(alignment: .topLeading) {
+                    if kainHangs { hangingKain(width: width) }
+                }
                 .padding(.top, 22)
         }
         .padding(.horizontal, 24)
@@ -259,11 +278,17 @@ struct TrendsView: View {
         }
     }
 
+    /// 지난주 대비 남긴 양의 차이(Pro, 주 보기). 지난주 기록이 없으면 nil.
+    private func weekChange(_ cupSide: CupSide, today: DayKey) -> Double? {
+        guard pro.isPro, !isMonth else { return nil }
+        return TrendTable.weekChange(
+            entries: entries, boundaryHour: boundaryHour, today: today, side: cupSide, limit: cupSide.limit(limits)
+        )
+    }
+
     /// 큰 숫자가 "남긴 양"이라 비교도 남긴 양으로 한다.
     private func compareNote(today: DayKey) -> Text? {
-        guard pro.isPro, !isMonth,
-              let diff = TrendTable.weekChange(entries: entries, boundaryHour: boundaryHour, today: today, side: side, limit: limit)
-        else { return nil }
+        guard let diff = weekChange(side, today: today) else { return nil }
         let rounded = diff.rounded()
         guard rounded != 0 else { return Text("지난주만큼 남겼어요") }
         let amount = Text("\(Amount.number(abs(rounded)))\(side.unit) \(rounded > 0 ? "더" : "덜")")
@@ -304,7 +329,7 @@ struct TrendsView: View {
     /// 벽(캐릭터) 위로 잔 끝이 올라오고, 잔 몸통부터 식탁이다. 점은 식탁 위.
     /// 당↔카페인을 넘길 때 글자는 제자리에서 바뀌고 그림만 옆으로 밀린다(2026-10-06 대표님 "페이드 말고 슬라이드").
     /// 캐릭터 층은 잔 층보다 빨리, 더 탱탱한 스프링으로 움직여 앞서 달려 나가고 멈출 때 통 튄다.
-    private func scene(tables: [CupSide: TrendTable], width: CGFloat) -> some View {
+    private func scene(tables: [CupSide: TrendTable], width: CGFloat, kainHangs: Bool) -> some View {
         VStack(spacing: 0) {
             Color.clear.frame(height: Self.wallHeight - Self.cupRise)
             pager(width: width, page: cupPage, drag: dragX) { pageSide in
@@ -317,10 +342,15 @@ struct TrendsView: View {
         .background(alignment: .top) {
             VStack(spacing: 0) {
                 pager(width: width, page: castPage, drag: dragX * castLead) { pageSide in
-                    characterWall(table: tables[pageSide], side: pageSide, width: width)
+                    if !(pageSide == .caffeine && kainHangs) {
+                        characterWall(table: tables[pageSide], side: pageSide, width: width)
+                    }
                 }
                 .frame(height: Self.wallHeight)
-                .clipped()
+                // 식탁 모서리 아래(식탁 뒤)와 화면 옆만 자른다. 위는 열어 두어 누르면 뛰는 반응이 벽 위로 넘어가도 안 잘린다.
+                .mask(alignment: .bottom) {
+                    Rectangle().frame(height: Self.wallHeight + 160)
+                }
                 Self.tableTop
                     .overlay(alignment: .top) { Self.tableEdge.frame(height: 1) }
             }
@@ -369,10 +399,22 @@ struct TrendsView: View {
             let sink: CGFloat = pageSide == .sugar ? 64 : 40
             let fromLeft = at < count / 2
             let boxWidth: CGFloat = fromLeft ? max(0, width - cupX + 4) : cupX + 4
-            CastMember(
-                asset: pageSide.characterAsset, height: height, dragLean: dragLean(width: width),
-                direction: leanDirection, trigger: leanTrigger, animates: !reduceMotion
-            )
+            Group {
+                if pageSide == .sugar, let start = roshuWalkAt {
+                    // 서는 자리에서 가까운 화면 옆 밖까지(그림이 다 가려지는 거리). 지금 잔 오른쪽에 서면 오른쪽에서 들어온다.
+                    let distance: CGFloat = fromLeft ? width - cupX + 16 : -(cupX + 16)
+                    TrendWalkIn(
+                        asset: pageSide.characterAsset, height: height,
+                        distance: distance, start: start, frozenAt: entranceFrozenAt
+                    )
+                } else {
+                    CastMember(
+                        asset: pageSide.characterAsset, side: pageSide, level: affinityLevel(pageSide), height: height,
+                        away: fromLeft ? 1 : -1, dragLean: dragLean(width: width),
+                        direction: leanDirection, trigger: leanTrigger, animates: !reduceMotion
+                    )
+                }
+            }
             .frame(width: boxWidth, alignment: fromLeft ? .leading : .trailing)
             .frame(maxWidth: .infinity, alignment: fromLeft ? .trailing : .leading)
             .frame(height: Self.wallHeight, alignment: .top)
@@ -385,6 +427,64 @@ struct TrendsView: View {
     private func dragLean(width: CGFloat) -> Double {
         guard !reduceMotion, width > 0 else { return 0 }
         return min(8, max(-8, Double(-dragX / width) * 14))
+    }
+
+    /// 누르면 나오는 반응이 사이 단계를 따른다(로슈). 호감도 화면은 빠졌어도 점수는 쌓인다(§4.8).
+    private func affinityLevel(_ cupSide: CupSide) -> Int {
+        AffinityMath.level(points: affinities.first { $0.character == cupSide.characterID }?.points ?? 0)
+    }
+
+    // MARK: - 가끔 나오는 등장
+
+    /// 카인은 지면 끝줄 왼쪽이 비어 있을 때만 매달린다. 지난주 비교 글이 있으면 글을 가려서 평소처럼 선다.
+    private func kainHangs(today: DayKey) -> Bool {
+        kainHanging && weekChange(.caffeine, today: today) == nil
+    }
+
+    /// 끝줄 선에 발을 건 카인. 글자는 제자리지만 카인은 카페인 쪽 캐릭터라 캐릭터 층과 같이 밀린다.
+    private func hangingKain(width: CGFloat) -> some View {
+        let box = TrendHangingKain.box
+        // 지면 안쪽 좌표(가로 여백 24 안). 화면 너비의 34% 자리 = 오른쪽 하루 기준 글자와 겹치지 않는 곳.
+        let hookX: CGFloat = width * 0.34 - 24
+        let slide: CGFloat = (1 - castPage) * width + dragX * castLead
+        return TrendHangingKain(
+            isActive: side == .caffeine && dragX == 0,
+            frozenAt: entranceFrozenAt ?? (reduceMotion ? 0 : nil)
+        )
+        .offset(x: hookX - box / 2 + slide, y: -box / 2)
+    }
+
+    /// Debug 스크린샷에서 멈출 시각(`-trendEntranceAt 1.6`).
+    private var entranceFrozenAt: Double? {
+        #if DEBUG
+        if UserDefaults.standard.object(forKey: "trendEntranceAt") != nil {
+            return UserDefaults.standard.double(forKey: "trendEntranceAt")
+        }
+        #endif
+        return nil
+    }
+
+    /// 화면을 열 때 한 번 뽑는다. 하루 기준 화면에서 돌아올 때는 다시 뽑지 않는다.
+    private func pickEntrance() {
+        guard !entrancePicked else { return }
+        entrancePicked = true
+        #if DEBUG
+        // CI 스크린샷·UI 테스트는 같은 화면이 나와야 한다: `-trendEntrance walk|hang`으로만 띄운다.
+        let defaults = UserDefaults.standard
+        if let forced = defaults.string(forKey: "trendEntrance") {
+            if forced == "walk" { roshuWalkAt = Date() }
+            if forced == "hang" { kainHanging = true }
+            return
+        }
+        if defaults.object(forKey: "idleAt") != nil || defaults.object(forKey: "initialTab") != nil { return }
+        #endif
+        if !reduceMotion, side == .sugar, Double.random(in: 0 ..< 1) < TrendEntrance.chance { roshuWalkAt = Date() }
+        kainHanging = Double.random(in: 0 ..< 1) < TrendEntrance.chance
+    }
+
+    /// 넘기기 시작하면 걸어오던 로슈는 바로 제자리에 선다. 넘기는 동안 매 프레임 그리면 층보다 늦게 따라온다.
+    private func standRoshu() {
+        if roshuWalkAt != nil, entranceFrozenAt == nil { roshuWalkAt = nil }
     }
 
     @ViewBuilder
@@ -486,6 +586,7 @@ struct TrendsView: View {
         DragGesture(minimumDistance: 12)
             .onChanged { value in
                 guard abs(value.translation.width) > abs(value.translation.height) else { return }
+                standRoshu()
                 let pullingPastEdge = (side == .sugar && value.translation.width > 0)
                     || (side == .caffeine && value.translation.width < 0)
                 dragX = pullingPastEdge ? value.translation.width * 0.25 : value.translation.width
@@ -504,6 +605,7 @@ struct TrendsView: View {
     private func settle(on next: CupSide) {
         let target: CGFloat = next == .sugar ? 0 : 1
         if next != side {
+            standRoshu()
             leanDirection = next == .caffeine ? -1 : 1
             leanTrigger += 1
         }
@@ -532,6 +634,7 @@ struct TrendsView: View {
     }
 
     /// CI 스크린샷 전용(Debug). `-trendSide caffeine`, `-trendRange month`, `-trendLimit sugar`(하루 기준 화면을 바로 연다).
+    /// 등장은 `pickEntrance`: `-trendEntrance walk|hang` + `-trendEntranceAt 1.7`.
     private func applyScreenshotArguments() {
         #if DEBUG
         let defaults = UserDefaults.standard
@@ -559,9 +662,14 @@ extension DayKey: Identifiable {
 
 /// 넘길 때의 캐릭터. 출발하면 끌려가듯 뒤로 젖혀지고 몸이 늘어나며, 도착하면 앞으로 쏠리고 납작해졌다 통 튀며 선다.
 /// 그림 한 장을 바닥 기준으로 기울이고 늘리기만 한다(에어브러시·잔상 없음).
+/// 누르면 호감도 화면에 있던 몸짓으로 반응한다(`PokeMath`·`ReactionMotion`, 2026-10-06 대표님 "추이에서도 터치").
 private struct CastMember: View {
     let asset: String
+    let side: CupSide
+    let level: Int
     let height: CGFloat
+    /// 잔에서 멀어지는 쪽(+1 오른쪽). 경계하며 비켜설 때 잔 뒤로 숨지 않게 이쪽으로 간다.
+    let away: Double
     /// 손가락으로 끄는 동안의 젖힘(도).
     let dragLean: Double
     /// 화면에서 움직인 방향. 왼쪽 -1, 오른쪽 +1.
@@ -569,12 +677,40 @@ private struct CastMember: View {
     let trigger: Int
     let animates: Bool
 
+    @State private var reaction: PokeReaction?
+    @State private var reactionStart: Date?
+    @State private var lastTap: Date?
+    @State private var combo = 0
+    @State private var taps = 0
+
+    /// 가장 긴 반응(squish·flip 1.3초, wary 1.4초)이 끝난 뒤 그리기를 멈춘다.
+    private static let reactionLength = 1.5
+
     var body: some View {
-        Image(asset)
-            .resizable()
-            .scaledToFit()
-            .frame(height: height)
-            .keyframeAnimator(initialValue: CastPose(), trigger: trigger) { view, pose in
+        TimelineView(.animation(minimumInterval: nil, paused: reactionStart == nil || !animates)) { timeline in
+            let elapsed: Double = reactionStart.map { timeline.date.timeIntervalSince($0) } ?? .infinity
+            let pose = ReactionMotion.pose(reaction, at: animates ? elapsed : .infinity)
+            Image(asset)
+                .resizable()
+                .scaledToFit()
+                .frame(height: height)
+                .scaleEffect(x: pose.scaleX, y: pose.scaleY, anchor: .bottom)
+                .rotationEffect(.degrees(pose.rotation), anchor: side == .sugar ? .bottom : UnitPoint(x: 0.5, y: 0.55))
+                .offset(x: pose.x * away, y: pose.y)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture(perform: poke)
+        .sensoryFeedback(trigger: taps) { _, _ in
+            reaction == .squish || reaction == .flip ? .impact(weight: .heavy) : .impact(weight: .light)
+        }
+        .task(id: taps) {
+            guard reactionStart != nil else { return }
+            try? await Task.sleep(for: .seconds(Self.reactionLength))
+            guard !Task.isCancelled else { return }
+            reactionStart = nil
+            reaction = nil
+        }
+        .keyframeAnimator(initialValue: CastPose(), trigger: trigger) { view, pose in
                 view
                     .scaleEffect(x: animates ? pose.stretch : 1, y: animates ? 1 / pose.stretch : 1, anchor: .bottom)
                     .rotationEffect(.degrees(dragLean + (animates ? pose.lean * direction : 0)), anchor: .bottom)
@@ -591,6 +727,15 @@ private struct CastMember: View {
                     SpringKeyframe(1, duration: 0.45, spring: .bouncy)
                 }
             }
+    }
+
+    private func poke() {
+        let now = Date()
+        combo = PokeMath.combo(previous: combo, lastTap: lastTap, now: now)
+        reaction = PokeMath.reaction(side: side, level: level, combo: combo, tap: taps)
+        reactionStart = now
+        lastTap = now
+        taps += 1
     }
 }
 

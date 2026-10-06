@@ -8,13 +8,17 @@ import SwiftUI
 extension EnvironmentValues {
     /// 기록을 연 컵. 기록 시트·브랜드 메뉴·메뉴 패널이 어느 면을 크게 보일지 고른다(`CupSide.shown`).
     @Entry var recordCup: CupSide?
+    /// 설정 "기록할 것"에서 켠 면(`AppSettings.trackedSides`). 루트가 넣는다.
+    @Entry var trackedSides: [CupSide] = CupSide.allCases
 }
 
 extension CupSide {
-    /// 기록 화면에서 크게 보일 면. 카페인 컵에서 열면 늘 카페인(대표님 2026-10-06, 빌드 105 베타 피드백).
+    /// 기록 화면에서 크게 보일 면. 한 면만 켰으면 늘 그 면.
+    /// 카페인 컵에서 열면 늘 카페인(대표님 2026-10-06, 빌드 105 베타 피드백).
     /// 당 컵이나 컵 밖(하루 기록)에서는 음료의 대표 면이라 카페인 음료는 그대로 카페인이 크다.
-    static func shown(in cup: CupSide?, primary: CupSide) -> CupSide {
-        cup == .caffeine ? .caffeine : primary
+    static func shown(in cup: CupSide?, primary: CupSide, tracked: [CupSide]) -> CupSide {
+        if tracked.count == 1, let only = tracked.first { return only }
+        return cup == .caffeine ? .caffeine : primary
     }
 }
 
@@ -72,7 +76,7 @@ extension DrinkLine where Leading == EmptyView, Trailing == EmptyView {
 }
 
 /// 음료의 대표 면(`CupSide.primary`)은 크게, 다른 면은 작게. 카페라떼는 카페인이, 딸기라떼는 당이 크다.
-/// 카페인 컵에서 연 기록이면 늘 카페인이 크다(`CupSide.shown`). nil은 "미공개"(0으로 적지 않는다, SPEC §9.2).
+/// 카페인 컵에서 연 기록이거나 한 면만 켰으면 그 면이 크다(`CupSide.shown`). nil은 "미공개"(0으로 적지 않는다, SPEC §9.2).
 struct DrinkFigure: View {
     let name: String
     let sugarG: Double?
@@ -80,6 +84,7 @@ struct DrinkFigure: View {
     var alignment: HorizontalAlignment = .trailing
 
     @Environment(\.recordCup) private var recordCup
+    @Environment(\.trackedSides) private var trackedSides
 
     func aligned(_ value: HorizontalAlignment) -> DrinkFigure {
         DrinkFigure(name: name, sugarG: sugarG, caffeineMg: caffeineMg, alignment: value)
@@ -93,7 +98,9 @@ struct DrinkFigure: View {
     }
 
     var body: some View {
-        let primary = CupSide.shown(in: recordCup, primary: CupSide.primary(name: name, sugarG: sugarG, caffeineMg: caffeineMg))
+        let primary = CupSide.shown(
+            in: recordCup, primary: CupSide.primary(name: name, sugarG: sugarG, caffeineMg: caffeineMg), tracked: trackedSides
+        )
         VStack(alignment: alignment, spacing: 2) {
             if let value = amount(primary) {
                 HStack(alignment: .firstTextBaseline, spacing: 1) {
@@ -109,10 +116,13 @@ struct DrinkFigure: View {
                     .font(AppFont.pretendard(13, .regular, relativeTo: .footnote))
                     .foregroundStyle(.secondary)
             }
-            Text("\(primary.other.label) \(Amount.text(amount(primary.other), unit: primary.other.unit))")
-                .font(AppFont.pretendard(12, .regular, relativeTo: .caption))
-                .monospacedDigit()
-                .foregroundStyle(.secondary)
+            // 끈 면(설정 "기록할 것")은 작은 줄도 숨긴다.
+            if trackedSides.contains(primary.other) {
+                Text("\(primary.other.label) \(Amount.text(amount(primary.other), unit: primary.other.unit))")
+                    .font(AppFont.pretendard(12, .regular, relativeTo: .caption))
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
+            }
         }
         .fixedSize()
     }

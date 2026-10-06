@@ -1,7 +1,7 @@
 import SwiftUI
 import WidgetKit
 
-/// Small 위젯(SPEC §4.6). 남은 양 2개 + 캐릭터 정지 포즈. v1은 Small만 낸다.
+/// Small 위젯(SPEC §4.6). 남은 양 2개 + 캐릭터 정지 포즈(설정에서 한 면만 켰으면 1개). v1은 Small만 낸다.
 /// 위젯은 Pro 기능이다(§6) — 무료 사용자에게는 잠금 안내를 보여 준다.
 struct SugarCapWidget: Widget {
     var body: some WidgetConfiguration {
@@ -46,7 +46,7 @@ struct SugarCapWidgetView: View {
     var body: some View {
         if snapshot.isPro {
             VStack(alignment: .leading, spacing: 10) {
-                ForEach(CupSide.allCases) { side in
+                ForEach(snapshot.tracked) { side in
                     row(side)
                 }
             }

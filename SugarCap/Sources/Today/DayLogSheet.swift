@@ -15,6 +15,7 @@ struct DayLogSheet: View {
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.trackedSides) private var trackedSides
     @State private var isEditing = false
 
     private var title: String {
@@ -78,8 +79,9 @@ struct DayLogSheet: View {
 
     @ViewBuilder
     private func figures(_ totals: DayTotals) -> some View {
-        figure(totals.sugarG, side: .sugar)
-        figure(totals.caffeineMg, side: .caffeine)
+        // 끈 면(설정 "기록할 것")은 합계도 숨긴다.
+        if trackedSides.contains(.sugar) { figure(totals.sugarG, side: .sugar) }
+        if trackedSides.contains(.caffeine) { figure(totals.caffeineMg, side: .caffeine) }
     }
 
     private func figure(_ value: Double, side: CupSide) -> some View {

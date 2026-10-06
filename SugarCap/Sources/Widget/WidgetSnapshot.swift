@@ -7,6 +7,8 @@ struct WidgetSnapshot: Equatable, Sendable {
     let leftCaffeineMg: Double
     let limits: DailyLimits
     let isPro: Bool
+    /// 설정 "기록할 것"에서 켠 면만 줄로 보인다.
+    var tracked: [CupSide] = CupSide.allCases
 
     func left(_ side: CupSide) -> Double {
         switch side {
@@ -47,7 +49,8 @@ enum WidgetSnapshotLoader {
             leftSugarG: totals.leftSugarG,
             leftCaffeineMg: totals.leftCaffeineMg,
             limits: limits,
-            isPro: isPro
+            isPro: isPro,
+            tracked: settings?.trackedSides ?? CupSide.allCases
         )
     }
 

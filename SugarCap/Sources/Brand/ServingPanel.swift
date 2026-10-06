@@ -15,6 +15,7 @@ struct ServingPanel: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     @Environment(\.recordCup) private var recordCup
+    @Environment(\.trackedSides) private var trackedSides
     @State private var failureMessage: String?
 
     init(drink: Drink, brand: Brand, todayTotals: DayTotals, limits: DailyLimits, onAdd: @escaping (ServingSelection) -> Void) {
@@ -114,7 +115,7 @@ struct ServingPanel: View {
     /// 음료의 대표 면(`ServingSelection.primarySide`)으로 보여 준다. 카페라떼는 카페인 컵, 딸기라떼는 당 컵.
     /// 카페인 컵에서 연 기록이면 늘 카페인 컵(`CupSide.shown`).
     private var impact: some View {
-        let side = CupSide.shown(in: recordCup, primary: selection.primarySide)
+        let side = CupSide.shown(in: recordCup, primary: selection.primarySide, tracked: trackedSides)
         let other = side.other
         let limit = side.limit(limits)
         let amount = selection.amount(side)
@@ -153,7 +154,9 @@ struct ServingPanel: View {
                 .contentTransition(.numericText())
                 .animation(.snappy, value: afterLeft)
                 Text(note)
-                Text("\(other.label)은 \(Amount.number(otherAfter)) \(other.unit) 남아요")
+                if trackedSides.contains(other) {
+                    Text("\(other.label)은 \(Amount.number(otherAfter)) \(other.unit) 남아요")
+                }
             }
             .font(AppFont.pretendard(12, .regular, relativeTo: .caption))
             .foregroundStyle(.secondary)

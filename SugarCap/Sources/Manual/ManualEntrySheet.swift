@@ -28,6 +28,7 @@ struct ManualEntrySheet: View {
     let onSave: (Entry) -> Void
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.trackedSides) private var trackedSides
     @State private var name = ""
     @State private var sugarText = ""
     @State private var caffeineText = ""
@@ -41,14 +42,19 @@ struct ManualEntrySheet: View {
             Form {
                 TextField("이름", text: $name)
                     .accessibilityIdentifier("manual-name")
-                amountField(
-                    "당", unit: CupSide.sugar.unit, text: $sugarText,
-                    isInvalid: sugar == .invalid, identifier: "manual-sugar"
-                )
-                amountField(
-                    "카페인", unit: CupSide.caffeine.unit, text: $caffeineText,
-                    isInvalid: caffeine == .invalid, identifier: "manual-caffeine"
-                )
+                // 끈 면(설정 "기록할 것")은 칸을 숨긴다. 비워 둔 값이라 "미공개"로 남는다.
+                if trackedSides.contains(.sugar) {
+                    amountField(
+                        "당", unit: CupSide.sugar.unit, text: $sugarText,
+                        isInvalid: sugar == .invalid, identifier: "manual-sugar"
+                    )
+                }
+                if trackedSides.contains(.caffeine) {
+                    amountField(
+                        "카페인", unit: CupSide.caffeine.unit, text: $caffeineText,
+                        isInvalid: caffeine == .invalid, identifier: "manual-caffeine"
+                    )
+                }
                 Section {
                     Text("모르는 값은 비워 두세요. 합계에는 0으로 더하고 기록에는 \"미공개\"로 남아요.")
                         .font(.footnote)

@@ -120,6 +120,17 @@ enum CupSide: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
+    /// 설정 "기록할 것"에서 켠 면(순서는 당 → 카페인). 둘 다 꺼졌으면 둘 다(빈 화면 방지).
+    static func tracked(sugar: Bool, caffeine: Bool) -> [CupSide] {
+        let sides = allCases.filter { $0 == .sugar ? sugar : caffeine }
+        return sides.isEmpty ? allCases : sides
+    }
+
+    /// 보고 있던 면이 꺼졌으면 켜진 첫 면으로 옮긴다.
+    static func visible(_ side: CupSide, in tracked: [CupSide]) -> CupSide {
+        tracked.contains(side) ? side : tracked.first ?? side
+    }
+
     /// 이 정도 카페인이면 카페인 음료로 본다. 에스프레소 한 샷 안팎.
     static let caffeineDrinkMinMg: Double = 50
 

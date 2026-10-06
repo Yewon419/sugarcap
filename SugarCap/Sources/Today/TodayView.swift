@@ -13,7 +13,9 @@ struct TodayView: View {
     @Query private var settlements: [DaySettlement]
     @Query private var affinities: [Affinity]
 
-    @State private var side: CupSide = .sugar
+    /// 마지막으로 보던 면으로 연다(2026-10-06 대표님). 손으로 넘길 때만 저장한다(스크린샷 인자는 저장하지 않는다).
+    @State private var pickedSide: CupSide = UserDefaults.standard.string(forKey: TodayView.lastSideKey)
+        .flatMap(CupSide.init(rawValue:)) ?? .sugar
     /// 넘기는 중 손가락이 끈 거리. 놓으면 0으로 돌아가며 가까운 컵에 붙는다.
     @State private var dragX: CGFloat = 0
     /// 컵을 넘기는 중(끄는 중 + 놓은 뒤 제자리로 붙는 중). 이 동안 캐릭터 움직임을 멈춰 컵과 한 몸으로 밀리게 한다.
@@ -55,7 +57,13 @@ struct TodayView: View {
 
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "today")
 
+    private static let lastSideKey = "lastCupSide"
+
     private var limits: DailyLimits { settingsRows.first?.limits ?? .default }
+    /// 설정 "기록할 것"에서 켠 면. 한 면만 켜면 컵도 하나고 넘기지 않는다.
+    private var trackedSides: [CupSide] { settingsRows.first?.trackedSides ?? CupSide.allCases }
+    /// 보이는 면. 보던 면을 껐으면 켜진 면으로.
+    private var side: CupSide { CupSide.visible(pickedSide, in: trackedSides) }
 
     private func unlockedLevel(_ side: CupSide) -> Int {
         let points = affinities.first { $0.character == side.characterID }?.points ?? 0
@@ -194,9 +202,9 @@ struct TodayView: View {
     private func cupStrip(totals: DayTotals) -> some View {
         GeometryReader { proxy in
             let width = proxy.size.width
-            let index = CGFloat(CupSide.allCases.firstIndex(of: side) ?? 0)
+            let index = CGFloat(trackedSides.firstIndex(of: side) ?? 0)
             HStack(spacing: 0) {
-                ForEach(CupSide.allCases) { cupSide in
+                ForEach(trackedSides) { cupSide in
                     let step = cupStep(cupSide, totals: totals)
                     CupView(
                         step: step, setID: cupSide.cupSetID,
@@ -219,15 +227,17 @@ struct TodayView: View {
                     .onChanged { value in
                         guard abs(value.translation.width) > abs(value.translation.height) else { return }
                         isSliding = true
-                        let pullingPastEdge = (side == .sugar && value.translation.width > 0)
-                            || (side == .caffeine && value.translation.width < 0)
+                        let pullingPastEdge = (side == trackedSides.first && value.translation.width > 0)
+                            || (side == trackedSides.last && value.translation.width < 0)
                         dragX = pullingPastEdge ? value.translation.width * 0.25 : value.translation.width
                     }
                     .onEnded { value in
                         let travel = value.predictedEndTranslation.width
-                        let next: CupSide = travel < -width / 3 ? .caffeine : (travel > width / 3 ? .sugar : side)
+                        let step = travel < -width / 3 ? 1 : (travel > width / 3 ? -1 : 0)
+                        let next = Self.neighbor(of: side, step: step, in: trackedSides)
+                        UserDefaults.standard.set(next.rawValue, forKey: Self.lastSideKey)
                         withAnimation(reduceMotion ? .easeInOut(duration: 0.25) : .spring(response: 0.45, dampingFraction: 0.86)) {
-                            side = next
+                            pickedSide = next
                             dragX = 0
                         } completion: {
                             isSliding = false
@@ -274,10 +284,17 @@ struct TodayView: View {
 
     /// 보이스오버의 위아래 쓸기로 컵을 오갈 때.
     private func switchSide(to next: CupSide) {
-        guard next != side else { return }
+        guard next != side, trackedSides.contains(next) else { return }
+        UserDefaults.standard.set(next.rawValue, forKey: Self.lastSideKey)
         withAnimation(reduceMotion ? .easeInOut(duration: 0.25) : .spring(response: 0.45, dampingFraction: 0.86)) {
-            side = next
+            pickedSide = next
         }
+    }
+
+    /// 켜진 면 순서에서 step만큼 옆 면. 끝을 넘으면 끝 면.
+    private static func neighbor(of side: CupSide, step: Int, in tracked: [CupSide]) -> CupSide {
+        guard let index = tracked.firstIndex(of: side) else { return tracked.first ?? side }
+        return tracked[min(max(index + step, 0), tracked.count - 1)]
     }
 
     private func todaysEntries(now: Date) -> [Entry] {
@@ -418,7 +435,7 @@ struct TodayView: View {
             @unknown default: break
             }
         }
-        .accessibilityHint("눌러서 오늘 기록을 봐요. 위아래로 쓸어 당과 카페인 컵을 오가요")
+        .accessibilityHint(trackedSides.count > 1 ? "눌러서 오늘 기록을 봐요. 위아래로 쓸어 당과 카페인 컵을 오가요" : "눌러서 오늘 기록을 봐요")
     }
 
     /// 추이 · 설정. 둘 다 같은 36pt 옅은 원이다. 호감도 버튼은 2026-10-06 대표님 지시로 뺐다.
@@ -459,9 +476,10 @@ struct TodayView: View {
         .padding(.bottom, 12)
     }
 
+    /// 컵이 하나면(한 면만 기록) 점도 없다.
     private var pageDots: some View {
         HStack(spacing: 7) {
-            ForEach(CupSide.allCases) { cupSide in
+            ForEach(trackedSides.count > 1 ? trackedSides : []) { cupSide in
                 Circle()
                     .fill(Color.primary.opacity(cupSide == side ? 0.85 : 0.25))
                     .frame(width: 7, height: 7)
@@ -814,7 +832,7 @@ struct TodayView: View {
         }
         // 카페인 컵 면으로 시작(`-screenshotSide caffeine`).
         if let raw = defaults.string(forKey: "screenshotSide"), let requested = CupSide(rawValue: raw) {
-            side = requested
+            pickedSide = requested
         }
         if defaults.bool(forKey: "screenshotDayLog") {
             isDayLogPresented = true

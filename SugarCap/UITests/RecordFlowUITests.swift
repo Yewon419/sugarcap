@@ -330,6 +330,42 @@ extension RecordFlowUITests {
         left.press(forDuration: 0.1, thenDragTo: right, withVelocity: .slow, thenHoldForDuration: 0.6)
         XCTAssertTrue(summary.waitForLabel(prefix: "당 남은"), "당 컵으로 안 돌아옴: \(summary.label)")
     }
+
+    /// 설정 "기록할 것"에서 카페인을 끄면 오늘 화면에 당 컵 하나만 남고 넘겨도 카페인으로 안 간다(2026-10-06 대표님).
+    /// 끝나면 다시 켜고 켜진 걸 확인한다(정리 단계도 대기 + assert, CLAUDE.md).
+    @MainActor
+    func testTurningCaffeineOffLeavesOneCup() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments += ["-initialTab", "today", "-idleAt", "0"]
+        app.launch()
+        completeOnboardingIfPresented(app)
+
+        setTracking(app, caffeine: false)
+        let summary = app.descendants(matching: .any)["cup-summary"]
+        XCTAssertTrue(summary.waitForLabel(prefix: "당 남은", timeout: 5), "카페인을 끈 뒤 당 컵이 아님: \(summary.label)")
+        let window = app.windows.firstMatch
+        let right = window.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.5))
+        let left = window.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.5))
+        right.press(forDuration: 0.1, thenDragTo: left, withVelocity: .fast, thenHoldForDuration: 0.1)
+        sleep(1)
+        XCTAssertTrue(summary.label.hasPrefix("당 남은"), "카페인을 껐는데 카페인 컵으로 넘어감: \(summary.label)")
+
+        setTracking(app, caffeine: true)
+    }
+
+    private func setTracking(_ app: XCUIApplication, caffeine isOn: Bool) {
+        app.buttons["open-settings"].tap()
+        let toggle = app.switches["track-caffeine"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 5), "설정에 카페인 기록 스위치가 없음")
+        let want = isOn ? "1" : "0"
+        if toggle.value as? String != want {
+            toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
+        }
+        XCTAssertTrue(toggle.waitForValue(want), "카페인 기록 스위치가 \(want)로 안 바뀜: \(String(describing: toggle.value))")
+        app.buttons["settings-close"].tap()
+        XCTAssertTrue(app.buttons["open-settings"].waitForExistence(timeout: 5), "설정이 안 닫힘")
+    }
 }
 
 /// UI 테스트 번들은 앱 코드를 불러오지 않는다. 상품 id는 여기에 따로 적는다.
@@ -499,6 +535,12 @@ private extension XCUIElement {
     /// 넘김 애니메이션이 끝나 선택 표시가 바뀔 때까지 기다린다.
     func waitForSelected(timeout: TimeInterval = 3) -> Bool {
         let expectation = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isSelected == true"), object: self)
+        return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
+    }
+
+    /// 스위치 값("0"·"1")이 바뀔 때까지 기다린다.
+    func waitForValue(_ value: String, timeout: TimeInterval = 3) -> Bool {
+        let expectation = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", value), object: self)
         return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
     }
 

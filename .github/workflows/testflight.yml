@@ -184,6 +184,13 @@ jobs:
           shoot brand-caffeine light large -seedDemo YES -screenshotSide caffeine -screenshotBrand starbucks -screenshotBrandQuery "딸기"
           shoot brand-panel-caffeine light large -seedDemo YES -screenshotSide caffeine -screenshotBrand starbucks -screenshotBrandQuery "딸기" -screenshotBrandPanel YES
           shoot record-caffeine light large -seedDemo YES -screenshotSide caffeine -screenshotRecord YES
+          # 설정 "기록할 것"에서 한 면만 켠 화면(2026-10-06). 저장하지 않는 인자라 다른 샷에 안 남는다.
+          shoot tracks-settings light large -initialTab settings -screenshotTracks sugar
+          shoot tracks-today-sugar light large -seedDemo YES -screenshotTracks sugar -screenshotSide caffeine
+          shoot tracks-today-caffeine light large -seedDemo YES -screenshotTracks caffeine
+          shoot tracks-panel-sugar light large -seedDemo YES -screenshotTracks sugar -screenshotBrand starbucks -screenshotBrandQuery "라떼" -screenshotBrandPanel YES
+          shoot tracks-record-caffeine light large -seedDemo YES -screenshotTracks caffeine -screenshotRecord YES
+          shoot tracks-daylog-caffeine light large -seedDemo YES -screenshotTracks caffeine -screenshotDayLog YES
           shoot brand-type-ax-xl light accessibility-extra-large -seedDemo YES -screenshotBrand starbucks
           shoot gate-feed light large -seedDemo YES -screenshotGate feed
           shoot gate-ask light large -screenshotGate ask

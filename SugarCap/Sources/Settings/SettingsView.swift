@@ -1,6 +1,7 @@
 import OSLog
 import SwiftData
 import SwiftUI
+import WidgetKit
 
 /// 설정(SPEC §4.4). 오늘 화면 모서리 버튼으로 여는 시트다(2026-10-05 하단 탭 제거).
 /// 2026-10-05 프로토타입 v4 확정 = 네이티브 목록 하나. 하루 기준·조금씩 줄이기는 추이 화면으로 옮겼다(대표님 "설정 탭에 안 어울리는 기능").
@@ -68,6 +69,20 @@ private struct SettingsContent: View {
 
     var body: some View {
         List {
+            Section {
+                ForEach(CupSide.allCases) { side in
+                    Toggle(side.label, isOn: Binding(get: { settings.tracks(side) }, set: { setTracks($0, side) }))
+                        // 마지막 하나는 끌 수 없다. 둘 다 끄면 기록할 게 없다.
+                        .disabled(settings.tracks(side) && !settings.tracks(side.other))
+                        .rowText()
+                        .accessibilityIdentifier("track-\(side.rawValue)")
+                }
+            } header: {
+                Text("기록할 것")
+            } footer: {
+                Text("끈 쪽도 음료 값은 계속 저장돼요. 다시 켜면 지난 기록이 그대로 보여요.")
+            }
+
             Section {
                 hourPicker("하루가 바뀌는 시각", selection: $settings.dayBoundaryHour, choices: HourChoices.dayBoundary)
                 hourPicker("오늘 마감을 여는 시각", selection: $settings.closeFromHour, choices: HourChoices.closeFrom)
@@ -157,6 +172,22 @@ private struct SettingsContent: View {
                 onStart: { showsOnboarding = false },
                 onClose: { showsOnboarding = false }
             )
+        }
+    }
+
+    private func setTracks(_ isOn: Bool, _ side: CupSide) {
+        guard isOn || settings.tracks(side.other) else {
+            Self.logger.fault("마지막 남은 기록 면을 끄려 함(\(side.rawValue, privacy: .public)), 무시")
+            return
+        }
+        settings.setTracks(isOn, for: side)
+        do {
+            try context.save()
+            WidgetCenter.shared.reloadAllTimelines()
+        } catch {
+            Self.logger.error("기록할 것 저장 실패(\(side.rawValue, privacy: .public) \(isOn)): \(String(describing: error), privacy: .public)")
+            context.rollback()
+            alertMessage = "설정을 저장하지 못했어요."
         }
     }
 

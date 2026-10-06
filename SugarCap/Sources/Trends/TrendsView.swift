@@ -202,10 +202,13 @@ struct TrendsView: View {
                 .minimumScaleFactor(0.5)
                 // 음수 자간은 마지막 글자 뒤에도 붙어 끝자리가 단위에 덮인다. 줄인 만큼 돌려준다.
                 .padding(.trailing, 0.045 * size)
+                // 글꼴 위아래 여백(숫자 높이의 약 1/4씩)을 프로토 줄 높이 0.9만큼 걷어 낸다. CI 스크린샷 실측(2026-10-06).
+                .padding(.top, -0.18 * size)
+                .padding(.bottom, -0.15 * size)
                 .contentTransition(.numericText())
             Text(side.unit)
                 .font(AppFont.pretendard(22, .bold, relativeTo: .title2))
-                .padding(.top, size * 0.14)
+                .padding(.top, size * 0.03)
         }
         .foregroundStyle(Color.ink)
         .accessibilityElement(children: .ignore)

@@ -30,16 +30,15 @@ def make_client() -> httpx.Client:
     )
 
 
-def fetch_text(
+def _fetch(
     client: httpx.Client,
     url: str,
     *,
-    method: str = "GET",
-    params: Mapping[str, str] | None = None,
-    data: Mapping[str, str] | None = None,
-    encoding: str | None = None,
-) -> str:
-    """Fetch a URL as text. Retries transient failures, then raises `FetchError`."""
+    method: str,
+    params: Mapping[str, str] | None,
+    data: Mapping[str, str] | None,
+) -> httpx.Response:
+    """One request with retries. Returns the 200 response or raises `FetchError`."""
     last_detail = ""
     for attempt in range(1, MAX_ATTEMPTS + 1):
         try:
@@ -49,9 +48,7 @@ def fetch_text(
             log.warning("attempt %d/%d %s %s failed: %s", attempt, MAX_ATTEMPTS, method, url, exc)
         else:
             if response.status_code == 200:
-                if encoding is not None:
-                    response.encoding = encoding
-                return response.text
+                return response
             last_detail = f"status {response.status_code}, body[:500]={response.text[:500]!r}"
             log.warning(
                 "attempt %d/%d %s %s returned %d",
@@ -67,3 +64,24 @@ def fetch_text(
         f"{method} {url} params={dict(params or {})} data={dict(data or {})} failed after "
         f"{MAX_ATTEMPTS} attempts: {last_detail}"
     )
+
+
+def fetch_text(
+    client: httpx.Client,
+    url: str,
+    *,
+    method: str = "GET",
+    params: Mapping[str, str] | None = None,
+    data: Mapping[str, str] | None = None,
+    encoding: str | None = None,
+) -> str:
+    """Fetch a URL as text. Retries transient failures, then raises `FetchError`."""
+    response = _fetch(client, url, method=method, params=params, data=data)
+    if encoding is not None:
+        response.encoding = encoding
+    return response.text
+
+
+def fetch_bytes(client: httpx.Client, url: str) -> bytes:
+    """Fetch a URL as raw bytes (PDF nutrition guides). Same retries as `fetch_text`."""
+    return _fetch(client, url, method="GET", params=None, data=None).content

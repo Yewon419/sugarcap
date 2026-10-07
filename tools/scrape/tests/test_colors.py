@@ -34,6 +34,12 @@ CATALOG = Path(__file__).resolve().parents[3] / "data" / "catalog.json"
         # K-FIND category when the name says nothing.
         ("레쓰비", "액상커피", colors.LATTE),
         ("아침에 카톡", "발효유", "#F7F3EA"),
+        # US menus (SPEC §9.9): black tea is tea, not black coffee.
+        ("Iced Black Tea", "Iced Tea", colors.TEA),
+        ("Chai Latte", "Classic Chai", colors.MILK_TEA),
+        ("Golden Eagle", "DUTCH FAVES™", colors.LATTE),
+        ("Dutch Cocoa", "DUTCH COCOA", colors.CHOCO),
+        ("Campin' Freeze Blended", "BLENDED FREEZE", colors.CREAM),
     ],
 )
 def test_liquid_color(name: str, category: str, expected: str) -> None:

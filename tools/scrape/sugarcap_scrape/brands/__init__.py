@@ -30,3 +30,11 @@ def registry() -> dict[str, tuple[Brand, Scraper]]:
 
     modules = (starbucks, mega, compose, ediya, paik, twosome, hollys, theventi, gongcha)
     return {module.BRAND.id: (module.BRAND, module.scrape) for module in modules}
+
+
+def us_registry() -> dict[str, tuple[Brand, Scraper]]:
+    """US brands, built into their own `catalog-us.json` (SPEC §9.9)."""
+    from sugarcap_scrape.brands import us_dutchbros, us_starbucks
+
+    modules = (us_starbucks, us_dutchbros)
+    return {module.BRAND.id: (module.BRAND, module.scrape) for module in modules}

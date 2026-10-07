@@ -48,16 +48,33 @@ RULES: tuple[ColorRule, ...] = (
     ColorRule(("청포도", "샤인머스캣", "머스캣", "그린애플", "청사과"), "#B8D86B"),
     ColorRule(("블루베리",), "#4B3B7A"),
     ColorRule(("블루레몬", "블루 레몬", "블루하와이", "블루큐라소", "블루"), "#3E8EDE"),
-    ColorRule(("딸기", "스트로베리", "strawberry"), "#E8587A"),
-    ColorRule(("라즈베리", "크랜베리", "석류", "체리", "베리", "오미자", "히비스커스"), "#C0283E"),
-    ColorRule(("수박", "토마토"), "#E5413A"),
+    ColorRule(("딸기", "스트로베리", "strawberry", "pink"), "#E8587A"),
+    ColorRule(
+        (
+            "라즈베리",
+            "크랜베리",
+            "석류",
+            "체리",
+            "베리",
+            "오미자",
+            "히비스커스",
+            "(?<!blue)berry",
+            "cherry",
+        ),
+        "#C0283E",
+    ),
+    ColorRule(("수박", "토마토", "watermelon"), "#E5413A"),
     ColorRule(("자몽", "그레이프프루트"), "#F06B5B"),
-    ColorRule(("비트", "자색", "용과"), "#9C2A6B"),
+    ColorRule(("비트", "자색", "용과", "dragon ?fruit", "dragon drink"), "#9C2A6B"),
     ColorRule(("포도", "그레이프", "grape", "와인"), "#6A2C70"),
     ColorRule(("복숭아", "피치", "peach", "살구"), "#F7A57A"),
-    ColorRule(("망고", "패션후르츠", "패션프루트", "파인애플", "트로피컬"), "#F7B32B"),
+    # Not "mango": it would recolour K-FIND products named in English (Mango Ice Ade).
+    ColorRule(
+        ("망고", "패션후르츠", "패션프루트", "파인애플", "트로피컬", "pineapple", "tropical"),
+        "#F7B32B",
+    ),
     ColorRule(("오렌지", "한라봉", "천혜향", "감귤", "귤", "당근", "orange"), "#F5871F"),
-    ColorRule(("유자", "레몬", "lemon", "라임", "생강", "진저"), "#F3D34A"),
+    ColorRule(("유자", "레몬", "lemon", "라임", "lime", "생강", "진저"), "#F3D34A"),
     ColorRule(("바나나", "banana"), "#F6E08A"),
     ColorRule(("키위", "케일", "녹즙", "알로에", "오이"), "#9CC63B"),
     ColorRule(("민트", "mint"), "#9ED9C3"),
@@ -65,7 +82,18 @@ RULES: tuple[ColorRule, ...] = (
     ColorRule(("말차", "녹차", "그린티", "matcha", "green tea"), GREEN_TEA),
     ColorRule(("흑임자", "쿠키", "오레오", "쿠앤크"), "#8C8580"),
     ColorRule(
-        ("초코", "초콜릿", "초콜렛", "쇼콜라", "코코아", "모카", "chocolate", "choco", "mocha"),
+        (
+            "초코",
+            "초콜릿",
+            "초콜렛",
+            "쇼콜라",
+            "코코아",
+            "모카",
+            "chocolate",
+            "choco",
+            "mocha",
+            "cocoa",
+        ),
         CHOCO,
     ),
     ColorRule(("흑당", "카라멜", "캐러멜", "caramel", "달고나", "토피"), "#B07A3B"),
@@ -77,7 +105,7 @@ RULES: tuple[ColorRule, ...] = (
     ColorRule(("홍삼", "인삼", "쌍화", "대추"), "#7A3B1E"),
     ColorRule(("식혜", "수정과"), "#E8D9B0"),
     ColorRule(("매실", "사과", "애플", "apple", "모과"), "#E2B65A"),
-    ColorRule(("밀크티", "milk tea", "로얄밀크", "타로", "버블티"), MILK_TEA),
+    ColorRule(("밀크티", "milk tea", "로얄밀크", "타로", "버블티", "chai"), MILK_TEA),
     # Coffee: milky coffee before black coffee, both after every flavour above.
     ColorRule(
         (
@@ -100,6 +128,10 @@ RULES: tuple[ColorRule, ...] = (
             "조지아",
             "칸타타",
             "바리스타",
+            "breve",
+            "cortado",
+            # Dutch Bros' signature drinks are breves (half-and-half lattes).
+            "dutch faves",
         ),
         LATTE,
     ),
@@ -112,7 +144,7 @@ RULES: tuple[ColorRule, ...] = (
             "cold brew",
             "브루",
             "블랙",
-            "black",
+            "black(?! tea)",
             "커피",
             "coffee",
         ),
@@ -147,10 +179,14 @@ RULES: tuple[ColorRule, ...] = (
             "워터",
             "water",
             "제로",
+            "fizz",
         ),
         CLEAR,
     ),
-    ColorRule(("에너지", "몬스터", "핫식스", "레드불", "박카스", "비타", "energy"), "#E3C93C"),
+    ColorRule(
+        ("에너지", "몬스터", "핫식스", "레드불", "박카스", "비타", "energy", "rebel", "myst"),
+        "#E3C93C",
+    ),
 )
 
 # Broad words that also hide inside unrelated names (티 in 에티오피아). They run on
@@ -158,7 +194,18 @@ RULES: tuple[ColorRule, ...] = (
 GENERIC_RULES: tuple[ColorRule, ...] = (
     ColorRule(("에이드", "ade", "주스", "juice", "과일", "피지오", "리프레셔", "fruit"), FRUIT),
     ColorRule(
-        ("스무디", "smoothie", "프라페", "블렌디드", "플랫치노", "빽스치노", "할리치노"), CREAM
+        (
+            "스무디",
+            "smoothie",
+            "프라페",
+            "블렌디드",
+            "blended",
+            "freeze",
+            "플랫치노",
+            "빽스치노",
+            "할리치노",
+        ),
+        CREAM,
     ),
     ColorRule(("티", "tea", "차"), TEA),
 )

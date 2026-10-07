@@ -1,11 +1,12 @@
-"""Build `catalog.json` from every registered brand scraper.
+"""Build a country catalog from every registered brand scraper.
 
 Usage:
     python -m sugarcap_scrape.build --out ../../data/catalog.json --kfind .raw/<가공식품DB>.xlsx
     python -m sugarcap_scrape.build --out ... [--only starbucks,mega] [--kfind ...]
+    python -m sugarcap_scrape.build --country us --out ../../data/catalog-us.json
 
 `--kfind` is the hand-downloaded K-FIND 가공식품 xlsx behind the `cvs` brand
-(see `brands/cvs.py`). A full build requires it so the brand cannot drop out.
+(see `brands/cvs.py`). A full Korean build requires it so the brand cannot drop out.
 """
 
 from __future__ import annotations
@@ -18,7 +19,7 @@ from collections import defaultdict
 from datetime import UTC, datetime
 from pathlib import Path
 
-from sugarcap_scrape.brands import cvs, registry
+from sugarcap_scrape.brands import Scraper, cvs, registry, us_registry
 from sugarcap_scrape.colors import liquid_color
 from sugarcap_scrape.http import make_client
 from sugarcap_scrape.ids import drink_id, serving_id, slugify
@@ -99,11 +100,13 @@ def _add_brand(
     all_rows.extend(rows)
 
 
-def build(only: set[str] | None, kfind: Path | None) -> Catalog:
+def build(
+    scrapers: dict[str, tuple[Brand, Scraper]], only: set[str] | None, kfind: Path | None
+) -> Catalog:
     brands: list[Brand] = []
     all_rows: list[RawServing] = []
     with make_client() as client:
-        for brand_id, (brand, scrape) in registry().items():
+        for brand_id, (brand, scrape) in scrapers.items():
             if only is not None and brand_id not in only:
                 continue
             log.info("scraping %s", brand_id)
@@ -128,15 +131,19 @@ def write_catalog(catalog: Catalog, out: Path) -> None:
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--country", choices=("kr", "us"), default="kr")
     parser.add_argument("--only", type=str, default=None, help="comma-separated brand ids")
     parser.add_argument("--kfind", type=Path, default=None, help="K-FIND 가공식품 DB xlsx")
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
     only = set(args.only.split(",")) if args.only else None
-    if only is None and args.kfind is None:
+    if args.country == "kr" and only is None and args.kfind is None:
         parser.error(f"a full build needs --kfind for the {cvs.BRAND.id} brand")
-    catalog = build(only, args.kfind)
+    if args.country != "kr" and args.kfind is not None:
+        parser.error("--kfind is the Korean convenience-store source")
+    scrapers = registry() if args.country == "kr" else us_registry()
+    catalog = build(scrapers, only, args.kfind)
     problems = validate(catalog) if only is None else []
     if problems:
         for problem in problems:

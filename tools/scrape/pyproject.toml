@@ -1,13 +1,14 @@
 [project]
 name = "sugarcap-scrape"
 version = "0.1.0"
-description = "SugarCap catalog builder: scrapes official nutrition data from Korean cafe franchises."
+description = "SugarCap catalog builder: scrapes official nutrition data from cafe franchises."
 requires-python = ">=3.13"
 dependencies = [
     "httpx>=0.28",
     "pydantic>=2.11",
     "beautifulsoup4>=4.13",
     "python-calamine>=0.8",
+    "pypdf>=5",
 ]
 
 [project.optional-dependencies]

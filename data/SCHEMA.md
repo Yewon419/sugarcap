@@ -14,6 +14,12 @@ cd tools\scrape
 `--kfind`는 편의점(`cvs`) 출처인 식약처 K-FIND 가공식품 엑셀이다. 사람이 내려받아 gitignore된
 `tools/scrape/.raw/`에 둔다(SPEC §2 편의점 절). 전체 빌드는 이 인자 없이 실행되지 않는다.
 
+미국 카탈로그 `data/catalog-us.json`(SPEC §9.9)은 같은 스키마로 따로 만든다. `--kfind`는 받지 않는다.
+
+```
+..\..\.venv\Scripts\python -m sugarcap_scrape.build --country us --out ..\..\data\catalog-us.json
+```
+
 빌더는 쓰기 전에 `sugarcap_scrape.validate.validate()`를 돌린다. 문제가 하나라도 있으면
 `INVALID ...`를 찍고 **파일을 쓰지 않은 채 exit 1**. `--only`로 일부 브랜드만 돌릴 때는
 카탈로그가 불완전하므로 검증을 건너뛴다(그 산출물은 커밋하지 않는다).
@@ -31,10 +37,10 @@ cd tools\scrape
 
 | 필드 | 타입 | 설명 |
 |---|---|---|
-| `id` | string | `starbucks` `mega` `compose` `ediya` `paik` `twosome` `hollys` `theventi` `gongcha` `cvs` |
-| `name` | string | 한국어 표시명 |
+| `id` | string | `starbucks` `mega` `compose` `ediya` `paik` `twosome` `hollys` `theventi` `gongcha` `cvs`. 미국은 국가 접두어: `us-starbucks` `us-dutchbros` |
+| `name` | string | 그 나라 표시명(한국 = 한국어, 미국 = 영어) |
 | `serving_note` | string | 이 브랜드 수치가 어느 잔 기준인지 한 줄. 상세 화면에 그대로 노출 |
-| `has_size_choice` | bool | true면 사이즈 선택 UI를 켠다. 현재 `ediya`, `twosome`, `gongcha`, `cvs`만 true |
+| `has_size_choice` | bool | true면 사이즈 선택 UI를 켠다. 현재 `ediya`, `twosome`, `gongcha`, `cvs`와 미국 두 브랜드가 true |
 
 `has_size_choice`가 false인 브랜드의 drink는 serving이 정확히 1개다(검증이 강제).
 
@@ -57,7 +63,7 @@ cd tools\scrape
 |---|---|---|
 | `id` | string | `{drink.id}:{사이즈 slug}` |
 | `size_label` | string | 브랜드 표기 그대로(`Tall` `레귤러` `라지` `L` `EX` `기본`...). `cvs`는 총내용량(`250ml` `150g`) |
-| `volume_ml` | int \| null | 브랜드가 게시한 컵용량. **ml 환산·추정 금지**, 미게시는 null. `cvs`에서 g 표기 제품은 null |
+| `volume_ml` | int \| null | 브랜드가 게시한 컵용량. **추정 금지**, 미게시는 null. `cvs`에서 g 표기 제품은 null. 단위 환산만 허용: fl oz 게시(`us-starbucks`)는 × 29.5735 반올림 정수(SPEC §9.9). `us-dutchbros`는 용량 미게시라 전부 null |
 | `sugar_g` | float \| null | null = 브랜드 미공개. `cvs`는 100ml(g)당 값 × 총내용량, 소수 1자리 |
 | `caffeine_mg` | float \| null | null = 브랜드 미공개. 변형이 있으면 첫 변형 값과 같다. `cvs`는 항상 null(출처에 카페인 없음) |
 | `caffeine_variants` | CaffeineVariant[] | 원두 선택에 따라 카페인이 갈리는 경우만. 없으면 `[]` |
@@ -78,7 +84,7 @@ cd tools\scrape
 3. `serving.id == f"{drink.id}:{slugify(size_label)}"` — **id 규칙을 바꾸면 사용자 기록의 참조가 끊긴다.** 바꿔야 하면 SPEC에 마이그레이션 절을 먼저 쓴다(`tools/scrape/sugarcap_scrape/ids.py`가 유일한 정의 지점).
 4. `drink.name`은 비어 있지 않고 앞뒤 공백이 없다.
 5. 브랜드별 drink 수가 `MIN_DRINKS_PER_BRAND` 이상이다. 파서가 조용히 망가지면 여기서 걸린다.
-6. 이상치: `sugar_g <= 200`, `caffeine_mg <= 800`, `20 <= volume_ml <= 1200`. 실제 최대치(138g / 680mg / 990ml)보다 넉넉하다 — 걸리면 신메뉴가 아니라 파싱 버그다.
+6. 이상치: `sugar_g <= 200`, `caffeine_mg <= 800`, `20 <= volume_ml <= 1200`. 실제 최대치(138g / 680mg / 990ml)보다 넉넉하다 — 걸리면 신메뉴가 아니라 파싱 버그다. 미국은 당이 상한에 가깝다(Dutch Bros 셰이크 라지 190g, 2026-10-07).
 7. `caffeine_variants`가 있으면 `caffeine_mg`는 첫 변형의 값이다.
 
 ## null 값 처리 (앱 규칙)

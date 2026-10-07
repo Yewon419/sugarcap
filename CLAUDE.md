@@ -13,11 +13,12 @@ SSOT = `SPEC.md`. 세션 시작 시 SPEC §0·§8·§9부터 읽는다.
 ..\..\.venv\Scripts\python -m mypy
 ..\..\.venv\Scripts\python -m pytest -q            # live 테스트 포함(실사이트 호출)
 ..\..\.venv\Scripts\python -m sugarcap_scrape.build --out ..\..\data\catalog.json --kfind .raw\kfind_20260828.xlsx
+..\..\.venv\Scripts\python -m sugarcap_scrape.build --country us --out ..\..\data\catalog-us.json
 ```
 게이트: ruff·mypy 0 에러 + pytest 통과 전에 "완료" 금지.
 
 ## 데이터 규칙 (SPEC §2, 스키마 계약은 `data/SCHEMA.md`)
-- 브랜드가 공개한 값만 기록한다. **ml 환산·사이즈 추정 금지.** 예외는 편의점(`cvs`)의 100ml(g)당 값 × 포장 총내용량 하나뿐(SPEC §2.1).
+- 브랜드가 공개한 값만 기록한다. **ml 환산·사이즈 추정 금지.** 예외는 편의점(`cvs`)의 100ml(g)당 값 × 포장 총내용량, 그리고 fl oz로 게시된 용량의 ml 단위 환산(미국, SPEC §9.9)뿐이다.
 - 당류·카페인 미공개는 둘 다 `None`으로 남긴다. **행을 드롭하지 않는다**(SPEC §9.2). 당 기록이 본체라 논커피 메뉴를 카페인 결측으로 버리면 안 된다.
 - 카탈로그 ID(`brand:drink-slug:temp:size-slug`) 정의는 `sugarcap_scrape/ids.py` 한 곳. 바꾸면 기존 기록의 참조가 끊기니 SPEC에 마이그레이션 절을 먼저 쓴다.
 - 빌더는 쓰기 전에 `validate.py`를 돌리고 실패 시 파일을 쓰지 않는다. 새 브랜드를 추가하면 `MIN_DRINKS_PER_BRAND`에도 등록한다.
@@ -43,4 +44,6 @@ SSOT = `SPEC.md`. 세션 시작 시 SPEC §0·§8·§9부터 읽는다.
 - Swift 소스를 셸 heredoc + Python 치환으로 고치면 `\n`·`\(`의 역슬래시가 한 겹 벗겨져 문자열 안에 실제 줄바꿈이 들어간다(2026-10-05 UI 테스트 "unterminated string literal"로 CI 실패). 역슬래시가 든 Swift 문자열은 Edit 도구로 고친다.
 - 매 프레임 다시 그리는 뷰(`TimelineView` + `Canvas`, 대기 자세)는 넘기는 중·화면 밖이면 멈춘다. 넘길 때 그리면 컵보다 늦게 따라오고(대표님 2026-09-29), 탭 뒤에서 계속 그리면 UI 테스트가 요소를 못 찾고 타임아웃 난다. 워크플로는 `cancel-in-progress`라 푸시 빌드가 끝난 뒤에 TestFlight를 dispatch한다.
 - 카인 동작에 한 바퀴(360도) 이상 도는 회전을 넣지 않는다. 반응·연타·대기 자세·매달리기 전부(대표님 2026-10-06 "절대 넣지 마"). 갸웃처럼 기울였다 돌아오는 건 괜찮다. 유일한 예외는 커피 속 헤엄(swim)의 한 바퀴다(같은 날 대표님이 직접 요청). 다른 동작으로 넓히지 않는다.
+- Dutch Bros 영양 PDF는 섹션마다 열 구성이 다르고(프로틴은 카페인 앞에 3열, Myst는 뒤에 2열), 시즌 쪽은 넓은 헤더 아래 12열 행이 섞인다. 열은 헤더 이름으로 찾고, 행 값 수가 헤더와 다르면 기본 12열로 읽는다. 원본 자체가 한 칸 밀린 행(포화지방 > 총지방, 당 > 총탄수, 2026-10-07 Pumpkin Pie Spice Breve 6행)은 당·카페인을 null로 둔다. 같은 음료가 두 섹션에 실리면 첫 번째만 남긴다.
+- `colors.py`에 영어 키워드를 넣으면 K-FIND 편의점 제품 중 영문명(`Mango Ice Ade`, `…Blueberry`)의 색이 바뀌어 `test_colors` 회귀가 깨진다. 한국 카탈로그를 다시 빌드하지 않을 거면 그런 단어는 넣지 않는다(`mango`·`blueberry`·`ginger` 보류, `berry`는 `(?<!blue)berry`).
 - 영어판(SPEC §9.9): 사용자 문구의 SSOT는 `SugarCap/Resources/Localizable.xcstrings`(원문 ko, 번역 en). 새 문구를 넣으면 en도 같이 넣는다. 키 목록은 CI `localizations` 산출물로 받는다(개발 PC에 Xcode 없음). 시뮬레이터 기본 언어가 영어라 테스트는 스킴 `language: ko`, 스크린샷은 `-AppleLanguages (ko)`로 고정돼 있다. 영어 화면은 `en-*` 스크린샷으로 본다.

@@ -6,11 +6,13 @@ from pathlib import Path
 
 import pytest
 
+from sugarcap_scrape.brands import cvs, registry, us_registry
 from sugarcap_scrape.ids import serving_id_parts
 from sugarcap_scrape.models import Brand, CaffeineVariant, Catalog, Drink, Serving, Temperature
 from sugarcap_scrape.validate import MIN_DRINKS_PER_BRAND, validate
 
 CATALOG_PATH = Path(__file__).resolve().parents[3] / "data" / "catalog.json"
+US_CATALOG_PATH = CATALOG_PATH.with_name("catalog-us.json")
 BRAND = Brand(id="theventi", name="더벤티", serving_note="라지 600ml", has_size_choice=False)
 
 
@@ -146,4 +148,17 @@ def test_the_committed_catalog_is_valid() -> None:
     assert validate(catalog) == []
     assert catalog.schema_version == 1
     counts = Counter(drink.brand_id for drink in catalog.drinks)
-    assert set(counts) == set(MIN_DRINKS_PER_BRAND)
+    assert set(counts) == set(registry()) | {cvs.BRAND.id}
+
+
+def test_the_committed_us_catalog_is_valid() -> None:
+    catalog = Catalog.model_validate(json.loads(US_CATALOG_PATH.read_text(encoding="utf-8")))
+    assert validate(catalog) == []
+    assert catalog.schema_version == 1
+    counts = Counter(drink.brand_id for drink in catalog.drinks)
+    assert set(counts) == set(us_registry())
+
+
+def test_every_registered_brand_has_a_minimum() -> None:
+    brand_ids = set(registry()) | set(us_registry()) | {cvs.BRAND.id}
+    assert brand_ids == set(MIN_DRINKS_PER_BRAND)

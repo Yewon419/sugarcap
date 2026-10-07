@@ -11,6 +11,8 @@ Three kinds of problem are caught here:
 Thresholds are deliberately wider than the real menu: the highest published
 values today are 138g sugar (빽다방 빽스치노), 680mg caffeine (스타벅스 시그니처
 더 블랙 콜드 브루) and 990ml (빽사이즈). A hit means a bug, not a new drink.
+The US menu runs closer to the sugar cap: Dutch Bros prints 190g for a large
+Caramel Pumpkin Brûlée Shake (2026-10-07).
 """
 
 from __future__ import annotations
@@ -40,6 +42,9 @@ MIN_DRINKS_PER_BRAND = {
     "gongcha": 100,
     # K-FIND export of 2026-08-28 gave 17,845 in-scope products.
     "cvs": 9000,
+    # 2026-10-07: ordering menu 169 (product, form) pairs; nutritional guide PDF 300 drinks.
+    "us-starbucks": 85,
+    "us-dutchbros": 150,
 }
 
 

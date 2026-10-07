@@ -369,8 +369,28 @@ jobs:
           store_shot 02-trends -initialTab trends -mockProOwned YES
           store_shot 03-feeding -screenshotFeeding YES
           store_shot 04-paywall -mockPro YES -screenshotPaywall YES
+
+          # 미국 스토어(영어, SPEC §9.9 ③). 데모 기록은 빈 앱에만 들어가니 지우고 다시 깔아 미국 메뉴로 채운다.
+          xcrun simctl uninstall "$UDID" com.sugarcap.app
+          xcrun simctl install "$UDID" "$APP"
+          xcrun simctl launch "$UDID" com.sugarcap.app -onboardingCompleted YES
+          sleep 8
+          xcrun simctl terminate "$UDID" com.sugarcap.app
+          mkdir -p "$OUT/en-US"
+          store_shot_en() {
+            local name="$1"; shift
+            xcrun simctl launch "$UDID" com.sugarcap.app -AppleLanguages "(en)" -AppleLocale en_US -screenshotMenuCountry us -seedDemo YES -onboardingCompleted YES "$@"
+            sleep 5
+            xcrun simctl io "$UDID" screenshot "$OUT/en-US/$name.png"
+            xcrun simctl terminate "$UDID" com.sugarcap.app
+          }
+          store_shot_en 01-today
+          store_shot_en 02-trends -initialTab trends -mockProOwned YES
+          store_shot_en 03-feeding -screenshotFeeding YES
+          store_shot_en 04-paywall -mockPro YES -screenshotPaywall YES
+
           # 업로드 전에 크기를 찍어 둔다. App Store 6.9인치는 1320x2868이어야 한다.
-          for shot in "$OUT"/*.png; do
+          for shot in "$OUT"/*.png "$OUT"/en-US/*.png; do
             sips -g pixelWidth -g pixelHeight "$shot" | xargs echo
           done
 

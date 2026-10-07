@@ -145,3 +145,82 @@ App Store는 6.9인치 세트 하나면 나머지 크기를 자동으로 채운�
 - [ ] 수출 규정: `ITSAppUsesNonExemptEncryption = false` (이미 Info.plist에 있음)
 - [ ] KIPRIS 상표 확인 (SPEC §9-1, 아직 미확인)
 - [x] 빌드 버전 정리: `MARKETING_VERSION` 1.0 (2026-09-24, `docs/RELEASE.md` 버전 절). 빌드 번호는 CI `run_number`, 심사 후보 1.0 (59)
+
+## 11. 영어(미국) 현지화 (SPEC §9.9 ③ 초안)
+
+ASC에서 "English (U.S.)" 현지화를 추가하고 아래를 넣는다. 한국어 현지화는 그대로 둔다.
+앱은 기기 지역이 미국이면 미국 메뉴(Starbucks·Dutch Bros, `data/catalog-us.json` 467종)를 연다.
+글자 수는 스크립트로 셌다(부제 30/30, 키워드 100/100, 프로모션 166/170).
+
+| 항목 | 값 |
+|---|---|
+| 이름 | SugarCap |
+| 부제 | Sugar and caffeine, by the cup |
+| 개인정보처리방침 URL | https://sugarcap.vercel.app/en/privacy/ (`site/en/privacy/index.html`, 미배포) |
+| 지원 URL | https://sugarcap.vercel.app/ (한국어 페이지. 영어 지원 페이지는 미정) |
+| 가격 | ASC 가격표에서 USD 기준을 따로 정한다(SPEC §9.9) |
+
+키워드:
+```
+sugar,caffeine,coffee,drink,tracker,log,diet,cut back,limit,starbucks,dutch bros,latte,energy,health
+```
+브랜드명은 한국어 키워드와 같은 이유로 심사에서 걸릴 수 있다. 걸리면 빼고 일반 단어로 채운다.
+
+프로모션 텍스트:
+```
+Your daily cup of sugar and caffeine shrinks with every drink. At night, feed what's left to Roshu and Kain. 460+ Starbucks and Dutch Bros drinks, logged in two taps.
+```
+
+설명:
+```
+SugarCap is a log for cutting back on sugar and caffeine.
+
+■ A cup that empties as you drink
+Your day starts with a cup filled to your daily limit. Every drink you log takes its share out of the cup.
+You see how much you have left, not just a number.
+
+■ Feed what's left at night
+When you close the day, Roshu eats the sugar you have left and Kain eats the caffeine.
+The less you drink, the more they eat, and the closer you become. No scolding on the days you drink more.
+
+■ 460+ cafe drinks
+Starbucks and Dutch Bros, by cup size.
+Pick a brand and a drink, and the sugar and caffeine go straight in.
+We only use values the brand publishes. Anything a brand doesn't publish stays "Not published". We never make numbers up.
+Sizes published only in fluid ounces are shown in milliliters.
+For drinks that aren't on the menu, use manual entry.
+
+■ You set the daily limit
+Defaults are 50 g of sugar (WHO daily advice) and 400 mg of caffeine (FDA guidance for healthy adults).
+Change them in Trends, and move the time your day starts in Settings, for example to 4 AM, to fit your life.
+
+■ Trends
+See how much you left each day of the week, cup by cup.
+
+■ SugarCap Pro
+- Monthly trends and comparison with last week
+- Cut-back goal: lowers your daily limit a little at a time over several weeks. Keep to it 5 or more days in a week and next week's limit goes down. Weeks you miss keep the same limit.
+- Widget
+
+■ No account, no server
+There's nothing to sign up for. Your entries stay on this device and are never sent anywhere.
+
+Purchase information
+- SugarCap Pro Yearly: auto-renewing subscription. It renews automatically unless canceled at least 24 hours before the end of the current period. Manage or cancel it in your App Store account settings.
+- SugarCap Pro Lifetime: a one-time, non-consumable purchase.
+
+Terms of Use: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Privacy Policy: https://sugarcap.vercel.app/en/privacy/
+```
+
+심사 메모(영어):
+```
+SugarCap is a local logging app with no account and no server. Every feature works without signing in.
+Sugar and caffeine values for cafe drinks are copied from what each brand publishes on its official website or nutrition guide. Values a brand does not publish are shown as "Not published".
+In-app purchase is SugarCap Pro only (yearly subscription or lifetime). Logging and closing the day are fully available without it.
+The menu follows the device region (United States: Starbucks and Dutch Bros; elsewhere: Korean cafes) and can be changed in Settings > Menu country.
+```
+
+앱 개인정보 문항(§6)은 나라와 상관없이 하나라 그대로다. 연령 등급(§7)도 같다.
+
+스크린샷: CI `store-screenshots` 아티팩트의 `en-US/` 폴더(01-today·02-trends·03-feeding·04-paywall). 영어·미국 지역·미국 메뉴로, 데모 기록은 미국 Starbucks 값(`DemoData`)이다.

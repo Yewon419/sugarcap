@@ -18,19 +18,27 @@ enum DemoData {
     }
 
     /// 이미 기록이 있으면 아무것도 하지 않는다.
-    static func seed(into context: ModelContext, boundaryHour: Int, now: Date = Date()) {
+    /// 메뉴 국가에 맞는 음료로 채운다. 미국 값은 `catalog-us.json`의 Starbucks Tall 그대로다.
+    static func seed(into context: ModelContext, boundaryHour: Int, country: MenuCountry, now: Date = Date()) {
         do {
             guard try context.fetch(FetchDescriptor<Entry>()).isEmpty else { return }
 
             let calendar = Calendar.current
             let today = DayKey(at: now, boundaryHour: boundaryHour)
 
-            // 오늘: 두 잔. 당 30 g / 카페인 245 mg이 빠져 컵이 반쯤 줄어 보인다.
+            // 오늘: 두 잔. 당 30 g(미국 27 g) / 카페인 245 mg이 빠져 컵이 반쯤 줄어 보인다.
             //
             // **지금 시각에서 뒤로 잡는다.** 달력 시각(9시·14시)으로 박으면 CI가 도는 새벽에는
             // 하루 경계(4시) 기준으로 그 시각이 아직 오지 않아 오늘 합계에 안 잡힌다.
-            insert(context, "아메리카노", "스타벅스", "Tall", sugar: 0, caffeine: 150, at: now.addingTimeInterval(-5400))
-            insert(context, "카페모카", "투썸플레이스", "레귤러", sugar: 30, caffeine: 95, at: now.addingTimeInterval(-1800))
+            switch country {
+            case .kr:
+                insert(context, "아메리카노", "스타벅스", "Tall", sugar: 0, caffeine: 150, at: now.addingTimeInterval(-5400))
+                insert(context, "카페모카", "투썸플레이스", "레귤러", sugar: 30, caffeine: 95, at: now.addingTimeInterval(-1800))
+            case .us:
+                insert(context, "Caffè Americano", "Starbucks", "Tall", sugar: 0, caffeine: 150, at: now.addingTimeInterval(-5400))
+                insert(context, "Caffè Mocha", "Starbucks", "Tall", sugar: 27, caffeine: 95, at: now.addingTimeInterval(-1800))
+            }
+            let pastName = country == .us ? "Drink of the day" : "그날의 음료"
 
             // 지난 12일. 배열의 0번이 **어제**다. 최근으로 올수록 적게 마신 값이어야
             // 추이 막대와 "지난주 대비"가 줄어드는 그림이 된다.
@@ -42,7 +50,7 @@ enum DemoData {
                     from: DateComponents(year: day.year, month: day.month, day: day.day, hour: 13)
                 ) else { continue }
                 insert(
-                    context, "그날의 음료", "직접 입력", "",
+                    context, pastName, String(localized: "직접 입력"), "",
                     sugar: sugarByDay[offset], caffeine: caffeineByDay[offset], at: date
                 )
 

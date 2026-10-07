@@ -69,7 +69,7 @@ struct RootView: View {
             let settings = try AppSettings.current(in: context)
             DemoData.seedGoalIfRequested(into: context, settings: settings)
             guard DemoData.isRequested else { return }
-            DemoData.seed(into: context, boundaryHour: settings.dayBoundaryHour)
+            DemoData.seed(into: context, boundaryHour: settings.dayBoundaryHour, country: settings.menuCountry)
         } catch {
             Self.logger.error("데모 시드 실패: \(String(describing: error), privacy: .public)")
         }

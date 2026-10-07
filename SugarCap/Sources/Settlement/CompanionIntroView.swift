@@ -187,7 +187,7 @@ private struct IntroStage: View {
     // MARK: 첫 장 · 오늘 남긴 만큼은 이 친구들에게 가요
 
     private var opener: some View {
-        let lines = ["오늘 남긴 만큼은", "이 친구들에게 가요"]
+        let lines = [String(localized: "오늘 남긴 만큼은"), String(localized: "이 친구들에게 가요")]
         let reveal0 = seg(0.35, 0.95, Ease.power4Out)
         let reveal1 = seg(1.15, 1.75, Ease.power4Out)
         let exit0 = seg(2.05, 2.35, Ease.power3In)
@@ -270,7 +270,7 @@ private struct IntroStage: View {
             IntroRigLayer(scale: scale, figures: roshuFigures)
             orbit(front: true, on: orbitOn)
 
-            maskedText(["달달한 걸", "좋아하는"], size: 150, name: "로슈!", revealAt: 1.05, hideAt: 3.45, clock: u,
+            maskedText([String(localized: "달달한 걸"), String(localized: "좋아하는")], size: 150, name: String(localized: "로슈!"), revealAt: 1.05, hideAt: 3.45, clock: u,
                        accentLast: false, color: .ink)
         }
     }
@@ -361,7 +361,7 @@ private struct IntroStage: View {
                 .stagePosition(x: caffeineX, top: caffeineTop, height: 170)
 
             // 라떼 무대라 흰 이름은 안 읽힌다(대비 약 1.7:1). 카인 링과 같은 진한 갈색으로.
-            maskedText(["카페인을", "좋아하는"], size: 150, name: "카인!", revealAt: 4.1, hideAt: 7.05, clock: u,
+            maskedText([String(localized: "카페인을"), String(localized: "좋아하는")], size: 150, name: String(localized: "카인!"), revealAt: 4.1, hideAt: 7.05, clock: u,
                        accentLast: false, color: .ink, nameColor: .kainRing)
         }
     }
@@ -484,7 +484,7 @@ private struct IntroStage: View {
 
             IntroRigLayer(scale: scale, figures: togetherFigures)
 
-            maskedText(["많이많이 남겨서", "두 친구와", "더 가까워져요"], size: 96, name: nil, revealAt: 7.85, hideAt: nil, clock: u,
+            maskedText([String(localized: "많이많이 남겨서"), String(localized: "두 친구와"), String(localized: "더 가까워져요")], size: 96, name: nil, revealAt: 7.85, hideAt: nil, clock: u,
                        accentLast: true, color: textColor, accent: textColor)
 
             VStack(spacing: 26) {

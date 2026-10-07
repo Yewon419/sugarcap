@@ -50,8 +50,8 @@ enum CloseReminder {
 
     private static func schedule(closeFromHour: Int) async {
         let content = UNMutableNotificationContent()
-        content.title = "오늘 마감할 시간이에요"
-        content.body = "남은 당과 카페인을 로슈와 카인에게 먹여 줘요."
+        content.title = String(localized: "오늘 마감할 시간이에요")
+        content.body = String(localized: "남은 당과 카페인을 로슈와 카인에게 먹여 줘요.")
         content.sound = .default
         let trigger = UNCalendarNotificationTrigger(
             dateMatching: DateComponents(hour: closeFromHour, minute: 0), repeats: true

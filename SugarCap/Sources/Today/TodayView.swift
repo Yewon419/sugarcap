@@ -147,7 +147,7 @@ struct TodayView: View {
                     isRecordSheetPresented = false
                     let entry = drink.selection.makeEntry(brandName: drink.brand.name, at: Date())
                     record(entry)
-                    undoToast = UndoToast(entryID: entry.id, text: "\(drink.name) 기록했어요")
+                    undoToast = UndoToast(entryID: entry.id, text: String(localized: "\(drink.name) 기록했어요"))
                 }
             )
             .environment(\.recordCup, side)
@@ -447,7 +447,7 @@ struct TodayView: View {
             @unknown default: break
             }
         }
-        .accessibilityHint(trackedSides.count > 1 ? "눌러서 오늘 기록을 봐요. 위아래로 쓸어 당과 카페인 컵을 오가요" : "눌러서 오늘 기록을 봐요")
+        .accessibilityHint(trackedSides.count > 1 ? String(localized: "눌러서 오늘 기록을 봐요. 위아래로 쓸어 당과 카페인 컵을 오가요") : String(localized: "눌러서 오늘 기록을 봐요"))
     }
 
     /// 추이 · 설정. 둘 다 같은 36pt 옅은 원이다. 호감도 버튼은 2026-10-06 대표님 지시로 뺐다.
@@ -672,7 +672,7 @@ struct TodayView: View {
             }
         } catch {
             Self.logger.error("정산 실패(\(today.rawValue, privacy: .public)): \(String(describing: error), privacy: .public)")
-            failureMessage = "지난 기록을 정리하지 못했어요. 앱을 다시 열어 주세요."
+            failureMessage = String(localized: "지난 기록을 정리하지 못했어요. 앱을 다시 열어 주세요.")
         }
     }
 
@@ -743,7 +743,7 @@ struct TodayView: View {
             gate = nil
         } catch {
             Self.logger.error("어제 닫기 실패(\(day.rawValue, privacy: .public)): \(String(describing: error), privacy: .public)")
-            failureMessage = "저장하지 못했어요. 다시 시도해 주세요."
+            failureMessage = String(localized: "저장하지 못했어요. 다시 시도해 주세요.")
         }
     }
 
@@ -807,7 +807,7 @@ struct TodayView: View {
             var snapshot = FeedingSnapshot()
             snapshot.stage = defaults.string(forKey: "screenshotFeedingStage").flatMap(FeedingSnapshot.Stage.init(rawValue:)) ?? .ask
             switch defaults.string(forKey: "screenshotFx") {
-            case "dusk": snapshot.fx = .dusk(title: "오늘 마감")
+            case "dusk": snapshot.fx = .dusk(title: String(localized: "오늘 마감"))
             case "turn": snapshot.fx = .turn
             case "night": snapshot.fx = .night
             default: break
@@ -860,7 +860,7 @@ struct TodayView: View {
 
     private func record(_ entry: Entry) {
         context.insert(entry)
-        persist("기록 저장")
+        persist(String(localized: "기록 저장"))
         path = []
     }
 
@@ -868,7 +868,7 @@ struct TodayView: View {
         for entry in targets {
             context.delete(entry)
         }
-        persist("기록 삭제")
+        persist(String(localized: "기록 삭제"))
     }
 
     /// 자동 저장을 기다리지 않는다. 기록 직후 앱이 종료돼도 남아야 한다.
@@ -880,7 +880,7 @@ struct TodayView: View {
             Self.logger.error("\(action, privacy: .public) 실패: \(String(describing: error), privacy: .public)")
             // 저장 안 된 변경을 되돌려 화면(컵)이 실제 저장 상태와 어긋나지 않게 한다.
             context.rollback()
-            failureMessage = "\(action)에 실패했어요. 다시 시도해 주세요."
+            failureMessage = String(localized: "\(action)에 실패했어요. 다시 시도해 주세요.")
         }
     }
 }

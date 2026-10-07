@@ -38,13 +38,13 @@ struct RecordSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            SheetHeader(title: "기록") {
+            SheetHeader(title: String(localized: "기록")) {
                 Button("닫기") { dismiss() }
                     .tapTarget()
                     .accessibilityIdentifier("record-close")
             }
 
-            SearchField(prompt: "메뉴 이름으로 찾기", text: $query, height: 52, isProminent: true)
+            SearchField(prompt: String(localized: "메뉴 이름으로 찾기"), text: $query, height: 52, isProminent: true)
                 .padding(.horizontal, 20)
                 .padding(.top, 14)
                 .padding(.bottom, 6)
@@ -87,9 +87,9 @@ struct RecordSheet: View {
     private var favoriteSection: some View {
         let starred = favoriteRows
         let recents = recentRows
-        SectionKicker(title: "즐겨찾기", topPadding: 6)
+        SectionKicker(title: String(localized: "즐겨찾기"), topPadding: 6)
         if starred.isEmpty, recents.isEmpty {
-            CaptionNote(text: "자주 마시는 음료는 별을 눌러 두세요. 최근 마신 음료도 여기 모여요. 한 번 눌러 바로 기록해요.")
+            CaptionNote(text: String(localized: "자주 마시는 음료는 별을 눌러 두세요. 최근 마신 음료도 여기 모여요. 한 번 눌러 바로 기록해요."))
         } else {
             ForEach(starred) { quickRow($0, isStarred: true) }
             if !recents.isEmpty {
@@ -141,20 +141,20 @@ struct RecordSheet: View {
 
     @ViewBuilder
     private var brandGrid: some View {
-        SectionKicker(title: "브랜드")
+        SectionKicker(title: String(localized: "브랜드"))
         let columns = Array(repeating: GridItem(.flexible(), spacing: 10), count: typeSize.isAccessibilitySize ? 1 : 2)
         LazyVGrid(columns: columns, spacing: 10) {
             ForEach(catalog.catalog.brands) { brand in
                 Button {
                     onBrand(brand.id)
                 } label: {
-                    brandCard(name: brand.name, detail: "메뉴 \(catalog.drinks(brandID: brand.id).count.formatted())", dashed: false)
+                    brandCard(name: brand.name, detail: String(localized: "메뉴 \(catalog.drinks(brandID: brand.id).count.formatted())"), dashed: false)
                 }
                 .buttonStyle(PressScaleStyle())
                 .accessibilityIdentifier("brand-\(brand.id)")
             }
             Button(action: onManualEntry) {
-                brandCard(name: "＋ 직접 입력", detail: "목록에 없을 때", dashed: true)
+                brandCard(name: String(localized: "＋ 직접 입력"), detail: String(localized: "목록에 없을 때"), dashed: true)
             }
             .buttonStyle(PressScaleStyle())
             .accessibilityIdentifier("manual-entry")
@@ -194,7 +194,7 @@ struct RecordSheet: View {
     private var searchResults: some View {
         let hits = catalog.search(query)
         if hits.isEmpty {
-            CaptionNote(text: "\"\(query)\" 메뉴가 없어요. 직접 입력으로 남길 수 있어요.")
+            CaptionNote(text: String(localized: "\"\(query)\" 메뉴가 없어요. 직접 입력으로 남길 수 있어요."))
                 .padding(.top, 10)
             Button(action: onManualEntry) {
                 Label("직접 입력", systemImage: "plus").glassPill()
@@ -203,7 +203,7 @@ struct RecordSheet: View {
             .padding(.horizontal, 24)
             .accessibilityIdentifier("search-manual-entry")
         } else {
-            SectionKicker(title: "\(catalog.catalog.brands.count)개 브랜드에서 찾은 메뉴", topPadding: 6)
+            SectionKicker(title: String(localized: "\(catalog.catalog.brands.count)개 브랜드에서 찾은 메뉴"), topPadding: 6)
             ForEach(hits) { drink in
                 Button {
                     panelDrink = drink
@@ -231,7 +231,7 @@ struct RecordSheet: View {
         do {
             try Favorites.toggle(selection, favorites: favorites, in: context)
         } catch {
-            failureMessage = "즐겨찾기를 저장하지 못했어요. 다시 시도해 주세요."
+            failureMessage = String(localized: "즐겨찾기를 저장하지 못했어요. 다시 시도해 주세요.")
         }
     }
 }

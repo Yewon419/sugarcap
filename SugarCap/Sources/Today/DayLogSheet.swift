@@ -19,8 +19,8 @@ struct DayLogSheet: View {
     @State private var isEditing = false
 
     private var title: String {
-        let base = isToday ? "오늘 기록" : "\(day.month)월 \(day.day)일 기록"
-        return entries.isEmpty ? base : "\(base) · \(entries.count)잔"
+        let base = isToday ? String(localized: "오늘 기록") : String(localized: "\(day.month)월 \(day.day)일 기록")
+        return entries.isEmpty ? base : String(localized: "\(base) · \(entries.count)잔")
     }
 
     var body: some View {
@@ -28,7 +28,7 @@ struct DayLogSheet: View {
         VStack(spacing: 0) {
             SheetHeader(title: title) {
                 if !entries.isEmpty {
-                    Button(isEditing ? "완료" : "편집") { isEditing.toggle() }
+                    Button(isEditing ? String(localized: "완료") : String(localized: "편집")) { isEditing.toggle() }
                         .tapTarget()
                         .accessibilityIdentifier("daylog-edit")
                 }
@@ -50,7 +50,7 @@ struct DayLogSheet: View {
                     .overlay(alignment: .bottom) { Divider() }
 
                     if entries.isEmpty {
-                        CaptionNote(text: isToday ? "아직 기록이 없어요. 컵은 가득 찬 채로 기다리고 있어요." : "이날은 기록이 없어요.")
+                        CaptionNote(text: isToday ? String(localized: "아직 기록이 없어요. 컵은 가득 찬 채로 기다리고 있어요.") : String(localized: "이날은 기록이 없어요."))
                             .padding(.top, 8)
                     } else {
                         ForEach(entries) { entry in
@@ -58,7 +58,7 @@ struct DayLogSheet: View {
                                 .transition(reduceMotion ? .opacity : .move(edge: .leading).combined(with: .opacity))
                         }
                         if isEditing {
-                            CaptionNote(text: "지운 음료만큼 컵이 다시 차요.")
+                            CaptionNote(text: String(localized: "지운 음료만큼 컵이 다시 차요."))
                                 .padding(.top, 6)
                         }
                     }

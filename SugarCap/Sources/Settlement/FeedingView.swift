@@ -150,7 +150,7 @@ struct FeedingView: View {
         self.onAddDrink = onAddDrink
         _isIntroPlaying = State(initialValue: opening == .companionIntro)
         _isSceneVisible = State(initialValue: opening == .immediate)
-        _fx = State(initialValue: opening == .dusk ? .dusk(title: request.kind == .closeToday ? "오늘 마감" : "어제 마감") : nil)
+        _fx = State(initialValue: opening == .dusk ? .dusk(title: request.kind == .closeToday ? String(localized: "오늘 마감") : String(localized: "어제 마감")) : nil)
     }
 
     private var stepIndex: Int {
@@ -274,20 +274,22 @@ struct FeedingView: View {
             switch stage {
             case .ask:
                 return over > 0
-                    ? "\(Amount.number(over)) \(side.unit) 넘겼어요.\n그래도 \(side.characterNameWithIga) 기다려요.\n컵을 눌러 주세요."
-                    : "\(side.characterNameWithIga) 기다려요.\n컵을 눌러 주세요."
+                    ? String(localized: "\(Amount.number(over)) \(side.unit) 넘겼어요.\n그래도 \(side.characterNameWithIga) 기다려요.\n컵을 눌러 주세요.")
+                    : String(localized: "\(side.characterNameWithIga) 기다려요.\n컵을 눌러 주세요.")
             case .searching:
-                return searchBeat == .patting ? "컵이 비었어요.\n\(side.characterNameWithIga) 털어 보는 중이에요." : "컵이 비었어요."
+                return searchBeat == .patting
+                    ? String(localized: "컵이 비었어요.\n\(side.characterNameWithIga) 털어 보는 중이에요.")
+                    : String(localized: "컵이 비었어요.")
             case .dropped:
                 return left <= 0
-                    ? "마지막 한 방울이 나왔어요.\n\(side.characterName)에게 끌어다 주세요."
-                    : "방울을 \(side.characterName)에게 끌어다 주세요."
+                    ? String(localized: "마지막 한 방울이 나왔어요.\n\(side.characterName)에게 끌어다 주세요.")
+                    : String(localized: "방울을 \(side.characterName)에게 끌어다 주세요.")
             case .eaten:
-                if !isLastSide { return "다음은 \(sides[stepIndex + 1].characterName) 차례예요." }
-                return sides.count > 1 ? "둘 다 먹었어요." : "\(side.characterNameWithIga) 다 먹었어요."
+                if !isLastSide { return String(localized: "다음은 \(sides[stepIndex + 1].characterName) 차례예요.") }
+                return sides.count > 1 ? String(localized: "둘 다 먹었어요.") : String(localized: "\(side.characterNameWithIga) 다 먹었어요.")
             }
         }()
-        let kind = request.kind == .closeToday ? "오늘 마감" : "어제 남은 음료"
+        let kind = request.kind == .closeToday ? String(localized: "오늘 마감") : String(localized: "어제 남은 음료")
 
         return VStack(alignment: .leading, spacing: 0) {
             NightDateLabel(text: dateText)
@@ -379,8 +381,8 @@ struct FeedingView: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel(
             isCrumb
-                ? "마지막 한 방울을 \(side.characterName)에게 주기"
-                : "\(side.label) \(Amount.number(left)) \(side.unit)를 \(side.characterName)에게 주기"
+                ? Text("마지막 한 방울을 \(side.characterName)에게 주기")
+                : Text("\(side.label) \(Amount.number(left)) \(side.unit)를 \(side.characterName)에게 주기")
         )
         .accessibilityAddTraits(.isButton)
         .accessibilityAction { feedDrop() }
@@ -389,15 +391,15 @@ struct FeedingView: View {
 
     private func bubble(left: Double) -> String {
         switch stage {
-        case .ask: return "주세요!"
+        case .ask: return String(localized: "주세요!")
         case .searching:
             switch searchBeat {
-            case .emptied: return "주세요!"
-            case .puzzled: return "어라?"
-            case .patting: return "톡, 톡"
+            case .emptied: return String(localized: "주세요!")
+            case .puzzled: return String(localized: "어라?")
+            case .patting: return String(localized: "톡, 톡")
             }
-        case .dropped: return "여기요!"
-        case .eaten: return left <= 0 ? "냠, 고마워요" : "냠, \(Amount.number(left)) \(side.unit)"
+        case .dropped: return String(localized: "여기요!")
+        case .eaten: return left <= 0 ? String(localized: "냠, 고마워요") : String(localized: "냠, \(Amount.number(left)) \(side.unit)")
         }
     }
 
@@ -420,7 +422,7 @@ struct FeedingView: View {
             ZStack {
                 if stage == .eaten {
                     Button(action: nextStep) {
-                        Text(isLastSide ? "마무리" : "다음 · \(sides[stepIndex + 1].characterName)")
+                        Text(isLastSide ? String(localized: "마무리") : String(localized: "다음 · \(sides[stepIndex + 1].characterName)"))
                             .ctaLabel()
                             .foregroundStyle(.white)
                             .background(Color.accentColor, in: Capsule())
@@ -509,7 +511,7 @@ struct FeedingView: View {
                     .foregroundStyle(.white)
                     .padding(.top, 14)
                     .summaryEntrance(summaryIn, delay: 0.14)
-                Text(request.kind == .closeToday ? "호감도는 내일 아침에 반영돼요." : "호감도에 바로 반영했어요.")
+                Text(request.kind == .closeToday ? String(localized: "호감도는 내일 아침에 반영돼요.") : String(localized: "호감도에 바로 반영했어요."))
                     .font(AppFont.pretendard(13, .regular, relativeTo: .footnote))
                     .foregroundStyle(.white.opacity(0.78))
                     .padding(.top, 8)
@@ -550,8 +552,8 @@ struct FeedingView: View {
     private func summaryColumn(_ side: CupSide, delay: Double) -> some View {
         let result = results?.first { $0.side == side }
         let note: String = {
-            if let result, result.leveledUp { return "\(AffinityMath.stageName(level: result.levelAfter))가 됐어요" }
-            return request.over(side) > 0 ? "조금 아쉬워요" : "\(side.characterNameWithIga) 먹었어요"
+            if let result, result.leveledUp { return String(localized: "\(AffinityMath.stageName(level: result.levelAfter))가 됐어요") }
+            return request.over(side) > 0 ? String(localized: "조금 아쉬워요") : String(localized: "\(side.characterNameWithIga) 먹었어요")
         }()
         return VStack(spacing: 10) {
             NightBubble(text: note)
@@ -674,7 +676,7 @@ struct FeedingView: View {
                 step = .done
             } catch {
                 Self.logger.error("먹이기 저장 실패(\(request.id, privacy: .public)): \(String(describing: error), privacy: .public)")
-                errorText = "저장하지 못했어요. 다시 시도해 주세요."
+                errorText = String(localized: "저장하지 못했어요. 다시 시도해 주세요.")
             }
         }
     }
@@ -685,7 +687,7 @@ struct FeedingView: View {
             errorText = nil
         } catch {
             Self.logger.error("정산 중 음료 추가 실패(\(request.id, privacy: .public)): \(String(describing: error), privacy: .public)")
-            errorText = "음료를 저장하지 못했어요. 다시 시도해 주세요."
+            errorText = String(localized: "음료를 저장하지 못했어요. 다시 시도해 주세요.")
         }
     }
 
@@ -700,7 +702,7 @@ struct FeedingView: View {
             step = .done
         } catch {
             Self.logger.error("건너뛰기 저장 실패(\(request.id, privacy: .public)): \(String(describing: error), privacy: .public)")
-            errorText = "저장하지 못했어요. 다시 시도해 주세요."
+            errorText = String(localized: "저장하지 못했어요. 다시 시도해 주세요.")
         }
     }
 

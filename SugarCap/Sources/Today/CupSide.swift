@@ -10,8 +10,8 @@ enum CupSide: String, CaseIterable, Identifiable, Sendable {
 
     var label: String {
         switch self {
-        case .sugar: return "당"
-        case .caffeine: return "카페인"
+        case .sugar: return String(localized: "당")
+        case .caffeine: return String(localized: "카페인")
         }
     }
 
@@ -24,24 +24,24 @@ enum CupSide: String, CaseIterable, Identifiable, Sendable {
 
     var characterName: String {
         switch self {
-        case .sugar: return "로슈"
-        case .caffeine: return "카인"
+        case .sugar: return String(localized: "로슈")
+        case .caffeine: return String(localized: "카인")
         }
     }
 
     /// 받침에 맞춘 "와/과" (로슈와, 카인과).
     var characterNameWithGwa: String {
         switch self {
-        case .sugar: return "로슈와"
-        case .caffeine: return "카인과"
+        case .sugar: return String(localized: "로슈와")
+        case .caffeine: return String(localized: "카인과")
         }
     }
 
     /// 받침에 맞춘 "가/이" (로슈가, 카인이).
     var characterNameWithIga: String {
         switch self {
-        case .sugar: return "로슈가"
-        case .caffeine: return "카인이"
+        case .sugar: return String(localized: "로슈가")
+        case .caffeine: return String(localized: "카인이")
         }
     }
 

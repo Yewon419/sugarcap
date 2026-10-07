@@ -56,8 +56,10 @@ private struct LimitDetailContent: View {
 
     private var title: String {
         // 숫자는 컵 안에 이미 있다. 제목은 지금 하는 일만 말한다(대표님 2026-10-05 "제목은 바꾸고").
-        if goal != nil { return "\(side.label)을\n조금씩 줄이는 중이에요" }
-        return side == .sugar ? "하루에 당은\n얼마까지 마실래요?" : "카페인은\n얼마까지 마실래요?"
+        if goal != nil { return String(localized: "\(side.label)을\n조금씩 줄이는 중이에요") }
+        return side == .sugar
+            ? String(localized: "하루에 당은\n얼마까지 마실래요?")
+            : String(localized: "카페인은\n얼마까지 마실래요?")
     }
 
     var body: some View {
@@ -202,7 +204,7 @@ private struct LimitDetailContent: View {
             .background(Color.ink, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
         .buttonStyle(PressScaleStyle())
-        .accessibilityLabel(pro.isPro ? "\(side.label) 목표 정하기" : "\(side.label) 목표 정하기, Pro")
+        .accessibilityLabel(pro.isPro ? Text("\(side.label) 목표 정하기") : Text("\(side.label) 목표 정하기, Pro"))
         .accessibilityIdentifier("start-goal-\(side.rawValue)")
     }
 
@@ -238,7 +240,7 @@ private struct LimitDetailContent: View {
         } catch {
             Self.logger.error("감소 목표 시작 실패: \(String(describing: error), privacy: .public)")
             context.rollback()
-            alertMessage = "감소 목표를 시작하지 못했어요. 다시 시도해 주세요."
+            alertMessage = String(localized: "감소 목표를 시작하지 못했어요. 다시 시도해 주세요.")
         }
     }
 
@@ -249,7 +251,7 @@ private struct LimitDetailContent: View {
         } catch {
             Self.logger.error("감소 목표 중단 실패: \(String(describing: error), privacy: .public)")
             context.rollback()
-            alertMessage = "감소 목표를 그만두지 못했어요. 다시 시도해 주세요."
+            alertMessage = String(localized: "감소 목표를 그만두지 못했어요. 다시 시도해 주세요.")
         }
     }
 }

@@ -28,10 +28,10 @@ struct PaywallView: View {
     /// 기능 이름 대신 얻는 것을 말한다.
     private var lead: String {
         switch feature {
-        case .monthlyTrends: return "월 추이는 Pro에서 열려요"
-        case .reductionGoal: return "조금씩 줄이기는 Pro에서 열려요"
-        case .weekOverWeek: return "지난주 대비는 Pro에서 열려요"
-        case nil: return "한 번 결제로 아래 기능이 모두 열려요"
+        case .monthlyTrends: return String(localized: "월 추이는 Pro에서 열려요")
+        case .reductionGoal: return String(localized: "조금씩 줄이기는 Pro에서 열려요")
+        case .weekOverWeek: return String(localized: "지난주 대비는 Pro에서 열려요")
+        case nil: return String(localized: "한 번 결제로 아래 기능이 모두 열려요")
         }
     }
 
@@ -102,14 +102,14 @@ struct PaywallView: View {
     private var features: some View {
         let columns = Array(repeating: GridItem(.flexible(), spacing: 8), count: typeSize.isAccessibilitySize ? 2 : 3)
         return LazyVGrid(columns: columns, spacing: 8) {
-            featureCard("월 추이", focus: feature == .monthlyTrends) {
+            featureCard(String(localized: "월 추이"), focus: feature == .monthlyTrends) {
                 LazyVGrid(columns: Array(repeating: GridItem(.fixed(10), spacing: 5), count: 4), spacing: 4) {
                     ForEach(Array([0.9, 0.5, 0.7, 0.3, 1, 0.6, 0.8, 0.4].enumerated()), id: \.offset) { _, size in
                         Circle().fill(Color.sugarPink).frame(width: 10 * size, height: 10 * size).frame(width: 10, height: 10)
                     }
                 }
             }
-            featureCard("조금씩 줄이기", focus: feature == .reductionGoal) {
+            featureCard(String(localized: "조금씩 줄이기"), focus: feature == .reductionGoal) {
                 HStack(alignment: .bottom, spacing: 5) {
                     ForEach([0.9, 0.72, 0.56, 0.4], id: \.self) { height in
                         UnevenRoundedRectangle(
@@ -121,7 +121,7 @@ struct PaywallView: View {
                     }
                 }
             }
-            featureCard("위젯", focus: false) {
+            featureCard(String(localized: "위젯"), focus: false) {
                 ZStack(alignment: .topLeading) {
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
                         .fill(.white)
@@ -266,7 +266,7 @@ struct PaywallView: View {
                     if store.purchasingID != nil {
                         ProgressView().tint(.white)
                     } else {
-                        Text(selectedPlan.map { "\($0.title)으로 시작" } ?? "시작")
+                        Text(selectedPlan.map { String(localized: "\($0.title)으로 시작") } ?? String(localized: "시작"))
                     }
                 }
                 .ctaLabel()

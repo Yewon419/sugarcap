@@ -39,9 +39,9 @@ enum ProFeature: String, CaseIterable, Identifiable, Sendable {
 
     var title: String {
         switch self {
-        case .monthlyTrends: return "추이 월 보기"
-        case .weekOverWeek: return "지난주 대비"
-        case .reductionGoal: return "감소 목표"
+        case .monthlyTrends: return String(localized: "추이 월 보기")
+        case .weekOverWeek: return String(localized: "지난주 대비")
+        case .reductionGoal: return String(localized: "감소 목표")
         }
     }
 

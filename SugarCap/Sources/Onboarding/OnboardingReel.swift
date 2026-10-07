@@ -6,13 +6,13 @@ import SwiftUI
 enum OnboardingReel {
     static let chapters = ReelChapters(starts: [0, 1.45, 2.8, 5.55, 7.5, 8.9, 11.4], end: 15)
     static let lines = [
-        "단 걸 좋아하는 당신!",
-        "하루에 당을 얼마나 먹고 계신지 아나요?",
-        "카페인 없이 못 사는 당신!",
-        "우리 함께 줄여나가요",
-        "매일매일 음료를 기록하고",
-        "목표한 만큼 덜 마셔 봅시다",
-        "오늘의 분량을 남기면 어디로 가냐고요...?",
+        String(localized: "단 걸 좋아하는 당신!"),
+        String(localized: "하루에 당을 얼마나 먹고 계신지 아나요?"),
+        String(localized: "카페인 없이 못 사는 당신!"),
+        String(localized: "우리 함께 줄여나가요"),
+        String(localized: "매일매일 음료를 기록하고"),
+        String(localized: "목표한 만큼 덜 마셔 봅시다"),
+        String(localized: "오늘의 분량을 남기면 어디로 가냐고요...?"),
     ]
 }
 

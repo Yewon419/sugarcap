@@ -55,8 +55,8 @@ final class ProStore {
     }
 
     static let mockPlans = [
-        ProPlan(id: ProProduct.yearly, title: "연간", price: "₩9,900", note: "해지할 때까지 매년"),
-        ProPlan(id: ProProduct.lifetime, title: "평생", price: "₩29,000", note: "한 번만 결제"),
+        ProPlan(id: ProProduct.yearly, title: String(localized: "연간"), price: "₩9,900", note: String(localized: "해지할 때까지 매년")),
+        ProPlan(id: ProProduct.lifetime, title: String(localized: "평생"), price: "₩29,000", note: String(localized: "한 번만 결제")),
     ]
 
     /// 앱이 뜰 때 한 번. 권한을 읽고 갱신 스트림을 연다.
@@ -103,20 +103,20 @@ final class ProStore {
                     id: id,
                     title: product.displayName,
                     price: product.displayPrice,
-                    note: id == ProProduct.lifetime ? "한 번만 결제" : "해지할 때까지 매년"
+                    note: id == ProProduct.lifetime ? String(localized: "한 번만 결제") : String(localized: "해지할 때까지 매년")
                 )
             }
-            failure = plans.isEmpty ? "상품을 불러오지 못했어요." : nil
+            failure = plans.isEmpty ? String(localized: "상품을 불러오지 못했어요.") : nil
         } catch {
             Self.logger.error("상품 로드 실패: \(String(describing: error), privacy: .public)")
-            failure = "상품을 불러오지 못했어요."
+            failure = String(localized: "상품을 불러오지 못했어요.")
         }
     }
 
     /// 구매. 성공하면 권한을 다시 읽는다. 취소는 실패가 아니라 조용히 끝난다.
     func purchase(_ planID: String) async {
         guard let product = products[planID] else {
-            failure = "상품을 불러오지 못했어요."
+            failure = String(localized: "상품을 불러오지 못했어요.")
             return
         }
         purchasingID = planID
@@ -128,10 +128,10 @@ final class ProStore {
                     await transaction.finish()
                     await refreshEntitlement()
                 } else {
-                    failure = "영수증을 확인하지 못했어요."
+                    failure = String(localized: "영수증을 확인하지 못했어요.")
                 }
             case .pending:
-                failure = "승인을 기다리는 중이에요."
+                failure = String(localized: "승인을 기다리는 중이에요.")
             case .userCancelled:
                 failure = nil
             @unknown default:
@@ -139,7 +139,7 @@ final class ProStore {
             }
         } catch {
             Self.logger.error("구매 실패: \(String(describing: error), privacy: .public)")
-            failure = "구매하지 못했어요. 잠시 뒤 다시 시도해 주세요."
+            failure = String(localized: "구매하지 못했어요. 잠시 뒤 다시 시도해 주세요.")
         }
     }
 
@@ -148,10 +148,10 @@ final class ProStore {
         do {
             try await AppStore.sync()
             await refreshEntitlement()
-            failure = isPro ? nil : "복원할 구매가 없어요."
+            failure = isPro ? nil : String(localized: "복원할 구매가 없어요.")
         } catch {
             Self.logger.error("복원 실패: \(String(describing: error), privacy: .public)")
-            failure = "복원하지 못했어요."
+            failure = String(localized: "복원하지 못했어요.")
         }
     }
 }

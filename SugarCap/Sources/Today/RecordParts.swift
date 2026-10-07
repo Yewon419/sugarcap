@@ -141,7 +141,7 @@ struct StarButton: View {
                 .tapTarget()
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(isOn ? "즐겨찾기 해제" : "즐겨찾기")
+        .accessibilityLabel(isOn ? String(localized: "즐겨찾기 해제") : String(localized: "즐겨찾기"))
         .accessibilityAddTraits(isOn ? .isSelected : [])
         .sensoryFeedback(.selection, trigger: isOn)
     }

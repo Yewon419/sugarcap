@@ -253,6 +253,23 @@ jobs:
           path: ${{ runner.temp }}/screenshots
           retention-days: 14
 
+      # 컴파일러가 뽑은 현지화 키 목록(SPEC §9.9). 개발 환경에 Xcode가 없어 String Catalog 키를 여기서 받는다.
+      - name: 현지화 문구 내보내기
+        working-directory: SugarCap
+        run: |
+          xcodebuild -exportLocalizations \
+            -project SugarCap.xcodeproj \
+            -localizationPath "$RUNNER_TEMP/localizations" \
+            -exportLanguage ko \
+            -sdk iphonesimulator
+          ls -laR "$RUNNER_TEMP/localizations"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: localizations
+          path: ${{ runner.temp }}/localizations
+          retention-days: 14
+
       # App Store 제출용 6.9인치 스크린샷(docs/STORE.md §9). 데모 기록을 넣은 상태로 찍는다.
       - name: 스토어 스크린샷 (6.9인치)
         working-directory: SugarCap

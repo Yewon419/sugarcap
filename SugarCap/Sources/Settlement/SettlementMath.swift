@@ -26,8 +26,8 @@ enum AffinityMath {
 
     /// 화면에 단계 숫자 대신 보이는 이름(2026-09-26, §4.8). 모두 "사이"로 끝나 "~가 됐어요"로 붙는다.
     static let stageNames = [
-        "처음 만난 사이", "눈인사하는 사이", "이름 부르는 사이", "반가운 사이", "기다려지는 사이",
-        "편한 사이", "친한 사이", "단짝 사이", "속마음 나누는 사이", "둘도 없는 사이",
+        String(localized: "처음 만난 사이"), String(localized: "눈인사하는 사이"), String(localized: "이름 부르는 사이"), String(localized: "반가운 사이"), String(localized: "기다려지는 사이"),
+        String(localized: "편한 사이"), String(localized: "친한 사이"), String(localized: "단짝 사이"), String(localized: "속마음 나누는 사이"), String(localized: "둘도 없는 사이"),
     ]
 
     static func stageName(level: Int) -> String {

@@ -70,10 +70,10 @@ struct YesterdayGateView: View {
                 Text("어제 · \(dateText)")
                     .dateLabel()
                     .padding(.top, 8)
-                Text(gate.kind == .feed ? "어젯밤 마감을 못 했어요" : "어제는 기록이 없어요")
+                Text(gate.kind == .feed ? String(localized: "어젯밤 마감을 못 했어요") : String(localized: "어제는 기록이 없어요"))
                     .kicker()
                     .padding(.top, 28)
-                Text(gate.kind == .feed ? "남은 음료를\n아직 못 먹였어요" : "어제 음료를\n안 마셨나요?")
+                Text(gate.kind == .feed ? String(localized: "남은 음료를\n아직 못 먹였어요") : String(localized: "어제 음료를\n안 마셨나요?"))
                     .font(AppFont.pretendard(34, .bold, relativeTo: .largeTitle))
                     .tracking(AppFont.displayTracking(for: 34))
                     .lineSpacing(2)
@@ -81,8 +81,8 @@ struct YesterdayGateView: View {
                     .accessibilityAddTraits(.isHeader)
                 Text(
                     gate.kind == .feed
-                        ? "\(waitingNames) 기다리고 있어요. 먹이고 오늘을 시작해요."
-                        : "안 마셨다면 하루 기준만큼 가득 먹일 수 있어요."
+                        ? String(localized: "\(waitingNames) 기다리고 있어요. 먹이고 오늘을 시작해요.")
+                        : String(localized: "안 마셨다면 하루 기준만큼 가득 먹일 수 있어요.")
                 )
                 .font(AppFont.pretendard(13, .regular, relativeTo: .footnote))
                 .foregroundStyle(.secondary)
@@ -114,7 +114,7 @@ struct YesterdayGateView: View {
     private var firstSide: CupSide { sides.first ?? .sugar }
 
     private var waitingNames: String {
-        sides.count > 1 ? "로슈와 카인이" : firstSide.characterNameWithIga
+        sides.count > 1 ? String(localized: "로슈와 카인이") : firstSide.characterNameWithIga
     }
 
     private func left(_ side: CupSide) -> Double {

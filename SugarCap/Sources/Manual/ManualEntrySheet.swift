@@ -45,13 +45,13 @@ struct ManualEntrySheet: View {
                 // 끈 면(설정 "기록할 것")은 칸을 숨긴다. 비워 둔 값이라 "미공개"로 남는다.
                 if trackedSides.contains(.sugar) {
                     amountField(
-                        "당", unit: CupSide.sugar.unit, text: $sugarText,
+                        String(localized: "당"), unit: CupSide.sugar.unit, text: $sugarText,
                         isInvalid: sugar == .invalid, identifier: "manual-sugar"
                     )
                 }
                 if trackedSides.contains(.caffeine) {
                     amountField(
-                        "카페인", unit: CupSide.caffeine.unit, text: $caffeineText,
+                        String(localized: "카페인"), unit: CupSide.caffeine.unit, text: $caffeineText,
                         isInvalid: caffeine == .invalid, identifier: "manual-caffeine"
                     )
                 }
@@ -99,8 +99,8 @@ struct ManualEntrySheet: View {
                 loggedAt: Date(),
                 sugarG: sugar.number,
                 caffeineMg: caffeine.number,
-                drinkName: trimmed.isEmpty ? "직접 입력" : trimmed,
-                brandName: "직접 입력",
+                drinkName: trimmed.isEmpty ? String(localized: "직접 입력") : trimmed,
+                brandName: String(localized: "직접 입력"),
                 sizeLabel: ""
             )
         )

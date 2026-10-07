@@ -15,7 +15,7 @@ struct BrandMenuView: View {
     @State private var category = BrandMenuView.allCategory
     @State private var panelDrink: Drink?
 
-    private static let allCategory = "전체"
+    private static let allCategory = String(localized: "전체")
     /// 이보다 메뉴가 많으면(편의점) 전체 목록·분류 칩 대신 검색부터 보여 준다. 카페 최대는 빽다방 296개.
     private static let searchFirstThreshold = 1000
     /// 검색 우선 브랜드에서 한 번에 그리는 결과 수. 넘치면 더 입력하라고 안내한다.
@@ -42,7 +42,7 @@ struct BrandMenuView: View {
 
     /// 브랜드 잔 기준 안내가 짧으면 소제목으로, 길면 메뉴 수로(길면 줄이 넘친다).
     private var kicker: String {
-        brand.servingNote.count <= 20 ? brand.servingNote : "메뉴 \(drinks.count.formatted())"
+        brand.servingNote.count <= 20 ? brand.servingNote : String(localized: "메뉴 \(drinks.count.formatted())")
     }
 
     var body: some View {
@@ -59,7 +59,7 @@ struct BrandMenuView: View {
                 .padding(.top, 2)
                 .padding(.bottom, 12)
 
-                SearchField(prompt: isSearchFirst ? "제품 이름 검색" : "메뉴 검색", text: $query)
+                SearchField(prompt: isSearchFirst ? String(localized: "제품 이름 검색") : String(localized: "메뉴 검색"), text: $query)
                     .padding(.horizontal, 20)
                     .padding(.bottom, 8)
 
@@ -89,12 +89,12 @@ struct BrandMenuView: View {
     @ViewBuilder
     private var searchFirstList: some View {
         if DrinkQuery(query).isEmpty {
-            CaptionNote(text: "제품 이름으로 찾아 주세요. 띄어쓰기는 상관없어요. 예: 바나나맛우유")
+            CaptionNote(text: String(localized: "제품 이름으로 찾아 주세요. 띄어쓰기는 상관없어요. 예: 바나나맛우유"))
         } else {
             let found = results()
             menuList(Array(found.prefix(Self.searchFirstLimit)))
             if found.count > Self.searchFirstLimit {
-                CaptionNote(text: "\(found.count.formatted())개 중 \(Self.searchFirstLimit)개만 보여요. 이름을 더 입력해 주세요.")
+                CaptionNote(text: String(localized: "\(found.count.formatted())개 중 \(Self.searchFirstLimit)개만 보여요. 이름을 더 입력해 주세요."))
             }
         }
     }
@@ -110,7 +110,7 @@ struct BrandMenuView: View {
     @ViewBuilder
     private func menuList(_ found: [Drink]) -> some View {
         if found.isEmpty {
-            CaptionNote(text: "맞는 메뉴가 없어요.")
+            CaptionNote(text: String(localized: "맞는 메뉴가 없어요."))
             Button(action: onManualEntry) {
                 Label("직접 입력", systemImage: "plus")
                     .glassPill()

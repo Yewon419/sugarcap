@@ -137,7 +137,7 @@ struct FeedFxOverlay: View {
                     .opacity(small)
                     .offset(y: 8 * (1 - small))
                 MaskLine(
-                    text: "카인 차례!", font: AppFont.pretendardFixed(56, .extraBold), lineHeight: 64,
+                    text: String(localized: "카인 차례!"), font: AppFont.pretendardFixed(56, .extraBold), lineHeight: 64,
                     color: .ink, tracking: AppFont.displayTracking(for: 56),
                     reveal: seg(t, 0.36, 0.86, Ease.power4Out)
                 )

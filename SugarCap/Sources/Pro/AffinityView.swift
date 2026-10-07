@@ -25,7 +25,7 @@ struct AffinityView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            SheetHeader(title: "호감도") {
+            SheetHeader(title: String(localized: "호감도")) {
                 Button("닫기") { dismiss() }
                     .tapTarget()
                     .accessibilityIdentifier("affinity-close")
@@ -121,7 +121,7 @@ struct AffinityView: View {
                         }
                 }
                 .frame(height: 6)
-                Text(isLastStage ? "가장 가까운 사이가 됐어요" : "다음은 \(next)")
+                Text(isLastStage ? String(localized: "가장 가까운 사이가 됐어요") : String(localized: "다음은 \(next)"))
                     .font(AppFont.pretendard(12, .regular, relativeTo: .caption))
                     .foregroundStyle(.secondary)
             }
@@ -131,8 +131,8 @@ struct AffinityView: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel(
             isLastStage
-                ? "\(side.characterNameWithGwa) \(stage). 가장 가까운 사이예요"
-                : "\(side.characterNameWithGwa) \(stage). 다음은 \(next)"
+                ? Text("\(side.characterNameWithGwa) \(stage). 가장 가까운 사이예요")
+                : Text("\(side.characterNameWithGwa) \(stage). 다음은 \(next)")
         )
     }
 

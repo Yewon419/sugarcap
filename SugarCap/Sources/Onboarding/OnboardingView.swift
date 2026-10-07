@@ -58,7 +58,7 @@ struct OnboardingView: View {
                     side: scene == .sugar ? .sugar : .caffeine,
                     value: binding(scene == .sugar ? .sugar : .caffeine),
                     isManaged: isManaged(scene == .sugar ? .sugar : .caffeine),
-                    finishLabel: onClose == nil ? "시작" : "완료",
+                    finishLabel: onClose == nil ? String(localized: "시작") : String(localized: "완료"),
                     onNext: next,
                     onBack: { withAnimation(.easeOut(duration: 0.25)) { scene = .sugar } }
                 )
@@ -241,7 +241,9 @@ private struct LimitSetup: View {
     let onBack: () -> Void
 
     private var title: String {
-        side == .sugar ? "하루에 당은\n얼마까지 마실래요?" : "카페인은\n얼마까지 마실래요?"
+        side == .sugar
+            ? String(localized: "하루에 당은\n얼마까지 마실래요?")
+            : String(localized: "카페인은\n얼마까지 마실래요?")
     }
 
     var body: some View {
@@ -291,7 +293,7 @@ private struct LimitSetup: View {
 
             VStack(spacing: 10) {
                 Button(action: onNext) {
-                    Text(side == .sugar ? "다음" : finishLabel)
+                    Text(side == .sugar ? String(localized: "다음") : finishLabel)
                         .ctaLabel()
                         .foregroundStyle(.white)
                         .background(Color.accentColor, in: Capsule())

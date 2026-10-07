@@ -4,7 +4,7 @@ import Foundation
 enum Amount {
     /// nil은 "브랜드 미공개"다. 0으로 적지 않는다(SPEC §9.2).
     static func text(_ value: Double?, unit: String) -> String {
-        guard let value else { return "미공개" }
+        guard let value else { return String(localized: "미공개") }
         return "\(number(value)) \(unit)"
     }
 

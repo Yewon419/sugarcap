@@ -84,8 +84,8 @@ private struct SettingsContent: View {
             }
 
             Section {
-                hourPicker("하루가 바뀌는 시각", selection: $settings.dayBoundaryHour, choices: HourChoices.dayBoundary)
-                hourPicker("오늘 마감을 여는 시각", selection: $settings.closeFromHour, choices: HourChoices.closeFrom)
+                hourPicker(String(localized: "하루가 바뀌는 시각"), selection: $settings.dayBoundaryHour, choices: HourChoices.dayBoundary)
+                hourPicker(String(localized: "오늘 마감을 여는 시각"), selection: $settings.closeFromHour, choices: HourChoices.closeFrom)
             } footer: {
                 Text("하루가 바뀌는 시각 전에 마신 음료는 전날 몫으로 들어가요.")
             }
@@ -115,12 +115,12 @@ private struct SettingsContent: View {
                 Button {
                     showsOnboarding = true
                 } label: {
-                    linkRow("앱 소개 다시 보기", trailing: "chevron.right")
+                    linkRow(String(localized: "앱 소개 다시 보기"), trailing: "chevron.right")
                 }
                 .accessibilityIdentifier("replay-onboarding")
                 if let privacy = AppLinks.privacyPolicy {
                     Link(destination: privacy) {
-                        linkRow("개인정보처리방침", trailing: "arrow.up.right")
+                        linkRow(String(localized: "개인정보처리방침"), trailing: "arrow.up.right")
                     }
                 }
             } footer: {
@@ -187,7 +187,7 @@ private struct SettingsContent: View {
         } catch {
             Self.logger.error("기록할 것 저장 실패(\(side.rawValue, privacy: .public) \(isOn)): \(String(describing: error), privacy: .public)")
             context.rollback()
-            alertMessage = "설정을 저장하지 못했어요."
+            alertMessage = String(localized: "설정을 저장하지 못했어요.")
         }
     }
 
@@ -200,7 +200,7 @@ private struct SettingsContent: View {
         Task {
             let granted = await CloseReminder.enable(closeFromHour: settings.closeFromHour)
             if !granted {
-                alertMessage = "iOS 설정 > 슈가캡 > 알림에서 알림을 허용해 주세요."
+                alertMessage = String(localized: "iOS 설정 > 슈가캡 > 알림에서 알림을 허용해 주세요.")
             }
         }
     }
@@ -253,7 +253,7 @@ private struct SettingsContent: View {
         } catch {
             Self.logger.error("호감도 바꾸기 실패(\(side.rawValue, privacy: .public) \(level)): \(String(describing: error), privacy: .public)")
             context.rollback()
-            alertMessage = "호감도를 바꾸지 못했어요."
+            alertMessage = String(localized: "호감도를 바꾸지 못했어요.")
         }
     }
 
@@ -315,7 +315,7 @@ private struct SettingsContent: View {
         Task {
             await pro.restore()
             isRestoring = false
-            alertMessage = pro.isPro ? "구매를 복원했어요." : (pro.failure ?? "복원할 구매가 없어요.")
+            alertMessage = pro.isPro ? String(localized: "구매를 복원했어요.") : (pro.failure ?? String(localized: "복원할 구매가 없어요."))
         }
     }
 

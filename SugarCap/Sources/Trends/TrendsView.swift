@@ -42,7 +42,7 @@ struct TrendsView: View {
     @Query private var affinities: [Affinity]
 
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "trends")
-    private static let weekdays = ["일", "월", "화", "수", "목", "금", "토"]
+    private static let weekdays = [String(localized: "일"), String(localized: "월"), String(localized: "화"), String(localized: "수"), String(localized: "목"), String(localized: "금"), String(localized: "토")]
 
     /// 오늘 탭 사진에서 잰 벽·식탁 색(프로토 `trends-table.css`).
     private static let tableTop = Color(red: 0xEC / 255, green: 0xEF / 255, blue: 0xF2 / 255)
@@ -205,7 +205,7 @@ struct TrendsView: View {
                 }
             }
         )
-        let monthLabel = "\(today.month)월"
+        let monthLabel = String(localized: "\(today.month)월")
         return Menu {
             Picker("기간", selection: selection) {
                 Text("이번 주").tag(TrendRange.week)
@@ -213,7 +213,7 @@ struct TrendsView: View {
             }
         } label: {
             HStack(spacing: 6) {
-                Text(isMonth ? monthLabel : "이번 주")
+                Text(isMonth ? monthLabel : String(localized: "이번 주"))
                 Image(systemName: "chevron.down")
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundStyle(.secondary)
@@ -224,7 +224,7 @@ struct TrendsView: View {
             .contentShape(Rectangle())
         }
         .accessibilityLabel("기간")
-        .accessibilityValue(isMonth ? monthLabel : "이번 주")
+        .accessibilityValue(isMonth ? monthLabel : String(localized: "이번 주"))
         .accessibilityIdentifier("trend-range")
     }
 
@@ -304,7 +304,8 @@ struct TrendsView: View {
         guard let diff = weekChange(side, today: today) else { return nil }
         let rounded = diff.rounded()
         guard rounded != 0 else { return Text("지난주만큼 남겼어요") }
-        let amount = Text("\(Amount.number(abs(rounded)))\(side.unit) \(rounded > 0 ? "더" : "덜")")
+        let number = Amount.number(abs(rounded))
+        let amount = (rounded > 0 ? Text("\(number)\(side.unit) 더") : Text("\(number)\(side.unit) 덜"))
             .font(AppFont.pretendard(15, .bold, relativeTo: .subheadline))
             .foregroundStyle(Color.ink)
         return Text("지난주보다 \(amount) 남겼어요")
@@ -317,7 +318,7 @@ struct TrendsView: View {
             limitSide = side
         } label: {
             HStack(spacing: 6) {
-                Text(isReducing ? "줄이는 중" : "하루 기준")
+                Text(isReducing ? String(localized: "줄이는 중") : String(localized: "하루 기준"))
                 Text("\(Amount.number(limit)) \(side.unit)")
                     .font(AppFont.pretendard(15, .bold, relativeTo: .subheadline))
                     .monospacedDigit()
@@ -333,7 +334,11 @@ struct TrendsView: View {
         .buttonStyle(PressScaleStyle())
         .fixedSize()
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(side.label) 하루 기준 \(Amount.number(limit)) \(side.unit)\(isReducing ? ", 줄이는 중" : "")")
+        .accessibilityLabel(
+            isReducing
+                ? Text("\(side.label) 하루 기준 \(Amount.number(limit)) \(side.unit), 줄이는 중")
+                : Text("\(side.label) 하루 기준 \(Amount.number(limit)) \(side.unit)")
+        )
         .accessibilityIdentifier("trend-limit")
     }
 
@@ -504,7 +509,7 @@ struct TrendsView: View {
     @ViewBuilder
     private func cupColumn(_ cup: TableCup, index: Int, side pageSide: CupSide) -> some View {
         if isMonth {
-            cupFace(cup, label: "\(index + 1)주", width: 58, dimmed: !cup.recorded || cup.isFuture, side: pageSide)
+            cupFace(cup, label: String(localized: "\(index + 1)주"), width: 58, dimmed: !cup.recorded || cup.isFuture, side: pageSide)
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel("\(index + 1)주차 \(cupDescription(cup, average: true, side: pageSide))")
         } else {
@@ -512,7 +517,7 @@ struct TrendsView: View {
             Button {
                 dayLog = cup.day
             } label: {
-                cupFace(cup, label: cup.isNow ? "오늘" : weekday, width: 50, dimmed: !cup.recorded, side: pageSide)
+                cupFace(cup, label: cup.isNow ? String(localized: "오늘") : weekday, width: 50, dimmed: !cup.recorded, side: pageSide)
             }
             .buttonStyle(PressScaleStyle())
             .accessibilityElement(children: .ignore)
@@ -523,11 +528,14 @@ struct TrendsView: View {
     }
 
     private func cupDescription(_ cup: TableCup, average: Bool, side pageSide: CupSide) -> String {
-        guard cup.recorded else { return "기록 없음" }
+        guard cup.recorded else { return String(localized: "기록 없음") }
         let limit = pageSide.limit(limits)
         let over = cup.used - limit
-        if over > 0 { return "기준보다 \(Amount.number(over.rounded())) \(pageSide.unit) 더 마심" }
-        return "\(average ? "하루 평균 " : "")남은 \(pageSide.label) \(Amount.number(max(0, limit - cup.used).rounded())) \(pageSide.unit)"
+        if over > 0 { return String(localized: "기준보다 \(Amount.number(over.rounded())) \(pageSide.unit) 더 마심") }
+        let left = Amount.number(max(0, limit - cup.used).rounded())
+        return average
+            ? String(localized: "하루 평균 남은 \(pageSide.label) \(left) \(pageSide.unit)")
+            : String(localized: "남은 \(pageSide.label) \(left) \(pageSide.unit)")
     }
 
     private func cupFace(_ cup: TableCup, label: String, width: CGFloat, dimmed: Bool, side pageSide: CupSide) -> some View {
@@ -651,7 +659,7 @@ struct TrendsView: View {
         } catch {
             Self.logger.error("기록 삭제 실패: \(String(describing: error), privacy: .public)")
             context.rollback()
-            failureMessage = "기록 삭제에 실패했어요. 다시 시도해 주세요."
+            failureMessage = String(localized: "기록 삭제에 실패했어요. 다시 시도해 주세요.")
         }
     }
 

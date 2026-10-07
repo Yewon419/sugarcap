@@ -31,7 +31,7 @@ struct ReductionGoalSheet: View {
     var body: some View {
         let targets = Self.targets(for: side, currentLimit: currentLimit)
         VStack(spacing: 0) {
-            SheetHeader(title: "\(side.label) 조금씩 줄이기") {
+            SheetHeader(title: String(localized: "\(side.label) 조금씩 줄이기")) {
                 Button("닫기") { dismiss() }
                     .tapTarget()
                     .accessibilityIdentifier("goal-close")
@@ -44,11 +44,11 @@ struct ReductionGoalSheet: View {
                         .lineSpacing(2)
                         .padding(.horizontal, 24)
                         .padding(.top, 14)
-                    CaptionNote(text: "지금 하루 기준은 \(Amount.number(currentLimit)) \(side.unit)이에요.")
+                    CaptionNote(text: String(localized: "지금 하루 기준은 \(Amount.number(currentLimit)) \(side.unit)이에요."))
                         .padding(.top, 6)
 
                     if let target {
-                        SectionKicker(title: "목표", topPadding: 14)
+                        SectionKicker(title: String(localized: "목표"), topPadding: 14)
                         FlowLayout(spacing: 8) {
                             ForEach(targets, id: \.self) { value in
                                 let isOn = value == target
@@ -69,7 +69,7 @@ struct ReductionGoalSheet: View {
                         }
                         .padding(.horizontal, 20)
 
-                        SectionKicker(title: "기간", topPadding: 18)
+                        SectionKicker(title: String(localized: "기간"), topPadding: 18)
                         Picker("기간", selection: $weeks) {
                             ForEach(Self.weekChoices, id: \.self) { count in
                                 Text("\(count)주").tag(count)
@@ -95,7 +95,7 @@ struct ReductionGoalSheet: View {
                         .padding(.horizontal, 20)
                         .accessibilityIdentifier("goal-start")
                     } else {
-                        CaptionNote(text: "이미 가장 낮은 기준이에요.")
+                        CaptionNote(text: String(localized: "이미 가장 낮은 기준이에요."))
                     }
                     Color.clear.frame(height: 40)
                 }

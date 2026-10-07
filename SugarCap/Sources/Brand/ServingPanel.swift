@@ -31,7 +31,7 @@ struct ServingPanel: View {
     private var kicker: String {
         let size = selection.serving.sizeLabel == "기본" ? nil : selection.serving.sizeLabel
         let parts = [selection.drink.temperatureLabel, size].compactMap { $0 }
-        return parts.isEmpty ? "메뉴" : parts.joined(separator: " · ")
+        return parts.isEmpty ? String(localized: "메뉴") : parts.joined(separator: " · ")
     }
 
     var body: some View {
@@ -125,10 +125,10 @@ struct ServingPanel: View {
         let afterOver = max(0, afterUsed - limit)
         let otherAfter = max(0, other.limit(limits) - other.used(todayTotals) - (selection.amount(other) ?? 0))
         let note: String = {
-            guard let amount else { return "\(side.label) 미공개 메뉴라 컵은 그대로예요" }
+            guard let amount else { return String(localized: "\(side.label) 미공개 메뉴라 컵은 그대로예요") }
             return afterOver > 0
-                ? "하루 기준을 \(Amount.number(afterOver)) \(side.unit) 넘겨요"
-                : "이 잔은 \(side.label) \(Amount.number(amount)) \(side.unit)"
+                ? String(localized: "하루 기준을 \(Amount.number(afterOver)) \(side.unit) 넘겨요")
+                : String(localized: "이 잔은 \(side.label) \(Amount.number(amount)) \(side.unit)")
         }()
 
         return HStack(spacing: 12) {
@@ -172,7 +172,7 @@ struct ServingPanel: View {
         do {
             try Favorites.toggle(selection, favorites: favorites, in: context)
         } catch {
-            failureMessage = "즐겨찾기를 저장하지 못했어요. 다시 시도해 주세요."
+            failureMessage = String(localized: "즐겨찾기를 저장하지 못했어요. 다시 시도해 주세요.")
         }
     }
 }
@@ -197,13 +197,13 @@ struct QuantityStepper: View {
 
     var body: some View {
         HStack(spacing: 14) {
-            stepButton("minus", label: "한 잔 빼기", enabled: quantity > 1) { quantity -= 1 }
+            stepButton("minus", label: String(localized: "한 잔 빼기"), enabled: quantity > 1) { quantity -= 1 }
             Text("\(quantity)")
                 .font(AppFont.pretendard(17, .bold, relativeTo: .headline))
                 .monospacedDigit()
                 .frame(minWidth: 18)
                 .accessibilityLabel("\(quantity)잔")
-            stepButton("plus", label: "한 잔 더", enabled: quantity < 99) { quantity += 1 }
+            stepButton("plus", label: String(localized: "한 잔 더"), enabled: quantity < 99) { quantity += 1 }
         }
         .sensoryFeedback(.selection, trigger: quantity)
     }

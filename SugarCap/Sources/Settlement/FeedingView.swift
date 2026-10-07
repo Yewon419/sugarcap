@@ -257,11 +257,9 @@ struct FeedingView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .overlay(alignment: .bottom) { foot }
+            // 닫기는 뺐다(2026-10-07 대표님 "건너뛰기 있으니 닫기 없애"). 요약 화면의 닫기는 그대로.
             .overlay(alignment: .topTrailing) {
-                HStack(spacing: 0) {
-                    skipButton
-                    closeButton
-                }
+                skipButton.padding(.trailing, 16)
             }
         }
         .coordinateSpace(.named("feed"))

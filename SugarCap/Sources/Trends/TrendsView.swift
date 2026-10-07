@@ -84,7 +84,10 @@ struct TrendsView: View {
                 ScrollView {
                     VStack(spacing: 0) {
                         if let table = tables[side] {
-                            page(table: table, today: today, width: proxy.size.width, kainHangs: kainHangs(today: today))
+                            page(
+                                table: table, today: today, width: proxy.size.width, kainHangs: kainHangs(today: today),
+                                figureDigits: Self.figureDigits(tables)
+                            )
                         }
                         Spacer(minLength: 32)
                         scene(tables: tables, width: proxy.size.width, kainHangs: kainHangs(today: today))
@@ -153,7 +156,7 @@ struct TrendsView: View {
 
     /// 매거진 지면처럼: 머리(기간·날짜) + 검은 가는 선 → 제목 → 바로 아래 큰 숫자 → 가는 선 + 한 줄.
     /// 2026-10-06 대표님 "남긴 당 아래 붙게": 남는 공간은 지면과 장면 사이로 간다.
-    private func page(table: TrendTable, today: DayKey, width: CGFloat, kainHangs: Bool) -> some View {
+    private func page(table: TrendTable, today: DayKey, width: CGFloat, kainHangs: Bool, figureDigits: Int) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             masthead(table: table, today: today)
             Text("남긴 \(side.label)")
@@ -162,7 +165,7 @@ struct TrendsView: View {
                 .foregroundStyle(Color.ink)
                 .padding(.top, 18)
                 .accessibilityAddTraits(.isHeader)
-            figure(total: table.total)
+            figure(total: table.total, digits: figureDigits)
                 .padding(.top, 4)
             deck(today: today)
                 .overlay(alignment: .topLeading) {
@@ -226,9 +229,10 @@ struct TrendsView: View {
     }
 
     /// 단위는 숫자 어깨 위. 자리 수가 늘면 글자를 줄여 한 줄에 둔다.
-    private func figure(total: Double) -> some View {
+    /// `digits`는 켜진 면 중 가장 긴 숫자의 글자 수. 당·카페인을 넘겨도 큰 숫자 크기가 같다(2026-10-07 대표님 "양쪽 숫자 크기 맞춰줘").
+    private func figure(total: Double, digits: Int) -> some View {
         let text = Amount.number(total.rounded())
-        let size = Self.figureSize(digits: text.count)
+        let size = Self.figureSize(digits: max(digits, text.count))
         return HStack(alignment: .top, spacing: 6) {
             Text(text)
                 .font(AppFont.pretendardFixed(size, .extraBold))
@@ -250,6 +254,10 @@ struct TrendsView: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("남긴 \(side.label) \(text) \(side.unit)")
         .accessibilityIdentifier("trend-total")
+    }
+
+    private static func figureDigits(_ tables: [CupSide: TrendTable]) -> Int {
+        tables.values.map { Amount.number($0.total.rounded()).count }.max() ?? 1
     }
 
     private static func figureSize(digits: Int) -> CGFloat {

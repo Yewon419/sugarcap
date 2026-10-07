@@ -42,7 +42,15 @@ struct TrendsView: View {
     @Query private var affinities: [Affinity]
 
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "trends")
-    private static let weekdays = [String(localized: "일"), String(localized: "월"), String(localized: "화"), String(localized: "수"), String(localized: "목"), String(localized: "금"), String(localized: "토")]
+    /// 화면에 뜬 번역 언어의 달력 이름(한국어 = 일…토, 일요일…토요일, 10월). 기기 지역이 아니라 앱 언어를 따라
+    /// 번역이 없는 언어의 기기에서도 한국어 화면에 한국어 요일이 붙는다.
+    private static let appCalendar: Calendar = {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.locale = Locale(identifier: Bundle.main.preferredLocalizations.first ?? "ko")
+        return calendar
+    }()
+    private static let weekdays = appCalendar.veryShortStandaloneWeekdaySymbols
+    private static let weekdayNames = appCalendar.standaloneWeekdaySymbols
 
     /// 오늘 탭 사진에서 잰 벽·식탁 색(프로토 `trends-table.css`).
     private static let tableTop = Color(red: 0xEC / 255, green: 0xEF / 255, blue: 0xF2 / 255)
@@ -205,7 +213,7 @@ struct TrendsView: View {
                 }
             }
         )
-        let monthLabel = String(localized: "\(today.month)월")
+        let monthLabel = Self.appCalendar.shortStandaloneMonthSymbols[today.month - 1]
         return Menu {
             Picker("기간", selection: selection) {
                 Text("이번 주").tag(TrendRange.week)
@@ -521,7 +529,7 @@ struct TrendsView: View {
             }
             .buttonStyle(PressScaleStyle())
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("\(weekday)요일 \(cupDescription(cup, average: false, side: pageSide))")
+            .accessibilityLabel(Text(verbatim: "\(Self.weekdayNames[cup.day.weekday() - 1]) \(cupDescription(cup, average: false, side: pageSide))"))
             .accessibilityAddTraits(.isButton)
             .accessibilityIdentifier("shelf-\(cup.day.rawValue)")
         }

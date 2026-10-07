@@ -296,27 +296,35 @@ struct OnboardingReelStage: View {
     @ViewBuilder
     private var word: some View {
         if t >= 12.9 {
-            let letters = ["슈", "가", "캡"]
+            // 영어판 워드마크는 "SugarCap"(대표님 2026-10-07). 그때는 아랫줄 SUGARCAP이 같은 말이라 뺀다.
+            let wordmark = String(localized: "슈가캡", comment: "Onboarding reel wordmark, revealed letter by letter")
+            let letters = wordmark.map(String.init)
+            let isLatin = wordmark.uppercased() == "SUGARCAP"
+            let size: CGFloat = isLatin ? 150 : 220
+            // 글자 수가 달라도 마지막 글자가 같은 시각에 다 올라오게 간격을 나눈다(한글 3자 = 0.09초).
+            let stagger: Double = letters.count > 1 ? 0.18 / Double(letters.count - 1) : 0
             VStack(spacing: 0) {
-                HStack(spacing: 4) {
+                HStack(spacing: isLatin ? 0 : 4) {
                     ForEach(Array(letters.enumerated()), id: \.offset) { index, letter in
-                        let k: Double = seg(13.0 + Double(index) * 0.09, 13.7 + Double(index) * 0.09) { x in
+                        let k: Double = seg(13.0 + Double(index) * stagger, 13.7 + Double(index) * stagger) { x in
                             x >= 1 ? 1 : 1 - pow(2, -10 * x)
                         }
                         MaskLine(
-                            text: letter, font: AppFont.pretendardFixed(220, .extraBold), lineHeight: 253,
-                            color: .ink, tracking: AppFont.displayTracking(for: 220), reveal: k
+                            text: letter, font: AppFont.pretendardFixed(size, .extraBold), lineHeight: size * 1.15,
+                            color: .ink, tracking: AppFont.displayTracking(for: size), reveal: k
                         )
                     }
                 }
-                let en: Double = seg(13.5, 14.1) { x in x >= 1 ? 1 : 1 - pow(2, -10 * x) }
-                Text("SUGARCAP")
-                    .font(AppFont.numeralFixed(40))
-                    .tracking(20)
-                    .foregroundStyle(Color.accentColor)
-                    .opacity(en)
-                    .offset(y: 20 * (1 - en))
-                    .padding(.top, 37)
+                if !isLatin {
+                    let en: Double = seg(13.5, 14.1) { x in x >= 1 ? 1 : 1 - pow(2, -10 * x) }
+                    Text(verbatim: "SUGARCAP")
+                        .font(AppFont.numeralFixed(40))
+                        .tracking(20)
+                        .foregroundStyle(Color.accentColor)
+                        .opacity(en)
+                        .offset(y: 20 * (1 - en))
+                        .padding(.top, 37)
+                }
             }
             .frame(width: 1080)
             .offset(y: 1000)

@@ -43,3 +43,4 @@ SSOT = `SPEC.md`. 세션 시작 시 SPEC §0·§8·§9부터 읽는다.
 - Swift 소스를 셸 heredoc + Python 치환으로 고치면 `\n`·`\(`의 역슬래시가 한 겹 벗겨져 문자열 안에 실제 줄바꿈이 들어간다(2026-10-05 UI 테스트 "unterminated string literal"로 CI 실패). 역슬래시가 든 Swift 문자열은 Edit 도구로 고친다.
 - 매 프레임 다시 그리는 뷰(`TimelineView` + `Canvas`, 대기 자세)는 넘기는 중·화면 밖이면 멈춘다. 넘길 때 그리면 컵보다 늦게 따라오고(대표님 2026-09-29), 탭 뒤에서 계속 그리면 UI 테스트가 요소를 못 찾고 타임아웃 난다. 워크플로는 `cancel-in-progress`라 푸시 빌드가 끝난 뒤에 TestFlight를 dispatch한다.
 - 카인 동작에 한 바퀴(360도) 이상 도는 회전을 넣지 않는다. 반응·연타·대기 자세·매달리기 전부(대표님 2026-10-06 "절대 넣지 마"). 갸웃처럼 기울였다 돌아오는 건 괜찮다. 유일한 예외는 커피 속 헤엄(swim)의 한 바퀴다(같은 날 대표님이 직접 요청). 다른 동작으로 넓히지 않는다.
+- 영어판(SPEC §9.9): 사용자 문구의 SSOT는 `SugarCap/Resources/Localizable.xcstrings`(원문 ko, 번역 en). 새 문구를 넣으면 en도 같이 넣는다. 키 목록은 CI `localizations` 산출물로 받는다(개발 PC에 Xcode 없음). 시뮬레이터 기본 언어가 영어라 테스트는 스킴 `language: ko`, 스크린샷은 `-AppleLanguages (ko)`로 고정돼 있다. 영어 화면은 `en-*` 스크린샷으로 본다.

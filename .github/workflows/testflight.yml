@@ -26,7 +26,8 @@ jobs:
     if: github.event_name != 'workflow_dispatch'
     runs-on: macos-26
     # 스크린샷(먹이기 단계·전환·소개·릴 프레임)이 늘어 25~30분 걸린다. 30분에서 잘려 취소된 적이 있다(2026-09-28).
-    timeout-minutes: 45
+    # 45분도 넘겨 끝 단계에서 취소됐다(2026-10-07, 영어 스크린샷 추가 전 46분).
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
@@ -122,6 +123,7 @@ jobs:
           sleep 8
           xcrun simctl terminate "$SIM_UDID" com.sugarcap.app
 
+          # 시뮬레이터 기본 언어가 영어라 한국어를 인자로 고정한다. 영어 화면은 shoot_en으로 따로 찍는다.
           # 네 번째 인자부터는 앱 실행 인자다. `-key value`는 UserDefaults 인자 도메인으로 들어가
           # 저장 없이 그 실행에만 적용된다(`-initialTab settings`, `-onboardingCompleted NO`).
           shoot() {
@@ -129,7 +131,7 @@ jobs:
             shift 3
             xcrun simctl ui "$SIM_UDID" appearance "$appearance"
             xcrun simctl ui "$SIM_UDID" content_size "$size"
-            xcrun simctl launch "$SIM_UDID" com.sugarcap.app "$@"
+            xcrun simctl launch "$SIM_UDID" com.sugarcap.app -AppleLanguages "(ko)" -AppleLocale ko_KR "$@"
             sleep 4
             xcrun simctl io "$SIM_UDID" screenshot "$OUT/$name.png"
             xcrun simctl terminate "$SIM_UDID" com.sugarcap.app
@@ -242,6 +244,49 @@ jobs:
           shoot idle-kain-swim-spin light large -screenshotSide caffeine -idlePose swim -idleStep 50 -idleAt 5.75
           shoot idle-kain-walk light large -screenshotSide caffeine -idlePose walk -idleStep 100 -idleAt 3.2
           shoot idle-kain-floor-sit light large -screenshotSide caffeine -idlePose floor-sit -idleStep 0 -idleAt 2.5
+          # 영어판(SPEC §9.9 Phase 1b). 긴 영어 문장이 넘치는지 큰 글자에서도 본다.
+          shoot_en() {
+            local name="$1" size="$2"
+            shift 2
+            xcrun simctl ui "$SIM_UDID" content_size "$size"
+            xcrun simctl launch "$SIM_UDID" com.sugarcap.app -AppleLanguages "(en)" -AppleLocale en_US "$@"
+            sleep 4
+            xcrun simctl io "$SIM_UDID" screenshot "$OUT/en-$name.png"
+            xcrun simctl terminate "$SIM_UDID" com.sugarcap.app
+          }
+          shoot_en light large
+          shoot_en type-ax-xl accessibility-extra-large
+          shoot_en cup-hint large -screenshotCupHint YES
+          shoot_en settings large -initialTab settings
+          shoot_en settings-type-ax-xl accessibility-extra-large -initialTab settings
+          for at in 0.9 2.0 3.9 6.4 8.1 9.8 12.2 14.4; do
+            shoot_en "onboarding-reel-$at" large -onboardingCompleted NO -onboardingReelAt "$at"
+          done
+          shoot_en onboarding-2 large -onboardingCompleted NO -onboardingPage 2
+          shoot_en onboarding-3 large -onboardingCompleted NO -onboardingPage 3
+          shoot_en onboarding-3-type-ax-xl accessibility-extra-large -onboardingCompleted NO -onboardingPage 3
+          shoot_en trends large -seedDemo YES -initialTab trends
+          shoot_en trends-month large -seedDemo YES -mockProOwned YES -initialTab trends -trendRange month
+          shoot_en limit-sugar large -initialTab trends -trendLimit sugar
+          shoot_en paywall large -mockPro YES -screenshotPaywall YES
+          shoot_en paywall-type-ax-xl accessibility-extra-large -mockPro YES -screenshotPaywall YES
+          shoot_en record large -seedDemo YES -screenshotRecord YES
+          shoot_en daylog large -seedDemo YES -screenshotDayLog YES
+          shoot_en brand-panel large -seedDemo YES -screenshotBrand starbucks -screenshotBrandQuery "딸기" -screenshotBrandPanel YES
+          shoot_en brand-cvs-many large -seedDemo YES -screenshotBrand cvs -screenshotBrandQuery "커피"
+          shoot_en gate-feed large -seedDemo YES -screenshotGate feed
+          shoot_en gate-ask large -screenshotGate ask
+          shoot_en feeding large -screenshotFeeding YES
+          shoot_en feeding-type-ax-xl accessibility-extra-large -screenshotFeeding YES
+          shoot_en feeding-dropped large -screenshotFeeding YES -screenshotFeedingStage dropped
+          shoot_en feeding-eaten large -screenshotFeeding YES -screenshotFeedingStage eaten
+          shoot_en feeding-summary large -screenshotFeeding YES -screenshotFeedingStage summary
+          shoot_en feeding-empty-patting large -screenshotFeeding YES -screenshotFeedingEmpty YES -screenshotFeedingStage patting
+          shoot_en fx-dusk large -screenshotFeeding YES -screenshotFx dusk -screenshotFxAt 0.8
+          for at in 1.5 4.8 7.4 8.8 12.4 13.6; do
+            shoot_en "intro-$at" large -screenshotFeeding YES -screenshotIntroAt "$at"
+          done
+          xcrun simctl ui "$SIM_UDID" content_size large
           # 감소 목표는 저장돼 남는다. 맨 끝에 찍고 앱을 지워 스토어 스크린샷(같은 기기일 수 있음)에 넘기지 않는다.
           shoot limit-caffeine-reducing light large -mockProOwned YES -seedGoal caffeine -initialTab trends -trendLimit caffeine
           xcrun simctl uninstall "$SIM_UDID" com.sugarcap.app
@@ -310,7 +355,7 @@ jobs:
 
           store_shot() {
             local name="$1"; shift
-            xcrun simctl launch "$UDID" com.sugarcap.app -seedDemo YES -onboardingCompleted YES "$@"
+            xcrun simctl launch "$UDID" com.sugarcap.app -AppleLanguages "(ko)" -AppleLocale ko_KR -seedDemo YES -onboardingCompleted YES "$@"
             sleep 5
             xcrun simctl io "$UDID" screenshot "$OUT/$name.png"
             xcrun simctl terminate "$UDID" com.sugarcap.app

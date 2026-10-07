@@ -1,7 +1,2969 @@
 {
   "sourceLanguage" : "ko",
   "strings" : {
-
+    "" : {
+      "shouldTranslate" : false
+    },
+    "\"%@\" 메뉴가 없어요. 직접 입력으로 남길 수 있어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No menu item matches \"%@\". You can add it manually."
+          }
+        }
+      }
+    },
+    "%@ %@" : {
+      "shouldTranslate" : false
+    },
+    "%@ %@ %@를 %@에게 주기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Give %1$@ %2$@ %3$@ to %4$@"
+          }
+        }
+      }
+    },
+    "%@ %@ 넘겼어요.\n그래도 %@ 기다려요.\n컵을 눌러 주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ %2$@ over.\n%3$@ is still waiting.\nTap the cup."
+          }
+        }
+      }
+    },
+    "%@ %@. 가장 가까운 사이예요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@: %2$@. As close as it gets"
+          }
+        }
+      }
+    },
+    "%@ %@. 다음은 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@: %2$@. Next: %3$@"
+          }
+        }
+      }
+    },
+    "%@ %@가 됐어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You and %1$@ are now: %2$@"
+          }
+        }
+      }
+    },
+    "%@ · %lld잔" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$lld drinks"
+          }
+        }
+      }
+    },
+    "%@ · 기준 %@ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · limit %2$@ %3$@"
+          }
+        }
+      }
+    },
+    "%@ 건드리기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poke %@"
+          }
+        }
+      }
+    },
+    "%@ 기다려요.\n컵을 눌러 주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ is waiting.\nTap the cup."
+          }
+        }
+      }
+    },
+    "%@ 기다리고 있어요. 먹이고 오늘을 시작해요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting for you: %@. Feed them and start your day."
+          }
+        }
+      }
+    },
+    "%@ 기록" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Log %@"
+          }
+        }
+      }
+    },
+    "%@ 기록했어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logged %@"
+          }
+        }
+      }
+    },
+    "%@ 남은 %@ %@ / %@ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ left %2$@ %3$@ of %4$@ %5$@"
+          }
+        }
+      }
+    },
+    "%@ 다 먹었어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ate it all."
+          }
+        }
+      }
+    },
+    "%@ 먹었어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ate it"
+          }
+        }
+      }
+    },
+    "%@ 목표 정하기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set a %@ goal"
+          }
+        }
+      }
+    },
+    "%@ 목표 정하기, Pro" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set a %@ goal, Pro"
+          }
+        }
+      }
+    },
+    "%@ 미공개 메뉴라 컵은 그대로예요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ isn't published for this item, so the cup stays the same"
+          }
+        }
+      }
+    },
+    "%@ 삭제" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete %@"
+          }
+        }
+      }
+    },
+    "%@ 조금씩 줄이기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cut back on %@ gradually"
+          }
+        }
+      }
+    },
+    "%@ 줄이기를 그만둘까요?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop cutting back on %@?"
+          }
+        }
+      }
+    },
+    "%@ 컵 누르기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap the %@ cup"
+          }
+        }
+      }
+    },
+    "%@ 하루 기준" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ daily limit"
+          }
+        }
+      }
+    },
+    "%@ 하루 기준 %@ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ daily limit %2$@ %3$@"
+          }
+        }
+      }
+    },
+    "%@ 하루 기준 %@ %@, 줄이는 중" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ daily limit %2$@ %3$@, cutting back"
+          }
+        }
+      }
+    },
+    "%@ 호감도" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ bond"
+          }
+        }
+      }
+    },
+    "%@%@ 더" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@%2$@ more"
+          }
+        }
+      }
+    },
+    "%@%@ 덜" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@%2$@ less"
+          }
+        }
+      }
+    },
+    "%@: %@" : {
+      "shouldTranslate" : false
+    },
+    "%@가 됐어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Now: %@"
+          }
+        }
+      }
+    },
+    "%@개 중 %lld개만 보여요. 이름을 더 입력해 주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Showing %2$lld of %1$@. Type more of the name."
+          }
+        }
+      }
+    },
+    "%@에 실패했어요. 다시 시도해 주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ failed. Please try again."
+          }
+        }
+      }
+    },
+    "%@으로 시작" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start %@"
+          }
+        }
+      }
+    },
+    "%@은 %@ %@ 남아요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ left: %2$@ %3$@"
+          }
+        }
+      }
+    },
+    "%@을\n조금씩 줄이는 중이에요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cutting back on\n%@ gradually"
+          }
+        }
+      }
+    },
+    "%lld" : {
+      "shouldTranslate" : false
+    },
+    "%lld.%lld – %lld.%lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld/%2$lld – %3$lld/%4$lld"
+          }
+        }
+      }
+    },
+    "%lld개 브랜드에서 찾은 메뉴" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menu items from %lld brands"
+          }
+        }
+      }
+    },
+    "%lld단계" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Level %lld"
+          }
+        }
+      }
+    },
+    "%lld월 %lld일 기록" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Log for %1$lld/%2$lld"
+          }
+        }
+      }
+    },
+    "%lld잔" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld drinks"
+          }
+        }
+      }
+    },
+    "%lld주" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W%lld"
+          }
+        }
+      }
+    },
+    "%lld주 중 %lld주 지킴" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kept %2$lld of %1$lld weeks"
+          }
+        }
+      }
+    },
+    "%lld주차 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Week %1$lld %2$@"
+          }
+        }
+      }
+    },
+    "+%@" : {
+      "shouldTranslate" : false
+    },
+    "+%@ %@ 넘김" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+%1$@ %2$@ over"
+          }
+        }
+      }
+    },
+    "-" : {
+      "shouldTranslate" : false
+    },
+    "/%@ %@" : {
+      "shouldTranslate" : false
+    },
+    "4" : {
+      "shouldTranslate" : false
+    },
+    "4~12주에 걸쳐 기준을 낮춰요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lower your limit over 4 to 12 weeks"
+          }
+        }
+      }
+    },
+    "Pro 켠 것처럼" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Act as Pro"
+          }
+        }
+      }
+    },
+    "WHO 권고" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "WHO advice"
+          }
+        }
+      }
+    },
+    "g" : {
+      "shouldTranslate" : false
+    },
+    "iOS 설정 > 슈가캡 > 알림에서 알림을 허용해 주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow notifications in iOS Settings > SugarCap > Notifications."
+          }
+        }
+      }
+    },
+    "·" : {
+      "shouldTranslate" : false
+    },
+    "→" : {
+      "shouldTranslate" : false
+    },
+    "가 돼요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "."
+          }
+        }
+      }
+    },
+    "가볍게" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Light"
+          }
+        }
+      }
+    },
+    "가장 가까운 사이가 됐어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As close as it gets"
+          }
+        }
+      }
+    },
+    "감소 목표" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cut-back goal"
+          }
+        }
+      }
+    },
+    "감소 목표를 그만두지 못했어요. 다시 시도해 주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't stop the cut-back goal. Please try again."
+          }
+        }
+      }
+    },
+    "감소 목표를 시작하지 못했어요. 다시 시도해 주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't start the cut-back goal. Please try again."
+          }
+        }
+      }
+    },
+    "개인정보처리방침" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacy Policy"
+          }
+        }
+      }
+    },
+    "건너뛰기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip"
+          }
+        }
+      }
+    },
+    "검색어 지우기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear search"
+          }
+        }
+      }
+    },
+    "계속하기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue"
+          }
+        }
+      }
+    },
+    "괜찮아요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No thanks"
+          }
+        }
+      }
+    },
+    "구매 복원" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restore Purchases"
+          }
+        }
+      }
+    },
+    "구매를 복원했어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purchases restored."
+          }
+        }
+      }
+    },
+    "구매하지 못했어요. 잠시 뒤 다시 시도해 주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purchase failed. Please try again in a moment."
+          }
+        }
+      }
+    },
+    "그만두기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop"
+          }
+        }
+      }
+    },
+    "그만두면 기준은 이번 주 값으로 남아요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If you stop, your limit stays at this week's value"
+          }
+        }
+      }
+    },
+    "기간" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duration"
+          }
+        }
+      }
+    },
+    "기다려지는 사이" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Looking forward"
+          }
+        }
+      }
+    },
+    "기다렸어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Missed you"
+          }
+        }
+      }
+    },
+    "기록" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Log"
+          }
+        }
+      }
+    },
+    "기록 삭제" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deleting the entry"
+          }
+        }
+      }
+    },
+    "기록 삭제에 실패했어요. 다시 시도해 주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't delete the entry. Please try again."
+          }
+        }
+      }
+    },
+    "기록 없음" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No entries"
+          }
+        }
+      }
+    },
+    "기록 저장" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saving the entry"
+          }
+        }
+      }
+    },
+    "기록은 그대로 두고 앱 소개와 로슈·카인 소개를 처음부터 다시 봐요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your entries stay. You'll see the app intro and meet Roshu and Kain again from the start."
+          }
+        }
+      }
+    },
+    "기록은 이 기기에만 저장돼요. 수집하는 정보는 없어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entries are stored only on this device. Nothing is collected."
+          }
+        }
+      }
+    },
+    "기록할 것" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What to track"
+          }
+        }
+      }
+    },
+    "기준보다 %@ %@ 더 마심" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ %2$@ over the limit"
+          }
+        }
+      }
+    },
+    "끈 쪽도 음료 값은 계속 저장돼요. 다시 켜면 지난 기록이 그대로 보여요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Values for the side you turn off are still saved. Turn it back on and your past entries are all there."
+          }
+        }
+      }
+    },
+    "나중에 추이 화면에서 언제든 바꿀 수 있어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can change this anytime from Trends."
+          }
+        }
+      }
+    },
+    "남긴 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ left over"
+          }
+        }
+      }
+    },
+    "남긴 %@ %@ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ left over %2$@ %3$@"
+          }
+        }
+      }
+    },
+    "남은 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ left"
+          }
+        }
+      }
+    },
+    "남은 %@ %@ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ left %2$@ %3$@"
+          }
+        }
+      }
+    },
+    "남은 %@ · %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ left · %2$@"
+          }
+        }
+      }
+    },
+    "남은 %@ · %@ 몫" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ left · for %2$@"
+          }
+        }
+      }
+    },
+    "남은 당·카페인" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sugar and caffeine left"
+          }
+        }
+      }
+    },
+    "남은 당과 카페인을 로슈와 카인에게 먹여 줘요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feed the sugar and caffeine you have left to Roshu and Kain."
+          }
+        }
+      }
+    },
+    "남은 음료를\n아직 못 먹였어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You haven't fed\nyour leftovers yet"
+          }
+        }
+      }
+    },
+    "내일도 이 시간에 알려 줄까요?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remind you at this time tomorrow too?"
+          }
+        }
+      }
+    },
+    "냠, %@ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yum, %1$@ %2$@"
+          }
+        }
+      }
+    },
+    "냠, 고마워요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yum, thank you"
+          }
+        }
+      }
+    },
+    "넉넉하게" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generous"
+          }
+        }
+      }
+    },
+    "눈인사하는 사이" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nodding hello"
+          }
+        }
+      }
+    },
+    "눌러서 오늘 기록을 봐요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap to see today's log"
+          }
+        }
+      }
+    },
+    "눌러서 오늘 기록을 봐요. 위아래로 쓸어 당과 카페인 컵을 오가요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap to see today's log. Swipe up or down to switch between the sugar and caffeine cups"
+          }
+        }
+      }
+    },
+    "다시 불러오기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reload"
+          }
+        }
+      }
+    },
+    "다음" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next"
+          }
+        }
+      }
+    },
+    "다음 · %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next · %@"
+          }
+        }
+      }
+    },
+    "다음 장" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next chapter"
+          }
+        }
+      }
+    },
+    "다음은" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next up"
+          }
+        }
+      }
+    },
+    "다음은 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next: %@"
+          }
+        }
+      }
+    },
+    "다음은 %@ 차례예요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ is next."
+          }
+        }
+      }
+    },
+    "단 걸 좋아하는 당신!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You love sweet things!"
+          }
+        }
+      }
+    },
+    "단짝 사이" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Best buddies"
+          }
+        }
+      }
+    },
+    "닫기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close"
+          }
+        }
+      }
+    },
+    "달달한 걸" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sweets"
+          }
+        }
+      }
+    },
+    "당" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sugar"
+          }
+        }
+      }
+    },
+    "더 가까워져요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "grow closer"
+          }
+        }
+      }
+    },
+    "더 줄이기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Less"
+          }
+        }
+      }
+    },
+    "덜 마신 날을\n더 잘 보이게" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "See the days you\ndrank less, clearly"
+          }
+        }
+      }
+    },
+    "되돌리기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Undo"
+          }
+        }
+      }
+    },
+    "두 친구와" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "with both friends"
+          }
+        }
+      }
+    },
+    "둘 다 먹었어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Both of them ate."
+          }
+        }
+      }
+    },
+    "둘도 없는 사이" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One and only"
+          }
+        }
+      }
+    },
+    "로슈" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Roshu"
+          }
+        }
+      }
+    },
+    "로슈!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Roshu!"
+          }
+        }
+      }
+    },
+    "로슈가" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Roshu"
+          }
+        }
+      }
+    },
+    "로슈와" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Roshu"
+          }
+        }
+      }
+    },
+    "로슈와 카인 소개. 남긴 당은 로슈가, 남긴 카페인은 카인이 먹어요. 많이 남길수록 더 가까워져요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meet Roshu and Kain. Roshu eats the sugar you leave, Kain eats the caffeine. The more you leave, the closer you get."
+          }
+        }
+      }
+    },
+    "로슈와 카인이" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Roshu and Kain"
+          }
+        }
+      }
+    },
+    "마감 뒤에 마신 음료도 오늘 몫으로 빠져요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drinks after closing still count toward today"
+          }
+        }
+      }
+    },
+    "마감 알림" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Closing reminder"
+          }
+        }
+      }
+    },
+    "마감함" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Closed"
+          }
+        }
+      }
+    },
+    "마무리" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finish"
+          }
+        }
+      }
+    },
+    "마셨어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I did"
+          }
+        }
+      }
+    },
+    "마시면 남는 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ left after this"
+          }
+        }
+      }
+    },
+    "마지막 한 방울을 %@에게 주기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Give the last drop to %@"
+          }
+        }
+      }
+    },
+    "마지막 한 방울이 나왔어요.\n%@에게 끌어다 주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Here's the last drop.\nDrag it to %@."
+          }
+        }
+      }
+    },
+    "많이많이 남겨서" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave lots more"
+          }
+        }
+      }
+    },
+    "맞는 메뉴가 없어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No matching items."
+          }
+        }
+      }
+    },
+    "매일 %@에 오늘 마감이 열리면 알려 줘요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every day at %@, we'll tell you when closing opens."
+          }
+        }
+      }
+    },
+    "매일 %@에 오늘 마감이 열리면 알려 줘요. 설정에서 언제든 끌 수 있어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every day at %@, we'll tell you when closing opens. You can turn this off anytime in Settings."
+          }
+        }
+      }
+    },
+    "매일매일 음료를 기록하고" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Log your drinks every day"
+          }
+        }
+      }
+    },
+    "먹이기 바로 보기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preview feeding"
+          }
+        }
+      }
+    },
+    "먹이러 가기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go feed"
+          }
+        }
+      }
+    },
+    "메뉴" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menu"
+          }
+        }
+      }
+    },
+    "메뉴 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ items"
+          }
+        }
+      }
+    },
+    "메뉴 검색" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search menu"
+          }
+        }
+      }
+    },
+    "메뉴 데이터를 읽지 못했어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't read the menu data"
+          }
+        }
+      }
+    },
+    "메뉴 이름으로 찾기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search by item name"
+          }
+        }
+      }
+    },
+    "모르는 값은 비워 두세요. 합계에는 0으로 더하고 기록에는 \"미공개\"로 남아요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave unknown values blank. They count as 0 in totals and show as \"Not published\" in your log."
+          }
+        }
+      }
+    },
+    "목록에 없을 때" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not on the list?"
+          }
+        }
+      }
+    },
+    "목표" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Goal"
+          }
+        }
+      }
+    },
+    "목표 %@ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Goal %1$@ %2$@"
+          }
+        }
+      }
+    },
+    "목표 정하기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set a goal"
+          }
+        }
+      }
+    },
+    "목표한 만큼 덜 마셔 봅시다" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "and drink less, just as you planned"
+          }
+        }
+      }
+    },
+    "미공개" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not published"
+          }
+        }
+      }
+    },
+    "반가운 사이" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glad to see you"
+          }
+        }
+      }
+    },
+    "방울을 %@에게 끌어다 주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drag the drop to %@."
+          }
+        }
+      }
+    },
+    "복원하지 못했어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't restore."
+          }
+        }
+      }
+    },
+    "복원할 구매가 없어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No purchases to restore."
+          }
+        }
+      }
+    },
+    "브랜드" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brands"
+          }
+        }
+      }
+    },
+    "사용 중" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active"
+          }
+        }
+      }
+    },
+    "사이즈" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Size"
+          }
+        }
+      }
+    },
+    "상품을 불러오지 못했어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't load products."
+          }
+        }
+      }
+    },
+    "설정" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        }
+      }
+    },
+    "설정을 저장하지 못했어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't save settings."
+          }
+        }
+      }
+    },
+    "속마음 나누는 사이" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sharing secrets"
+          }
+        }
+      }
+    },
+    "슈가캡" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SugarCap"
+          }
+        }
+      }
+    },
+    "슈가캡 %@ · 메뉴 데이터 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SugarCap %1$@ · menu data %2$@"
+          }
+        }
+      }
+    },
+    "슈가캡 PRO" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SUGARCAP PRO"
+          }
+        }
+      }
+    },
+    "슈가캡 Pro" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SugarCap Pro"
+          }
+        }
+      }
+    },
+    "슈가캡 Pro에서 열려요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Available with SugarCap Pro"
+          }
+        }
+      }
+    },
+    "승인을 기다리는 중이에요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting for approval."
+          }
+        }
+      }
+    },
+    "시작" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start"
+          }
+        }
+      }
+    },
+    "식약처 권고" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Korea MFDS advice"
+          }
+        }
+      }
+    },
+    "쓰다듬기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pet"
+          }
+        }
+      }
+    },
+    "씩 내려가서\n%lld주 뒤 하루 " : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " a week.\nIn %lld weeks, your daily limit is "
+          }
+        }
+      }
+    },
+    "아직 기록이 없어요. 컵은 가득 찬 채로 기다리고 있어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No entries yet. Your cup is full and waiting."
+          }
+        }
+      }
+    },
+    "안 마셨다면 하루 기준만큼 가득 먹일 수 있어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If you didn't, you can feed them a full day's limit."
+          }
+        }
+      }
+    },
+    "안 마셨어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I didn't"
+          }
+        }
+      }
+    },
+    "알려 줘요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remind me"
+          }
+        }
+      }
+    },
+    "알아보기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learn more"
+          }
+        }
+      }
+    },
+    "앱 소개 다시 보기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watch the intro again"
+          }
+        }
+      }
+    },
+    "어디까지\n줄여 볼까요?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How far do you\nwant to cut back?"
+          }
+        }
+      }
+    },
+    "어라?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Huh?"
+          }
+        }
+      }
+    },
+    "어제 · %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yesterday · %@"
+          }
+        }
+      }
+    },
+    "어제 남은 음료" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yesterday's leftovers"
+          }
+        }
+      }
+    },
+    "어제 마감" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yesterday's close"
+          }
+        }
+      }
+    },
+    "어제 음료를\n안 마셨나요?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No drinks\nyesterday?"
+          }
+        }
+      }
+    },
+    "어제 정산 바로 보기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preview yesterday's settlement"
+          }
+        }
+      }
+    },
+    "어제는 기록이 없어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No entries yesterday"
+          }
+        }
+      }
+    },
+    "어젯밤 마감을 못 했어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You didn't close last night"
+          }
+        }
+      }
+    },
+    "어젯밤 이후 마신 만큼 빠졌어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drinks since last night are taken out"
+          }
+        }
+      }
+    },
+    "여기서 연 먹이기와 정산은 기록에 남지 않아요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feeding and settlement opened here aren't saved."
+          }
+        }
+      }
+    },
+    "여기요!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Here!"
+          }
+        }
+      }
+    },
+    "연간" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yearly"
+          }
+        }
+      }
+    },
+    "연간 구독은 기간이 끝나기 24시간 전에 해지하지 않으면 자동으로 갱신돼요. 해지는 App Store 계정 설정에서 해요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The yearly subscription renews automatically unless canceled at least 24 hours before the period ends. Cancel in your App Store account settings."
+          }
+        }
+      }
+    },
+    "영수증을 확인하지 못했어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't verify the receipt."
+          }
+        }
+      }
+    },
+    "오늘" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today"
+          }
+        }
+      }
+    },
+    "오늘 기록" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today's log"
+          }
+        }
+      }
+    },
+    "오늘 남긴 만큼은" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What's left today"
+          }
+        }
+      }
+    },
+    "오늘 남은 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ left today"
+          }
+        }
+      }
+    },
+    "오늘 남은 양을 보여 줍니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows what you have left today."
+          }
+        }
+      }
+    },
+    "오늘 마감" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close today"
+          }
+        }
+      }
+    },
+    "오늘 마감을 여는 시각" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When closing opens"
+          }
+        }
+      }
+    },
+    "오늘 마감할 시간이에요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time to close today"
+          }
+        }
+      }
+    },
+    "오늘도\n잘 마무리했어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Another day\nwrapped up well"
+          }
+        }
+      }
+    },
+    "오늘의 분량을 남기면 어디로 가냐고요...?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Where does what you leave go...?"
+          }
+        }
+      }
+    },
+    "완료" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        }
+      }
+    },
+    "우리 함께 줄여나가요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Let's cut back together"
+          }
+        }
+      }
+    },
+    "원두" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beans"
+          }
+        }
+      }
+    },
+    "월 추이" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly trends"
+          }
+        }
+      }
+    },
+    "월 추이는 Pro에서 열려요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly trends come with Pro"
+          }
+        }
+      }
+    },
+    "위아래로 끌어 봐요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drag up or down"
+          }
+        }
+      }
+    },
+    "위젯" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widget"
+          }
+        }
+      }
+    },
+    "음료 추가" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add a drink"
+          }
+        }
+      }
+    },
+    "음료를 저장하지 못했어요. 다시 시도해 주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't save the drink. Please try again."
+          }
+        }
+      }
+    },
+    "이 잔은 %@ %@ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This drink: %1$@ %2$@ %3$@"
+          }
+        }
+      }
+    },
+    "이 친구들에게 가요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "goes to these two"
+          }
+        }
+      }
+    },
+    "이날은 기록이 없어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No entries this day."
+          }
+        }
+      }
+    },
+    "이름" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name"
+          }
+        }
+      }
+    },
+    "이름 부르는 사이" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "First names"
+          }
+        }
+      }
+    },
+    "이미 가장 낮은 기준이에요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "That's already the lowest limit."
+          }
+        }
+      }
+    },
+    "이번 주" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This week"
+          }
+        }
+      }
+    },
+    "이용약관" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terms of Use"
+          }
+        }
+      }
+    },
+    "이전" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back"
+          }
+        }
+      }
+    },
+    "자주 마시는 음료는 별을 눌러 두세요. 최근 마신 음료도 여기 모여요. 한 번 눌러 바로 기록해요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Star the drinks you have often. Recent drinks gather here too. One tap logs it."
+          }
+        }
+      }
+    },
+    "잘 먹었어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "That was tasty"
+          }
+        }
+      }
+    },
+    "저장" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save"
+          }
+        }
+      }
+    },
+    "저장하지 못했어요. 다시 시도해 주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't save. Please try again."
+          }
+        }
+      }
+    },
+    "전체" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All"
+          }
+        }
+      }
+    },
+    "제품 이름 검색" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search product name"
+          }
+        }
+      }
+    },
+    "제품 이름으로 찾아 주세요. 띄어쓰기는 상관없어요. 예: 바나나맛우유" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search by product name. Spacing doesn't matter. Example: 바나나맛우유"
+          }
+        }
+      }
+    },
+    "조금 아쉬워요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Still a little hungry"
+          }
+        }
+      }
+    },
+    "조금씩 줄이기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cut back gradually"
+          }
+        }
+      }
+    },
+    "조금씩 줄이기는 Pro에서 열려요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cutting back gradually comes with Pro"
+          }
+        }
+      }
+    },
+    "좋아하는" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "lover"
+          }
+        }
+      }
+    },
+    "주마다 약 " : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Down about "
+          }
+        }
+      }
+    },
+    "주세요!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please!"
+          }
+        }
+      }
+    },
+    "줄이기 그만두기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop cutting back"
+          }
+        }
+      }
+    },
+    "줄이기 목표가 %@ 기준을 맡고 있어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your cut-back goal is setting the %@ limit"
+          }
+        }
+      }
+    },
+    "줄이는 중" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cutting back"
+          }
+        }
+      }
+    },
+    "즐겨찾기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favorite"
+          }
+        }
+      }
+    },
+    "즐겨찾기 해제" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove favorite"
+          }
+        }
+      }
+    },
+    "즐겨찾기를 저장하지 못했어요. 다시 시도해 주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't save the favorite. Please try again."
+          }
+        }
+      }
+    },
+    "지금 하루 기준은 %@ %@이에요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your daily limit is %1$@ %2$@."
+          }
+        }
+      }
+    },
+    "지금까지 달성한 주 기록이 사라지고, 하루 기준은 이번 주 값으로 남아요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your weekly progress so far will be cleared, and your daily limit stays at this week's value."
+          }
+        }
+      }
+    },
+    "지난 기록을 정리하지 못했어요. 앱을 다시 열어 주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't tidy up past entries. Please reopen the app."
+          }
+        }
+      }
+    },
+    "지난밤 먹인 음료가 반영됐어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last night's feeding is reflected"
+          }
+        }
+      }
+    },
+    "지난주 대비" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "vs. last week"
+          }
+        }
+      }
+    },
+    "지난주 대비는 Pro에서 열려요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comparing with last week comes with Pro"
+          }
+        }
+      }
+    },
+    "지난주만큼 남겼어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Left the same as last week"
+          }
+        }
+      }
+    },
+    "지난주보다 %@ 남겼어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Left %@ than last week"
+          }
+        }
+      }
+    },
+    "지운 음료만큼 컵이 다시 차요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your cup refills by the deleted drink."
+          }
+        }
+      }
+    },
+    "직접 입력" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manual entry"
+          }
+        }
+      }
+    },
+    "처음 만난 사이" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Just met"
+          }
+        }
+      }
+    },
+    "첫 실행으로 되돌리기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset to first launch"
+          }
+        }
+      }
+    },
+    "첫 실행으로 되돌릴까요?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset to first launch?"
+          }
+        }
+      }
+    },
+    "최근 마신 음료" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recent drinks"
+          }
+        }
+      }
+    },
+    "최대" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Max"
+          }
+        }
+      }
+    },
+    "추가" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add"
+          }
+        }
+      }
+    },
+    "추이" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trends"
+          }
+        }
+      }
+    },
+    "추이 월 보기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly trends view"
+          }
+        }
+      }
+    },
+    "추천" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Best value"
+          }
+        }
+      }
+    },
+    "친한 사이" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close friends"
+          }
+        }
+      }
+    },
+    "카인" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kain"
+          }
+        }
+      }
+    },
+    "카인 차례!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kain's turn!"
+          }
+        }
+      }
+    },
+    "카인!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kain!"
+          }
+        }
+      }
+    },
+    "카인과" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kain"
+          }
+        }
+      }
+    },
+    "카인이" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kain"
+          }
+        }
+      }
+    },
+    "카페인" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Caffeine"
+          }
+        }
+      }
+    },
+    "카페인 없이 못 사는 당신!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't live without caffeine?"
+          }
+        }
+      }
+    },
+    "카페인은\n얼마까지 마실래요?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How much caffeine\nper day?"
+          }
+        }
+      }
+    },
+    "카페인을" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Caffeine"
+          }
+        }
+      }
+    },
+    "캐릭터" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Character"
+          }
+        }
+      }
+    },
+    "컵을 눌러 마신 음료 적기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap the cup to log a drink"
+          }
+        }
+      }
+    },
+    "컵이 비었어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The cup is empty."
+          }
+        }
+      }
+    },
+    "컵이 비었어요.\n%@ 털어 보는 중이에요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The cup is empty.\n%@ is shaking it out."
+          }
+        }
+      }
+    },
+    "테스트 · TestFlight에서만 보여요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Test · only visible in TestFlight"
+          }
+        }
+      }
+    },
+    "톡, 톡" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap, tap"
+          }
+        }
+      }
+    },
+    "편의점 음료: 식품의약품안전처 식품영양성분 데이터베이스" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Convenience store drinks: Korea MFDS Food Nutrition Database"
+          }
+        }
+      }
+    },
+    "편집" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit"
+          }
+        }
+      }
+    },
+    "편한 사이" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Easygoing"
+          }
+        }
+      }
+    },
+    "평생" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lifetime"
+          }
+        }
+      }
+    },
+    "하루 기준" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daily limit"
+          }
+        }
+      }
+    },
+    "하루 기준 %lld/2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daily limit %lld/2"
+          }
+        }
+      }
+    },
+    "하루 기준을 %@ %@ 넘겨요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ %2$@ over your daily limit"
+          }
+        }
+      }
+    },
+    "하루 평균 남은 %@ %@ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ left, daily average %2$@ %3$@"
+          }
+        }
+      }
+    },
+    "하루가 바뀌는 시각" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When your day starts"
+          }
+        }
+      }
+    },
+    "하루가 바뀌는 시각 전에 마신 음료는 전날 몫으로 들어가요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drinks before this time count toward the previous day."
+          }
+        }
+      }
+    },
+    "하루에 당은\n얼마까지 마실래요?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How much sugar\nper day?"
+          }
+        }
+      }
+    },
+    "하루에 당을 얼마나 먹고 계신지 아나요?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Do you know how much sugar you have a day?"
+          }
+        }
+      }
+    },
+    "한 번 결제로 아래 기능이 모두 열려요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One payment unlocks everything below"
+          }
+        }
+      }
+    },
+    "한 번만 결제" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pay once"
+          }
+        }
+      }
+    },
+    "한 잔 더" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One more"
+          }
+        }
+      }
+    },
+    "한 잔 빼기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One less"
+          }
+        }
+      }
+    },
+    "해지할 때까지 매년" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every year until canceled"
+          }
+        }
+      }
+    },
+    "호감도" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bond"
+          }
+        }
+      }
+    },
+    "호감도는 내일 아침에 반영돼요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bond updates tomorrow morning."
+          }
+        }
+      }
+    },
+    "호감도를 바꾸지 못했어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't change the bond."
+          }
+        }
+      }
+    },
+    "호감도에 바로 반영했어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Applied to bond right away."
+          }
+        }
+      }
+    },
+    "확인" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
+    },
+    "＋ 직접 입력" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "＋ Manual entry"
+          }
+        }
+      }
+    }
   },
   "version" : "1.0"
 }

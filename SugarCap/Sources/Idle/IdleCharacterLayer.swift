@@ -18,6 +18,8 @@ struct IdleCharacterLayer: View {
     let unlockedLevel: Int
     /// 캐릭터 밖을 누른 자리(전역 좌표). 오늘 화면은 이걸 컵 누르기로 받는다(2026-10-05).
     var onMiss: (CGPoint) -> Void = { _ in }
+    /// 한 면만 켰을 때 컵 옆에서 구경하는 꺼진 쪽 캐릭터(`IdleOnlooker`). 같은 캔버스에 같이 그린다.
+    var guest: CupSide?
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
@@ -28,16 +30,21 @@ struct IdleCharacterLayer: View {
     @State private var seed = UInt64.random(in: 0 ... UInt64.max)
     /// 마지막으로 눌린 시각. 누르면 살짝 움찔한다(대표님 2026-10-04: "살짝 움찔하는 정도").
     @State private var flinchAt: Date?
+    @State private var guestFlinchAt: Date?
 
     var body: some View {
         GeometryReader { proxy in
             if let pose, let sprite = IdleSprite(side: side, pose: pose, step: step, size: proxy.size) {
                 let frozen = frozenTime
+                let guestSprite = guest.flatMap { IdleSprite.onlooker($0, on: side, step: step, size: proxy.size) }
                 TimelineView(.animation(minimumInterval: nil, paused: frozen != nil || pausedAt != nil)) { timeline in
                     let t = frozen ?? (pausedAt ?? timeline.date).timeIntervalSince(start)
                     let blink = frozen == nil ? IdleMotion.blink(t: t, seed: seed) : 0
+                    let guestBlink = frozen == nil ? IdleMotion.blink(t: t, seed: seed &+ 1) : 0
                     let flinch = flinchAt.map { IdleMotion.flinch(age: timeline.date.timeIntervalSince($0)) } ?? 0
+                    let guestFlinch = guestFlinchAt.map { IdleMotion.flinch(age: timeline.date.timeIntervalSince($0)) } ?? 0
                     Canvas { context, _ in
+                        guestSprite?.draw(in: &context, t: t, blink: guestBlink, flinch: guestFlinch)
                         sprite.draw(in: &context, t: t, blink: blink, flinch: flinch)
                     }
                 }
@@ -47,8 +54,11 @@ struct IdleCharacterLayer: View {
                     let origin = proxy.frame(in: .global).origin
                     let local = CGPoint(x: location.x - origin.x, y: location.y - origin.y)
                     let now = Date()
-                    if sprite.contains(local, t: now.timeIntervalSince(start)) {
+                    let t = now.timeIntervalSince(start)
+                    if sprite.contains(local, t: t) {
                         flinchAt = now
+                    } else if let guestSprite, guestSprite.contains(local, t: t) {
+                        guestFlinchAt = now
                     } else {
                         onMiss(location)
                     }
@@ -73,6 +83,10 @@ struct IdleCharacterLayer: View {
             if isAllowed(step: newStep, unlockedLevel: unlockedLevel) { return }
             repick()
         }
+        .onChange(of: guest) {
+            if isAllowed(step: step, unlockedLevel: unlockedLevel) { return }
+            repick()
+        }
         .onChange(of: unlockedLevel) { _, newLevel in
             if isAllowed(step: step, unlockedLevel: newLevel) { return }
             repick()
@@ -94,8 +108,13 @@ struct IdleCharacterLayer: View {
     }
 
     private func isAllowed(step: Int, unlockedLevel: Int) -> Bool {
-        guard let pose else { return false }
+        guard let pose, !avoiding.contains(pose) else { return false }
         return side.idleCast.poseSet?.allows(pose, step: step, unlockedLevel: unlockedLevel) == true
+    }
+
+    /// 구경꾼과 겹치는 자세는 뽑지 않는다.
+    private var avoiding: Set<String> {
+        guest.map { IdleOnlooker.hostAvoids(guest: $0) } ?? []
     }
 
     private func repick() {
@@ -110,7 +129,7 @@ struct IdleCharacterLayer: View {
         }
         #endif
         var generator = SystemRandomNumberGenerator()
-        pose = side.idleCast.poseSet?.pick(step: step, unlockedLevel: unlockedLevel, using: &generator)
+        pose = side.idleCast.poseSet?.pick(step: step, unlockedLevel: unlockedLevel, avoiding: avoiding, using: &generator)
     }
 }
 
@@ -136,9 +155,29 @@ struct IdleSprite {
     let pivot: CGPoint
     /// 그림 안 발끝 선(pt). 몸 층 숨쉬기의 기준.
     let footY: Double
+    /// 자리와 움직임을 잔 가운데 세로선 기준으로 좌우 뒤집는다(구경꾼).
+    let acrossCup: Bool
 
     init?(side: CupSide, pose: String, step: Int, size: CGSize) {
-        let cast = side.idleCast
+        self.init(cast: side.idleCast, cupSetID: side.cupSetID, pose: pose, step: step, size: size, acrossCup: false)
+    }
+
+    /// 꺼진 쪽 캐릭터를 켜진 쪽 컵 사진에 놓는다. 그림·움직임은 그 캐릭터 것, 잔 바닥·가장자리·가운데는 그 컵 것.
+    static func onlooker(_ guest: CupSide, on host: CupSide, step: Int, size: CGSize) -> IdleSprite? {
+        let own = guest.idleCast
+        let cup = host.idleCast
+        let cast = IdleCast(
+            character: own.character, bottom: cup.bottom, rim: cup.rim, liquid: cup.liquid, axis: cup.axis,
+            reflectionLook: own.reflectionLook, scalePerPhotoHeight: own.scalePerPhotoHeight, lidPad: own.lidPad,
+            gait: own.gait
+        )
+        let look = IdleOnlooker.look(guest)
+        return IdleSprite(
+            cast: cast, cupSetID: host.cupSetID, pose: look.pose, step: step, size: size, acrossCup: look.acrossCup
+        )
+    }
+
+    init?(cast: IdleCast, cupSetID: String, pose: String, step: Int, size: CGSize, acrossCup: Bool) {
         guard size.width > 0, size.height > 0,
               let spec = cast.poseSet?.poses[pose],
               let art = IdleRig.arts[cast.character]?[spec.rule.art]
@@ -152,9 +191,16 @@ struct IdleSprite {
         self.photo = photo
         self.step = step
         self.scale = scale
-        cutout = CupLevel.cutoutName(setID: side.cupSetID, step: step)
+        cutout = CupLevel.cutoutName(setID: cupSetID, step: step)
         bounds = CGRect(origin: .zero, size: size)
-        base = IdleMotion.place(spec, cast: cast, step: step, photo: photo, art: art, scale: scale)
+        self.acrossCup = acrossCup
+        let placed = IdleMotion.place(spec, cast: cast, step: step, photo: photo, art: art, scale: scale)
+        if acrossCup {
+            let axisX: Double = photo.left + cast.glassAxis(step: step) * photo.width
+            base = CGPoint(x: 2 * axisX - Double(placed.x), y: Double(placed.y))
+        } else {
+            base = placed
+        }
         let pivotY: Double =
             switch spec.pivot {
             case .feet: Double(art.bbox.maxY)
@@ -167,7 +213,7 @@ struct IdleSprite {
 
     /// `flinch`: 눌렸을 때 움찔(0 ~ 1, `IdleMotion.flinch`). 기준점을 축으로 아래로 눌렸다 돌아온다.
     func draw(in context: inout GraphicsContext, t: Double, blink: Double, flinch: Double) {
-        let m = IdleMotion.frame(spec, cast: cast, t: t, photo: photo, walkBaseX: base.x)
+        let m = frame(t)
         if let reflection = rule.reflection {
             drawReflection(reflection, in: context, m: m, flinch: flinch)
         }
@@ -190,6 +236,16 @@ struct IdleSprite {
         }
     }
 
+    private func frame(_ t: Double) -> IdleFrame {
+        var m = IdleMotion.frame(spec, cast: cast, t: t, photo: photo, walkBaseX: base.x)
+        if acrossCup {
+            m.flip = -m.flip
+            m.dx = -m.dx
+            m.rot = -m.rot
+        }
+        return m
+    }
+
     /// 화면 좌표 → 그림 좌표(pt): 기준점을 자리에 놓고 돌리고 뒤집는다.
     private func placed(_ parent: GraphicsContext, m: IdleFrame, flinch: Double) -> GraphicsContext {
         var sprite = parent
@@ -209,7 +265,7 @@ struct IdleSprite {
 
     /// 화면 위 점이 시각 t의 캐릭터 위인지. 그림 틀을 놓인 자리로 옮긴 사각형에 손가락 여유를 둔다.
     func contains(_ point: CGPoint, t: Double) -> Bool {
-        let m = IdleMotion.frame(spec, cast: cast, t: t, photo: photo, walkBaseX: base.x)
+        let m = frame(t)
         let box = CGRect(
             x: Double(art.bbox.minX) * scale, y: Double(art.bbox.minY) * scale,
             width: Double(art.bbox.width) * scale, height: Double(art.bbox.height) * scale
@@ -402,5 +458,24 @@ struct IdleSprite {
             green: Double((value >> 8) & 0xFF) / 255,
             blue: Double(value & 0xFF) / 255
         )
+    }
+}
+
+/// 구경꾼 자세(2026-10-07 대표님 "모션이 없고 우두커니 서 있으니"). 대기 자세 그대로 숨 쉬고 깜빡이고 눌리면 움찔한다.
+/// 카인은 딸기 컵 뒤 가장자리에 걸터앉고, 로슈는 커피 컵 오른쪽에 붙어 들여다본다(`watch`를 좌우로 뒤집음).
+enum IdleOnlooker {
+    static func look(_ guest: CupSide) -> (pose: String, acrossCup: Bool) {
+        switch guest {
+        case .caffeine: return ("rim-sit", false)
+        case .sugar: return ("watch", true)
+        }
+    }
+
+    /// 구경꾼과 자리가 겹치는 켜진 쪽 자세. 로슈 컵 안은 가장자리의 카인과, 카인 걷기는 오른쪽 로슈와 겹친다.
+    static func hostAvoids(guest: CupSide) -> Set<String> {
+        switch guest {
+        case .caffeine: return ["in-cup"]
+        case .sugar: return ["walk"]
+        }
     }
 }

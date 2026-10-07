@@ -149,9 +149,14 @@ struct IdlePoseSet: Sendable {
     }
 
     /// 앱을 열 때마다 허용된 자세 중 하나를 뽑는다. 0%면 늘 `zero`.
-    func pick<G: RandomNumberGenerator>(step: Int, unlockedLevel: Int, using generator: inout G) -> String {
+    /// `avoiding`은 구경꾼과 겹치는 자세(`IdleOnlooker`). 0% 자세는 빼지 않는다.
+    func pick<G: RandomNumberGenerator>(
+        step: Int, unlockedLevel: Int, avoiding: Set<String> = [], using generator: inout G
+    ) -> String {
         if step == 0 { return zero }
-        let pool = poses.keys.sorted().filter { allows($0, step: step, unlockedLevel: unlockedLevel) }
+        let pool = poses.keys.sorted().filter {
+            !avoiding.contains($0) && allows($0, step: step, unlockedLevel: unlockedLevel)
+        }
         return pool.randomElement(using: &generator) ?? zero
     }
 }

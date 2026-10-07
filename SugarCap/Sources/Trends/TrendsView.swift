@@ -678,7 +678,7 @@ extension DayKey: Identifiable {
 /// 넘길 때의 캐릭터. 출발하면 끌려가듯 뒤로 젖혀지고 몸이 늘어나며, 도착하면 앞으로 쏠리고 납작해졌다 통 튀며 선다.
 /// 그림 한 장을 바닥 기준으로 기울이고 늘리기만 한다(에어브러시·잔상 없음).
 /// 누르면 호감도 화면에 있던 몸짓으로 반응한다(`PokeMath`·`ReactionMotion`, 2026-10-06 대표님 "추이에서도 터치").
-struct CastMember: View {
+private struct CastMember: View {
     let asset: String
     let side: CupSide
     let level: Int

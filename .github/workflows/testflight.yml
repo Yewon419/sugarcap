@@ -217,7 +217,11 @@ jobs:
           shoot tracks-feeding-summary light large -screenshotTracks caffeine -screenshotFeeding YES -screenshotFeedingStage summary
           shoot tracks-gate-feed light large -seedDemo YES -screenshotTracks sugar -screenshotGate feed
           shoot tracks-onlooker-kain light large -seedDemo YES -screenshotTracks sugar -screenshotOnlooker YES -idleAt 1.0
+          shoot tracks-onlooker-kain-hug light large -seedDemo YES -screenshotTracks sugar -screenshotOnlooker YES -idlePose hug-strawberry -idleAt 2.0
+          shoot tracks-onlooker-kain-empty light large -screenshotTracks sugar -screenshotOnlooker YES -idleStep 0 -idleAt 1.0
           shoot tracks-onlooker-roshu light large -seedDemo YES -screenshotTracks caffeine -screenshotOnlooker YES -idleAt 1.0
+          shoot tracks-onlooker-roshu-floor light large -seedDemo YES -screenshotTracks caffeine -screenshotOnlooker YES -idlePose floor-sit -idleAt 3.0
+          shoot tracks-onlooker-roshu-empty light large -screenshotTracks caffeine -screenshotOnlooker YES -idleStep 0 -idleAt 1.0
           shoot tracks-trends-sugar light large -seedDemo YES -screenshotTracks sugar -initialTab trends -trendSide caffeine -trendEntrance hang -trendEntranceAt 0
           shoot tracks-trends-caffeine light large -seedDemo YES -screenshotTracks caffeine -initialTab trends -trendEntrance hang -trendEntranceAt 0
           for at in 1.5 4.8 7.4 8.8 12.4 13.6; do

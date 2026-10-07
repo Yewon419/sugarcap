@@ -213,15 +213,11 @@ struct TodayView: View {
                         idle: IdleCharacterLayer(
                             side: cupSide, step: step, isActive: cupSide == side && !isSliding && isOnScreen && !isSettingsPresented,
                             unlockedLevel: unlockedLevel(cupSide),
-                            onMiss: { tapCup(at: $0, screen: proxy.frame(in: .global)) }
+                            onMiss: { tapCup(at: $0, screen: proxy.frame(in: .global)) },
+                            guest: trackedSides.count == 1 && hasOnlooker ? cupSide.other : nil
                         )
                     )
                     .frame(width: width)
-                    .overlay {
-                        if trackedSides.count == 1, hasOnlooker {
-                            onlooker(cupSide.other, size: proxy.size)
-                        }
-                    }
                 }
             }
             .offset(x: -index * width + dragX)
@@ -258,19 +254,6 @@ struct TodayView: View {
         .accessibilityAddTraits(.isButton)
         .accessibilityAction { isRecordSheetPresented = true }
         .accessibilityIdentifier("record-add")
-    }
-
-    /// 꺼진 쪽 캐릭터. 컵 오른쪽 냅킨 위에 작게 앉아 있고, 누르면 추이 화면처럼 몸짓으로 반응한다.
-    /// 위치는 컵 사진 기준 비율(왼쪽은 켜진 쪽 캐릭터 대기 자세 자리라 비운다).
-    private func onlooker(_ cupSide: CupSide, size: CGSize) -> some View {
-        let height = size.height * 0.085
-        let points = affinities.first { $0.character == cupSide.characterID }?.points ?? 0
-        return CastMember(
-            asset: cupSide.characterAsset, side: cupSide, level: AffinityMath.level(points: points), height: height,
-            away: 1, dragLean: 0, direction: 1, trigger: 0, animates: !reduceMotion && isOnScreen
-        )
-        .position(x: size.width * 0.87, y: size.height * 0.862 - height / 2)
-        .accessibilityHidden(true)
     }
 
     /// 4번에 1번꼴. Debug(UI 테스트·CI 스크린샷)에서는 `-screenshotOnlooker YES`일 때만 나와 컵 누르기를 가리지 않는다.

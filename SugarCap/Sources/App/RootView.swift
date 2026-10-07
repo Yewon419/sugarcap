@@ -18,7 +18,7 @@ enum AppTab: String {
 /// 앱 루트. 온보딩을 마치기 전에는 온보딩만, 마친 뒤에는 오늘 화면만 그린다.
 /// 온보딩은 스택에 쌓지 않고 통째로 갈아 끼우므로 뒤로 돌아갈 수 없다(§4.5).
 struct RootView: View {
-    let catalog: Result<CatalogIndex, any Error>
+    let catalog: LoadedCatalog
 
     @Environment(\.modelContext) private var context
     @Query private var settingsRows: [AppSettings]
@@ -29,7 +29,7 @@ struct RootView: View {
 
     var body: some View {
         Group {
-            switch catalog {
+            switch catalog.result {
             case .success(let index):
                 if onboardingCompleted {
                     TodayView(catalog: index)
@@ -54,6 +54,10 @@ struct RootView: View {
             ensureSettings()
             seedDemoIfRequested()
             pro.start()
+        }
+        // 설정에서 메뉴 국가를 바꾸면 그 나라 카탈로그로 갈아 끼운다(SPEC §9.9).
+        .onChange(of: settingsRows.first?.menuCountry) { _, country in
+            if let country { catalog.show(country) }
         }
     }
 
@@ -84,6 +88,6 @@ struct RootView: View {
 }
 
 #Preview {
-    RootView(catalog: Result { CatalogIndex(catalog: try CatalogStore.loadBundled()) })
+    RootView(catalog: LoadedCatalog(country: .kr))
         .modelContainer(for: [Entry.self, AppSettings.self, DaySettlement.self, Affinity.self, ReductionGoal.self, FavoriteDrink.self], inMemory: true)
 }

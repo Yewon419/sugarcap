@@ -9,7 +9,7 @@ final class CatalogTests: XCTestCase {
     private static let brandsWithSizeChoice: Set<String> = ["ediya", "twosome", "gongcha", "cvs"]
 
     private func loadCatalog() throws -> Catalog {
-        try CatalogStore.loadBundled(from: Bundle(for: Self.self))
+        try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self))
     }
 
     func testBundledCatalogLoadsWithSupportedSchema() throws {
@@ -202,7 +202,7 @@ final class CatalogTests: XCTestCase {
 
 final class CatalogIndexTests: XCTestCase {
     func testLookupsResolveAgainstTheRealCatalog() throws {
-        let catalog = try CatalogStore.loadBundled(from: Bundle(for: Self.self))
+        let catalog = try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self))
         let index = CatalogIndex(catalog: catalog)
 
         for brand in catalog.brands {
@@ -221,7 +221,7 @@ final class CatalogIndexTests: XCTestCase {
         // 편의점이 들어와 카탈로그가 약 8.3MB가 됐고, 앱은 `App.init`에서 동기로 읽는다(2026-10-01).
         // 시뮬레이터 값이라 실기기와 다르다. 크게 늘면 비동기 로드·포맷 변경을 다시 검토한다.
         let start = Date()
-        let catalog = try CatalogStore.loadBundled(from: Bundle(for: Self.self))
+        let catalog = try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self))
         let decoded = Date()
         _ = CatalogIndex(catalog: catalog)
         let indexed = Date()
@@ -233,7 +233,7 @@ final class CatalogIndexTests: XCTestCase {
     }
 
     func testLatteSearchPutsCafeLatteAboveFlavoredLattes() throws {
-        let catalog = try CatalogStore.loadBundled(from: Bundle(for: Self.self))
+        let catalog = try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self))
         let index = CatalogIndex(catalog: catalog)
 
         // 2026-10-04: "라떼"에 딸기 콜드폼 딸기 라떼·편의점 "라떼는 말이야…"가 카페 라떼보다 먼저 왔다.
@@ -248,7 +248,7 @@ final class CatalogIndexTests: XCTestCase {
     }
 
     func testSearchOrderFollowsRankThenCafeBeforeStoreThenBrandGrid() throws {
-        let catalog = try CatalogStore.loadBundled(from: Bundle(for: Self.self))
+        let catalog = try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self))
         let index = CatalogIndex(catalog: catalog)
         let order = Dictionary(uniqueKeysWithValues: catalog.brands.enumerated().map { ($1.id, $0) })
 
@@ -271,7 +271,7 @@ final class CatalogIndexTests: XCTestCase {
     }
 
     func testShorterNamesBeatPrefixMatches() throws {
-        let index = CatalogIndex(catalog: try CatalogStore.loadBundled(from: Bundle(for: Self.self)))
+        let index = CatalogIndex(catalog: try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self)))
 
         // 앞부분 일치를 길이보다 앞에 두면 콜라겐 제품이 코카콜라를 덮는다.
         let hits = index.search("콜라", limit: 100).map(\.name)
@@ -286,7 +286,7 @@ final class CatalogIndexTests: XCTestCase {
     }
 
     func testConvenienceStoreSearchIgnoresSpaces() throws {
-        let catalog = try CatalogStore.loadBundled(from: Bundle(for: Self.self))
+        let catalog = try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self))
         let index = CatalogIndex(catalog: catalog)
 
         let spaced = index.drinks(brandID: "cvs", matching: DrinkQuery("바나나 맛 우유"))
@@ -294,5 +294,62 @@ final class CatalogIndexTests: XCTestCase {
 
         let all = index.drinks(brandID: "cvs", matching: DrinkQuery("  "))
         XCTAssertEqual(all.count, index.drinks(brandID: "cvs").count, "공백만 친 검색어는 전체여야 함")
+    }
+}
+
+/// 미국 카탈로그(`data/catalog-us.json`, SPEC §9.9). 한국과 같은 계약을 지키고 ID가 겹치지 않아야 한다.
+final class USCatalogTests: XCTestCase {
+    private func load(_ country: MenuCountry) throws -> Catalog {
+        try CatalogStore.loadBundled(country, from: Bundle(for: Self.self))
+    }
+
+    func testUSCatalogLoadsWithItsOwnBrands() throws {
+        let catalog = try load(.us)
+
+        XCTAssertEqual(catalog.schemaVersion, CatalogStore.supportedSchemaVersion)
+        XCTAssertEqual(catalog.brands.map(\.id), ["us-starbucks", "us-dutchbros"])
+        XCTAssertTrue(catalog.brands.allSatisfy(\.hasSizeChoice))
+        let index = CatalogIndex(catalog: catalog)
+        for brand in catalog.brands {
+            XCTAssertFalse(index.drinks(brandID: brand.id).isEmpty, "\(brand.id) 메뉴가 비었음")
+        }
+    }
+
+    func testCountryCatalogsShareNoIdentifiers() throws {
+        let kr = try load(.kr)
+        let us = try load(.us)
+        let krServings = Set(kr.drinks.flatMap(\.servings).map(\.id))
+        let shared = us.drinks.flatMap(\.servings).map(\.id).filter(krServings.contains)
+        XCTAssertTrue(shared.isEmpty, "나라끼리 serving id가 겹침: \(shared.prefix(5))")
+        XCTAssertTrue(Set(kr.brands.map(\.id)).isDisjoint(with: us.brands.map(\.id)))
+    }
+
+    func testEnglishSearchFindsLattes() throws {
+        let index = CatalogIndex(catalog: try load(.us))
+        let first = try XCTUnwrap(index.search("latte").first, "latte 검색 결과가 없음")
+        XCTAssertTrue(first.name.lowercased().contains("latte"), "맨 위가 라떼가 아님: \(first.name)")
+    }
+}
+
+final class MenuCountryTests: XCTestCase {
+    func testDeviceRegionPicksTheCatalogUntilTheUserChooses() {
+        XCTAssertEqual(MenuCountry.resolve(storedCode: nil, region: .unitedStates), .us)
+        XCTAssertEqual(MenuCountry.resolve(storedCode: nil, region: .southKorea), .kr)
+        // 카탈로그가 없는 지역·지역 없음은 한국.
+        XCTAssertEqual(MenuCountry.resolve(storedCode: nil, region: .japan), .kr)
+        XCTAssertEqual(MenuCountry.resolve(storedCode: nil, region: nil), .kr)
+    }
+
+    func testStoredChoiceBeatsTheDeviceRegion() {
+        XCTAssertEqual(MenuCountry.resolve(storedCode: "kr", region: .unitedStates), .kr)
+        XCTAssertEqual(MenuCountry.resolve(storedCode: "us", region: .southKorea), .us)
+        // 모르는 값(다음 버전에서 내려온 나라 등)은 기기 지역으로 돌아간다.
+        XCTAssertEqual(MenuCountry.resolve(storedCode: "tw", region: .southKorea), .kr)
+    }
+
+    func testEveryCountryHasABundledCatalog() throws {
+        for country in MenuCountry.allCases {
+            XCTAssertNoThrow(try CatalogStore.loadBundled(country, from: Bundle(for: Self.self)), country.rawValue)
+        }
     }
 }

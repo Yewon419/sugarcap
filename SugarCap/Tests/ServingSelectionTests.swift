@@ -5,7 +5,7 @@ import XCTest
 /// 실제 카탈로그의 메뉴로 패널 선택 → 기록 스냅샷까지 검증한다(목 없음).
 final class ServingSelectionTests: XCTestCase {
     private func catalog() throws -> Catalog {
-        try CatalogStore.loadBundled(from: Bundle(for: Self.self))
+        try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self))
     }
 
     private func firstDrink(in catalog: Catalog, where predicate: (Drink) -> Bool) throws -> Drink {

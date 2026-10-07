@@ -15,6 +15,8 @@ final class AppSettings {
     /// 둘 다 끄지는 못한다(설정 화면이 막는다). 선언에 기본값이 있어야 기존 저장소가 가볍게 옮겨진다.
     var tracksSugar: Bool = true
     var tracksCaffeine: Bool = true
+    /// 메뉴 국가(`MenuCountry.rawValue`). nil이면 기기 지역을 따른다(SPEC §9.9). 선언 기본값은 위와 같은 이유.
+    var menuCountryCode: String? = nil
 
     init(
         sugarLimitG: Double = DailyLimits.default.sugarG,
@@ -48,6 +50,10 @@ final class AppSettings {
         case .sugar: tracksSugar = isOn
         case .caffeine: tracksCaffeine = isOn
         }
+    }
+
+    var menuCountry: MenuCountry {
+        MenuCountry.resolve(storedCode: menuCountryCode, region: Locale.current.region)
     }
 
     var limits: DailyLimits {

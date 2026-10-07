@@ -34,6 +34,8 @@ targets:
       # 수집 파이프라인 산출물을 그대로 번들에 넣는다. 복사본을 두면 갱신이 갈라진다.
       - path: ../data/catalog.json
         buildPhase: resources
+      - path: ../data/catalog-us.json
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.sugarcap.app
@@ -75,6 +77,8 @@ targets:
       - path: Tests
       # 테스트는 실제 카탈로그를 읽는다(목 없음). 테스트 번들에도 같은 파일이 필요하다.
       - path: ../data/catalog.json
+        buildPhase: resources
+      - path: ../data/catalog-us.json
         buildPhase: resources
     dependencies:
       - target: SugarCap

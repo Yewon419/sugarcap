@@ -886,7 +886,7 @@ struct TodayView: View {
 }
 
 #Preview {
-    if let catalog = try? CatalogStore.loadBundled() {
+    if let catalog = try? CatalogStore.loadBundled(.kr) {
         TodayView(catalog: CatalogIndex(catalog: catalog))
             .environment(ProStore(previewPlans: ProStore.mockPlans, isPro: false))
             .modelContainer(for: [Entry.self, AppSettings.self, DaySettlement.self, Affinity.self, ReductionGoal.self, FavoriteDrink.self], inMemory: true)

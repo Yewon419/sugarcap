@@ -1,4 +1,6 @@
 import Foundation
+import Observation
+import OSLog
 
 enum CatalogError: Error, CustomStringConvertible {
     case resourceMissing(String)
@@ -24,7 +26,6 @@ enum CatalogStore {
     /// 앱이 읽을 수 있는 스키마 버전. 깨는 변경이 오면 `data/SCHEMA.md`와 함께 올린다.
     static let supportedSchemaVersion = 1
 
-    static let resourceName = "catalog"
     static let resourceExtension = "json"
 
     static func load(from data: Data) throws -> Catalog {
@@ -68,11 +69,41 @@ enum CatalogStore {
         }
     }
 
-    static func loadBundled(from bundle: Bundle = .main) throws -> Catalog {
-        guard let url = bundle.url(forResource: resourceName, withExtension: resourceExtension) else {
-            throw CatalogError.resourceMissing("\(resourceName).\(resourceExtension)")
+    static func loadBundled(_ country: MenuCountry, from bundle: Bundle = .main) throws -> Catalog {
+        let name = country.catalogResourceName
+        guard let url = bundle.url(forResource: name, withExtension: resourceExtension) else {
+            throw CatalogError.resourceMissing("\(name).\(resourceExtension)")
         }
         return try load(from: try Data(contentsOf: url))
+    }
+}
+
+/// 지금 고른 나라의 카탈로그. 나라가 바뀌면 그 나라 파일을 다시 읽는다(한국 약 8.3MB라 둘 다 들고 있지 않는다).
+@MainActor
+@Observable
+final class LoadedCatalog {
+    private(set) var country: MenuCountry
+    private(set) var result: Result<CatalogIndex, any Error>
+
+    private static let logger = Logger(subsystem: "com.sugarcap.app", category: "catalog")
+
+    init(country: MenuCountry) {
+        self.country = country
+        self.result = Self.load(country)
+    }
+
+    func show(_ next: MenuCountry) {
+        guard next != country else { return }
+        country = next
+        result = Self.load(next)
+    }
+
+    private static func load(_ country: MenuCountry) -> Result<CatalogIndex, any Error> {
+        let loaded = Result { CatalogIndex(catalog: try CatalogStore.loadBundled(country)) }
+        if case .failure(let error) = loaded {
+            logger.fault("번들 카탈로그 로드 실패(\(country.rawValue, privacy: .public)): \(String(describing: error), privacy: .public)")
+        }
+        return loaded
     }
 }
 

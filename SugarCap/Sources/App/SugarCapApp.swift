@@ -6,8 +6,8 @@ import UIKit
 
 @main
 struct SugarCapApp: App {
-    /// 번들 카탈로그는 앱 수명 동안 한 번만 읽는다(약 8.3MB, 9개 브랜드. 편의점이 대부분이다. 로드 시간은 `CatalogTests`가 잰다).
-    private let catalog: Result<CatalogIndex, any Error>
+    /// 고른 나라의 번들 카탈로그. 나라가 바뀔 때만 다시 읽는다(한국 약 8.3MB, 편의점이 대부분이다. 로드 시간은 `CatalogTests`가 잰다).
+    @State private var catalog: LoadedCatalog
     /// App Group 컨테이너에 둔다(§4.6). 위젯이 같은 파일을 읽는다.
     private let container: ModelContainer
 
@@ -20,12 +20,17 @@ struct SugarCapApp: App {
             fatalError("SwiftData 저장소를 열 수 없습니다: \(error)")
         }
 
-        let loaded = Result { CatalogIndex(catalog: try CatalogStore.loadBundled()) }
-        if case .failure(let error) = loaded {
-            Logger(subsystem: "com.sugarcap.app", category: "catalog")
-                .fault("번들 카탈로그 로드 실패: \(String(describing: error), privacy: .public)")
+        // 첫 화면부터 맞는 나라를 그리도록 저장된 설정을 여기서 먼저 읽는다. 설정 행이 없으면(첫 실행) 기기 지역.
+        let stored: AppSettings?
+        do {
+            stored = try container.mainContext.fetch(FetchDescriptor<AppSettings>()).first
+        } catch {
+            Logger(subsystem: "com.sugarcap.app", category: "store")
+                .error("설정을 읽지 못해 기기 지역으로 메뉴 국가를 정함: \(String(describing: error), privacy: .public)")
+            stored = nil
         }
-        catalog = loaded
+        let country = stored?.menuCountry ?? MenuCountry.resolve(storedCode: nil, region: Locale.current.region)
+        _catalog = State(initialValue: LoadedCatalog(country: country))
 
         // 기본 카테고리 .soloAmbient는 소리 없는 컵 대기 루프(AVPlayer)만 돌아도 다른 앱 음악을 끊는다. 소리를 내지 않는 앱이라 섞어 둔다.
         do {

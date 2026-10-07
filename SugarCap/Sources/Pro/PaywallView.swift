@@ -4,8 +4,11 @@ import SwiftUI
 enum AppLinks {
     /// Apple 표준 사용권 계약. 자체 약관이 없을 때 App Store가 인정하는 링크다.
     static let termsOfUse = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")
-    /// `site/privacy/index.html`을 올린 주소(Vercel, 2026-09-24 배포). nil이면 링크를 숨긴다.
-    static let privacyPolicy = URL(string: "https://sugarcap.vercel.app/privacy/")
+    /// `site/privacy/index.html`(한국어)·`site/en/privacy/index.html`(그 외 언어)을 올린 주소(Vercel). nil이면 링크를 숨긴다.
+    /// 앱이 실제로 고른 화면 언어를 따른다(기기 지역이 아니라).
+    static let privacyPolicy = Bundle.main.preferredLocalizations.first == "ko"
+        ? URL(string: "https://sugarcap.vercel.app/privacy/")
+        : URL(string: "https://sugarcap.vercel.app/en/privacy/")
 }
 
 /// 페이월(SPEC §6, 2026-09-26 HTML 프로토타입 확정 = 캐주얼). Pro 기능을 누른 자리에서 시트로 열고, 구매하면 그 화면으로 돌아간다.

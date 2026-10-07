@@ -282,7 +282,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@%2$@ more"
+            "value" : "%1$@ %2$@ more"
           }
         }
       }
@@ -292,7 +292,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@%2$@ less"
+            "value" : "%1$@ %2$@ less"
           }
         }
       }

@@ -117,6 +117,16 @@ def title_of(line: str) -> str | None:
     return text
 
 
+def display_category(title: str) -> str:
+    """Core sections are printed in capitals ("DUTCH BROS REBEL®"), seasonal ones in title case.
+
+    Capitalize only the all-caps ones so both read alike next to Starbucks' title-case categories.
+    """
+    if title != title.upper():
+        return title
+    return " ".join(word.capitalize() for word in title.split())
+
+
 def _value(token: str) -> float:
     # "<1" is published for trace amounts; it is below 1, read as 0.
     return 0.0 if token.startswith("<") else float(token)
@@ -170,7 +180,7 @@ def parse_row(line: str, header: Header, category: str) -> RawServing | None:
     return RawServing(
         brand_id=BRAND.id,
         drink_name=clean_text(name),
-        category=category,
+        category=display_category(category),
         temperature=temperature,
         size_label=size,
         volume_ml=None,

@@ -7,6 +7,7 @@ from sugarcap_scrape.brands.us_dutchbros import (
     BASE_COLUMNS,
     BRAND,
     PDF_URL,
+    display_category,
     parse_guide,
     parse_header,
     pdf_text,
@@ -112,11 +113,17 @@ def test_titles_and_descriptions() -> None:
     assert title_of("AVAILABILITY MAY VARY BY LOCATION") is None
 
 
+def test_all_caps_categories_read_like_seasonal_ones() -> None:
+    assert display_category("DUTCH BROS REBEL®") == "Dutch Bros Rebel®"
+    assert display_category("POPPIN' BOBA") == "Poppin' Boba"
+    assert display_category("Caramel Pumpkin Brûlée") == "Caramel Pumpkin Brûlée"
+
+
 def test_rows_read_sugar_and_caffeine_by_column_name() -> None:
     rows = parse_guide(GUIDE)
     hot = _row(rows, "911", "Large")
     assert (hot.temperature, hot.sugar_g, hot.caffeine_mg) == (Temperature.HOT, 58.0, 290.0)
-    assert hot.category == "DUTCH FAVES™"
+    assert hot.category == "Dutch Faves™"
     assert hot.volume_ml is None
     iced = [r for r in rows if r.drink_name == "911" and r.temperature is Temperature.ICED]
     assert [(r.size_label, r.sugar_g) for r in iced] == [("Small", 48.0)]
@@ -148,7 +155,7 @@ def test_toppings_food_and_repeats_are_dropped() -> None:
     names = {row.drink_name for row in rows}
     assert "Soft Top" not in names
     assert "Banana Bread" not in names
-    assert _row(rows, "911", "Large").category == "DUTCH FAVES™"
+    assert _row(rows, "911", "Large").category == "Dutch Faves™"
     espresso = _row(rows, "Private Reserve Espresso", "Dub Shot")
     assert (espresso.temperature, espresso.caffeine_mg) == (Temperature.HOT, 95.0)
 

@@ -165,6 +165,8 @@ jobs:
           # 하루 기준 화면(추이에서 push). 줄이는 중 화면은 맨 끝에서 찍는다.
           shoot limit-sugar light large -initialTab trends -trendLimit sugar
           shoot limit-sugar-type-ax-xl light accessibility-extra-large -initialTab trends -trendLimit sugar
+          # 카페인 400 칩의 근거 기관이 메뉴 국가를 따른다(SPEC §9.9). 한국 = 식약처, en_US = FDA.
+          shoot limit-caffeine light large -initialTab trends -trendLimit caffeine
           shoot feeding light large -screenshotFeeding YES
           shoot paywall light large -mockPro YES -screenshotPaywall YES
           shoot paywall-type-ax-xl light accessibility-extra-large -mockPro YES -screenshotPaywall YES
@@ -268,6 +270,7 @@ jobs:
           shoot_en trends large -seedDemo YES -initialTab trends
           shoot_en trends-month large -seedDemo YES -mockProOwned YES -initialTab trends -trendRange month
           shoot_en limit-sugar large -initialTab trends -trendLimit sugar
+          shoot_en limit-caffeine large -initialTab trends -trendLimit caffeine
           shoot_en paywall large -mockPro YES -screenshotPaywall YES
           shoot_en paywall-type-ax-xl accessibility-extra-large -mockPro YES -screenshotPaywall YES
           shoot_en record large -seedDemo YES -screenshotRecord YES

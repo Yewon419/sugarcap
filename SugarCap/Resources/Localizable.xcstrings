@@ -475,6 +475,16 @@
         }
       }
     },
+    "FDA 권고" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FDA advice"
+          }
+        }
+      }
+    },
     "Pro 켠 것처럼" : {
       "localizations" : {
         "en" : {
@@ -1404,6 +1414,16 @@
         }
       }
     },
+    "메뉴 국가" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menu country"
+          }
+        }
+      }
+    },
     "메뉴 데이터를 읽지 못했어요" : {
       "localizations" : {
         "en" : {
@@ -1494,6 +1514,16 @@
         }
       }
     },
+    "미국" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "United States"
+          }
+        }
+      }
+    },
     "반가운 사이" : {
       "localizations" : {
         "en" : {
@@ -1540,6 +1570,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brands"
+          }
+        }
+      }
+    },
+    "브랜드와 메뉴가 이 나라 것으로 바뀌어요. 지난 기록은 그대로예요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brands and menus switch to this country. Past entries stay as they are."
           }
         }
       }
@@ -2890,6 +2930,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "One less"
+          }
+        }
+      }
+    },
+    "한국" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "South Korea"
           }
         }
       }

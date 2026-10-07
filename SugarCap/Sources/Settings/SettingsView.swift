@@ -83,6 +83,20 @@ private struct SettingsContent: View {
                 Text("끈 쪽도 음료 값은 계속 저장돼요. 다시 켜면 지난 기록이 그대로 보여요.")
             }
 
+            // 메뉴 국가(SPEC §9.9). 처음엔 기기 지역을 따르고, 여기서 고르면 그 값으로 굳는다.
+            Section {
+                Picker(String(localized: "메뉴 국가"), selection: Binding(get: { settings.menuCountry }, set: setMenuCountry)) {
+                    ForEach(MenuCountry.allCases, id: \.self) { country in
+                        Text(country.name).tag(country)
+                    }
+                }
+                .pickerStyle(.menu)
+                .rowText()
+                .accessibilityIdentifier("menu-country")
+            } footer: {
+                Text("브랜드와 메뉴가 이 나라 것으로 바뀌어요. 지난 기록은 그대로예요.")
+            }
+
             Section {
                 hourPicker(String(localized: "하루가 바뀌는 시각"), selection: $settings.dayBoundaryHour, choices: HourChoices.dayBoundary)
                 hourPicker(String(localized: "오늘 마감을 여는 시각"), selection: $settings.closeFromHour, choices: HourChoices.closeFrom)
@@ -129,12 +143,14 @@ private struct SettingsContent: View {
 
             if isTestBuild { testSection }
 
-            // 편의점 음료 출처 표기는 필수다(SPEC §2, 식약처 공공데이터).
+            // 편의점 음료 출처 표기는 필수다(SPEC §2, 식약처 공공데이터). 편의점이 든 카탈로그(한국)에서만 보인다.
             Section {
             } footer: {
                 VStack(spacing: 4) {
                     Text("슈가캡 \(Self.appVersion) · 메뉴 데이터 \(catalog.builtAtDate?.formatted(date: .abbreviated, time: .omitted) ?? catalog.builtAt)")
-                    Text("편의점 음료: 식품의약품안전처 식품영양성분 데이터베이스")
+                    if catalog.brands.contains(where: { $0.id == CatalogIndex.convenienceStoreID }) {
+                        Text("편의점 음료: 식품의약품안전처 식품영양성분 데이터베이스")
+                    }
                 }
                 .font(AppFont.pretendard(11, .regular, relativeTo: .caption2))
                 .multilineTextAlignment(.center)
@@ -186,6 +202,18 @@ private struct SettingsContent: View {
             WidgetCenter.shared.reloadAllTimelines()
         } catch {
             Self.logger.error("기록할 것 저장 실패(\(side.rawValue, privacy: .public) \(isOn)): \(String(describing: error), privacy: .public)")
+            context.rollback()
+            alertMessage = String(localized: "설정을 저장하지 못했어요.")
+        }
+    }
+
+    /// 루트가 이 값을 보고 카탈로그를 갈아 끼운다. 저장에 실패하면 되돌려 화면과 저장 상태를 맞춘다.
+    private func setMenuCountry(_ country: MenuCountry) {
+        settings.menuCountryCode = country.rawValue
+        do {
+            try context.save()
+        } catch {
+            Self.logger.error("메뉴 국가 저장 실패(\(country.rawValue, privacy: .public)): \(String(describing: error), privacy: .public)")
             context.rollback()
             alertMessage = String(localized: "설정을 저장하지 못했어요.")
         }

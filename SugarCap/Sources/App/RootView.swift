@@ -50,6 +50,7 @@ struct RootView: View {
         .environment(pro)
         // 설정 "기록할 것"(2026-10-06). 기록 시트·직접 입력·하루 기록이 끈 면을 숨긴다.
         .environment(\.trackedSides, settingsRows.first?.trackedSides ?? CupSide.allCases)
+        .environment(\.menuCountry, catalog.country)
         .task {
             ensureSettings()
             seedDemoIfRequested()

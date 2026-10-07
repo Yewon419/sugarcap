@@ -10,6 +10,8 @@ extension EnvironmentValues {
     @Entry var recordCup: CupSide?
     /// 설정 "기록할 것"에서 켠 면(`AppSettings.trackedSides`). 루트가 넣는다.
     @Entry var trackedSides: [CupSide] = CupSide.allCases
+    /// 지금 읽은 카탈로그의 나라(SPEC §9.9). 루트가 넣는다. 기준 칩의 근거 기관이 따라 바뀐다.
+    @Entry var menuCountry: MenuCountry = .kr
 }
 
 extension CupSide {

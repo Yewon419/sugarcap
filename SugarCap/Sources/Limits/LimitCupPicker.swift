@@ -16,6 +16,7 @@ struct LimitCupPicker: View {
     let identifierPrefix: String
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.menuCountry) private var menuCountry
     @State private var shownLevel: Double = 0
     @State private var isDragging = false
 
@@ -27,7 +28,7 @@ struct LimitCupPicker: View {
             ? [(25, String(localized: "더 줄이기")), (50, String(localized: "WHO 권고")), (100, String(localized: "넉넉하게"))]
             : [
                 (200, String(localized: "가볍게")), (300, nil),
-                (400, String(localized: "식약처 권고")), (600, String(localized: "최대")),
+                (400, menuCountry.caffeineAdviceNote), (600, String(localized: "최대")),
             ]
     }
 

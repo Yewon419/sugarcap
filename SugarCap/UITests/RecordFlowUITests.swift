@@ -516,6 +516,53 @@ extension RecordFlowUITests {
 }
 
 extension RecordFlowUITests {
+    /// 설정에서 메뉴 국가를 미국으로 바꾸면 기록 시트 브랜드가 미국 것으로 바뀐다(SPEC §9.9). 끝나면 한국으로 되돌린다.
+    @MainActor
+    func testSwitchingMenuCountryShowsThatCountrysBrands() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments += ["-idleAt", "0"]
+        app.launch()
+        completeOnboardingIfPresented(app)
+
+        setMenuCountry(app, to: "미국")
+        assertRecordSheetShows(app, brand: "brand-us-starbucks", notBrand: "brand-starbucks")
+
+        setMenuCountry(app, to: "한국")
+        assertRecordSheetShows(app, brand: "brand-starbucks", notBrand: "brand-us-starbucks")
+    }
+
+    private func setMenuCountry(_ app: XCUIApplication, to name: String) {
+        let open = app.buttons["open-settings"]
+        XCTAssertTrue(open.waitForExistence(timeout: 15), "설정 버튼이 없음")
+        open.tap()
+        let picker = app.buttons["menu-country"]
+        XCTAssertTrue(picker.waitForExistence(timeout: 5), "설정에 메뉴 국가 행이 없음")
+        picker.tap()
+        let option = app.buttons[name]
+        XCTAssertTrue(option.waitForExistence(timeout: 5), "메뉴 국가 선택지에 \(name)이 없음")
+        option.tap()
+        let chosen = NSPredicate(format: "label CONTAINS %@ OR value CONTAINS %@", name, name)
+        XCTAssertEqual(
+            XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: chosen, object: picker)], timeout: 5), .completed,
+            "메뉴 국가가 \(name)로 안 바뀜: \(picker.label) / \(String(describing: picker.value))"
+        )
+        app.buttons["settings-close"].tap()
+        XCTAssertTrue(open.waitForExistence(timeout: 5), "설정이 안 닫힘")
+    }
+
+    private func assertRecordSheetShows(_ app: XCUIApplication, brand: String, notBrand: String) {
+        let add = app.buttons["record-add"]
+        XCTAssertTrue(add.waitForExistence(timeout: 10), "컵(기록 열기)이 없음")
+        add.tap()
+        XCTAssertTrue(app.buttons[brand].waitForExistence(timeout: 10), "기록 시트에 \(brand)가 없음")
+        XCTAssertFalse(app.buttons[notBrand].exists, "다른 나라 브랜드 \(notBrand)가 남아 있음")
+        app.buttons["record-close"].tap()
+        XCTAssertTrue(app.buttons["open-settings"].waitForExistence(timeout: 5), "기록 시트가 안 닫힘")
+    }
+}
+
+extension RecordFlowUITests {
     /// 단독 실행이면 온보딩부터 뜬다. 건너뛰기 → 당 "다음" → 카페인 "시작". 이미 지났으면 아무것도 안 한다.
     @MainActor
     func completeOnboardingIfPresented(_ app: XCUIApplication) {

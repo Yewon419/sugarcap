@@ -14,6 +14,21 @@ enum MenuCountry: String, CaseIterable, Sendable {
         }
     }
 
+    var name: String {
+        switch self {
+        case .kr: String(localized: "한국")
+        case .us: String(localized: "미국")
+        }
+    }
+
+    /// 카페인 하루 400mg 칩에 붙는 근거 기관(SPEC §3, 미국은 §9.9 대표님 확정). 당 50g은 두 나라 다 WHO.
+    var caffeineAdviceNote: String {
+        switch self {
+        case .kr: String(localized: "식약처 권고")
+        case .us: String(localized: "FDA 권고")
+        }
+    }
+
     /// 사용자가 고른 적이 없으면 기기 지역을 따른다. 카탈로그가 없는 지역은 한국이다.
     static func resolve(storedCode: String?, region: Locale.Region?) -> MenuCountry {
         if let storedCode, let stored = MenuCountry(rawValue: storedCode) {

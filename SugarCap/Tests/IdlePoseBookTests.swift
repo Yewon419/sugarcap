@@ -76,8 +76,8 @@ final class IdlePoseBookTests: XCTestCase {
         XCTAssertFalse(roshu.allows("slump", step: 50, unlockedLevel: top))
         XCTAssertTrue(roshu.allows("slump", step: 0, unlockedLevel: 1))
         let kain = try XCTUnwrap(IdleCast.kain.poseSet)
-        XCTAssertFalse(kain.allows("swim", step: 10, unlockedLevel: top))
-        XCTAssertTrue(kain.allows("swim", step: 30, unlockedLevel: top))
+        XCTAssertFalse(kain.allows("swim", step: 30, unlockedLevel: top))
+        XCTAssertTrue(kain.allows("swim", step: 50, unlockedLevel: top))
         XCTAssertFalse(kain.allows("rim-stand", step: 0, unlockedLevel: top))
     }
 

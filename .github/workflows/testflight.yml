@@ -247,11 +247,12 @@ jobs:
           shoot idle-kain-walk light large -screenshotSide caffeine -idlePose walk -idleStep 100 -idleAt 3.2
           shoot idle-kain-floor-sit light large -screenshotSide caffeine -idlePose floor-sit -idleStep 0 -idleAt 2.5
           # 영어판(SPEC §9.9 Phase 1b). 긴 영어 문장이 넘치는지 큰 글자에서도 본다.
+          # 미국 사용자 화면이라 메뉴 국가를 미국으로 고정한다. UI 테스트가 저장한 나라(한국)가 남아 있어서 지역만으로는 안 바뀐다.
           shoot_en() {
             local name="$1" size="$2"
             shift 2
             xcrun simctl ui "$SIM_UDID" content_size "$size"
-            xcrun simctl launch "$SIM_UDID" com.sugarcap.app -AppleLanguages "(en)" -AppleLocale en_US "$@"
+            xcrun simctl launch "$SIM_UDID" com.sugarcap.app -AppleLanguages "(en)" -AppleLocale en_US -screenshotMenuCountry us "$@"
             sleep 4
             xcrun simctl io "$SIM_UDID" screenshot "$OUT/en-$name.png"
             xcrun simctl terminate "$SIM_UDID" com.sugarcap.app
@@ -275,8 +276,8 @@ jobs:
           shoot_en paywall-type-ax-xl accessibility-extra-large -mockPro YES -screenshotPaywall YES
           shoot_en record large -seedDemo YES -screenshotRecord YES
           shoot_en daylog large -seedDemo YES -screenshotDayLog YES
-          shoot_en brand-panel large -seedDemo YES -screenshotBrand starbucks -screenshotBrandQuery "딸기" -screenshotBrandPanel YES
-          shoot_en brand-cvs-many large -seedDemo YES -screenshotBrand cvs -screenshotBrandQuery "커피"
+          shoot_en brand-panel large -seedDemo YES -screenshotBrand us-starbucks -screenshotBrandQuery "Strawberry" -screenshotBrandPanel YES
+          shoot_en brand-many large -seedDemo YES -screenshotBrand us-dutchbros -screenshotBrandQuery "Mocha"
           shoot_en gate-feed large -seedDemo YES -screenshotGate feed
           shoot_en gate-ask large -screenshotGate ask
           shoot_en feeding large -screenshotFeeding YES

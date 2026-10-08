@@ -75,12 +75,13 @@ final class AppSettings {
     }
 
     /// 없으면 기본값으로 만들어 넣는다. 설정 화면이 없는 Phase 1에서도 기본값이 필요하다.
-    static func current(in context: ModelContext) throws -> AppSettings {
+    /// 카페인 기본값은 처음 만들 때 기기 지역 나라의 권고량(대만 300, 그 외 400, 대표님 2026-10-08). 나중에 메뉴 국가를 바꿔도 따라 바뀌지 않는다.
+    static func current(in context: ModelContext, region: Locale.Region? = Locale.current.region) throws -> AppSettings {
         let existing = try context.fetch(FetchDescriptor<AppSettings>())
         if let first = existing.first {
             return first
         }
-        let created = AppSettings()
+        let created = AppSettings(caffeineLimitMg: MenuCountry.resolve(storedCode: nil, region: region).caffeineAdviceMg)
         context.insert(created)
         return created
     }

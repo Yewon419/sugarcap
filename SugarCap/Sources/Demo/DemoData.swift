@@ -66,7 +66,7 @@ enum DemoData {
                 let row = try SettlementStore.row(for: day, in: context)
                 row.closedAt = date
                 row.sugarLeftAtCloseG = max(0, 50 - sugarByDay[offset])
-                row.caffeineLeftAtCloseMg = max(0, 400 - caffeineByDay[offset])
+                row.caffeineLeftAtCloseMg = max(0, country.caffeineAdviceMg - caffeineByDay[offset])
                 row.finalSugarLeftG = row.sugarLeftAtCloseG
                 row.finalCaffeineLeftMg = row.caffeineLeftAtCloseMg
                 row.finalizedAt = date

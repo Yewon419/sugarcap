@@ -1,3 +1,4 @@
+import SwiftData
 import SwiftUI
 import XCTest
 
@@ -391,6 +392,19 @@ final class MenuCountryTests: XCTestCase {
         XCTAssertEqual(MenuCountry.kr.caffeineAdviceMg, 400)
         XCTAssertEqual(MenuCountry.us.caffeineAdviceMg, 400)
         XCTAssertEqual(MenuCountry.tw.caffeineAdviceMg, 300)
+    }
+
+    @MainActor
+    func testFirstSettingsTakeTheRegionsCaffeineAdvice() throws {
+        for (region, expected) in [(Locale.Region.taiwan, 300.0), (.unitedStates, 400), (.southKorea, 400)] {
+            let container = try ModelContainer(
+                for: AppSettings.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+            )
+            let context = container.mainContext
+            XCTAssertEqual(try AppSettings.current(in: context, region: region).caffeineLimitMg, expected, region.identifier)
+            // 이미 있는 설정은 지역이 달라도 그대로다.
+            XCTAssertEqual(try AppSettings.current(in: context, region: .southKorea).caffeineLimitMg, expected)
+        }
     }
 
     func testEveryCountryHasABundledCatalog() throws {

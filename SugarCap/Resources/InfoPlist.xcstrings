@@ -16,6 +16,12 @@
             "state" : "translated",
             "value" : "슈가캡"
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SugarCap"
+          }
         }
       }
     }

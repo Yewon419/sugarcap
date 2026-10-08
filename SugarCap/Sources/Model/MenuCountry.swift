@@ -5,12 +5,14 @@ import Foundation
 enum MenuCountry: String, CaseIterable, Sendable {
     case kr
     case us
+    case tw
 
-    /// 번들 리소스 이름(`data/catalog.json`, `data/catalog-us.json`). 한국은 기존 이름을 그대로 쓴다.
+    /// 번들 리소스 이름(`data/catalog.json`, `data/catalog-us.json`, `data/catalog-tw.json`). 한국은 기존 이름을 그대로 쓴다.
     var catalogResourceName: String {
         switch self {
         case .kr: "catalog"
         case .us: "catalog-us"
+        case .tw: "catalog-tw"
         }
     }
 
@@ -18,14 +20,24 @@ enum MenuCountry: String, CaseIterable, Sendable {
         switch self {
         case .kr: String(localized: "한국")
         case .us: String(localized: "미국")
+        case .tw: String(localized: "대만")
         }
     }
 
-    /// 카페인 하루 400mg 칩에 붙는 근거 기관(SPEC §3, 미국은 §9.9 대표님 확정). 당 50g은 두 나라 다 WHO.
+    /// 카페인 하루 권고량 칩에 붙는 근거 기관(SPEC §3, 미국·대만은 §9.9). 당 50g은 세 나라 다 WHO.
     var caffeineAdviceNote: String {
         switch self {
         case .kr: String(localized: "식약처 권고")
         case .us: String(localized: "FDA 권고")
+        case .tw: String(localized: "대만 식약서 권고")
+        }
+    }
+
+    /// 그 기관이 권고하는 성인 하루 카페인. 한국 식약처·미국 FDA 400mg, 대만 식약서(食藥署) 300mg.
+    var caffeineAdviceMg: Double {
+        switch self {
+        case .kr, .us: 400
+        case .tw: 300
         }
     }
 
@@ -34,6 +46,10 @@ enum MenuCountry: String, CaseIterable, Sendable {
         if let storedCode, let stored = MenuCountry(rawValue: storedCode) {
             return stored
         }
-        return region == .unitedStates ? .us : .kr
+        switch region {
+        case .unitedStates: return .us
+        case .taiwan: return .tw
+        default: return .kr
+        }
     }
 }

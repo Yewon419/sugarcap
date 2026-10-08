@@ -6,13 +6,23 @@ from pathlib import Path
 
 import pytest
 
-from sugarcap_scrape.brands import cvs, registry, us_registry
+from sugarcap_scrape.brands import cvs, registry, tw_registry, us_registry
+from sugarcap_scrape.build import SCHEMA_VERSION
 from sugarcap_scrape.ids import serving_id_parts
-from sugarcap_scrape.models import Brand, CaffeineVariant, Catalog, Drink, Serving, Temperature
+from sugarcap_scrape.models import (
+    Brand,
+    CaffeineRange,
+    CaffeineVariant,
+    Catalog,
+    Drink,
+    Serving,
+    Temperature,
+)
 from sugarcap_scrape.validate import MIN_DRINKS_PER_BRAND, validate
 
 CATALOG_PATH = Path(__file__).resolve().parents[3] / "data" / "catalog.json"
 US_CATALOG_PATH = CATALOG_PATH.with_name("catalog-us.json")
+TW_CATALOG_PATH = CATALOG_PATH.with_name("catalog-tw.json")
 BRAND = Brand(id="theventi", name="더벤티", serving_note="라지 600ml", has_size_choice=False)
 
 
@@ -126,6 +136,35 @@ def test_caffeine_must_match_the_first_variant() -> None:
     assert any("is not the first variant" in problem for problem in problems)
 
 
+@pytest.mark.parametrize(
+    ("band", "caffeine", "expected"),
+    [
+        (CaffeineRange(min_mg=101, max_mg=200), 101.0, "is not the band bound 200"),
+        (CaffeineRange(min_mg=201), 200.0, "is not the band bound 201"),
+        (CaffeineRange(min_mg=200, max_mg=100), 100.0, "is empty"),
+    ],
+)
+def test_a_caffeine_band_must_carry_its_bound(
+    band: CaffeineRange, caffeine: float, expected: str
+) -> None:
+    drinks = _enough("메뉴")
+    head = drinks[0]
+    serving = head.servings[0].model_copy(update={"caffeine_mg": caffeine, "caffeine_range": band})
+    drinks[0] = head.model_copy(update={"servings": (serving,)})
+    problems = validate(_catalog(*drinks))
+    assert any(expected in problem for problem in problems), problems
+
+
+def test_a_caffeine_band_with_its_bound_passes() -> None:
+    drinks = _enough("메뉴")
+    head = drinks[0]
+    serving = head.servings[0].model_copy(
+        update={"caffeine_mg": 200.0, "caffeine_range": CaffeineRange(min_mg=101, max_mg=200)}
+    )
+    drinks[0] = head.model_copy(update={"servings": (serving,)})
+    assert validate(_catalog(*drinks)) == []
+
+
 def test_a_single_size_brand_with_several_servings_is_reported() -> None:
     drinks = _enough("메뉴")
     first = drinks[0]
@@ -146,7 +185,7 @@ def test_the_committed_catalog_is_valid() -> None:
     """data/catalog.json is what the app ships; it has to pass the same checks."""
     catalog = Catalog.model_validate(json.loads(CATALOG_PATH.read_text(encoding="utf-8")))
     assert validate(catalog) == []
-    assert catalog.schema_version == 1
+    assert catalog.schema_version <= SCHEMA_VERSION
     counts = Counter(drink.brand_id for drink in catalog.drinks)
     assert set(counts) == set(registry()) | {cvs.BRAND.id}
 
@@ -154,11 +193,19 @@ def test_the_committed_catalog_is_valid() -> None:
 def test_the_committed_us_catalog_is_valid() -> None:
     catalog = Catalog.model_validate(json.loads(US_CATALOG_PATH.read_text(encoding="utf-8")))
     assert validate(catalog) == []
-    assert catalog.schema_version == 1
+    assert catalog.schema_version <= SCHEMA_VERSION
     counts = Counter(drink.brand_id for drink in catalog.drinks)
     assert set(counts) == set(us_registry())
 
 
+def test_the_committed_tw_catalog_is_valid() -> None:
+    catalog = Catalog.model_validate(json.loads(TW_CATALOG_PATH.read_text(encoding="utf-8")))
+    assert validate(catalog) == []
+    assert catalog.schema_version == SCHEMA_VERSION
+    counts = Counter(drink.brand_id for drink in catalog.drinks)
+    assert set(counts) == set(tw_registry())
+
+
 def test_every_registered_brand_has_a_minimum() -> None:
-    brand_ids = set(registry()) | set(us_registry()) | {cvs.BRAND.id}
+    brand_ids = set(registry()) | set(us_registry()) | set(tw_registry()) | {cvs.BRAND.id}
     assert brand_ids == set(MIN_DRINKS_PER_BRAND)

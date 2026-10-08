@@ -224,3 +224,81 @@ The menu follows the device region (United States: Starbucks and Dutch Bros; els
 앱 개인정보 문항(§6)은 나라와 상관없이 하나라 그대로다. 연령 등급(§7)도 같다.
 
 스크린샷: CI `store-screenshots` 아티팩트의 `en-US/` 폴더(01-today·02-trends·03-feeding·04-paywall). 영어·미국 지역·미국 메뉴로, 데모 기록은 미국 Starbucks 값(`DemoData`)이다.
+
+## 12. 번체 중국어(대만) 현지화 (SPEC §9.9 ④ 초안)
+
+ASC에서 "Chinese (Traditional)" 현지화를 추가하고 아래를 넣는다. 한국어·영어 현지화는 그대로 둔다.
+앱은 기기 지역이 대만이면 대만 메뉴(cama café·可不可熟成紅茶, `data/catalog-tw.json` 143종)를 연다.
+글자 수는 스크립트로 셌다(부제 14/30, 키워드 54/100, 프로모션 71/170, 설명 872/4,000).
+
+| 항목 | 값 |
+|---|---|
+| 이름 | SugarCap |
+| 부제 | 每一杯的糖和咖啡因，一目了然 |
+| 개인정보처리방침 URL | https://sugarcap.vercel.app/zh-Hant/privacy/ (`site/zh-Hant/privacy/index.html`). 앱 페이월 링크도 화면 언어가 번체면 이 주소 |
+| 지원 URL | https://sugarcap.vercel.app/ (한국어 페이지. 번체 지원 페이지는 미정) |
+| 가격 | 연간 NT$190, 평생 NT$590. 미국 가격의 ASC 자동 환산을 그대로 둔다(2026-10-08 조회). 수동 지정은 대표님 결정 |
+
+키워드:
+```
+糖,咖啡因,飲料,手搖飲,記錄,減糖,控糖,咖啡,奶茶,拿鐵,紅茶,健康,追蹤,每日,上限,cama,可不可
+```
+브랜드명은 한국어·영어 키워드와 같은 이유로 심사에서 걸릴 수 있다. 걸리면 빼고 일반 단어로 채운다.
+
+프로모션 텍스트:
+```
+每天一杯糖和咖啡因，每喝一杯就少一點。晚上把剩下的餵給羅秀和卡因。收錄 cama café 與可不可熟成紅茶 140 多款飲料，點兩下就記好。
+```
+
+설명:
+```
+SugarCap 是幫你減少糖和咖啡因的飲料記錄 App。
+
+■ 喝一杯，杯子就少一點
+每天從一杯裝滿每日上限的杯子開始。每記錄一杯飲料，就從杯子裡扣掉那一份。
+你看到的是還剩多少，而不只是一個數字。
+
+■ 晚上把剩下的餵掉
+結算今天時，羅秀吃掉剩下的糖，卡因吃掉剩下的咖啡因。
+喝得越少，牠們吃得越多，也跟你越親近。喝多的日子也不會被責備。
+
+■ 140 多款連鎖飲料
+cama café 與可不可熟成紅茶，依杯型分開。
+選品牌和飲料，糖和咖啡因就直接記上。
+我們只使用品牌公開的數值。品牌沒公開的，就顯示「未公開」，絕不自己編數字。
+cama café 公開的是全糖時的最高值；咖啡因只以區間（≤100、101–200、≥201 mg）公開的飲料，會顯示區間，並以區間上限計算。
+菜單上沒有的飲料，可以手動輸入。
+
+■ 每日上限由你決定
+預設為糖 50 g（WHO 每日建議）與咖啡因 400 mg。也可以一鍵改成台灣食藥署建議的 300 mg。
+在「趨勢」中修改上限，也可以在「設定」把一天的開始時間移到例如凌晨 4 點，配合你的作息。
+
+■ 趨勢
+一杯一杯地看這週每天剩下多少。
+
+■ SugarCap Pro
+- 每月趨勢，以及與上週比較
+- 減量目標：花幾週時間一點一點降低每日上限。一週內守住 5 天以上，下週的上限就會降低；沒守住的週維持原上限。
+- 小工具
+
+■ 不用帳號，沒有伺服器
+不需要註冊。你的記錄只存在這台裝置上，不會傳送到任何地方。
+
+購買資訊
+- SugarCap Pro 年訂閱：自動續訂。除非在目前期間結束前至少 24 小時取消，否則會自動續訂。可在 App Store 帳號設定中管理或取消。
+- SugarCap Pro 永久版：一次性購買（非消耗性項目）。
+
+使用條款：https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+隱私權政策：https://sugarcap.vercel.app/zh-Hant/privacy/
+```
+
+심사 메모는 영어판(§11) 문장에 대만 줄을 더해 바꿔 넣는다:
+```
+SugarCap is a local logging app with no account and no server. Every feature works without signing in.
+Sugar and caffeine values for cafe drinks are copied from what each brand publishes on its official website or nutrition guide. Values a brand does not publish are shown as "Not published".
+In Taiwan, chains may publish caffeine as a range (<=100, 101-200, >=201 mg) under the local labeling rule. The app shows the range and counts its upper bound.
+In-app purchase is SugarCap Pro only (yearly subscription or lifetime). Logging and closing the day are fully available without it.
+The menu follows the device region (United States: Starbucks and Dutch Bros; Taiwan: cama café and KEBUKE; elsewhere: Korean cafes) and can be changed in Settings > Menu country.
+```
+
+스크린샷: CI `store-screenshots` 아티팩트의 `zh-Hant/` 폴더(01-today·02-trends·03-feeding·04-paywall). 번체·대만 지역·대만 메뉴로, 데모 기록은 cama café 실값(`DemoData`)이다.

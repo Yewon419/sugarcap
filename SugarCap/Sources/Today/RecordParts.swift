@@ -83,13 +83,15 @@ struct DrinkFigure: View {
     let name: String
     let sugarG: Double?
     let caffeineMg: Double?
+    /// 카탈로그가 카페인을 구간으로 준 메뉴(대만). 값 대신 구간을 적는다. 기록(`Entry`)에는 없다.
+    var caffeineRange: CaffeineRange? = nil
     var alignment: HorizontalAlignment = .trailing
 
     @Environment(\.recordCup) private var recordCup
     @Environment(\.trackedSides) private var trackedSides
 
     func aligned(_ value: HorizontalAlignment) -> DrinkFigure {
-        DrinkFigure(name: name, sugarG: sugarG, caffeineMg: caffeineMg, alignment: value)
+        DrinkFigure(name: name, sugarG: sugarG, caffeineMg: caffeineMg, caffeineRange: caffeineRange, alignment: value)
     }
 
     private func amount(_ side: CupSide) -> Double? {
@@ -99,6 +101,16 @@ struct DrinkFigure: View {
         }
     }
 
+    private func number(_ side: CupSide, _ value: Double) -> String {
+        if side == .caffeine, let caffeineRange { return caffeineRange.numbers }
+        return Amount.number(value)
+    }
+
+    private func smallText(_ side: CupSide) -> String {
+        guard let value = amount(side) else { return Amount.text(nil, unit: side.unit) }
+        return "\(number(side, value)) \(side.unit)"
+    }
+
     var body: some View {
         let primary = CupSide.shown(
             in: recordCup, primary: CupSide.primary(name: name, sugarG: sugarG, caffeineMg: caffeineMg), tracked: trackedSides
@@ -106,7 +118,7 @@ struct DrinkFigure: View {
         VStack(alignment: alignment, spacing: 2) {
             if let value = amount(primary) {
                 HStack(alignment: .firstTextBaseline, spacing: 1) {
-                    Text(Amount.number(value))
+                    Text(number(primary, value))
                         .font(AppFont.pretendard(22, .bold, relativeTo: .title2))
                         .tracking(-0.6)
                     Text(primary.unit)
@@ -120,7 +132,7 @@ struct DrinkFigure: View {
             }
             // 끈 면(설정 "기록할 것")은 작은 줄도 숨긴다.
             if trackedSides.contains(primary.other) {
-                Text("\(primary.other.label) \(Amount.text(amount(primary.other), unit: primary.other.unit))")
+                Text("\(primary.other.label) \(smallText(primary.other))")
                     .font(AppFont.pretendard(12, .regular, relativeTo: .caption))
                     .monospacedDigit()
                     .foregroundStyle(.secondary)

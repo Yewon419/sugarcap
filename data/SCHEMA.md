@@ -1,4 +1,4 @@
-# catalog.json 스키마 (schema_version 1)
+# catalog.json 스키마 (schema_version 2)
 
 > 이 파일은 `data/catalog.json`의 계약서다. 앱이 번들·원격으로 읽는 유일한 데이터 형식.
 > 손으로 고치지 않는다. `tools/scrape/`의 파이프라인만 이 파일을 만든다.
@@ -20,6 +20,12 @@ cd tools\scrape
 ..\..\.venv\Scripts\python -m sugarcap_scrape.build --country us --out ..\..\data\catalog-us.json
 ```
 
+대만 카탈로그 `data/catalog-tw.json`(SPEC §9.9 ④)도 같은 방식이다. 대만만 `caffeine_range`를 쓴다.
+
+```
+..\..\.venv\Scripts\python -m sugarcap_scrape.build --country tw --out ..\..\data\catalog-tw.json
+```
+
 빌더는 쓰기 전에 `sugarcap_scrape.validate.validate()`를 돌린다. 문제가 하나라도 있으면
 `INVALID ...`를 찍고 **파일을 쓰지 않은 채 exit 1**. `--only`로 일부 브랜드만 돌릴 때는
 카탈로그가 불완전하므로 검증을 건너뛴다(그 산출물은 커밋하지 않는다).
@@ -28,7 +34,7 @@ cd tools\scrape
 
 | 필드 | 타입 | 설명 |
 |---|---|---|
-| `schema_version` | int | 현재 1. 앱이 읽을 수 있는 버전인지 먼저 확인한다. 깨는 변경 시 +1 |
+| `schema_version` | int | 현재 2(`caffeine_range` 추가). 앱이 읽을 수 있는 버전인지 먼저 확인한다(앱은 1...2). 깨는 변경 시 +1. 한국·미국 카탈로그는 다시 빌드하기 전까지 1로 남아 있다 |
 | `built_at` | string | 수집 시각, UTC ISO 8601(초 단위). 설정 화면의 "데이터 갱신 날짜" |
 | `brands` | Brand[] | 등록 순서 |
 | `drinks` | Drink[] | `(brand_id, 이름 slug, temperature)` 사전순 |
@@ -37,10 +43,10 @@ cd tools\scrape
 
 | 필드 | 타입 | 설명 |
 |---|---|---|
-| `id` | string | `starbucks` `mega` `compose` `ediya` `paik` `twosome` `hollys` `theventi` `gongcha` `cvs`. 미국은 국가 접두어: `us-starbucks` `us-dutchbros` |
-| `name` | string | 그 나라 표시명(한국 = 한국어, 미국 = 영어) |
+| `id` | string | `starbucks` `mega` `compose` `ediya` `paik` `twosome` `hollys` `theventi` `gongcha` `cvs`. 미국·대만은 국가 접두어: `us-starbucks` `us-dutchbros`, `tw-cama` `tw-kebuke` |
+| `name` | string | 그 나라 표시명(한국 = 한국어, 미국 = 영어, 대만 = 브랜드 표기) |
 | `serving_note` | string | 이 브랜드 수치가 어느 잔 기준인지 한 줄. 상세 화면에 그대로 노출 |
-| `has_size_choice` | bool | true면 사이즈 선택 UI를 켠다. 현재 `ediya`, `twosome`, `gongcha`, `cvs`와 미국 두 브랜드가 true |
+| `has_size_choice` | bool | true면 사이즈 선택 UI를 켠다. 현재 `ediya`, `twosome`, `gongcha`, `cvs`와 미국·대만 브랜드가 true |
 
 `has_size_choice`가 false인 브랜드의 drink는 serving이 정확히 1개다(검증이 강제).
 
@@ -67,6 +73,16 @@ cd tools\scrape
 | `sugar_g` | float \| null | null = 브랜드 미공개. `cvs`는 100ml(g)당 값 × 총내용량, 소수 1자리 |
 | `caffeine_mg` | float \| null | null = 브랜드 미공개. 변형이 있으면 첫 변형 값과 같다. `cvs`는 항상 null(출처에 카페인 없음) |
 | `caffeine_variants` | CaffeineVariant[] | 원두 선택에 따라 카페인이 갈리는 경우만. 없으면 `[]` |
+| `caffeine_range` | CaffeineRange \| 없음 | v2. 브랜드가 카페인을 정확한 값이 아니라 구간으로만 게시한 경우(대만 표시 규정의 `≤100` `101~200` `≥201`). 정확한 값이면 키가 없거나 null |
+
+### CaffeineRange
+
+| 필드 | 타입 | 설명 |
+|---|---|---|
+| `min_mg` | float | 구간 하한(`≤100`은 0) |
+| `max_mg` | float \| null | 구간 상한. 열린 구간(`≥201`)은 null |
+
+`caffeine_mg`는 구간의 상한(열린 구간이면 하한)이다. 합계는 이 값으로 세고, 화면은 구간을 그대로 보여 준다.
 
 ### CaffeineVariant
 
@@ -86,6 +102,7 @@ cd tools\scrape
 5. 브랜드별 drink 수가 `MIN_DRINKS_PER_BRAND` 이상이다. 파서가 조용히 망가지면 여기서 걸린다.
 6. 이상치: `sugar_g <= 200`, `caffeine_mg <= 800`, `20 <= volume_ml <= 1200`. 실제 최대치(138g / 680mg / 990ml)보다 넉넉하다 — 걸리면 신메뉴가 아니라 파싱 버그다. 미국은 당이 상한에 가깝다(Dutch Bros 셰이크 라지 190g, 2026-10-07).
 7. `caffeine_variants`가 있으면 `caffeine_mg`는 첫 변형의 값이다.
+8. `caffeine_range`가 있으면 구간이 비어 있지 않고(`min_mg <= max_mg`), `caffeine_mg == (max_mg ?? min_mg)`다.
 
 ## null 값 처리 (앱 규칙)
 

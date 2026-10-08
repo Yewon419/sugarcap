@@ -216,7 +216,8 @@ struct RecordSheet: View {
                         figure: DrinkFigure(
                             name: drink.name,
                             sugarG: first?.sugarG,
-                            caffeineMg: first.flatMap { $0.caffeineVariants.first?.caffeineMg ?? $0.caffeineMg }
+                            caffeineMg: first.flatMap { $0.caffeineVariants.first?.caffeineMg ?? $0.caffeineMg },
+                            caffeineRange: first?.caffeineRange
                         ),
                         liquid: drink.liquid
                     )

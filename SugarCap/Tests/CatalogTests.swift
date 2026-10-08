@@ -15,7 +15,7 @@ final class CatalogTests: XCTestCase {
     func testBundledCatalogLoadsWithSupportedSchema() throws {
         let catalog = try loadCatalog()
 
-        XCTAssertEqual(catalog.schemaVersion, CatalogStore.supportedSchemaVersion)
+        XCTAssertTrue(CatalogStore.supportedSchemaVersions.contains(catalog.schemaVersion), "schema_version \(catalog.schemaVersion)")
         XCTAssertNotNil(catalog.builtAtDate, "built_at이 ISO 8601이 아님: \(catalog.builtAt)")
         XCTAssertEqual(catalog.brands.count, 10)
         XCTAssertFalse(catalog.drinks.isEmpty)
@@ -137,7 +137,7 @@ final class CatalogTests: XCTestCase {
 
     func testUnsupportedSchemaVersionIsRejected() throws {
         let payload = Data(
-            #"{"schema_version": 2, "built_at": "2026-09-16T04:06:26+00:00", "brands": [], "drinks": []}"#
+            #"{"schema_version": 3, "built_at": "2026-09-16T04:06:26+00:00", "brands": [], "drinks": []}"#
                 .utf8
         )
 
@@ -145,8 +145,8 @@ final class CatalogTests: XCTestCase {
             guard case CatalogError.unsupportedSchemaVersion(let found, let supported) = error else {
                 return XCTFail("예상과 다른 에러: \(error)")
             }
-            XCTAssertEqual(found, 2)
-            XCTAssertEqual(supported, 1)
+            XCTAssertEqual(found, 3)
+            XCTAssertEqual(supported, 2)
         }
     }
 
@@ -306,7 +306,7 @@ final class USCatalogTests: XCTestCase {
     func testUSCatalogLoadsWithItsOwnBrands() throws {
         let catalog = try load(.us)
 
-        XCTAssertEqual(catalog.schemaVersion, CatalogStore.supportedSchemaVersion)
+        XCTAssertTrue(CatalogStore.supportedSchemaVersions.contains(catalog.schemaVersion), "schema_version \(catalog.schemaVersion)")
         XCTAssertEqual(catalog.brands.map(\.id), ["us-starbucks", "us-dutchbros"])
         XCTAssertTrue(catalog.brands.allSatisfy(\.hasSizeChoice))
         let index = CatalogIndex(catalog: catalog)
@@ -331,9 +331,48 @@ final class USCatalogTests: XCTestCase {
     }
 }
 
+/// 대만 카탈로그(`data/catalog-tw.json`, schema 2). 카페인 구간(`caffeine_range`)을 읽는다.
+final class TWCatalogTests: XCTestCase {
+    private func load() throws -> Catalog {
+        try CatalogStore.loadBundled(.tw, from: Bundle(for: Self.self))
+    }
+
+    func testTWCatalogLoadsWithItsOwnBrands() throws {
+        let catalog = try load()
+
+        XCTAssertEqual(catalog.schemaVersion, 2)
+        XCTAssertEqual(catalog.brands.map(\.id), ["tw-cama", "tw-kebuke"])
+        let index = CatalogIndex(catalog: catalog)
+        for brand in catalog.brands {
+            XCTAssertFalse(index.drinks(brandID: brand.id).isEmpty, "\(brand.id) 메뉴가 비었음")
+        }
+    }
+
+    func testCaffeineBandsCarryTheirBound() throws {
+        let servings = try load().drinks.flatMap(\.servings)
+        let banded = servings.filter { $0.caffeineRange != nil }
+        XCTAssertFalse(banded.isEmpty, "구간으로 게시된 카페인이 하나도 없음")
+        for serving in banded {
+            let range = try XCTUnwrap(serving.caffeineRange)
+            XCTAssertEqual(serving.caffeineMg, range.maxMg ?? range.minMg, serving.id)
+        }
+        let open = try XCTUnwrap(banded.first { $0.caffeineRange?.maxMg == nil }, "201mg 이상 구간이 없음")
+        XCTAssertEqual(open.caffeineRange?.numbers, "≥201")
+    }
+
+    func testCountryCatalogsShareNoIdentifiers() throws {
+        let tw = try load()
+        for other in [MenuCountry.kr, .us] {
+            let ids = try Set(CatalogStore.loadBundled(other, from: Bundle(for: Self.self)).drinks.flatMap(\.servings).map(\.id))
+            XCTAssertTrue(tw.drinks.flatMap(\.servings).allSatisfy { !ids.contains($0.id) }, other.rawValue)
+        }
+    }
+}
+
 final class MenuCountryTests: XCTestCase {
     func testDeviceRegionPicksTheCatalogUntilTheUserChooses() {
         XCTAssertEqual(MenuCountry.resolve(storedCode: nil, region: .unitedStates), .us)
+        XCTAssertEqual(MenuCountry.resolve(storedCode: nil, region: .taiwan), .tw)
         XCTAssertEqual(MenuCountry.resolve(storedCode: nil, region: .southKorea), .kr)
         // 카탈로그가 없는 지역·지역 없음은 한국.
         XCTAssertEqual(MenuCountry.resolve(storedCode: nil, region: .japan), .kr)
@@ -343,8 +382,15 @@ final class MenuCountryTests: XCTestCase {
     func testStoredChoiceBeatsTheDeviceRegion() {
         XCTAssertEqual(MenuCountry.resolve(storedCode: "kr", region: .unitedStates), .kr)
         XCTAssertEqual(MenuCountry.resolve(storedCode: "us", region: .southKorea), .us)
+        XCTAssertEqual(MenuCountry.resolve(storedCode: "tw", region: .unitedStates), .tw)
         // 모르는 값(다음 버전에서 내려온 나라 등)은 기기 지역으로 돌아간다.
-        XCTAssertEqual(MenuCountry.resolve(storedCode: "tw", region: .southKorea), .kr)
+        XCTAssertEqual(MenuCountry.resolve(storedCode: "jp", region: .southKorea), .kr)
+    }
+
+    func testCaffeineAdviceFollowsTheCountry() {
+        XCTAssertEqual(MenuCountry.kr.caffeineAdviceMg, 400)
+        XCTAssertEqual(MenuCountry.us.caffeineAdviceMg, 400)
+        XCTAssertEqual(MenuCountry.tw.caffeineAdviceMg, 300)
     }
 
     func testEveryCountryHasABundledCatalog() throws {

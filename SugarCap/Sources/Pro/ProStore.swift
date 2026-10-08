@@ -56,14 +56,19 @@ final class ProStore {
 
     /// 실제 가격은 App Store가 스토어프런트 통화로 준다. 가짜 상품은 기기 지역으로 그 모양을 흉내 낸다(ASC 가격과 같게).
     static var mockPlans: [ProPlan] {
-        let isUS = Locale.current.region == .unitedStates
+        let prices: (yearly: String, lifetime: String) =
+            switch Locale.current.region {
+            case .unitedStates: ("$9.99", "$29.99")
+            case .taiwan: ("NT$190", "NT$590")
+            default: ("₩9,900", "₩29,000")
+            }
         return [
             ProPlan(
-                id: ProProduct.yearly, title: String(localized: "연간"), price: isUS ? "$9.99" : "₩9,900",
+                id: ProProduct.yearly, title: String(localized: "연간"), price: prices.yearly,
                 note: String(localized: "해지할 때까지 매년")
             ),
             ProPlan(
-                id: ProProduct.lifetime, title: String(localized: "평생"), price: isUS ? "$29.99" : "₩29,000",
+                id: ProProduct.lifetime, title: String(localized: "평생"), price: prices.lifetime,
                 note: String(localized: "한 번만 결제")
             ),
         ]

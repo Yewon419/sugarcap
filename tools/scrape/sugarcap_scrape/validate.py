@@ -45,6 +45,9 @@ MIN_DRINKS_PER_BRAND = {
     # 2026-10-07: ordering menu 169 (product, form) pairs; nutritional guide PDF 300 drinks.
     "us-starbucks": 85,
     "us-dutchbros": 150,
+    # 2026-10-08: menu page 100 (drink, temperature) pairs / 43 drinks.
+    "tw-cama": 50,
+    "tw-kebuke": 20,
 }
 
 
@@ -92,6 +95,15 @@ def _check_values(drink: Drink) -> list[str]:
             MIN_VOLUME_ML <= serving.volume_ml <= MAX_VOLUME_ML
         ):
             problems.append(f"{where}: volume {serving.volume_ml}ml outside the cup range")
+        band = serving.caffeine_range
+        if band is not None:
+            bound = band.max_mg if band.max_mg is not None else band.min_mg
+            if serving.caffeine_mg != bound:
+                problems.append(
+                    f"{where}: caffeine {serving.caffeine_mg} is not the band bound {bound}"
+                )
+            if band.max_mg is not None and band.max_mg <= band.min_mg:
+                problems.append(f"{where}: caffeine band {band.min_mg}-{band.max_mg} is empty")
         if serving.caffeine_variants:
             first = serving.caffeine_variants[0].caffeine_mg
             if serving.caffeine_mg != first:

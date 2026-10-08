@@ -28,13 +28,28 @@ class CaffeineVariant(BaseModel):
     caffeine_mg: float = Field(ge=0)
 
 
+class CaffeineRange(BaseModel):
+    """A caffeine band printed instead of a number (Taiwan: "≦100", "101~200", "≥201" mg per cup).
+
+    `max_mg is None` is an open band ("≥201"). The serving's `caffeine_mg` then holds the
+    band's upper bound, or the lower bound for an open band, so totals stay on the
+    side a daily cap cares about (SPEC §9.9).
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    min_mg: float = Field(ge=0)
+    max_mg: float | None = Field(default=None, gt=0)
+
+
 class RawServing(BaseModel):
     """One published nutrition row from a brand site.
 
     `sugar_g is None` / `caffeine_mg is None` mean the brand did not publish
     that value for this row; both are carried through to the catalog so the app
     can say "미공개" instead of hiding the drink. When `caffeine_variants` is
-    non-empty, `caffeine_mg` is the first variant's value.
+    non-empty, `caffeine_mg` is the first variant's value. When `caffeine_range` is set,
+    the brand printed a band, not a number; see `CaffeineRange`.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -49,6 +64,7 @@ class RawServing(BaseModel):
     sugar_g: float | None = Field(default=None, ge=0)
     caffeine_mg: float | None = Field(default=None, ge=0)
     caffeine_variants: tuple[CaffeineVariant, ...] = ()
+    caffeine_range: CaffeineRange | None = None
     source_url: str
 
 
@@ -72,6 +88,7 @@ class Serving(BaseModel):
     sugar_g: float | None
     caffeine_mg: float | None
     caffeine_variants: tuple[CaffeineVariant, ...] = ()
+    caffeine_range: CaffeineRange | None = None
 
 
 class Drink(BaseModel):

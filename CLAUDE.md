@@ -14,6 +14,7 @@ SSOT = `SPEC.md`. 세션 시작 시 SPEC §0·§8·§9부터 읽는다.
 ..\..\.venv\Scripts\python -m pytest -q            # live 테스트 포함(실사이트 호출)
 ..\..\.venv\Scripts\python -m sugarcap_scrape.build --out ..\..\data\catalog.json --kfind .raw\kfind_20260828.xlsx
 ..\..\.venv\Scripts\python -m sugarcap_scrape.build --country us --out ..\..\data\catalog-us.json
+..\..\.venv\Scripts\python -m sugarcap_scrape.build --country tw --out ..\..\data\catalog-tw.json
 ```
 게이트: ruff·mypy 0 에러 + pytest 통과 전에 "완료" 금지.
 
@@ -48,3 +49,7 @@ SSOT = `SPEC.md`. 세션 시작 시 SPEC §0·§8·§9부터 읽는다.
 - `colors.py`에 영어 키워드를 넣으면 K-FIND 편의점 제품 중 영문명(`Mango Ice Ade`, `…Blueberry`)의 색이 바뀌어 `test_colors` 회귀가 깨진다. 한국 카탈로그를 다시 빌드하지 않을 거면 그런 단어는 넣지 않는다(`mango`·`blueberry`·`ginger` 보류, `berry`는 `(?<!blue)berry`).
 - 영어판(SPEC §9.9): 사용자 문구의 SSOT는 `SugarCap/Resources/Localizable.xcstrings`(원문 ko, 번역 en). 새 문구를 넣으면 en도 같이 넣는다. 키 목록은 CI `localizations` 산출물로 받는다(개발 PC에 Xcode 없음). 시뮬레이터 기본 언어가 영어라 테스트는 스킴 `language: ko`, 스크린샷은 `-AppleLanguages (ko)`로 고정돼 있다. 영어 화면은 `en-*` 스크린샷으로 본다.
 - 스크린샷 단계는 UI 테스트가 남긴 SwiftData를 그대로 쓴다. 테스트가 설정을 "원래 값"으로 되돌려도 저장된 값이 생겨 기기 지역 기본값을 덮는다(2026-10-07 메뉴 국가: en_US인데 한국으로 찍힘). 지역·기본값에 기대는 화면은 Debug 전용 `-screenshot…` 인자로 고정한다(`-screenshotMenuCountry us`).
+- 대만판(SPEC §9.9 ④): 대만 파서·테스트는 전각 문장부호(`：` `（` `】`)를 그대로 다뤄 ruff RUF001~003을 `pyproject.toml` per-file-ignores로 끈다(`brands/tw_*.py`, `tests/test_tw_*.py`). 다른 파일로 넓히지 않는다.
+- `colors.py`에 한자 키워드를 넣을 때도 영어와 같은 함정이 있다. K-FIND에 한자 이름 제품(`宾格瑞草莓牛奶`, `柚子風味乳酸菌飮料`)이 있어 `草莓`·`莓`·`柚`는 넣지 않았다(2026-10-08).
+- 可不可(`tw-kebuke`)는 카페인 줄이 【中杯】【大杯】 뒤에 한 번만 나오는 음료가 있다. 그 줄은 마지막 잔이 아니라 음료 전체 값이다(`rows_of`). Cama(`tw-cama`)는 음료 단위 구간보다 `其他資訊`의 사이즈별 값이 우선이고, "최고값·全糖 기준" 안내문이 바뀌면 파서가 거부한다.
+- 대만 카페인 구간(`≤100` `101~200` `≥201`)은 schema v2 `caffeine_range`로 싣고, 합계는 상한(열린 구간은 하한)으로 센다. 기록 스냅샷에는 구간을 남기지 않는다.

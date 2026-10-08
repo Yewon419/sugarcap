@@ -24,12 +24,16 @@ struct LimitCupPicker: View {
     private var minValue: Double { side == .sugar ? 25 : 100 }
 
     private var chips: [(value: Double, note: String?)] {
-        side == .sugar
-            ? [(25, String(localized: "더 줄이기")), (50, String(localized: "WHO 권고")), (100, String(localized: "넉넉하게"))]
-            : [
-                (200, String(localized: "가볍게")), (300, nil),
-                (400, menuCountry.caffeineAdviceNote), (600, String(localized: "최대")),
-            ]
+        if side == .sugar {
+            return [(25, String(localized: "더 줄이기")), (50, String(localized: "WHO 권고")), (100, String(localized: "넉넉하게"))]
+        }
+        // 권고 기관 칩은 나라마다 자리가 다르다(한국·미국 400, 대만 300).
+        let advice = menuCountry.caffeineAdviceMg
+        let note = menuCountry.caffeineAdviceNote
+        return [
+            (200, String(localized: "가볍게")), (300, advice == 300 ? note : nil),
+            (400, advice == 400 ? note : nil), (600, String(localized: "최대")),
+        ]
     }
 
     /// 끌어서 정한 값. 당은 프리셋 셋 중 가까운 것에 붙고(§4.4), 카페인은 25 단위.

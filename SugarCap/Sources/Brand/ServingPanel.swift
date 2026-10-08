@@ -154,6 +154,10 @@ struct ServingPanel: View {
                 .contentTransition(.numericText())
                 .animation(.snappy, value: afterLeft)
                 Text(note)
+                if let range = selection.serving.caffeineRange, let bound = selection.serving.caffeineMg,
+                   trackedSides.contains(.caffeine) {
+                    Text("카페인은 구간(\(range.numbers) mg)으로 게시돼 \(Amount.number(bound)) mg으로 셌어요")
+                }
                 if trackedSides.contains(other) {
                     Text("\(other.label)은 \(Amount.number(otherAfter)) \(other.unit) 남아요")
                 }

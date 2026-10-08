@@ -1,0 +1,4650 @@
+{
+ "schema_version": 2,
+ "built_at": "2026-10-08T06:06:12+00:00",
+ "brands": [
+  {
+   "id": "tw-cama",
+   "name": "cama café",
+   "serving_note": "每杯最高值，全糖計算（黑咖啡、手沖、濃縮、冷萃除外），依官方公告",
+   "has_size_choice": true
+  },
+  {
+   "id": "tw-kebuke",
+   "name": "可不可熟成紅茶",
+   "serving_note": "每杯，依官方公告（中杯 500 ml、大杯 700 ml）",
+   "has_size_choice": true
+  }
+ ],
+ "drinks": [
+  {
+   "id": "tw-cama:cama金獎拿鐵:hot",
+   "brand_id": "tw-cama",
+   "name": "CAMA金獎拿鐵",
+   "name_en": "Latte",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "hot",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-cama:cama金獎拿鐵:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 14.6,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:cama金獎拿鐵:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 16.5,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:cama金獎拿鐵:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 19.6,
+     "caffeine_mg": 415.6,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:cama金獎拿鐵:iced",
+   "brand_id": "tw-cama",
+   "name": "CAMA金獎拿鐵",
+   "name_en": "Latte",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-cama:cama金獎拿鐵:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 10.2,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:cama金獎拿鐵:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 12.5,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:cama金獎拿鐵:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 15.4,
+     "caffeine_mg": 415.6,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:cama金獎美式:hot",
+   "brand_id": "tw-cama",
+   "name": "CAMA金獎美式",
+   "name_en": "Americano",
+   "category": "黑咖 Black Coffee",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:cama金獎美式:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:cama金獎美式:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:cama金獎美式:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 415.6,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:cama金獎美式:iced",
+   "brand_id": "tw-cama",
+   "name": "CAMA金獎美式",
+   "name_en": "Americano",
+   "category": "黑咖 Black Coffee",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:cama金獎美式:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:cama金獎美式:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:cama金獎美式:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 415.6,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:卡布奇諾:hot",
+   "brand_id": "tw-cama",
+   "name": "卡布奇諾",
+   "name_en": "Cappuccino",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "hot",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-cama:卡布奇諾:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 28.8,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:卡布奇諾:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 34.3,
+     "caffeine_mg": 415.6,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:卡布奇諾:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 40.7,
+     "caffeine_mg": 519.5,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:卡布奇諾:iced",
+   "brand_id": "tw-cama",
+   "name": "卡布奇諾",
+   "name_en": "Cappuccino",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-cama:卡布奇諾:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 22.5,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:卡布奇諾:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 29.0,
+     "caffeine_mg": 415.6,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:卡布奇諾:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 35.5,
+     "caffeine_mg": 519.5,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:可可歐蕾:hot",
+   "brand_id": "tw-cama",
+   "name": "可可歐蕾",
+   "name_en": "Chocolate Milk",
+   "category": "純茶、奶茶 Others",
+   "temperature": "hot",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "tw-cama:可可歐蕾:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 23.1,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    },
+    {
+     "id": "tw-cama:可可歐蕾:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 28.9,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    },
+    {
+     "id": "tw-cama:可可歐蕾:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 40.9,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:可可歐蕾:iced",
+   "brand_id": "tw-cama",
+   "name": "可可歐蕾",
+   "name_en": "Chocolate Milk",
+   "category": "純茶、奶茶 Others",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "tw-cama:可可歐蕾:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 17.8,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    },
+    {
+     "id": "tw-cama:可可歐蕾:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 23.1,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    },
+    {
+     "id": "tw-cama:可可歐蕾:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 30.8,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:奶蓋-栗香焙煎茶:iced",
+   "brand_id": "tw-cama",
+   "name": "奶蓋 栗香焙煎茶",
+   "name_en": "Milk Foam Chestnut-Flavored Roasted Tea",
+   "category": "純茶、奶茶 Others",
+   "temperature": "iced",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "tw-cama:奶蓋-栗香焙煎茶:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 17.4,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-cama:奶蓋-栗香焙煎茶:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 21.2,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:奶蓋-熟香紅茶:iced",
+   "brand_id": "tw-cama",
+   "name": "奶蓋 熟香紅茶",
+   "name_en": "Milk Foam Black Tea",
+   "category": "純茶、奶茶 Others",
+   "temperature": "iced",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "tw-cama:奶蓋-熟香紅茶:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 17.4,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-cama:奶蓋-熟香紅茶:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 21.2,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:奶蓋海鹽美式:iced",
+   "brand_id": "tw-cama",
+   "name": "奶蓋海鹽美式",
+   "name_en": "Milk Foam Sea Salt Coffee",
+   "category": "黑咖 Black Coffee",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:奶蓋海鹽美式:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 26.7,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:奶蓋海鹽美式:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 32.0,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:山茶花輕拿鐵:hot",
+   "brand_id": "tw-cama",
+   "name": "山茶花輕拿鐵",
+   "name_en": "Camellia Light Latte",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "hot",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-cama:山茶花輕拿鐵:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 28.1,
+     "caffeine_mg": 103.9,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:山茶花輕拿鐵:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 33.5,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:山茶花輕拿鐵:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 39.8,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:山茶花輕拿鐵:iced",
+   "brand_id": "tw-cama",
+   "name": "山茶花輕拿鐵",
+   "name_en": "Camellia Light Latte",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-cama:山茶花輕拿鐵:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 23.3,
+     "caffeine_mg": 103.9,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:山茶花輕拿鐵:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 29.7,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:山茶花輕拿鐵:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 36.0,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:巧克力王子-iiac國際評鑑金獎:hot",
+   "brand_id": "tw-cama",
+   "name": "巧克力王子 / IIAC國際評鑑金獎",
+   "name_en": "Chocolate Prince",
+   "category": "精品手沖 Drip",
+   "temperature": "hot",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "tw-cama:巧克力王子-iiac國際評鑑金獎:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 265.2,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:巧克力王子-iiac國際評鑑金獎:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 344.1,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:巧克力王子-iiac國際評鑑金獎:iced",
+   "brand_id": "tw-cama",
+   "name": "巧克力王子 / IIAC國際評鑑金獎",
+   "name_en": "Chocolate Prince",
+   "category": "精品手沖 Drip",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "tw-cama:巧克力王子-iiac國際評鑑金獎:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 265.2,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:巧克力王子-iiac國際評鑑金獎:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 344.1,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:微韻輕拿鐵:hot",
+   "brand_id": "tw-cama",
+   "name": "微韻輕拿鐵",
+   "name_en": "Light Latte",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "hot",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-cama:微韻輕拿鐵:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 14.5,
+     "caffeine_mg": 103.9,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:微韻輕拿鐵:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 16.5,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:微韻輕拿鐵:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 20.1,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:微韻輕拿鐵:iced",
+   "brand_id": "tw-cama",
+   "name": "微韻輕拿鐵",
+   "name_en": "Light Latte",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-cama:微韻輕拿鐵:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 10.2,
+     "caffeine_mg": 103.9,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:微韻輕拿鐵:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 12.5,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:微韻輕拿鐵:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 15.4,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:微韻輕美式:hot",
+   "brand_id": "tw-cama",
+   "name": "微韻輕美式",
+   "name_en": "Light Americano",
+   "category": "黑咖 Black Coffee",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:微韻輕美式:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 103.9,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:微韻輕美式:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:微韻輕美式:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:微韻輕美式:iced",
+   "brand_id": "tw-cama",
+   "name": "微韻輕美式",
+   "name_en": "Light Americano",
+   "category": "黑咖 Black Coffee",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:微韻輕美式:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 103.9,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:微韻輕美式:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:微韻輕美式:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:抹茶拿鐵:hot",
+   "brand_id": "tw-cama",
+   "name": "抹茶拿鐵",
+   "name_en": "Matcha Coffee Latte",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "hot",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "tw-cama:抹茶拿鐵:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 20.7,
+     "caffeine_mg": 115.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:抹茶拿鐵:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 24.6,
+     "caffeine_mg": 216.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:抹茶拿鐵:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 30.4,
+     "caffeine_mg": 318.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:抹茶拿鐵:iced",
+   "brand_id": "tw-cama",
+   "name": "抹茶拿鐵",
+   "name_en": "Matcha Coffee Latte",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "iced",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "tw-cama:抹茶拿鐵:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 15.0,
+     "caffeine_mg": 115.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:抹茶拿鐵:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 19.3,
+     "caffeine_mg": 216.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:抹茶拿鐵:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 25.9,
+     "caffeine_mg": 422.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:抹茶歐蕾:hot",
+   "brand_id": "tw-cama",
+   "name": "抹茶歐蕾",
+   "name_en": "Matcha Milk",
+   "category": "純茶、奶茶 Others",
+   "temperature": "hot",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "tw-cama:抹茶歐蕾:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 21.2,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    },
+    {
+     "id": "tw-cama:抹茶歐蕾:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 25.1,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    },
+    {
+     "id": "tw-cama:抹茶歐蕾:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 37.8,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:抹茶歐蕾:iced",
+   "brand_id": "tw-cama",
+   "name": "抹茶歐蕾",
+   "name_en": "Matcha Milk",
+   "category": "純茶、奶茶 Others",
+   "temperature": "iced",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "tw-cama:抹茶歐蕾:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 16.9,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    },
+    {
+     "id": "tw-cama:抹茶歐蕾:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 20.8,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    },
+    {
+     "id": "tw-cama:抹茶歐蕾:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 36.9,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:摩卡咖啡:hot",
+   "brand_id": "tw-cama",
+   "name": "摩卡咖啡",
+   "name_en": "Mocha",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "hot",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "tw-cama:摩卡咖啡:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 24.0,
+     "caffeine_mg": 195.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:摩卡咖啡:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 28.4,
+     "caffeine_mg": 286.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:摩卡咖啡:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 33.7,
+     "caffeine_mg": 378.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:摩卡咖啡:iced",
+   "brand_id": "tw-cama",
+   "name": "摩卡咖啡",
+   "name_en": "Mocha",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "tw-cama:摩卡咖啡:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 19.2,
+     "caffeine_mg": 195.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:摩卡咖啡:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 24.5,
+     "caffeine_mg": 286.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:摩卡咖啡:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 29.8,
+     "caffeine_mg": 378.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:日曬莊園緋紅香:hot",
+   "brand_id": "tw-cama",
+   "name": "日曬莊園緋紅香",
+   "name_en": "Natural Estate Scarlet Aroma",
+   "category": "旗艦精品手沖 Drip",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:日曬莊園緋紅香:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 243.1,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:日曬莊園緋紅香:iced",
+   "brand_id": "tw-cama",
+   "name": "日曬莊園緋紅香",
+   "name_en": "Natural Estate Scarlet Aroma",
+   "category": "旗艦精品手沖 Drip",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:日曬莊園緋紅香:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 243.1,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:本日精品咖啡-限店供應:hot",
+   "brand_id": "tw-cama",
+   "name": "本日精品咖啡 ( 限店供應 )",
+   "name_en": "Daily Selected Coffee",
+   "category": "精品手沖 Drip",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:本日精品咖啡-限店供應:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 131.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:本日精品咖啡-限店供應:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 163.75,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:本日精品咖啡-限店供應:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 196.5,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:本日精品咖啡-限店供應:iced",
+   "brand_id": "tw-cama",
+   "name": "本日精品咖啡 ( 限店供應 )",
+   "name_en": "Daily Selected Coffee",
+   "category": "精品手沖 Drip",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:本日精品咖啡-限店供應:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 131.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:本日精品咖啡-限店供應:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 163.75,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:本日精品咖啡-限店供應:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 196.5,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:果樹女神-coffee-review國際評鑑92分:hot",
+   "brand_id": "tw-cama",
+   "name": "果樹女神 / COFFEE REVIEW國際評鑑92分",
+   "name_en": "Pomona",
+   "category": "精品手沖 Drip",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:果樹女神-coffee-review國際評鑑92分:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 238.4,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:果樹女神-coffee-review國際評鑑92分:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 297.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:果樹女神-coffee-review國際評鑑92分:iced",
+   "brand_id": "tw-cama",
+   "name": "果樹女神 / COFFEE REVIEW國際評鑑92分",
+   "name_en": "Pomona",
+   "category": "精品手沖 Drip",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:果樹女神-coffee-review國際評鑑92分:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 238.4,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:果樹女神-coffee-review國際評鑑92分:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 297.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:栗香焙煎茶:hot",
+   "brand_id": "tw-cama",
+   "name": "栗香焙煎茶",
+   "name_en": "Chestnut-Flavored Roasted Tea",
+   "category": "純茶、奶茶 Others",
+   "temperature": "hot",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "tw-cama:栗香焙煎茶:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 17.5,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-cama:栗香焙煎茶:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 21.0,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:栗香焙煎茶:iced",
+   "brand_id": "tw-cama",
+   "name": "栗香焙煎茶",
+   "name_en": "Chestnut-Flavored Roasted Tea",
+   "category": "純茶、奶茶 Others",
+   "temperature": "iced",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "tw-cama:栗香焙煎茶:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 17.5,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-cama:栗香焙煎茶:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 21.0,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:極厚乳三層咖啡:hot",
+   "brand_id": "tw-cama",
+   "name": "極厚乳三層咖啡",
+   "name_en": "Rich Milk Coffee",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "hot",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-cama:極厚乳三層咖啡:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 23.7,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:極厚乳三層咖啡:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 28.5,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:極厚乳三層咖啡:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 32.5,
+     "caffeine_mg": 415.6,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:極厚乳三層咖啡:iced",
+   "brand_id": "tw-cama",
+   "name": "極厚乳三層咖啡",
+   "name_en": "Rich Milk Coffee",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-cama:極厚乳三層咖啡:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 18.2,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:極厚乳三層咖啡:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 23.0,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:極厚乳三層咖啡:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 41.8,
+     "caffeine_mg": 415.6,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:水蜜桃蜜釀風味手沖:iced",
+   "brand_id": "tw-cama",
+   "name": "水蜜桃蜜釀風味手沖",
+   "name_en": null,
+   "category": "精品手沖 Drip",
+   "temperature": "iced",
+   "liquid_color": "#F7A57A",
+   "servings": [
+    {
+     "id": "tw-cama:水蜜桃蜜釀風味手沖:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 201.6,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:水蜜桃蜜釀風味手沖:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 277.2,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:海鹽焦糖拿鐵:hot",
+   "brand_id": "tw-cama",
+   "name": "海鹽焦糖拿鐵",
+   "name_en": "Salted Caramel Latte",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "hot",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "tw-cama:海鹽焦糖拿鐵:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 30.5,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:海鹽焦糖拿鐵:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 36.4,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:海鹽焦糖拿鐵:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 40.2,
+     "caffeine_mg": 415.6,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:海鹽焦糖拿鐵:iced",
+   "brand_id": "tw-cama",
+   "name": "海鹽焦糖拿鐵",
+   "name_en": "Salted Caramel Latte",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "iced",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "tw-cama:海鹽焦糖拿鐵:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 25.7,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:海鹽焦糖拿鐵:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 32.6,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:海鹽焦糖拿鐵:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 39.5,
+     "caffeine_mg": 415.6,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:海鹽西西里:iced",
+   "brand_id": "tw-cama",
+   "name": "海鹽西西里",
+   "name_en": null,
+   "category": "黑咖 Black Coffee",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:海鹽西西里:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 22.64,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:濃縮咖啡:hot",
+   "brand_id": "tw-cama",
+   "name": "濃縮咖啡",
+   "name_en": "Espresso",
+   "category": "黑咖 Black Coffee",
+   "temperature": "hot",
+   "liquid_color": "#2E1B12",
+   "servings": [
+    {
+     "id": "tw-cama:濃縮咖啡:hot:m",
+     "size_label": "M",
+     "volume_ml": 30,
+     "sugar_g": 0.2,
+     "caffeine_mg": 103.9,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:焦糖瑪琪朵:hot",
+   "brand_id": "tw-cama",
+   "name": "焦糖瑪琪朵",
+   "name_en": "Caramel Macchiato",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "hot",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "tw-cama:焦糖瑪琪朵:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 32.2,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:焦糖瑪琪朵:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 39.1,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:焦糖瑪琪朵:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 42.8,
+     "caffeine_mg": 415.6,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:焦糖瑪琪朵:iced",
+   "brand_id": "tw-cama",
+   "name": "焦糖瑪琪朵",
+   "name_en": "Caramel Macchiato",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "iced",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "tw-cama:焦糖瑪琪朵:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 26.0,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:焦糖瑪琪朵:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 33.8,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:焦糖瑪琪朵:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 40.0,
+     "caffeine_mg": 415.6,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:熟香紅茶:hot",
+   "brand_id": "tw-cama",
+   "name": "熟香紅茶",
+   "name_en": "Black Tea",
+   "category": "純茶、奶茶 Others",
+   "temperature": "hot",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "tw-cama:熟香紅茶:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 18.0,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-cama:熟香紅茶:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 21.5,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:熟香紅茶:iced",
+   "brand_id": "tw-cama",
+   "name": "熟香紅茶",
+   "name_en": "Black Tea",
+   "category": "純茶、奶茶 Others",
+   "temperature": "iced",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "tw-cama:熟香紅茶:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 18.0,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-cama:熟香紅茶:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 21.5,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:燕麥拿鐵:hot",
+   "brand_id": "tw-cama",
+   "name": "燕麥拿鐵",
+   "name_en": "Oat Milk Latte",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "hot",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-cama:燕麥拿鐵:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 23.7,
+     "caffeine_mg": 103.9,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:燕麥拿鐵:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 28.5,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:燕麥拿鐵:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 33.9,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:燕麥拿鐵:iced",
+   "brand_id": "tw-cama",
+   "name": "燕麥拿鐵",
+   "name_en": "Oat Milk Latte",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-cama:燕麥拿鐵:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 20.6,
+     "caffeine_mg": 103.9,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:燕麥拿鐵:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 26.0,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:燕麥拿鐵:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 31.5,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:特調-栗香奶茶:hot",
+   "brand_id": "tw-cama",
+   "name": "特調 栗香奶茶",
+   "name_en": "Chestnut-Flavored Roasted Tea with Flavored Milk",
+   "category": "純茶、奶茶 Others",
+   "temperature": "hot",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "tw-cama:特調-栗香奶茶:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 28.2,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-cama:特調-栗香奶茶:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 37.0,
+     "caffeine_mg": 201.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 201.0,
+      "max_mg": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:特調-栗香奶茶:iced",
+   "brand_id": "tw-cama",
+   "name": "特調 栗香奶茶",
+   "name_en": "Chestnut-Flavored Roasted Tea with Flavored Milk",
+   "category": "純茶、奶茶 Others",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "tw-cama:特調-栗香奶茶:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 23.0,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-cama:特調-栗香奶茶:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 30.4,
+     "caffeine_mg": 201.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 201.0,
+      "max_mg": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:特調-熟香奶茶:hot",
+   "brand_id": "tw-cama",
+   "name": "特調 熟香奶茶",
+   "name_en": "Black Tea with Flavored Milk",
+   "category": "純茶、奶茶 Others",
+   "temperature": "hot",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "tw-cama:特調-熟香奶茶:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 28.2,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-cama:特調-熟香奶茶:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 37.0,
+     "caffeine_mg": 201.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 201.0,
+      "max_mg": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:特調-熟香奶茶:iced",
+   "brand_id": "tw-cama",
+   "name": "特調 熟香奶茶",
+   "name_en": "Black Tea with Flavored Milk",
+   "category": "純茶、奶茶 Others",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "tw-cama:特調-熟香奶茶:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 23.0,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-cama:特調-熟香奶茶:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 30.4,
+     "caffeine_mg": 201.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 201.0,
+      "max_mg": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:特調咖啡:hot",
+   "brand_id": "tw-cama",
+   "name": "特調咖啡",
+   "name_en": "Flavored Coffee",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:特調咖啡:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 21.8,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:特調咖啡:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 28.4,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:特調咖啡:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 36.3,
+     "caffeine_mg": 415.6,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:特調咖啡:iced",
+   "brand_id": "tw-cama",
+   "name": "特調咖啡",
+   "name_en": "Flavored Coffee",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:特調咖啡:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 21.8,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:特調咖啡:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 28.4,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:特調咖啡:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 34.9,
+     "caffeine_mg": 415.6,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:盛夏草莓精品手沖:hot",
+   "brand_id": "tw-cama",
+   "name": "盛夏草莓精品手沖",
+   "name_en": null,
+   "category": "精品手沖 Drip",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:盛夏草莓精品手沖:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 279.2,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:盛夏草莓精品手沖:iced",
+   "brand_id": "tw-cama",
+   "name": "盛夏草莓精品手沖",
+   "name_en": null,
+   "category": "精品手沖 Drip",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:盛夏草莓精品手沖:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 279.2,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:盛夏蜜桃精品手沖:hot",
+   "brand_id": "tw-cama",
+   "name": "盛夏蜜桃精品手沖",
+   "name_en": null,
+   "category": "精品手沖 Drip",
+   "temperature": "hot",
+   "liquid_color": "#F7A57A",
+   "servings": [
+    {
+     "id": "tw-cama:盛夏蜜桃精品手沖:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 265.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:盛夏蜜桃精品手沖:iced",
+   "brand_id": "tw-cama",
+   "name": "盛夏蜜桃精品手沖",
+   "name_en": null,
+   "category": "精品手沖 Drip",
+   "temperature": "iced",
+   "liquid_color": "#F7A57A",
+   "servings": [
+    {
+     "id": "tw-cama:盛夏蜜桃精品手沖:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 265.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:精品冷萃-百蜜花園:iced",
+   "brand_id": "tw-cama",
+   "name": "精品冷萃-百蜜花園",
+   "name_en": null,
+   "category": "黑咖 Black Coffee",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:精品冷萃-百蜜花園:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 154.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:精品冷萃-百蜜花園:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 193.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:精品冷萃-百蜜花園:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 244.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:精品冷萃-盛夏草莓精品冷萃:iced",
+   "brand_id": "tw-cama",
+   "name": "精品冷萃-盛夏草莓精品冷萃",
+   "name_en": null,
+   "category": "黑咖 Black Coffee",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:精品冷萃-盛夏草莓精品冷萃:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 199.4,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:精品冷萃-盛夏蜜桃精品冷萃:iced",
+   "brand_id": "tw-cama",
+   "name": "精品冷萃-盛夏蜜桃精品冷萃",
+   "name_en": null,
+   "category": "黑咖 Black Coffee",
+   "temperature": "iced",
+   "liquid_color": "#F7A57A",
+   "servings": [
+    {
+     "id": "tw-cama:精品冷萃-盛夏蜜桃精品冷萃:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 189.79,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:精品冷萃-花香耶加雪菲:iced",
+   "brand_id": "tw-cama",
+   "name": "精品冷萃-花香耶加雪菲",
+   "name_en": null,
+   "category": "黑咖 Black Coffee",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:精品冷萃-花香耶加雪菲:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 173.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:精品冷萃-花香耶加雪菲:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 216.14,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:精品冷萃-花香耶加雪菲:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 273.71,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:耶加雪菲-特選水洗:hot",
+   "brand_id": "tw-cama",
+   "name": "耶加雪菲 / 特選水洗",
+   "name_en": "Yirgacheffe",
+   "category": "精品手沖 Drip",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:耶加雪菲-特選水洗:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 250.2,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:耶加雪菲-特選水洗:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 283.4,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:耶加雪菲-特選水洗:iced",
+   "brand_id": "tw-cama",
+   "name": "耶加雪菲 / 特選水洗",
+   "name_en": "Yirgacheffe",
+   "category": "精品手沖 Drip",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:耶加雪菲-特選水洗:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 250.2,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:耶加雪菲-特選水洗:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 283.4,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:芒果蜜釀風味手沖:iced",
+   "brand_id": "tw-cama",
+   "name": "芒果蜜釀風味手沖",
+   "name_en": null,
+   "category": "精品手沖 Drip",
+   "temperature": "iced",
+   "liquid_color": "#F7B32B",
+   "servings": [
+    {
+     "id": "tw-cama:芒果蜜釀風味手沖:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 201.6,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:芒果蜜釀風味手沖:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 277.2,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:花草茶-無咖啡因:hot",
+   "brand_id": "tw-cama",
+   "name": "花草茶(無咖啡因)",
+   "name_en": "Herbal Tea",
+   "category": "純茶、奶茶 Others",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:花草茶-無咖啡因:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:花草茶-無咖啡因:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:花草茶-無咖啡因:iced",
+   "brand_id": "tw-cama",
+   "name": "花草茶(無咖啡因)",
+   "name_en": "Herbal Tea",
+   "category": "純茶、奶茶 Others",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:花草茶-無咖啡因:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:花草茶-無咖啡因:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:花香耶加雪菲-日曬g1-澳洲aica咖啡評鑑銅獎:hot",
+   "brand_id": "tw-cama",
+   "name": "花香耶加雪菲 日曬G1 / 澳洲AICA咖啡評鑑銅獎",
+   "name_en": "Floral Yirgacheffe",
+   "category": "精品手沖 Drip",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:花香耶加雪菲-日曬g1-澳洲aica咖啡評鑑銅獎:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 254.1,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:花香耶加雪菲-日曬g1-澳洲aica咖啡評鑑銅獎:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 302.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:花香耶加雪菲-日曬g1-澳洲aica咖啡評鑑銅獎:iced",
+   "brand_id": "tw-cama",
+   "name": "花香耶加雪菲 日曬G1 / 澳洲AICA咖啡評鑑銅獎",
+   "name_en": "Floral Yirgacheffe",
+   "category": "精品手沖 Drip",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:花香耶加雪菲-日曬g1-澳洲aica咖啡評鑑銅獎:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 254.1,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:花香耶加雪菲-日曬g1-澳洲aica咖啡評鑑銅獎:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 302.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:莓果女伶:hot",
+   "brand_id": "tw-cama",
+   "name": "莓果女伶",
+   "name_en": "Berry Ballerina",
+   "category": "精品手沖 Drip",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:莓果女伶:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 250.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:莓果女伶:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 335.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:莓果女伶:iced",
+   "brand_id": "tw-cama",
+   "name": "莓果女伶",
+   "name_en": "Berry Ballerina",
+   "category": "精品手沖 Drip",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:莓果女伶:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 250.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:莓果女伶:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 335.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:莓果茶:hot",
+   "brand_id": "tw-cama",
+   "name": "莓果茶",
+   "name_en": "Berry Tea",
+   "category": "純茶、奶茶 Others",
+   "temperature": "hot",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "tw-cama:莓果茶:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 50.2,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:莓果茶:iced",
+   "brand_id": "tw-cama",
+   "name": "莓果茶",
+   "name_en": "Berry Tea",
+   "category": "純茶、奶茶 Others",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "tw-cama:莓果茶:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 50.2,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:藝伎花序:hot",
+   "brand_id": "tw-cama",
+   "name": "藝伎花序",
+   "name_en": "Floral Geisha",
+   "category": "旗艦精品手沖 Drip",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:藝伎花序:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 315.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:藝伎花序:iced",
+   "brand_id": "tw-cama",
+   "name": "藝伎花序",
+   "name_en": "Floral Geisha",
+   "category": "旗艦精品手沖 Drip",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:藝伎花序:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 315.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:蜂蜜風味拿鐵:hot",
+   "brand_id": "tw-cama",
+   "name": "蜂蜜風味拿鐵",
+   "name_en": "Honey Latte",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "hot",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-cama:蜂蜜風味拿鐵:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 21.9,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:蜂蜜風味拿鐵:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 25.8,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:蜂蜜風味拿鐵:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 30.6,
+     "caffeine_mg": 415.6,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:蜂蜜風味拿鐵:iced",
+   "brand_id": "tw-cama",
+   "name": "蜂蜜風味拿鐵",
+   "name_en": "Honey Latte",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-cama:蜂蜜風味拿鐵:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 17.1,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:蜂蜜風味拿鐵:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 22.0,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:蜂蜜風味拿鐵:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 26.8,
+     "caffeine_mg": 415.6,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:西班牙拿鐵:hot",
+   "brand_id": "tw-cama",
+   "name": "西班牙拿鐵",
+   "name_en": "Spanish Latte",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "hot",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-cama:西班牙拿鐵:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 20.8,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:西班牙拿鐵:iced",
+   "brand_id": "tw-cama",
+   "name": "西班牙拿鐵",
+   "name_en": "Spanish Latte",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-cama:西班牙拿鐵:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 29.2,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:西西里咖啡:iced",
+   "brand_id": "tw-cama",
+   "name": "西西里咖啡",
+   "name_en": null,
+   "category": "黑咖 Black Coffee",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:西西里咖啡:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 22.64,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:西西里咖啡:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 29.67,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:雙倍濃金獎拿鐵:hot",
+   "brand_id": "tw-cama",
+   "name": "雙倍濃金獎拿鐵",
+   "name_en": null,
+   "category": "奶咖 Milk Coffee",
+   "temperature": "hot",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-cama:雙倍濃金獎拿鐵:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 15.56,
+     "caffeine_mg": 415.6,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:雙倍濃金獎拿鐵:iced",
+   "brand_id": "tw-cama",
+   "name": "雙倍濃金獎拿鐵",
+   "name_en": null,
+   "category": "奶咖 Milk Coffee",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-cama:雙倍濃金獎拿鐵:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 12.68,
+     "caffeine_mg": 415.6,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:雙倍濃金獎拿鐵:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 22.35,
+     "caffeine_mg": 519.5,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:雙倍濃金獎美式:hot",
+   "brand_id": "tw-cama",
+   "name": "雙倍濃金獎美式",
+   "name_en": null,
+   "category": "黑咖 Black Coffee",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:雙倍濃金獎美式:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 415.6,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:雙倍濃金獎美式:iced",
+   "brand_id": "tw-cama",
+   "name": "雙倍濃金獎美式",
+   "name_en": null,
+   "category": "黑咖 Black Coffee",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:雙倍濃金獎美式:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 415.6,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:雙倍濃金獎美式:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 519.5,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:雙冠莊園精品拿鐵:hot",
+   "brand_id": "tw-cama",
+   "name": "雙冠莊園精品拿鐵",
+   "name_en": "Premium Latte",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "hot",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-cama:雙冠莊園精品拿鐵:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 28.8,
+     "caffeine_mg": 175.2,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:雙冠莊園精品拿鐵:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 30.7,
+     "caffeine_mg": 262.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:雙冠莊園精品拿鐵:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 39.8,
+     "caffeine_mg": 350.4,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:雙冠莊園精品拿鐵:iced",
+   "brand_id": "tw-cama",
+   "name": "雙冠莊園精品拿鐵",
+   "name_en": "Premium Latte",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-cama:雙冠莊園精品拿鐵:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 24.0,
+     "caffeine_mg": 175.2,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:雙冠莊園精品拿鐵:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 30.4,
+     "caffeine_mg": 262.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:雙冠莊園精品拿鐵:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 37.9,
+     "caffeine_mg": 350.4,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:雙冠莊園精品美式:hot",
+   "brand_id": "tw-cama",
+   "name": "雙冠莊園精品美式",
+   "name_en": "Premium Americano",
+   "category": "黑咖 Black Coffee",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:雙冠莊園精品美式:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 175.2,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:雙冠莊園精品美式:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 262.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:雙冠莊園精品美式:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 350.4,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:雙冠莊園精品美式:iced",
+   "brand_id": "tw-cama",
+   "name": "雙冠莊園精品美式",
+   "name_en": "Premium Americano",
+   "category": "黑咖 Black Coffee",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:雙冠莊園精品美式:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 175.2,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:雙冠莊園精品美式:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 262.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:雙冠莊園精品美式:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 350.4,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:青夢燕麥歐蕾:hot",
+   "brand_id": "tw-cama",
+   "name": "青夢燕麥歐蕾",
+   "name_en": null,
+   "category": "純茶、奶茶 Others",
+   "temperature": "hot",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-cama:青夢燕麥歐蕾:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 18.3,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:青夢燕麥歐蕾:iced",
+   "brand_id": "tw-cama",
+   "name": "青夢燕麥歐蕾",
+   "name_en": null,
+   "category": "純茶、奶茶 Others",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-cama:青夢燕麥歐蕾:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 22.1,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:非洲微醺酒香:hot",
+   "brand_id": "tw-cama",
+   "name": "非洲微醺酒香",
+   "name_en": "African Wine Aroma Blend",
+   "category": "旗艦精品手沖 Drip",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:非洲微醺酒香:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 219.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:非洲微醺酒香:iced",
+   "brand_id": "tw-cama",
+   "name": "非洲微醺酒香",
+   "name_en": "African Wine Aroma Blend",
+   "category": "旗艦精品手沖 Drip",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:非洲微醺酒香:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 219.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:香草拿鐵:hot",
+   "brand_id": "tw-cama",
+   "name": "香草拿鐵",
+   "name_en": "Vanilla Latte",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "hot",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-cama:香草拿鐵:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 23.0,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:香草拿鐵:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 27.1,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:香草拿鐵:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 33.2,
+     "caffeine_mg": 415.6,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:香草拿鐵:iced",
+   "brand_id": "tw-cama",
+   "name": "香草拿鐵",
+   "name_en": "Vanilla Latte",
+   "category": "奶咖 Milk Coffee",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-cama:香草拿鐵:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 18.2,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:香草拿鐵:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 23.3,
+     "caffeine_mg": 311.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:香草拿鐵:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 28.4,
+     "caffeine_mg": 415.6,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:鮮奶-栗香焙煎茶:hot",
+   "brand_id": "tw-cama",
+   "name": "鮮奶 栗香焙煎茶",
+   "name_en": "Chestnut-Flavored Roasted Tea w/Fresh Milk",
+   "category": "純茶、奶茶 Others",
+   "temperature": "hot",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "tw-cama:鮮奶-栗香焙煎茶:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 21.2,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-cama:鮮奶-栗香焙煎茶:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 27.1,
+     "caffeine_mg": 201.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 201.0,
+      "max_mg": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:鮮奶-栗香焙煎茶:iced",
+   "brand_id": "tw-cama",
+   "name": "鮮奶 栗香焙煎茶",
+   "name_en": "Chestnut-Flavored Roasted Tea w/Fresh Milk",
+   "category": "純茶、奶茶 Others",
+   "temperature": "iced",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "tw-cama:鮮奶-栗香焙煎茶:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 22.3,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-cama:鮮奶-栗香焙煎茶:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 27.2,
+     "caffeine_mg": 201.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 201.0,
+      "max_mg": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:鮮奶-熟香紅茶:hot",
+   "brand_id": "tw-cama",
+   "name": "鮮奶 熟香紅茶",
+   "name_en": "Black Tea with Fresh Milk",
+   "category": "純茶、奶茶 Others",
+   "temperature": "hot",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "tw-cama:鮮奶-熟香紅茶:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 21.2,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-cama:鮮奶-熟香紅茶:hot:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 27.1,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:鮮奶-熟香紅茶:iced",
+   "brand_id": "tw-cama",
+   "name": "鮮奶 熟香紅茶",
+   "name_en": "Black Tea with Fresh Milk",
+   "category": "純茶、奶茶 Others",
+   "temperature": "iced",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "tw-cama:鮮奶-熟香紅茶:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 22.3,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-cama:鮮奶-熟香紅茶:iced:xl",
+     "size_label": "XL",
+     "volume_ml": null,
+     "sugar_g": 27.2,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:黃金曼巴-iiac國際評鑑金獎:hot",
+   "brand_id": "tw-cama",
+   "name": "黃金曼巴 / IIAC國際評鑑金獎",
+   "name_en": "Golden Mandheling & Brazil Blend",
+   "category": "精品手沖 Drip",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:黃金曼巴-iiac國際評鑑金獎:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 286.5,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:黃金曼巴-iiac國際評鑑金獎:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 350.2,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:黃金曼巴-iiac國際評鑑金獎:iced",
+   "brand_id": "tw-cama",
+   "name": "黃金曼巴 / IIAC國際評鑑金獎",
+   "name_en": "Golden Mandheling & Brazil Blend",
+   "category": "精品手沖 Drip",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:黃金曼巴-iiac國際評鑑金獎:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 286.5,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:黃金曼巴-iiac國際評鑑金獎:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 350.2,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:黃金曼特寧-頂級aaa:hot",
+   "brand_id": "tw-cama",
+   "name": "黃金曼特寧 / 頂級AAA",
+   "name_en": "Golden Mandheling",
+   "category": "精品手沖 Drip",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:黃金曼特寧-頂級aaa:hot:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 283.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:黃金曼特寧-頂級aaa:hot:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 365.2,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-cama:黃金曼特寧-頂級aaa:iced",
+   "brand_id": "tw-cama",
+   "name": "黃金曼特寧 / 頂級AAA",
+   "name_en": "Golden Mandheling",
+   "category": "精品手沖 Drip",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "tw-cama:黃金曼特寧-頂級aaa:iced:m",
+     "size_label": "M",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 283.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-cama:黃金曼特寧-頂級aaa:iced:l",
+     "size_label": "L",
+     "volume_ml": null,
+     "sugar_g": 0.2,
+     "caffeine_mg": 365.2,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:18週年——紅烏龍茶王:both",
+   "brand_id": "tw-kebuke",
+   "name": "18週年——紅烏龍茶王",
+   "name_en": null,
+   "category": "季節限定",
+   "temperature": "both",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "tw-kebuke:18週年——紅烏龍茶王:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 39.0,
+     "caffeine_mg": 44.2,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-kebuke:18週年——紅烏龍茶王:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 45.5,
+     "caffeine_mg": 94.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:18週年——紅烏龍茶王歐蕾:both",
+   "brand_id": "tw-kebuke",
+   "name": "18週年——紅烏龍茶王歐蕾",
+   "name_en": null,
+   "category": "季節限定",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-kebuke:18週年——紅烏龍茶王歐蕾:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 43.1,
+     "caffeine_mg": 52.5,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-kebuke:18週年——紅烏龍茶王歐蕾:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 52.1,
+     "caffeine_mg": 107.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:冷露歐蕾:both",
+   "brand_id": "tw-kebuke",
+   "name": "冷露歐蕾",
+   "name_en": null,
+   "category": "乎乾 鮮奶茶 Tea Latte",
+   "temperature": "both",
+   "liquid_color": "#C98B3A",
+   "servings": [
+    {
+     "id": "tw-kebuke:冷露歐蕾:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 35.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-kebuke:冷露歐蕾:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 48.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:春梅冰茶:both",
+   "brand_id": "tw-kebuke",
+   "name": "春梅冰茶",
+   "name_en": null,
+   "category": "乎乾 手作 Mix tea",
+   "temperature": "both",
+   "liquid_color": "#E2B65A",
+   "servings": [
+    {
+     "id": "tw-kebuke:春梅冰茶:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 59.3,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    },
+    {
+     "id": "tw-kebuke:春梅冰茶:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 85.9,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:春檸綠茶:both",
+   "brand_id": "tw-kebuke",
+   "name": "春檸綠茶",
+   "name_en": null,
+   "category": "乎乾 手作 Mix tea",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "tw-kebuke:春檸綠茶:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 49.4,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-kebuke:春檸綠茶:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 59.3,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:春芽冷露:both",
+   "brand_id": "tw-kebuke",
+   "name": "春芽冷露",
+   "name_en": null,
+   "category": "乎乾 冬瓜 White gourd",
+   "temperature": "both",
+   "liquid_color": "#C98B3A",
+   "servings": [
+    {
+     "id": "tw-kebuke:春芽冷露:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 33.0,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-kebuke:春芽冷露:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 52.0,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:春芽奶茶:both",
+   "brand_id": "tw-kebuke",
+   "name": "春芽奶茶",
+   "name_en": null,
+   "category": "乎乾 奶茶 Milk Tea",
+   "temperature": "both",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "tw-kebuke:春芽奶茶:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 49.9,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    },
+    {
+     "id": "tw-kebuke:春芽奶茶:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 61.9,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:春芽奶茶-＋酷涼配方:both",
+   "brand_id": "tw-kebuke",
+   "name": "春芽奶茶(＋酷涼配方)",
+   "name_en": null,
+   "category": "乎乾 奶茶 Milk Tea",
+   "temperature": "both",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "tw-kebuke:春芽奶茶-＋酷涼配方:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 48.4,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    },
+    {
+     "id": "tw-kebuke:春芽奶茶-＋酷涼配方:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 64.3,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:春芽綠茶:both",
+   "brand_id": "tw-kebuke",
+   "name": "春芽綠茶",
+   "name_en": null,
+   "category": "乎乾 好茶 Classic",
+   "temperature": "both",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "tw-kebuke:春芽綠茶:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 40.0,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-kebuke:春芽綠茶:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 45.0,
+     "caffeine_mg": 201.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 201.0,
+      "max_mg": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:檸檬冷露:both",
+   "brand_id": "tw-kebuke",
+   "name": "檸檬冷露",
+   "name_en": null,
+   "category": "乎乾 冬瓜 White gourd",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "tw-kebuke:檸檬冷露:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 38.8,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    },
+    {
+     "id": "tw-kebuke:檸檬冷露:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 54.4,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:熟成冷露:both",
+   "brand_id": "tw-kebuke",
+   "name": "熟成冷露",
+   "name_en": null,
+   "category": "乎乾 冬瓜 White gourd",
+   "temperature": "both",
+   "liquid_color": "#C98B3A",
+   "servings": [
+    {
+     "id": "tw-kebuke:熟成冷露:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 33.0,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-kebuke:熟成冷露:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 52.0,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:熟成奶茶:both",
+   "brand_id": "tw-kebuke",
+   "name": "熟成奶茶",
+   "name_en": null,
+   "category": "乎乾 奶茶 Milk Tea",
+   "temperature": "both",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "tw-kebuke:熟成奶茶:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 55.4,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-kebuke:熟成奶茶:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 68.3,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:熟成奶茶-＋酷涼配方:both",
+   "brand_id": "tw-kebuke",
+   "name": "熟成奶茶(＋酷涼配方)",
+   "name_en": null,
+   "category": "乎乾 奶茶 Milk Tea",
+   "temperature": "both",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "tw-kebuke:熟成奶茶-＋酷涼配方:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 53.9,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-kebuke:熟成奶茶-＋酷涼配方:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 70.7,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:熟成歐蕾:both",
+   "brand_id": "tw-kebuke",
+   "name": "熟成歐蕾",
+   "name_en": null,
+   "category": "乎乾 鮮奶茶 Tea Latte",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-kebuke:熟成歐蕾:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 47.0,
+     "caffeine_mg": 201.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 201.0,
+      "max_mg": null
+     }
+    },
+    {
+     "id": "tw-kebuke:熟成歐蕾:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 55.0,
+     "caffeine_mg": 201.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 201.0,
+      "max_mg": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:熟成紅茶:both",
+   "brand_id": "tw-kebuke",
+   "name": "熟成紅茶",
+   "name_en": null,
+   "category": "乎乾 好茶 Classic",
+   "temperature": "both",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "tw-kebuke:熟成紅茶:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 45.0,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-kebuke:熟成紅茶:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 50.0,
+     "caffeine_mg": 201.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 201.0,
+      "max_mg": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:熟檸紅茶:both",
+   "brand_id": "tw-kebuke",
+   "name": "熟檸紅茶",
+   "name_en": null,
+   "category": "乎乾 手作 Mix tea",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "tw-kebuke:熟檸紅茶:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 49.4,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-kebuke:熟檸紅茶:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 59.3,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:白玉奶茶:both",
+   "brand_id": "tw-kebuke",
+   "name": "白玉奶茶",
+   "name_en": null,
+   "category": "乎乾 奶茶 Milk Tea",
+   "temperature": "both",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "tw-kebuke:白玉奶茶:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 53.3,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    },
+    {
+     "id": "tw-kebuke:白玉奶茶:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 65.3,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:白玉奶茶-＋酷涼配方:both",
+   "brand_id": "tw-kebuke",
+   "name": "白玉奶茶(＋酷涼配方)",
+   "name_en": null,
+   "category": "乎乾 奶茶 Milk Tea",
+   "temperature": "both",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "tw-kebuke:白玉奶茶-＋酷涼配方:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 58.3,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    },
+    {
+     "id": "tw-kebuke:白玉奶茶-＋酷涼配方:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 71.0,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:白玉歐蕾:both",
+   "brand_id": "tw-kebuke",
+   "name": "白玉歐蕾",
+   "name_en": null,
+   "category": "乎乾 鮮奶茶 Tea Latte",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-kebuke:白玉歐蕾:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 42.0,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-kebuke:白玉歐蕾:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 50.0,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:胭脂冷露:both",
+   "brand_id": "tw-kebuke",
+   "name": "胭脂冷露",
+   "name_en": null,
+   "category": "乎乾 冬瓜 White gourd",
+   "temperature": "both",
+   "liquid_color": "#C98B3A",
+   "servings": [
+    {
+     "id": "tw-kebuke:胭脂冷露:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 37.6,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-kebuke:胭脂冷露:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 52.4,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:胭脂多多:both",
+   "brand_id": "tw-kebuke",
+   "name": "胭脂多多",
+   "name_en": null,
+   "category": "乎乾 手作 Mix tea",
+   "temperature": "both",
+   "liquid_color": "#F7F3EA",
+   "servings": [
+    {
+     "id": "tw-kebuke:胭脂多多:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 84.0,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-kebuke:胭脂多多:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 105.0,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:胭脂奶茶:both",
+   "brand_id": "tw-kebuke",
+   "name": "胭脂奶茶",
+   "name_en": null,
+   "category": "乎乾 奶茶 Milk Tea",
+   "temperature": "both",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "tw-kebuke:胭脂奶茶:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 49.9,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    },
+    {
+     "id": "tw-kebuke:胭脂奶茶:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 61.9,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:胭脂奶茶-＋酷涼配方:both",
+   "brand_id": "tw-kebuke",
+   "name": "胭脂奶茶(＋酷涼配方)",
+   "name_en": null,
+   "category": "乎乾 奶茶 Milk Tea",
+   "temperature": "both",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "tw-kebuke:胭脂奶茶-＋酷涼配方:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 48.4,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    },
+    {
+     "id": "tw-kebuke:胭脂奶茶-＋酷涼配方:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 64.3,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:胭脂歐蕾:both",
+   "brand_id": "tw-kebuke",
+   "name": "胭脂歐蕾",
+   "name_en": null,
+   "category": "乎乾 鮮奶茶 Tea Latte",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-kebuke:胭脂歐蕾:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 46.4,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-kebuke:胭脂歐蕾:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 55.3,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:胭脂紅茶:both",
+   "brand_id": "tw-kebuke",
+   "name": "胭脂紅茶",
+   "name_en": null,
+   "category": "乎乾 好茶 Classic",
+   "temperature": "both",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "tw-kebuke:胭脂紅茶:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 45.0,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-kebuke:胭脂紅茶:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 50.0,
+     "caffeine_mg": 201.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 201.0,
+      "max_mg": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:茶花烏龍厚乳:both",
+   "brand_id": "tw-kebuke",
+   "name": "茶花烏龍厚乳",
+   "name_en": null,
+   "category": "乎乾 厚乳 Rich Latte",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-kebuke:茶花烏龍厚乳:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 44.5,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-kebuke:茶花烏龍厚乳:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 54.3,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:茶花烏龍多多:both",
+   "brand_id": "tw-kebuke",
+   "name": "茶花烏龍多多",
+   "name_en": null,
+   "category": "乎乾 手作 Mix tea",
+   "temperature": "both",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "tw-kebuke:茶花烏龍多多:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 55.4,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-kebuke:茶花烏龍多多:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 70.1,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:茶花烏龍梅:both",
+   "brand_id": "tw-kebuke",
+   "name": "茶花烏龍梅",
+   "name_en": null,
+   "category": "乎乾 手作 Mix tea",
+   "temperature": "both",
+   "liquid_color": "#E2B65A",
+   "servings": [
+    {
+     "id": "tw-kebuke:茶花烏龍梅:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 60.6,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-kebuke:茶花烏龍梅:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 72.6,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:茶花輕焙烏龍:both",
+   "brand_id": "tw-kebuke",
+   "name": "茶花輕焙烏龍",
+   "name_en": null,
+   "category": "乎乾 好茶 Classic",
+   "temperature": "both",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "tw-kebuke:茶花輕焙烏龍:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 39.0,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-kebuke:茶花輕焙烏龍:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 45.5,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:蘋果春芽:both",
+   "brand_id": "tw-kebuke",
+   "name": "蘋果春芽",
+   "name_en": null,
+   "category": "乎乾 手作 Mix tea",
+   "temperature": "both",
+   "liquid_color": "#E2B65A",
+   "servings": [
+    {
+     "id": "tw-kebuke:蘋果春芽:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 53.5,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-kebuke:蘋果春芽:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 69.6,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:蘋果春芽厚乳:both",
+   "brand_id": "tw-kebuke",
+   "name": "蘋果春芽厚乳",
+   "name_en": null,
+   "category": "乎乾 厚乳 Rich Latte",
+   "temperature": "both",
+   "liquid_color": "#E2B65A",
+   "servings": [
+    {
+     "id": "tw-kebuke:蘋果春芽厚乳:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 57.5,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:蘋果茶花烏龍:both",
+   "brand_id": "tw-kebuke",
+   "name": "蘋果茶花烏龍",
+   "name_en": null,
+   "category": "乎乾 手作 Mix tea",
+   "temperature": "both",
+   "liquid_color": "#E2B65A",
+   "servings": [
+    {
+     "id": "tw-kebuke:蘋果茶花烏龍:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 53.5,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-kebuke:蘋果茶花烏龍:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 69.6,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:蘋果麗春:both",
+   "brand_id": "tw-kebuke",
+   "name": "蘋果麗春",
+   "name_en": null,
+   "category": "乎乾 手作 Mix tea",
+   "temperature": "both",
+   "liquid_color": "#E2B65A",
+   "servings": [
+    {
+     "id": "tw-kebuke:蘋果麗春:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 53.5,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    },
+    {
+     "id": "tw-kebuke:蘋果麗春:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 69.6,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:酒吧監製系列——檸檬冷露紅烏龍:both",
+   "brand_id": "tw-kebuke",
+   "name": "酒吧監製系列——檸檬冷露紅烏龍",
+   "name_en": null,
+   "category": "季節限定",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "tw-kebuke:酒吧監製系列——檸檬冷露紅烏龍:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 53.4,
+     "caffeine_mg": 132.7,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:酒吧監製系列——白柚水玉紅烏龍:both",
+   "brand_id": "tw-kebuke",
+   "name": "酒吧監製系列——白柚水玉紅烏龍",
+   "name_en": null,
+   "category": "季節限定",
+   "temperature": "both",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "tw-kebuke:酒吧監製系列——白柚水玉紅烏龍:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 44.6,
+     "caffeine_mg": 135.5,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-kebuke:酒吧監製系列——白柚水玉紅烏龍:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 67.0,
+     "caffeine_mg": 143.8,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:酒吧監製系列——黑葉荔香紅烏龍:both",
+   "brand_id": "tw-kebuke",
+   "name": "酒吧監製系列——黑葉荔香紅烏龍",
+   "name_en": null,
+   "category": "季節限定",
+   "temperature": "both",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "tw-kebuke:酒吧監製系列——黑葉荔香紅烏龍:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 45.5,
+     "caffeine_mg": 80.2,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-kebuke:酒吧監製系列——黑葉荔香紅烏龍:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 57.4,
+     "caffeine_mg": 146.5,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:金蜜檸檬:both",
+   "brand_id": "tw-kebuke",
+   "name": "金蜜檸檬",
+   "name_en": null,
+   "category": "乎乾 手作 Mix tea",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "tw-kebuke:金蜜檸檬:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 42.1,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    },
+    {
+     "id": "tw-kebuke:金蜜檸檬:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 53.3,
+     "caffeine_mg": 100.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 0.0,
+      "max_mg": 100.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:金蜜歐蕾:both",
+   "brand_id": "tw-kebuke",
+   "name": "金蜜歐蕾",
+   "name_en": null,
+   "category": "乎乾 鮮奶茶 Tea Latte",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-kebuke:金蜜歐蕾:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 36.0,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-kebuke:金蜜歐蕾:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 56.0,
+     "caffeine_mg": 201.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 201.0,
+      "max_mg": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:金蜜熟成:both",
+   "brand_id": "tw-kebuke",
+   "name": "金蜜熟成",
+   "name_en": null,
+   "category": "乎乾 手作 Mix tea",
+   "temperature": "both",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "tw-kebuke:金蜜熟成:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 38.0,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-kebuke:金蜜熟成:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 49.0,
+     "caffeine_mg": 201.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 201.0,
+      "max_mg": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:雪花冷露:both",
+   "brand_id": "tw-kebuke",
+   "name": "雪花冷露",
+   "name_en": null,
+   "category": "乎乾 冬瓜 White gourd",
+   "temperature": "both",
+   "liquid_color": "#C98B3A",
+   "servings": [
+    {
+     "id": "tw-kebuke:雪花冷露:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 40.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    },
+    {
+     "id": "tw-kebuke:雪花冷露:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 55.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:雪藏奶茶:both",
+   "brand_id": "tw-kebuke",
+   "name": "雪藏奶茶",
+   "name_en": null,
+   "category": "乎乾 冰淇淋 Ice Cream",
+   "temperature": "both",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "tw-kebuke:雪藏奶茶:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 72.2,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:雪藏紅茶:both",
+   "brand_id": "tw-kebuke",
+   "name": "雪藏紅茶",
+   "name_en": null,
+   "category": "乎乾 冰淇淋 Ice Cream",
+   "temperature": "both",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "tw-kebuke:雪藏紅茶:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 68.8,
+     "caffeine_mg": 201.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 201.0,
+      "max_mg": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "tw-kebuke:麗春紅茶:both",
+   "brand_id": "tw-kebuke",
+   "name": "麗春紅茶",
+   "name_en": null,
+   "category": "乎乾 好茶 Classic",
+   "temperature": "both",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "tw-kebuke:麗春紅茶:both:中杯",
+     "size_label": "中杯",
+     "volume_ml": 500,
+     "sugar_g": 45.0,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    },
+    {
+     "id": "tw-kebuke:麗春紅茶:both:大杯",
+     "size_label": "大杯",
+     "volume_ml": 700,
+     "sugar_g": 50.0,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": {
+      "min_mg": 101.0,
+      "max_mg": 200.0
+     }
+    }
+   ]
+  }
+ ]
+}

@@ -52,7 +52,7 @@ final class AppSettings {
         }
     }
 
-    /// CI 스크린샷은 `-screenshotMenuCountry us|kr`로 고른다(Debug, 저장하지 않는다). UI 테스트가 저장한 나라가 남아 있어도 덮는다.
+    /// CI 스크린샷은 `-screenshotMenuCountry us|kr|tw`로 고른다(Debug, 저장하지 않는다). UI 테스트가 저장한 나라가 남아 있어도 덮는다.
     var menuCountry: MenuCountry {
         #if DEBUG
         if let raw = UserDefaults.standard.string(forKey: "screenshotMenuCountry"), let forced = MenuCountry(rawValue: raw) {

@@ -24,7 +24,9 @@ enum CatalogError: Error, CustomStringConvertible {
 
 enum CatalogStore {
     /// 앱이 읽을 수 있는 스키마 버전. 깨는 변경이 오면 `data/SCHEMA.md`와 함께 올린다.
-    static let supportedSchemaVersion = 1
+    /// 2는 1에 `caffeine_range`만 더했다. 한국·미국 번들은 아직 1이라 둘 다 읽는다.
+    static let supportedSchemaVersions: ClosedRange<Int> = 1...2
+    static var supportedSchemaVersion: Int { supportedSchemaVersions.upperBound }
 
     static let resourceExtension = "json"
 
@@ -39,7 +41,7 @@ enum CatalogStore {
             throw CatalogError.decodingFailed(error)
         }
 
-        guard catalog.schemaVersion == supportedSchemaVersion else {
+        guard supportedSchemaVersions.contains(catalog.schemaVersion) else {
             throw CatalogError.unsupportedSchemaVersion(
                 found: catalog.schemaVersion,
                 supported: supportedSchemaVersion

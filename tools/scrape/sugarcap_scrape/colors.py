@@ -66,20 +66,31 @@ RULES: tuple[ColorRule, ...] = (
     ColorRule(("수박", "토마토", "watermelon"), "#E5413A"),
     ColorRule(("자몽", "그레이프프루트"), "#F06B5B"),
     ColorRule(("비트", "자색", "용과", "dragon ?fruit", "dragon drink"), "#9C2A6B"),
-    ColorRule(("포도", "그레이프", "grape", "와인"), "#6A2C70"),
-    ColorRule(("복숭아", "피치", "peach", "살구"), "#F7A57A"),
+    ColorRule(("포도", "그레이프", "grape", "와인", "葡萄"), "#6A2C70"),
+    ColorRule(("복숭아", "피치", "peach", "살구", "桃"), "#F7A57A"),
+    # Chinese words are for Taiwan menus. Not 草莓/莓/柚: K-FIND names two products in
+    # Chinese (宾格瑞草莓牛奶, 柚子風味乳酸菌飮料) and the Korean catalog is not rebuilt for this.
     # Not "mango": it would recolour K-FIND products named in English (Mango Ice Ade).
     ColorRule(
-        ("망고", "패션후르츠", "패션프루트", "파인애플", "트로피컬", "pineapple", "tropical"),
+        (
+            "망고",
+            "패션후르츠",
+            "패션프루트",
+            "파인애플",
+            "트로피컬",
+            "pineapple",
+            "tropical",
+            "芒果",
+        ),
         "#F7B32B",
     ),
     ColorRule(("오렌지", "한라봉", "천혜향", "감귤", "귤", "당근", "orange"), "#F5871F"),
-    ColorRule(("유자", "레몬", "lemon", "라임", "lime", "생강", "진저"), "#F3D34A"),
+    ColorRule(("유자", "레몬", "lemon", "라임", "lime", "생강", "진저", "檸"), "#F3D34A"),
     ColorRule(("바나나", "banana"), "#F6E08A"),
     ColorRule(("키위", "케일", "녹즙", "알로에", "오이"), "#9CC63B"),
     ColorRule(("민트", "mint"), "#9ED9C3"),
     ColorRule(("코코넛 ?워터", "coconut water"), CLEAR),
-    ColorRule(("말차", "녹차", "그린티", "matcha", "green tea"), GREEN_TEA),
+    ColorRule(("말차", "녹차", "그린티", "matcha", "green tea", "抹茶", "綠茶"), GREEN_TEA),
     ColorRule(("흑임자", "쿠키", "오레오", "쿠앤크"), "#8C8580"),
     ColorRule(
         (
@@ -93,19 +104,24 @@ RULES: tuple[ColorRule, ...] = (
             "choco",
             "mocha",
             "cocoa",
+            "可可",
+            "巧克力",
+            "摩卡",
         ),
         CHOCO,
     ),
-    ColorRule(("흑당", "카라멜", "캐러멜", "caramel", "달고나", "토피"), "#B07A3B"),
+    ColorRule(("흑당", "카라멜", "캐러멜", "caramel", "달고나", "토피", "焦糖", "黑糖"), "#B07A3B"),
     ColorRule(("고구마",), "#C9A07A"),
-    ColorRule(("보리차", "옥수수차", "옥수수수염", "헛개", "결명자", "둥굴레"), "#C98B3A"),
+    ColorRule(
+        ("보리차", "옥수수차", "옥수수수염", "헛개", "결명자", "둥굴레", "冬瓜", "冷露"), "#C98B3A"
+    ),
     ColorRule(
         ("미숫가루", "곡물", "corn", "오곡", "검은콩", "옥수수", "보리", "누룽지", "인절미"), CREAM
     ),
     ColorRule(("홍삼", "인삼", "쌍화", "대추"), "#7A3B1E"),
     ColorRule(("식혜", "수정과"), "#E8D9B0"),
-    ColorRule(("매실", "사과", "애플", "apple", "모과"), "#E2B65A"),
-    ColorRule(("밀크티", "milk tea", "로얄밀크", "타로", "버블티", "chai"), MILK_TEA),
+    ColorRule(("매실", "사과", "애플", "apple", "모과", "蘋果", "梅"), "#E2B65A"),
+    ColorRule(("밀크티", "milk tea", "로얄밀크", "타로", "버블티", "chai", "奶茶"), MILK_TEA),
     # Coffee: milky coffee before black coffee, both after every flavour above.
     ColorRule(
         (
@@ -132,10 +148,15 @@ RULES: tuple[ColorRule, ...] = (
             "cortado",
             # Dutch Bros' signature drinks are breves (half-and-half lattes).
             "dutch faves",
+            "拿鐵",
+            "歐蕾",
+            "卡布奇諾",
+            "瑪琪朵",
+            "厚乳",
         ),
         LATTE,
     ),
-    ColorRule(("에스프레소", "espresso", "리스트레토", "도피오"), ESPRESSO),
+    ColorRule(("에스프레소", "espresso", "리스트레토", "도피오", "濃縮"), ESPRESSO),
     ColorRule(
         (
             "아메리카노",
@@ -147,20 +168,40 @@ RULES: tuple[ColorRule, ...] = (
             "black(?! tea)",
             "커피",
             "coffee",
+            "美式",
+            "咖啡",
+            "冷萃",
+            "手沖",
         ),
         COFFEE,
     ),
     ColorRule(("콜라(?!겐)", "cola", "펩시", "pepsi", "코크", "닥터페퍼", "루트비어"), "#3B1F14"),
     ColorRule(
-        ("얼그레이", "홍차", "아쌈", "다즐링", "black tea", "earl grey", "우롱", "보이차"), TEA
+        (
+            "얼그레이",
+            "홍차",
+            "아쌈",
+            "다즐링",
+            "black tea",
+            "earl grey",
+            "우롱",
+            "보이차",
+            "紅茶",
+            "烏龍",
+            "焙煎茶",
+        ),
+        TEA,
     ),
-    ColorRule(("캐모마일", "카모마일", "루이보스", "허브", "자스민", "재스민"), "#D9A441"),
+    ColorRule(
+        ("캐모마일", "카모마일", "루이보스", "허브", "자스민", "재스민", "花草茶"), "#D9A441"
+    ),
     ColorRule(("두유", "soy", "아몬드", "오트", "귀리", "호두", "땅콩"), "#E6D3B3"),
     ColorRule(
-        ("요거트", "요구르트", "yogurt", "플레인", "요플레", "야쿠르트", "유산균"), "#F7F3EA"
+        ("요거트", "요구르트", "yogurt", "플레인", "요플레", "야쿠르트", "유산균", "多多"),
+        "#F7F3EA",
     ),
     ColorRule(("바닐라", "vanilla", "크림", "cream", "쉐이크", "shake", "코코넛"), "#F1E6CF"),
-    ColorRule(("우유", "milk", "밀크", "밀키스"), MILK),
+    ColorRule(("우유", "milk", "밀크", "밀키스", "鮮奶", "牛奶"), MILK),
     ColorRule(
         (
             "사이다",

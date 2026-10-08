@@ -55,6 +55,21 @@ struct Serving: Decodable, Identifiable, Hashable {
     let caffeineMg: Double?
     /// 원두 선택에 따라 카페인이 갈리는 경우만. 현재 더벤티뿐이다.
     let caffeineVariants: [CaffeineVariant]
+    /// 브랜드가 숫자 대신 구간으로 게시한 카페인(대만, schema 2). 있으면 `caffeineMg`는 구간의 위 끝,
+    /// 위가 열린 구간("201mg 이상")이면 아래 끝이다. schema 1 파일엔 키가 없어 nil이다.
+    let caffeineRange: CaffeineRange?
+}
+
+struct CaffeineRange: Decodable, Hashable {
+    let minMg: Double
+    /// nil이면 위가 열린 구간("201mg 이상").
+    let maxMg: Double?
+
+    /// "101–200", "≤100", "≥201". 대만 표기를 기호로 그대로 쓴다(언어마다 바꿀 말이 없다).
+    var numbers: String {
+        guard let maxMg else { return "≥\(Amount.number(minMg))" }
+        return minMg == 0 ? "≤\(Amount.number(maxMg))" : "\(Amount.number(minMg))–\(Amount.number(maxMg))"
+    }
 }
 
 struct CaffeineVariant: Decodable, Hashable {

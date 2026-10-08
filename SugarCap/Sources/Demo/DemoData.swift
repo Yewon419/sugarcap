@@ -18,7 +18,7 @@ enum DemoData {
     }
 
     /// 이미 기록이 있으면 아무것도 하지 않는다.
-    /// 메뉴 국가에 맞는 음료로 채운다. 미국 값은 `catalog-us.json`의 Starbucks Tall 그대로다.
+    /// 메뉴 국가에 맞는 음료로 채운다. 미국 값은 `catalog-us.json`의 Starbucks Tall, 대만은 `catalog-tw.json`의 cama café M 그대로다.
     static func seed(into context: ModelContext, boundaryHour: Int, country: MenuCountry, now: Date = Date()) {
         do {
             guard try context.fetch(FetchDescriptor<Entry>()).isEmpty else { return }
@@ -37,8 +37,16 @@ enum DemoData {
             case .us:
                 insert(context, "Caffè Americano", "Starbucks", "Tall", sugar: 0, caffeine: 150, at: now.addingTimeInterval(-5400))
                 insert(context, "Caffè Mocha", "Starbucks", "Tall", sugar: 27, caffeine: 95, at: now.addingTimeInterval(-1800))
+            case .tw:
+                // `catalog-tw.json`의 cama café M 그대로(美式 熱, 輕拿鐵 冰).
+                insert(context, "微韻輕美式", "cama café", "M", sugar: 0.2, caffeine: 103.9, at: now.addingTimeInterval(-5400))
+                insert(context, "CAMA金獎拿鐵", "cama café", "M", sugar: 10.2, caffeine: 207.8, at: now.addingTimeInterval(-1800))
             }
-            let pastName = country == .us ? "Drink of the day" : "그날의 음료"
+            let pastName = switch country {
+            case .kr: "그날의 음료"
+            case .us: "Drink of the day"
+            case .tw: "當日飲品"
+            }
 
             // 지난 12일. 배열의 0번이 **어제**다. 최근으로 올수록 적게 마신 값이어야
             // 추이 막대와 "지난주 대비"가 줄어드는 그림이 된다.

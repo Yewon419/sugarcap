@@ -24,6 +24,10 @@ ignore = ["ANN401"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["ANN"]
+# Taiwan pages print fullwidth punctuation (：、（）); the parsers match it verbatim.
+"sugarcap_scrape/brands/tw_*.py" = ["RUF001", "RUF002", "RUF003"]
+# Page fixtures are copied lines; fullwidth punctuation and long lines are the source text.
+"tests/test_tw_*.py" = ["ANN", "RUF001", "RUF002", "RUF003", "E501"]
 
 [tool.mypy]
 python_version = "3.13"

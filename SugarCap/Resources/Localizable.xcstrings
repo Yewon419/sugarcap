@@ -4338,6 +4338,22 @@
         }
       }
     },
+    "카페인은 구간(%@ mg)으로 게시돼 %@ mg으로 셌어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Caffeine is published as a range (%1$@ mg), counted as %2$@ mg"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "咖啡因以區間（%1$@ mg）標示，以 %2$@ mg 計算"
+          }
+        }
+      }
+    },
     "카페인을" : {
       "localizations" : {
         "en" : {

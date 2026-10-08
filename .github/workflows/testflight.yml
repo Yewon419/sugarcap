@@ -290,6 +290,36 @@ jobs:
           for at in 1.5 4.8 7.4 8.8 12.4 13.6; do
             shoot_en "intro-$at" large -screenshotFeeding YES -screenshotIntroAt "$at"
           done
+          # 대만판(SPEC §9.9 ④). 번체 문장 넘침과 대만 메뉴(카페인 구간 표기)를 본다.
+          shoot_zh() {
+            local name="$1" size="$2"
+            shift 2
+            xcrun simctl ui "$SIM_UDID" content_size "$size"
+            xcrun simctl launch "$SIM_UDID" com.sugarcap.app -AppleLanguages "(zh-Hant)" -AppleLocale zh_TW -screenshotMenuCountry tw "$@"
+            sleep 4
+            xcrun simctl io "$SIM_UDID" screenshot "$OUT/zh-$name.png"
+            xcrun simctl terminate "$SIM_UDID" com.sugarcap.app
+          }
+          shoot_zh light large
+          shoot_zh type-ax-xl accessibility-extra-large
+          shoot_zh settings large -initialTab settings
+          shoot_zh settings-type-ax-xl accessibility-extra-large -initialTab settings
+          shoot_zh onboarding-2 large -onboardingCompleted NO -onboardingPage 2
+          shoot_zh onboarding-3 large -onboardingCompleted NO -onboardingPage 3
+          shoot_zh trends large -seedDemo YES -initialTab trends
+          shoot_zh limit-sugar large -initialTab trends -trendLimit sugar
+          shoot_zh limit-caffeine large -initialTab trends -trendLimit caffeine
+          shoot_zh paywall large -mockPro YES -screenshotPaywall YES
+          shoot_zh paywall-type-ax-xl accessibility-extra-large -mockPro YES -screenshotPaywall YES
+          shoot_zh record large -seedDemo YES -screenshotRecord YES
+          shoot_zh daylog large -seedDemo YES -screenshotDayLog YES
+          shoot_zh brand-panel large -seedDemo YES -screenshotBrand tw-cama -screenshotBrandQuery "拿鐵" -screenshotBrandPanel YES
+          shoot_zh brand-panel-caffeine large -seedDemo YES -screenshotSide caffeine -screenshotBrand tw-kebuke -screenshotBrandQuery "熟成紅茶" -screenshotBrandPanel YES
+          shoot_zh brand-many large -seedDemo YES -screenshotBrand tw-kebuke -screenshotBrandQuery "奶茶"
+          shoot_zh gate-feed large -seedDemo YES -screenshotGate feed
+          shoot_zh feeding large -screenshotFeeding YES
+          shoot_zh feeding-summary large -screenshotFeeding YES -screenshotFeedingStage summary
+          shoot_zh feeding-summary-type-ax-xl accessibility-extra-large -screenshotFeeding YES -screenshotFeedingStage summary
           xcrun simctl ui "$SIM_UDID" content_size large
           # 감소 목표는 저장돼 남는다. 맨 끝에 찍고 앱을 지워 스토어 스크린샷(같은 기기일 수 있음)에 넘기지 않는다.
           shoot limit-caffeine-reducing light large -mockProOwned YES -seedGoal caffeine -initialTab trends -trendLimit caffeine
@@ -389,8 +419,27 @@ jobs:
           store_shot_en 03-feeding -screenshotFeeding YES
           store_shot_en 04-paywall -mockPro YES -screenshotPaywall YES
 
+          # 대만 스토어(번체, SPEC §9.9 ④). 미국과 같은 이유로 다시 깔아 대만 메뉴로 채운다.
+          xcrun simctl uninstall "$UDID" com.sugarcap.app
+          xcrun simctl install "$UDID" "$APP"
+          xcrun simctl launch "$UDID" com.sugarcap.app -onboardingCompleted YES
+          sleep 8
+          xcrun simctl terminate "$UDID" com.sugarcap.app
+          mkdir -p "$OUT/zh-Hant"
+          store_shot_zh() {
+            local name="$1"; shift
+            xcrun simctl launch "$UDID" com.sugarcap.app -AppleLanguages "(zh-Hant)" -AppleLocale zh_TW -screenshotMenuCountry tw -seedDemo YES -onboardingCompleted YES "$@"
+            sleep 5
+            xcrun simctl io "$UDID" screenshot "$OUT/zh-Hant/$name.png"
+            xcrun simctl terminate "$UDID" com.sugarcap.app
+          }
+          store_shot_zh 01-today
+          store_shot_zh 02-trends -initialTab trends -mockProOwned YES
+          store_shot_zh 03-feeding -screenshotFeeding YES
+          store_shot_zh 04-paywall -mockPro YES -screenshotPaywall YES
+
           # 업로드 전에 크기를 찍어 둔다. App Store 6.9인치는 1320x2868이어야 한다.
-          for shot in "$OUT"/*.png "$OUT"/en-US/*.png; do
+          for shot in "$OUT"/*.png "$OUT"/en-US/*.png "$OUT"/zh-Hant/*.png; do
             sips -g pixelWidth -g pixelHeight "$shot" | xargs echo
           done
 

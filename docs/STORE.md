@@ -158,7 +158,7 @@ ASC에서 "English (U.S.)" 현지화를 추가하고 아래를 넣는다. 한국
 | 부제 | Sugar and caffeine, by the cup |
 | 개인정보처리방침 URL | https://sugarcap.vercel.app/en/privacy/ (`site/en/privacy/index.html`, 2026-10-08 배포, 200 확인). 앱 페이월 링크도 화면 언어가 한국어가 아니면 이 주소 |
 | 지원 URL | https://sugarcap.vercel.app/ (한국어 페이지. 영어 지원 페이지는 미정) |
-| 가격 | ASC 가격표에서 USD 기준을 따로 정한다(SPEC §9.9) |
+| 가격 | 연간 $9.99, 평생 $29.99(대표님 2026-10-08). ASC API로 미국만 수동 지정, 기준 지역은 KOR 그대로, 다른 나라는 자동 환산. 조회로 반영 확인 |
 
 키워드:
 ```

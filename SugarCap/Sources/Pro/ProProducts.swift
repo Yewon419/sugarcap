@@ -1,6 +1,6 @@
 import Foundation
 
-/// Pro 상품(SPEC §6). 가격 티어는 App Store Connect에서 정한다(연간 9,900원대, 평생 29,000원대).
+/// Pro 상품(SPEC §6). 가격 티어는 App Store Connect에서 정한다(연간 ₩9,900·$9.99, 평생 ₩29,000·$29.99).
 enum ProProduct {
     static let yearly = "com.sugarcap.app.pro.yearly"
     static let lifetime = "com.sugarcap.app.pro.lifetime"

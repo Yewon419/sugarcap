@@ -54,10 +54,20 @@ final class ProStore {
         return ProStore()
     }
 
-    static let mockPlans = [
-        ProPlan(id: ProProduct.yearly, title: String(localized: "연간"), price: "₩9,900", note: String(localized: "해지할 때까지 매년")),
-        ProPlan(id: ProProduct.lifetime, title: String(localized: "평생"), price: "₩29,000", note: String(localized: "한 번만 결제")),
-    ]
+    /// 실제 가격은 App Store가 스토어프런트 통화로 준다. 가짜 상품은 기기 지역으로 그 모양을 흉내 낸다(ASC 가격과 같게).
+    static var mockPlans: [ProPlan] {
+        let isUS = Locale.current.region == .unitedStates
+        return [
+            ProPlan(
+                id: ProProduct.yearly, title: String(localized: "연간"), price: isUS ? "$9.99" : "₩9,900",
+                note: String(localized: "해지할 때까지 매년")
+            ),
+            ProPlan(
+                id: ProProduct.lifetime, title: String(localized: "평생"), price: isUS ? "$29.99" : "₩29,000",
+                note: String(localized: "한 번만 결제")
+            ),
+        ]
+    }
 
     /// 앱이 뜰 때 한 번. 권한을 읽고 갱신 스트림을 연다.
     func start() {

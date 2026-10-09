@@ -541,6 +541,11 @@ enum IntroRig {
         character: "roshu", art: "stand", scale: scale(fitting: "stand", of: "roshu"), lidPad: 0.35,
         limbDirection: ["arm_left": 0, "arm_right": 0, "foot_left": 0, "foot_right": 0]
     )
+    /// 선물 상자를 들고 오는 로슈(SPEC §4.9). 정면 그림이라 팔은 상자를 받친 채 고정, 발만 걷는다.
+    static let roshuGiftArt = RigPainter(
+        character: "roshu", art: "gift-carry", scale: scale(fitting: "gift-carry", of: "roshu"), lidPad: 0.35,
+        limbDirection: ["arm_left": 0, "arm_right": 0, "foot_left": 0, "foot_right": 0]
+    )
     static let kainWalkArt = RigPainter(
         character: "kain", art: "walk", scale: kainScale, lidPad: 0.04, limbDirection: ["leg_far": 0, "leg_near": 0]
     )
@@ -583,6 +588,17 @@ enum IntroRig {
         let swing = cos(2 * Double.pi * c) * moving
         m.limbs["flipper_front"] = 6 * swing
         m.limbs["flipper_side"] = -12 * swing
+        m.bodyDy = -6 * abs(sin(2 * Double.pi * c)) * moving
+    }
+
+    /// 선물 들고 걷기: 걷기와 같은 발 박자(그림만 정면 `gift-carry`). 팔은 상자를 받친 채 두고 몸이 발 박자에 들썩인다.
+    static func roshuGiftWalk(_ m: inout IdleFrame, travelled: Double, moving: Double) {
+        let c = RigMotion.remainder(travelled / 125 / 2, 1)
+        for (foot, phase) in [("foot_left", c), ("foot_right", RigMotion.remainder(c + 0.5, 1))] {
+            let g = footStep(phase, liftBoost: 2.2)
+            m.limbs[foot] = g.rot * moving
+            m.shift[foot] = CGVector(dx: g.x * moving, dy: -g.lift * moving)
+        }
         m.bodyDy = -6 * abs(sin(2 * Double.pi * c)) * moving
     }
 

@@ -12,6 +12,7 @@ struct TodayView: View {
     @Query(sort: \Entry.loggedAt, order: .reverse) private var entries: [Entry]
     @Query private var settlements: [DaySettlement]
     @Query private var affinities: [Affinity]
+    @Query(sort: \GiftEvent.createdAt) private var gifts: [GiftEvent]
 
     /// 마지막으로 보던 면으로 연다(2026-10-06 대표님). 손으로 넘길 때만 저장한다(스크린샷 인자는 저장하지 않는다).
     @State private var pickedSide: CupSide = UserDefaults.standard.string(forKey: TodayView.lastSideKey)
@@ -54,6 +55,10 @@ struct TodayView: View {
     @State private var undoToast: UndoToast?
     /// 저장·정산 실패를 사용자에게 알린다. 로그만 남기면 기록이 사라져도 모른다.
     @State private var failureMessage: String?
+    /// 상자를 눌러 내용 카드가 떠 있는 선물(SPEC §4.9). "확인"을 눌러야 연 것으로 저장한다.
+    @State private var openedGift: GiftEvent?
+    /// 첫 보상 전에 추이 버튼을 누른 때. 2초 동안 "아직 잠긴 기능이에요".
+    @State private var trendsLockToastAt: Date?
 
     @Environment(ProStore.self) private var pro
 
@@ -208,14 +213,24 @@ struct TodayView: View {
             HStack(spacing: 0) {
                 ForEach(trackedSides) { cupSide in
                     let step = cupStep(cupSide, totals: totals)
+                    let isActive = cupSide == side && !isSliding && isOnScreen && !isSettingsPresented
+                    let gift = pendingGift(for: cupSide)
+                    // 선물이 와 있으면 운반 캐릭터가 곧 그 캐릭터다. 열고 나면 대기 자세로 돌아온다(SPEC §4.9).
                     CupView(
                         step: step, setID: cupSide.cupSetID,
-                        idle: IdleCharacterLayer(
-                            side: cupSide, step: step, isActive: cupSide == side && !isSliding && isOnScreen && !isSettingsPresented,
+                        idle: gift != nil ? nil : IdleCharacterLayer(
+                            side: cupSide, step: step, isActive: isActive,
                             unlockedLevel: unlockedLevel(cupSide),
                             onMiss: { tapCup(at: $0, screen: proxy.frame(in: .global)) },
                             guest: trackedSides.count == 1 && hasOnlooker ? cupSide.other : nil
-                        )
+                        ),
+                        gift: gift.map { gift in
+                            GiftCarrierLayer(
+                                side: cupSide, step: step, isActive: isActive && openedGift == nil,
+                                onOpen: { openedGift = gift },
+                                onMiss: { tapCup(at: $0, screen: proxy.frame(in: .global)) }
+                            )
+                        }
                     )
                     .frame(width: width)
                 }
@@ -253,7 +268,96 @@ struct TodayView: View {
         .accessibilityLabel("음료 추가")
         .accessibilityAddTraits(.isButton)
         .accessibilityAction { isRecordSheetPresented = true }
+        .accessibilityActions {
+            if let gift = pendingGift(for: side) {
+                Button("선물 열기") { openedGift = gift }
+            }
+        }
         .accessibilityIdentifier("record-add")
+    }
+
+    // MARK: - 선물(§4.9)
+
+    /// 이 면으로 온 선물 중 가장 오래된 것. 면마다 하나씩만 보이고, 열면 다음 것이 온다.
+    private func pendingGift(for cupSide: CupSide) -> GiftEvent? {
+        gifts.first { !$0.isOpened && $0.cupSide == cupSide }
+    }
+
+    /// 첫 보상(추이 열림) 선물을 열었는지. Debug에서는 추이로 바로 여는 스크린샷·UI 테스트가 많아 인자로 푼다.
+    private var isTrendsUnlocked: Bool {
+        #if DEBUG
+        if UserDefaults.standard.bool(forKey: "trendsUnlocked") || AppTab.initial == .trends { return true }
+        #endif
+        return GiftMath.isTrendsUnlocked(gifts: gifts.compactMap { gift in
+            gift.giftKind.map { GiftMath.Record(kind: $0, isOpened: gift.isOpened) }
+        })
+    }
+
+    private func openTrends() {
+        if isTrendsUnlocked {
+            isTrendsPresented = true
+        } else {
+            trendsLockToastAt = Date()
+        }
+    }
+
+    /// 카드의 "확인". 이때 연 것으로 저장한다(상자만 누르고 앱을 끄면 다시 들고 서 있다).
+    private func confirmGift(_ gift: GiftEvent) {
+        GiftStore.open(gift, now: Date())
+        do {
+            try context.save()
+        } catch {
+            Self.logger.error("선물 저장 실패: \(String(describing: error), privacy: .public)")
+            failureMessage = String(localized: "선물을 저장하지 못했어요. 앱을 다시 열어 주세요.")
+        }
+        openedGift = nil
+    }
+
+    /// CI 스크린샷·UI 테스트 전용(Debug `-screenshotGift trends`): 선물이 와 있는 상태로 연다. 이미 안 연 선물이 있으면 그대로.
+    /// `-screenshotGiftCard YES`면 상자를 누른 뒤(카드)까지.
+    private func presentScreenshotGiftIfRequested() {
+        #if DEBUG
+        let defaults = UserDefaults.standard
+        guard let raw = defaults.string(forKey: "screenshotGift") else { return }
+        let kind: GiftKind = raw == "trends" ? .trendsUnlock : (GiftKind(rawValue: raw) ?? .trendsUnlock)
+        let gift: GiftEvent
+        if let pending = pendingGift(for: side) {
+            gift = pending
+        } else {
+            gift = GiftEvent(kind: kind, side: side, createdAt: Date())
+            context.insert(gift)
+            try? context.save()
+        }
+        if defaults.bool(forKey: "screenshotGiftCard") { openedGift = gift }
+        #endif
+    }
+
+    @ViewBuilder
+    private func giftCard() -> some View {
+        if let openedGift {
+            Color.black.opacity(0.12)
+                .ignoresSafeArea()
+                .onTapGesture { }
+            GiftCardView(gift: openedGift) { confirmGift(openedGift) }
+                .padding(.horizontal, 24)
+                .transition(.scale(scale: 0.92).combined(with: .opacity))
+        }
+    }
+
+    @ViewBuilder
+    private func trendsLockToast() -> some View {
+        if let trendsLockToastAt {
+            Text("아직 잠긴 기능이에요")
+                .font(AppFont.pretendard(15, .semibold, relativeTo: .subheadline))
+                .glassPill()
+                .padding(.top, 56)
+                .transition(.opacity.combined(with: .move(edge: .top)))
+                .accessibilityIdentifier("trends-locked")
+                .task(id: trendsLockToastAt) {
+                    try? await Task.sleep(for: .seconds(2))
+                    if self.trendsLockToastAt == trendsLockToastAt { self.trendsLockToastAt = nil }
+                }
+        }
     }
 
     /// 4번에 1번꼴. Debug(UI 테스트·CI 스크린샷)에서는 `-screenshotOnlooker YES`일 때만 나와 컵 누르기를 가리지 않는다.
@@ -363,7 +467,14 @@ struct TodayView: View {
             banners(today: today)
                 .padding(.horizontal, 20)
                 .padding(.top, 191)
+
+            trendsLockToast()
+                .frame(maxWidth: .infinity)
+            giftCard()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        .animation(.spring(response: 0.35, dampingFraction: 0.9), value: openedGift?.id)
+        .animation(.easeOut(duration: 0.2), value: trendsLockToastAt)
         .fullScreenCover(item: $gate, onDismiss: {
             isGateRehearsal = false
             presentGateIfPending()
@@ -390,6 +501,7 @@ struct TodayView: View {
         .task(id: today) {
             refreshSettlement(today: today)
             presentScreenshotFeedingIfRequested(totals: totals)
+            presentScreenshotGiftIfRequested()
         }
     }
 
@@ -453,7 +565,8 @@ struct TodayView: View {
     /// 추이 · 설정. 둘 다 같은 36pt 옅은 원이다. 호감도 버튼은 2026-10-06 대표님 지시로 뺐다.
     private var cornerButtons: some View {
         HStack(spacing: 0) {
-            Button { isTrendsPresented = true } label: { cornerCircle(NavGlyphView(glyph: .trends)) }
+            // 첫 보상 전에는 잠겨 있다(SPEC §4.9). 버튼은 그대로 두고 누르면 한 줄만 띄운다(2026-10-09 대표님).
+            Button { openTrends() } label: { cornerCircle(NavGlyphView(glyph: .trends)) }
                 .accessibilityLabel("추이")
                 .accessibilityIdentifier("open-trends")
             Button { isSettingsPresented = true } label: { cornerCircle(NavGlyphView(glyph: .settings)) }
@@ -641,9 +754,10 @@ struct TodayView: View {
             _ = try SettlementStore.row(for: today, in: context)
             try context.save()
 
-            let plan = SettlementPlanner.plan(
-                today: today, records: try SettlementStore.records(in: context)
-            )
+            let records = try SettlementStore.records(in: context)
+            let plan = SettlementPlanner.plan(today: today, records: records)
+            // 선물이 생기기 전부터 쓰던 기기는 추이가 잠기지 않게 먼저 소급한다(이번 적립 전 상태로 판정).
+            _ = try GiftStore.adoptExistingProgress(records: records, now: Date(), in: context)
             var credited: [FeedResult] = []
             for day in plan.finalize {
                 let row = try SettlementStore.row(for: day, in: context)
@@ -652,6 +766,8 @@ struct TodayView: View {
                     now: Date(), in: context
                 )
             }
+            // 첫 적립 뒤 첫 선물 = 추이 열림(SPEC §4.9).
+            _ = try GiftStore.grantFirstReward(credited: credited, now: Date(), in: context)
             if let settings = settingsRows.first {
                 // 꺼진 면의 감소 목표는 멈춘다. 다시 켜면 그동안의 주도 저장된 기록으로 판정한다.
                 let sides = trackedSides

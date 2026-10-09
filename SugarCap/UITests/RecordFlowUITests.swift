@@ -291,6 +291,8 @@ extension RecordFlowUITests {
     func testTrendsPushesFromCornerAndGoesBack() throws {
         continueAfterFailure = false
         let app = XCUIApplication()
+        // 첫 보상 전엔 추이가 잠겨 있다(SPEC §4.9). 여기선 추이 자체를 보니 인자로 푼다.
+        app.launchArguments += ["-trendsUnlocked", "YES"]
         app.launch()
 
         completeOnboardingIfPresented(app)
@@ -306,6 +308,34 @@ extension RecordFlowUITests {
 
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.descendants(matching: .any)["cup-summary"].waitForExistence(timeout: 5), "뒤로 가기로 오늘에 안 돌아옴")
+    }
+
+    /// 첫 보상 선물(SPEC §4.9): 추이는 잠겨 있다가 로슈가 들고 온 선물을 열면 열린다. 운반 캐릭터는 접근성 요소가
+    /// 아니라(컵 장면이 요소 하나) 서 있는 자리(잔 앞 바닥 가운데)를 좌표로 누른다. `-giftAt 3`으로 걸어온 뒤에 세워 둔다.
+    @MainActor
+    func testTrendsLockedUntilFirstGiftIsOpened() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments += ["-initialTab", "today", "-screenshotGift", "trends", "-giftAt", "3"]
+        app.launch()
+        completeOnboardingIfPresented(app)
+        let ui = Driver(app: app)
+        XCTAssertTrue(ui.element("cup-summary").waitForExistence(timeout: 15))
+
+        app.buttons["open-trends"].tap()
+        XCTAssertTrue(ui.element("trends-locked").waitForExistence(timeout: 3), "첫 보상 전인데 추이가 잠기지 않음")
+        XCTAssertFalse(ui.element("trend-range").exists, "잠겼는데 추이가 열림")
+
+        let window = app.windows.firstMatch
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.81)).tap()
+        XCTAssertTrue(ui.element("gift-card").waitForExistence(timeout: 5), "선물 상자를 눌렀는데 카드가 안 뜸")
+        app.buttons["gift-confirm"].tap()
+        XCTAssertTrue(ui.element("gift-card").waitForNonExistence(timeout: 5), "확인을 눌렀는데 카드가 안 닫힘")
+
+        app.buttons["open-trends"].tap()
+        XCTAssertTrue(ui.element("trend-range").waitForExistence(timeout: 5), "선물을 열었는데 추이가 안 열림")
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(ui.element("cup-summary").waitForExistence(timeout: 5), "뒤로 가기로 오늘에 안 돌아옴")
     }
 
     /// 컵 넘기기를 천천히 끌어 플로우 녹화에 남긴다. 캐릭터가 컵과 한 몸으로 밀리는지 영상 프레임으로 본다

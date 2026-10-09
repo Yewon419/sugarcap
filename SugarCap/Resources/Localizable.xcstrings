@@ -2594,6 +2594,70 @@
         }
       }
     },
+    "선물" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gift"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "禮物"
+          }
+        }
+      }
+    },
+    "선물 열기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open gift"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打開禮物"
+          }
+        }
+      }
+    },
+    "선물을 받았어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You got a gift"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "收到了禮物"
+          }
+        }
+      }
+    },
+    "선물을 저장하지 못했어요. 앱을 다시 열어 주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't save the gift. Please reopen the app."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法儲存禮物。請重新開啟 App。"
+          }
+        }
+      }
+    },
     "설정" : {
       "localizations" : {
         "en" : {
@@ -2814,6 +2878,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "還沒有記錄。杯子滿滿地等著你。"
+          }
+        }
+      }
+    },
+    "아직 잠긴 기능이에요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This is still locked"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此功能尚未解鎖"
           }
         }
       }
@@ -3294,6 +3374,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "省下今天的份量，會去哪裡呢...？"
+          }
+        }
+      }
+    },
+    "오른쪽 위 버튼으로 지난 날들의 잔을 볼 수 있어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use the top-right button to see the cups from past days"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可用右上角的按鈕查看過去幾天的杯子"
           }
         }
       }
@@ -4174,6 +4270,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "每月趨勢檢視"
+          }
+        }
+      }
+    },
+    "추이가 열렸어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trends are open"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "趨勢已開啟"
           }
         }
       }

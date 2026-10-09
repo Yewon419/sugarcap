@@ -31,8 +31,8 @@ SCALE = 0.2
 
 CHARACTER_IDS = ["roshu", "kain"]
 # Arts the app draws that no idle pose uses. Roshu "stand" is the front-facing character art
-# (feeding summary, intro).
-EXTRA_ARTS: dict[str, list[str]] = {"roshu": ["stand"]}
+# (feeding summary, intro); "gift-carry" walks a present onto Today (SPEC 4.9).
+EXTRA_ARTS: dict[str, list[str]] = {"roshu": ["stand", "gift-carry"]}
 # Arts whose canvas is not 2500 px. Roshu "stand" is 935x1024 and draws at 150 pt.
 ART_SCALE: dict[str, float] = {"stand": 0.5}
 

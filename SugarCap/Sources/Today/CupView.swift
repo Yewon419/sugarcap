@@ -13,11 +13,14 @@ struct CupView: View {
     let setID: String
     /// 캐릭터 대기 자세. 오늘 탭 컵에만 붙인다.
     let idle: IdleCharacterLayer?
+    /// 선물을 들고 온 캐릭터(SPEC §4.9). 있는 동안 대기 자세 대신 이게 캐릭터다.
+    let gift: GiftCarrierLayer?
 
-    init(step: Int, setID: String = CupLevel.defaultSetID, idle: IdleCharacterLayer? = nil) {
+    init(step: Int, setID: String = CupLevel.defaultSetID, idle: IdleCharacterLayer? = nil, gift: GiftCarrierLayer? = nil) {
         self.step = step
         self.setID = setID
         self.idle = idle
+        self.gift = gift
     }
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -52,6 +55,7 @@ struct CupView: View {
                         }
                         // 사진 칸 안에 두어 사진과 한 묶음으로 움직인다. 단계가 바뀔 때 자세가 다시 시작되지 않게 `.id` 밖에 둔다.
                         .overlay { idle }
+                        .overlay { gift }
                         .clipped()
                         .mask {
                             LinearGradient(

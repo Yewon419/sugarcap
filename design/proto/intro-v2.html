@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>슈가캡 · 로슈·카인 소개 v2 (영상용 단독 무대)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<style>
+  /* screens-intro.js(v1)를 1080×1920 무대 하나로 떼어 낸 것. 색은 앱(MotionViews.swift) 값.
+     v1과 다른 점(2026-10-01 대표님 피드백: 크기·비율, 뻣뻣함, 카인 360° 회전):
+     - 캐릭터 = 대기 자세 리그(걷기 그림의 몸통·팔다리 조각 + 눈꺼풀)를 캔버스에 그린다. 걸어 들어오고, 숨 쉬고, 깜빡인다.
+     - 크기 = 오늘 화면과 같은 픽셀 배율 비(카인 = 로슈 × 0.891). 로슈 그림 높이 400(v1 480).
+     - 카인 = 회전·떨기 대신 고개 갸웃 → 제자리 콩콩 두 번. */
+  * { box-sizing: border-box; margin: 0; }
+  html, body { background: #000; }
+  body { width: 1080px; height: 1920px; overflow: hidden; font-family: "Pretendard", sans-serif; }
+  .stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: #F4F4F5; }
+  .layer, .group, .panel, .night, canvas.chars { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; }
+  svg.layer { overflow: visible; }
+  .panel.pink { background: #E5566F; }
+  .panel.amber { background: #E3C29F; }
+  .panel.cream { background: #F4F4F5; }
+  .night { opacity: 0; background: #172239; }
+  .ripple { position: absolute; left: 340px; top: 990px; width: 400px; height: 400px; border-radius: 50%; border: 6px solid #E5566F; opacity: 0; }
+  .drop { position: absolute; left: 540px; top: 0; background-size: contain; background-repeat: no-repeat; background-position: center; }
+  .drop.big { width: 220px; height: 220px; }
+  .drop.mid { width: 170px; height: 170px; }
+  .drop.small { width: 110px; height: 110px; }
+  .drop.rain { width: 96px; height: 96px; }
+  .text { position: absolute; left: 150px; right: 110px; top: 250px; color: #18181B;
+    font-weight: 800; font-size: 150px; letter-spacing: -0.02em; line-height: 1.14; }
+  .mask { display: block; overflow: hidden; padding-bottom: .04em; }
+  .mask > span { display: block; }
+  .name { font-weight: 900; font-size: 240px; letter-spacing: 0; color: #fff; line-height: 1.1; margin-top: 6px; }
+  #t2 .name { color: #3B1D0E; }
+  .text.small { font-size: 96px; line-height: 1.2; }
+  .bond { position: absolute; left: 240px; right: 240px; top: 1590px; text-align: center; opacity: 0; color: #18181B; }
+  .bond-name { font-size: 54px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 26px; }
+  .bond-bar { height: 14px; border-radius: 7px; background: rgba(128, 128, 128, .3); overflow: hidden; }
+  .bond-bar i { display: block; height: 100%; width: 0; border-radius: 7px; background: #18181B; }
+  /* 폰 위 장치(874pt 화면 높이 → 1920 무대 배율 2.197로 키움) */
+  .progress { position: absolute; left: 44px; right: 44px; top: 123px; display: flex; gap: 11px; z-index: 9; }
+  .progress i { flex: 1; height: 7px; border-radius: 4px; background: rgba(24, 24, 27, .16); overflow: hidden; }
+  .progress b { display: block; height: 100%; width: 0; background: #18181B; }
+  .skip { position: absolute; right: 44px; top: 160px; z-index: 9; font-size: 31px; font-weight: 500; color: rgba(24, 24, 27, .72); }
+  .stage.isNight .progress i { background: rgba(255, 255, 255, .22); }
+  .stage.isNight .progress b { background: #fff; }
+  .stage.isNight .skip { color: rgba(255, 255, 255, .8); }
+  .cta { position: absolute; left: 53px; right: 53px; bottom: 97px; height: 123px; border-radius: 62px; z-index: 9; opacity: 0;
+    background: #18181B; color: #fff; display: grid; place-items: center; font-size: 37px; font-weight: 700; }</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <svg class="layer" id="grid" viewBox="0 0 1080 1920" aria-hidden="true"></svg>
+  <div class="group" id="g0">
+    <div class="text small" id="t0"><span class="mask"><span>오늘 남긴 만큼은</span></span><span class="mask"><span>이 친구들에게 가요</span></span></div>
+    <i class="drop mid" id="opS"></i><i class="drop mid" id="opC"></i>
+  </div>
+  <div class="ripple" id="rip1"></div><div class="ripple" id="rip2"></div>
+  <div class="group" id="g1">
+    <div class="panel pink" id="pink"></div>
+    <i class="drop small" id="orbit0" style="z-index:1"></i><i class="drop small" id="orbit1" style="z-index:1"></i><i class="drop small" id="orbit2" style="z-index:1"></i>
+    <canvas class="chars" id="cv1" width="1080" height="1920" style="z-index:2"></canvas>
+    <div class="text" id="t1" style="z-index:4"><span class="mask"><span>달달한 걸</span></span><span class="mask"><span>좋아하는</span></span><span class="mask name"><span>로슈!</span></span></div>
+  </div>
+  <i class="drop big" id="dropS"></i>
+  <div class="group" id="g2">
+    <div class="panel amber" id="amber"></div>
+    <svg class="layer" viewBox="0 0 1080 1920" aria-hidden="true">
+      <g id="ringG"><circle id="ring" cx="540" cy="1290" r="320" fill="none" stroke="#3B1D0E" stroke-width="40" stroke-linecap="round"/></g>
+      <g id="ticks"></g>
+    </svg>
+    <canvas class="chars" id="cv2" width="1080" height="1920"></canvas>
+    <i class="drop mid" id="dropC"></i>
+    <div class="text" id="t2"><span class="mask"><span>카페인을</span></span><span class="mask"><span>좋아하는</span></span><span class="mask name"><span>카인!</span></span></div>
+  </div>
+  <div class="group" id="g3">
+    <div class="panel cream" id="cream"></div>
+    <div class="night" id="night"></div>
+    <div id="rainBox"></div>
+    <canvas class="chars" id="cv3" width="1080" height="1920"></canvas>
+    <div class="text small" id="t3"><span class="mask"><span>많이많이 남겨서</span></span><span class="mask"><span>두 친구와</span></span><span class="mask"><span>더 가까워져요</span></span></div>
+    <div class="bond" id="bond"><div class="bond-name">처음 만난 사이</div><div class="bond-bar"><i id="bondFill"></i></div></div>
+  </div>
+  <div class="progress"><i><b id="bar0"></b></i><i><b id="bar1"></b></i><i><b id="bar2"></b></i><i><b id="bar3"></b></i></div>
+  <div class="skip">건너뛰기</div>
+  <div class="cta" id="cta">먹이러 가기</div>
+</div>
+
+<script>
+'use strict';
+const OPEN = 2.6;
+const CHAPTER_AT = [0, OPEN, OPEN + 3.7, OPEN + 7.3];
+const END = OPEN + 11;
+const NIGHT_AT = 10.2;
+const RAIN = [[-260, 'sugar'], [220, 'caffeine'], [-60, 'sugar'], [380, 'caffeine'], [-400, 'sugar'], [80, 'caffeine'], [-180, 'sugar'],
+  [300, 'caffeine'], [-330, 'sugar'], [140, 'caffeine'], [-20, 'sugar'], [420, 'caffeine'], [-120, 'sugar'], [260, 'caffeine']];
+const DROP = side => `../assets/drops/${side}.png`;
+const CHAR_DIR = '../assets/characters';
+const $ = id => document.getElementById(id);
+const NS = 'http://www.w3.org/2000/svg';
+const TAU = Math.PI * 2;
+const clamp01 = v => Math.max(0, Math.min(1, v));
+const E = {
+  o2: gsap.parseEase('power2.out'), o3: gsap.parseEase('power3.out'), i2: gsap.parseEase('power2.in'),
+  io2: gsap.parseEase('power2.inOut'), io3: gsap.parseEase('power3.inOut'), sio: gsap.parseEase('sine.inOut'),
+  back: gsap.parseEase('back.out(2.2)'), lin: v => v,
+};
+const seg = (t, a, b, ease = E.lin) => ease(clamp01((t - a) / (b - a)));
+const lerp = (a, b, k) => a + (b - a) * k;
+const bump = (t, a, len) => (t < a || t > a + len) ? 0 : Math.sin(Math.PI * (t - a) / len);
+
+// ── 리그(characters.html과 같은 조각·축·방향) ─────────────────
+// 오늘 화면 배율: 로슈 7.96e-5×0.9, 카인 0.0818×1.3/1666 (사진 높이당). 비 = 0.891. 로슈 걷기 그림 높이를 400으로 맞춘다.
+const ROSHU_H = 400;
+// 그림마다: 걷기(옆모습) + 정면(로슈 stand = 캐릭터 원화를 쪼갠 것, 카인 rim-stand). 정면은 "처음 만난 사이"가 뜰 때 쓴다.
+const RIG = {
+  roshu: {
+    // 앞 지느러미는 몸 안쪽(-)으로만 돈다. 바깥으로 젖히면 자른 선이 드러나 가시 같은 조각이 보인다(무대 400px에서 눈에 띔).
+    walk: { lidPad: 0.35, dir: { flipper_front: -1, foot_back: -1, foot_front: 1, flipper_side: 0 } },
+    stand: { lidPad: 0.35, dir: { arm_left: 0, arm_right: 0, foot_left: 0, foot_right: 0 } },
+  },
+  kain: {
+    walk: { lidPad: 0.04, dir: { leg_far: 0, leg_near: 0 } },
+    'rim-stand': { lidPad: 0.04, dir: { leg_left: 0, leg_right: 0 } },
+  },
+};
+const FRONT = { roshu: 'stand', kain: 'rim-stand' };
+// 오늘 화면 대비 무대 배율(걷기 발 들기·내딛기 px를 키울 때 쓴다).
+let K_STAGE = 1;
+
+async function loadRig() {
+  for (const who of ['roshu', 'kain']) {
+    const [meta, parts] = await Promise.all([
+      fetch(`${CHAR_DIR}/${who}/poses/meta.json`).then(r => r.json()),
+      fetch(`${CHAR_DIR}/${who}/parts/parts.json`).then(r => r.json()),
+    ]);
+    for (const art of Object.keys(RIG[who])) {
+      const m = meta[art], p = parts[art];
+      const img = name => new Promise(res => { const i = new Image(); i.onload = () => res(i); i.src = `${CHAR_DIR}/${who}/parts/${art}/${name}.png`; });
+      const r = RIG[who][art];
+      r.bbox = m.bbox; r.eyes = m.eyes; r.body = { frame: p.body, img: await img('body') };
+      r.parts = await Promise.all(p.parts.map(async q => ({ ...q, img: await img(q.name), foot: q.name.startsWith('foot') })));
+    }
+  }
+  const roshuPx = 7.96e-5 * 0.9, kainPx = 0.0818 * 1.3 / 1666;
+  const h = r => r.bbox[3] - r.bbox[1];
+  RIG.roshu.walk.s = ROSHU_H / h(RIG.roshu.walk);
+  // 로슈 정면은 캔버스 크기가 달라(935×1024) 높이를 걷기 그림과 같게 맞춘다. 카인 두 그림은 같은 캔버스라 같은 배율.
+  RIG.roshu.stand.s = ROSHU_H / h(RIG.roshu.stand);
+  RIG.kain.walk.s = RIG.roshu.walk.s * kainPx / roshuPx;
+  RIG.kain['rim-stand'].s = RIG.kain.walk.s;
+  K_STAGE = RIG.roshu.walk.s / (852 * 0.84 * roshuPx);
+}
+
+// 한 시각의 자세: 전체(x, footY, rot, flip, gsx, gsy) · 몸 층(bodyDy, sx, sy) · 팔다리(limbs 각도, shift [x, y])
+function pose(x, footY) {
+  return { x, footY, rot: 0, flip: 1, gsx: 1, gsy: 1, bodyDy: 0, sx: 1, sy: 1, limbs: {}, shift: {}, blink: 0 };
+}
+
+function drawRig(ctx, who, p, art = 'walk') {
+  const r = RIG[who][art], s = r.s;
+  const [bx0, , bx1, by1] = r.bbox;
+  const px = (bx0 + bx1) / 2 * s, py = by1 * s;
+  const at = (frame, im, c) => c.drawImage(im, frame[0] * s, frame[1] * s, frame[2] * s, frame[3] * s);
+  const limb = part => {
+    const amount = p.limbs[part.name] ?? 0, dir = r.dir[part.name];
+    const angle = dir === undefined ? 0 : dir === 0 ? amount : dir * Math.max(0, amount);
+    const [mx, my] = p.shift[part.name] ?? [0, 0];
+    const ox = part.pivot[0] * s, oy = part.pivot[1] * s;
+    ctx.save();
+    ctx.translate(mx + ox, my + oy);
+    ctx.rotate(angle * Math.PI / 180);
+    ctx.translate(-ox, -oy);
+    at(part.frame, part.img, ctx);
+    ctx.restore();
+  };
+  ctx.save();
+  ctx.translate(p.x, p.footY);
+  ctx.rotate(p.rot * Math.PI / 180);
+  ctx.scale(p.flip * p.gsx, p.gsy);
+  ctx.translate(-px, -py);
+  for (const part of r.parts) if (part.z === 'back' && part.foot) limb(part);
+  ctx.save();
+  ctx.translate(px, py + p.bodyDy);
+  ctx.scale(p.sx, p.sy);
+  ctx.translate(-px, -py);
+  for (const part of r.parts) if (part.z === 'back' && !part.foot) limb(part);
+  at(r.body.frame, r.body.img, ctx);
+  if (p.blink > 0) {
+    for (const e of r.eyes) {
+      const [x0, y0, x1, y1] = e.box, w = x1 - x0, h = y1 - y0, pad = r.lidPad;
+      const ew = w * (1 + pad * 2) * s, eh = h * (1 + pad * 2) * s * p.blink;
+      ctx.fillStyle = e.lid;
+      ctx.beginPath();
+      ctx.ellipse((x0 - w * pad) * s + ew / 2, (y0 - h * pad) * s + eh / 2, ew / 2, eh / 2, 0, 0, TAU);
+      ctx.fill();
+    }
+  }
+  for (const part of r.parts) if (part.z === 'front') limb(part);
+  ctx.restore();
+  ctx.restore();
+}
+
+// ── 동작 조각 ─────────────────────────────────────────────
+// 깜빡임: 시각과 씨앗만으로 정해진다(앱 IdleMotion.blink와 같은 규칙, 해시만 간단히).
+function blinkAt(t, seed) {
+  if (t < 0) return 0;
+  const slot = Math.floor(t / 4);
+  const h = n => { const v = Math.sin((slot * 2 + n) * 127.1 + seed * 311.7) * 43758.5453; return v - Math.floor(v); };
+  const start = slot * 4 + 1 + 1.5 * h(1);
+  const one = x => x < 0 ? 0 : x < 0.07 ? x / 0.07 : x < 0.17 ? 1 - (x - 0.07) / 0.1 : 0;
+  return Math.max(one(t - start), h(2) < 0.2 ? one(t - start - 0.22) : 0);
+}
+
+// 한 발의 한 주기(characters.html step()). 오늘 화면 px를 무대 배율로 키우고 입장 걸음은 조금 과장한다.
+const STEP = { reach: 1.5, lift: 1.6, rot: 8 };
+// 옆으로 미는 폭(reach)은 오늘 화면 배율 그대로 둔다. 키우면 발 뿌리 자른 선이 몸 아래 실선으로 드러난다(무대 400px).
+// 발 들기(lift)만 liftBoost배로 키운다.
+function footStep(c, liftBoost) {
+  const smooth = x => { const v = clamp01(x); return v * v * (3 - 2 * v); };
+  const kx = K_STAGE, ky = K_STAGE * liftBoost;
+  if (c < 0.5) {
+    const v = c / 0.5, arc = Math.sin(Math.PI * v);
+    return { x: (STEP.reach - 2 * STEP.reach * smooth(v)) * kx, lift: STEP.lift * arc * ky, rot: STEP.rot * arc * 1.4 };
+  }
+  return { x: (-STEP.reach + 2 * STEP.reach * (c - 0.5) / 0.5) * kx, lift: 0, rot: 0 };
+}
+
+// 로슈 걷기: 다리로 걷고 지느러미는 반대 박자. 걸음 위상 = 지나온 거리 / 보폭. moving(0~1)로 멈출 때 다리를 모은다.
+function roshuWalk(p, travelled, moving) {
+  const c = ((travelled / 125 / 2) % 1 + 1) % 1;
+  for (const [foot, u] of [['foot_back', c], ['foot_front', (c + 0.5) % 1]]) {
+    const g = footStep(u, 2.2);
+    p.limbs[foot] = g.rot * moving;
+    p.shift[foot] = [g.x * moving, -g.lift * moving];
+  }
+  const swing = Math.cos(TAU * c) * moving;
+  p.limbs.flipper_front = 6 * swing;
+  p.limbs.flipper_side = -12 * swing;
+  // 걸을 때 몸이 발 박자에 맞춰 살짝 들썩인다.
+  p.bodyDy = -6 * Math.abs(Math.sin(TAU * c)) * moving;
+}
+
+// 카인 뒤뚱 걷기: 다리가 엉덩이를 축으로 엇갈리고 몸이 딛는 쪽으로 기운다.
+function kainWalk(p, travelled, moving) {
+  const c = ((travelled / 95 / 2) % 1 + 1) % 1;
+  const k = Math.sin(TAU * c), lift = Math.cos(TAU * c);
+  p.limbs.leg_near = 16 * k * moving;
+  p.limbs.leg_far = -16 * k * moving;
+  p.shift.leg_near = [0, -0.7 * K_STAGE * 3 * Math.max(0, lift) * moving];
+  p.shift.leg_far = [0, -0.7 * K_STAGE * 3 * Math.max(0, -lift) * moving];
+  p.rot += 4 * k * moving;
+}
+
+// 서 있을 때 숨쉬기(발끝 기준으로 부풀었다 가라앉음).
+function breathe(p, t, period, amount) {
+  const k = Math.sin(TAU * t / period);
+  p.sy *= 1 + amount * k;
+  p.sx *= 1 - amount * 0.5 * k;
+}
+
+// 입장 걷기: a→b를 ease로 가고, 위상은 거리로 잰다(느려지면 발도 느려진다). 끝 0.12초 동안 다리를 모은다.
+function entrance(t, a, b, x0, x1) {
+  const k = seg(t, a, b, E.o2);
+  const x = lerp(x0, x1, k);
+  const moving = t < a ? 1 : 1 - seg(t, b - 0.14, b);
+  return { x, travelled: Math.abs(x - x0), moving: t > b ? 0 : moving };
+}
+
+// 마지막 장: 방울을 받을 때마다 둘이 다가오고 통 튄다.
+const HIT = 0.5;
+function rainState(u) {
+  let nS = 0, nC = 0, hopS = 0, hopC = 0;
+  RAIN.forEach(([, side], i) => {
+    const at = 8.2 + i * 0.1;
+    const got = seg(u, at + HIT, at + HIT + 0.3, E.o3);
+    const hop = u > at + HIT ? Math.exp(-(u - at - HIT) * 9) : 0;
+    if (side === 'sugar') { nS += got; hopS += hop; } else { nC += got; hopC += hop; }
+  });
+  return { nS, nC, hopS: Math.min(1, hopS), hopC: Math.min(1, hopC) };
+}
+
+// ── 캐릭터 장면 ───────────────────────────────────────────
+function drawChars(t) {
+  const u = t - OPEN;
+  // 로슈 장: 분홍 면이 번진 뒤 오른쪽에서 걸어 들어와 가운데 선다 → 착지하듯 한 번 눌림 → 지느러미 흔들어 인사.
+  {
+    const ctx = $('cv1').getContext('2d');
+    ctx.clearRect(0, 0, 1080, 1920);
+    if (u > 1.0 && u < 4.5) {
+      const w = entrance(u, 1.2, 2.25, 760, 0);
+      const p = pose(540 + w.x, 1540);
+      roshuWalk(p, w.travelled, w.moving);
+      // 멈출 때 눌렸다 펴짐
+      const stop = bump(u, 2.2, 0.28);
+      p.gsy = 1 - 0.07 * stop; p.gsx = 1 + 0.05 * stop;
+      // 인사: 옆 지느러미를 세 번 흔든다(2.45~3.35)
+      const wave = seg(u, 2.4, 2.55) * (1 - seg(u, 3.25, 3.45));
+      p.limbs.flipper_side = (p.limbs.flipper_side ?? 0) + wave * 26 * Math.sin(TAU * (u - 2.4) / 0.32);
+      if (u > 2.3) breathe(p, u - 2.3, 1.6, 0.018);
+      p.blink = blinkAt(u - 2.4, 1);
+      drawRig(ctx, 'roshu', p);
+    }
+  }
+  // 카인 장: 왼쪽에서 뒤뚱 걸어 들어와 오른쪽(방울 오는 쪽)을 본다 → 방울 꿀꺽(눌림) → 고개 갸웃 → 콩콩 두 번.
+  {
+    const ctx = $('cv2').getContext('2d');
+    ctx.clearRect(0, 0, 1080, 1920);
+    if (u > 4.0 && u < 7.4) {
+      const w = entrance(u, 4.15, 4.95, -780, 0);
+      const p = pose(540 + w.x, 1495);
+      p.flip = -1;
+      kainWalk(p, w.travelled, w.moving);
+      const gulp = bump(u, 5.25, 0.22);
+      p.gsy = 1 - 0.08 * gulp; p.gsx = 1 + 0.06 * gulp;
+      // 갸웃: 발밑 축으로 뒤로 젖힌다(5.5~5.8 기울고, 6.1까지 멈춤, 6.3에 돌아오며 살짝 넘침)
+      const tiltIn = seg(u, 5.5, 5.78, E.o3), tiltOut = seg(u, 6.08, 6.32, E.back);
+      p.rot += 13 * tiltIn * (1 - tiltOut);
+      // 콩콩: 6.4, 6.74
+      let hopY = 0, kick = 0, squash = 0;
+      for (const a of [6.4, 6.74]) {
+        const k = bump(u, a, 0.3);
+        hopY += 95 * k;
+        kick += Math.sin(Math.PI * clamp01((u - a) / 0.3)) * (u > a && u < a + 0.3 ? 1 : 0);
+        squash += bump(u, a - 0.06, 0.08) + bump(u, a + 0.3, 0.1);
+      }
+      p.footY -= hopY;
+      p.limbs.leg_near = (p.limbs.leg_near ?? 0) + 20 * kick;
+      p.limbs.leg_far = (p.limbs.leg_far ?? 0) - 14 * kick;
+      p.gsy *= 1 - 0.08 * squash; p.gsx *= 1 + 0.06 * squash;
+      if (u > 4.95) breathe(p, u - 4.95, 1.9, 0.012);
+      p.blink = blinkAt(u - 5.0, 2);
+      drawRig(ctx, 'kain', p);
+    }
+  }
+  // 함께: 둘이 양쪽에서 걸어 들어와 마주 본다 → 방울 받을 때마다 통 튀며 다가온다 → 밤.
+  {
+    const ctx = $('cv3').getContext('2d');
+    ctx.clearRect(0, 0, 1080, 1920);
+    if (u > 7.3) {
+      const rs = rainState(u);
+      const wr = entrance(u, 7.45, 8.3, -1000, -225);
+      const wk = entrance(u, 7.5, 8.35, 1000, 245);
+      // "처음 만난 사이"가 뜰 때(9.75) 둘이 콩 뛰어 공중에서 정면으로 돈다(그림 교체를 점프 꼭대기에 숨긴다).
+      const TURN = { roshu: 9.66, kain: 9.72 }, TURN_LEN = 0.3;
+      const turnHop = who => bump(u, TURN[who], TURN_LEN);
+      const isFront = who => u >= TURN[who] + TURN_LEN / 2;
+      const landSquash = who => bump(u, TURN[who] + TURN_LEN, 0.12);
+
+      const roshu = pose(540 + wr.x + 80 * rs.nS / 7, 1530);
+      const roshuFront = isFront('roshu');
+      if (roshuFront) {
+        // 정면: 방울 받을 때 두 팔을 번쩍.
+        roshu.limbs.arm_left = 16 * rs.hopS;
+        roshu.limbs.arm_right = -16 * rs.hopS;
+      } else {
+        roshu.flip = -1;
+        roshuWalk(roshu, wr.travelled, wr.moving);
+        roshu.limbs.foot_back = (roshu.limbs.foot_back ?? 0) + 14 * rs.hopS;
+        roshu.limbs.foot_front = (roshu.limbs.foot_front ?? 0) + 14 * rs.hopS;
+        roshu.limbs.flipper_front = (roshu.limbs.flipper_front ?? 0) + 6 * rs.hopS;
+      }
+      roshu.footY -= 46 * rs.hopS + 70 * turnHop('roshu');
+      roshu.gsy = 1 - 0.07 * landSquash('roshu'); roshu.gsx = 1 + 0.05 * landSquash('roshu');
+      if (u > 8.3) breathe(roshu, u - 8.3, 1.6, 0.018);
+      roshu.blink = blinkAt(u - 8.0, 3);
+
+      const kain = pose(540 + wk.x - 80 * rs.nC / 7, 1530);
+      const kainFront = isFront('kain');
+      if (kainFront) {
+        kain.limbs.leg_left = 10 * rs.hopC;
+        kain.limbs.leg_right = -10 * rs.hopC;
+      } else {
+        kainWalk(kain, wk.travelled, wk.moving);
+        kain.limbs.leg_near = (kain.limbs.leg_near ?? 0) + 16 * rs.hopC;
+        kain.limbs.leg_far = (kain.limbs.leg_far ?? 0) - 12 * rs.hopC;
+      }
+      kain.footY -= 46 * rs.hopC + 70 * turnHop('kain');
+      kain.gsy = 1 - 0.07 * landSquash('kain'); kain.gsx = 1 + 0.05 * landSquash('kain');
+      if (u > 8.35) breathe(kain, u - 8.35, 1.9, 0.012);
+      kain.blink = blinkAt(u - 8.2, 4);
+      drawRig(ctx, 'roshu', roshu, roshuFront ? FRONT.roshu : 'walk');
+      drawRig(ctx, 'kain', kain, kainFront ? FRONT.kain : 'walk');
+      return { roshuX: roshu.x - 540, kainX: kain.x - 540 };
+    }
+  }
+  return null;
+}
+
+// ── 나머지 무대(v1 그대로, 색만 앱 값) ───────────────────────
+function build() {
+  [180, 360, 540, 720, 900].forEach((x, i) => {
+    const l = document.createElementNS(NS, 'line');
+    l.setAttribute('x1', x); l.setAttribute('x2', x); l.setAttribute('y1', 0); l.setAttribute('y2', 1920);
+    l.setAttribute('stroke', '#18181B'); l.setAttribute('stroke-width', i === 2 ? 2 : 1.2); l.setAttribute('opacity', '0.1');
+    $('grid').appendChild(l);
+  });
+  for (let i = 0; i < 60; i += 1) {
+    const l = document.createElementNS(NS, 'line');
+    const long = i % 5 === 0;
+    l.setAttribute('x1', 540); l.setAttribute('x2', 540); l.setAttribute('y1', 1290 - 366); l.setAttribute('y2', 1290 - (long ? 406 : 388));
+    l.setAttribute('stroke', '#3B1D0E'); l.setAttribute('stroke-width', long ? 6 : 3); l.setAttribute('stroke-linecap', 'round');
+    l.setAttribute('transform', `rotate(${i * 6} 540 1290)`);
+    $('ticks').appendChild(l);
+  }
+  for (const id of ['opS', 'dropS', 'orbit0', 'orbit1', 'orbit2']) $(id).style.backgroundImage = `url('${DROP('sugar')}')`;
+  for (const id of ['opC', 'dropC']) $(id).style.backgroundImage = `url('${DROP('caffeine')}')`;
+  $('rainBox').innerHTML = RAIN.map(([, side], i) => `<i class="drop rain" id="rain${i}" style="background-image:url('${DROP(side)}')"></i>`).join('');
+  const RING_C = 2 * Math.PI * 320;
+  $('ring').setAttribute('stroke-dasharray', `${RING_C} ${RING_C}`);
+  gsap.set(document.querySelectorAll('.drop'), { xPercent: -50 });
+  const orbit = [0, 1, 2].map(i => $(`orbit${i}`));
+  const rain = RAIN.map(([x, side], i) => ({ el: $(`rain${i}`), x, side, at: 8.2 + i * 0.1 }));
+
+  const draw = u => {
+    const orbOn = seg(u, 2.35, 2.7, E.o3);
+    orbit.forEach((el, i) => {
+      const a = (u - 2.35) * 3.1 + (i * Math.PI * 2) / 3;
+      const depth = Math.sin(a);
+      gsap.set(el, { x: 360 * Math.cos(a), y: 1360 + 110 * depth - 55, scale: orbOn * (0.8 + 0.25 * depth), zIndex: depth > 0 ? 3 : 1 });
+    });
+    const kb = seg(u, 4.55, 5.25);
+    gsap.set($('dropC'), {
+      x: lerp(760, 0, kb),
+      y: 1180 - 520 * Math.abs(Math.sin(Math.PI * kb * 2.5)) * (1 - kb),
+      scale: u < 4.55 ? 0 : 1 - seg(u, 5.15, 5.3),
+    });
+    const v = seg(u, 5.25, 5.8, E.o3);
+    $('ring').setAttribute('stroke-dashoffset', (RING_C * (1 - v)).toFixed(1));
+    $('ring').style.opacity = v > 0 ? '1' : '0';
+    $('ringG').setAttribute('transform', `rotate(${-90 + 140 * seg(u, 5.25, 7.3, E.io3)} 540 1290)`);
+    $('ticks').setAttribute('transform', `rotate(${-(u - 5.25) * 30} 540 1290)`);
+    $('ticks').style.opacity = seg(u, 5.3, 5.7).toFixed(3);
+  };
+
+  const tl = gsap.timeline();
+  draw(0);
+  tl.to({ v: 0 }, { v: 1, duration: END - OPEN, ease: 'none', onUpdate() { draw(this.time()); } }, 0);
+  const reveal = (id, at) => tl.fromTo(document.querySelectorAll(`#${id} .mask > span`), { yPercent: 108 },
+    { yPercent: 0, duration: 0.6, ease: 'power4.out', stagger: 0.09 }, at);
+  const hide = (id, at) => tl.to(document.querySelectorAll(`#${id} .mask > span`), { yPercent: -108, duration: 0.3, ease: 'power3.in', stagger: 0.04 }, at);
+  const circle = (r, x, y) => `circle(${r}px at ${x}px ${y}px)`;
+
+  tl.fromTo($('dropS'), { x: 0, y: -320, scaleX: 1, scaleY: 1 }, { y: 1080, duration: 0.5, ease: 'power2.in' }, 0.1);
+  tl.to($('dropS'), { scaleY: 0.66, scaleX: 1.3, duration: 0.09, ease: 'power2.out', yoyo: true, repeat: 1 }, 0.6);
+  [$('rip1'), $('rip2')].forEach((el, i) =>
+    tl.fromTo(el, { scale: 0.2, opacity: 0.9 }, { scale: 2.6 + i, opacity: 0, duration: 0.9, ease: 'power2.out', immediateRender: false }, 0.6 + i * 0.1));
+  tl.fromTo($('pink'), { clipPath: circle(0, 540, 1190) }, { clipPath: circle(2300, 540, 1190), duration: 0.75, ease: 'expo.inOut' }, 0.7);
+  tl.to($('dropS'), { scale: 0, duration: 0.3, ease: 'power2.in' }, 0.95);
+  reveal('t1', 1.05);
+
+  hide('t1', 3.45);
+  tl.to($('g1'), { y: -700, duration: 0.65, ease: 'power4.inOut' }, 3.65);
+  tl.fromTo($('amber'), { y: 1920 }, { y: 0, duration: 0.65, ease: 'power4.inOut' }, 3.65);
+  reveal('t2', 4.1);
+
+  hide('t2', 7.05);
+  tl.fromTo($('cream'), { clipPath: circle(0, 540, 1250) }, { clipPath: circle(2300, 540, 1250), duration: 0.7, ease: 'expo.inOut' }, 7.25);
+  reveal('t3', 7.85);
+  tl.fromTo($('bond'), { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, 9.75);
+  tl.fromTo($('bondFill'), { width: '0%' }, { width: '10%', duration: 0.8, ease: 'power3.out' }, 9.95);
+  tl.fromTo($('night'), { opacity: 0 }, { opacity: 1, duration: 0.8, ease: 'power2.inOut' }, NIGHT_AT);
+  tl.fromTo([$('t3'), $('bond')], { color: '#18181B' }, { color: '#ffffff', duration: 0.8, ease: 'power2.inOut', immediateRender: false }, NIGHT_AT);
+  tl.fromTo($('cta'), { opacity: 0, y: 44 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out' }, 10.45);
+
+  const master = gsap.timeline({ paused: true });
+  const opS = $('opS'), opC = $('opC');
+  const opLines = document.querySelectorAll('#t0 .mask > span');
+  master.fromTo(opS, { x: -120, y: 1000, scale: 0 }, { scale: 1, duration: 0.5, ease: 'back.out(1.8)' }, 0.15);
+  master.fromTo(opC, { x: 120, y: 1000, scale: 0 }, { scale: 1, duration: 0.5, ease: 'back.out(1.8)' }, 0.27);
+  master.to([opS, opC], { y: 950, duration: 0.42, ease: 'sine.inOut', yoyo: true, repeat: 1, stagger: 0.12 }, 0.75);
+  master.fromTo(opLines[0], { yPercent: 108 }, { yPercent: 0, duration: 0.6, ease: 'power4.out' }, 0.35);
+  master.fromTo(opLines[1], { yPercent: 108 }, { yPercent: 0, duration: 0.6, ease: 'power4.out' }, 1.15);
+  master.to(opLines, { yPercent: -108, duration: 0.3, ease: 'power3.in', stagger: 0.04 }, 2.05);
+  master.to(opS, { y: -400, duration: 0.45, ease: 'power3.in' }, 2.1);
+  master.to(opC, { x: 900, duration: 0.45, ease: 'power3.in' }, 2.18);
+  master.add(tl, OPEN);
+  return { master, rain };
+}
+
+let scene = null;
+// 무대를 시각 t에 맞춘다(영상 녹화는 프레임마다 이걸 부른다).
+window.seekTo = t => {
+  scene.master.seek(Math.min(t, END), false);
+  const u = t - OPEN;
+  const pos = drawChars(t);
+  // 방울 비: 캐릭터 실제 자리로 날아간다.
+  scene.rain.forEach(r => {
+    const k = seg(u, r.at, r.at + HIT, E.i2);
+    const target = pos ? (r.side === 'sugar' ? pos.roshuX : pos.kainX) : 0;
+    gsap.set(r.el, {
+      x: lerp(r.x * 0.8, target, k),
+      y: lerp(780, r.side === 'sugar' ? 1200 : 1240, k) - 260 * Math.sin(Math.PI * k),
+      scale: u < r.at ? 0 : seg(u, r.at, r.at + 0.12, E.o3) * (1 - seg(u, r.at + HIT - 0.06, r.at + HIT + 0.04)),
+    });
+  });
+  CHAPTER_AT.forEach((a, i) => {
+    const end = CHAPTER_AT[i + 1] ?? END;
+    $(`bar${i}`).style.width = `${clamp01((t - a) / (end - a)) * 100}%`;
+  });
+  $('stage').classList.toggle('isNight', t >= OPEN + NIGHT_AT + 0.3);
+};
+window.INTRO_END = END;
+
+(async () => {
+  await loadRig();
+  await document.fonts.ready;
+  await Promise.all([...document.querySelectorAll('.drop')].map(el => {
+    const src = el.style.backgroundImage.slice(5, -2);
+    return new Promise(res => { const i = new Image(); i.onload = res; i.onerror = res; i.src = src; });
+  }));
+  scene = build();
+  const q = new URLSearchParams(location.search);
+  if (q.has('t')) { window.seekTo(Number(q.get('t'))); }
+  else if (!q.has('render')) {
+    const t0 = performance.now();
+    const loop = now => { window.seekTo(((now - t0) / 1000) % (END + 1.5)); requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+  } else window.seekTo(0);
+  document.body.dataset.ready = '1';
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>슈가캡 · 먹이기 v2 (영상용 단독 무대)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<style>
+  /* 먹이기 화면 v2. 좌표는 폰 pt(402×874)로 쓰고 무대를 3배로 키운다(CI 스크린샷 1206×2622와 같은 크기).
+     v1(FeedingView.swift)과 다른 점(2026-10-01 대표님 선택: 컵에 붙어 조르기 + 밤 요약):
+     - 컵 앞 정지 그림 대신 오늘 화면 대기 자세 리그. 로슈 = watch(컵 옆에 매달려 까치발), 카인 = rim-stand(가장자리에서 발 동동).
+       자리·배율은 IdleMotion.place / IdleCast 값. 카인만 가장자리 오른쪽으로 옮겼다(가운데면 주인공 숫자 "mg"와 머리가 겹친다).
+     - 방울을 받으면 통통 뛰고, 먹은 뒤 숨쉬며 깜빡인다.
+     - 마무리 요약 = 빈 컵 사진 대신 밤 전환에 이어지는 남색 밤(별·달, 단색 면). 둘 다 정면으로 나란히, 아래에 먹은 양.
+     전환(turn·night)은 앱 FeedFx를 줄여 흉내만 냈다. 앱에서는 기존 FeedFx를 그대로 쓴다. */
+  * { box-sizing: border-box; margin: 0; }
+  html, body { background: #000; }
+  body { width: 1206px; height: 2622px; overflow: hidden; font-family: "Pretendard", sans-serif; }
+  .stage { position: absolute; left: 0; top: 0; width: 402px; height: 874px; overflow: hidden; transform: scale(3); transform-origin: 0 0; background: #000; }
+  .abs { position: absolute; left: 0; top: 0; width: 402px; height: 874px; }
+  .scene { background: #F3F5F8; }
+  .cup { transform-origin: 201px 786.6px; }
+  .photo { position: absolute; left: -5.46px; top: 69.92px; width: 412.92px; height: 734.16px;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 96%, transparent 100%); }
+  .photo img { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .scrim { background: linear-gradient(to bottom, rgba(0,0,0,.55) 0%, rgba(0,0,0,.18) 34%, rgba(0,0,0,.08) 58%, rgba(0,0,0,.5) 100%); }
+  canvas.chars { width: 402px; height: 874px; }
+  .head { position: absolute; left: 24px; top: 0; right: 24px; color: #fff; text-shadow: 0 1px 10px rgba(0,0,0,.28); }
+  .date { position: absolute; top: 70px; font-size: 11px; font-weight: 500; letter-spacing: 1.5px; color: rgba(255,255,255,.7); white-space: nowrap; }
+  .kicker { position: absolute; top: 111px; font-size: 11px; font-weight: 600; letter-spacing: 1.3px; color: #D4D4D8; white-space: nowrap; }
+  .hero { position: absolute; top: 128px; display: flex; align-items: baseline; white-space: nowrap; }
+  .hero b { font-size: 96px; font-weight: 700; letter-spacing: -5.8px; font-variant-numeric: tabular-nums; line-height: 1.04; }
+  .hero span { font-size: 30px; font-weight: 500; opacity: .85; margin-left: 8px; }
+  .caption { position: absolute; top: 244px; font-size: 13px; letter-spacing: .3px; line-height: 21px; color: rgba(255,255,255,.78); white-space: pre-line; }
+  .close { position: absolute; right: 24px; top: 74px; font-size: 15px; color: #fff; }
+  .foot { position: absolute; left: 0; right: 0; top: 816px; text-align: center; font-size: 12px; color: rgba(255,255,255,.6); }
+  .cta { position: absolute; left: 24px; right: 24px; top: 748px; height: 56px; border-radius: 28px; background: #18181B; color: #fff;
+    display: grid; place-items: center; font-size: 17px; font-weight: 600; opacity: 0; }
+  .cta.light { background: #F4F4F5; color: #18181B; }
+  .bubble { position: absolute; left: 0; top: 0; padding: 5px 11px; border-radius: 13px; background: rgba(0,0,0,.32); border: 1px solid rgba(255,255,255,.28);
+    color: #fff; font-size: 12px; font-weight: 600; letter-spacing: .3px; white-space: nowrap; transform: translate(-50%, -50%); opacity: 0; }
+  .drop { position: absolute; left: 0; top: 0; opacity: 0; }
+  .drop img { position: absolute; left: 0; top: 0; }
+  .drop .amt { position: absolute; left: 0; top: 0; transform: translate(-50%, 0); padding: 4px 10px; border-radius: 12px; white-space: nowrap;
+    background: rgba(0,0,0,.26); border: 1px solid rgba(255,255,255,.28); color: #fff; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .pulse { position: absolute; left: 156px; top: 404px; width: 90px; height: 90px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.55); }
+  .touch { position: absolute; left: 0; top: 0; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%;
+    background: rgba(255,255,255,.35); border: 2px solid rgba(255,255,255,.9); opacity: 0; }
+  .fx { pointer-events: none; }
+  .night { background: #172239; }
+  .sum-head { position: absolute; left: 24px; right: 24px; top: 0; color: #fff; }
+  .sum-kicker { position: absolute; top: 111px; font-size: 11px; font-weight: 600; letter-spacing: 1.3px; color: #D4D4D8; }
+  .sum-title { position: absolute; top: 136px; font-size: 40px; font-weight: 700; letter-spacing: -0.8px; line-height: 48px; white-space: pre-line; }
+  .sum-sub { position: absolute; top: 244px; font-size: 13px; color: rgba(255,255,255,.78); }
+  .col { position: absolute; top: 648px; width: 177px; text-align: center; color: #fff; }
+  .col .num { display: flex; justify-content: center; align-items: baseline; gap: 3px; }
+  .col .num b { font-size: 44px; font-weight: 700; letter-spacing: -1.8px; font-variant-numeric: tabular-nums; line-height: 52px; }
+  .col .num span { font-size: 17px; font-weight: 500; opacity: .85; }
+  .col .lab { margin-top: 2px; font-size: 11px; font-weight: 600; letter-spacing: 1.3px; color: #D4D4D8; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <!-- 당·카페인 장면 -->
+  <div class="abs" id="sceneWrap">
+    <div class="abs scene"></div>
+    <div class="abs cup" id="cup">
+      <div class="photo"><img id="cupFull" alt=""><img id="cupEmpty" alt="" style="opacity:0"></div>
+    </div>
+    <div class="abs scrim"></div>
+    <!-- 캐릭터는 어두운 막 위(v1 asker와 같은 층). 컵과 같이 흔들린다. -->
+    <canvas class="abs chars cup" id="cvScene" width="1206" height="2622"></canvas>
+    <div class="pulse" id="pulse"></div>
+    <div class="head">
+      <div class="date">10월 1일 목요일</div>
+      <div class="kicker" id="kicker">오늘 마감 · 1/2</div>
+      <div class="hero"><b id="heroNum">34</b><span id="heroUnit">g</span></div>
+      <div class="caption" id="caption"></div>
+    </div>
+    <div class="close">닫기</div>
+    <div class="bubble" id="bubble"></div>
+    <div class="drop" id="drop"><img id="dropImg" alt=""><div class="amt" id="dropAmt"></div></div>
+    <div class="cta" id="cta"></div>
+    <div class="foot" id="foot">마감 뒤에 마신 음료도 오늘 몫으로 빠져요</div>
+  </div>
+  <!-- 마무리 요약(밤) -->
+  <div class="abs night" id="summary" style="opacity:0">
+    <svg class="abs" id="sky" viewBox="0 0 402 874" aria-hidden="true"></svg>
+    <canvas class="abs chars" id="cvSum" width="1206" height="2622"></canvas>
+    <div class="sum-head">
+      <div class="date" id="sDate">10월 1일 목요일</div>
+      <div class="sum-kicker" id="sKick">잘 먹었어요</div>
+      <div class="sum-title" id="sTitle">오늘도
+잘 마무리했어요</div>
+      <div class="sum-sub" id="sSub">호감도는 내일 아침에 반영돼요.</div>
+    </div>
+    <div class="close">닫기</div>
+    <div class="bubble" id="sBubR">로슈가 먹었어요</div>
+    <div class="bubble" id="sBubK">카인이 먹었어요</div>
+    <div class="col" id="colR" style="left:24px"><div class="num"><b id="numR">0</b><span>g</span></div><div class="lab">당</div></div>
+    <div class="col" id="colK" style="left:201px"><div class="num"><b id="numK">0</b><span>mg</span></div><div class="lab">카페인</div></div>
+    <div class="cta light" id="done">완료</div>
+  </div>
+  <!-- 전환 -->
+  <svg class="abs fx" id="fx" viewBox="0 0 402 874" aria-hidden="true">
+    <circle id="amberC" cx="201" cy="776" r="0" fill="#E3C29F"/>
+    <rect id="navyR" x="0" y="-874" width="402" height="874" fill="#172239"/>
+    <circle id="mergeRing" cx="201" cy="430" r="10" fill="none" stroke="#fff" stroke-width="2.5" opacity="0"/>
+  </svg>
+  <img class="fx" id="fxS" alt="" style="position:absolute;width:40px;height:40px;opacity:0">
+  <img class="fx" id="fxC" alt="" style="position:absolute;width:40px;height:40px;opacity:0">
+  <div class="touch" id="touch"></div>
+</div>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const TAU = Math.PI * 2;
+const clamp01 = v => Math.max(0, Math.min(1, v));
+const E = {
+  o2: gsap.parseEase('power2.out'), o3: gsap.parseEase('power3.out'), i2: gsap.parseEase('power2.in'),
+  io2: gsap.parseEase('power2.inOut'), io3: gsap.parseEase('power3.inOut'), expo: gsap.parseEase('expo.inOut'),
+  back: gsap.parseEase('back.out(1.8)'), lin: v => v,
+};
+const seg = (t, a, b, ease = E.lin) => ease(clamp01((t - a) / (b - a)));
+const lerp = (a, b, k) => a + (b - a) * k;
+const bump = (t, a, len) => (t < a || t > a + len) ? 0 : Math.sin(Math.PI * (t - a) / len);
+const CHAR_DIR = '../assets/characters';
+const CUP = (set, step) => `../../SugarCap/Resources/Assets.xcassets/cup-${set}-${step}.imageset/${step}.png`;
+const DROP = side => `../assets/drops/${side}.png`;
+
+// ── 컵 사진 틀(IdlePhoto, 402×874: 칸 높이 84%, 아래 8% 띄움) ──
+const PHOTO = { left: -5.46, top: 69.92, width: 412.92, height: 734.16 };
+const photoPoint = (nx, ny) => [PHOTO.left + nx * PHOTO.width, PHOTO.top + ny * PHOTO.height];
+const UNIT = PHOTO.height / (852 * 0.84);
+const kainX = v => 0.498 + v * 0.477;
+
+// ── 타임라인(초) ──
+const SUGAR = { at: 0, tap: 1.8, drop: 2.05, drag: [3.2, 4.0], eat: 4.05, cta: 4.9, next: 6.0 };
+const TURN_AT = 6.05, B = 6.5;
+const CAF = { at: B, tap: B + 2.4, drop: B + 2.65, drag: [B + 3.8, B + 4.6], eat: B + 4.65, cta: B + 5.5, next: B + 6.5 };
+const NIGHT_AT = CAF.next + 0.05, SUM = NIGHT_AT + 0.95;
+const END = SUM + 5.2;
+
+// ── 리그 ──
+const RIG = {
+  roshu: {
+    watch: { lidPad: 0.35, dir: { foot_left: -1, foot_right: 1, arm: -1 } },
+    stand: { lidPad: 0.35, dir: { arm_left: 0, arm_right: 0, foot_left: 0, foot_right: 0 } },
+  },
+  kain: { 'rim-stand': { lidPad: 0.04, dir: { leg_left: 0, leg_right: 0 } } },
+};
+// 오늘 화면 배율(사진 높이 × scalePerPhotoHeight) = 캔버스 px → pt.
+const SCALE = { roshu: PHOTO.height * 7.96e-5 * 0.9, kain: PHOTO.height * 0.0818 * 1.3 / 1666 };
+// 요약은 v1 크기(로슈 150pt, 카인 137pt, 빌드 103 대표님 피드백 비율).
+const SUM_H = { roshu: 150, kain: 137 };
+
+async function loadRig() {
+  for (const who of ['roshu', 'kain']) {
+    const [meta, parts] = await Promise.all([
+      fetch(`${CHAR_DIR}/${who}/poses/meta.json`).then(r => r.json()),
+      fetch(`${CHAR_DIR}/${who}/parts/parts.json`).then(r => r.json()),
+    ]);
+    for (const art of Object.keys(RIG[who])) {
+      const m = meta[art], p = parts[art];
+      const img = name => new Promise(res => { const i = new Image(); i.onload = () => res(i); i.src = `${CHAR_DIR}/${who}/parts/${art}/${name}.png`; });
+      const r = RIG[who][art];
+      r.bbox = m.bbox; r.eyes = m.eyes; r.body = { frame: p.body, img: await img('body') };
+      r.parts = await Promise.all(p.parts.map(async q => ({ ...q, img: await img(q.name), foot: q.name.startsWith('foot') })));
+    }
+  }
+}
+
+function pose(x, footY, s) {
+  return { x, footY, s, rot: 0, flip: 1, gsx: 1, gsy: 1, bodyDy: 0, sx: 1, sy: 1, limbs: {}, shift: {}, blink: 0 };
+}
+
+// intro-v2.html drawRig와 같다(발·다리는 바닥 층, 몸 층은 숨쉬기·까치발로 따로 움직인다).
+function drawRig(ctx, who, art, p) {
+  const r = RIG[who][art], s = p.s;
+  const [bx0, , bx1, by1] = r.bbox;
+  const px = (bx0 + bx1) / 2 * s, py = by1 * s;
+  const at = (frame, im) => ctx.drawImage(im, frame[0] * s, frame[1] * s, frame[2] * s, frame[3] * s);
+  const limb = part => {
+    const amount = p.limbs[part.name] ?? 0, dir = r.dir[part.name];
+    const angle = dir === undefined ? 0 : dir === 0 ? amount : dir * Math.max(0, amount);
+    const [mx, my] = p.shift[part.name] ?? [0, 0];
+    const ox = part.pivot[0] * s, oy = part.pivot[1] * s;
+    ctx.save();
+    ctx.translate(mx + ox, my + oy);
+    ctx.rotate(angle * Math.PI / 180);
+    ctx.translate(-ox, -oy);
+    at(part.frame, part.img);
+    ctx.restore();
+  };
+  ctx.save();
+  ctx.translate(p.x, p.footY);
+  ctx.rotate(p.rot * Math.PI / 180);
+  ctx.scale(p.flip * p.gsx, p.gsy);
+  ctx.translate(-px, -py);
+  for (const part of r.parts) if (part.z === 'back' && part.foot) limb(part);
+  ctx.save();
+  ctx.translate(px, py + p.bodyDy);
+  ctx.scale(p.sx, p.sy);
+  ctx.translate(-px, -py);
+  for (const part of r.parts) if (part.z === 'back' && !part.foot) limb(part);
+  at(r.body.frame, r.body.img);
+  if (p.blink > 0) {
+    for (const e of r.eyes) {
+      const [x0, y0, x1, y1] = e.box, w = x1 - x0, h = y1 - y0, pad = r.lidPad;
+      const ew = w * (1 + pad * 2) * s, eh = h * (1 + pad * 2) * s * p.blink;
+      ctx.fillStyle = e.lid;
+      ctx.beginPath();
+      ctx.ellipse((x0 - w * pad) * s + ew / 2, (y0 - h * pad) * s + eh / 2, ew / 2, eh / 2, 0, 0, TAU);
+      ctx.fill();
+    }
+  }
+  for (const part of r.parts) if (part.z === 'front') limb(part);
+  ctx.restore();
+  ctx.restore();
+}
+
+function blinkAt(t, seed) {
+  if (t < 0) return 0;
+  const slot = Math.floor(t / 4);
+  const h = n => { const v = Math.sin((slot * 2 + n) * 127.1 + seed * 311.7) * 43758.5453; return v - Math.floor(v); };
+  const start = slot * 4 + 1 + 1.5 * h(1);
+  const one = x => x < 0 ? 0 : x < 0.07 ? x / 0.07 : x < 0.17 ? 1 - (x - 0.07) / 0.1 : 0;
+  return Math.max(one(t - start), h(2) < 0.2 ? one(t - start - 0.22) : 0);
+}
+
+function breathe(p, t, period, amount) {
+  const k = Math.sin(TAU * t / period);
+  p.sy *= 1 + amount * k;
+  p.sx *= 1 - amount * 0.5 * k;
+}
+
+// 먹고 통통 두 번: 뛰는 높이 h, 뜨기 전·내릴 때 눌림.
+function hops(p, t, a, h) {
+  let y = 0, sq = 0, air = 0;
+  for (const s of [a, a + 0.34]) {
+    y += h * bump(t, s, 0.28);
+    air += bump(t, s, 0.28);
+    sq += bump(t, s - 0.06, 0.08) + bump(t, s + 0.28, 0.1);
+  }
+  p.footY -= y;
+  p.gsy *= 1 - 0.08 * sq; p.gsx *= 1 + 0.06 * sq;
+  return air;
+}
+
+// 한 단계의 상태: ask(조르기) → dropped(방울 나옴, 기다림) → over(방울이 몸 위) → eaten.
+function stageOf(t, S) {
+  if (t < S.tap) return 'ask';
+  if (t < S.drag[1] - 0.25) return 'dropped';
+  if (t < S.eat) return 'over';
+  return 'eaten';
+}
+
+// 로슈 · 컵 옆에 매달려 조르기. 앱 watch는 5.5초마다 까치발 한 번. 여기선 1.3초마다 까치발 두 번(조름).
+const ROSHU_AT = photoPoint(0.25, 0.885 - 0.005);
+function roshuFeeding(t) {
+  const st = stageOf(t, SUGAR);
+  const p = pose(ROSHU_AT[0], ROSHU_AT[1], SCALE.roshu);
+  if (st === 'ask') {
+    const v = ((t % 1.3) + 1.3) % 1.3;
+    const k = bump(v, 0, 0.28) + bump(v, 0.36, 0.28);
+    p.bodyDy = -4.2 * k * UNIT;
+    p.limbs.arm = 14 * k;
+    p.sy = 1 + 0.02 * k;
+  } else if (st === 'dropped') {
+    // 방울이 나오면 까치발을 든 채 동동.
+    const up = seg(t, SUGAR.tap, SUGAR.tap + 0.25, E.o3);
+    p.bodyDy = (-3.6 * up - 1.2 * Math.abs(Math.sin(TAU * (t - SUGAR.tap) / 0.7))) * UNIT;
+    p.limbs.arm = 12 * up + 5 * Math.abs(Math.sin(TAU * (t - SUGAR.tap) / 0.7));
+  } else if (st === 'over') {
+    p.bodyDy = -5.5 * UNIT;
+    p.limbs.arm = 20;
+    p.sy = 1.03;
+  } else {
+    hops(p, t, SUGAR.eat + 0.05, 16 * UNIT);
+    p.limbs.arm = 20 * (1 - seg(t, SUGAR.eat + 0.7, SUGAR.eat + 1.0, E.o2));
+    breathe(p, t - SUGAR.eat, 1.7, 0.016);
+  }
+  p.blink = blinkAt(t, 1);
+  return p;
+}
+
+// 카인 · 가장자리에 서서 발 동동. 앱 자리 kainX(-0.01)이면 주인공 숫자 "mg"와 머리가 겹쳐서 kainX(0.35)로 옮겼다.
+// 앞 가장자리 선은 타원이라 옆으로 갈수록 올라간다(가장자리 반폭 = 0.5 단위).
+const KAIN_NX = 0.35;
+const KAIN_AT = (() => {
+  const back = 0.2683, front = 0.3265, cy = (back + front) / 2, b = (front - back) / 2;
+  return photoPoint(kainX(KAIN_NX), cy + b * Math.sqrt(1 - (KAIN_NX / 0.5) ** 2));
+})();
+function kainFeeding(t) {
+  const st = stageOf(t, CAF);
+  const p = pose(KAIN_AT[0], KAIN_AT[1], SCALE.kain);
+  p.rot = 0.8 * Math.sin(TAU * t / 3.6);
+  if (st === 'ask') {
+    // 오른발로 톡톡(0.55초마다), 톡 할 때 몸이 살짝 내려앉는다.
+    const v = ((t % 0.55) + 0.55) % 0.55;
+    const k = bump(v, 0, 0.2);
+    p.limbs.leg_right = -16 * k;
+    p.bodyDy = 1.0 * bump(v, 0.14, 0.12) * UNIT;
+  } else if (st === 'dropped') {
+    // 방울이 나오면 두 발 번갈아 동동.
+    const c = (t - CAF.tap) / 0.36;
+    const k = Math.sin(Math.PI * c);
+    p.limbs.leg_right = -12 * Math.max(0, k);
+    p.limbs.leg_left = 12 * Math.max(0, -k);
+    p.bodyDy = -0.8 * Math.abs(k) * UNIT;
+  } else if (st === 'over') {
+    p.bodyDy = -1.5 * UNIT;
+    p.sy = 1.03;
+  } else {
+    const air = hops(p, t, CAF.eat + 0.05, 14 * UNIT);
+    p.limbs.leg_left = 12 * air;
+    p.limbs.leg_right = -12 * air;
+    breathe(p, t - CAF.eat, 1.9, 0.012);
+  }
+  p.blink = blinkAt(t, 2);
+  return p;
+}
+
+// 머리 위치(pt): 말풍선·방울 끌어다 놓는 자리.
+const headOf = (who, art, p) => {
+  const r = RIG[who][art];
+  return [p.x, p.footY - (r.bbox[3] - r.bbox[1]) * p.s];
+};
+
+// ── 밤하늘(별·달) ──
+const STARS = Array.from({ length: 30 }, (_, i) => {
+  const h = n => { const v = Math.sin((i + 1) * 91.3 + n * 47.7) * 43758.5453; return v - Math.floor(v); };
+  return { x: 12 + h(1) * 378, y: 290 + h(2) * 320, r: 0.6 + h(3) * 0.8, ph: h(4) * TAU, sp: 1.6 + h(5) * 1.8 };
+});
+function buildSky() {
+  const NS = 'http://www.w3.org/2000/svg', sky = $('sky');
+  // 바닥: 한 톤 밝은 남색 면(또렷한 경계).
+  const floor = document.createElementNS(NS, 'rect');
+  floor.setAttribute('x', 0); floor.setAttribute('y', 638); floor.setAttribute('width', 402); floor.setAttribute('height', 236);
+  floor.setAttribute('fill', '#1F2C47');
+  sky.appendChild(floor);
+  // 달: 흰 원을 남색 원으로 깎은 초승달.
+  const moon = document.createElementNS(NS, 'g');
+  moon.id = 'moon';
+  moon.innerHTML = '<circle cx="342" cy="186" r="17" fill="#F4F4F5"/><circle cx="350" cy="180" r="15" fill="#172239"/>';
+  sky.appendChild(moon);
+  STARS.forEach((s, i) => {
+    const c = document.createElementNS(NS, 'circle');
+    c.setAttribute('cx', s.x.toFixed(1)); c.setAttribute('cy', s.y.toFixed(1)); c.setAttribute('r', s.r.toFixed(2));
+    c.setAttribute('fill', '#fff'); c.id = `star${i}`;
+    sky.appendChild(c);
+  });
+}
+
+// ── 한 시각의 무대 ──
+const SIDES = {
+  sugar: { S: SUGAR, set: 'strawberry-latte', full: 80, left: 34, unit: 'g', label: '당', name: '로슈', iga: '로슈가', kicker: '오늘 마감 · 1/2', size: 58 + 30 * 0.68, next: '다음 · 카인' },
+  caffeine: { S: CAF, set: 'iced-americano', full: 100, left: 400, unit: 'mg', label: '카페인', name: '카인', iga: '카인이', kicker: '오늘 마감 · 2/2', size: 88, next: '마무리' },
+};
+let current = null;
+function setSide(key) {
+  if (current === key) return;
+  current = key;
+  const d = SIDES[key];
+  $('cupFull').src = CUP(d.set, d.full);
+  $('cupEmpty').src = CUP(d.set, 0);
+  $('kicker').textContent = d.kicker;
+  $('heroUnit').textContent = d.unit;
+  $('dropImg').src = DROP(key);
+  $('dropAmt').textContent = `${d.left} ${d.unit}`;
+  $('cta').textContent = d.next;
+}
+
+const DROP_HOME = [201, 391];
+function drawScene(t) {
+  const key = t < B ? 'sugar' : 'caffeine';
+  setSide(key);
+  const d = SIDES[key], S = d.S, st = stageOf(t, S);
+  // 컵: 누르면 흔들리고 빈 컵으로.
+  const sh = t - S.tap;
+  const shake = sh < 0 || sh > 0.55 ? 0 : [-4, 3.5, -3, 2, -1, 0][Math.min(5, Math.floor(sh / 0.09))] * (1 - (sh % 0.09) / 0.09) +
+    [3.5, -3, 2, -1, 0, 0][Math.min(5, Math.floor(sh / 0.09))] * ((sh % 0.09) / 0.09);
+  for (const el of document.querySelectorAll('.cup')) el.style.transform = `rotate(${shake.toFixed(2)}deg)`;
+  $('cupEmpty').style.opacity = seg(t, S.tap, S.tap + 0.6, E.io2).toFixed(3);
+  // 컵 누르기 링(앱 CupPulse 흉내): 조를 때만.
+  const pv = ((t - S.at) % 1.6) / 1.6;
+  $('pulse').style.opacity = (st === 'ask' ? 0.35 + 0.35 * Math.sin(Math.PI * pv) : 0).toFixed(3);
+  $('pulse').style.transform = `scale(${0.92 + 0.12 * pv})`;
+  // 글자
+  const eatK = seg(t, S.eat + 0.1, S.eat + 0.6, E.o2);
+  $('heroNum').textContent = String(Math.round(d.left * (1 - eatK)));
+  $('caption').textContent = `남은 ${d.label} · ` + (st === 'ask' ? `${d.iga} 기다려요.\n컵을 눌러 주세요.`
+    : st === 'eaten' ? (key === 'sugar' ? '다음은 카인 차례예요.' : '둘 다 먹었어요.') : `방울을 ${d.name}에게 끌어다 주세요.`);
+  $('foot').style.opacity = st === 'eaten' ? 0 : 1;
+  $('cta').style.opacity = seg(t, S.cta, S.cta + 0.25, E.o2).toFixed(3);
+
+  // 캐릭터
+  const ctx = $('cvScene').getContext('2d');
+  ctx.setTransform(3, 0, 0, 3, 0, 0);
+  ctx.clearRect(0, 0, 402, 874);
+  const who = key === 'sugar' ? 'roshu' : 'kain', art = key === 'sugar' ? 'watch' : 'rim-stand';
+  const p = key === 'sugar' ? roshuFeeding(t) : kainFeeding(t);
+  drawRig(ctx, who, art, p);
+  const head = headOf(who, art, p);
+
+  // 말풍선: 머리 오른쪽 위.
+  const bubble = st === 'ask' ? '주세요!' : st === 'eaten' ? `냠, ${d.left} ${d.unit}` : '여기요!';
+  const b = $('bubble');
+  b.textContent = bubble;
+  const pop = st === 'ask' ? seg(t, S.at + 0.3, S.at + 0.6, E.back) : st === 'eaten' ? seg(t, S.eat + 0.1, S.eat + 0.4, E.back) : seg(t, S.tap, S.tap + 0.3, E.back);
+  // 왼쪽 끝을 머리 오른쪽에 붙인다(글자가 길어져도 머리를 안 가린다).
+  const bx = head[0] + (who === 'roshu' ? 22 : 26), by = head[1] + (who === 'roshu' ? -2 : 14);
+  b.style.transformOrigin = '0 50%';
+  b.style.transform = `translate(0, -50%) translate(${bx}px, ${by}px) scale(${0.85 + 0.15 * pop})`;
+  b.style.opacity = (pop * (t > S.next ? 0 : 1)).toFixed(3);
+
+  // 방울: 나와서 떠 있다가 손가락에 끌려 머리로 → 먹힘.
+  const dropEl = $('drop'), size = d.size;
+  $('dropImg').style.cssText = `width:${size}px;height:${size}px;left:${-size / 2}px;top:${-size / 2}px`;
+  $('dropAmt').style.top = `${size / 2 + 8}px`;
+  const emerge = seg(t, S.drop, S.drop + 0.6, E.o3);
+  const bob = 4 * Math.sin(TAU * (t - S.drop) / 1.8) * emerge;
+  const dk = seg(t, S.drag[0], S.drag[1], E.io2);
+  const target = [head[0], head[1] + (who === 'roshu' ? 26 : 22)];
+  const dx = lerp(DROP_HOME[0], target[0], dk), dy = lerp(DROP_HOME[1] + 60 * (1 - emerge) + bob * (1 - dk), target[1], dk);
+  const eaten = seg(t, S.eat, S.eat + 0.18, E.i2);
+  dropEl.style.transform = `translate(${dx}px, ${dy}px) scale(${lerp(1, 0.3, eaten) * lerp(1, 0.7, dk)})`;
+  dropEl.style.opacity = (t < S.drop ? 0 : emerge * (1 - eaten)).toFixed(3);
+  $('dropAmt').style.opacity = (1 - seg(t, S.drag[0], S.drag[0] + 0.2)).toFixed(3);
+
+  // 손가락 표시: 컵 누르기 → 방울 끌기 → 버튼 누르기.
+  const touch = $('touch');
+  let tx = 0, ty = 0, to = 0, ts = 1;
+  const tap = (at, x, y) => { const k = bump(t, at - 0.25, 0.5); if (k > 0) { tx = x; ty = y; to = k; ts = 1 - 0.15 * bump(t, at - 0.05, 0.15); } };
+  tap(S.tap, 201, 470);
+  tap(S.next, 201, 776);
+  if (t > S.drag[0] - 0.3 && t < S.drag[1] + 0.2) {
+    tx = dx + 10; ty = dy + 16; to = seg(t, S.drag[0] - 0.3, S.drag[0]) * (1 - seg(t, S.drag[1], S.drag[1] + 0.2));
+  }
+  touch.style.transform = `translate(${tx}px, ${ty}px) scale(${ts})`;
+  touch.style.opacity = to.toFixed(3);
+}
+
+// ── 요약 ──
+const COL = { roshu: 112.5, kain: 289.5 }, SUM_FOOT = 642;
+function drawSummary(t) {
+  const u = t - SUM;
+  const enter = (el, delay, dist = 16) => {
+    const k = seg(u, delay, delay + 0.55, E.o3);
+    el.style.opacity = k.toFixed(3);
+    el.style.transform = `translateY(${(1 - k) * dist}px)`;
+  };
+  enter($('sDate'), 0); enter($('sKick'), 0.07); enter($('sTitle'), 0.14); enter($('sSub'), 0.21);
+  enter($('colR'), 0.2, 60); enter($('colK'), 0.32, 60);
+  $('moon').style.opacity = seg(u, -0.3, 0.3).toFixed(3);
+  STARS.forEach((s, i) => {
+    const on = seg(u, -0.5 + (i % 7) * 0.06, -0.2 + (i % 7) * 0.06);
+    $(`star${i}`).setAttribute('opacity', (on * (0.55 + 0.45 * Math.sin(s.ph + TAU * t / s.sp))).toFixed(3));
+  });
+  const count = seg(u, 0.5, 1.4, E.o2);
+  $('numR').textContent = String(Math.round(34 * count));
+  $('numK').textContent = String(Math.round(400 * count));
+  const doneK = seg(u, 1.2, 1.6, E.o3);
+  $('done').style.opacity = doneK.toFixed(3);
+  $('done').style.transform = `translateY(${(1 - doneK) * 20}px)`;
+
+  const ctx = $('cvSum').getContext('2d');
+  ctx.setTransform(3, 0, 0, 3, 0, 0);
+  ctx.clearRect(0, 0, 402, 874);
+  const heads = {};
+  for (const [who, art, delay, seed] of [['roshu', 'stand', 0.2, 3], ['kain', 'rim-stand', 0.32, 4]]) {
+    const r = RIG[who][art];
+    const s = SUM_H[who] / (r.bbox[3] - r.bbox[1]);
+    const p = pose(COL[who], SUM_FOOT, s);
+    if (u < delay) continue;
+    // 들어오기: 위에서 콩 떨어져 눌렸다 펴짐.
+    const fall = seg(u, delay, delay + 0.38, E.i2);
+    p.footY -= 70 * (1 - fall);
+    const land = bump(u, delay + 0.38, 0.16);
+    p.gsy = 1 - 0.1 * land; p.gsx = 1 + 0.07 * land;
+    // 숫자가 다 세지면 둘이 같이 한 번 콩(팔·다리 번쩍).
+    const cheer = hops(p, u, 1.45 + (who === 'kain' ? 0.06 : 0), 18);
+    if (who === 'roshu') {
+      // 2.6초쯤 오른팔로 인사.
+      const wave = seg(u, 2.6, 2.75) * (1 - seg(u, 3.5, 3.7));
+      p.limbs.arm_left = 18 * cheer;
+      p.limbs.arm_right = -18 * cheer + wave * (-14 - 10 * Math.sin(TAU * (u - 2.6) / 0.36));
+    } else {
+      p.limbs.leg_left = 10 * cheer;
+      p.limbs.leg_right = -10 * cheer - 9 * (bump(u, 3.2, 0.3) + bump(u, 3.6, 0.3));
+    }
+    if (u > delay + 0.5) breathe(p, u - delay - 0.5, who === 'roshu' ? 1.7 : 1.9, who === 'roshu' ? 0.016 : 0.012);
+    p.blink = blinkAt(u, seed);
+    drawRig(ctx, who, art, p);
+    heads[who] = headOf(who, art, p);
+  }
+  for (const [id, who, delay] of [['sBubR', 'roshu', 0.75], ['sBubK', 'kain', 0.85]]) {
+    const el = $(id), k = seg(u, delay, delay + 0.3, E.back);
+    const y = (heads[who]?.[1] ?? SUM_FOOT - SUM_H[who]) - 18;
+    el.style.transform = `translate(-50%, -50%) translate(${COL[who]}px, ${y}px) scale(${0.85 + 0.15 * k})`;
+    el.style.opacity = k.toFixed(3);
+  }
+}
+
+// ── 전환 ──
+function drawFx(t) {
+  // 로슈 → 카인: 버튼 자리에서 호박색이 번져 덮고, 카인 자리로 오므라든다(앱 FeedFx.turn 줄임).
+  const grow = seg(t, TURN_AT, B - 0.02, E.expo), shrink = seg(t, B + 0.1, B + 0.6, E.io3);
+  const amber = $('amberC');
+  if (t < B) { amber.setAttribute('cx', 201); amber.setAttribute('cy', 776); amber.setAttribute('r', (1000 * grow).toFixed(1)); }
+  else { amber.setAttribute('cx', KAIN_AT[0].toFixed(1)); amber.setAttribute('cy', (KAIN_AT[1] - 45).toFixed(1)); amber.setAttribute('r', (1000 * (1 - shrink)).toFixed(1)); }
+  amber.style.opacity = t > TURN_AT && shrink < 1 ? 1 : 0;
+  // 마무리: 남색이 위에서 내려오고, 두 방울이 가운데서 만나 흰 링으로 흩어진 뒤 걷힌다(요약은 같은 남색이라 이어진다).
+  const down = seg(t, NIGHT_AT, NIGHT_AT + 0.5, E.io3);
+  const fade = seg(t, SUM + 0.2, SUM + 0.6);
+  $('navyR').setAttribute('y', (-874 * (1 - down)).toFixed(1));
+  $('navyR').style.opacity = 1 - fade;
+  const meet = seg(t, NIGHT_AT + 0.3, NIGHT_AT + 0.7, E.io2);
+  const pop = seg(t, NIGHT_AT + 0.7, NIGHT_AT + 0.78);
+  for (const [id, x0] of [['fxS', -40], ['fxC', 442]]) {
+    const el = $(id);
+    el.style.left = `${lerp(x0, 201, meet) - 20}px`;
+    el.style.top = `${430 - 20 - 80 * Math.sin(Math.PI * meet)}px`;
+    el.style.opacity = t > NIGHT_AT + 0.3 ? (1 - pop).toFixed(3) : 0;
+  }
+  const ring = seg(t, NIGHT_AT + 0.7, NIGHT_AT + 1.3, E.o3);
+  $('mergeRing').setAttribute('r', (10 + 130 * ring).toFixed(1));
+  $('mergeRing').setAttribute('opacity', (t > NIGHT_AT + 0.7 ? 1 - ring : 0).toFixed(3));
+  $('summary').style.opacity = t >= SUM ? 1 : 0;
+  $('sceneWrap').style.opacity = t >= SUM ? 0 : 1;
+}
+
+window.seekTo = t => {
+  drawScene(Math.min(t, SUM));
+  drawFx(t);
+  if (t >= SUM - 0.5) drawSummary(t);
+};
+window.INTRO_END = END;
+
+(async () => {
+  await loadRig();
+  buildSky();
+  $('fxS').src = DROP('sugar'); $('fxC').src = DROP('caffeine');
+  const pre = ['strawberry-latte', 'iced-americano'].flatMap(s => [CUP(s, 0), CUP(s, s === 'strawberry-latte' ? 80 : 100)]).concat([DROP('sugar'), DROP('caffeine')]);
+  await Promise.all(pre.map(src => new Promise(res => { const i = new Image(); i.onload = res; i.onerror = res; i.src = src; })));
+  await document.fonts.ready;
+  const q = new URLSearchParams(location.search);
+  if (q.has('t')) window.seekTo(Number(q.get('t')));
+  else if (!q.has('render')) {
+    const t0 = performance.now();
+    const loop = now => { window.seekTo(((now - t0) / 1000) % (END + 1)); requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+  } else window.seekTo(0);
+  document.body.dataset.ready = '1';
+})();
+</script>
+</body>
+</html>

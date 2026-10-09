@@ -4,7 +4,7 @@ import SwiftUI
 /// 화면 오른쪽 밖에서 걸어 들어와 잔 앞 바닥 가운데에 서서 기다린다(들고 선 채, 내려놓기는 그림이 오면).
 /// 캐릭터를 누르면 `onOpen`, 그 밖을 누르면 `onMiss`(오늘 화면은 컵 누르기로 받는다).
 ///
-/// 그림은 로슈 `gift-carry` 하나뿐이라 카페인 면(카인 차례)도 같은 그림으로 자리만 잡는다(2026-10-09 대표님, 원화 오면 교체).
+/// 당 면은 로슈, 카페인 면은 카인 `gift-carry` 그림(둘 다 2026-10-09 원화).
 struct GiftCarrierLayer: View {
     let side: CupSide
     let step: Int
@@ -67,8 +67,9 @@ struct GiftCarrierLayer: View {
 }
 
 /// 운반 캐릭터의 자리·배율(틀 크기가 같으면 매 프레임 같다). 그림은 소개·추이 걷기와 같은 무대 리그(`IntroRig`)를
-/// 오늘 화면 로슈 배율로 줄여 그린다. 잔 바닥 선은 그 면의 컵 것, 그림 크기는 로슈 것.
+/// 그 면 캐릭터의 오늘 화면 배율로 줄여 그린다. 잔 바닥 선은 그 면의 컵 것.
 struct GiftCarrierFigure {
+    let side: CupSide
     let painter: RigPainter
     let photo: IdlePhoto
     /// 기다리는 자리(발끝, pt).
@@ -82,9 +83,11 @@ struct GiftCarrierFigure {
     static let walkEnd = delay + 1.6
 
     init?(side: CupSide, size: CGSize) {
-        guard size.width > 0, size.height > 0, let painter = IntroRig.roshuGiftArt else { return nil }
+        let art = side == .sugar ? IntroRig.roshuGiftArt : IntroRig.kainGiftArt
+        guard size.width > 0, size.height > 0, let painter = art else { return nil }
         let photo = IdlePhoto(slot: size)
-        let scale: Double = photo.height * CupSide.sugar.idleCast.scalePerPhotoHeight
+        let scale: Double = photo.height * side.idleCast.scalePerPhotoHeight
+        self.side = side
         self.painter = painter
         self.photo = photo
         r = scale / painter.scale
@@ -99,7 +102,10 @@ struct GiftCarrierFigure {
     private func frame(_ t: Double) -> IdleFrame {
         let walk = walk(t)
         var m = IdleFrame()
-        IntroRig.roshuGiftWalk(&m, travelled: walk.travelled / r, moving: walk.moving)
+        switch side {
+        case .sugar: IntroRig.roshuGiftWalk(&m, travelled: walk.travelled / r, moving: walk.moving)
+        case .caffeine: IntroRig.kainGiftWalk(&m, travelled: walk.travelled / r, moving: walk.moving)
+        }
         if t > Self.walkEnd {
             RigMotion.breathe(&m, t: t - Self.walkEnd, period: 3.4, amount: 0.012)
         }

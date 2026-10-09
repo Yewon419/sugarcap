@@ -3,8 +3,9 @@
 Put full-canvas PNGs of the same size in <character>/layers/<art>/:
 
     body.png      required
-    <part>.png    one per limb; the file name is the part name (foot_* stays on the
-                  ground layer, every other part moves with the body)
+    <part>.png    one per limb, optional (a body-only pose has none); the file name is
+                  the part name (foot_* stays on the ground layer, every other part
+                  moves with the body)
     rig.json      optional: {"pivots": {"arm": [x, y]}, "front": ["arm"], "overlays": ["eye_closed"]}
 
 Limbs go behind the body unless listed in "front". A limb turns around its pivot.
@@ -156,8 +157,6 @@ def import_art(source: Path, parts_out: Path) -> tuple[ArtEntry, FloatImage]:
         if not PART_NAME.match(path.stem):
             raise ValueError(f"{path.name}: part names are lower_snake_case")
         limbs.append(Layer(path.stem, load_layer(path, size)))
-    if not limbs:
-        raise ValueError(f"{source}: no limb layers next to body.png")
     names = {limb.name for limb in limbs}
     for name in [*pivots, *front, *overlays]:
         if name not in names:

@@ -132,5 +132,55 @@
    }
   ],
   "rimLineY": null
+ },
+ "gift-carry": {
+  "file": "design/assets/characters/kain/poses/gift-carry.png",
+  "canvas": [
+   2500,
+   3200
+  ],
+  "bbox": [
+   326,
+   996,
+   2373,
+   2486
+  ],
+  "eyes": [
+   {
+    "box": [
+     1332,
+     1252,
+     1613,
+     1650
+    ],
+    "lid": "#382317"
+   }
+  ],
+  "rimLineY": null
+ },
+ "lie": {
+  "file": "design/assets/characters/kain/poses/lie.png",
+  "canvas": [
+   2500,
+   3200
+  ],
+  "bbox": [
+   190,
+   1049,
+   2029,
+   2224
+  ],
+  "eyes": [
+   {
+    "box": [
+     509,
+     1431,
+     845,
+     1903
+    ],
+    "lid": "#392418"
+   }
+  ],
+  "rimLineY": null
  }
 }

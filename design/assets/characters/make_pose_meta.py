@@ -38,6 +38,9 @@ class Character:
     # A pose whose white limb bands or half-hidden nose read as eyes: only blobs inside
     # this box (x0, y0, x1, y1, measured once) count.
     eye_region: dict[str, tuple[int, int, int, int]] = field(default_factory=dict)
+    # A pose whose body beside the eye is not the lid colour (Kain's tail nub sits at eye
+    # height in gift-carry and lie): the lid colour to use instead, measured above the eye.
+    lid: dict[str, str] = field(default_factory=dict)
 
 
 CHARACTERS = {
@@ -51,8 +54,12 @@ CHARACTERS = {
             "gift-carry": (1680, 1380, 1740, 1440),
         },
     ),
-    # Kain's eyes are a white ring round a black pupil, about 2.4% of the body.
-    "kain": Character(ROOT / "kain" / "poses", eye_max_area_ratio=0.03),
+    # Kain's eyes are a white ring round a black pupil, 2% to 3.8% of the body (lie is the largest).
+    "kain": Character(
+        ROOT / "kain" / "poses",
+        eye_max_area_ratio=0.045,
+        lid={"gift-carry": "#382317", "lie": "#392418"},
+    ),
 }
 
 
@@ -84,11 +91,9 @@ def measure(path: Path, character: Character) -> dict[str, object]:
         lid = rgba[(y0 + y1) // 2, sample_x]
         if lid[3] < OPAQUE_MIN:
             raise ValueError(f"no body next to eye {x0, y0, x1, y1} in {path}")
+        lid_hex = "#" + "".join(f"{int(v):02X}" for v in lid[:3])
         eyes.append(
-            {
-                "box": [x0, y0, x1, y1],
-                "lid": "#" + "".join(f"{int(v):02X}" for v in lid[:3]),
-            }
+            {"box": [x0, y0, x1, y1], "lid": character.lid.get(path.stem, lid_hex)}
         )
     eyes.sort(key=lambda eye: eye["box"][0])  # type: ignore[index]
     width, height = int(rgba.shape[1]), int(rgba.shape[0])

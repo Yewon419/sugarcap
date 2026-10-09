@@ -111,6 +111,8 @@ extension RecordFlowUITests {
     func testSugarPresetChangesTodayLimit() throws {
         continueAfterFailure = false
         let app = XCUIApplication()
+        // 추이는 첫 선물 전까지 잠긴다(§4.9). 하루 기준 화면은 추이 안에 있어 Debug 인자로 연다.
+        app.launchArguments += ["-trendsUnlocked", "YES"]
         app.launch()
 
         // 단독 실행이면 온보딩부터 뜬다.
@@ -151,7 +153,7 @@ extension RecordFlowUITests {
     func testStartAndStopSugarReductionGoal() throws {
         continueAfterFailure = false
         let app = XCUIApplication()
-        app.launchArguments += ["-mockProOwned", "YES"]
+        app.launchArguments += ["-mockProOwned", "YES", "-trendsUnlocked", "YES"]
         app.launch()
 
         completeOnboardingIfPresented(app)
@@ -192,7 +194,7 @@ extension RecordFlowUITests {
     func testTappingProFeatureOpensPaywall() throws {
         continueAfterFailure = false
         let app = XCUIApplication()
-        app.launchArguments += ["-mockPro", "YES"]
+        app.launchArguments += ["-mockPro", "YES", "-trendsUnlocked", "YES"]
         app.launch()
 
         completeOnboardingIfPresented(app)

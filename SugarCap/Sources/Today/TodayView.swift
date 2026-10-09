@@ -807,6 +807,8 @@ struct TodayView: View {
                 sides: trackedSides, now: now, in: context
             )
             prompt = nil
+            // 첫 적립이 "어제 먹이기"로 나도 첫 선물은 온다(SPEC §4.9).
+            _ = try GiftStore.grantFirstReward(credited: results, now: now, in: context)
         }
         try context.save()
         didFeed = true

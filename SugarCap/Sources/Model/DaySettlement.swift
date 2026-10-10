@@ -12,6 +12,9 @@ final class DaySettlement {
     var closedAt: Date?
     var sugarLeftAtCloseG: Double?
     var caffeineLeftAtCloseMg: Double?
+    /// 마감 순간 하루 기준을 넘긴 양. "기준 지킨 주" 선물 판정용(SPEC §4.9 결정 4). 이 필드 전에 마감한 날은 nil.
+    var sugarOverAtCloseG: Double?
+    var caffeineOverAtCloseMg: Double?
     var finalSugarLeftG: Double?
     var finalCaffeineLeftMg: Double?
     /// 적립이 끝났거나(먹이기) 적립 없이 닫혔다("마셨어요"). 다시 묻지 않는다.

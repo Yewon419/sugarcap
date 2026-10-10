@@ -643,3 +643,27 @@ private extension XCUIElement {
         return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
     }
 }
+
+extension RecordFlowUITests {
+    /// 무료 사용자가 두 번째 마음을 받으면 카드에 결제 유도 줄이 붙고, 누르면 선물 페이월이 열린다(§4.9).
+    @MainActor
+    func testSecondHeartOffersPro() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments += [
+            "-mockPro", "YES", "-trendsUnlocked", "YES", "-initialTab", "today",
+            "-screenshotGift", "weekKept", "-screenshotGiftCard", "YES", "-screenshotHearts", "1",
+        ]
+        app.launch()
+        completeOnboardingIfPresented(app)
+        let ui = Driver(app: app)
+
+        let offer = app.buttons["gift-pro"]
+        XCTAssertTrue(offer.waitForExistence(timeout: 15), "두 번째 마음인데 결제 유도 줄이 없음")
+        offer.tap()
+        XCTAssertTrue(app.buttons["plan-\(ProductIDs.yearly)"].waitForExistence(timeout: 5), "결제 유도 줄을 눌렀는데 페이월이 안 열림")
+        app.buttons["paywall-close"].tap()
+        XCTAssertTrue(ui.element("cup-summary").waitForExistence(timeout: 5), "페이월을 닫았는데 오늘로 안 돌아옴")
+        XCTAssertTrue(ui.element("gift-card").waitForNonExistence(timeout: 3), "페이월에서 돌아왔는데 카드가 남아 있음")
+    }
+}

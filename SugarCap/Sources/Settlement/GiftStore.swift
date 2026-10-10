@@ -11,7 +11,7 @@ enum GiftStore {
     static func records(in context: ModelContext) throws -> [GiftMath.Record] {
         try all(in: context).compactMap { gift in
             guard let kind = gift.giftKind else { return nil }
-            return GiftMath.Record(kind: kind, isOpened: gift.isOpened)
+            return GiftMath.Record(kind: kind, isOpened: gift.isOpened, week: gift.week.flatMap(DayKey.init(rawValue:)))
         }
     }
 
@@ -35,7 +35,25 @@ enum GiftStore {
         return true
     }
 
+    /// `closed`를 마감한 직후. 기준 지킨 주면 선물을 넣는다. 둘 다 지킨 거라 누가 가져올지는 `sides` 중 무작위. 넣었으면 참.
+    static func grantWeekKept(closed: DayKey, sides: [CupSide], now: Date, in context: ModelContext) throws -> Bool {
+        let days = try context.fetch(FetchDescriptor<DaySettlement>()).compactMap { row -> GiftMath.ClosedDay? in
+            guard row.isClosed, let day = row.dayKey else { return nil }
+            return GiftMath.ClosedDay(day: day, sugarOver: row.sugarOverAtCloseG, caffeineOver: row.caffeineOverAtCloseMg)
+        }
+        guard GiftMath.grantsWeekKept(closed: closed, days: days, sides: sides, gifts: try records(in: context)),
+              let side = sides.randomElement()
+        else { return false }
+        context.insert(GiftEvent(kind: .weekKept, side: side, week: GiftMath.weekStart(of: closed), createdAt: now))
+        return true
+    }
+
+    /// 연 것으로 저장한다. 주·목표 선물은 이때 내용이 정해진다(지금은 마음뿐).
     static func open(_ gift: GiftEvent, now: Date) {
         gift.openedAt = now
+        switch gift.giftKind {
+        case .weekKept, .goalReached: gift.payload = GiftContent.heart
+        case .trendsUnlock, .levelUp, nil: break
+        }
     }
 }

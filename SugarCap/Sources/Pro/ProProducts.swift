@@ -34,6 +34,8 @@ enum ProFeature: String, CaseIterable, Identifiable, Sendable {
     case monthlyTrends
     case weekOverWeek
     case reductionGoal
+    /// 선물 마음 카드의 "다른 것도 받고 싶으시다고요?"(§4.9).
+    case gifts
 
     var id: String { rawValue }
 
@@ -42,6 +44,7 @@ enum ProFeature: String, CaseIterable, Identifiable, Sendable {
         case .monthlyTrends: return String(localized: "추이 월 보기")
         case .weekOverWeek: return String(localized: "지난주 대비")
         case .reductionGoal: return String(localized: "감소 목표")
+        case .gifts: return String(localized: "선물")
         }
     }
 

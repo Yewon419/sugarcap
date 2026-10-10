@@ -4,7 +4,7 @@ import XCTest
 
 @testable import SugarCap
 
-/// 선물(SPEC §4.9) 판정과 저장. Phase 1 = 첫 보상(추이 열림).
+/// 선물(SPEC §4.9) 판정과 저장. 첫 보상(추이 열림)·기준 지킨 주·마음 결제 유도.
 final class GiftTests: XCTestCase {
     // MARK: 순수 판정
 
@@ -31,6 +31,52 @@ final class GiftTests: XCTestCase {
         XCTAssertFalse(GiftMath.adoptsExistingProgress(records: [credited], gifts: [.init(kind: .trendsUnlock, isOpened: false)]), "이미 선물이 있으면 소급 안 함")
     }
 
+    // MARK: 기준 지킨 주
+
+    private let gregorian = Calendar(identifier: .gregorian)
+
+    /// 2026-10-05(월) ~ 10-11(일). `over`로 날마다 넘긴 양을 바꾼다.
+    private func week(sugarOver: [Double?] = Array(repeating: 0, count: 7), caffeineOver: Double? = 0) -> [GiftMath.ClosedDay] {
+        sugarOver.enumerated().map { offset, over in
+            GiftMath.ClosedDay(day: DayKey(year: 2026, month: 10, day: 5 + offset), sugarOver: over, caffeineOver: caffeineOver)
+        }
+    }
+
+    func testWeekKeptOnlyOnSundayWithAllSevenDaysWithinLimits() {
+        let sunday = DayKey(year: 2026, month: 10, day: 11)
+        let saturday = DayKey(year: 2026, month: 10, day: 10)
+        XCTAssertEqual(GiftMath.weekStart(of: sunday, calendar: gregorian), DayKey(year: 2026, month: 10, day: 5))
+        XCTAssertEqual(GiftMath.weekStart(of: DayKey(year: 2026, month: 10, day: 5), calendar: gregorian), DayKey(year: 2026, month: 10, day: 5))
+        XCTAssertTrue(GiftMath.grantsWeekKept(closed: sunday, days: week(), sides: [.sugar, .caffeine], gifts: [], calendar: gregorian))
+        XCTAssertFalse(GiftMath.grantsWeekKept(closed: saturday, days: week(), sides: [.sugar, .caffeine], gifts: [], calendar: gregorian), "일요일 마감에만 준다")
+        XCTAssertFalse(
+            GiftMath.grantsWeekKept(closed: sunday, days: Array(week().dropFirst()), sides: [.sugar, .caffeine], gifts: [], calendar: gregorian),
+            "월요일을 마감 안 했거나 주 중간에 시작한 주는 해당 없음"
+        )
+        var oneOver: [Double?] = Array(repeating: 0, count: 7)
+        oneOver[3] = 2
+        XCTAssertFalse(GiftMath.grantsWeekKept(closed: sunday, days: week(sugarOver: oneOver), sides: [.sugar, .caffeine], gifts: [], calendar: gregorian), "하루라도 넘기면 안 된다")
+        var unknown: [Double?] = Array(repeating: 0, count: 7)
+        unknown[0] = nil
+        XCTAssertFalse(GiftMath.grantsWeekKept(closed: sunday, days: week(sugarOver: unknown), sides: [.sugar], gifts: [], calendar: gregorian), "마감 값이 없는 날(필드 전 마감)은 못 지킨 걸로")
+    }
+
+    func testWeekKeptJudgesOnlyTrackedSidesAndOncePerWeek() {
+        let sunday = DayKey(year: 2026, month: 10, day: 11)
+        let caffeineOver = week(caffeineOver: 30)
+        XCTAssertFalse(GiftMath.grantsWeekKept(closed: sunday, days: caffeineOver, sides: [.sugar, .caffeine], gifts: [], calendar: gregorian), "둘 다 지켜야 한다")
+        XCTAssertTrue(GiftMath.grantsWeekKept(closed: sunday, days: caffeineOver, sides: [.sugar], gifts: [], calendar: gregorian), "카페인을 끈 사용자는 당만 본다")
+        let given = [GiftMath.Record(kind: .weekKept, isOpened: true, week: DayKey(year: 2026, month: 10, day: 5))]
+        XCTAssertFalse(GiftMath.grantsWeekKept(closed: sunday, days: week(), sides: [.sugar], gifts: given, calendar: gregorian), "같은 주에 두 번 안 준다")
+        XCTAssertFalse(GiftMath.grantsWeekKept(closed: sunday, days: week(), sides: [], gifts: [], calendar: gregorian))
+    }
+
+    func testProOfferStartsFromTheSecondHeartForFreeUsers() {
+        XCTAssertFalse(GiftMath.offersPro(heartsBefore: 0, isPro: false), "첫 마음은 그냥 웃고 넘어간다")
+        XCTAssertTrue(GiftMath.offersPro(heartsBefore: 1, isPro: false))
+        XCTAssertFalse(GiftMath.offersPro(heartsBefore: 3, isPro: true), "Pro에겐 결제 유도 없음")
+    }
+
     // MARK: 저장
 
     @MainActor
@@ -55,6 +101,30 @@ final class GiftTests: XCTestCase {
         GiftStore.open(try XCTUnwrap(pending.first), now: now)
         XCTAssertTrue(try GiftStore.pending(in: context).isEmpty)
         XCTAssertTrue(GiftMath.isTrendsUnlocked(gifts: try GiftStore.records(in: context)))
+    }
+
+    @MainActor
+    func testClosingAKeptSundayGrantsOneHeartGift() throws {
+        let container = try ModelContainer(
+            for: GiftEvent.self, DaySettlement.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        let context = container.mainContext
+        let now = Date()
+        let kept = DayTotals(sugarG: 10, caffeineMg: 100, leftSugarG: 40, leftCaffeineMg: 300, overSugarG: 0, overCaffeineMg: 0)
+        for offset in 0 ..< 7 {
+            let row = try SettlementStore.row(for: DayKey(year: 2026, month: 10, day: 5 + offset), in: context)
+            SettlementStore.close(row, totals: kept, now: now)
+        }
+        let sunday = DayKey(year: 2026, month: 10, day: 11)
+
+        XCTAssertTrue(try GiftStore.grantWeekKept(closed: sunday, sides: [.sugar, .caffeine], now: now, in: context))
+        XCTAssertFalse(try GiftStore.grantWeekKept(closed: sunday, sides: [.sugar, .caffeine], now: now, in: context), "한 주에 한 번")
+        let gift = try XCTUnwrap(try GiftStore.pending(in: context).first)
+        XCTAssertEqual(gift.giftKind, .weekKept)
+        XCTAssertFalse(gift.isHeart, "열기 전엔 내용이 없다")
+        GiftStore.open(gift, now: now)
+        XCTAssertTrue(gift.isHeart, "열면 마음")
     }
 
     @MainActor

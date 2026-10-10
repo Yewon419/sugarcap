@@ -268,6 +268,12 @@ jobs:
           shoot gift-drop-kain light large -screenshotSide caffeine -screenshotGift trends -giftAt 0.9
           shoot gift-wait-kain light large -screenshotSide caffeine -screenshotGift trends -giftAt 3
           shoot gift-open-burst-kain light large -screenshotSide caffeine -screenshotGift trends -giftOpenAt 0.6
+          # 기준 지킨 주 선물(§4.9): 무료는 늘 마음. 두 번째 마음부터 "다른 것도 받고 싶으시다고요?" → 선물 페이월.
+          shoot gift-heart light large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotHearts 0
+          shoot gift-heart-offer light large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotHearts 1
+          shoot gift-heart-offer-kain light large -mockPro YES -screenshotSide caffeine -screenshotGift weekKept -screenshotGiftCard YES -screenshotHearts 1
+          shoot gift-heart-offer-ax-xl light accessibility-extra-large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotHearts 1
+          shoot paywall-gifts light large -mockPro YES -screenshotPaywall gifts
           # 영어판(SPEC §9.9 Phase 1b). 긴 영어 문장이 넘치는지 큰 글자에서도 본다.
           # 미국 사용자 화면이라 메뉴 국가를 미국으로 고정한다. UI 테스트가 저장한 나라(한국)가 남아 있어서 지역만으로는 안 바뀐다.
           shoot_en() {
@@ -296,6 +302,7 @@ jobs:
           shoot_en limit-sugar large -initialTab trends -trendLimit sugar
           shoot_en limit-caffeine large -initialTab trends -trendLimit caffeine
           shoot_en paywall large -mockPro YES -screenshotPaywall YES
+          shoot_en gift-heart-offer large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotHearts 1
           shoot_en paywall-type-ax-xl accessibility-extra-large -mockPro YES -screenshotPaywall YES
           shoot_en record large -seedDemo YES -screenshotRecord YES
           shoot_en daylog large -seedDemo YES -screenshotDayLog YES
@@ -333,6 +340,7 @@ jobs:
           shoot_zh limit-sugar large -initialTab trends -trendLimit sugar
           shoot_zh limit-caffeine large -initialTab trends -trendLimit caffeine
           shoot_zh paywall large -mockPro YES -screenshotPaywall YES
+          shoot_zh gift-heart-offer large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotHearts 1
           shoot_zh paywall-type-ax-xl accessibility-extra-large -mockPro YES -screenshotPaywall YES
           shoot_zh record large -seedDemo YES -screenshotRecord YES
           shoot_zh daylog large -seedDemo YES -screenshotDayLog YES

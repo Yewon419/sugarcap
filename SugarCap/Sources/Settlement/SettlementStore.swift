@@ -40,6 +40,8 @@ enum SettlementStore {
         row.closedAt = now
         row.sugarLeftAtCloseG = totals.leftSugarG
         row.caffeineLeftAtCloseMg = totals.leftCaffeineMg
+        row.sugarOverAtCloseG = totals.overSugarG
+        row.caffeineOverAtCloseMg = totals.overCaffeineMg
     }
 
     /// 하루가 끝난 날을 최종 값으로 확정하고 적립한다. 이미 확정된 행은 건드리지 않는다.

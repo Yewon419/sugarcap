@@ -701,6 +701,22 @@
         }
       }
     },
+    "'%@의 마음'을 받았어요!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You got “%@’s heart”!"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "收到了「%@的心意」！"
+          }
+        }
+      }
+    },
     "+%@" : {
       "shouldTranslate" : false
     },
@@ -1246,6 +1262,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "要記錄的項目"
+          }
+        }
+      }
+    },
+    "기쁘시죠?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Happy, right?"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "很開心吧？"
           }
         }
       }
@@ -2078,6 +2110,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "喝完還剩的%@"
+          }
+        }
+      }
+    },
+    "마음 말고 다른 선물은 Pro에서 와요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gifts other than hearts come with Pro"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "心意以外的禮物要 Pro 才會來"
           }
         }
       }
@@ -3726,6 +3774,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "上一步"
+          }
+        }
+      }
+    },
+    "이제 마음 말고 슬슬 다른 것도 받고 싶으시다고요?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Getting tired of hearts? Want something else for a change?"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "差不多想收到心意以外的東西了嗎？"
           }
         }
       }

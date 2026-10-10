@@ -24,17 +24,23 @@ final class GiftEvent {
     var side: String
     /// 단계 상승이면 오른 단계.
     var level: Int?
-    /// 물건 id 또는 꽝 문구 id(§4.9, Phase 3).
+    /// 열었을 때 나온 것. 지금은 마음(`GiftContent.heart`)뿐이다(§4.9, 물건은 대표님 구상 후).
     var payload: String?
+    /// 기준 지킨 주 선물이면 그 주 월요일(`DayKey.rawValue`). 같은 주에 두 번 주지 않는다.
+    var week: String?
     var createdAt: Date
     var openedAt: Date?
 
-    init(kind: GiftKind, side: CupSide, level: Int? = nil, payload: String? = nil, createdAt: Date, openedAt: Date? = nil) {
+    init(
+        kind: GiftKind, side: CupSide, level: Int? = nil, payload: String? = nil, week: DayKey? = nil,
+        createdAt: Date, openedAt: Date? = nil
+    ) {
         id = UUID()
         self.kind = kind.rawValue
         self.side = side.rawValue
         self.level = level
         self.payload = payload
+        self.week = week?.rawValue
         self.createdAt = createdAt
         self.openedAt = openedAt
     }
@@ -42,4 +48,10 @@ final class GiftEvent {
     var giftKind: GiftKind? { GiftKind(rawValue: kind) }
     var cupSide: CupSide? { CupSide(rawValue: side) }
     var isOpened: Bool { openedAt != nil }
+    var isHeart: Bool { payload == GiftContent.heart }
+}
+
+/// 상자에서 나오는 것(§4.9). 무료는 늘 마음이다. Pro 내용물은 대표님 구상 후 추가한다.
+enum GiftContent {
+    static let heart = "heart"
 }

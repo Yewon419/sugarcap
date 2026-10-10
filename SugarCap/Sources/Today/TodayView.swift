@@ -376,16 +376,33 @@ struct TodayView: View {
         }
     }
 
-    /// CI 스크린샷·UI 테스트 전용(Debug `-screenshotGift trends`): 선물이 와 있는 상태로 연다. 이미 안 연 선물이 있으면 그대로.
+    /// CI 스크린샷·UI 테스트 전용(Debug `-screenshotGift trends|weekKept`): 선물이 와 있는 상태로 연다. 이미 안 연 선물이 있으면 그대로.
+    /// `-screenshotGiftCard YES` = 카드를 연 채로. 마음 횟수는 `heartsReceived`(`-screenshotHearts`).
     private func presentScreenshotGiftIfRequested() {
         #if DEBUG
         let defaults = UserDefaults.standard
         guard let raw = defaults.string(forKey: "screenshotGift") else { return }
         let kind: GiftKind = raw == "trends" ? .trendsUnlock : (GiftKind(rawValue: raw) ?? .trendsUnlock)
-        guard pendingGift(for: side) == nil else { return }
-        context.insert(GiftEvent(kind: kind, side: side, createdAt: Date()))
+        // 카드 컷은 앞 컷이 남긴 안 연 선물과 상관없이 새로 넣어 연다(스크린샷 단계는 저장소를 이어 쓴다).
+        if defaults.bool(forKey: "screenshotGiftCard"), kind != .trendsUnlock {
+            let gift = GiftEvent(kind: kind, side: side, createdAt: Date())
+            context.insert(gift)
+            openedGift = gift
+        } else if pendingGift(for: side) == nil {
+            context.insert(GiftEvent(kind: kind, side: side, createdAt: Date()))
+        }
         try? context.save()
         #endif
+    }
+
+    /// 지금까지 받은 마음(로슈·카인 합쳐). Debug `-screenshotHearts <n>`이면 그 값(UI 테스트가 남긴 기록과 상관없이 찍으려고).
+    private var heartsReceived: Int {
+        #if DEBUG
+        if UserDefaults.standard.object(forKey: "screenshotHearts") != nil {
+            return UserDefaults.standard.integer(forKey: "screenshotHearts")
+        }
+        #endif
+        return gifts.filter(\.isHeart).count
     }
 
     @ViewBuilder
@@ -394,7 +411,15 @@ struct TodayView: View {
             Color.black.opacity(0.12)
                 .ignoresSafeArea()
                 .onTapGesture { }
-            GiftCardView(gift: openedGift) { confirmGift(openedGift) }
+            GiftCardView(
+                gift: openedGift,
+                offersPro: GiftMath.offersPro(heartsBefore: heartsReceived, isPro: pro.isPro),
+                onConfirm: { confirmGift(openedGift) },
+                onPro: {
+                    confirmGift(openedGift)
+                    paywall = .gifts
+                }
+            )
                 .padding(.horizontal, 24)
                 .transition(.scale(scale: 0.92).combined(with: .opacity))
         }
@@ -866,6 +891,7 @@ struct TodayView: View {
             let row = try SettlementStore.row(for: today, in: context)
             SettlementStore.close(row, totals: try storedTotals(for: today), now: now)
             results = []
+            _ = try GiftStore.grantWeekKept(closed: today, sides: trackedSides, now: now, in: context)
         case .pastDay(let day):
             results = try SettlementStore.feedPastDay(
                 day, entries: try context.fetch(FetchDescriptor<Entry>()), limits: limits, boundaryHour: boundaryHour,
@@ -874,6 +900,7 @@ struct TodayView: View {
             prompt = nil
             // 첫 적립이 "어제 먹이기"로 나도 첫 선물은 온다(SPEC §4.9).
             _ = try GiftStore.grantFirstReward(credited: results, now: now, in: context)
+            _ = try GiftStore.grantWeekKept(closed: day, sides: trackedSides, now: now, in: context)
         }
         try context.save()
         didFeed = true
@@ -1013,8 +1040,9 @@ struct TodayView: View {
                 request: request, opening: snapshot.introAt != nil ? .companionIntro : .immediate, snapshot: snapshot
             )
         }
-        if defaults.bool(forKey: "screenshotPaywall") {
-            paywall = .monthlyTrends
+        // `YES`면 월 추이, 기능 이름(`ProFeature.rawValue`)이면 그 기능에서 연 페이월.
+        if let raw = defaults.string(forKey: "screenshotPaywall") {
+            paywall = ProFeature(rawValue: raw) ?? .monthlyTrends
         }
         if defaults.bool(forKey: "screenshotRecord") {
             isRecordSheetPresented = true

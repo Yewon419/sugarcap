@@ -36,6 +36,7 @@ struct PaywallView: View {
         case .monthlyTrends: return String(localized: "월 추이는 Pro에서 열려요")
         case .reductionGoal: return String(localized: "조금씩 줄이기는 Pro에서 열려요")
         case .weekOverWeek: return String(localized: "지난주 대비는 Pro에서 열려요")
+        case .gifts: return String(localized: "마음 말고 다른 선물은 Pro에서 와요")
         case nil: return String(localized: "한 번 결제로 아래 기능이 모두 열려요")
         }
     }

@@ -171,6 +171,17 @@ struct GiftOpeningOverlay: View {
                             .scaleEffect(lit.scale)
                             .opacity(lit.opacity)
                             .position(center)
+                        let key = GiftOpeningTimeline.key(o, from: from, to: center)
+                        if !isInstant, key.opacity > 0 {
+                            // 시안 열쇠 크기(긴 변 약 30pt).
+                            Image(systemName: "key.fill")
+                                .font(.system(size: 24, weight: .semibold))
+                                .foregroundStyle(Color.accentColor)
+                                .scaleEffect(key.scale)
+                                .rotationEffect(.degrees(key.angle))
+                                .opacity(key.opacity)
+                                .position(key.point)
+                        }
                     }
                     .allowsHitTesting(false)
                     .accessibilityHidden(true)
@@ -204,20 +215,6 @@ struct GiftOpeningOverlay: View {
             let circle = Path(ellipseIn: CGRect(x: Double(center.x) - r, y: Double(center.y) - r, width: r * 2, height: r * 2))
             context.stroke(circle, with: .color(.white.opacity(ring.opacity)), lineWidth: 2)
         }
-        guard !isInstant else { return }
-        let key = GiftOpeningTimeline.key(o, from: from, to: center)
-        guard key.opacity > 0, key.scale > 0 else { return }
-        var image = context.resolve(Image(systemName: "key.fill"))
-        image.shading = .color(Color.accentColor)
-        // 긴 변 30pt(시안 열쇠 크기).
-        let longest: Double = max(1, Double(max(image.size.width, image.size.height)))
-        let fit: Double = 30 / longest * key.scale
-        var symbol = context
-        symbol.opacity = key.opacity
-        symbol.translateBy(x: key.point.x, y: key.point.y)
-        symbol.rotate(by: .degrees(key.angle))
-        symbol.scaleBy(x: fit, y: fit)
-        symbol.draw(image, at: .zero, anchor: .center)
     }
 
     /// CI 스크린샷(Debug `-giftOpenAt <누른 뒤 초>`)이면 그 시각에 멈춘다.

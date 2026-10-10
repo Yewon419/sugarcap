@@ -2,7 +2,7 @@ import SwiftUI
 
 /// 선물 상자를 들고 오늘 화면으로 들어오는 캐릭터(SPEC §4.9). `CupView` 사진 칸 안에 그려 컵을 넘길 때 한 몸으로 민다.
 /// 로슈는 화면 오른쪽 밖에서 걸어 들어와 잔 앞 바닥 가운데에 서고, 앉은 카인은 위에서 톡 떨어져 앉는다(2026-10-10 대표님).
-/// 캐릭터를 누르면 뚜껑이 열리고 조각이 터지며 `onOpen`(상자 입구, 화면 좌표)을 부른다. 그 밖을 누르면 `onMiss`.
+/// 캐릭터를 누르면 뚜껑이 열리고 조각이 터지며 `onOpen`(상자 입구, 이 레이어 좌표)을 부른다. 그 밖을 누르면 `onMiss`.
 ///
 /// 당 면은 로슈, 카페인 면은 카인 `gift-carry` 그림(둘 다 2026-10-09 원화).
 struct GiftCarrierLayer: View {
@@ -12,6 +12,8 @@ struct GiftCarrierLayer: View {
     let isActive: Bool
     var onOpen: (CGPoint) -> Void = { _ in }
     var onMiss: (CGPoint) -> Void = { _ in }
+    /// 이 레이어의 화면 자리. 열쇠 오버레이가 입구를 화면 좌표로 옮길 때 쓴다.
+    var onFrame: (CGRect) -> Void = { _ in }
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var start = Date()
@@ -39,7 +41,7 @@ struct GiftCarrierLayer: View {
                     let t = frozenTime ?? (pausedAt ?? Date()).timeIntervalSince(start)
                     if openedAt == nil, figure.contains(local, t: t) {
                         openedAt = t
-                        onOpen(Self.global(figure.mouth(t: t), origin: origin))
+                        onOpen(figure.mouth(t: t))
                     } else if openedAt == nil {
                         onMiss(location)
                     }
@@ -47,11 +49,12 @@ struct GiftCarrierLayer: View {
                 .onAppear {
                     // CI 스크린샷(Debug `-giftOpenAt`): 누른 것처럼 연출을 시작시킨다.
                     if let at = Self.screenshotOpenTime(figure) {
-                        onOpen(Self.global(figure.mouth(t: at), origin: proxy.frame(in: .global).origin))
+                        onOpen(figure.mouth(t: at))
                     }
                 }
             }
         }
+        .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { onFrame($0) }
         .allowsHitTesting(isActive)
         // 컵 장면이 접근성 요소 하나라 여기는 숨긴다. 보이스오버는 컵 장면의 "선물 열기" 동작으로 연다(`TodayView`).
         .accessibilityHidden(true)
@@ -63,10 +66,6 @@ struct GiftCarrierLayer: View {
                 pausedAt = Date()
             }
         }
-    }
-
-    private static func global(_ point: CGPoint, origin: CGPoint) -> CGPoint {
-        CGPoint(x: point.x + origin.x, y: point.y + origin.y)
     }
 
     /// 멈춘 시각. 동작 줄이기면 들어온 뒤 선 모습, CI 스크린샷(Debug `-giftAt`·`-giftOpenAt`)이면 그 시각.

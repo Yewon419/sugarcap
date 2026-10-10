@@ -63,6 +63,7 @@ struct TodayView: View {
     @State private var opening: GiftOpening?
     /// 추이 버튼 자리(화면 좌표). 열쇠가 날아가 닿고 어둠의 구멍이 뚫리는 곳.
     @State private var trendsButtonFrame: CGRect = .zero
+    @State private var giftCarrierFrames: [CupSide: CGRect] = [:]
 
     @Environment(ProStore.self) private var pro
 
@@ -232,7 +233,8 @@ struct TodayView: View {
                             GiftCarrierLayer(
                                 side: cupSide, step: step, isActive: isActive && openedGift == nil,
                                 onOpen: { beginOpening(gift, from: $0, on: cupSide) },
-                                onMiss: { tapCup(at: $0, screen: proxy.frame(in: .global)) }
+                                onMiss: { tapCup(at: $0, screen: proxy.frame(in: .global)) },
+                                onFrame: { giftCarrierFrames[cupSide] = $0 }
                             )
                         }
                     )
@@ -326,8 +328,11 @@ struct TodayView: View {
     @ViewBuilder
     private func giftOpeningOverlay() -> some View {
         if let opening {
-            GiftOpeningOverlay(opening: opening, target: trendsButtonFrame, onOpenTrends: finishOpening)
-                .transition(.opacity)
+            GiftOpeningOverlay(
+                opening: opening, target: trendsButtonFrame, source: giftCarrierFrames[side] ?? .zero,
+                onOpenTrends: finishOpening
+            )
+            .transition(.opacity)
         }
     }
 

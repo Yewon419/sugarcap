@@ -81,7 +81,7 @@
    "label": "잔 왼쪽에 눕기",
    "note": "Lv4. 잔 왼쪽 바닥(냅킨, floor-sit 자리)에 옆으로 누워 잔 쪽을 본다(그림은 왼쪽을 보므로 좌우반전). 숨 쉬며 배가 오르내리고 9초마다 1.4초에 걸쳐 가로로 늘어나는 기지개. 같은 그림을 lie-right와 나눠 쓴다(대표님 2026-10-09 '좌우반전해서 양쪽 다').",
    "art": "lie", "mirror": true, "unlock": 4, "minStep": 1,
-   "place": { "xRim": -0.74, "y": "bottom", "dy": -0.012 },
+   "place": { "xRim": -0.74, "y": "bottom", "dy": 0.016 },
    "reflection": { "toward": 0.49 },
    "shadow": { "w": 0.96, "h": 0.1, "dx": 0.0, "dy": -0.02 },
    "motion": [
@@ -94,7 +94,7 @@
    "label": "잔 오른쪽에 눕기",
    "note": "Lv4. 잔 오른쪽 바닥에 옆으로 누워 잔 쪽을 본다(그림 그대로). 움직임은 lie-left와 같다.",
    "art": "lie", "unlock": 4, "minStep": 1,
-   "place": { "xRim": 0.74, "y": "bottom", "dy": -0.012 },
+   "place": { "xRim": 0.74, "y": "bottom", "dy": 0.016 },
    "reflection": { "toward": 0.49 },
    "shadow": { "w": 0.96, "h": 0.1, "dx": 0.0, "dy": -0.02 },
    "motion": [

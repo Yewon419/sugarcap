@@ -1121,7 +1121,7 @@
    "parts": [
     {
      "name": "box",
-     "z": "front",
+     "z": "back",
      "frame": [
       323,
       1307,

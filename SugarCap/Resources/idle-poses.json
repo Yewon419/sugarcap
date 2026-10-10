@@ -639,7 +639,7 @@
     "place": {
      "xRim": -0.74,
      "y": "bottom",
-     "dy": -0.012
+     "dy": 0.016
     },
     "reflection": {
      "toward": 0.49
@@ -682,7 +682,7 @@
     "place": {
      "xRim": 0.74,
      "y": "bottom",
-     "dy": -0.012
+     "dy": 0.016
     },
     "reflection": {
      "toward": 0.49

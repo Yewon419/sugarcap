@@ -249,13 +249,16 @@ jobs:
           shoot idle-kain-floor-sit light large -screenshotSide caffeine -idlePose floor-sit -idleStep 0 -idleAt 2.5
           shoot idle-kain-lie-left light large -screenshotSide caffeine -idlePose lie-left -idleStep 100 -idleAt 2.0
           shoot idle-kain-lie-right light large -screenshotSide caffeine -idlePose lie-right -idleStep 100 -idleAt 5.7
-          # 선물(SPEC §4.9): 로슈가 상자를 들고 걸어 들어와 서고, 누르면 카드.
+          # 선물(SPEC §4.9): 로슈는 상자를 들고 걸어 들어오고, 카인은 위에서 떨어져 상자 옆에 앉는다.
+          # 누르면(-giftOpenAt = 누른 뒤 초) 뚜껑이 열리며 조각이 터지고, 열쇠가 추이 버튼으로 날아가 버튼만 남기고 어두워진다.
           shoot gift-walk light large -screenshotGift trends -giftAt 1.4
           shoot gift-wait light large -screenshotGift trends -giftAt 3
-          shoot gift-card light large -screenshotGift trends -giftAt 3 -screenshotGiftCard YES
-          shoot gift-card-type-ax-xl light accessibility-extra-large -screenshotGift trends -giftAt 3 -screenshotGiftCard YES
-          shoot gift-walk-kain light large -screenshotSide caffeine -screenshotGift trends -giftAt 1.4
+          shoot gift-open-burst light large -screenshotGift trends -giftOpenAt 0.6
+          shoot gift-open-key light large -screenshotGift trends -giftOpenAt 1.6
+          shoot gift-open-spotlight light large -screenshotGift trends -giftOpenAt 3.2
+          shoot gift-drop-kain light large -screenshotSide caffeine -screenshotGift trends -giftAt 0.9
           shoot gift-wait-kain light large -screenshotSide caffeine -screenshotGift trends -giftAt 3
+          shoot gift-open-burst-kain light large -screenshotSide caffeine -screenshotGift trends -giftOpenAt 0.6
           # 영어판(SPEC §9.9 Phase 1b). 긴 영어 문장이 넘치는지 큰 글자에서도 본다.
           # 미국 사용자 화면이라 메뉴 국가를 미국으로 고정한다. UI 테스트가 저장한 나라(한국)가 남아 있어서 지역만으로는 안 바뀐다.
           shoot_en() {

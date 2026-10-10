@@ -542,9 +542,10 @@ enum IntroRig {
         limbDirection: ["arm_left": 0, "arm_right": 0, "foot_left": 0, "foot_right": 0]
     )
     /// 선물 상자를 들고 오는 로슈(SPEC §4.9). 정면 그림이라 팔은 상자를 받친 채 고정, 발만 걷는다.
+    /// 뚜껑(`lid`)은 왼쪽 아래 경첩으로 열린다(`split_gift_lid.py`).
     static let roshuGiftArt = RigPainter(
         character: "roshu", art: "gift-carry", scale: scale(fitting: "gift-carry", of: "roshu"), lidPad: 0.35,
-        limbDirection: ["arm_left": 0, "arm_right": 0, "foot_left": 0, "foot_right": 0]
+        limbDirection: ["arm_left": 0, "arm_right": 0, "foot_left": 0, "foot_right": 0, "lid": 0]
     )
     static let kainWalkArt = RigPainter(
         character: "kain", art: "walk", scale: kainScale, lidPad: 0.04, limbDirection: ["leg_far": 0, "leg_near": 0]
@@ -552,10 +553,10 @@ enum IntroRig {
     static let kainStandArt = RigPainter(
         character: "kain", art: "rim-stand", scale: kainScale, lidPad: 0.04, limbDirection: ["leg_left": 0, "leg_right": 0]
     )
-    /// 선물 상자를 들고 오는 카인(SPEC §4.9). 상자는 몸 앞 별도 부위(고정), 발 둘이 걷는다. 그림은 왼쪽을 본다.
+    /// 선물 상자 옆에 앉은 카인(SPEC §4.9). 상자는 몸 뒤 별도 부위(고정), 뚜껑은 왼쪽 아래 경첩으로 열린다. 그림은 왼쪽을 본다.
     static let kainGiftArt = RigPainter(
         character: "kain", art: "gift-carry", scale: kainScale, lidPad: 0.04,
-        limbDirection: ["box": 0, "leg_near": 0, "leg_far": 0]
+        limbDirection: ["box": 0, "leg_near": 0, "leg_far": 0, "lid": 0]
     )
 
     private static func scale(fitting art: String, of character: String) -> Double {
@@ -618,19 +619,6 @@ enum IntroRig {
         m.shift["leg_near"] = CGVector(dx: 0, dy: -raise * max(0, lift))
         m.shift["leg_far"] = CGVector(dx: 0, dy: -raise * max(0, -lift))
         m.rot += 4 * k * moving
-    }
-
-    /// 카인 선물 들고 걷기: 발 둘이 로슈 선물 걷기처럼 내딛고(발 기준점이 위라 돌면 발끝이 든다), 상자는 가만히,
-    /// 몸은 뒤뚱 걷기와 같이 딛는 쪽으로 ±4° 기운다. 보폭은 뒤뚱 걷기(95)와 같다.
-    static func kainGiftWalk(_ m: inout IdleFrame, travelled: Double, moving: Double) {
-        let c = RigMotion.remainder(travelled / 95 / 2, 1)
-        for (foot, phase) in [("leg_near", c), ("leg_far", RigMotion.remainder(c + 0.5, 1))] {
-            let g = footStep(phase, liftBoost: 1.6)
-            m.limbs[foot] = g.rot * moving
-            m.shift[foot] = CGVector(dx: g.x * moving, dy: -g.lift * moving)
-        }
-        m.bodyDy = -4 * abs(sin(2 * Double.pi * c)) * moving
-        m.rot += 4 * sin(2 * Double.pi * c) * moving
     }
 }
 

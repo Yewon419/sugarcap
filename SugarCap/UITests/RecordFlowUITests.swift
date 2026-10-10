@@ -314,6 +314,7 @@ extension RecordFlowUITests {
 
     /// 첫 보상 선물(SPEC §4.9): 추이는 잠겨 있다가 로슈가 들고 온 선물을 열면 열린다. 운반 캐릭터는 접근성 요소가
     /// 아니라(컵 장면이 요소 하나) 서 있는 자리(잔 앞 바닥 가운데)를 좌표로 누른다. `-giftAt 3`으로 걸어온 뒤에 세워 둔다.
+    /// 누르면 열쇠가 추이 버튼으로 날아가 열고(약 2초) 버튼만 남기고 어두워진다. 그 버튼을 누르면 추이로 간다.
     @MainActor
     func testTrendsLockedUntilFirstGiftIsOpened() throws {
         continueAfterFailure = false
@@ -330,12 +331,16 @@ extension RecordFlowUITests {
 
         let window = app.windows.firstMatch
         window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.81)).tap()
-        XCTAssertTrue(ui.element("gift-card").waitForExistence(timeout: 5), "선물 상자를 눌렀는데 카드가 안 뜸")
-        app.buttons["gift-confirm"].tap()
-        XCTAssertTrue(ui.element("gift-card").waitForNonExistence(timeout: 5), "확인을 눌렀는데 카드가 안 닫힘")
+        let unlocked = app.buttons["gift-open-trends"]
+        XCTAssertTrue(unlocked.waitForExistence(timeout: 8), "선물 상자를 눌렀는데 열쇠가 추이 버튼을 열지 않음")
+        unlocked.tap()
+        XCTAssertTrue(ui.element("trend-range").waitForExistence(timeout: 5), "열린 추이 버튼을 눌렀는데 추이가 안 열림")
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(ui.element("cup-summary").waitForExistence(timeout: 5), "뒤로 가기로 오늘에 안 돌아옴")
+        XCTAssertFalse(unlocked.exists, "추이에 다녀왔는데 어둠이 남아 있음")
 
         app.buttons["open-trends"].tap()
-        XCTAssertTrue(ui.element("trend-range").waitForExistence(timeout: 5), "선물을 열었는데 추이가 안 열림")
+        XCTAssertTrue(ui.element("trend-range").waitForExistence(timeout: 5), "선물을 열었는데 추이가 다시 안 열림")
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(ui.element("cup-summary").waitForExistence(timeout: 5), "뒤로 가기로 오늘에 안 돌아옴")
     }

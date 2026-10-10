@@ -59,6 +59,10 @@ struct TodayView: View {
     @State private var openedGift: GiftEvent?
     /// 첫 보상 전에 추이 버튼을 누른 때. 2초 동안 "아직 잠긴 기능이에요".
     @State private var trendsLockToastAt: Date?
+    /// 첫 선물(추이 열림) 연출 중이면 채운다(SPEC §4.9). 열린 추이 버튼을 누르면 비운다.
+    @State private var opening: GiftOpening?
+    /// 추이 버튼 자리(화면 좌표). 열쇠가 날아가 닿고 어둠의 구멍이 뚫리는 곳.
+    @State private var trendsButtonFrame: CGRect = .zero
 
     @Environment(ProStore.self) private var pro
 
@@ -214,7 +218,7 @@ struct TodayView: View {
                 ForEach(trackedSides) { cupSide in
                     let step = cupStep(cupSide, totals: totals)
                     let isActive = cupSide == side && !isSliding && isOnScreen && !isSettingsPresented
-                    let gift = pendingGift(for: cupSide)
+                    let gift = carriedGift(for: cupSide)
                     // 선물이 와 있으면 운반 캐릭터가 곧 그 캐릭터다. 열고 나면 대기 자세로 돌아온다(SPEC §4.9).
                     CupView(
                         step: step, setID: cupSide.cupSetID,
@@ -227,7 +231,7 @@ struct TodayView: View {
                         gift: gift.map { gift in
                             GiftCarrierLayer(
                                 side: cupSide, step: step, isActive: isActive && openedGift == nil,
-                                onOpen: { openedGift = gift },
+                                onOpen: { beginOpening(gift, from: $0, on: cupSide) },
                                 onMiss: { tapCup(at: $0, screen: proxy.frame(in: .global)) }
                             )
                         }
@@ -270,7 +274,7 @@ struct TodayView: View {
         .accessibilityAction { isRecordSheetPresented = true }
         .accessibilityActions {
             if let gift = pendingGift(for: side) {
-                Button("선물 열기") { openedGift = gift }
+                Button("선물 열기") { beginOpening(gift, from: nil, on: side) }
             }
         }
         .accessibilityIdentifier("record-add")
@@ -281,6 +285,50 @@ struct TodayView: View {
     /// 이 면으로 온 선물 중 가장 오래된 것. 면마다 하나씩만 보이고, 열면 다음 것이 온다.
     private func pendingGift(for cupSide: CupSide) -> GiftEvent? {
         gifts.first { !$0.isOpened && $0.cupSide == cupSide }
+    }
+
+    /// 컵 앞에 보일 선물. 연출 중인 선물은 저장(열림) 뒤에도 추이로 갈 때까지 그대로 둔다(대기 자세로 툭 바뀌지 않게).
+    private func carriedGift(for cupSide: CupSide) -> GiftEvent? {
+        if let opening, opening.gift.cupSide == cupSide { return opening.gift }
+        return pendingGift(for: cupSide)
+    }
+
+    /// 상자를 눌렀을 때. 추이 열림 선물은 열쇠 연출로, 나머지(Phase 2·3)는 카드로 연다. 보고 있는 면만 받는다.
+    private func beginOpening(_ gift: GiftEvent, from point: CGPoint?, on cupSide: CupSide) {
+        guard cupSide == side, opening == nil, openedGift == nil else { return }
+        if gift.giftKind == .trendsUnlock {
+            opening = GiftOpening(gift: gift, from: point, startedAt: Date())
+        } else {
+            openedGift = gift
+        }
+    }
+
+    /// 열쇠가 추이 버튼에 닿는 때 연 것으로 저장한다. 동작 줄이기·보이스오버로 열면 바로.
+    /// CI 스크린샷(`-giftOpenAt`)은 한 장면에 멈춰 두므로 저장하지 않는다.
+    private func unlockAfterKeyFlight(_ current: GiftOpening) async {
+        if GiftOpeningOverlay.frozenTime != nil { return }
+        if !(reduceMotion || current.from == nil) {
+            try? await Task.sleep(for: .seconds(GiftOpeningTimeline.unlock))
+        }
+        guard !Task.isCancelled, opening?.id == current.id else { return }
+        saveOpened(current.gift)
+        opening?.isUnlocked = true
+    }
+
+    /// 밝아진 추이 버튼을 눌렀을 때. 연출을 걷고 추이를 연다.
+    private func finishOpening() {
+        guard let opening else { return }
+        if !opening.gift.isOpened { saveOpened(opening.gift) }
+        self.opening = nil
+        isTrendsPresented = true
+    }
+
+    @ViewBuilder
+    private func giftOpeningOverlay() -> some View {
+        if let opening {
+            GiftOpeningOverlay(opening: opening, target: trendsButtonFrame, onOpenTrends: finishOpening)
+                .transition(.opacity)
+        }
     }
 
     /// 첫 보상(추이 열림) 선물을 열었는지. Debug에서는 추이로 바로 여는 스크린샷·UI 테스트가 많아 인자로 푼다.
@@ -303,6 +351,11 @@ struct TodayView: View {
 
     /// 카드의 "확인". 이때 연 것으로 저장한다(상자만 누르고 앱을 끄면 다시 들고 서 있다).
     private func confirmGift(_ gift: GiftEvent) {
+        saveOpened(gift)
+        openedGift = nil
+    }
+
+    private func saveOpened(_ gift: GiftEvent) {
         GiftStore.open(gift, now: Date())
         do {
             try context.save()
@@ -310,7 +363,6 @@ struct TodayView: View {
             Self.logger.error("선물 저장 실패: \(String(describing: error), privacy: .public)")
             failureMessage = String(localized: "선물을 저장하지 못했어요. 앱을 다시 열어 주세요.")
         }
-        openedGift = nil
     }
 
     /// CI 스크린샷·UI 테스트 전용(Debug `-screenshotGift trends`): 선물이 와 있는 상태로 연다. 이미 안 연 선물이 있으면 그대로.
@@ -495,6 +547,14 @@ struct TodayView: View {
         }
         .overlay(alignment: .bottom) { bottomControls(now: now, today: today, totals: totals) }
         .overlay(alignment: .topTrailing) { cornerButtons }
+        .overlay { giftOpeningOverlay() }
+        .animation(.easeOut(duration: 0.25), value: opening?.id)
+        .task(id: opening?.id) {
+            if let opening { await unlockAfterKeyFlight(opening) }
+        }
+        // 상자가 열리는 순간 가볍게, 열쇠가 버튼을 열 때 성공 햅틱(SPEC §4.9).
+        .sensoryFeedback(.impact(weight: .light), trigger: opening?.id) { _, new in new != nil }
+        .sensoryFeedback(.success, trigger: opening?.isUnlocked == true) { _, new in new }
         .onAppear { isOnScreen = true }
         .onDisappear { isOnScreen = false }
         // 하루가 바뀔 때마다(앱을 켠 날마다) 정산을 한 번 돈다(§4.7).
@@ -567,6 +627,7 @@ struct TodayView: View {
         HStack(spacing: 0) {
             // 첫 보상 전에는 잠겨 있다(SPEC §4.9). 버튼은 그대로 두고 누르면 한 줄만 띄운다(2026-10-09 대표님).
             Button { openTrends() } label: { cornerCircle(NavGlyphView(glyph: .trends)) }
+                .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { trendsButtonFrame = $0 }
                 .accessibilityLabel("추이")
                 .accessibilityIdentifier("open-trends")
             Button { isSettingsPresented = true } label: { cornerCircle(NavGlyphView(glyph: .settings)) }

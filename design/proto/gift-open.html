@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>슈가캡 · 첫 선물 열림 → 추이 해제 → 추이 첫 등장 (시안)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<style>
+  /* 첫 선물(추이 열림) 연출 시안(2026-10-10 대표님 지시). 좌표는 폰 pt(402×874), 무대를 3배로 키운다(CI 스크린샷과 같은 크기).
+     ?s=1 → 1배, &z=배율, &t=초 → 그 순간에 멈춤, &side=caffeine → 카인(앉은 채 위에서 떨어져 착지).
+     순서: 캐릭터 입장 → 누르면 뚜껑(네모 윗 10%)이 들리고 → 단색 조각 폭죽 + 열쇠 → 열쇠가 추이 버튼으로 날아가 해제
+     → 버튼만 남기고 어둡게(스포트라이트) → 누르면 추이: 잔 7개 왼쪽에서 슬라이드 → 로슈 걸어 들어옴 → 글자 위에서 등장 → 코치마크 3단계.
+     에어브러시 없음(글로우·방사형 금지, SPEC §5): 조각·열쇠·링 전부 단색 면·선. */
+  * { box-sizing: border-box; margin: 0; }
+  html, body { background: #000; }
+  body { width: 1206px; height: 2622px; overflow: hidden; font-family: "Pretendard", sans-serif; color: #18181B; }
+  body.s1 { width: 402px; height: 874px; }
+  .stage { position: absolute; left: 0; top: 0; width: 402px; height: 874px; overflow: hidden; transform: scale(3); transform-origin: 0 0; background: #F3F5F8; }
+  body.s1 .stage { transform: none; }
+  .abs { position: absolute; left: 0; top: 0; width: 402px; height: 874px; }
+  .photo { position: absolute; left: -5.46px; top: 69.92px; width: 412.92px; height: 734.16px; overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 96%, transparent 100%); }
+  .photo img { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .topfade { position: absolute; left: 0; top: 0; right: 0; height: 160px; background: linear-gradient(to bottom, rgba(0,0,0,.09), transparent); }
+  .kicker { font-size: 11px; font-weight: 600; letter-spacing: 1.3px; color: #18181B; }
+  .head { position: absolute; left: 24px; top: 68px; z-index: 2; }
+  .hero { display: flex; align-items: baseline; margin-top: 2px; white-space: nowrap; }
+  .hero b { font-size: 96px; font-weight: 700; letter-spacing: -5.8px; font-variant-numeric: tabular-nums; line-height: 1.04; }
+  .hero span { font-size: 30px; font-weight: 500; opacity: .85; margin-left: 6px; }
+  .hero small { font-size: 13px; color: #8E8E93; margin-left: 10px; }
+  .corner { position: absolute; top: 63px; width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.22); display: grid; place-items: center; }
+  .corner svg { width: 20px; height: 20px; }
+  #btnTrends { left: 287px; } #btnSettings { left: 324px; }
+  .closed { position: absolute; left: 20px; top: 780px; padding: 9px 14px; border-radius: 20px; background: rgba(255,255,255,.55); font-size: 13px; font-weight: 500; color: #6E6E73; border: 1px solid rgba(255,255,255,.45); }
+  .dots { position: absolute; left: 0; right: 0; top: 795px; text-align: center; }
+  .dots i { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #18181B; margin: 0 4px; }
+  .dots i + i { background: rgba(24,24,27,.25); }
+
+  /* 캐릭터: 원화 캔버스 전체를 그대로 겹쳐 놓고 캔버스 배율로 줄인다(리그와 같은 좌표). */
+  .char { position: absolute; left: 0; top: 0; transform-origin: 0 0; z-index: 1; }
+  .char img { position: absolute; left: 0; top: 0; }
+  .shadow { position: absolute; border-radius: 50%; background: rgba(70,56,60,.28); }
+
+  /* 효과 층(사진 칸 밖까지 그린다: 열쇠는 코너 버튼까지 간다) */
+  .fx { pointer-events: none; }
+  .bit { position: absolute; left: 0; top: 0; width: 7px; height: 7px; opacity: 0; }
+  .key { position: absolute; left: 0; top: 0; width: 34px; height: 34px; margin: -17px 0 0 -17px; opacity: 0; }
+  .spot { position: absolute; inset: 0; opacity: 0; }
+  .ring { position: absolute; left: 305px; top: 81px; width: 36px; height: 36px; margin: -18px 0 0 -18px; border-radius: 50%; border: 2px solid #fff; opacity: 0; }
+  .lit { position: absolute; left: 287px; top: 63px; width: 36px; height: 36px; border-radius: 50%; background: #fff; opacity: 0; display: grid; place-items: center; }
+  .lit svg { width: 20px; height: 20px; }
+  .touch { position: absolute; left: 0; top: 0; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%;
+    background: rgba(255,255,255,.35); border: 2px solid rgba(255,255,255,.9); opacity: 0; }
+
+  /* 추이 */
+  .trends { background: #F3F5F8; transform: translateX(402px); overflow: hidden; }
+  .back { position: absolute; left: 16px; top: 48px; width: 32px; height: 32px; border-radius: 50%; background: #fff; display: grid; place-items: center; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+  .back svg { width: 12px; height: 12px; }
+  .page { position: absolute; left: 24px; right: 24px; top: 128px; }
+  .row { display: flex; justify-content: space-between; align-items: baseline; }
+  .range { font-size: 15px; font-weight: 700; }
+  .range svg { width: 10px; height: 10px; margin-left: 5px; }
+  .date { font-size: 13px; color: #8E8E93; font-variant-numeric: tabular-nums; }
+  .rule { height: 1px; background: #18181B; margin-top: 14px; }
+  .rule.light { background: rgba(24,24,27,.15); margin-top: 24px; }
+  .title { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; margin-top: 22px; }
+  .big { display: flex; align-items: flex-start; margin-top: -2px; }
+  .big b { font-size: 92px; font-weight: 800; letter-spacing: -5px; line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .big span { font-size: 24px; font-weight: 700; margin: 12px 0 0 10px; }
+  .limitrow { text-align: right; margin-top: 12px; font-size: 15px; color: #8E8E93; }
+  .limitrow b { color: #18181B; font-weight: 700; }
+  .table { position: absolute; left: 0; right: 0; top: 510px; bottom: 0; background: #E9EBEF; }
+  .table::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: rgba(24,24,27,.12); }
+  .cups { position: absolute; left: 8px; right: 8px; top: 462px; height: 88px; display: grid; grid-template-columns: repeat(7, 1fr); align-items: end; }
+  .cup { position: relative; height: 88px; display: flex; justify-content: center; align-items: flex-end; }
+  .cup img { height: 86px; }
+  .cup.blank img { opacity: .55; }
+  .days { position: absolute; left: 8px; right: 8px; top: 562px; display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; }
+  .days div { font-size: 13px; color: #8E8E93; }
+  .days div b { display: block; font-size: 15px; color: #18181B; margin-bottom: 2px; }
+  .days div span { display: block; margin-bottom: 4px; color: #B4B4B8; }
+  .tdots { position: absolute; left: 0; right: 0; top: 606px; text-align: center; }
+  .tdots i { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #18181B; margin: 0 4px; }
+  .tdots i + i { background: rgba(24,24,27,.25); }
+  .roshu { position: absolute; left: 252px; top: 410px; height: 105px; transform-origin: 50% 100%; }
+  .wallclip { position: absolute; left: 0; right: 0; top: 0; height: 511px; overflow: hidden; }
+
+  /* 코치마크: 어두운 막에 또렷한 구멍 + 말풍선. 구멍은 SVG mask(부드러운 가장자리 없음). */
+  .coach { position: absolute; inset: 0; opacity: 0; }
+  .bubble { position: absolute; left: 24px; right: 24px; padding: 16px 18px; border-radius: 16px; background: #fff; }
+  .bubble .k { font-size: 11px; font-weight: 600; letter-spacing: 1.3px; color: #8E8E93; }
+  .bubble .m { font-size: 17px; font-weight: 600; margin-top: 6px; line-height: 1.4; letter-spacing: -0.2px; }
+  .bubble .cta { margin-top: 12px; height: 44px; border-radius: 22px; background: #18181B; color: #fff; display: grid; place-items: center; font-size: 15px; font-weight: 600; }
+  .bubble .step { position: absolute; right: 18px; top: 16px; font-size: 11px; color: #8E8E93; font-variant-numeric: tabular-nums; }
+  .hud { position: fixed; left: 8px; bottom: 8px; z-index: 9; font: 12px/1.4 monospace; color: #fff; background: rgba(0,0,0,.6); padding: 4px 8px; border-radius: 6px; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <!-- 오늘 화면 -->
+  <div class="abs" id="today">
+    <div class="photo"><img id="cupPhoto" alt=""></div>
+    <div class="char" id="char"></div>
+    <div class="topfade"></div>
+    <div class="head">
+      <div class="kicker" id="kicker">오늘 남은 당</div>
+      <div class="hero"><b id="heroNum">29</b><span id="heroUnit">g</span><small id="heroLimit">/50 g</small></div>
+    </div>
+    <div class="corner" id="btnTrends">
+      <svg viewBox="0 0 24 24" fill="none" stroke="rgba(24,24,27,.7)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M1.8 7.5h4.6l-.5 11.5H2.3z"/><path d="M9.7 7.5h4.6l-.5 11.5h-3.6z"/><path d="M17.6 7.5h4.6l-.5 11.5h-3.6z"/>
+        <path d="M2 10h4.2l-.4 9H2.4z M9.9 13.5h4.2l-.4 5.5h-3.4z M17.8 17h4.2l-.3 2h-3.6z" fill="rgba(24,24,27,.7)" stroke="none"/>
+        <path d="M1 21.5h22"/>
+      </svg>
+    </div>
+    <div class="corner" id="btnSettings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="rgba(24,24,27,.7)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 5h16l-1.6 15H5.6z"/><path d="M2.5 10.5H16"/><circle cx="19" cy="10.5" r="2.5" fill="rgba(24,24,27,.7)" stroke="none"/>
+      </svg>
+    </div>
+    <div class="closed">☾ 마감함</div>
+    <div class="dots"><i></i><i></i></div>
+  </div>
+
+  <!-- 효과 층 -->
+  <div class="abs fx" id="fx">
+    <svg class="spot" id="spot" viewBox="0 0 402 874" width="402" height="874">
+      <defs><mask id="hole"><rect width="402" height="874" fill="#fff"/><circle cx="305" cy="81" r="26" fill="#000"/></mask></defs>
+      <rect width="402" height="874" fill="rgba(0,0,0,.58)" mask="url(#hole)"/>
+    </svg>
+    <div class="lit" id="lit">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#18181B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M1.8 7.5h4.6l-.5 11.5H2.3z"/><path d="M9.7 7.5h4.6l-.5 11.5h-3.6z"/><path d="M17.6 7.5h4.6l-.5 11.5h-3.6z"/>
+        <path d="M2 10h4.2l-.4 9H2.4z M9.9 13.5h4.2l-.4 5.5h-3.4z M17.8 17h4.2l-.3 2h-3.6z" fill="#18181B" stroke="none"/>
+        <path d="M1 21.5h22"/>
+      </svg>
+    </div>
+    <div class="ring" id="ring"></div>
+    <div class="ring" id="ring2"></div>
+    <svg class="key" id="key" viewBox="0 0 34 34">
+      <!-- 열쇠: 머리(고리) + 자루 + 날 2개. 단색 면. -->
+      <circle cx="10" cy="10" r="7.5" fill="#18181B"/><circle cx="10" cy="10" r="3" fill="#F3F5F8"/>
+      <rect x="14" y="14" width="17" height="4.4" rx="1.2" fill="#18181B" transform="rotate(45 14 14)"/>
+      <rect x="24.5" y="22" width="4" height="6" rx="1" fill="#18181B" transform="rotate(45 24.5 22)"/>
+      <rect x="28" y="25.5" width="4" height="5" rx="1" fill="#18181B" transform="rotate(45 28 25.5)"/>
+    </svg>
+    <div id="bits"></div>
+    <div class="touch" id="touch"></div>
+  </div>
+
+  <!-- 추이 화면 -->
+  <div class="abs trends" id="trends">
+    <div class="back"><svg viewBox="0 0 12 12" fill="none" stroke="#18181B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5 3.5 6 8 10.5"/></svg></div>
+    <div class="page">
+      <div class="row tx"><span class="range">이번 주<svg viewBox="0 0 10 10" fill="none" stroke="#8E8E93" stroke-width="1.6" stroke-linecap="round"><path d="M1.5 3.5 5 7l3.5-3.5"/></svg></span><span class="date">10.4 – 10.10</span></div>
+      <div class="rule tx"></div>
+      <div class="title tx" id="tTitle">남긴 당</div>
+      <div class="big tx"><b id="tNum">29</b><span id="tUnit">g</span></div>
+      <div class="rule light tx"></div>
+      <div class="limitrow tx">하루 기준 <b id="tLimit">50 g</b> &nbsp;›</div>
+    </div>
+    <div class="wallclip"><img class="roshu" id="troshu" alt=""></div>
+    <div class="table"></div>
+    <div class="cups" id="cups"></div>
+    <div class="days" id="days"></div>
+    <div class="tdots"><i></i><i></i></div>
+    <!-- 코치마크 3단계 -->
+    <div class="coach" id="coach">
+      <svg viewBox="0 0 402 874" width="402" height="874" style="position:absolute;inset:0">
+        <defs><mask id="chole"><rect width="402" height="874" fill="#fff"/><rect id="cholerect" x="336" y="455" width="62" height="130" rx="14" fill="#000"/></mask></defs>
+        <rect width="402" height="874" fill="rgba(0,0,0,.58)" mask="url(#chole)"/>
+      </svg>
+      <div class="bubble" id="bubble" style="top:300px">
+        <div class="k">추이 보는 법</div><div class="step" id="cstep">1 / 3</div>
+        <div class="m" id="cmsg">잔을 누르면 그날 마신 기록이 열려요</div>
+        <div class="cta" id="ccta">다음</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="hud" id="hud"></div>
+
+<script>
+const q = new URLSearchParams(location.search);
+const SIDE = q.get('side') === 'caffeine' ? 'caffeine' : 'sugar';
+const SEEK = q.has('t') ? parseFloat(q.get('t')) : null;
+if (q.get('s') === '1') document.body.classList.add('s1');
+if (q.has('z')) { const z = parseFloat(q.get('z')); document.body.style.width = 402 * z + 'px'; document.body.style.height = 874 * z + 'px'; document.getElementById('stage').style.transform = `scale(${z})`; }
+const ASSETS = '../../SugarCap/Resources';
+const GIFT = 'assets/gift';
+
+// ---- 오늘 화면 내용(면별)
+const SIDES = {
+  sugar: { kicker: '오늘 남은 당', num: '29', unit: 'g', limit: '/50 g', photo: `${ASSETS}/Assets.xcassets/cup-strawberry-latte-50.imageset/50.png`,
+    cutout: 'strawberry-latte', title: '남긴 당', tLimit: '50 g', char: 'roshu', bits: ['#F6E56A', '#5DA9F0', '#FFFFFF', '#F2CF3F'] },
+  caffeine: { kicker: '오늘 남은 카페인', num: '400', unit: 'mg', limit: '/400 mg', photo: `${ASSETS}/Assets.xcassets/cup-iced-americano-100.imageset/100.png`,
+    cutout: 'iced-americano', title: '남긴 카페인', tLimit: '400 mg', char: 'kain', bits: ['#8FCB96', '#EDE8C9', '#FFFFFF', '#5FA868'] },
+};
+const S = SIDES[SIDE];
+document.getElementById('cupPhoto').src = S.photo;
+document.getElementById('kicker').textContent = S.kicker;
+document.getElementById('heroNum').textContent = S.num;
+document.getElementById('heroUnit').textContent = S.unit;
+document.getElementById('heroLimit').textContent = S.limit;
+document.getElementById('tTitle').textContent = S.title;
+document.getElementById('tNum').textContent = S.num;
+document.getElementById('tUnit').textContent = S.unit;
+document.getElementById('tLimit').textContent = S.tLimit;
+document.getElementById('troshu').src = `${ASSETS}/Shared.xcassets/character-roshu.imageset/roshu.png`;
+
+// ---- 캐릭터 리그(앱 값). 사진 칸 734.16pt 높이, 발끝 = 사진 높이 0.885 + 0.012.
+const PHOTO = { left: -5.46, top: 69.92, width: 412.92, height: 734.16 };
+const CAST = {
+  roshu: { canvas: [2500, 2800], bbox: [525, 560, 1826, 2295], ppx: 7.96e-5 * 0.9, hinge: [522, 810], square: [522, 706, 1632, 1747],
+    layers: ['foot_left', 'foot_right', 'body', 'box', 'lid', 'arm_left', 'arm_right'] },
+  kain: { canvas: [2500, 3200], bbox: [326, 996, 2373, 2486], ppx: 0.0818 * 1.3 / 1666, hinge: [324, 1597], square: [324, 1504, 1261, 2437],
+    layers: ['leg_far', 'body', 'box', 'lid', 'leg_near'] },
+};
+const C = CAST[S.char];
+const r = PHOTO.height * C.ppx;                 // pt / px
+const baseX = PHOTO.left + PHOTO.width * 0.5;
+const baseY = PHOTO.top + PHOTO.height * (0.885 + 0.012);
+const midX = (C.bbox[0] + C.bbox[2]) / 2, botY = C.bbox[3];
+const charEl = document.getElementById('char');
+charEl.style.width = C.canvas[0] * r + 'px';
+charEl.style.height = C.canvas[1] * r + 'px';
+charEl.style.left = (baseX - midX * r) + 'px';
+charEl.style.top = (baseY - botY * r) + 'px';
+for (const name of C.layers) {
+  const img = document.createElement('img');
+  img.src = `${GIFT}/${S.char}-${name}.png`; img.id = 'L_' + name; img.alt = '';
+  img.style.width = C.canvas[0] * r + 'px'; img.style.height = C.canvas[1] * r + 'px';
+  if (name === 'lid') { img.style.transformOrigin = `${C.hinge[0] * r}px ${C.hinge[1] * r}px`; }
+  charEl.appendChild(img);
+}
+// 접지 그림자
+const sh = document.createElement('div'); sh.className = 'shadow'; sh.id = 'shadow';
+const sw = (C.bbox[2] - C.bbox[0]) * r * 0.7, shh = sw * 0.13;
+Object.assign(sh.style, { width: sw + 'px', height: shh + 'px', left: (baseX - sw / 2) + 'px', top: (baseY - shh / 2) + 'px' });
+document.getElementById('today').insertBefore(sh, charEl);
+// 뚜껑 가운데(열쇠·조각 출발점), 화면 pt
+const lidCx = baseX + ((C.square[0] + C.square[2]) / 2 - midX) * r;
+const lidCy = baseY + (C.square[1] - botY) * r;
+
+// ---- 추이 잔 7개 + 요일
+const cupsEl = document.getElementById('cups'), daysEl = document.getElementById('days');
+const DAYS = ['토', '일', '월', '화', '수', '목', '오늘'];
+DAYS.forEach((d, i) => {
+  const today = i === 6;
+  const c = document.createElement('div'); c.className = 'cup' + (today ? '' : ' blank');
+  const img = document.createElement('img'); img.alt = '';
+  img.src = `../assets/cups/cutouts/cutout-${S.cutout}-${today ? 50 : 0}.png`;
+  c.appendChild(img); cupsEl.appendChild(c);
+  const dd = document.createElement('div');
+  dd.innerHTML = today ? `<b>${S.num}</b>${d}` : `<span>–</span>${d}`;
+  daysEl.appendChild(dd);
+});
+
+// ---- 조각(단색 면)
+const bitsEl = document.getElementById('bits');
+const bits = [];
+for (let i = 0; i < 22; i++) {
+  const b = document.createElement('div'); b.className = 'bit';
+  const round = i % 3 === 0;
+  b.style.background = S.bits[i % S.bits.length];
+  b.style.width = (round ? 6 : 5 + (i % 4)) + 'px'; b.style.height = (round ? 6 : 8) + 'px';
+  b.style.borderRadius = round ? '50%' : '1px';
+  bitsEl.appendChild(b);
+  const ang = -Math.PI / 2 + (Math.random() - 0.5) * 1.9;
+  const sp = 150 + Math.random() * 190;
+  bits.push({ el: b, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, rot: (Math.random() - 0.5) * 900 });
+}
+
+// ---- 타임라인
+const tl = gsap.timeline({ paused: true });
+const tapAt = { x: baseX, y: baseY - (C.bbox[3] - C.bbox[1]) * r * 0.55 };
+const touch = document.getElementById('touch');
+function tap(at, x, y) {
+  tl.set(touch, { left: x, top: y }, at);
+  tl.fromTo(touch, { opacity: 0, scale: 1.3 }, { opacity: 1, scale: 1, duration: 0.14 }, at);
+  tl.to(touch, { opacity: 0, scale: 0.8, duration: 0.18 }, at + 0.18);
+}
+
+// 1) 입장
+if (S.char === 'roshu') {
+  // 걸어 들어오기(리그 걷기는 앱이 그린다; 여기선 미끄러지며 발 박자만 흉내).
+  const dist = 402 - baseX + (C.bbox[2] - C.bbox[0]) * r;
+  tl.fromTo(charEl, { x: dist }, { x: 0, duration: 1.6, ease: 'power2.out' }, 0.6);
+  tl.fromTo('#shadow', { x: dist }, { x: 0, duration: 1.6, ease: 'power2.out' }, 0.6);
+  for (let k = 0; k < 7; k++) tl.to(charEl, { y: -4, duration: 0.11, yoyo: true, repeat: 1, ease: 'sine.inOut' }, 0.6 + k * 0.22);
+  tl.to(charEl, { scaleX: 1.05, scaleY: 0.93, transformOrigin: `${midX * r}px ${botY * r}px`, duration: 0.12, yoyo: true, repeat: 1 }, 2.15);
+} else {
+  // 앉은 카인: 위에서 톡 떨어져 착지(대표님 2026-10-10). 그림자는 떨어질수록 커진다.
+  tl.set(charEl, { transformOrigin: `${midX * r}px ${botY * r}px` });
+  tl.fromTo(charEl, { y: -(baseY + 40) }, { y: 0, duration: 0.55, ease: 'power2.in' }, 0.6);
+  tl.fromTo('#shadow', { scale: 0.3, opacity: 0.4 }, { scale: 1, opacity: 1, duration: 0.55, ease: 'power2.in' }, 0.6);
+  tl.to(charEl, { scaleX: 1.12, scaleY: 0.86, duration: 0.09 }, 1.15);
+  tl.to(charEl, { scaleX: 0.97, scaleY: 1.04, duration: 0.14 }, 1.24);
+  tl.to(charEl, { scaleX: 1, scaleY: 1, duration: 0.16 }, 1.38);
+}
+// 숨쉬기(대기)
+tl.to('#L_body', { scaleY: 1.012, transformOrigin: `${midX * r}px ${botY * r}px`, duration: 1.7, yoyo: true, repeat: 3, ease: 'sine.inOut' }, 2.3);
+
+// 2) 누르면 뚜껑 열림
+const T0 = 3.2;
+tap(T0 - 0.2, tapAt.x, tapAt.y);
+tl.to(charEl, { scaleX: 1.04, scaleY: 0.95, transformOrigin: `${midX * r}px ${botY * r}px`, duration: 0.1, yoyo: true, repeat: 1 }, T0);
+tl.to('#L_lid', { rotation: -38, duration: 0.42, ease: 'back.out(2.2)' }, T0 + 0.05);
+// 3) 폭죽 조각: 뚜껑 안에서 위로 튀어 중력으로 떨어진다. 전부 단색 면.
+const B0 = T0 + 0.22;
+for (const b of bits) {
+  const p = { t: 0 };
+  tl.set(b.el, { left: lidCx, top: lidCy, opacity: 1, rotation: 0 }, B0);
+  tl.to(p, { t: 1, duration: 1.1, ease: 'none', onUpdate() {
+    const t = p.t * 1.1;
+    gsap.set(b.el, { x: b.vx * t, y: b.vy * t + 0.5 * 520 * t * t, rotation: b.rot * t, opacity: t < 0.8 ? 1 : Math.max(0, 1 - (t - 0.8) / 0.3) });
+  } }, B0);
+}
+// 4) 열쇠: 상자에서 떠오른 뒤 추이 버튼으로 날아가 돌아간다.
+const K0 = T0 + 0.3;
+tl.set('#key', { left: lidCx, top: lidCy + 6, opacity: 1, scale: 0.4, rotation: -20 }, K0);
+tl.to('#key', { top: lidCy - 48, scale: 1, rotation: 8, duration: 0.5, ease: 'back.out(1.6)' }, K0);
+tl.to('#key', { rotation: -6, duration: 0.25, yoyo: true, repeat: 1, ease: 'sine.inOut' }, K0 + 0.5);
+const F0 = K0 + 1.0, FD = 0.75;
+tl.to('#key', { left: 305, duration: FD, ease: 'power2.inOut' }, F0);
+tl.to('#key', { top: lidCy - 150, duration: FD * 0.45, ease: 'power2.out' }, F0);
+tl.to('#key', { top: 81, duration: FD * 0.55, ease: 'power2.in' }, F0 + FD * 0.45);
+tl.to('#key', { rotation: -30, scale: 0.8, duration: FD, ease: 'none' }, F0);
+// 5) 해제: 열쇠가 돌고, 버튼이 밝아지며 나머지가 어두워진다(또렷한 원 구멍). 링 맥박으로 누르기 유도.
+const U0 = F0 + FD;
+tl.to('#key', { rotation: 60, duration: 0.22, ease: 'power2.inOut' }, U0);
+tl.to('#spot', { opacity: 1, duration: 0.35 }, U0);
+tl.to('#lit', { opacity: 1, duration: 0.2 }, U0 + 0.1);
+tl.to('#key', { opacity: 0, scale: 0.5, duration: 0.25 }, U0 + 0.3);
+tl.to('#lit', { scale: 1.12, duration: 0.14, yoyo: true, repeat: 1 }, U0 + 0.25);
+for (let k = 0; k < 4; k++) {
+  tl.fromTo('#ring', { opacity: 0.9, scale: 1 }, { opacity: 0, scale: 2.1, duration: 1.0, ease: 'power1.out' }, U0 + 0.4 + k * 1.1);
+}
+// 6) 버튼 누름 → 추이 화면
+const P0 = U0 + 2.4;
+tap(P0 - 0.2, 305, 81);
+tl.to('#trends', { x: 0, duration: 0.42, ease: 'power3.out' }, P0);
+tl.to('#fx', { opacity: 0, duration: 0.3 }, P0);
+tl.set('.tx', { opacity: 0, y: -28 }, 0);
+tl.set('.cup', { x: -420 }, 0);
+tl.set('#troshu', { x: 220 }, 0);
+// 7) 잔 7개가 왼쪽에서 바텐더 세팅처럼 미끄러져 들어온다.
+const G0 = P0 + 0.45;
+tl.to('.cup', { x: 0, duration: 0.5, ease: 'back.out(1.1)', stagger: 0.09 }, G0);
+// 8) 로슈 걸어 들어옴(앱은 TrendWalkIn 그대로; 여기선 미끄러짐 + 발 박자 + 착지 콩).
+const R0 = G0 + 0.95;
+tl.to('#troshu', { x: 0, duration: 1.4, ease: 'power2.out' }, R0);
+for (let k = 0; k < 6; k++) tl.to('#troshu', { y: -4, duration: 0.11, yoyo: true, repeat: 1, ease: 'sine.inOut' }, R0 + k * 0.22);
+tl.to('#troshu', { y: -14, duration: 0.14, yoyo: true, repeat: 1, ease: 'power1.out' }, R0 + 1.45);
+tl.to('#troshu', { scaleX: 1.06, scaleY: 0.92, duration: 0.1, yoyo: true, repeat: 1 }, R0 + 1.73);
+// 9) 글자가 위에서 내려온다.
+const X0 = R0 + 1.95;
+tl.to('.tx', { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out', stagger: 0.06 }, X0);
+// 10) 코치마크 3단계
+const COACH = [
+  { rect: [336, 455, 62, 130], top: 300, msg: '잔을 누르면 그날 마신 기록이 열려요', cta: '다음' },
+  { rect: [0, 440, 402, 190], top: 300, msg: '옆으로 넘기면 카페인 잔이에요', cta: '다음' },
+  { rect: [16, 118, 120, 36], top: 180, msg: '여기서 월 보기로 바꿀 수 있어요 (Pro)', cta: '확인' },
+];
+const H0 = X0 + 0.9;
+COACH.forEach((c, i) => {
+  const at = H0 + i * 1.8;
+  tl.call(() => {
+    const h = document.getElementById('cholerect');
+    h.setAttribute('x', c.rect[0]); h.setAttribute('y', c.rect[1]); h.setAttribute('width', c.rect[2]); h.setAttribute('height', c.rect[3]);
+    document.getElementById('bubble').style.top = c.top + 'px';
+    document.getElementById('cmsg').textContent = c.msg;
+    document.getElementById('ccta').textContent = c.cta;
+    document.getElementById('cstep').textContent = `${i + 1} / 3`;
+  }, null, at - 0.01);
+  if (i === 0) tl.to('#coach', { opacity: 1, duration: 0.3 }, at);
+  else tl.fromTo('#bubble', { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.25 }, at);
+  if (i < 2) tap(at + 1.5, 201, c.top + 92);
+});
+tl.to('#coach', { opacity: 0, duration: 0.3 }, H0 + 3 * 1.8 + 0.2);
+
+// ---- 재생 / 정지
+const hud = document.getElementById('hud');
+if (SEEK !== null) { tl.pause(0); tl.seek(SEEK, false); hud.textContent = `t=${SEEK.toFixed(2)}s side=${SIDE}`; }
+else { tl.play(); tl.eventCallback('onUpdate', () => hud.textContent = `t=${tl.time().toFixed(2)}s side=${SIDE}`); }
+window.addEventListener('keydown', e => { if (e.key === ' ') tl.paused(!tl.paused()); if (e.key === 'r') tl.restart(); });
+</script>
+</body>
+</html>

@@ -132,7 +132,6 @@ struct TrendsView: View {
                     .transition(.opacity)
             }
         }
-        .navigationBarBackButtonHidden(coachStep != nil)
         .task(id: revealStart) { await runReveal() }
         .task(id: roshuWalkAt) {
             // 다 걸어 들어오면 서 있는 그림으로 바꿔 끼운다(같은 자리·크기).
@@ -427,7 +426,8 @@ struct TrendsView: View {
         if let table {
             HStack(alignment: .bottom, spacing: 0) {
                 ForEach(Array(table.cups.enumerated()), id: \.element.id) { index, cup in
-                    TrendRevealClock(start: revealStart, frozenAt: revealFrozenAt) { r in
+                    // 보이는 면만 민다. 옆 면까지 밀면 화면 밖 오른쪽 줄이 끌려 들어온다.
+                    TrendRevealClock(start: pageSide == side ? revealStart : nil, frozenAt: revealFrozenAt) { r in
                         cupColumn(cup, index: index, side: pageSide)
                             .offset(x: TrendReveal.cupShift(r, index: index, width: Double(width)))
                     }

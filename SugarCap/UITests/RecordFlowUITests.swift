@@ -336,7 +336,7 @@ extension RecordFlowUITests {
         unlocked.tap()
         // 첫 등장 연출 동안 글자는 투명했다가 약 4초 뒤 내려온다.
         XCTAssertTrue(ui.element("trend-range").waitForExistence(timeout: 10), "열린 추이 버튼을 눌렀는데 추이가 안 열림")
-        // 첫 등장 연출 뒤 안내 3단계(잔 → 넘기기 → 기간). 끝내야 뒤로 가기가 돌아온다.
+        // 첫 등장 연출 뒤 안내 3단계(잔 → 넘기기 → 기간).
         let next = app.buttons["trend-coach-next"]
         for step in 1 ... 3 {
             XCTAssertTrue(next.waitForExistence(timeout: step == 1 ? 10 : 3), "첫 추이 안내 \(step)단계가 안 뜸")

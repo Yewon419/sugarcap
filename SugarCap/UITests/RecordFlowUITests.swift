@@ -334,13 +334,22 @@ extension RecordFlowUITests {
         let unlocked = app.buttons["gift-open-trends"]
         XCTAssertTrue(unlocked.waitForExistence(timeout: 8), "선물 상자를 눌렀는데 열쇠가 추이 버튼을 열지 않음")
         unlocked.tap()
-        XCTAssertTrue(ui.element("trend-range").waitForExistence(timeout: 5), "열린 추이 버튼을 눌렀는데 추이가 안 열림")
+        // 첫 등장 연출 동안 글자는 투명했다가 약 4초 뒤 내려온다.
+        XCTAssertTrue(ui.element("trend-range").waitForExistence(timeout: 10), "열린 추이 버튼을 눌렀는데 추이가 안 열림")
+        // 첫 등장 연출 뒤 안내 3단계(잔 → 넘기기 → 기간). 끝내야 뒤로 가기가 돌아온다.
+        let next = app.buttons["trend-coach-next"]
+        for step in 1 ... 3 {
+            XCTAssertTrue(next.waitForExistence(timeout: step == 1 ? 10 : 3), "첫 추이 안내 \(step)단계가 안 뜸")
+            next.tap()
+        }
+        XCTAssertTrue(next.waitForNonExistence(timeout: 3), "안내를 끝냈는데 남아 있음")
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(ui.element("cup-summary").waitForExistence(timeout: 5), "뒤로 가기로 오늘에 안 돌아옴")
         XCTAssertFalse(unlocked.exists, "추이에 다녀왔는데 어둠이 남아 있음")
 
         app.buttons["open-trends"].tap()
         XCTAssertTrue(ui.element("trend-range").waitForExistence(timeout: 5), "선물을 열었는데 추이가 다시 안 열림")
+        XCTAssertFalse(next.waitForExistence(timeout: 6), "두 번째로 연 추이에 안내가 또 뜸")
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(ui.element("cup-summary").waitForExistence(timeout: 5), "뒤로 가기로 오늘에 안 돌아옴")
     }

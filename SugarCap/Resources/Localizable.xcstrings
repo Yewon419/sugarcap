@@ -3154,6 +3154,38 @@
         }
       }
     },
+    "여기서 월 보기로 바꿀 수 있어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch to the monthly view here"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可以在這裡切換成每月檢視"
+          }
+        }
+      }
+    },
+    "여기서 월 보기로 바꿀 수 있어요 (Pro)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch to the monthly view here (Pro)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可以在這裡切換成每月檢視（Pro）"
+          }
+        }
+      }
+    },
     "여기요!" : {
       "localizations" : {
         "en" : {
@@ -3214,6 +3246,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "無法驗證收據。"
+          }
+        }
+      }
+    },
+    "옆으로 넘기면 당 잔이에요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Swipe sideways for your sugar cups"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "往旁邊滑就是糖的杯子"
+          }
+        }
+      }
+    },
+    "옆으로 넘기면 카페인 잔이에요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Swipe sideways for your caffeine cups"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "往旁邊滑就是咖啡因的杯子"
           }
         }
       }
@@ -3694,6 +3758,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "常喝的飲料就按星號收藏。最近喝過的飲料也會出現在這裡。點一下就能記錄。"
+          }
+        }
+      }
+    },
+    "잔을 누르면 그날 마신 기록이 열려요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap a cup to see what you drank that day"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "點一下杯子，就能看到那天喝了什麼"
           }
         }
       }
@@ -4254,6 +4334,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "趨勢"
+          }
+        }
+      }
+    },
+    "추이 보는 법" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How to read trends"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如何看趨勢"
           }
         }
       }

@@ -11,6 +11,8 @@ import WidgetKit
 struct TrendsView: View {
     /// 하루 기록 시트의 줄 썸네일 색에만 쓴다.
     let catalog: CatalogIndex
+    /// 첫 선물로 추이가 열렸을 때 그 선물의 면. 있으면 그 면으로 열고 첫 등장 연출과 안내를 한 번 보여 준다(§4.9).
+    var reveal: CupSide?
 
     @Query private var settingsRows: [AppSettings]
     @Query(sort: \Entry.loggedAt, order: .reverse) private var entries: [Entry]
@@ -39,6 +41,11 @@ struct TrendsView: View {
     @State private var roshuWalkAt: Date?
     @State private var kainHanging = false
     @State private var entrancePicked = false
+    /// 첫 등장 연출을 시작한 시각. 안내가 뜨면 지운다(시계를 멈춘다).
+    @State private var revealStart: Date?
+    /// 안내 몇 번째 단계인지. 없으면 안내 없음.
+    @State private var coachStep: Int?
+    @State private var coachFrames: [TrendCoachSpot: CGRect] = [:]
     @Query private var affinities: [Affinity]
 
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "trends")
@@ -115,12 +122,21 @@ struct TrendsView: View {
             }
             .onAppear {
                 applyScreenshotArguments()
+                startReveal()
                 pickEntrance()
             }
         }
+        .overlay {
+            if let coachStep {
+                TrendCoachOverlay(steps: coachSteps, index: coachStep, frames: coachFrames, onNext: advanceCoach)
+                    .transition(.opacity)
+            }
+        }
+        .navigationBarBackButtonHidden(coachStep != nil)
+        .task(id: revealStart) { await runReveal() }
         .task(id: roshuWalkAt) {
             // 다 걸어 들어오면 서 있는 그림으로 바꿔 끼운다(같은 자리·크기).
-            guard let start = roshuWalkAt, entranceFrozenAt == nil else { return }
+            guard let start = roshuWalkAt, walkFrozenAt == nil else { return }
             let left = TrendWalkIn.duration - Date().timeIntervalSince(start)
             if left > 0 { try? await Task.sleep(for: .seconds(left)) }
             guard !Task.isCancelled else { return }
@@ -166,20 +182,24 @@ struct TrendsView: View {
     /// 2026-10-06 대표님 "남긴 당 아래 붙게": 남는 공간은 지면과 장면 사이로 간다.
     private func page(table: TrendTable, today: DayKey, width: CGFloat, kainHangs: Bool, figureDigits: Int) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            masthead(table: table, today: today)
-            Text("남긴 \(side.label)")
-                .font(AppFont.pretendard(34, .extraBold, relativeTo: .largeTitle))
-                .tracking(AppFont.displayTracking(for: 34))
-                .foregroundStyle(Color.ink)
-                .padding(.top, 18)
-                .accessibilityAddTraits(.isHeader)
-            figure(total: table.total, digits: figureDigits)
+            revealLine(0) { masthead(table: table, today: today) }
+            revealLine(1) {
+                Text("남긴 \(side.label)")
+                    .font(AppFont.pretendard(34, .extraBold, relativeTo: .largeTitle))
+                    .tracking(AppFont.displayTracking(for: 34))
+                    .foregroundStyle(Color.ink)
+                    .accessibilityAddTraits(.isHeader)
+            }
+            .padding(.top, 18)
+            revealLine(2) { figure(total: table.total, digits: figureDigits) }
                 .padding(.top, 4)
-            deck(today: today)
-                .overlay(alignment: .topLeading) {
-                    if kainHangs { hangingKain(width: width) }
-                }
-                .padding(.top, 22)
+            revealLine(3) {
+                deck(today: today)
+                    .overlay(alignment: .topLeading) {
+                        if kainHangs { hangingKain(width: width) }
+                    }
+            }
+            .padding(.top, 22)
         }
         .padding(.horizontal, 24)
         .padding(.top, 8)
@@ -231,6 +251,7 @@ struct TrendsView: View {
             .frame(minHeight: 44)
             .contentShape(Rectangle())
         }
+        .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { coachFrames[.range] = $0 }
         .accessibilityLabel("기간")
         .accessibilityValue(isMonth ? monthLabel : String(localized: "이번 주"))
         .accessibilityIdentifier("trend-range")
@@ -359,7 +380,7 @@ struct TrendsView: View {
         VStack(spacing: 0) {
             Color.clear.frame(height: Self.wallHeight - Self.cupRise)
             pager(width: width, page: cupPage, drag: dragX) { pageSide in
-                cupRow(table: tables[pageSide], side: pageSide)
+                cupRow(table: tables[pageSide], side: pageSide, width: width)
             }
             sideDots
                 .padding(.top, 10)
@@ -402,14 +423,23 @@ struct TrendsView: View {
     }
 
     @ViewBuilder
-    private func cupRow(table: TrendTable?, side pageSide: CupSide) -> some View {
+    private func cupRow(table: TrendTable?, side pageSide: CupSide, width: CGFloat) -> some View {
         if let table {
             HStack(alignment: .bottom, spacing: 0) {
                 ForEach(Array(table.cups.enumerated()), id: \.element.id) { index, cup in
-                    cupColumn(cup, index: index, side: pageSide)
+                    TrendRevealClock(start: revealStart, frozenAt: revealFrozenAt) { r in
+                        cupColumn(cup, index: index, side: pageSide)
+                            .offset(x: TrendReveal.cupShift(r, index: index, width: Double(width)))
+                    }
+                    .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { frame in
+                        if cup.isNow, pageSide == side { coachFrames[.todayCup] = frame }
+                    }
                 }
             }
             .padding(.horizontal, 8)
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { frame in
+                if pageSide == side { coachFrames[.cups] = frame }
+            }
         }
     }
 
@@ -425,21 +455,27 @@ struct TrendsView: View {
             let sink: CGFloat = pageSide == .sugar ? 64 : 40
             let fromLeft = at < count / 2
             let boxWidth: CGFloat = fromLeft ? max(0, width - cupX + 4) : cupX + 4
-            Group {
-                if pageSide == .sugar, let start = roshuWalkAt {
-                    // 서는 자리에서 가까운 화면 옆 밖까지(그림이 다 가려지는 거리). 지금 잔 오른쪽에 서면 오른쪽에서 들어온다.
-                    let distance: CGFloat = fromLeft ? width - cupX + 16 : -(cupX + 16)
-                    TrendWalkIn(
-                        asset: pageSide.characterAsset, height: height,
-                        distance: distance, start: start, frozenAt: entranceFrozenAt
-                    )
-                } else {
-                    CastMember(
-                        asset: pageSide.characterAsset, side: pageSide, level: affinityLevel(pageSide), height: height,
-                        away: fromLeft ? 1 : -1, dragLean: dragLean(width: width),
-                        direction: leanDirection, trigger: leanTrigger, animates: !reduceMotion
-                    )
+            // 첫 등장에서 카인은 위에서 떨어진다. 로슈는 아래 걷기로 들어오니 시계를 돌리지 않는다.
+            TrendRevealClock(start: pageSide == .caffeine ? revealStart : nil, frozenAt: revealFrozenAt) { r in
+                let drop = TrendReveal.drop(r)
+                Group {
+                    if pageSide == .sugar, let start = roshuWalkAt {
+                        // 서는 자리에서 가까운 화면 옆 밖까지(그림이 다 가려지는 거리). 지금 잔 오른쪽에 서면 오른쪽에서 들어온다.
+                        let distance: CGFloat = fromLeft ? width - cupX + 16 : -(cupX + 16)
+                        TrendWalkIn(
+                            asset: pageSide.characterAsset, height: height,
+                            distance: distance, start: start, frozenAt: walkFrozenAt
+                        )
+                    } else {
+                        CastMember(
+                            asset: pageSide.characterAsset, side: pageSide, level: affinityLevel(pageSide), height: height,
+                            away: fromLeft ? 1 : -1, dragLean: dragLean(width: width),
+                            direction: leanDirection, trigger: leanTrigger, animates: !reduceMotion
+                        )
+                    }
                 }
+                .opacity(drop.opacity)
+                .offset(y: drop.y)
             }
             .frame(width: boxWidth, alignment: fromLeft ? .leading : .trailing)
             .frame(maxWidth: .infinity, alignment: fromLeft ? .trailing : .leading)
@@ -491,6 +527,101 @@ struct TrendsView: View {
         return nil
     }
 
+    // MARK: - 첫 등장(§4.9)
+
+    /// Debug 스크린샷에서 첫 등장을 멈출 시각(`-trendRevealAt 2`).
+    private var revealFrozenAt: Double? {
+        #if DEBUG
+        if UserDefaults.standard.object(forKey: "trendRevealAt") != nil {
+            return UserDefaults.standard.double(forKey: "trendRevealAt")
+        }
+        #endif
+        return nil
+    }
+
+    /// 로슈 걷기를 멈출 시각. 첫 등장이면 그 시계에서 걷기 시작 시각만큼 뺀다.
+    private var walkFrozenAt: Double? {
+        entranceFrozenAt ?? revealFrozenAt.map { $0 - TrendReveal.walkStart }
+    }
+
+    /// 첫 등장을 띄울 면. Debug는 `-trendReveal sugar|caffeine`.
+    private var revealSide: CupSide? {
+        #if DEBUG
+        if let raw = UserDefaults.standard.string(forKey: "trendReveal"), let forced = CupSide(rawValue: raw) { return forced }
+        #endif
+        return reveal
+    }
+
+    /// 화면을 처음 열 때 한 번. 가끔 나오는 등장(`pickEntrance`)은 건너뛴다.
+    private func startReveal() {
+        guard !entrancePicked, let revealSide else { return }
+        entrancePicked = true
+        let shown = CupSide.visible(revealSide, in: trackedSides)
+        pickedSide = shown
+        cupPage = pageIndex(shown)
+        castPage = pageIndex(shown)
+        guard !reduceMotion else {
+            coachStep = 0
+            return
+        }
+        let start = Date()
+        revealStart = start
+        if shown == .sugar { roshuWalkAt = start.addingTimeInterval(TrendReveal.walkStart) }
+    }
+
+    /// 글자가 다 내려오면 안내를 띄우고 시계를 멈춘다. 스크린샷(`-trendRevealAt`)은 그 장면에 멈춰 둔다.
+    private func runReveal() async {
+        guard let start = revealStart else { return }
+        if let frozen = revealFrozenAt {
+            if frozen >= TrendReveal.coachAt { coachStep = Self.screenshotCoachStep(count: coachSteps.count) }
+            return
+        }
+        let left = TrendReveal.coachAt - Date().timeIntervalSince(start)
+        if left > 0 { try? await Task.sleep(for: .seconds(left)) }
+        guard !Task.isCancelled else { return }
+        revealStart = nil
+        withAnimation(.easeOut(duration: 0.3)) { coachStep = 0 }
+    }
+
+    /// Debug `-trendCoachStep 3`(1부터). 없으면 첫 단계.
+    private static func screenshotCoachStep(count: Int) -> Int {
+        #if DEBUG
+        let raw = UserDefaults.standard.integer(forKey: "trendCoachStep")
+        if raw > 0 { return min(raw, count) - 1 }
+        #endif
+        return 0
+    }
+
+    /// 1 잔 → 2 넘기기(두 면을 켰을 때만) → 3 기간.
+    private var coachSteps: [TrendCoachStep] {
+        var steps = [TrendCoachStep(spot: .todayCup, message: String(localized: "잔을 누르면 그날 마신 기록이 열려요"))]
+        if trackedSides.count > 1 {
+            let message = side == .sugar ? String(localized: "옆으로 넘기면 카페인 잔이에요") : String(localized: "옆으로 넘기면 당 잔이에요")
+            steps.append(TrendCoachStep(spot: .cups, message: message))
+        }
+        let range = pro.isPro ? String(localized: "여기서 월 보기로 바꿀 수 있어요") : String(localized: "여기서 월 보기로 바꿀 수 있어요 (Pro)")
+        steps.append(TrendCoachStep(spot: .range, message: range))
+        return steps
+    }
+
+    private func advanceCoach() {
+        guard let coachStep else { return }
+        withAnimation(.easeOut(duration: 0.25)) {
+            self.coachStep = coachStep + 1 < coachSteps.count ? coachStep + 1 : nil
+        }
+    }
+
+    /// 지면 글자 한 줄. 첫 등장이면 위에서 차례로 내려온다.
+    private func revealLine<Content: View>(_ index: Int, @ViewBuilder _ content: () -> Content) -> some View {
+        let view = content()
+        return TrendRevealClock(start: revealStart, frozenAt: revealFrozenAt) { r in
+            let line = TrendReveal.line(r, index: index)
+            view
+                .opacity(line.opacity)
+                .offset(y: line.y)
+        }
+    }
+
     /// 화면을 열 때 한 번 뽑는다. 하루 기준 화면에서 돌아올 때는 다시 뽑지 않는다.
     private func pickEntrance() {
         guard !entrancePicked else { return }
@@ -511,7 +642,7 @@ struct TrendsView: View {
 
     /// 넘기기 시작하면 걸어오던 로슈는 바로 제자리에 선다. 넘기는 동안 매 프레임 그리면 층보다 늦게 따라온다.
     private func standRoshu() {
-        if roshuWalkAt != nil, entranceFrozenAt == nil { roshuWalkAt = nil }
+        if roshuWalkAt != nil, walkFrozenAt == nil { roshuWalkAt = nil }
     }
 
     @ViewBuilder

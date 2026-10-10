@@ -27,6 +27,8 @@ struct TodayView: View {
     @State private var isOnScreen = false
     /// 하단 탭 대신 모서리 버튼으로 연다(2026-10-05). 추이는 밀어 넣고, 설정은 시트.
     @State private var isTrendsPresented = AppTab.initial == .trends
+    /// 첫 선물로 추이를 열 때 그 선물의 면. 추이가 첫 등장 연출을 한 번 보여 준다(§4.9). 돌아오면 지운다.
+    @State private var trendsReveal: CupSide?
     @State private var isSettingsPresented = AppTab.initial == .settings
     @State private var path: [String] = []
     @State private var isManualEntryPresented = false
@@ -110,9 +112,12 @@ struct TodayView: View {
                 }
             }
             .navigationDestination(isPresented: $isTrendsPresented) {
-                TrendsView(catalog: catalog)
+                TrendsView(catalog: catalog, reveal: trendsReveal)
                     .navigationTitle("")
                     .navigationBarTitleDisplayMode(.inline)
+            }
+            .onChange(of: isTrendsPresented) { _, shown in
+                if !shown { trendsReveal = nil }
             }
         }
         .sheet(isPresented: $isSettingsPresented, onDismiss: runPendingTestAction) {
@@ -322,6 +327,7 @@ struct TodayView: View {
         guard let opening else { return }
         if !opening.gift.isOpened { saveOpened(opening.gift) }
         self.opening = nil
+        trendsReveal = opening.side
         isTrendsPresented = true
     }
 

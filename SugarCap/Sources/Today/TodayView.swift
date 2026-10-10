@@ -377,21 +377,14 @@ struct TodayView: View {
     }
 
     /// CI 스크린샷·UI 테스트 전용(Debug `-screenshotGift trends`): 선물이 와 있는 상태로 연다. 이미 안 연 선물이 있으면 그대로.
-    /// `-screenshotGiftCard YES`면 상자를 누른 뒤(카드)까지.
     private func presentScreenshotGiftIfRequested() {
         #if DEBUG
         let defaults = UserDefaults.standard
         guard let raw = defaults.string(forKey: "screenshotGift") else { return }
         let kind: GiftKind = raw == "trends" ? .trendsUnlock : (GiftKind(rawValue: raw) ?? .trendsUnlock)
-        let gift: GiftEvent
-        if let pending = pendingGift(for: side) {
-            gift = pending
-        } else {
-            gift = GiftEvent(kind: kind, side: side, createdAt: Date())
-            context.insert(gift)
-            try? context.save()
-        }
-        if defaults.bool(forKey: "screenshotGiftCard") { openedGift = gift }
+        guard pendingGift(for: side) == nil else { return }
+        context.insert(GiftEvent(kind: kind, side: side, createdAt: Date()))
+        try? context.save()
         #endif
     }
 

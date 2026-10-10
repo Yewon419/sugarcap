@@ -179,14 +179,23 @@ struct GiftOpeningOverlay: View {
                             .position(center)
                         let key = GiftOpeningTimeline.key(o, from: from, to: center)
                         if !isInstant, key.opacity > 0 {
-                            // 시안 열쇠 크기(긴 변 약 30pt).
-                            Image(systemName: "key.fill")
-                                .font(.system(size: 24, weight: .semibold))
-                                .foregroundStyle(Color.accentColor)
-                                .scaleEffect(key.scale)
-                                .rotationEffect(.degrees(key.angle))
-                                .opacity(key.opacity)
-                                .position(key.point)
+                            // 시안 열쇠 크기(긴 변 약 30pt). 흰 스티커 테두리(대표님 2026-10-10): 흰 열쇠를 12방향으로 밀어 깔아
+                            // 또렷한 단색 테두리를 만든다(번짐 없음). 진한 커피 위에서도 열쇠가 보인다.
+                            ZStack {
+                                ForEach(0 ..< 12, id: \.self) { index in
+                                    let angle: Double = Double(index) / 12 * 2 * Double.pi
+                                    Self.keyGlyph
+                                        .foregroundStyle(.white)
+                                        .offset(x: 2.5 * cos(angle), y: 2.5 * sin(angle))
+                                }
+                                Self.keyGlyph
+                                    .foregroundStyle(Color.accentColor)
+                            }
+                            .compositingGroup()
+                            .scaleEffect(key.scale)
+                            .rotationEffect(.degrees(key.angle))
+                            .opacity(key.opacity)
+                            .position(key.point)
                         }
                     }
                     .allowsHitTesting(false)
@@ -221,6 +230,11 @@ struct GiftOpeningOverlay: View {
             let circle = Path(ellipseIn: CGRect(x: Double(center.x) - r, y: Double(center.y) - r, width: r * 2, height: r * 2))
             context.stroke(circle, with: .color(.white.opacity(ring.opacity)), lineWidth: 2)
         }
+    }
+
+    private static var keyGlyph: some View {
+        Image(systemName: "key.fill")
+            .font(.system(size: 24, weight: .semibold))
     }
 
     /// CI 스크린샷(Debug `-giftOpenAt <누른 뒤 초>`)이면 그 시각에 멈춘다.

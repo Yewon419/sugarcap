@@ -36,18 +36,16 @@ struct GiftCardView: View {
         .accessibilityIdentifier("gift-card")
     }
 
-    /// 단계 상승·주·목표 카드는 Phase 2·3에서 채운다(SPEC §4.9).
+    /// 단계 상승·주·목표 카드는 Phase 2·3에서 채운다(SPEC §4.9). 첫 보상(추이 열림)은 카드 대신 열림 연출이라 여기 오지 않는다.
     private var title: String {
         switch gift.giftKind {
-        case .trendsUnlock: return String(localized: "추이가 열렸어요")
-        case .levelUp, .weekKept, .goalReached, nil: return String(localized: "선물을 받았어요")
+        case .trendsUnlock, .levelUp, .weekKept, .goalReached, nil: return String(localized: "선물을 받았어요")
         }
     }
 
     private var message: String {
         switch gift.giftKind {
-        case .trendsUnlock: return String(localized: "오른쪽 위 버튼으로 지난 날들의 잔을 볼 수 있어요")
-        case .levelUp, .weekKept, .goalReached, nil: return ""
+        case .trendsUnlock, .levelUp, .weekKept, .goalReached, nil: return ""
         }
     }
 }

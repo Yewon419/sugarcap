@@ -3442,22 +3442,6 @@
         }
       }
     },
-    "오른쪽 위 버튼으로 지난 날들의 잔을 볼 수 있어요" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Use the top-right button to see the cups from past days"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "可用右上角的按鈕查看過去幾天的杯子"
-          }
-        }
-      }
-    },
     "완료" : {
       "localizations" : {
         "en" : {

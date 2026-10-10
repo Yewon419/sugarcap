@@ -232,7 +232,7 @@ struct TodayView: View {
                         gift: gift.map { gift in
                             GiftCarrierLayer(
                                 side: cupSide, step: step, isActive: isActive && openedGift == nil,
-                                onOpen: { beginOpening(gift, from: $0, on: cupSide) },
+                                onOpen: { beginOpening(gift, at: $0, on: cupSide) },
                                 onMiss: { tapCup(at: $0, screen: proxy.frame(in: .global)) },
                                 onFrame: { giftCarrierFrames[cupSide] = $0 }
                             )
@@ -276,7 +276,7 @@ struct TodayView: View {
         .accessibilityAction { isRecordSheetPresented = true }
         .accessibilityActions {
             if let gift = pendingGift(for: side) {
-                Button("선물 열기") { beginOpening(gift, from: nil, on: side) }
+                Button("선물 열기") { beginOpening(gift, at: nil, on: side) }
             }
         }
         .accessibilityIdentifier("record-add")
@@ -296,10 +296,10 @@ struct TodayView: View {
     }
 
     /// 상자를 눌렀을 때. 추이 열림 선물은 열쇠 연출로, 나머지(Phase 2·3)는 카드로 연다. 보고 있는 면만 받는다.
-    private func beginOpening(_ gift: GiftEvent, from point: CGPoint?, on cupSide: CupSide) {
+    private func beginOpening(_ gift: GiftEvent, at time: Double?, on cupSide: CupSide) {
         guard cupSide == side, opening == nil, openedGift == nil else { return }
         if gift.giftKind == .trendsUnlock {
-            opening = GiftOpening(gift: gift, from: point, startedAt: Date())
+            opening = GiftOpening(gift: gift, side: cupSide, openedAt: time, startedAt: Date())
         } else {
             openedGift = gift
         }
@@ -309,7 +309,7 @@ struct TodayView: View {
     /// CI 스크린샷(`-giftOpenAt`)은 한 장면에 멈춰 두므로 저장하지 않는다.
     private func unlockAfterKeyFlight(_ current: GiftOpening) async {
         if GiftOpeningOverlay.frozenTime != nil { return }
-        if !(reduceMotion || current.from == nil) {
+        if !(reduceMotion || current.openedAt == nil) {
             try? await Task.sleep(for: .seconds(GiftOpeningTimeline.unlock))
         }
         guard !Task.isCancelled, opening?.id == current.id else { return }

@@ -124,8 +124,9 @@ enum GiftOpeningTimeline {
 struct GiftOpening: Identifiable {
     let id = UUID()
     let gift: GiftEvent
-    /// 상자 입구(운반 레이어 좌표). 보이스오버 "선물 열기"로 열면 없다(열쇠 없이 바로 어둠).
-    let from: CGPoint?
+    let side: CupSide
+    /// 상자를 누른 시각(운반 레이어 시계). 입구 자리는 이 시각으로 계산한다. 보이스오버 "선물 열기"로 열면 없다(열쇠 없이 바로 어둠).
+    let openedAt: Double?
     let startedAt: Date
     /// 열쇠가 닿아 연 것으로 저장됐는지. 그 뒤에만 버튼 구멍을 누를 수 있다.
     var isUnlocked = false
@@ -137,19 +138,22 @@ struct GiftOpeningOverlay: View {
     let opening: GiftOpening
     /// 추이 버튼 자리(화면 좌표).
     let target: CGRect
-    /// 운반 레이어 자리(화면 좌표). 입구를 매 프레임 이걸로 옮겨, 누른 순간 레이아웃이 덜 잡혀 있어도 맞는다.
+    /// 운반 레이어 자리(화면 좌표). 입구를 매 프레임 이 크기·위치로 다시 계산해, 누른 순간 레이아웃이 덜 잡혀 있어도 맞는다.
     let source: CGRect
     let onOpenTrends: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    private var isInstant: Bool { reduceMotion || opening.from == nil }
+    private var isInstant: Bool { reduceMotion || opening.openedAt == nil }
 
     var body: some View {
         GeometryReader { proxy in
             let origin = proxy.frame(in: .global).origin
             let center = CGPoint(x: target.midX - origin.x, y: target.midY - origin.y)
-            let from = opening.from.map { CGPoint(x: $0.x + source.minX - origin.x, y: $0.y + source.minY - origin.y) } ?? center
+            let mouth = opening.openedAt.flatMap { at in
+                GiftCarrierFigure(side: opening.side, size: source.size)?.mouth(t: at)
+            }
+            let from = mouth.map { CGPoint(x: $0.x + source.minX - origin.x, y: $0.y + source.minY - origin.y) } ?? center
             let frozen = Self.frozenTime
             ZStack {
                 // 구멍 밖 누르기는 막기만 한다.

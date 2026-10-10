@@ -2,7 +2,7 @@ import SwiftUI
 
 /// 선물 상자를 들고 오늘 화면으로 들어오는 캐릭터(SPEC §4.9). `CupView` 사진 칸 안에 그려 컵을 넘길 때 한 몸으로 민다.
 /// 로슈는 화면 오른쪽 밖에서 걸어 들어와 잔 앞 바닥 가운데에 서고, 앉은 카인은 위에서 톡 떨어져 앉는다(2026-10-10 대표님).
-/// 캐릭터를 누르면 뚜껑이 열리고 조각이 터지며 `onOpen`(상자 입구, 이 레이어 좌표)을 부른다. 그 밖을 누르면 `onMiss`.
+/// 캐릭터를 누르면 뚜껑이 열리고 조각이 터지며 `onOpen`(누른 시각, 이 레이어 시계)을 부른다. 그 밖을 누르면 `onMiss`.
 ///
 /// 당 면은 로슈, 카페인 면은 카인 `gift-carry` 그림(둘 다 2026-10-09 원화).
 struct GiftCarrierLayer: View {
@@ -10,9 +10,9 @@ struct GiftCarrierLayer: View {
     let step: Int
     /// 움직여도 되는지. 옆 면이거나 컵을 넘기는 중이면 멈춘다(`IdleCharacterLayer`와 같은 이유).
     let isActive: Bool
-    var onOpen: (CGPoint) -> Void = { _ in }
+    var onOpen: (Double) -> Void = { _ in }
     var onMiss: (CGPoint) -> Void = { _ in }
-    /// 이 레이어의 화면 자리. 열쇠 오버레이가 입구를 화면 좌표로 옮길 때 쓴다.
+    /// 이 레이어의 화면 자리. 열쇠 오버레이가 이 크기로 입구를 다시 계산해 화면 좌표로 옮긴다.
     var onFrame: (CGRect) -> Void = { _ in }
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -41,7 +41,7 @@ struct GiftCarrierLayer: View {
                     let t = frozenTime ?? (pausedAt ?? Date()).timeIntervalSince(start)
                     if openedAt == nil, figure.contains(local, t: t) {
                         openedAt = t
-                        onOpen(figure.mouth(t: t))
+                        onOpen(t)
                     } else if openedAt == nil {
                         onMiss(location)
                     }
@@ -49,7 +49,7 @@ struct GiftCarrierLayer: View {
                 .onAppear {
                     // CI 스크린샷(Debug `-giftOpenAt`): 누른 것처럼 연출을 시작시킨다.
                     if let at = Self.screenshotOpenTime(figure) {
-                        onOpen(figure.mouth(t: at))
+                        onOpen(at)
                     }
                 }
             }

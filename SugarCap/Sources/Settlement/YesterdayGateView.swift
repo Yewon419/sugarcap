@@ -81,7 +81,7 @@ struct YesterdayGateView: View {
                     .accessibilityAddTraits(.isHeader)
                 Text(
                     gate.kind == .feed
-                        ? String(localized: "\(waitingNames) 기다리고 있어요. 먹이고 오늘을 시작해요.")
+                        ? waitingLine
                         : String(localized: "안 마셨다면 하루 기준만큼 가득 먹일 수 있어요.")
                 )
                 .font(AppFont.pretendard(13, .regular, relativeTo: .footnote))
@@ -113,8 +113,11 @@ struct YesterdayGateView: View {
     /// 설정 "기록할 것"에서 켠 면만 보인다. 배경 컵도 그 면.
     private var firstSide: CupSide { sides.first ?? .sugar }
 
-    private var waitingNames: String {
-        sides.count > 1 ? String(localized: "로슈와 카인이") : firstSide.characterNameWithIga
+    private var waitingLine: String {
+        guard sides.count > 1 else {
+            return String(localized: "\(firstSide.characterNameWithIga) 기다리고 있어요. 먹이고 오늘을 시작해요.")
+        }
+        return String(localized: "\(CupSide.sugar.characterNameWithGwa) \(CupSide.caffeine.characterNameWithIga) 기다리고 있어요. 먹이고 오늘을 시작해요.")
     }
 
     private func left(_ side: CupSide) -> Double {

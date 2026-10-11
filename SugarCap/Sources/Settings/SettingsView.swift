@@ -197,6 +197,8 @@ private struct SettingsContent: View {
             Button("저장") {
                 Nickname.save(nicknameDraft, for: side.characterID)
                 renamed += 1
+                // 알림 문구는 예약할 때 굳으니 별명을 바꾸면 다시 예약한다(꺼져 있으면 아무것도 안 함).
+                Task { await CloseReminder.refresh(closeFromHour: settings.closeFromHour) }
             }
             .accessibilityIdentifier("settings-nickname-save")
             Button("취소", role: .cancel) {}

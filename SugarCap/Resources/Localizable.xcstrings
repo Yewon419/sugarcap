@@ -55,6 +55,22 @@
         }
       }
     },
+    "%@ %@ 기다리고 있어요. 먹이고 오늘을 시작해요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting for you: %1$@ and %2$@. Feed them and start your day."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@和%2$@在等你。餵完再開始今天吧。"
+          }
+        }
+      }
+    },
     "%@ %@ 넘겼어요.\n그래도 %@ 기다려요.\n컵을 눌러 주세요." : {
       "localizations" : {
         "en" : {
@@ -1458,18 +1474,18 @@
         }
       }
     },
-    "남은 당과 카페인을 로슈와 카인에게 먹여 줘요." : {
+    "남은 당과 카페인을 %@ %@에게 먹여 줘요." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Feed the sugar and caffeine you have left to Roshu and Kain."
+            "value" : "Feed the sugar and caffeine you have left to %1$@ and %2$@."
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "把剩下的糖和咖啡因餵給羅秀和卡因。"
+            "value" : "把剩下的糖和咖啡因餵給%1$@和%2$@。"
           }
         }
       }
@@ -2014,22 +2030,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "認識羅秀和卡因。省下的糖給羅秀吃，省下的咖啡因給卡因吃。省得越多，就越親近。"
-          }
-        }
-      }
-    },
-    "로슈와 카인이" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Roshu and Kain"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "羅秀和卡因"
           }
         }
       }

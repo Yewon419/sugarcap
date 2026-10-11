@@ -15,6 +15,10 @@ struct AffinityView: View {
     @State private var lastTap: Date?
     @State private var combo = 0
     @State private var taps = 0
+    /// 별명(Lv8부터, §4.9 2026-10-11). 저장은 기기 설정이라 바꾸면 `renamed`로 화면을 다시 그린다.
+    @State private var isNaming = false
+    @State private var nicknameDraft = ""
+    @State private var renamed = 0
 
     private var points: Int {
         affinities.first { $0.character == side.characterID }?.points ?? 0
@@ -47,8 +51,13 @@ struct AffinityView: View {
                     portrait
                         .padding(.top, 28)
                         .padding(.horizontal, 24)
+                    if level >= Nickname.unlockLevel {
+                        nicknameButton
+                            .padding(.top, 18)
+                    }
                     Color.clear.frame(height: 40)
                 }
+                .id(renamed)
                 .animation(reduceMotion ? nil : .easeOut(duration: 0.25), value: side)
             }
         }
@@ -58,6 +67,18 @@ struct AffinityView: View {
         .presentationBackground(.regularMaterial)
         .sensoryFeedback(trigger: taps) { _, _ in
             reaction == .squish || reaction == .bounce ? .impact(weight: .heavy) : .impact(weight: .light)
+        }
+        .alert("별명", isPresented: $isNaming) {
+            TextField(side.defaultCharacterName, text: $nicknameDraft)
+                .accessibilityIdentifier("affinity-nickname-field")
+            Button("저장") {
+                Nickname.save(nicknameDraft, for: side.characterID)
+                renamed += 1
+            }
+            .accessibilityIdentifier("affinity-nickname-save")
+            Button("취소", role: .cancel) {}
+        } message: {
+            Text("\(Nickname.maxLength)자까지예요. 비워 두면 원래 이름(\(side.defaultCharacterName))으로 돌아가요.")
         }
         .onChange(of: side) { _, _ in
             reaction = nil
@@ -93,10 +114,9 @@ struct AffinityView: View {
         .accessibilityIdentifier("affinity-character")
     }
 
-    /// "로슈와" → 사이 이름 → 다음 사이까지 막대.
+    /// "로슈와" → 사이 이름 → 다음 사이까지 막대. 다음 사이 이름은 보이지 않는다(2026-10-11 대표님).
     private var portrait: some View {
         let stage = AffinityMath.stageName(level: level)
-        let next = AffinityMath.stageName(level: level + 1)
 
         return VStack(spacing: 0) {
             Text(side.characterNameWithGwa)
@@ -121,9 +141,11 @@ struct AffinityView: View {
                         }
                 }
                 .frame(height: 6)
-                Text(isLastStage ? String(localized: "가장 가까운 사이가 됐어요") : String(localized: "다음은 \(next)"))
-                    .font(AppFont.pretendard(12, .regular, relativeTo: .caption))
-                    .foregroundStyle(.secondary)
+                if isLastStage {
+                    Text("가장 가까운 사이가 됐어요")
+                        .font(AppFont.pretendard(12, .regular, relativeTo: .caption))
+                        .foregroundStyle(.secondary)
+                }
             }
             .padding(.top, 22)
         }
@@ -132,8 +154,22 @@ struct AffinityView: View {
         .accessibilityLabel(
             isLastStage
                 ? Text("\(side.characterNameWithGwa) \(stage). 가장 가까운 사이예요")
-                : Text("\(side.characterNameWithGwa) \(stage). 다음은 \(next)")
+                : Text("\(side.characterNameWithGwa) \(stage)")
         )
+    }
+
+    /// 사이가 충분히 가까워지면(Lv8) 별명을 붙일 수 있다. 조사는 별명 끝 글자로 고른다(`Josa`).
+    private var nicknameButton: some View {
+        let hasNickname = Nickname.stored(side.characterID) != nil
+        return Button {
+            nicknameDraft = Nickname.stored(side.characterID) ?? ""
+            isNaming = true
+        } label: {
+            Text(hasNickname ? String(localized: "별명 바꾸기") : String(localized: "별명 붙이기"))
+                .font(AppFont.pretendard(15, .semibold, relativeTo: .subheadline))
+                .frame(minWidth: 44, minHeight: 44)
+        }
+        .accessibilityIdentifier("affinity-nickname")
     }
 
     private func poke() {

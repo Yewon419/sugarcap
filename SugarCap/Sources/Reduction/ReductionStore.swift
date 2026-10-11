@@ -42,6 +42,8 @@ enum ReductionStore {
 
     /// 끝난 주를 전부 판정하고 이번 주 하루 기준을 설정에 쓴다.
     /// 목표치에 닿으면 계획을 끝내고 목표치를 하루 기준으로 남긴다.
+    /// 목표치에 닿아 계획을 끝냈으면 참(목표 달성 선물, §4.9).
+    @discardableResult
     static func advance(
         _ goal: ReductionGoal,
         entries: [Entry],
@@ -50,8 +52,8 @@ enum ReductionStore {
         settings: AppSettings,
         calendar: Calendar = .current,
         in context: ModelContext
-    ) {
-        guard let side = goal.cupSide, let startDay = goal.startDayKey else { return }
+    ) -> Bool {
+        guard let side = goal.cupSide, let startDay = goal.startDayKey else { return false }
         let step = side.reductionStep
 
         goal.state = ReductionAdvance.advance(
@@ -73,7 +75,9 @@ enum ReductionStore {
         settings.setLimit(limit, for: side)
         if limit <= goal.target {
             context.delete(goal)
+            return true
         }
+        return false
     }
 
     /// 목표 시작일 기준 `week`번째 주(0-based) 7일의 하루 합계. 기록이 없는 날은 0이다.

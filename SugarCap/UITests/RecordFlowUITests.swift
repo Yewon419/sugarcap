@@ -672,7 +672,8 @@ extension RecordFlowUITests {
     func testStageEventOnLevelUpCanBeSkipped() throws {
         continueAfterFailure = false
         let app = XCUIApplication()
-        app.launchArguments += ["-trendsUnlocked", "YES", "-initialTab", "today", "-screenshotLevelUp", "5"]
+        // 무대는 실행 직후 시작해 약 4초면 끝난다. 온보딩 확인(5초)을 기다리는 사이 사라지지 않게 장면을 멈춰 둔다.
+        app.launchArguments += ["-trendsUnlocked", "YES", "-initialTab", "today", "-screenshotLevelUp", "5", "-levelUpAt", "2.2"]
         app.launch()
         completeOnboardingIfPresented(app)
         let ui = Driver(app: app)

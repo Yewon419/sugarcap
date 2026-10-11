@@ -31,6 +31,61 @@ final class GiftTests: XCTestCase {
         XCTAssertFalse(GiftMath.adoptsExistingProgress(records: [credited], gifts: [.init(kind: .trendsUnlock, isOpened: false)]), "이미 선물이 있으면 소급 안 함")
     }
 
+    // MARK: 상자 내용(2026-10-11)
+
+    func testBoxOutcomeOdds() {
+        XCTAssertEqual(GiftMath.outcome(roll: 0.84, isPro: false, itemsLeft: true), .heart)
+        XCTAssertEqual(GiftMath.outcome(roll: 0.85, isPro: false, itemsLeft: true), .cap, "무료 15%는 병뚜껑, 물건 없음")
+        XCTAssertEqual(GiftMath.outcome(roll: 0.39, isPro: true, itemsLeft: true), .heart)
+        XCTAssertEqual(GiftMath.outcome(roll: 0.45, isPro: true, itemsLeft: true), .item)
+        XCTAssertEqual(GiftMath.outcome(roll: 0.45, isPro: true, itemsLeft: false), .cap, "물건을 다 모으면 병뚜껑")
+        XCTAssertEqual(GiftMath.outcome(roll: 0.5, isPro: true, itemsLeft: true), .cap)
+        let rolls = (0 ..< 1000).map { Double($0) / 1000 }
+        XCTAssertEqual(rolls.filter { GiftMath.outcome(roll: $0, isPro: false, itemsLeft: true) == .heart }.count, 850)
+        XCTAssertEqual(rolls.filter { GiftMath.outcome(roll: $0, isPro: true, itemsLeft: true) == .heart }.count, 400)
+        XCTAssertEqual(rolls.filter { GiftMath.outcome(roll: $0, isPro: true, itemsLeft: true) == .item }.count, 100)
+    }
+
+    @MainActor
+    func testRevealDecidesContentOnceForBoxesOnly() throws {
+        let gift = GiftEvent(kind: .weekKept, side: .caffeine, createdAt: Date())
+        GiftStore.reveal(gift, isPro: false, collectedItems: [], roll: 0.9)
+        XCTAssertTrue(gift.isCap)
+        GiftStore.reveal(gift, isPro: false, collectedItems: [], roll: 0.1)
+        XCTAssertTrue(gift.isCap, "한 번 정한 내용은 바뀌지 않는다")
+        GiftStore.open(gift, now: Date())
+        XCTAssertTrue(gift.isCap, "열어도 그대로")
+
+        let item = GiftEvent(kind: .goalReached, side: .sugar, createdAt: Date())
+        GiftStore.reveal(item, isPro: true, collectedItems: [], roll: 0.45)
+        XCTAssertTrue(item.isCap, "물건 목록이 비어 있으면 물건 몫은 병뚜껑")
+
+        let stage = GiftEvent(kind: .levelUp, side: .sugar, level: 4, createdAt: Date())
+        GiftStore.reveal(stage, isPro: true, collectedItems: [], roll: 0.1)
+        XCTAssertNil(stage.payload, "단계 상승은 상자가 아니다")
+    }
+
+    func testJosaFollowsTheLastSyllable() {
+        XCTAssertEqual(Josa.withGwa("토토"), "토토와")
+        XCTAssertEqual(Josa.withGwa("몽실"), "몽실과")
+        XCTAssertEqual(Josa.withIga("몽실"), "몽실이")
+        XCTAssertEqual(Josa.withIga("코코"), "코코가")
+        XCTAssertEqual(Josa.withIga("ㅋ"), "ㅋ이")
+        XCTAssertEqual(Josa.withGwa("R2"), "R2와")
+        XCTAssertEqual(Josa.withGwa("No7"), "No7과")
+        XCTAssertEqual(Josa.withGwa("Coco"), "Coco와")
+    }
+
+    func testNicknameTrimsLimitsAndClears() throws {
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: "NicknameTests"))
+        defaults.removePersistentDomain(forName: "NicknameTests")
+        XCTAssertNil(Nickname.stored("roshu", in: defaults))
+        Nickname.save("  몽실몽실몽실몽실몽실 ", for: "roshu", in: defaults)
+        XCTAssertEqual(Nickname.stored("roshu", in: defaults), "몽실몽실몽실몽실", "앞뒤 빈칸을 자르고 8자까지")
+        Nickname.save("   ", for: "roshu", in: defaults)
+        XCTAssertNil(Nickname.stored("roshu", in: defaults), "비우면 원래 이름")
+    }
+
     // MARK: 기준 지킨 주
 
     private let gregorian = Calendar(identifier: .gregorian)

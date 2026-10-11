@@ -22,23 +22,35 @@ enum CupSide: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
+    /// 화면에 쓰는 이름. 별명을 붙였으면 별명(SPEC §4.9 2026-10-11).
     var characterName: String {
+        Nickname.stored(characterID) ?? defaultCharacterName
+    }
+
+    /// 원래 이름(로슈 · 카인).
+    var defaultCharacterName: String {
         switch self {
         case .sugar: return String(localized: "로슈")
         case .caffeine: return String(localized: "카인")
         }
     }
 
-    /// 받침에 맞춘 "와/과" (로슈와, 카인과).
+    /// 받침에 맞춘 "와/과" (로슈와, 카인과). 별명이면 별명 끝 글자로 고른다.
     var characterNameWithGwa: String {
+        if let nickname = Nickname.stored(characterID) {
+            return Nickname.usesJosa ? Josa.withGwa(nickname) : nickname
+        }
         switch self {
         case .sugar: return String(localized: "로슈와")
         case .caffeine: return String(localized: "카인과")
         }
     }
 
-    /// 받침에 맞춘 "가/이" (로슈가, 카인이).
+    /// 받침에 맞춘 "가/이" (로슈가, 카인이). 별명이면 별명 끝 글자로 고른다.
     var characterNameWithIga: String {
+        if let nickname = Nickname.stored(characterID) {
+            return Nickname.usesJosa ? Josa.withIga(nickname) : nickname
+        }
         switch self {
         case .sugar: return String(localized: "로슈가")
         case .caffeine: return String(localized: "카인이")

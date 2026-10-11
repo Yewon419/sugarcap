@@ -158,13 +158,14 @@ final class ReductionStoreTests: XCTestCase {
             side: .sugar, target: 45, weeks: 1, settings: settings, today: start, in: context
         )
         // 기록 0건 = 7일 모두 기준 이내 → 1주 만에 목표 도달.
-        ReductionStore.advance(
+        let reached = ReductionStore.advance(
             goal, entries: [], boundaryHour: 4, today: start.shifted(by: 8), settings: settings,
             in: context
         )
 
         XCTAssertEqual(settings.sugarLimitG, 45)
         XCTAssertTrue(try ReductionStore.goals(in: context).isEmpty, "도달하면 계획을 끝낸다")
+        XCTAssertTrue(reached, "도달을 알려야 목표 달성 선물이 온다")
     }
 
     func testStopKeepsTheCurrentLimit() throws {

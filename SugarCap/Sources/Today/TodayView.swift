@@ -379,8 +379,18 @@ struct TodayView: View {
         if gift.giftKind == .trendsUnlock {
             opening = GiftOpening(gift: gift, side: cupSide, openedAt: time, startedAt: Date())
         } else {
+            // 내용(마음·물건·병뚜껑)은 누르는 순간 뽑는다(§4.9 2026-10-11).
+            GiftStore.reveal(gift, isPro: pro.isPro, collectedItems: collectedItems, roll: Double.random(in: 0 ..< 1))
             openedGift = gift
         }
+    }
+
+    /// 지금까지 받은 물건 id.
+    private var collectedItems: Set<String> {
+        Set(gifts.compactMap { gift in
+            guard gift.isOpened, let payload = gift.payload, payload.hasPrefix(GiftContent.itemPrefix) else { return nil }
+            return String(payload.dropFirst(GiftContent.itemPrefix.count))
+        })
     }
 
     /// 열쇠가 추이 버튼에 닿는 때 연 것으로 저장한다. 동작 줄이기·보이스오버로 열면 바로.
@@ -458,7 +468,11 @@ struct TodayView: View {
         let kind: GiftKind = raw == "trends" ? .trendsUnlock : (GiftKind(rawValue: raw) ?? .trendsUnlock)
         // 카드 컷은 앞 컷이 남긴 안 연 선물과 상관없이 새로 넣어 연다(스크린샷 단계는 저장소를 이어 쓴다).
         if defaults.bool(forKey: "screenshotGiftCard"), kind != .trendsUnlock {
-            let gift = GiftEvent(kind: kind, side: side, createdAt: Date())
+            // 내용은 `-screenshotGiftContent heart|cap`(기본 마음).
+            let gift = GiftEvent(
+                kind: kind, side: side, payload: defaults.string(forKey: "screenshotGiftContent") ?? GiftContent.heart,
+                createdAt: Date()
+            )
             context.insert(gift)
             openedGift = gift
         } else if pendingGift(for: side) == nil {
@@ -475,7 +489,7 @@ struct TodayView: View {
             return UserDefaults.standard.integer(forKey: "screenshotHearts")
         }
         #endif
-        return gifts.filter(\.isHeart).count
+        return gifts.filter { $0.isHeart && $0.isOpened }.count
     }
 
     @ViewBuilder
@@ -940,10 +954,12 @@ struct TodayView: View {
                 let sides = trackedSides
                 for goal in try ReductionStore.goals(in: context) {
                     guard let goalSide = goal.cupSide, sides.contains(goalSide) else { continue }
-                    ReductionStore.advance(
+                    let reached = ReductionStore.advance(
                         goal, entries: entries, boundaryHour: boundaryHour, today: today,
                         settings: settings, in: context
                     )
+                    // 목표를 끝까지 해내면 그 면 캐릭터가 선물을 가져온다(§4.9).
+                    if reached { GiftStore.grantGoalReached(side: goalSide, now: Date(), in: context) }
                 }
             }
             try context.save()

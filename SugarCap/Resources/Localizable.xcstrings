@@ -87,22 +87,6 @@
         }
       }
     },
-    "%@ %@. 다음은 %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@: %2$@. Next: %3$@"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@：%2$@。下一階：%3$@"
-          }
-        }
-      }
-    },
     "%@ · %lld잔" : {
       "localizations" : {
         "en" : {
@@ -323,6 +307,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "刪除%@"
+          }
+        }
+      }
+    },
+    "%@ 소중히 모아 둔 거래요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ kept this one safe for you."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "這是%@好好收著的。"
           }
         }
       }
@@ -633,6 +633,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld/%2$lld 的記錄"
+          }
+        }
+      }
+    },
+    "%lld자까지예요. 비워 두면 원래 이름(%@)으로 돌아가요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Up to %lld characters. Leave it empty to go back to %@."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最多 %lld 個字。留空就會改回原本的名字（%@）。"
           }
         }
       }
@@ -1682,22 +1698,6 @@
         }
       }
     },
-    "다음은 %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Next: %@"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "接下來是%@"
-          }
-        }
-      }
-    },
     "다음은 %@ 차례예요." : {
       "localizations" : {
         "en" : {
@@ -2542,6 +2542,86 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "把水滴拖給%@吧。"
+          }
+        }
+      }
+    },
+    "별명" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nickname"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暱稱"
+          }
+        }
+      }
+    },
+    "별명 바꾸기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Change nickname"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更改暱稱"
+          }
+        }
+      }
+    },
+    "별명 붙이기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Give a nickname"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取暱稱"
+          }
+        }
+      }
+    },
+    "병뚜껑 %lld개" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bottle caps: %lld"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "瓶蓋 %lld 個"
+          }
+        }
+      }
+    },
+    "병뚜껑을 받았어요!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You got a bottle cap!"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "收到了瓶蓋！"
           }
         }
       }
@@ -4478,6 +4558,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "推薦"
+          }
+        }
+      }
+    },
+    "취소" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消"
           }
         }
       }

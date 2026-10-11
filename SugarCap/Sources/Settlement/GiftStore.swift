@@ -58,11 +58,31 @@ enum GiftStore {
         return raised.count
     }
 
-    /// 연 것으로 저장한다. 주·목표 선물은 이때 내용이 정해진다(지금은 마음뿐).
+    /// 감소 목표를 끝까지 해냈을 때. 그 면 캐릭터가 가져온다.
+    static func grantGoalReached(side: CupSide, now: Date, in context: ModelContext) {
+        context.insert(GiftEvent(kind: .goalReached, side: side, createdAt: now))
+    }
+
+    /// 상자를 눌렀을 때 내용을 정한다(주·목표 선물만, 이미 정했으면 그대로). 물건은 아직 안 받은 것 중 하나.
+    static func reveal(_ gift: GiftEvent, isPro: Bool, collectedItems: Set<String>, roll: Double) {
+        guard gift.payload == nil else { return }
+        switch gift.giftKind {
+        case .weekKept, .goalReached:
+            let left = GiftContent.items.filter { !collectedItems.contains($0) }
+            switch GiftMath.outcome(roll: roll, isPro: isPro, itemsLeft: !left.isEmpty) {
+            case .heart: gift.payload = GiftContent.heart
+            case .cap: gift.payload = GiftContent.cap
+            case .item: gift.payload = left.randomElement().map(GiftContent.item) ?? GiftContent.cap
+            }
+        case .trendsUnlock, .levelUp, nil: break
+        }
+    }
+
+    /// 연 것으로 저장한다. 내용을 안 정한 채 열린 주·목표 선물은 마음.
     static func open(_ gift: GiftEvent, now: Date) {
         gift.openedAt = now
         switch gift.giftKind {
-        case .weekKept, .goalReached: gift.payload = GiftContent.heart
+        case .weekKept, .goalReached: if gift.payload == nil { gift.payload = GiftContent.heart }
         case .trendsUnlock, .levelUp, nil: break
         }
     }

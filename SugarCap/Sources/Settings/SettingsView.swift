@@ -60,6 +60,10 @@ private struct SettingsContent: View {
     @State private var isTestBuild = false
     @State private var confirmsFirstRun = false
     @AppStorage(CloseReminder.enabledKey) private var isReminderOn = false
+    /// 별명(호감도 Lv8부터, §4.9 2026-10-11). 저장은 기기 설정이라 바꾸면 `renamed`로 행을 다시 그린다.
+    @State private var namingSide: CupSide?
+    @State private var nicknameDraft = ""
+    @State private var renamed = 0
 
     @Query private var affinities: [Affinity]
     @Environment(\.modelContext) private var context
@@ -110,6 +114,17 @@ private struct SettingsContent: View {
                     .accessibilityIdentifier("close-reminder")
             } footer: {
                 Text("매일 \(HourChoices.label(settings.closeFromHour))에 오늘 마감이 열리면 알려 줘요.")
+            }
+
+            if !nameableSides.isEmpty {
+                Section {
+                    ForEach(nameableSides) { side in
+                        nicknameRow(side)
+                    }
+                } header: {
+                    Text("별명")
+                }
+                .id(renamed)
             }
 
             Section {
@@ -171,6 +186,22 @@ private struct SettingsContent: View {
                 .accessibilityIdentifier("confirm-first-run")
         } message: {
             Text("기록은 그대로 두고 앱 소개와 로슈·카인 소개를 처음부터 다시 봐요.")
+        }
+        .alert(
+            "별명",
+            isPresented: Binding(get: { namingSide != nil }, set: { if !$0 { namingSide = nil } }),
+            presenting: namingSide
+        ) { side in
+            TextField(side.defaultCharacterName, text: $nicknameDraft)
+                .accessibilityIdentifier("settings-nickname-field")
+            Button("저장") {
+                Nickname.save(nicknameDraft, for: side.characterID)
+                renamed += 1
+            }
+            .accessibilityIdentifier("settings-nickname-save")
+            Button("취소", role: .cancel) {}
+        } message: { side in
+            Text("\(Nickname.maxLength)자까지예요. 비워 두면 원래 이름(\(side.defaultCharacterName))으로 돌아가요.")
         }
         .sheet(isPresented: $showsPaywall) {
             PaywallView(feature: nil)
@@ -283,6 +314,36 @@ private struct SettingsContent: View {
             context.rollback()
             alertMessage = String(localized: "호감도를 바꾸지 못했어요.")
         }
+    }
+
+    /// 별명을 붙일 수 있는 캐릭터(호감도 `Nickname.unlockLevel` 이상). Debug `-screenshotNicknameRows YES`면 둘 다.
+    private var nameableSides: [CupSide] {
+        #if DEBUG
+        if UserDefaults.standard.bool(forKey: "screenshotNicknameRows") { return CupSide.allCases }
+        #endif
+        return CupSide.allCases.filter { side in
+            (affinities.first { $0.character == side.characterID }?.level ?? 1) >= Nickname.unlockLevel
+        }
+    }
+
+    private func nicknameRow(_ side: CupSide) -> some View {
+        let nickname = Nickname.stored(side.characterID)
+        return Button {
+            nicknameDraft = nickname ?? ""
+            namingSide = side
+        } label: {
+            HStack {
+                Text(side.defaultCharacterName)
+                Spacer()
+                Text(nickname ?? String(localized: "별명 붙이기")).foregroundStyle(.secondary)
+                Image(systemName: "chevron.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+            }
+            .rowText()
+            .contentShape(Rectangle())
+        }
+        .accessibilityIdentifier("settings-nickname-\(side.characterID)")
     }
 
     /// 시각 행. 값은 메뉴 피커라 한 번에 고른다.

@@ -54,20 +54,21 @@ struct GiftCardView: View {
         .accessibilityIdentifier("gift-card")
     }
 
-    /// 주·목표 선물은 지금 마음뿐이다(무료는 늘 마음, Pro 내용물은 대표님 구상 후). 첫 보상(추이 열림)은 카드 대신 열림 연출이라 여기 오지 않는다.
-    private var isHeart: Bool {
-        switch gift.giftKind {
-        case .weekKept, .goalReached: return true
-        case .trendsUnlock, .levelUp, nil: return false
-        }
-    }
+    /// 결제 줄은 마음 카드에만 붙는다. 내용은 상자를 누를 때 정해진다(`GiftStore.reveal`).
+    private var isHeart: Bool { gift.isHeart }
 
     private var title: String {
-        guard isHeart, let side = gift.cupSide else { return String(localized: "선물을 받았어요") }
-        return String(localized: "'\(side.characterName)의 마음'을 받았어요!")
+        guard let side = gift.cupSide else { return String(localized: "선물을 받았어요") }
+        if gift.isHeart { return String(localized: "'\(side.characterName)의 마음'을 받았어요!") }
+        if gift.isCap { return String(localized: "병뚜껑을 받았어요!") }
+        return String(localized: "선물을 받았어요")
     }
 
+    /// 병뚜껑은 어디에 쓰는지 알려 주지 않는다(2026-10-11 대표님 "이건 대체 어디에 써요").
     private var message: String {
-        isHeart ? String(localized: "기쁘시죠?") : ""
+        guard let side = gift.cupSide else { return "" }
+        if gift.isHeart { return String(localized: "기쁘시죠?") }
+        if gift.isCap { return String(localized: "\(side.characterNameWithIga) 소중히 모아 둔 거래요.") }
+        return ""
     }
 }

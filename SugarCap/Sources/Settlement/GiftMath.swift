@@ -57,6 +57,21 @@ enum GiftMath {
         }
     }
 
+    /// 상자에서 나오는 것의 종류.
+    enum Outcome: Equatable, Sendable {
+        case heart, item, cap
+    }
+
+    /// 상자 내용 뽑기(2026-10-11 대표님). `roll`은 0..<1 난수.
+    /// 무료 = 마음 85 · 병뚜껑 15(물건 없음), Pro = 마음 40 · 물건 10 · 병뚜껑 50.
+    /// 물건을 다 모았으면(`itemsLeft` 거짓) 물건 몫은 병뚜껑으로 간다.
+    static func outcome(roll: Double, isPro: Bool, itemsLeft: Bool) -> Outcome {
+        if !isPro { return roll < 0.85 ? .heart : .cap }
+        if roll < 0.40 { return .heart }
+        if roll < 0.50 { return itemsLeft ? .item : .cap }
+        return .cap
+    }
+
     /// 마음 카드에 "다른 것도 받고 싶으시다고요?"(페이월)를 붙일지. 무료이고 로슈·카인 합쳐 마음을 이미 한 번 받았을 때.
     static func offersPro(heartsBefore: Int, isPro: Bool) -> Bool {
         !isPro && heartsBefore >= 1

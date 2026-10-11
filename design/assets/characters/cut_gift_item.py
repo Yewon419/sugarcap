@@ -23,7 +23,13 @@ from scipy.spatial import ConvexHull
 ROOT = Path(__file__).resolve().parent
 SOURCE = ROOT / "roshu" / "poses" / "hug-strawberry.png"
 OUT = ROOT / "roshu" / "items" / "strawberry.png"
-CATALOG = ROOT.parents[2] / "SugarCap" / "Resources" / "Assets.xcassets" / "gift-item-strawberry.imageset"
+CATALOG = (
+    ROOT.parents[2]
+    / "SugarCap"
+    / "Resources"
+    / "Assets.xcassets"
+    / "gift-item-strawberry.imageset"
+)
 # Turn so the tip points straight down (counterclockwise degrees).
 TURN = -28.0
 # Drawn at about 110 pt on the phone.
@@ -69,7 +75,9 @@ def main() -> None:
     out[..., 3] = np.clip(edge * 255, 0, 255).astype(np.uint8)
     out[~ndimage.binary_dilation(mask, iterations=2), :3] = flesh
 
-    cut = Image.fromarray(out, "RGBA").rotate(TURN, resample=Image.Resampling.BICUBIC, expand=True)
+    cut = Image.fromarray(out, "RGBA").rotate(
+        TURN, resample=Image.Resampling.BICUBIC, expand=True
+    )
     box = cut.getchannel("A").point(lambda v: 255 if v > 20 else 0).getbbox()
     if box is None:
         raise SystemExit("empty cut")
@@ -79,12 +87,16 @@ def main() -> None:
 
     height = round(cut.height * APP_WIDTH / cut.width)
     CATALOG.mkdir(parents=True, exist_ok=True)
-    cut.resize((APP_WIDTH, height), Image.Resampling.LANCZOS).save(CATALOG / "strawberry.png", optimize=True)
+    cut.resize((APP_WIDTH, height), Image.Resampling.LANCZOS).save(
+        CATALOG / "strawberry.png", optimize=True
+    )
     contents = {
         "images": [{"filename": "strawberry.png", "idiom": "universal", "scale": "3x"}],
         "info": {"author": "xcode", "version": 1},
     }
-    (CATALOG / "Contents.json").write_text(json.dumps(contents, indent=2) + "\n", encoding="utf-8")
+    (CATALOG / "Contents.json").write_text(
+        json.dumps(contents, indent=2) + "\n", encoding="utf-8"
+    )
     print(f"{OUT} {cut.size}, app {APP_WIDTH}x{height}")
 
 

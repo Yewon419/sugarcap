@@ -57,8 +57,8 @@ struct TodayView: View {
     @State private var undoToast: UndoToast?
     /// 저장·정산 실패를 사용자에게 알린다. 로그만 남기면 기록이 사라져도 모른다.
     @State private var failureMessage: String?
-    /// 상자를 눌러 내용 카드가 떠 있는 선물(SPEC §4.9). "확인"을 눌러야 연 것으로 저장한다.
-    @State private var openedGift: GiftEvent?
+    /// 상자를 눌러 조명 무대가 떠 있는 선물(SPEC §4.9). 눌러 닫아야 연 것으로 저장한다.
+    @State private var reveal: GiftReveal?
     /// 첫 보상 전에 추이 버튼을 누른 때. 2초 동안 "아직 잠긴 기능이에요".
     @State private var trendsLockToastAt: Date?
     /// 첫 선물(추이 열림) 연출 중이면 채운다(SPEC §4.9). 열린 추이 버튼을 누르면 비운다.
@@ -241,7 +241,7 @@ struct TodayView: View {
                         ),
                         gift: gift.map { gift in
                             GiftCarrierLayer(
-                                side: cupSide, step: step, isActive: isActive && openedGift == nil,
+                                side: cupSide, step: step, isActive: isActive && reveal == nil,
                                 onOpen: { beginOpening(gift, at: $0, on: cupSide) },
                                 onMiss: { tapCup(at: $0, screen: proxy.frame(in: .global)) },
                                 onFrame: { giftCarrierFrames[cupSide] = $0 }
@@ -313,7 +313,7 @@ struct TodayView: View {
 
     /// 무대를 열어도 되는 때의 단계 상승 id. 다른 연출·시트·화면이 떠 있거나 넘기는 중이면 없다.
     private var levelUpCue: UUID? {
-        guard levelUp == nil, opening == nil, openedGift == nil, feeding == nil, gate == nil, paywall == nil,
+        guard levelUp == nil, opening == nil, reveal == nil, feeding == nil, gate == nil, paywall == nil,
               isOnScreen, !isSliding, !isSettingsPresented, !isTrendsPresented, !isRecordSheetPresented,
               !isDayLogPresented, !isManualEntryPresented, path.isEmpty
         else { return nil }
@@ -373,15 +373,15 @@ struct TodayView: View {
         return pendingGift(for: cupSide)
     }
 
-    /// 상자를 눌렀을 때. 추이 열림 선물은 열쇠 연출로, 나머지(Phase 2·3)는 카드로 연다. 보고 있는 면만 받는다.
+    /// 상자를 눌렀을 때. 추이 열림 선물은 열쇠 연출로, 나머지(Phase 2·3)는 조명 무대로 연다. 보고 있는 면만 받는다.
     private func beginOpening(_ gift: GiftEvent, at time: Double?, on cupSide: CupSide) {
-        guard cupSide == side, opening == nil, openedGift == nil else { return }
+        guard cupSide == side, opening == nil, reveal == nil else { return }
         if gift.giftKind == .trendsUnlock {
             opening = GiftOpening(gift: gift, side: cupSide, openedAt: time, startedAt: Date())
         } else {
             // 내용(마음·물건·병뚜껑)은 누르는 순간 뽑는다(§4.9 2026-10-11).
             GiftStore.reveal(gift, isPro: pro.isPro, collectedItems: collectedItems, roll: Double.random(in: 0 ..< 1))
-            openedGift = gift
+            reveal = GiftReveal(gift: gift, startedAt: Date())
         }
     }
 
@@ -443,10 +443,10 @@ struct TodayView: View {
         }
     }
 
-    /// 카드의 "확인". 이때 연 것으로 저장한다(상자만 누르고 앱을 끄면 다시 들고 서 있다).
+    /// 무대를 눌러 닫을 때. 이때 연 것으로 저장한다(상자만 누르고 앱을 끄면 다시 들고 서 있다).
     private func confirmGift(_ gift: GiftEvent) {
         saveOpened(gift)
-        openedGift = nil
+        reveal = nil
     }
 
     private func saveOpened(_ gift: GiftEvent) {
@@ -460,21 +460,21 @@ struct TodayView: View {
     }
 
     /// CI 스크린샷·UI 테스트 전용(Debug `-screenshotGift trends|weekKept`): 선물이 와 있는 상태로 연다. 이미 안 연 선물이 있으면 그대로.
-    /// `-screenshotGiftCard YES` = 카드를 연 채로. 마음 횟수는 `heartsReceived`(`-screenshotHearts`).
+    /// `-screenshotGiftCard YES` = 조명 무대를 연 채로(장면 시각은 `-giftRevealAt`). 마음 횟수는 `heartsReceived`(`-screenshotHearts`).
     private func presentScreenshotGiftIfRequested() {
         #if DEBUG
         let defaults = UserDefaults.standard
         guard let raw = defaults.string(forKey: "screenshotGift") else { return }
         let kind: GiftKind = raw == "trends" ? .trendsUnlock : (GiftKind(rawValue: raw) ?? .trendsUnlock)
-        // 카드 컷은 앞 컷이 남긴 안 연 선물과 상관없이 새로 넣어 연다(스크린샷 단계는 저장소를 이어 쓴다).
+        // 무대 컷은 앞 컷이 남긴 안 연 선물과 상관없이 새로 넣어 연다(스크린샷 단계는 저장소를 이어 쓴다).
         if defaults.bool(forKey: "screenshotGiftCard"), kind != .trendsUnlock {
-            // 내용은 `-screenshotGiftContent heart|cap`(기본 마음).
+            // 내용은 `-screenshotGiftContent heart|cap|item:strawberry`(기본 마음).
             let gift = GiftEvent(
                 kind: kind, side: side, payload: defaults.string(forKey: "screenshotGiftContent") ?? GiftContent.heart,
                 createdAt: Date()
             )
             context.insert(gift)
-            openedGift = gift
+            reveal = GiftReveal(gift: gift, startedAt: Date())
         } else if pendingGift(for: side) == nil {
             context.insert(GiftEvent(kind: kind, side: side, createdAt: Date()))
         }
@@ -493,22 +493,18 @@ struct TodayView: View {
     }
 
     @ViewBuilder
-    private func giftCard() -> some View {
-        if let openedGift {
-            Color.black.opacity(0.12)
-                .ignoresSafeArea()
-                .onTapGesture { }
-            GiftCardView(
-                gift: openedGift,
+    private func giftRevealOverlay() -> some View {
+        if let reveal {
+            GiftRevealOverlay(
+                reveal: reveal,
                 offersPro: GiftMath.offersPro(heartsBefore: heartsReceived, isPro: pro.isPro),
-                onConfirm: { confirmGift(openedGift) },
+                onClose: { confirmGift(reveal.gift) },
                 onPro: {
-                    confirmGift(openedGift)
+                    confirmGift(reveal.gift)
                     paywall = .gifts
                 }
             )
-                .padding(.horizontal, 24)
-                .transition(.scale(scale: 0.92).combined(with: .opacity))
+            .transition(.opacity)
         }
     }
 
@@ -638,10 +634,7 @@ struct TodayView: View {
 
             trendsLockToast()
                 .frame(maxWidth: .infinity)
-            giftCard()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .animation(.spring(response: 0.35, dampingFraction: 0.9), value: openedGift?.id)
         .animation(.easeOut(duration: 0.2), value: trendsLockToastAt)
         .fullScreenCover(item: $gate, onDismiss: {
             isGateRehearsal = false
@@ -667,6 +660,8 @@ struct TodayView: View {
         .animation(.easeOut(duration: 0.25), value: opening?.id)
         .overlay { levelUpOverlay() }
         .animation(.easeOut(duration: 0.25), value: levelUp?.id)
+        .overlay { giftRevealOverlay() }
+        .animation(.easeOut(duration: 0.25), value: reveal?.id)
         .task(id: levelUpCue) {
             if let levelUpCue { await startLevelUp(after: levelUpCue) }
         }

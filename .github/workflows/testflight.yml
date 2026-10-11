@@ -272,10 +272,10 @@ jobs:
           shoot gift-wait-kain light large -screenshotSide caffeine -screenshotGift trends -giftAt 3
           shoot gift-open-burst-kain light large -screenshotSide caffeine -screenshotGift trends -giftOpenAt 0.6
           # 기준 지킨 주 선물(§4.9): 무료는 늘 마음. 두 번째 마음부터 "다른 것도 받고 싶으시다고요?" → 선물 페이월.
-          shoot gift-heart light large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotHearts 0
-          shoot gift-heart-offer light large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotHearts 1
-          shoot gift-heart-offer-kain light large -mockPro YES -screenshotSide caffeine -screenshotGift weekKept -screenshotGiftCard YES -screenshotHearts 1
-          shoot gift-heart-offer-ax-xl light accessibility-extra-large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotHearts 1
+          shoot gift-heart light large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotHearts 0 -giftRevealAt 3
+          shoot gift-heart-offer light large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotHearts 1 -giftRevealAt 3
+          shoot gift-heart-offer-kain light large -mockPro YES -screenshotSide caffeine -screenshotGift weekKept -screenshotGiftCard YES -screenshotHearts 1 -giftRevealAt 3
+          shoot gift-heart-offer-ax-xl light accessibility-extra-large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotHearts 1 -giftRevealAt 3
           shoot paywall-gifts light large -mockPro YES -screenshotPaywall gifts
           # 단계 상승 무대(§4.9 결정 4). -levelUpAt = 시작 뒤 초: 1.5 점프 꼭대기·팡파레, 2.2 착지 뒤 세 줄.
           shoot levelup-jump light large -screenshotLevelUp 5 -levelUpAt 1.5
@@ -284,8 +284,11 @@ jobs:
           shoot levelup-long light large -screenshotLevelUp 9 -levelUpAt 2.2
           shoot levelup-ax-xl light accessibility-extra-large -screenshotLevelUp 9 -levelUpAt 2.2
           # 3단계(§4.9): 병뚜껑 카드, 추이의 병뚜껑 수, 별명(조사는 끝 글자 받침으로: 몽실과).
-          shoot gift-cap light large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent cap
-          shoot gift-cap-kain light large -mockPro YES -screenshotSide caffeine -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent cap
+          shoot gift-cap light large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent cap -giftRevealAt 3
+          shoot gift-cap-kain light large -mockPro YES -screenshotSide caffeine -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent cap -giftRevealAt 3
+          # 조명 무대(2026-10-11): -giftRevealAt = 시작 뒤 초. 1.0 조명이 훑는 중, 3 드러난 뒤.
+          shoot gift-reveal-search light large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent item:strawberry -giftRevealAt 1.0
+          shoot gift-reveal-strawberry light large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent item:strawberry -giftRevealAt 3
           shoot trends-caps light large -initialTab trends -screenshotCaps 3
           shoot levelup-nickname light large -screenshotLevelUp 8 -levelUpAt 2.2 -nickname.roshu 몽실
           shoot settings-nickname light large -initialTab settings -screenshotNicknameRows YES -nickname.roshu 몽실
@@ -317,9 +320,9 @@ jobs:
           shoot_en limit-sugar large -initialTab trends -trendLimit sugar
           shoot_en limit-caffeine large -initialTab trends -trendLimit caffeine
           shoot_en paywall large -mockPro YES -screenshotPaywall YES
-          shoot_en gift-heart-offer large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotHearts 1
+          shoot_en gift-heart-offer large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotHearts 1 -giftRevealAt 3
           shoot_en levelup large -screenshotLevelUp 5 -levelUpAt 2.2
-          shoot_en gift-cap large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent cap
+          shoot_en gift-cap large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent cap -giftRevealAt 3
           shoot_en trends-caps large -initialTab trends -screenshotCaps 3
           shoot_en paywall-type-ax-xl accessibility-extra-large -mockPro YES -screenshotPaywall YES
           shoot_en record large -seedDemo YES -screenshotRecord YES
@@ -358,9 +361,9 @@ jobs:
           shoot_zh limit-sugar large -initialTab trends -trendLimit sugar
           shoot_zh limit-caffeine large -initialTab trends -trendLimit caffeine
           shoot_zh paywall large -mockPro YES -screenshotPaywall YES
-          shoot_zh gift-heart-offer large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotHearts 1
+          shoot_zh gift-heart-offer large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotHearts 1 -giftRevealAt 3
           shoot_zh levelup large -screenshotLevelUp 5 -levelUpAt 2.2
-          shoot_zh gift-cap large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent cap
+          shoot_zh gift-cap large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent cap -giftRevealAt 3
           shoot_zh trends-caps large -initialTab trends -screenshotCaps 3
           shoot_zh paywall-type-ax-xl accessibility-extra-large -mockPro YES -screenshotPaywall YES
           shoot_zh record large -seedDemo YES -screenshotRecord YES

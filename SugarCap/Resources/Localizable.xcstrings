@@ -474,22 +474,6 @@
     "%@: %@" : {
       "shouldTranslate" : false
     },
-    "%@가 됐어요" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Now: %@"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "成為了「%@」"
-          }
-        }
-      }
-    },
     "%@개 중 %lld개만 보여요. 이름을 더 입력해 주세요." : {
       "localizations" : {
         "en" : {

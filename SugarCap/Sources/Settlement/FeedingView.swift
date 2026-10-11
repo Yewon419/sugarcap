@@ -550,11 +550,8 @@ struct FeedingView: View {
 
     /// 말풍선·숫자는 아래에서 올라오고, 캐릭터는 따로 위에서 떨어져 들어온다(`SummaryCharacter`).
     private func summaryColumn(_ side: CupSide, delay: Double) -> some View {
-        let result = results?.first { $0.side == side }
-        let note: String = {
-            if let result, result.leveledUp { return String(localized: "\(AffinityMath.stageName(level: result.levelAfter))가 됐어요") }
-            return request.over(side) > 0 ? String(localized: "조금 아쉬워요") : String(localized: "\(side.characterNameWithIga) 먹었어요")
-        }()
+        // 단계가 오른 건 여기 말고 오늘 화면 무대 연출로 알린다(SPEC §4.9 결정 4).
+        let note = request.over(side) > 0 ? String(localized: "조금 아쉬워요") : String(localized: "\(side.characterNameWithIga) 먹었어요")
         return VStack(spacing: 10) {
             NightBubble(text: note)
                 .summaryEntrance(summaryIn, delay: delay + 0.4)

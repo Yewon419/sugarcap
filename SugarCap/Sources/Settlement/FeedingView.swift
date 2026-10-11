@@ -285,8 +285,9 @@ struct FeedingView: View {
                     ? String(localized: "마지막 한 방울이 나왔어요.\n\(side.characterName)에게 끌어다 주세요.")
                     : String(localized: "방울을 \(side.characterName)에게 끌어다 주세요.")
             case .eaten:
-                if !isLastSide { return String(localized: "다음은 \(sides[stepIndex + 1].characterName) 차례예요.") }
-                return sides.count > 1 ? String(localized: "둘 다 먹었어요.") : String(localized: "\(side.characterNameWithIga) 다 먹었어요.")
+                // 다음 차례는 글로 알리지 않는다(대표님 2026-10-11). 카페인색 전환이 대신 넘긴다.
+                return isLastSide && sides.count > 1
+                    ? String(localized: "둘 다 먹었어요.") : String(localized: "\(side.characterNameWithIga) 다 먹었어요.")
             }
         }()
         let kind = request.kind == .closeToday ? String(localized: "오늘 마감") : String(localized: "어제 남은 음료")

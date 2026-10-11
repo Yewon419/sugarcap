@@ -35,16 +35,24 @@ enum GiftStore {
         return true
     }
 
-    /// `closed`를 마감한 직후. 기준 지킨 주면 선물을 넣는다. 둘 다 지킨 거라 누가 가져올지는 `sides` 중 무작위. 넣었으면 참.
-    static func grantWeekKept(closed: DayKey, sides: [CupSide], now: Date, in context: ModelContext) throws -> Bool {
+    /// `closed`를 마감한 직후. 기준 지킨 주면 선물을 넣는다. 내용은 이때 정한다(대표님 2026-10-11).
+    /// 물건이면 그 주인이, 아니면 `sides` 중 무작위가 가져온다. 넣었으면 참.
+    static func grantWeekKept(
+        closed: DayKey, sides: [CupSide], isPro: Bool, now: Date, in context: ModelContext,
+        roll: Double = Double.random(in: 0 ..< 1)
+    ) throws -> Bool {
         let days = try context.fetch(FetchDescriptor<DaySettlement>()).compactMap { row -> GiftMath.ClosedDay? in
             guard row.isClosed, let day = row.dayKey else { return nil }
             return GiftMath.ClosedDay(day: day, sugarOver: row.sugarOverAtCloseG, caffeineOver: row.caffeineOverAtCloseMg)
         }
         guard GiftMath.grantsWeekKept(closed: closed, days: days, sides: sides, gifts: try records(in: context)),
-              let side = sides.randomElement()
+              let fallback = sides.randomElement()
         else { return false }
-        context.insert(GiftEvent(kind: .weekKept, side: side, week: GiftMath.weekStart(of: closed), createdAt: now))
+        let picked = Self.content(owners: sides, isPro: isPro, taken: try takenItems(in: context), roll: roll)
+        context.insert(GiftEvent(
+            kind: .weekKept, side: picked.owner ?? fallback, payload: picked.payload,
+            week: GiftMath.weekStart(of: closed), createdAt: now
+        ))
         return true
     }
 
@@ -58,22 +66,38 @@ enum GiftStore {
         return raised.count
     }
 
-    /// 감소 목표를 끝까지 해냈을 때. 그 면 캐릭터가 가져온다.
-    static func grantGoalReached(side: CupSide, now: Date, in context: ModelContext) {
-        context.insert(GiftEvent(kind: .goalReached, side: side, createdAt: now))
+    /// 감소 목표를 끝까지 해냈을 때. 그 면 캐릭터가 가져오고, 물건은 그 캐릭터 것만 나온다. 내용은 이때 정한다.
+    static func grantGoalReached(
+        side: CupSide, isPro: Bool, now: Date, in context: ModelContext, roll: Double = Double.random(in: 0 ..< 1)
+    ) throws {
+        let picked = Self.content(owners: [side], isPro: isPro, taken: try takenItems(in: context), roll: roll)
+        context.insert(GiftEvent(kind: .goalReached, side: side, payload: picked.payload, createdAt: now))
     }
 
-    /// 상자를 눌렀을 때 내용을 정한다(주·목표 선물만, 이미 정했으면 그대로). 물건은 아직 안 받은 것 중 하나.
-    static func reveal(_ gift: GiftEvent, isPro: Bool, collectedItems: Set<String>, roll: Double) {
-        guard gift.payload == nil else { return }
+    /// 상자 내용(`GiftContent`)과, 물건이면 그 주인. 물건은 `owners`의 것 중 아직 안 나온 것 하나.
+    static func content(owners: [CupSide], isPro: Bool, taken: Set<String>, roll: Double) -> (payload: String, owner: CupSide?) {
+        let left = GiftContent.items.filter { owners.contains($0.owner) && !taken.contains($0.id) }
+        switch GiftMath.outcome(roll: roll, isPro: isPro, itemsLeft: !left.isEmpty) {
+        case .heart: return (GiftContent.heart, nil)
+        case .cap: return (GiftContent.cap, nil)
+        case .item:
+            guard let item = left.randomElement() else { return (GiftContent.cap, nil) }
+            return (GiftContent.item(item.id), item.owner)
+        }
+    }
+
+    /// 이미 상자에 든 물건 id(열었든 안 열었든). 같은 물건이 두 번 나오지 않게.
+    static func takenItems(in context: ModelContext) throws -> Set<String> {
+        GiftContent.takenItems(in: try all(in: context))
+    }
+
+    /// 내용 없이 만들어진 옛 상자(2026-10-11 전)를 눌렀을 때 내용을 정한다(주·목표 선물만, 이미 정했으면 그대로).
+    /// 이미 들고 온 캐릭터는 못 바꾸니 물건은 그 캐릭터 것만.
+    static func reveal(_ gift: GiftEvent, isPro: Bool, takenItems: Set<String>, roll: Double) {
+        guard gift.payload == nil, let side = gift.cupSide else { return }
         switch gift.giftKind {
         case .weekKept, .goalReached:
-            let left = GiftContent.items.filter { !collectedItems.contains($0) }
-            switch GiftMath.outcome(roll: roll, isPro: isPro, itemsLeft: !left.isEmpty) {
-            case .heart: gift.payload = GiftContent.heart
-            case .cap: gift.payload = GiftContent.cap
-            case .item: gift.payload = left.randomElement().map(GiftContent.item) ?? GiftContent.cap
-            }
+            gift.payload = content(owners: [side], isPro: isPro, taken: takenItems, roll: roll).payload
         case .trendsUnlock, .levelUp, nil: break
         }
     }

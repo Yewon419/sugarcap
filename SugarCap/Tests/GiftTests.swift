@@ -49,19 +49,22 @@ final class GiftTests: XCTestCase {
     @MainActor
     func testRevealDecidesContentOnceForBoxesOnly() throws {
         let gift = GiftEvent(kind: .weekKept, side: .caffeine, createdAt: Date())
-        GiftStore.reveal(gift, isPro: false, collectedItems: [], roll: 0.9)
+        GiftStore.reveal(gift, isPro: false, takenItems: [], roll: 0.9)
         XCTAssertTrue(gift.isCap)
-        GiftStore.reveal(gift, isPro: false, collectedItems: [], roll: 0.1)
+        GiftStore.reveal(gift, isPro: false, takenItems: [], roll: 0.1)
         XCTAssertTrue(gift.isCap, "한 번 정한 내용은 바뀌지 않는다")
         GiftStore.open(gift, now: Date())
         XCTAssertTrue(gift.isCap, "열어도 그대로")
 
         let item = GiftEvent(kind: .goalReached, side: .sugar, createdAt: Date())
-        GiftStore.reveal(item, isPro: true, collectedItems: [], roll: 0.45)
-        XCTAssertTrue(item.isCap, "물건 목록이 비어 있으면 물건 몫은 병뚜껑")
+        GiftStore.reveal(item, isPro: true, takenItems: [], roll: 0.45)
+        XCTAssertEqual(item.payload, GiftContent.item("strawberry"), "로슈가 들고 온 옛 상자는 로슈 물건")
+        let kainBox = GiftEvent(kind: .goalReached, side: .caffeine, createdAt: Date())
+        GiftStore.reveal(kainBox, isPro: true, takenItems: [], roll: 0.45)
+        XCTAssertTrue(kainBox.isCap, "카인이 들고 온 상자엔 로슈 물건이 안 든다")
 
         let stage = GiftEvent(kind: .levelUp, side: .sugar, level: 4, createdAt: Date())
-        GiftStore.reveal(stage, isPro: true, collectedItems: [], roll: 0.1)
+        GiftStore.reveal(stage, isPro: true, takenItems: [], roll: 0.1)
         XCTAssertNil(stage.payload, "단계 상승은 상자가 아니다")
     }
 
@@ -173,13 +176,39 @@ final class GiftTests: XCTestCase {
         }
         let sunday = DayKey(year: 2026, month: 10, day: 11)
 
-        XCTAssertTrue(try GiftStore.grantWeekKept(closed: sunday, sides: [.sugar, .caffeine], now: now, in: context))
-        XCTAssertFalse(try GiftStore.grantWeekKept(closed: sunday, sides: [.sugar, .caffeine], now: now, in: context), "한 주에 한 번")
+        let both: [CupSide] = [.sugar, .caffeine]
+        XCTAssertTrue(try GiftStore.grantWeekKept(closed: sunday, sides: both, isPro: false, now: now, in: context, roll: 0.1))
+        XCTAssertFalse(
+            try GiftStore.grantWeekKept(closed: sunday, sides: both, isPro: false, now: now, in: context, roll: 0.1), "한 주에 한 번"
+        )
         let gift = try XCTUnwrap(try GiftStore.pending(in: context).first)
         XCTAssertEqual(gift.giftKind, .weekKept)
-        XCTAssertFalse(gift.isHeart, "열기 전엔 내용이 없다")
+        XCTAssertTrue(gift.isHeart, "내용은 상자가 생길 때 정해진다")
         GiftStore.open(gift, now: now)
-        XCTAssertTrue(gift.isHeart, "열면 마음")
+        XCTAssertTrue(gift.isHeart, "열어도 그대로")
+    }
+
+    /// 물건이 나오면 그 주인이 들고 온다. 기록하지 않는 면의 물건, 이미 상자에 든 물건은 안 나온다(대표님 2026-10-11).
+    @MainActor
+    func testItemBoxIsCarriedByItsOwner() throws {
+        let container = try ModelContainer(for: GiftEvent.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+        let context = container.mainContext
+        let now = Date()
+
+        let berry = GiftStore.content(owners: [.sugar, .caffeine], isPro: true, taken: [], roll: 0.45)
+        XCTAssertEqual(berry.payload, GiftContent.item("strawberry"))
+        XCTAssertEqual(berry.owner, .sugar, "딸기는 로슈가 들고 온다")
+        XCTAssertNil(GiftStore.content(owners: [.caffeine], isPro: true, taken: [], roll: 0.45).owner, "카페인만 기록하면 딸기는 안 나온다")
+        XCTAssertEqual(GiftStore.content(owners: [.caffeine], isPro: true, taken: [], roll: 0.45).payload, GiftContent.cap)
+
+        try GiftStore.grantGoalReached(side: .caffeine, isPro: true, now: now, in: context, roll: 0.45)
+        XCTAssertTrue(try XCTUnwrap(try GiftStore.pending(in: context).last).isCap, "카페인 목표 상자엔 로슈 물건이 안 든다")
+        try GiftStore.grantGoalReached(side: .sugar, isPro: true, now: now.addingTimeInterval(1), in: context, roll: 0.45)
+        let first = try XCTUnwrap(try GiftStore.pending(in: context).last)
+        XCTAssertEqual(first.payload, GiftContent.item("strawberry"))
+        XCTAssertEqual(first.cupSide, .sugar)
+        try GiftStore.grantGoalReached(side: .sugar, isPro: true, now: now.addingTimeInterval(2), in: context, roll: 0.45)
+        XCTAssertTrue(try XCTUnwrap(try GiftStore.pending(in: context).last).isCap, "안 연 상자에 든 물건은 다시 안 나온다")
     }
 
     @MainActor

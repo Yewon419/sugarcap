@@ -58,8 +58,17 @@ enum GiftContent {
     /// 어디에 쓰는지 알려 주지 않는 재화. 개수는 추이 탭에 보인다.
     static let cap = "cap"
     static let itemPrefix = "item:"
-    /// 물건 목록(id). 다 모으면 물건 몫은 병뚜껑으로 간다. 딸기 = 로슈 `hug-strawberry`의 딸기(대표님 2026-10-11).
-    static let items: [String] = ["strawberry"]
+    /// 물건 목록(id, 주인). 물건은 주인이 들고 온다. 다 모으면 물건 몫은 병뚜껑으로 간다.
+    /// 딸기 = 로슈 `hug-strawberry`의 딸기(대표님 2026-10-11).
+    static let items: [(id: String, owner: CupSide)] = [("strawberry", .sugar)]
 
     static func item(_ id: String) -> String { itemPrefix + id }
+
+    /// 상자에 든 물건 id(열었든 안 열었든).
+    static func takenItems(in gifts: [GiftEvent]) -> Set<String> {
+        Set(gifts.compactMap { gift in
+            guard let payload = gift.payload, payload.hasPrefix(itemPrefix) else { return nil }
+            return String(payload.dropFirst(itemPrefix.count))
+        })
+    }
 }

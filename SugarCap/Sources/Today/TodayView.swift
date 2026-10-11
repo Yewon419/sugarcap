@@ -379,19 +379,12 @@ struct TodayView: View {
         if gift.giftKind == .trendsUnlock {
             opening = GiftOpening(gift: gift, side: cupSide, openedAt: time, startedAt: Date())
         } else {
-            // 내용(마음·물건·병뚜껑)은 누르는 순간 뽑는다(§4.9 2026-10-11).
-            GiftStore.reveal(gift, isPro: pro.isPro, collectedItems: collectedItems, roll: Double.random(in: 0 ..< 1))
+            // 내용은 상자가 생길 때 정해져 있다. 그 전에 생긴 옛 상자만 여기서 뽑는다(§4.9 2026-10-11).
+            GiftStore.reveal(gift, isPro: pro.isPro, takenItems: GiftContent.takenItems(in: gifts), roll: Double.random(in: 0 ..< 1))
             reveal = GiftReveal(gift: gift, startedAt: Date())
         }
     }
 
-    /// 지금까지 받은 물건 id.
-    private var collectedItems: Set<String> {
-        Set(gifts.compactMap { gift in
-            guard gift.isOpened, let payload = gift.payload, payload.hasPrefix(GiftContent.itemPrefix) else { return nil }
-            return String(payload.dropFirst(GiftContent.itemPrefix.count))
-        })
-    }
 
     /// 열쇠가 추이 버튼에 닿는 때 연 것으로 저장한다. 동작 줄이기·보이스오버로 열면 바로.
     /// CI 스크린샷(`-giftOpenAt`)은 한 장면에 멈춰 두므로 저장하지 않는다.
@@ -954,7 +947,7 @@ struct TodayView: View {
                         settings: settings, in: context
                     )
                     // 목표를 끝까지 해내면 그 면 캐릭터가 선물을 가져온다(§4.9).
-                    if reached { GiftStore.grantGoalReached(side: goalSide, now: Date(), in: context) }
+                    if reached { try GiftStore.grantGoalReached(side: goalSide, isPro: pro.isPro, now: Date(), in: context) }
                 }
             }
             try context.save()
@@ -979,7 +972,7 @@ struct TodayView: View {
             let row = try SettlementStore.row(for: today, in: context)
             SettlementStore.close(row, totals: try storedTotals(for: today), now: now)
             results = []
-            _ = try GiftStore.grantWeekKept(closed: today, sides: trackedSides, now: now, in: context)
+            _ = try GiftStore.grantWeekKept(closed: today, sides: trackedSides, isPro: pro.isPro, now: now, in: context)
         case .pastDay(let day):
             results = try SettlementStore.feedPastDay(
                 day, entries: try context.fetch(FetchDescriptor<Entry>()), limits: limits, boundaryHour: boundaryHour,
@@ -989,7 +982,7 @@ struct TodayView: View {
             // 첫 적립이 "어제 먹이기"로 나도 첫 선물은 온다(SPEC §4.9).
             _ = try GiftStore.grantFirstReward(credited: results, now: now, in: context)
             _ = GiftStore.queueLevelUps(credited: results, now: now, in: context)
-            _ = try GiftStore.grantWeekKept(closed: day, sides: trackedSides, now: now, in: context)
+            _ = try GiftStore.grantWeekKept(closed: day, sides: trackedSides, isPro: pro.isPro, now: now, in: context)
         }
         try context.save()
         didFeed = true

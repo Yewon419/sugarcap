@@ -58,8 +58,8 @@ enum GiftContent {
     /// 어디에 쓰는지 알려 주지 않는 재화. 개수는 추이 탭에 보인다.
     static let cap = "cap"
     static let itemPrefix = "item:"
-    /// 물건 목록(id). 물건마다 놓아둔 그림이 들어오면 채운다. 비어 있으면 물건 몫은 병뚜껑으로 간다.
-    static let items: [String] = []
+    /// 물건 목록(id). 다 모으면 물건 몫은 병뚜껑으로 간다. 딸기 = 로슈 `hug-strawberry`의 딸기(대표님 2026-10-11).
+    static let items: [String] = ["strawberry"]
 
     static func item(_ id: String) -> String { itemPrefix + id }
 }

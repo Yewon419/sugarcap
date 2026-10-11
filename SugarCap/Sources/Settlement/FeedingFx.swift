@@ -113,13 +113,6 @@ struct FeedFxOverlay: View {
 
     // MARK: - 로슈 → 카인
 
-    private func turnLine(_ text: String, size: CGFloat, reveal: Double) -> some View {
-        MaskLine(
-            text: text, font: AppFont.pretendardFixed(size, .extraBold), lineHeight: size * 64 / 56,
-            color: .ink, tracking: AppFont.displayTracking(for: size), reveal: reveal
-        )
-    }
-
     private func turn(size: CGSize, sx: CGFloat, sy: CGFloat) -> some View {
         let seg = Motion.seg
         let grow = seg(t, 0, 0.6, Ease.expoInOut)
@@ -128,35 +121,13 @@ struct FeedFxOverlay: View {
         let center = CGPoint(x: size.width / 2, y: Motion.lerp(802, 662, shrink) * sy)
         let pop = seg(t, 0.42, 0.92) { Ease.backOut($0, overshoot: 1.7) }
         let drop = seg(t, 1.25, 1.7, Ease.power3In)
-        let typeOut = seg(t, 1.25, 1.5, Ease.power3In)
-        let small = seg(t, 0.32, 0.62, Ease.power2Out)
 
+        // 글자 없이 카페인색 전환만 둔다(대표님 2026-10-11 "카인 차례! 빼").
         return ZStack(alignment: .top) {
             Circle()
                 .fill(Color.caffeineAmber)
                 .frame(width: radius * 2, height: radius * 2)
                 .position(center)
-
-            VStack(spacing: 6) {
-                Text("다음은")
-                    .font(AppFont.pretendardFixed(15, .semibold))
-                    .foregroundStyle(Color.ink.opacity(0.72))
-                    .opacity(small)
-                    .offset(y: 8 * (1 - small))
-                // 별명(8자까지)이면 한 줄에 들어가는 크기까지 줄인다.
-                let turnText = String(localized: "\(CupSide.caffeine.characterName) 차례!")
-                let reveal = seg(t, 0.36, 0.86, Ease.power4Out)
-                ViewThatFits(in: .horizontal) {
-                    turnLine(turnText, size: 56, reveal: reveal)
-                    turnLine(turnText, size: 44, reveal: reveal)
-                    turnLine(turnText, size: 34, reveal: reveal)
-                    turnLine(turnText, size: 28, reveal: reveal)
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, 20)
-            .offset(y: 200 * sy - 30 * typeOut)
-            .opacity(1 - typeOut)
 
             // 카인은 한 바퀴 돌지 않는다(대표님 2026-10-06·10-11). 튀어나올 때 기울었다 바로 서기만 한다.
             let kainAngle: Double = Motion.lerp(-25, 0, pop)

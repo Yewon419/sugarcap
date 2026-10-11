@@ -375,22 +375,6 @@
         }
       }
     },
-    "%@ 차례!" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@'s turn!"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "輪到%@了！"
-          }
-        }
-      }
-    },
     "%@ 컵 누르기" : {
       "localizations" : {
         "en" : {
@@ -1694,22 +1678,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "下一章"
-          }
-        }
-      }
-    },
-    "다음은" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Next up"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "接下來是"
           }
         }
       }

@@ -52,6 +52,7 @@ enum SettlementStore {
         limits: DailyLimits,
         boundaryHour: Int,
         sides: [CupSide] = CupSide.allCases,
+        isPro: Bool,
         now: Date,
         in context: ModelContext
     ) throws -> [FeedResult] {
@@ -66,7 +67,7 @@ enum SettlementStore {
         row.finalizedAt = now
 
         return try sides.map { side in
-            try credit(side, left: side.remaining(totals), limit: side.limit(limits), in: context)
+            try credit(side, left: side.remaining(totals), limit: side.limit(limits), isPro: isPro, in: context)
         }
     }
 
@@ -77,6 +78,7 @@ enum SettlementStore {
         limits: DailyLimits,
         boundaryHour: Int,
         sides: [CupSide] = CupSide.allCases,
+        isPro: Bool,
         now: Date,
         in context: ModelContext
     ) throws -> [FeedResult] {
@@ -86,7 +88,8 @@ enum SettlementStore {
             .map(\.consumption)
         close(row, totals: DayMath.totals(consumptions, limits: limits), now: now)
         return try finalize(
-            row, entries: entries, limits: limits, boundaryHour: boundaryHour, sides: sides, now: now, in: context
+            row, entries: entries, limits: limits, boundaryHour: boundaryHour, sides: sides, isPro: isPro, now: now,
+            in: context
         )
     }
 
@@ -97,11 +100,13 @@ enum SettlementStore {
     }
 
     private static func credit(
-        _ side: CupSide, left: Double, limit: Double, in context: ModelContext
+        _ side: CupSide, left: Double, limit: Double, isPro: Bool, in context: ModelContext
     ) throws -> FeedResult {
         let affinity = try affinity(for: side, in: context)
         let before = affinity.level
-        affinity.points += AffinityMath.points(left: left, limit: limit)
+        affinity.points += AffinityMath.credited(
+            points: AffinityMath.points(left: left, limit: limit), current: affinity.points, isPro: isPro
+        )
         return FeedResult(side: side, left: left, levelBefore: before, levelAfter: affinity.level)
     }
 

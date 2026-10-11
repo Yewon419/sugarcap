@@ -48,6 +48,16 @@ enum GiftStore {
         return true
     }
 
+    /// 적립으로 단계가 오른 캐릭터마다 단계 상승 이벤트를 넣는다(§4.9 결정 4). 상자가 아니라 오늘 화면의 무대 연출로 보이고,
+    /// 다 보면 연 것으로 저장한다. 넣은 개수.
+    static func queueLevelUps(credited: [FeedResult], now: Date, in context: ModelContext) -> Int {
+        let raised = credited.filter(\.leveledUp)
+        for result in raised {
+            context.insert(GiftEvent(kind: .levelUp, side: result.side, level: result.levelAfter, createdAt: now))
+        }
+        return raised.count
+    }
+
     /// 연 것으로 저장한다. 주·목표 선물은 이때 내용이 정해진다(지금은 마음뿐).
     static func open(_ gift: GiftEvent, now: Date) {
         gift.openedAt = now

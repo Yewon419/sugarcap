@@ -145,4 +145,30 @@ final class GiftTests: XCTestCase {
             "소급한 기기엔 첫 보상을 다시 안 준다"
         )
     }
+
+    /// 단계가 오른 캐릭터마다 단계 상승 무대 하나(상자 아님, SPEC §4.9 결정 4). 열어도 마음이 들지 않는다.
+    @MainActor
+    func testLevelUpsAreQueuedOnlyForRaisedSides() throws {
+        let container = try ModelContainer(
+            for: GiftEvent.self, DaySettlement.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        let context = container.mainContext
+        let credited = [
+            FeedResult(side: .sugar, left: 50, levelBefore: 2, levelAfter: 3),
+            FeedResult(side: .caffeine, left: 400, levelBefore: 2, levelAfter: 2),
+        ]
+
+        XCTAssertEqual(GiftStore.queueLevelUps(credited: credited, now: Date(), in: context), 1)
+        let pending = try GiftStore.pending(in: context)
+        XCTAssertEqual(pending.map(\.giftKind), [.levelUp])
+        XCTAssertEqual(pending.first?.cupSide, .sugar)
+        XCTAssertEqual(pending.first?.level, 3)
+
+        let stage = try XCTUnwrap(pending.first)
+        GiftStore.open(stage, now: Date())
+        XCTAssertTrue(stage.isOpened)
+        XCTAssertFalse(stage.isHeart, "단계 상승은 마음을 세지 않는다")
+        XCTAssertFalse(GiftMath.isTrendsUnlocked(gifts: try GiftStore.records(in: context)))
+    }
 }

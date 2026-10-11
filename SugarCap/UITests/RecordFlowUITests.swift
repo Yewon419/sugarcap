@@ -666,4 +666,22 @@ extension RecordFlowUITests {
         XCTAssertTrue(ui.element("cup-summary").waitForExistence(timeout: 5), "페이월을 닫았는데 오늘로 안 돌아옴")
         XCTAssertTrue(ui.element("gift-card").waitForNonExistence(timeout: 3), "페이월에서 돌아왔는데 카드가 남아 있음")
     }
+
+    /// 단계 상승 무대(SPEC §4.9 결정 4): 오늘 화면에 뜨고, 아무 데나 누르면 닫히고 오늘 화면이 다시 눌린다.
+    @MainActor
+    func testStageEventOnLevelUpCanBeSkipped() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments += ["-trendsUnlocked", "YES", "-initialTab", "today", "-screenshotLevelUp", "5"]
+        app.launch()
+        completeOnboardingIfPresented(app)
+        let ui = Driver(app: app)
+
+        let stage = ui.element("levelup-stage")
+        XCTAssertTrue(stage.waitForExistence(timeout: 15), "단계 상승 무대가 안 뜸")
+        XCTAssertTrue(stage.label.contains("됐어요"), "무대 문구가 없음: \(stage.label)")
+        stage.tap()
+        XCTAssertTrue(stage.waitForNonExistence(timeout: 3), "눌렀는데 무대가 안 닫힘")
+        XCTAssertTrue(ui.element("cup-summary").isHittable, "무대가 닫혔는데 오늘 화면이 안 눌림")
+    }
 }

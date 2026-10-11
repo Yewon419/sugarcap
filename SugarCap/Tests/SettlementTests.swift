@@ -199,7 +199,7 @@ private struct Harness {
 
     func feedPastDay(_ day: DayKey, entries: [Entry], now: Date) throws -> [FeedResult] {
         try SettlementStore.feedPastDay(
-            day, entries: entries, limits: limits, boundaryHour: boundaryHour, now: now, in: context
+            day, entries: entries, limits: limits, boundaryHour: boundaryHour, isPro: true, now: now, in: context
         )
     }
 }
@@ -231,7 +231,7 @@ final class SettlementScenarioTests: XCTestCase {
         XCTAssertNil(plan.prompt)
 
         let results = try SettlementStore.finalize(
-            row, entries: entries, limits: h.limits, boundaryHour: h.boundaryHour, now: now, in: h.context
+            row, entries: entries, limits: h.limits, boundaryHour: h.boundaryHour, isPro: true, now: now, in: h.context
         )
 
         XCTAssertEqual(row.finalSugarLeftG, 20, "마감 뒤 경계 전 기록은 그날 몫으로 빠진다")
@@ -245,7 +245,7 @@ final class SettlementScenarioTests: XCTestCase {
 
         // 다시 확정해도 두 번 적립되지 않는다.
         _ = try SettlementStore.finalize(
-            row, entries: entries, limits: h.limits, boundaryHour: h.boundaryHour, now: now, in: h.context
+            row, entries: entries, limits: h.limits, boundaryHour: h.boundaryHour, isPro: true, now: now, in: h.context
         )
         XCTAssertEqual(try h.points(.sugar), 5)
     }
@@ -258,7 +258,7 @@ final class SettlementScenarioTests: XCTestCase {
 
         let results = try SettlementStore.feedPastDay(
             yesterday, entries: entries, limits: h.limits, boundaryHour: h.boundaryHour, sides: [.sugar],
-            now: h.at(9, 22, 9), in: h.context
+            isPro: true, now: h.at(9, 22, 9), in: h.context
         )
 
         XCTAssertEqual(results.map(\.side), [.sugar])
@@ -313,5 +313,30 @@ final class SettlementScenarioTests: XCTestCase {
         XCTAssertEqual(try h.points(.sugar), 30)
         XCTAssertEqual(last.first { $0.side == .sugar }?.leveledUp, true)
         XCTAssertEqual(last.first { $0.side == .sugar }?.levelAfter, 2)
+    }
+
+    /// 무료는 3단계(90점)에 닿으면 더 오르지 않는다. 이미 그 위면 그 자리에서 멈추고, Pro면 다시 쌓인다(2026-10-11).
+    func testFreeAffinityStopsAtTheFreeLevelCap() throws {
+        XCTAssertEqual(AffinityMath.credited(points: 10, current: 85, isPro: false), 5, "90점에서 멈춘다")
+        XCTAssertEqual(AffinityMath.credited(points: 10, current: 90, isPro: false), 0)
+        XCTAssertEqual(AffinityMath.credited(points: 10, current: 400, isPro: false), 0, "이미 위인 기존 사용자는 그대로")
+        XCTAssertEqual(AffinityMath.credited(points: 10, current: 400, isPro: true), 10)
+
+        let h = try Harness()
+        for offset in 0..<10 {
+            _ = try SettlementStore.feedPastDay(
+                DayKey(year: 2026, month: 9, day: 1 + offset), entries: [], limits: h.limits,
+                boundaryHour: h.boundaryHour, sides: [.sugar], isPro: false, now: Date(), in: h.context
+            )
+        }
+        XCTAssertEqual(try h.points(.sugar), AffinityMath.threshold(level: AffinityMath.freeLevelCap))
+        XCTAssertEqual(AffinityMath.level(points: try h.points(.sugar)), 3)
+
+        let pro = try SettlementStore.feedPastDay(
+            DayKey(year: 2026, month: 9, day: 20), entries: [], limits: h.limits,
+            boundaryHour: h.boundaryHour, sides: [.sugar], isPro: true, now: Date(), in: h.context
+        )
+        XCTAssertEqual(try h.points(.sugar), 100)
+        XCTAssertEqual(pro.first?.leveledUp, false)
     }
 }

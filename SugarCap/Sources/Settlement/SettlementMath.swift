@@ -19,6 +19,13 @@ enum AffinityMath {
         return 1 + Int((ratio * 9).rounded())
     }
 
+    /// 이번 먹이기로 실제 쌓이는 점수. 무료는 `freeLevelCap` 단계에 닿으면 더 오르지 않는다(2026-10-11 대표님, §9.5).
+    /// 그 단계 첫 점수에서 멈추고, 이미 그 위인 기존 사용자는 그 자리에서 멈춘다. Pro는 그대로 다 쌓인다.
+    static func credited(points earned: Int, current: Int, isPro: Bool) -> Int {
+        if isPro { return earned }
+        return max(0, min(earned, threshold(level: freeLevelCap) - current))
+    }
+
     /// Lv n에 필요한 누적 points = 15·n·(n−1). Lv1 0, Lv2 30, Lv3 90 … Lv10 1350.
     static func threshold(level: Int) -> Int {
         15 * level * (level - 1)

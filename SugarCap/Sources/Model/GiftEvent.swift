@@ -5,7 +5,7 @@ import SwiftData
 enum GiftKind: String, Sendable, CaseIterable {
     /// 첫 마감이 적립된 뒤 오는 첫 선물. 열면 추이가 열린다.
     case trendsUnlock
-    /// 사이 단계 상승: 새 사이 이름 + 새 대기 자세.
+    /// 사이 단계 상승. 상자 없이 오늘 화면에서 조명·팡파레 무대 연출로 보인다(2026-10-11 대표님).
     case levelUp
     /// 달력 주(월~일) 7일 모두 기준 안에서 마감.
     case weekKept

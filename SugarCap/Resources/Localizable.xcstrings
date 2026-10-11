@@ -20,6 +20,22 @@
         }
       }
     },
+    "%@\n%@가\n됐어요!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You and %1$@\nare now\n%2$@!"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你和%1$@\n成為了\n「%2$@」！"
+          }
+        }
+      }
+    },
     "%@ %@" : {
       "shouldTranslate" : false
     },
@@ -83,22 +99,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@：%2$@。下一階：%3$@"
-          }
-        }
-      }
-    },
-    "%@ %@가 됐어요" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You and %1$@ are now: %2$@"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "你和%1$@成為了「%2$@」"
           }
         }
       }
@@ -1554,6 +1554,22 @@
         }
       }
     },
+    "눌러서 닫기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap to close"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "點一下關閉"
+          }
+        }
+      }
+    },
     "눌러서 오늘 기록을 봐요" : {
       "localizations" : {
         "en" : {
@@ -2606,6 +2622,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "使用中"
+          }
+        }
+      }
+    },
+    "사이" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BOND"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "關係"
           }
         }
       }

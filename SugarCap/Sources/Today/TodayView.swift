@@ -66,6 +66,9 @@ struct TodayView: View {
     /// 추이 버튼 자리(화면 좌표). 열쇠가 날아가 닿고 어둠의 구멍이 뚫리는 곳.
     @State private var trendsButtonFrame: CGRect = .zero
     @State private var giftCarrierFrames: [CupSide: CGRect] = [:]
+    /// 단계 상승 무대 연출 중이면 채운다(SPEC §4.9 결정 4). 끝나거나 누르면 연 것으로 저장하고 비운다.
+    @State private var levelUp: LevelUpStage?
+    @State private var levelUpFrames: [CupSide: CGRect] = [:]
 
     @Environment(ProStore.self) private var pro
 
@@ -224,11 +227,13 @@ struct TodayView: View {
                 ForEach(trackedSides) { cupSide in
                     let step = cupStep(cupSide, totals: totals)
                     let isActive = cupSide == side && !isSliding && isOnScreen && !isSettingsPresented
-                    let gift = carriedGift(for: cupSide)
+                    let staged = levelUp.flatMap { $0.side == cupSide ? $0 : nil }
+                    let gift = staged == nil ? carriedGift(for: cupSide) : nil
                     // 선물이 와 있으면 운반 캐릭터가 곧 그 캐릭터다. 열고 나면 대기 자세로 돌아온다(SPEC §4.9).
+                    // 단계 상승 무대 중이면 무대에 선 캐릭터가 그 캐릭터다.
                     CupView(
                         step: step, setID: cupSide.cupSetID,
-                        idle: gift != nil ? nil : IdleCharacterLayer(
+                        idle: gift != nil || staged != nil ? nil : IdleCharacterLayer(
                             side: cupSide, step: step, isActive: isActive,
                             unlockedLevel: unlockedLevel(cupSide),
                             onMiss: { tapCup(at: $0, screen: proxy.frame(in: .global)) },
@@ -241,6 +246,9 @@ struct TodayView: View {
                                 onMiss: { tapCup(at: $0, screen: proxy.frame(in: .global)) },
                                 onFrame: { giftCarrierFrames[cupSide] = $0 }
                             )
+                        },
+                        stage: staged.map { stage in
+                            LevelUpStageLayer(stage: stage, onFrame: { levelUpFrames[cupSide] = $0 })
                         }
                     )
                     .frame(width: width)
@@ -290,8 +298,73 @@ struct TodayView: View {
     // MARK: - 선물(§4.9)
 
     /// 이 면으로 온 선물 중 가장 오래된 것. 면마다 하나씩만 보이고, 열면 다음 것이 온다.
+    /// 단계 상승은 상자로 오지 않는다(무대 연출, `nextLevelUp`).
     private func pendingGift(for cupSide: CupSide) -> GiftEvent? {
-        gifts.first { !$0.isOpened && $0.cupSide == cupSide }
+        gifts.first { !$0.isOpened && $0.cupSide == cupSide && $0.giftKind != .levelUp }
+    }
+
+    // MARK: - 단계 상승 무대(§4.9 결정 4)
+
+    /// 보고 있는 면의 아직 안 본 단계 상승. 그 면에 상자가 와 있으면 상자부터 받는다("선물 다 받고 나서").
+    private var nextLevelUp: GiftEvent? {
+        guard pendingGift(for: side) == nil else { return nil }
+        return gifts.first { !$0.isOpened && $0.giftKind == .levelUp && $0.cupSide == side }
+    }
+
+    /// 무대를 열어도 되는 때의 단계 상승 id. 다른 연출·시트·화면이 떠 있거나 넘기는 중이면 없다.
+    private var levelUpCue: UUID? {
+        guard levelUp == nil, opening == nil, openedGift == nil, feeding == nil, gate == nil, paywall == nil,
+              isOnScreen, !isSliding, !isSettingsPresented, !isTrendsPresented, !isRecordSheetPresented,
+              !isDayLogPresented, !isManualEntryPresented, path.isEmpty
+        else { return nil }
+        return nextLevelUp?.id
+    }
+
+    /// 화면이 자리 잡고 잠깐 뒤에 연다(앱을 열자마자 어두워지지 않게).
+    private func startLevelUp(after cue: UUID) async {
+        try? await Task.sleep(for: .seconds(0.8))
+        guard !Task.isCancelled, levelUp == nil, let gift = nextLevelUp, gift.id == cue, let cupSide = gift.cupSide else {
+            return
+        }
+        levelUp = LevelUpStage(gift: gift, side: cupSide, level: gift.level ?? 1, startedAt: Date())
+    }
+
+    /// 끝까지 보거나 눌러서 건너뛰면 연 것으로 저장한다. 스크린샷용 무대(저장소 밖)는 저장하지 않는다.
+    private func finishLevelUp(_ stage: LevelUpStage) {
+        guard levelUp?.id == stage.id else { return }
+        if stage.gift.modelContext != nil { saveOpened(stage.gift) }
+        levelUp = nil
+    }
+
+    /// 끝까지 기다렸다 닫는다. CI 스크린샷(`-levelUpAt`)은 한 장면에 멈춰 두므로 닫지 않는다.
+    private func playLevelUp(_ stage: LevelUpStage) async {
+        guard LevelUpTimeline.frozenTime == nil else { return }
+        try? await Task.sleep(for: .seconds(LevelUpTimeline.duration(calm: reduceMotion)))
+        guard !Task.isCancelled else { return }
+        finishLevelUp(stage)
+    }
+
+    @ViewBuilder
+    private func levelUpOverlay() -> some View {
+        if let levelUp {
+            LevelUpStageOverlay(
+                stage: levelUp, source: levelUpFrames[levelUp.side] ?? .zero,
+                onSkip: { finishLevelUp(levelUp) }
+            )
+            .transition(.opacity)
+        }
+    }
+
+    /// CI 스크린샷·UI 테스트 전용(Debug `-screenshotLevelUp <단계>`): 보고 있는 면에서 무대를 바로 연다.
+    /// 저장소에 넣지 않는다(스크린샷 단계는 저장소를 이어 쓰니 뒤 컷에 무대가 남지 않게).
+    private func presentScreenshotLevelUpIfRequested() {
+        #if DEBUG
+        let defaults = UserDefaults.standard
+        guard defaults.object(forKey: "screenshotLevelUp") != nil, levelUp == nil else { return }
+        let level = min(max(defaults.integer(forKey: "screenshotLevelUp"), 2), AffinityMath.maxLevel)
+        let gift = GiftEvent(kind: .levelUp, side: side, level: level, createdAt: Date())
+        levelUp = LevelUpStage(gift: gift, side: side, level: level, startedAt: Date())
+        #endif
     }
 
     /// 컵 앞에 보일 선물. 연출 중인 선물은 저장(열림) 뒤에도 추이로 갈 때까지 그대로 둔다(대기 자세로 툭 바뀌지 않게).
@@ -578,6 +651,14 @@ struct TodayView: View {
         .overlay(alignment: .topTrailing) { cornerButtons }
         .overlay { giftOpeningOverlay() }
         .animation(.easeOut(duration: 0.25), value: opening?.id)
+        .overlay { levelUpOverlay() }
+        .animation(.easeOut(duration: 0.25), value: levelUp?.id)
+        .task(id: levelUpCue) {
+            if let levelUpCue { await startLevelUp(after: levelUpCue) }
+        }
+        .task(id: levelUp?.id) {
+            if let levelUp { await playLevelUp(levelUp) }
+        }
         .task(id: opening?.id) {
             if let opening { await unlockAfterKeyFlight(opening) }
         }
@@ -591,6 +672,7 @@ struct TodayView: View {
             refreshSettlement(today: today)
             presentScreenshotFeedingIfRequested(totals: totals)
             presentScreenshotGiftIfRequested()
+            presentScreenshotLevelUpIfRequested()
         }
     }
 
@@ -713,16 +795,10 @@ struct TodayView: View {
         let showsShrank = yesterdayRow?.shrankAfterClose(on: trackedSides) == true && dismissedShrankDay != yesterday.rawValue
 
         return VStack(spacing: 10) {
-            if let creditNotice {
+            if creditNotice != nil {
                 notice(onClose: { self.creditNotice = nil }) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("지난밤 먹인 음료가 반영됐어요")
-                        ForEach(creditNotice.filter(\.leveledUp), id: \.side) { result in
-                            Text("\(result.side.characterNameWithGwa) \(AffinityMath.stageName(level: result.levelAfter))가 됐어요")
-                                .font(AppFont.pretendard(15, .semibold, relativeTo: .subheadline))
-                                .foregroundStyle(.tint)
-                        }
-                    }
+                    // 단계가 오른 건 여기 말고 무대 연출로 알린다(SPEC §4.9 결정 4).
+                    Text("지난밤 먹인 음료가 반영됐어요")
                 }
                 .accessibilityIdentifier("notice-credit")
             }
@@ -853,11 +929,12 @@ struct TodayView: View {
                 let row = try SettlementStore.row(for: day, in: context)
                 credited += try SettlementStore.finalize(
                     row, entries: entries, limits: limits, boundaryHour: boundaryHour, sides: trackedSides,
-                    now: Date(), in: context
+                    isPro: pro.isPro, now: Date(), in: context
                 )
             }
             // 첫 적립 뒤 첫 선물 = 추이 열림(SPEC §4.9).
             _ = try GiftStore.grantFirstReward(credited: credited, now: Date(), in: context)
+            _ = GiftStore.queueLevelUps(credited: credited, now: Date(), in: context)
             if let settings = settingsRows.first {
                 // 꺼진 면의 감소 목표는 멈춘다. 다시 켜면 그동안의 주도 저장된 기록으로 판정한다.
                 let sides = trackedSides
@@ -895,11 +972,12 @@ struct TodayView: View {
         case .pastDay(let day):
             results = try SettlementStore.feedPastDay(
                 day, entries: try context.fetch(FetchDescriptor<Entry>()), limits: limits, boundaryHour: boundaryHour,
-                sides: trackedSides, now: now, in: context
+                sides: trackedSides, isPro: pro.isPro, now: now, in: context
             )
             prompt = nil
             // 첫 적립이 "어제 먹이기"로 나도 첫 선물은 온다(SPEC §4.9).
             _ = try GiftStore.grantFirstReward(credited: results, now: now, in: context)
+            _ = GiftStore.queueLevelUps(credited: results, now: now, in: context)
             _ = try GiftStore.grantWeekKept(closed: day, sides: trackedSides, now: now, in: context)
         }
         try context.save()

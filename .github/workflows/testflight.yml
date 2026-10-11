@@ -214,6 +214,10 @@ jobs:
           shoot feeding-dropped light large -screenshotFeeding YES -screenshotFeedingStage dropped
           shoot feeding-eaten light large -screenshotFeeding YES -screenshotFeedingStage eaten
           shoot feeding-caffeine light large -screenshotFeeding YES -screenshotFeedingStage caffeine
+          # 카인 차례 전환 글자는 별명을 따르고, 길면 한 줄에 맞게 줄인다.
+          shoot feeding-turn light large -screenshotFeeding YES -screenshotFx turn -screenshotFxAt 1.0
+          shoot feeding-turn-nickname light large -screenshotFeeding YES -screenshotFx turn -screenshotFxAt 1.0 -nickname.kain 카페인요정쿠키
+          shoot feeding-turn-nickname-long light large -screenshotFeeding YES -screenshotFx turn -screenshotFxAt 1.0 -nickname.kain 아주아주긴별명이
           shoot feeding-summary light large -screenshotFeeding YES -screenshotFeedingStage summary
           shoot feeding-summary-type-ax-xl light accessibility-extra-large -screenshotFeeding YES -screenshotFeedingStage summary
           # 먹일 게 없는 날(빈 컵 털기): 조르기, 톡톡, 작은 방울, 카인 조르기(짧게 끊은 설명 글이 카인과 안 겹치는지).
@@ -328,6 +332,7 @@ jobs:
           shoot_en feeding large -screenshotFeeding YES
           shoot_en feeding-type-ax-xl accessibility-extra-large -screenshotFeeding YES
           shoot_en feeding-dropped large -screenshotFeeding YES -screenshotFeedingStage dropped
+          shoot_en feeding-turn large -screenshotFeeding YES -screenshotFx turn -screenshotFxAt 1.0
           shoot_en feeding-eaten large -screenshotFeeding YES -screenshotFeedingStage eaten
           shoot_en feeding-summary large -screenshotFeeding YES -screenshotFeedingStage summary
           shoot_en feeding-empty-patting large -screenshotFeeding YES -screenshotFeedingEmpty YES -screenshotFeedingStage patting

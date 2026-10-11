@@ -113,6 +113,13 @@ struct FeedFxOverlay: View {
 
     // MARK: - 로슈 → 카인
 
+    private func turnLine(_ text: String, size: CGFloat, reveal: Double) -> some View {
+        MaskLine(
+            text: text, font: AppFont.pretendardFixed(size, .extraBold), lineHeight: size * 64 / 56,
+            color: .ink, tracking: AppFont.displayTracking(for: size), reveal: reveal
+        )
+    }
+
     private func turn(size: CGSize, sx: CGFloat, sy: CGFloat) -> some View {
         let seg = Motion.seg
         let grow = seg(t, 0, 0.6, Ease.expoInOut)
@@ -136,13 +143,18 @@ struct FeedFxOverlay: View {
                     .foregroundStyle(Color.ink.opacity(0.72))
                     .opacity(small)
                     .offset(y: 8 * (1 - small))
-                MaskLine(
-                    text: String(localized: "카인 차례!"), font: AppFont.pretendardFixed(56, .extraBold), lineHeight: 64,
-                    color: .ink, tracking: AppFont.displayTracking(for: 56),
-                    reveal: seg(t, 0.36, 0.86, Ease.power4Out)
-                )
+                // 별명(8자까지)이면 한 줄에 들어가는 크기까지 줄인다.
+                let turnText = String(localized: "\(CupSide.caffeine.characterName) 차례!")
+                let reveal = seg(t, 0.36, 0.86, Ease.power4Out)
+                ViewThatFits(in: .horizontal) {
+                    turnLine(turnText, size: 56, reveal: reveal)
+                    turnLine(turnText, size: 44, reveal: reveal)
+                    turnLine(turnText, size: 34, reveal: reveal)
+                    turnLine(turnText, size: 28, reveal: reveal)
+                }
             }
             .frame(maxWidth: .infinity)
+            .padding(.horizontal, 20)
             .offset(y: 200 * sy - 30 * typeOut)
             .opacity(1 - typeOut)
 

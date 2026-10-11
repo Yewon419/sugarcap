@@ -359,6 +359,22 @@
         }
       }
     },
+    "%@ 차례!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@'s turn!"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "輪到%@了！"
+          }
+        }
+      }
+    },
     "%@ 컵 누르기" : {
       "localizations" : {
         "en" : {
@@ -4590,22 +4606,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "卡因"
-          }
-        }
-      }
-    },
-    "카인 차례!" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kain's turn!"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "輪到卡因了！"
           }
         }
       }

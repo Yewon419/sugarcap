@@ -158,7 +158,8 @@ struct FeedFxOverlay: View {
             .offset(y: 200 * sy - 30 * typeOut)
             .opacity(1 - typeOut)
 
-            let kainAngle: Double = Motion.lerp(-25, 0, pop) + 360 * seg(t, 0.8, 1.3, Ease.power3InOut)
+            // 카인은 한 바퀴 돌지 않는다(대표님 2026-10-06·10-11). 튀어나올 때 기울었다 바로 서기만 한다.
+            let kainAngle: Double = Motion.lerp(-25, 0, pop)
             let kainScale: Double = Motion.lerp(0.4, 1, pop) * Motion.lerp(1, 0.55, drop)
             let kainOpacity: Double = min(1, max(0, pop * 2)) * (1 - seg(t, 1.62, 1.74, Ease.linear))
             let kainY: Double = 360 * Double(sy) + Motion.lerp(140, 0, pop) + 250 * drop

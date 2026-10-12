@@ -184,6 +184,8 @@ jobs:
           shoot record-type-ax-xl light accessibility-extra-large -seedDemo YES -screenshotRecord YES
           shoot daylog light large -seedDemo YES -screenshotDayLog YES
           shoot daylog-type-ax-xl light accessibility-extra-large -seedDemo YES -screenshotDayLog YES
+          shoot trends-daylog-past light large -seedDemo YES -initialTab trends -screenshotTrendDayLog 2
+          shoot trends-daylog-empty light large -seedDemo YES -initialTab trends -screenshotTrendDayLog 6
           shoot brand light large -seedDemo YES -screenshotBrand starbucks
           # 편의점은 검색 우선 화면(2026-10-01): 검색 전 안내, 띄어쓰기 섞은 검색 결과, 결과가 넘칠 때 안내.
           shoot brand-cvs light large -seedDemo YES -screenshotBrand cvs

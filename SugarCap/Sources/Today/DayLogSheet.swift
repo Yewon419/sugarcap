@@ -12,11 +12,14 @@ struct DayLogSheet: View {
     /// 기록 줄 썸네일 색을 찾는 데만 쓴다.
     let catalog: CatalogIndex
     let onDelete: ([Entry]) -> Void
+    /// 지난날에 음료를 더한다(빌드 215 대표님 "여기서 기록 수정 가능하게"). nil이면 추가 버튼이 없다(오늘은 컵을 누른다).
+    var onAdd: ((Entry) -> Void)?
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.trackedSides) private var trackedSides
     @State private var isEditing = false
+    @State private var isRecordPresented = false
 
     private var title: String {
         let base = isToday ? String(localized: "오늘 기록") : String(localized: "\(day.month)월 \(day.day)일 기록")
@@ -62,6 +65,9 @@ struct DayLogSheet: View {
                                 .padding(.top, 6)
                         }
                     }
+                    if onAdd != nil, !isEditing {
+                        addButton
+                    }
                     Color.clear.frame(height: 40)
                 }
                 .animation(.easeOut(duration: 0.22), value: entries.map(\.id))
@@ -75,6 +81,33 @@ struct DayLogSheet: View {
         .onChange(of: entries.isEmpty) { _, isEmpty in
             if isEmpty { isEditing = false }
         }
+        .sheet(isPresented: $isRecordPresented) {
+            // 먹이기의 "음료 추가"와 같은 시트. 지난날이면 그날 23:59로 기록된다.
+            FeedingRecordSheet(catalog: catalog, request: request(totals)) { entry in onAdd?(entry) }
+        }
+    }
+
+    /// 이미 먹이기로 받은 호감도·선물은 되돌리지 않는다. 그날 남긴 양과 추이 잔만 바뀐다.
+    private var addButton: some View {
+        Button {
+            isRecordPresented = true
+        } label: {
+            Label("음료 추가", systemImage: "plus")
+                .font(AppFont.pretendard(16, .semibold, relativeTo: .body))
+                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(PressScaleStyle())
+        .padding(.horizontal, 24)
+        .padding(.top, 10)
+        .accessibilityIdentifier("daylog-add")
+    }
+
+    private func request(_ totals: DayTotals) -> FeedingRequest {
+        FeedingRequest(
+            kind: .pastDay(day), sugarLeftG: totals.leftSugarG, caffeineLeftMg: totals.leftCaffeineMg,
+            limits: limits, sugarOverG: totals.overSugarG, caffeineOverMg: totals.overCaffeineMg
+        )
     }
 
     @ViewBuilder

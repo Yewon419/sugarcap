@@ -1250,6 +1250,22 @@
         }
       }
     },
+    "기록을 저장하지 못했어요. 다시 시도해 주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't save the drink. Please try again."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法儲存紀錄，請再試一次。"
+          }
+        }
+      }
+    },
     "기록할 것" : {
       "localizations" : {
         "en" : {

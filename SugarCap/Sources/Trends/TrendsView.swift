@@ -157,7 +157,8 @@ struct TrendsView: View {
                 entries: entries.filter { $0.dayKey(boundaryHour: boundaryHour) == day },
                 limits: limits,
                 catalog: catalog,
-                onDelete: delete
+                onDelete: delete,
+                onAdd: day == today ? nil : add
             )
         }
         .navigationDestination(item: $limitSide) { side in
@@ -828,7 +829,21 @@ struct TrendsView: View {
         }
     }
 
-    /// CI 스크린샷 전용(Debug). `-trendSide caffeine`, `-trendRange month`, `-trendLimit sugar`(하루 기준 화면을 바로 연다).
+    /// 지난날 하루 기록 시트에서 더한 음료.
+    private func add(_ entry: Entry) {
+        context.insert(entry)
+        do {
+            try context.save()
+            WidgetCenter.shared.reloadAllTimelines()
+        } catch {
+            Self.logger.error("지난날 기록 저장 실패: \(String(describing: error), privacy: .public)")
+            context.rollback()
+            failureMessage = String(localized: "기록을 저장하지 못했어요. 다시 시도해 주세요.")
+        }
+    }
+
+    /// CI 스크린샷 전용(Debug). `-trendSide caffeine`, `-trendRange month`, `-trendLimit sugar`(하루 기준 화면을 바로 연다),
+    /// `-screenshotTrendDayLog <며칠 전>`.
     /// 등장은 `pickEntrance`: `-trendEntrance walk|hang` + `-trendEntranceAt 1.7`.
     private func applyScreenshotArguments() {
         #if DEBUG
@@ -841,6 +856,11 @@ struct TrendsView: View {
         }
         if defaults.string(forKey: "trendRange") == "month" { range = .month }
         if let raw = defaults.string(forKey: "trendLimit"), let limitSide = CupSide(rawValue: raw) { self.limitSide = limitSide }
+        // `-screenshotTrendDayLog 2` = 이틀 전 하루 기록 시트(지난날 "음료 추가").
+        if defaults.object(forKey: "screenshotTrendDayLog") != nil {
+            let back = defaults.integer(forKey: "screenshotTrendDayLog")
+            dayLog = DayKey(at: Date(), boundaryHour: boundaryHour).shifted(by: -back)
+        }
         #endif
     }
 }

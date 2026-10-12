@@ -248,16 +248,18 @@ struct IdleSprite {
         )
     }
 
-    /// 멈춰 보기(`IdleFuss.stare`) 동안의 정면 그림. 지금 자리(걷던 곳 포함)에 발끝을 맞춰 선다. 정면 그림이 없으면 그대로.
+    /// 멈춰 보기(`IdleFuss.stare`) 동안의 정면 그림. 움직임 없이 지금 자리(걷던 곳 포함)에 발끝을 맞춰 선다.
+    /// 그림자·반사는 원래 자세 것을 그대로 쓴다. 바꿀 정면 그림이 없으면 그대로.
     func facingFront(at t: Double) -> IdleSprite {
-        guard let front = IdleFussMath.frontPose(character: cast.character), front != spec.rule.art,
-              let frontSpec = cast.poseSet?.poses[front],
-              let frontArt = IdleRig.arts[cast.character]?[frontSpec.rule.art]
+        guard let front = IdleFussMath.frontArt(character: cast.character, art: spec.rule.art),
+              let frontArt = IdleRig.arts[cast.character]?[front]
         else { return self }
+        let still = IdlePoseSpec(
+            rule: IdlePoseRule(art: front, reflection: rule.reflection, shadow: rule.shadow),
+            unlock: spec.unlock, place: spec.place, pivot: .feet, motion: .channels([])
+        )
         let now = frame(t)
-        let then = IdleSprite(copying: self, spec: frontSpec, art: frontArt, base: .zero).frame(t)
-        let at = CGPoint(x: base.x + now.dx - then.dx, y: base.y + now.dy - then.dy)
-        return IdleSprite(copying: self, spec: frontSpec, art: frontArt, base: at)
+        return IdleSprite(copying: self, spec: still, art: frontArt, base: CGPoint(x: base.x + now.dx, y: base.y + now.dy))
     }
 
     private init(copying other: IdleSprite, spec: IdlePoseSpec, art: IdleArt, base: CGPoint) {

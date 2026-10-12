@@ -7,7 +7,7 @@ enum IdleFuss: String, CaseIterable, Sendable {
     case shiver
     /// 부르르 떨고 다른 대기 자세로 옮긴다. 구경꾼은 자리가 정해져 있어 안 나온다.
     case dodge
-    /// 아무 말 없이 잠깐 멈춰 이쪽을 본다(숨·깜빡임까지 멈춤). 카인은 그동안 정면 그림으로 바뀐다(`frontPose`).
+    /// 아무 말 없이 잠깐 멈춰 이쪽을 본다(숨·깜빡임까지 멈춤). 얼굴이 앞을 안 보는 그림은 그동안 정면 그림으로 바뀐다(`frontArt`).
     case stare
     /// 머리 위로 하트가 떠오른다. 호감도 Lv3부터, 단계가 높을수록 자주(`IdleFussMath.heartChance`).
     case heart
@@ -22,14 +22,24 @@ enum IdleFussMath {
     /// 부르르 떠는 폭(그림 폭 대비).
     static let shiverWidth = 0.05
 
-    /// 멈춰 보기 동안 바꿔 끼울 정면 그림 자세(대표님 2026-10-12 "카인 정면 얼굴 있는데"). 로슈는 원래 정면이라 없다.
-    static func frontPose(character: String) -> String? {
-        character == "kain" ? "rim-stand" : nil
+    /// 멈춰 보기 동안 바꿔 끼울 정면 그림(대표님 2026-10-12). 카인은 옆모습이라 늘 `rim-stand`,
+    /// 로슈는 잔을 들여다보는 뒷모습 `watch`만 `stand`. 이미 앞을 보는 그림이면 nil.
+    static func frontArt(character: String, art: String) -> String? {
+        switch character {
+        case "kain": art == "rim-stand" ? nil : "rim-stand"
+        case "roshu": art == "watch" ? "stand" : nil
+        default: nil
+        }
     }
 
-    /// 정면으로 서면 물속·바닥에 갑자기 선 꼴이라 멈춰 보기를 안 뽑는 자세(대표님 2026-10-12).
+    /// 정면으로 서면 어색해 멈춰 보기를 안 뽑는 자세(대표님 2026-10-12): 카인 헤엄·눕기(물속·바닥에 선 꼴),
+    /// 로슈 딸기 안기(딸기가 사라짐)·잔에 매달리기.
     static func canStare(character: String, pose: String) -> Bool {
-        character != "kain" || !["swim", "lie-left", "lie-right"].contains(pose)
+        switch character {
+        case "kain": !["swim", "lie-left", "lie-right"].contains(pose)
+        case "roshu": !["hug-strawberry", "in-cup"].contains(pose)
+        default: true
+        }
     }
 
     /// 하트 확률. Lv3 5%(대표님 2026-10-12)에서 한 단계마다 5%p씩, Lv10 40%.

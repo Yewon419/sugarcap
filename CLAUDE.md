@@ -56,3 +56,4 @@ SSOT = `SPEC.md`. 세션 시작 시 SPEC §0·§8·§9부터 읽는다.
 - 푸시 직후 `gh run list --limit 1`은 같은 커밋의 Dependency Graph 실행(`event: dynamic`, 수 초)을 잡을 수 있다. iOS CI는 `gh run list --workflow iOS`로 고른다(2026-10-08, 엉뚱한 실행을 기다렸다가 아티팩트 없음).
 - 스토어 문구(`docs/STORE.md`)를 ASC에 넣기 전에 숫자·브랜드 목록을 현재 카탈로그와 대조한다. 한국어 초안이 감성커피(없음)·8곳 1,300여 개로 남아 있었다(2026-10-09, 실제 9곳 1,455종 + 편의점 17,243종).
 - `GeometryReader` 안 `onAppear`에서 읽은 크기·`frame(in: .global)`은 첫 레이아웃 값이라 최종 자리와 다를 수 있다. 다른 레이어로 좌표를 넘길 때는 그 시점 값을 저장하지 말고 `onGeometryChange`로 받은 현재 자리로 매 프레임 계산한다(2026-10-10 선물 열쇠가 화면 왼쪽 위에서 출발, CI 두 바퀴 소모).
+- 뷰 `body` 안 인자에 `조건 ? nil : 메서드이름`처럼 옵셔널 클로저 삼항식을 바로 넣으면 컴파일러가 "failed to produce diagnostic for expression"으로 body 전체를 못 푼다(2026-10-12 TrendsView 하루 기록 시트, CI 한 바퀴 소모). `let x: ((T) -> Void)? = ...`로 타입을 적어 따로 뺀다.

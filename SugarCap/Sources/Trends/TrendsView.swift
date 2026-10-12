@@ -83,7 +83,7 @@ struct TrendsView: View {
     private var isMonth: Bool { range == .month && pro.isPro }
 
     /// 기준을 넘긴 숫자에만 쓰는 색. 당 = 딸기, 카페인 = 라떼 갈색.
-    private static func overColor(_ side: CupSide) -> Color {
+    static func overColor(_ side: CupSide) -> Color {
         switch side {
         case .sugar: return Color(red: 0xD2 / 255, green: 0x3B / 255, blue: 0x55 / 255)
         case .caffeine: return Color(red: 0x9A / 255, green: 0x5B / 255, blue: 0x2A / 255)
@@ -151,6 +151,8 @@ struct TrendsView: View {
         }
         .sheet(item: $dayLog) { day in
             let today = DayKey(at: Date(), boundaryHour: boundaryHour)
+            // 삼항식에 메서드를 바로 넣으면 body 타입 추론이 죽는다(CI 38220722228). 타입을 적어 둔다.
+            let onAdd: ((Entry) -> Void)? = day == today ? nil : { add($0) }
             DayLogSheet(
                 day: day,
                 isToday: day == today,
@@ -158,7 +160,7 @@ struct TrendsView: View {
                 limits: limits,
                 catalog: catalog,
                 onDelete: delete,
-                onAdd: day == today ? nil : add
+                onAdd: onAdd
             )
         }
         .navigationDestination(item: $limitSide) { side in

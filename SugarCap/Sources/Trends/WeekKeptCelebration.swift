@@ -187,6 +187,9 @@ struct WeekKeptCelebrationView: View {
 
     private static let tableTop = Color(red: 0xEC / 255, green: 0xEF / 255, blue: 0xF2 / 255)
     private static let tableEdge = Color(red: 0xE1 / 255, green: 0xE5 / 255, blue: 0xE9 / 255)
+    private static let hairline = Color(red: 60 / 255, green: 60 / 255, blue: 67 / 255).opacity(0.18)
+    private static let noRecord = Color(red: 60 / 255, green: 60 / 255, blue: 67 / 255).opacity(0.3)
+    private static let navigationBarHeight: CGFloat = 54
     private static let dotOff = Color(red: 60 / 255, green: 60 / 255, blue: 67 / 255).opacity(0.22)
     private static let wallHeight: CGFloat = 150
     private static let cupRise: CGFloat = 52
@@ -304,9 +307,32 @@ struct WeekKeptCelebrationView: View {
                 .accessibilityIdentifier("week-kept-title")
             figure(total: table?.total ?? 0, digits: digits, side: side)
                 .padding(.top, 4)
+            deck(side: side)
+                .padding(.top, 22)
         }
         .padding(.horizontal, 24)
-        .padding(.top, 8)
+        // 추이는 내비게이션 막대(뒤로 버튼 줄) 아래에서 시작한다. 같은 자리에 오도록 그 높이를 비운다(빌드 220 실기기 실측 54pt).
+        .padding(.top, 8 + Self.navigationBarHeight)
+    }
+
+    /// 추이 지면 끝줄과 같은 자리·모양. 누르는 곳이 아니라 화살표는 없다.
+    private func deck(side: CupSide) -> some View {
+        HStack(spacing: 6) {
+            Spacer(minLength: 0)
+            Text("하루 기준")
+            Text("\(Amount.number(side.limit(limits))) \(side.unit)")
+                .font(AppFont.pretendard(15, .bold, relativeTo: .subheadline))
+                .monospacedDigit()
+                .foregroundStyle(Color.ink)
+        }
+        .font(AppFont.pretendard(15, .regular, relativeTo: .subheadline))
+        .foregroundStyle(.secondary)
+        .lineLimit(1)
+        .frame(minHeight: 44)
+        .overlay(alignment: .top) {
+            Rectangle().fill(Self.hairline).frame(height: 1)
+        }
+        .accessibilityHidden(true)
     }
 
     private func masthead(table: TrendTable?) -> some View {
@@ -426,21 +452,38 @@ struct WeekKeptCelebrationView: View {
         return VStack(spacing: 2) {
             CupCrop(asset: CupLevel.cutoutName(setID: side.cupSetID, step: step))
                 .frame(width: 50, height: 50 * Self.glassAspect)
-            Text(cup.recorded ? Amount.number(left.rounded()) : "-")
-                .font(AppFont.pretendard(17, .bold, relativeTo: .body))
-                .monospacedDigit()
-                .tracking(-0.3)
-                .foregroundStyle(Color.ink)
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
-                .padding(.top, 8)
-            Text(Self.weekdays[cup.day.weekday() - 1])
-                .font(AppFont.pretendard(12, .regular, relativeTo: .caption))
-                .foregroundStyle(Color.secondary)
+            // 추이 잔 아래 숫자와 같은 규칙: 기록 없으면 옅은 "-", 넘겼으면 "+넘긴 양"(면 색).
+            Group {
+                if !cup.recorded {
+                    Text("-")
+                        .font(AppFont.pretendard(17, .medium, relativeTo: .body))
+                        .foregroundStyle(Self.noRecord)
+                } else if cup.used > limit {
+                    Text("+\(Amount.number((cup.used - limit).rounded()))")
+                        .font(AppFont.pretendard(17, .bold, relativeTo: .body))
+                        .foregroundStyle(TrendsView.overColor(side))
+                } else {
+                    Text(Amount.number(left.rounded()))
+                        .font(AppFont.pretendard(17, .bold, relativeTo: .body))
+                        .foregroundStyle(Color.ink)
+                }
+            }
+            .monospacedDigit()
+            .tracking(-0.3)
+            .lineLimit(1)
+            .minimumScaleFactor(0.6)
+            .padding(.top, 8)
+            Text(isToday(cup.day) ? String(localized: "오늘") : Self.weekdays[cup.day.weekday() - 1])
+                .font(AppFont.pretendard(12, isToday(cup.day) ? .semibold : .regular, relativeTo: .caption))
+                .foregroundStyle(isToday(cup.day) ? Color.ink : Color.secondary)
                 .lineLimit(1)
                 .frame(minHeight: 18)
         }
         .frame(maxWidth: .infinity)
+    }
+
+    private func isToday(_ day: DayKey) -> Bool {
+        day == DayKey(at: Date(), boundaryHour: boundaryHour)
     }
 
     /// 일요일 잔 뒤 캐릭터. 글자가 멈추는 순간 바닥에서 방방 뛰고, 발밑 양옆에서 팡파레가 터진다.

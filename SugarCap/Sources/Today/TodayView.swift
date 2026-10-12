@@ -392,6 +392,10 @@ struct TodayView: View {
 
     /// 컵 앞에 보일 선물. 연출 중인 선물은 저장(열림) 뒤에도 추이로 갈 때까지 그대로 둔다(대기 자세로 툭 바뀌지 않게).
     private func carriedGift(for cupSide: CupSide) -> GiftEvent? {
+        #if DEBUG
+        // CI 대기 자세 컷(`-idlePose`)은 앞 단계(UI 테스트)가 남긴 안 연 상자에 가려 로슈 자세가 안 찍혔다(빌드 227 확인).
+        if UserDefaults.standard.string(forKey: "idlePose") != nil { return nil }
+        #endif
         if let opening, opening.gift.cupSide == cupSide { return opening.gift }
         return pendingGift(for: cupSide)
     }

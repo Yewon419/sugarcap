@@ -259,10 +259,21 @@ struct IdleSprite {
             unlock: spec.unlock, place: spec.place, pivot: .feet, motion: .channels([])
         )
         let now = frame(t)
-        return IdleSprite(copying: self, spec: still, art: frontArt, base: CGPoint(x: base.x + now.dx, y: base.y + now.dy))
+        return IdleSprite(
+            copying: self, spec: still, art: frontArt, base: CGPoint(x: base.x + now.dx, y: base.y + now.dy),
+            scale: frontScale(front, art: frontArt)
+        )
     }
 
-    private init(copying other: IdleSprite, spec: IdlePoseSpec, art: IdleArt, base: CGPoint) {
+    /// 정면 그림 배율. 대기 자세 그림(카인 `rim-stand`)은 캔버스가 같아 그대로 쓴다. 대기 자세가 아닌 로슈 `stand`는
+    /// 캔버스 크기가 달라 그대로 그리면 작아져(빌드 227 대표님 "정면응시 사이즈 너무 작아짐") 먹이기 화면처럼 걷기 그림 높이에 맞춘다.
+    private func frontScale(_ front: String, art frontArt: IdleArt) -> Double {
+        let isIdleArt = cast.poseSet?.poses.values.contains { $0.rule.art == front } == true
+        guard !isIdleArt, let walk = IdleRig.arts[cast.character]?["walk"], frontArt.bbox.height > 0 else { return scale }
+        return scale * Double(walk.bbox.height) / Double(frontArt.bbox.height)
+    }
+
+    private init(copying other: IdleSprite, spec: IdlePoseSpec, art: IdleArt, base: CGPoint, scale: Double) {
         cast = other.cast
         rule = spec.rule
         self.spec = spec
@@ -271,11 +282,11 @@ struct IdleSprite {
         cutout = other.cutout
         step = other.step
         bounds = other.bounds
-        scale = other.scale
+        self.scale = scale
         acrossCup = other.acrossCup
         self.base = base
-        pivot = CGPoint(x: Double(art.bbox.midX) * other.scale, y: Double(art.bbox.maxY) * other.scale)
-        footY = Double(art.bbox.maxY) * other.scale
+        pivot = CGPoint(x: Double(art.bbox.midX) * scale, y: Double(art.bbox.maxY) * scale)
+        footY = Double(art.bbox.maxY) * scale
     }
 
     init?(cast: IdleCast, cupSetID: String, pose: String, step: Int, size: CGSize, acrossCup: Bool) {

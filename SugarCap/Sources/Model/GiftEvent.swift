@@ -11,6 +11,8 @@ enum GiftKind: String, Sendable, CaseIterable {
     case weekKept
     /// 감소 목표 최종 달성.
     case goalReached
+    /// Pro 첫 구매 축하(대표님 2026-10-12). 주인 고정 물건 하나(`GiftContent.welcome`), 한 번만.
+    case proWelcome
 }
 
 /// 오늘 화면으로 오는 선물 1개(SPEC §4.9). 아직 안 연 것(`openedAt == nil`)이 큐다.
@@ -61,6 +63,8 @@ enum GiftContent {
     /// 물건 목록(id, 주인). 물건은 주인이 들고 온다. 다 모으면 물건 몫은 병뚜껑으로 간다.
     /// 딸기 = 로슈 `hug-strawberry`의 딸기(대표님 2026-10-11).
     static let items: [(id: String, owner: CupSide)] = [("strawberry", .sugar)]
+    /// Pro 축하 선물의 고정 물건(주인별 하나). 기록하는 면 주인 것 중 하나를 준다. 카인 것은 대표님 그림이 오면 넣는다.
+    static let welcome: [(id: String, owner: CupSide)] = [("strawberry", .sugar)]
 
     static func item(_ id: String) -> String { itemPrefix + id }
 

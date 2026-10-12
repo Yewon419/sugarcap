@@ -17,6 +17,8 @@ final class ProStore {
 
     /// 실제 구매 여부. `isPro`는 이 값에 `isProSimulated`를 더한 것이다.
     private var ownsPro = false
+    /// 실제로 산 상태(흉내·스크린샷 목 제외). Pro 축하 선물(§4.9)은 이것만 본다.
+    var ownsRealPro: Bool { ownsPro && !isPreview }
     private var products: [String: Product] = [:]
     private var updatesTask: Task<Void, Never>?
     /// 목 상태에서는 StoreKit을 건드리지 않는다.

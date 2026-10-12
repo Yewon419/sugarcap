@@ -436,6 +436,15 @@ struct TodayView: View {
         }
     }
 
+    private func grantProWelcomeIfOwned() {
+        guard pro.ownsRealPro else { return }
+        do {
+            if try GiftStore.grantProWelcome(sides: trackedSides, now: Date(), in: context) { try context.save() }
+        } catch {
+            Self.logger.error("Pro 축하 선물 저장 실패: \(String(describing: error), privacy: .public)")
+        }
+    }
+
     /// 무대를 눌러 닫을 때. 이때 연 것으로 저장한다(상자만 누르고 앱을 끄면 다시 들고 서 있다).
     private func confirmGift(_ gift: GiftEvent) {
         saveOpened(gift)
@@ -670,6 +679,8 @@ struct TodayView: View {
         .onAppear { isOnScreen = true }
         .onDisappear { isOnScreen = false }
         // 하루가 바뀔 때마다(앱을 켠 날마다) 정산을 한 번 돈다(§4.7).
+        // Pro를 처음 사면 축하 선물(§4.9 2026-10-12). 기록하는 면이 바뀌면 다시 본다(고를 물건이 생길 수 있다).
+        .task(id: pro.ownsRealPro ? trackedSides : []) { grantProWelcomeIfOwned() }
         .task(id: today) {
             refreshSettlement(today: today)
             presentScreenshotFeedingIfRequested(totals: totals)

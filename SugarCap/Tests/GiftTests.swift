@@ -188,6 +188,24 @@ final class GiftTests: XCTestCase {
         XCTAssertTrue(gift.isHeart, "열어도 그대로")
     }
 
+    /// Pro 축하 선물: 기록하는 면 주인의 고정 물건을 한 번만. 고를 게 없으면 넣지 않고 나중에 다시 본다(대표님 2026-10-12).
+    @MainActor
+    func testProWelcomeGivesTheOwnersFixedItemOnce() throws {
+        let container = try ModelContainer(for: GiftEvent.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+        let context = container.mainContext
+        let now = Date()
+
+        XCTAssertFalse(try GiftStore.grantProWelcome(sides: [.caffeine], now: now, in: context), "카인 고정 물건은 아직 없다")
+        XCTAssertTrue(try GiftStore.grantProWelcome(sides: [.sugar, .caffeine], now: now, in: context))
+        XCTAssertFalse(try GiftStore.grantProWelcome(sides: [.sugar, .caffeine], now: now, in: context), "한 번만")
+        let gift = try XCTUnwrap(try GiftStore.pending(in: context).first)
+        XCTAssertEqual(gift.giftKind, .proWelcome)
+        XCTAssertEqual(gift.payload, GiftContent.item("strawberry"))
+        XCTAssertEqual(gift.cupSide, .sugar, "딸기는 로슈가 들고 온다")
+        XCTAssertEqual(GiftStore.content(owners: [.sugar], isPro: true, taken: try GiftStore.takenItems(in: context), roll: 0.45).payload,
+                       GiftContent.cap, "축하 선물로 받은 딸기는 상자에서 다시 안 나온다")
+    }
+
     /// 물건이 나오면 그 주인이 들고 온다. 기록하지 않는 면의 물건, 이미 상자에 든 물건은 안 나온다(대표님 2026-10-11).
     @MainActor
     func testItemBoxIsCarriedByItsOwner() throws {

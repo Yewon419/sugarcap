@@ -74,6 +74,16 @@ enum GiftStore {
         context.insert(GiftEvent(kind: .goalReached, side: side, payload: picked.payload, createdAt: now))
     }
 
+    /// Pro를 처음 산 뒤 한 번. 기록하는 면 주인의 고정 물건 중 하나를 그 주인이 들고 온다.
+    /// 고를 물건이 없으면(카페인만 기록, 카인 것 아직 없음) 넣지 않고 다음에 다시 본다. 넣었으면 참.
+    static func grantProWelcome(sides: [CupSide], now: Date, in context: ModelContext) throws -> Bool {
+        guard try !all(in: context).contains(where: { $0.giftKind == .proWelcome }),
+              let pick = GiftContent.welcome.filter({ sides.contains($0.owner) }).randomElement()
+        else { return false }
+        context.insert(GiftEvent(kind: .proWelcome, side: pick.owner, payload: GiftContent.item(pick.id), createdAt: now))
+        return true
+    }
+
     /// 상자 내용(`GiftContent`)과, 물건이면 그 주인. 물건은 `owners`의 것 중 아직 안 나온 것 하나.
     static func content(owners: [CupSide], isPro: Bool, taken: Set<String>, roll: Double) -> (payload: String, owner: CupSide?) {
         let left = GiftContent.items.filter { owners.contains($0.owner) && !taken.contains($0.id) }
@@ -98,7 +108,7 @@ enum GiftStore {
         switch gift.giftKind {
         case .weekKept, .goalReached:
             gift.payload = content(owners: [side], isPro: isPro, taken: takenItems, roll: roll).payload
-        case .trendsUnlock, .levelUp, nil: break
+        case .trendsUnlock, .levelUp, .proWelcome, nil: break
         }
     }
 
@@ -107,7 +117,7 @@ enum GiftStore {
         gift.openedAt = now
         switch gift.giftKind {
         case .weekKept, .goalReached: if gift.payload == nil { gift.payload = GiftContent.heart }
-        case .trendsUnlock, .levelUp, nil: break
+        case .trendsUnlock, .levelUp, .proWelcome, nil: break
         }
     }
 }

@@ -184,7 +184,7 @@ enum GiftRevealTimeline {
     }
 }
 
-/// 무대에 올리는 물건 그림과 이름. 마음·병뚜껑 그림은 대표님이 그려 주기 전까지 임시 기호다.
+/// 무대에 올리는 물건 그림과 이름. 마음·병뚜껑은 기호 + 하얀 윤곽으로 확정(대표님 2026-10-12, 따로 그리지 않는다).
 struct GiftRevealItem {
     let name: String
     let asset: String?
@@ -291,11 +291,7 @@ struct GiftRevealOverlay: View {
                     .resizable()
                     .scaledToFit()
             } else if let item {
-                Image(systemName: item.symbol)
-                    .resizable()
-                    .scaledToFit()
-                    .foregroundStyle(item.tint)
-                    .padding(width * 0.1)
+                symbolView(item, width: width)
             }
         }
         .frame(width: width, height: width)
@@ -303,6 +299,23 @@ struct GiftRevealOverlay: View {
         .scaleEffect(GiftRevealTimeline.itemScale(t, calm: reduceMotion))
         .allowsHitTesting(false)
         .accessibilityHidden(true)
+    }
+
+    /// 마음·병뚜껑: 기호 + 하얀 윤곽(대표님 2026-10-12 "하얀 윤곽 붙여서 그냥 쓰자").
+    /// 윤곽은 흰 기호를 둘레 16방향으로 조금씩 밀어 겹친 것이다. 흐림 없이 가장자리가 또렷하다(에어브러시 금지 규칙).
+    private func symbolView(_ item: GiftRevealItem, width: Double) -> some View {
+        let outline: Double = width * 0.035
+        let symbol = Image(systemName: item.symbol).resizable().scaledToFit()
+        return ZStack {
+            ForEach(0 ..< 16, id: \.self) { step in
+                let angle: Double = Double(step) / 16 * 2 * Double.pi
+                symbol
+                    .foregroundStyle(.white)
+                    .offset(x: outline * cos(angle), y: outline * sin(angle))
+            }
+            symbol.foregroundStyle(item.tint)
+        }
+        .padding(width * 0.1)
     }
 
     @ViewBuilder

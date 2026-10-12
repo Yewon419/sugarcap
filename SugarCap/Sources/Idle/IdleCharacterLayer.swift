@@ -20,6 +20,8 @@ struct IdleCharacterLayer: View {
     var onMiss: (CGPoint) -> Void = { _ in }
     /// 한 면만 켰을 때 컵 옆에서 구경하는 꺼진 쪽 캐릭터(`IdleOnlooker`). 같은 캔버스에 같이 그린다.
     var guest: CupSide?
+    /// 캐릭터별 호감도 단계. 연타 반응의 하트(`IdleFuss.heart`)를 고르는 데만 쓴다.
+    var affinityLevel: (CupSide) -> Int = { _ in 0 }
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
@@ -31,6 +33,9 @@ struct IdleCharacterLayer: View {
     /// 마지막으로 눌린 시각. 누르면 살짝 움찔한다(대표님 2026-10-04: "살짝 움찔하는 정도").
     @State private var flinchAt: Date?
     @State private var guestFlinchAt: Date?
+    /// 연달아 너무 많이 눌렀을 때의 반응(대표님 2026-10-12). 켜진 쪽·구경꾼 따로 센다.
+    @State private var hostFuss = IdleFussState()
+    @State private var guestFuss = IdleFussState()
 
     var body: some View {
         GeometryReader { proxy in
@@ -39,13 +44,26 @@ struct IdleCharacterLayer: View {
                 let guestSprite = guest.flatMap { IdleSprite.onlooker($0, on: side, step: step, size: proxy.size) }
                 TimelineView(.animation(minimumInterval: nil, paused: frozen != nil || pausedAt != nil)) { timeline in
                     let t = frozen ?? (pausedAt ?? timeline.date).timeIntervalSince(start)
-                    let blink = frozen == nil ? IdleMotion.blink(t: t, seed: seed) : 0
-                    let guestBlink = frozen == nil ? IdleMotion.blink(t: t, seed: seed &+ 1) : 0
+                    let host = shownFuss(hostFuss, t: t)
+                    let visitor = guestFuss
+                    let hostT = host.stare.time(t)
+                    let guestT = visitor.stare.time(t)
+                    let blink = frozen == nil && !host.stare.isStaring(at: t) ? IdleMotion.blink(t: hostT, seed: seed) : 0
+                    let guestBlink =
+                        frozen == nil && !visitor.stare.isStaring(at: t) ? IdleMotion.blink(t: guestT, seed: seed &+ 1) : 0
                     let flinch = flinchAt.map { IdleMotion.flinch(age: timeline.date.timeIntervalSince($0)) } ?? 0
                     let guestFlinch = guestFlinchAt.map { IdleMotion.flinch(age: timeline.date.timeIntervalSince($0)) } ?? 0
                     Canvas { context, _ in
-                        guestSprite?.draw(in: &context, t: t, blink: guestBlink, flinch: guestFlinch)
-                        sprite.draw(in: &context, t: t, blink: blink, flinch: flinch)
+                        guestSprite?.draw(
+                            in: &context, t: guestT, blink: guestBlink, flinch: guestFlinch, jitter: visitor.jitter(t: t)
+                        )
+                        sprite.draw(in: &context, t: hostT, blink: blink, flinch: flinch, jitter: host.jitter(t: t))
+                        if let guestSprite, let guest, let heart = visitor.heart(t: t) {
+                            guestSprite.drawHeart(heart, side: guest, t: guestT, in: context)
+                        }
+                        if let heart = host.heart(t: t) {
+                            sprite.drawHeart(heart, side: side, t: hostT, in: context)
+                        }
                     }
                 }
                 // 캐릭터 위를 누를 때만 움찔하고, 그 밖은 `onMiss`로 넘긴다. 컵 넘기기(부모의 끌기)는 손가락이 움직이면 그쪽으로 간다.
@@ -55,10 +73,16 @@ struct IdleCharacterLayer: View {
                     let local = CGPoint(x: location.x - origin.x, y: location.y - origin.y)
                     let now = Date()
                     let t = now.timeIntervalSince(start)
-                    if sprite.contains(local, t: t) {
+                    if sprite.contains(local, t: hostFuss.stare.time(t)) {
                         flinchAt = now
-                    } else if let guestSprite, guestSprite.contains(local, t: t) {
+                        let options = IdleFussMath.options(canDodge: dodgeTarget() != nil, level: affinityLevel(side))
+                        let poked = hostFuss.poked(now: now, t: t, options: options)
+                        hostFuss = poked
+                        if poked.fuss == .dodge, poked.startedAt == t { scheduleDodge() }
+                    } else if let guestSprite, let guest, guestSprite.contains(local, t: guestFuss.stare.time(t)) {
                         guestFlinchAt = now
+                        let options = IdleFussMath.options(canDodge: false, level: affinityLevel(guest))
+                        guestFuss = guestFuss.poked(now: now, t: t, options: options)
                     } else {
                         onMiss(location)
                     }
@@ -117,7 +141,40 @@ struct IdleCharacterLayer: View {
         guest.map { IdleOnlooker.hostAvoids(guest: $0) } ?? []
     }
 
+    /// 연타 반응 `dodge`로 옮겨 갈 자세. 지금 자세 말고 고를 게 없으면 nil(그땐 `dodge`를 안 뽑는다).
+    private func dodgeTarget() -> String? {
+        guard let pose, let set = side.idleCast.poseSet else { return nil }
+        var generator = SystemRandomNumberGenerator()
+        let next = set.pick(step: step, unlockedLevel: unlockedLevel, avoiding: avoiding.union([pose]), using: &generator)
+        return next == pose ? nil : next
+    }
+
+    /// 부르르 떤 뒤 다른 자세로 옮긴다. 자세 사이 전환 동작은 없다(위 규칙).
+    private func scheduleDodge() {
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(IdleFussMath.shiverLength))
+            guard let next = dodgeTarget() else { return }
+            hostFuss = IdleFussState()
+            guestFuss = IdleFussState()
+            start = Date()
+            if pausedAt != nil { pausedAt = start }
+            pose = next
+        }
+    }
+
+    /// 화면에 그릴 켜진 쪽 반응. CI 스크린샷(Debug `-pokeFuss shiver|heart` `-pokeFussAt <반응 뒤 초>`)이면 그 장면.
+    private func shownFuss(_ state: IdleFussState, t: Double) -> IdleFussState {
+        #if DEBUG
+        if let raw = UserDefaults.standard.string(forKey: "pokeFuss"), let fuss = IdleFuss(rawValue: raw) {
+            return IdleFussState(fuss: fuss, startedAt: t - UserDefaults.standard.double(forKey: "pokeFussAt"))
+        }
+        #endif
+        return state
+    }
+
     private func repick() {
+        hostFuss = IdleFussState()
+        guestFuss = IdleFussState()
         start = Date()
         if pausedAt != nil { pausedAt = start }
         #if DEBUG
@@ -212,8 +269,10 @@ struct IdleSprite {
     }
 
     /// `flinch`: 눌렸을 때 움찔(0 ~ 1, `IdleMotion.flinch`). 기준점을 축으로 아래로 눌렸다 돌아온다.
-    func draw(in context: inout GraphicsContext, t: Double, blink: Double, flinch: Double) {
-        let m = frame(t)
+    /// `jitter`: 연타 반응 부르르(-1 ~ 1, `IdleFussMath.shiver`). 그림자·반사까지 같이 가로로 민다.
+    func draw(in context: inout GraphicsContext, t: Double, blink: Double, flinch: Double, jitter: Double) {
+        var m = frame(t)
+        m.dx += jitter * IdleFussMath.shiverWidth * Double(art.bbox.width) * scale
         if let reflection = rule.reflection {
             drawReflection(reflection, in: context, m: m, flinch: flinch)
         }
@@ -265,7 +324,11 @@ struct IdleSprite {
 
     /// 화면 위 점이 시각 t의 캐릭터 위인지. 그림 틀을 놓인 자리로 옮긴 사각형에 손가락 여유를 둔다.
     func contains(_ point: CGPoint, t: Double) -> Bool {
-        let m = frame(t)
+        transformed(m: frame(t)).insetBy(dx: -8, dy: -8).contains(point)
+    }
+
+    /// 그림 틀을 놓인 자리로 옮긴 사각형.
+    private func transformed(m: IdleFrame) -> CGRect {
         let box = CGRect(
             x: Double(art.bbox.minX) * scale, y: Double(art.bbox.minY) * scale,
             width: Double(art.bbox.width) * scale, height: Double(art.bbox.height) * scale
@@ -275,7 +338,34 @@ struct IdleSprite {
             .concatenating(CGAffineTransform(scaleX: m.flip, y: 1))
             .concatenating(CGAffineTransform(rotationAngle: radians))
             .concatenating(CGAffineTransform(translationX: base.x + m.dx, y: base.y + m.dy))
-        return box.applying(transform).insetBy(dx: -8, dy: -8).contains(point)
+        return box.applying(transform)
+    }
+
+    /// 연타 반응 하트: 머리 위에서 톡 커지며 떠오르다 옅어진다. 선물 마음과 같은 기호 + 하얀 윤곽(가장자리 또렷).
+    func drawHeart(
+        _ heart: (scale: Double, rise: Double, alpha: Double), side: CupSide, t: Double, in context: GraphicsContext
+    ) {
+        let m = frame(t)
+        let top = Double(transformed(m: m).minY)
+        let size: Double = min(30, max(18, Double(art.bbox.width) * scale * 0.32))
+        let width = size * heart.scale
+        let height = width * 0.9
+        let center = CGPoint(x: Double(base.x) + m.dx, y: top - size * 0.75 - heart.rise * size)
+        let rect = CGRect(x: center.x - width / 2, y: center.y - height / 2, width: width, height: height)
+        var white = context.resolve(Image(systemName: "heart.fill"))
+        white.shading = .color(.white)
+        var fill = context.resolve(Image(systemName: "heart.fill"))
+        fill.shading = .color(side == .sugar ? .sugarPink : .caffeineAmber)
+        let outline = width * 0.1
+        var layer = context
+        layer.opacity = heart.alpha
+        layer.drawLayer { inner in
+            for step in 0 ..< 16 {
+                let angle: Double = Double(step) / 16 * 2 * Double.pi
+                inner.draw(white, in: rect.offsetBy(dx: outline * cos(angle), dy: outline * sin(angle)))
+            }
+            inner.draw(fill, in: rect)
+        }
     }
 
     // MARK: 유리 반사

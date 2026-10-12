@@ -86,8 +86,11 @@ struct TodayView: View {
     private var side: CupSide { CupSide.visible(pickedSide, in: trackedSides) }
 
     private func unlockedLevel(_ side: CupSide) -> Int {
+        AffinityMath.unlockedLevel(level: affinityLevel(side), isPro: pro.isPro)
+    }
+    private func affinityLevel(_ side: CupSide) -> Int {
         let points = affinities.first { $0.character == side.characterID }?.points ?? 0
-        return AffinityMath.unlockedLevel(level: AffinityMath.level(points: points), isPro: pro.isPro)
+        return AffinityMath.level(points: points)
     }
     private var boundaryHour: Int { settingsRows.first?.dayBoundaryHour ?? 4 }
     private var closeFromHour: Int { settingsRows.first?.closeFromHour ?? 20 }
@@ -247,7 +250,8 @@ struct TodayView: View {
                             side: cupSide, step: step, isActive: isActive,
                             unlockedLevel: unlockedLevel(cupSide),
                             onMiss: { tapCup(at: $0, screen: proxy.frame(in: .global)) },
-                            guest: trackedSides.count == 1 && hasOnlooker ? cupSide.other : nil
+                            guest: trackedSides.count == 1 && hasOnlooker ? cupSide.other : nil,
+                            affinityLevel: affinityLevel
                         ),
                         gift: gift.map { gift in
                             GiftCarrierLayer(

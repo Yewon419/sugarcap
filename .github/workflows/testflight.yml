@@ -260,6 +260,9 @@ jobs:
           shoot idle-kain-swim light large -screenshotSide caffeine -idlePose swim -idleStep 100 -idleAt 3.7
           shoot idle-kain-swim-spin light large -screenshotSide caffeine -idlePose swim -idleStep 50 -idleAt 5.75
           shoot idle-kain-walk light large -screenshotSide caffeine -idlePose walk -idleStep 100 -idleAt 3.2
+          shoot idle-fuss-heart-roshu light large -idlePose watch -idleStep 100 -idleAt 2.5 -pokeFuss heart -pokeFussAt 0.45
+          shoot idle-fuss-heart-kain light large -screenshotSide caffeine -idlePose rim-stand -idleStep 100 -idleAt 2.5 -pokeFuss heart -pokeFussAt 0.45
+          shoot idle-fuss-shiver light large -idlePose watch -idleStep 100 -idleAt 2.5 -pokeFuss shiver -pokeFussAt 0.02
           shoot idle-kain-floor-sit light large -screenshotSide caffeine -idlePose floor-sit -idleStep 0 -idleAt 2.5
           shoot idle-kain-lie-left light large -screenshotSide caffeine -idlePose lie-left -idleStep 100 -idleAt 2.0
           shoot idle-kain-lie-right light large -screenshotSide caffeine -idlePose lie-right -idleStep 100 -idleAt 5.7

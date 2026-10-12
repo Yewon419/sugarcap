@@ -75,12 +75,11 @@ enum GiftRevealTimeline {
         return band
     }
 
-    /// 드러난 뒤 화면 가장자리에서 조명으로 모이는 빛줄기 네 개(레퍼런스 1번째 장). 밑변 두 점(화면 비율).
+    /// 드러난 뒤 화면 양옆 위에서 조명으로 모이는 빛줄기 두 개(레퍼런스 1번째 장). 밑변 두 점(화면 비율).
+    /// 아래 두 줄기는 원 밑에서 X자로 겹쳐 뺐다(빌드 231 대표님 "원 아래쪽 부분은 없어야지").
     private static let beamBases: [(CGPoint, CGPoint)] = [
         (CGPoint(x: 0, y: 0.15), CGPoint(x: 0, y: 0.45)),
         (CGPoint(x: 1, y: 0.10), CGPoint(x: 1, y: 0.42)),
-        (CGPoint(x: 0, y: 0.72), CGPoint(x: 0.25, y: 1)),
-        (CGPoint(x: 1, y: 0.75), CGPoint(x: 0.8, y: 1)),
     ]
 
     static func beams(size: CGSize) -> [Path] {

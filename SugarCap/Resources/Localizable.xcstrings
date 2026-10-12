@@ -4018,6 +4018,22 @@
         }
       }
     },
+    "주 목표 달성!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weekly goal met!"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本週目標達成！"
+          }
+        }
+      }
+    },
     "주마다 약 " : {
       "localizations" : {
         "en" : {
@@ -4206,6 +4222,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "已反映昨晚餵食的飲料"
+          }
+        }
+      }
+    },
+    "지난주" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last week"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上週"
           }
         }
       }

@@ -69,6 +69,9 @@ struct TodayView: View {
     /// 단계 상승 무대 연출 중이면 채운다(SPEC §4.9 결정 4). 끝나거나 누르면 연 것으로 저장하고 비운다.
     @State private var levelUp: LevelUpStage?
     @State private var levelUpFrames: [CupSide: CGRect] = [:]
+    /// 방금 먹이기로 기준 지킨 주 선물이 생겼으면 채운다. 먹이기 화면이 닫히면 축하 화면으로 넘긴다(§4.9 2026-10-12).
+    @State private var pendingWeekKept: WeekKeptCelebration?
+    @State private var weekKept: WeekKeptCelebration?
 
     @Environment(ProStore.self) private var pro
 
@@ -181,7 +184,7 @@ struct TodayView: View {
                 onDelete: delete
             )
         }
-        .fullScreenCover(item: $feeding, onDismiss: askReminderAfterFirstFeed) { presentation in
+        .fullScreenCover(item: $feeding, onDismiss: afterFeedingClosed) { presentation in
             let request = presentation.request
             FeedingView(
                 request: request, opening: presentation.opening, catalog: catalog, snapshot: presentation.snapshot,
@@ -190,6 +193,13 @@ struct TodayView: View {
                     try presentation.isRehearsal ? Self.rehearse(entry, on: request) : addDrink(entry, to: request)
                 }
             )
+        }
+        .fullScreenCover(item: $weekKept, onDismiss: askReminderAfterFirstFeed) { celebration in
+            WeekKeptCelebrationView(celebration: celebration) {
+                // 끝나면 선물을 든 캐릭터 쪽 오늘 화면.
+                pickedSide = celebration.carrier
+                weekKept = nil
+            }
         }
         .sheet(item: $paywall) { feature in
             PaywallView(feature: feature)
@@ -357,6 +367,15 @@ struct TodayView: View {
 
     /// CI 스크린샷·UI 테스트 전용(Debug `-screenshotLevelUp <단계>`): 보고 있는 면에서 무대를 바로 연다.
     /// 저장소에 넣지 않는다(스크린샷 단계는 저장소를 이어 쓰니 뒤 컷에 무대가 남지 않게).
+    /// Debug `-screenshotWeekKept sugar|caffeine|both`(+ `-weekKeptAt <초>`). 오늘을 그 주 일요일로 본다.
+    private func presentScreenshotWeekKeptIfRequested(today: DayKey) {
+        #if DEBUG
+        guard let raw = UserDefaults.standard.string(forKey: "screenshotWeekKept"), weekKept == nil else { return }
+        let sides = raw == "both" ? CupSide.allCases.filter(trackedSides.contains) : [CupSide(rawValue: raw) ?? side]
+        weekKept = WeekKeptCelebration(closed: today, sides: sides, carrier: sides.last ?? side)
+        #endif
+    }
+
     private func presentScreenshotLevelUpIfRequested() {
         #if DEBUG
         let defaults = UserDefaults.standard
@@ -641,7 +660,7 @@ struct TodayView: View {
         .fullScreenCover(item: $gate, onDismiss: {
             isGateRehearsal = false
             presentGateIfPending()
-            if gate == nil { askReminderAfterFirstFeed() }
+            if gate == nil { afterFeedingClosed() }
         }) { gate in
             YesterdayGateView(
                 gate: gate,
@@ -686,6 +705,7 @@ struct TodayView: View {
             presentScreenshotFeedingIfRequested(totals: totals)
             presentScreenshotGiftIfRequested()
             presentScreenshotLevelUpIfRequested()
+            presentScreenshotWeekKeptIfRequested(today: today)
         }
     }
 
@@ -977,13 +997,16 @@ struct TodayView: View {
     private func feed(_ request: FeedingRequest) throws -> [FeedResult] {
         let now = Date()
         let results: [FeedResult]
+        var keptWeek: DayKey?
         switch request.kind {
         case .closeToday:
             let today = DayKey(at: now, boundaryHour: boundaryHour)
             let row = try SettlementStore.row(for: today, in: context)
             SettlementStore.close(row, totals: try storedTotals(for: today), now: now)
             results = []
-            _ = try GiftStore.grantWeekKept(closed: today, sides: trackedSides, isPro: pro.isPro, now: now, in: context)
+            if try GiftStore.grantWeekKept(closed: today, sides: trackedSides, isPro: pro.isPro, now: now, in: context) {
+                keptWeek = today
+            }
         case .pastDay(let day):
             results = try SettlementStore.feedPastDay(
                 day, entries: try context.fetch(FetchDescriptor<Entry>()), limits: limits, boundaryHour: boundaryHour,
@@ -993,11 +1016,32 @@ struct TodayView: View {
             // 첫 적립이 "어제 먹이기"로 나도 첫 선물은 온다(SPEC §4.9).
             _ = try GiftStore.grantFirstReward(credited: results, now: now, in: context)
             _ = GiftStore.queueLevelUps(credited: results, now: now, in: context)
-            _ = try GiftStore.grantWeekKept(closed: day, sides: trackedSides, isPro: pro.isPro, now: now, in: context)
+            if try GiftStore.grantWeekKept(closed: day, sides: trackedSides, isPro: pro.isPro, now: now, in: context) {
+                keptWeek = day
+            }
         }
         try context.save()
         didFeed = true
+        if let keptWeek { pendingWeekKept = try weekKeptCelebration(closed: keptWeek) }
         return results
+    }
+
+    /// 그 주 선물을 든 캐릭터 쪽으로 끝나는 축하. 축하할 면은 기록하는 면 전부(전부 지켜야 선물이 온다).
+    private func weekKeptCelebration(closed: DayKey) throws -> WeekKeptCelebration {
+        let week = GiftMath.weekStart(of: closed).rawValue
+        let carrier = try GiftStore.all(in: context)
+            .first { $0.giftKind == .weekKept && $0.week == week }?.cupSide
+        return WeekKeptCelebration(closed: closed, sides: trackedSides, carrier: carrier ?? side)
+    }
+
+    /// 먹이기(오늘·어젯밤) 화면이 닫힌 뒤. 기준 지킨 주를 방금 채웠으면 축하부터, 아니면 첫 마감 알림 질문.
+    private func afterFeedingClosed() {
+        if let pending = pendingWeekKept {
+            pendingWeekKept = nil
+            weekKept = pending
+        } else {
+            askReminderAfterFirstFeed()
+        }
     }
 
     /// 첫 마감(먹이기)을 마친 뒤 한 번만 마감 알림을 묻는다(2026-10-05 대표님). 테스트 카드 먹이기는 세지 않는다.

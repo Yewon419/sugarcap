@@ -289,7 +289,7 @@ struct TrendsView: View {
         tables.values.map { Amount.number($0.total.rounded()).count }.max() ?? 1
     }
 
-    private static func figureSize(digits: Int) -> CGFloat {
+    static func figureSize(digits: Int) -> CGFloat {
         switch digits {
         case ...2: return 150
         case 3: return 124

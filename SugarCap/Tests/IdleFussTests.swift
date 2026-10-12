@@ -28,6 +28,7 @@ final class IdleFussTests: XCTestCase {
         XCTAssertFalse(IdleFussMath.canStare(character: "roshu", pose: "hug-strawberry"))
         XCTAssertTrue(IdleFussMath.canStare(character: "roshu", pose: "watch"))
         XCTAssertEqual(IdleFussMath.frontArt(character: "roshu", art: "watch"), "stand")
+        XCTAssertEqual(IdleFussMath.frontArt(character: "roshu", art: "walk"), "stand")
         XCTAssertNil(IdleFussMath.frontArt(character: "roshu", art: "wave"))
         XCTAssertEqual(IdleFussMath.frontArt(character: "kain", art: "sit"), "rim-stand")
         let picks = Set(stride(from: 0.0, to: 1.0, by: 0.1).map {

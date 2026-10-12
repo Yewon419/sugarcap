@@ -23,11 +23,11 @@ enum IdleFussMath {
     static let shiverWidth = 0.05
 
     /// 멈춰 보기 동안 바꿔 끼울 정면 그림(대표님 2026-10-12). 카인은 옆모습이라 늘 `rim-stand`,
-    /// 로슈는 잔을 들여다보는 뒷모습 `watch`만 `stand`. 이미 앞을 보는 그림이면 nil.
+    /// 로슈는 잔을 들여다보는 뒷모습 `watch`와 반측면 `walk`만 `stand`. 이미 앞을 보는 그림이면 nil.
     static func frontArt(character: String, art: String) -> String? {
         switch character {
         case "kain": art == "rim-stand" ? nil : "rim-stand"
-        case "roshu": art == "watch" ? "stand" : nil
+        case "roshu": ["watch", "walk"].contains(art) ? "stand" : nil
         default: nil
         }
     }

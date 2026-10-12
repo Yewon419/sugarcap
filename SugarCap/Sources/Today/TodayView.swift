@@ -1123,8 +1123,22 @@ struct TodayView: View {
                 limits: limits, sugarOverG: dayTotals.overSugarG, caffeineOverMg: dayTotals.overCaffeineMg
             )
         case .weekKept:
+            // 선물 받기까지 체험한다(대표님 2026-10-12). 실제 상자를 넣되 주(week)는 비워 진짜 이번 주 선물을 막지 않는다.
             let today = DayKey(at: now, boundaryHour: boundaryHour)
-            weekKept = WeekKeptCelebration(closed: today, sides: trackedSides, carrier: side)
+            do {
+                let picked = GiftStore.content(
+                    owners: trackedSides, isPro: pro.isPro, taken: try GiftStore.takenItems(in: context),
+                    roll: Double.random(in: 0 ..< 1)
+                )
+                let carrier = picked.owner ?? trackedSides.randomElement() ?? side
+                context.insert(GiftEvent(kind: .weekKept, side: carrier, payload: picked.payload, createdAt: now))
+                try context.save()
+                weekKept = WeekKeptCelebration(closed: today, sides: trackedSides, carrier: carrier)
+            } catch {
+                Self.logger.error("테스트 주 선물 저장 실패: \(String(describing: error), privacy: .public)")
+                context.rollback()
+                failureMessage = String(localized: "기록을 저장하지 못했어요. 다시 시도해 주세요.")
+            }
         case .firstRun:
             // 루트가 완료 플래그를 지켜보다 온보딩으로 바꾼다. 기록·정산·호감도는 그대로다.
             UserDefaults.standard.removeObject(forKey: CompanionIntro.seenKey)

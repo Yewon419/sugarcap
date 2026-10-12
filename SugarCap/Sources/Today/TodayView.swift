@@ -717,7 +717,8 @@ struct TodayView: View {
                 .font(.system(.caption2, weight: .semibold))
                 .tracking(1.3)
                 .foregroundStyle(.tint)
-                .padding(.top, 8)
+                // 빌드 215 대표님 "글씨 좀만 아래로": 8 → 20.
+                .padding(.top, 20)
 
             HStack(alignment: .firstTextBaseline, spacing: 0) {
                 Text(AttributedString.heroDigits(Amount.number(remaining)))

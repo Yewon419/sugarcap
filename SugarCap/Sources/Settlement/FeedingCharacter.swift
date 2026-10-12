@@ -266,7 +266,7 @@ struct FeedingCharacter: View {
 
 /// 마무리 요약의 캐릭터: 정면(로슈 stand, 카인 rim-stand)으로 위에서 콩 떨어져 들어오고,
 /// 숫자가 다 세질 즈음 둘이 같이 한 번 뛴 뒤 숨 쉬며 깜빡인다. 로슈는 손 인사, 카인은 발 까딱.
-/// 크기는 v1 그대로(로슈 150pt, 카인 137pt: 오늘 화면 대기 자세 비율, 빌드 103 대표님 피드백).
+/// 크기는 둘 다 150pt(빌드 215 대표님 "로슈 카인 키 맞춰". 그 전엔 카인 137pt, 오늘 화면 대기 자세 비율).
 /// 틀은 그림 높이 + 위 여유(`headroom`)다. 쓰는 쪽에서 위 여유만큼 겹쳐 둔다.
 struct SummaryCharacter: View {
     let side: CupSide
@@ -279,7 +279,7 @@ struct SummaryCharacter: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var inAt: Date?
 
-    static func height(_ side: CupSide) -> CGFloat { side == .sugar ? 150 : 137 }
+    static func height(_ side: CupSide) -> CGFloat { 150 }
 
     var body: some View {
         let height = Self.height(side)

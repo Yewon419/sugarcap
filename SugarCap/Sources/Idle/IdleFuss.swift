@@ -7,29 +7,45 @@ enum IdleFuss: String, CaseIterable, Sendable {
     case shiver
     /// 부르르 떨고 다른 대기 자세로 옮긴다. 구경꾼은 자리가 정해져 있어 안 나온다.
     case dodge
-    /// 아무 말 없이 잠깐 멈춰 이쪽을 본다(숨·깜빡임까지 멈춤).
+    /// 아무 말 없이 잠깐 멈춰 이쪽을 본다(숨·깜빡임까지 멈춤). 카인은 그동안 정면 그림으로 바뀐다(`frontPose`).
     case stare
-    /// 머리 위로 하트가 떠오른다. 호감도가 높을 때만.
+    /// 머리 위로 하트가 떠오른다. 호감도 Lv3부터, 단계가 높을수록 자주(`IdleFussMath.heartChance`).
     case heart
 }
 
 enum IdleFussMath {
-    /// 하트가 나오는 호감도 단계. 호감도 화면에서 애교를 부리기 시작하는 단계와 같다(`PokeMath.reaction`).
-    static let fondLevel = 7
+    /// 하트가 나오기 시작하는 호감도 단계(대표님 2026-10-12, 무료 한도와 같은 Lv3).
+    static let fondLevel = 3
     static let shiverLength = 0.5
     static let stareLength = 1.8
     static let heartLength = 1.3
     /// 부르르 떠는 폭(그림 폭 대비).
     static let shiverWidth = 0.05
 
-    static func options(canDodge: Bool, level: Int) -> [IdleFuss] {
-        IdleFuss.allCases.filter { fuss in
-            switch fuss {
-            case .shiver, .stare: true
-            case .dodge: canDodge
-            case .heart: level >= fondLevel
-            }
+    /// 멈춰 보기 동안 바꿔 끼울 정면 그림 자세(대표님 2026-10-12 "카인 정면 얼굴 있는데"). 로슈는 원래 정면이라 없다.
+    static func frontPose(character: String) -> String? {
+        character == "kain" ? "rim-stand" : nil
+    }
+
+    /// 정면으로 서면 물속·바닥에 갑자기 선 꼴이라 멈춰 보기를 안 뽑는 자세(대표님 2026-10-12).
+    static func canStare(character: String, pose: String) -> Bool {
+        character != "kain" || !["swim", "lie-left", "lie-right"].contains(pose)
+    }
+
+    /// 하트 확률. Lv3 5%(대표님 2026-10-12)에서 한 단계마다 5%p씩, Lv10 40%.
+    static func heartChance(level: Int) -> Double {
+        guard level >= fondLevel else { return 0 }
+        return 0.05 * Double(level - fondLevel + 1)
+    }
+
+    /// 반응 하나를 고른다. 먼저 `heartRoll`(0 ~ 1)로 하트를 보고, 아니면 나머지를 `otherRoll`(0 ~ 1)로 똑같은 몫씩.
+    static func pick(canDodge: Bool, canStare: Bool, level: Int, heartRoll: Double, otherRoll: Double) -> IdleFuss {
+        if heartRoll < heartChance(level: level) { return .heart }
+        let others = IdleFuss.allCases.filter {
+            $0 == .shiver || ($0 == .dodge && canDodge) || ($0 == .stare && canStare)
         }
+        let index = min(others.count - 1, max(0, Int(otherRoll * Double(others.count))))
+        return others[index]
     }
 
     static func length(_ fuss: IdleFuss) -> Double {
@@ -99,6 +115,7 @@ struct IdleFussState: Equatable, Sendable {
     init(fuss: IdleFuss, startedAt: Double) {
         self.fuss = fuss
         self.startedAt = startedAt
+        if fuss == .stare { stare.begin(at: startedAt) }
     }
 
     func isActive(at t: Double) -> Bool {
@@ -106,15 +123,15 @@ struct IdleFussState: Equatable, Sendable {
         return t >= startedAt && t < startedAt + IdleFussMath.length(fuss)
     }
 
-    /// 누름 하나를 센다. 연타가 `PokeMath.comboCount`에 닿고 반응 중이 아니면 `options`에서 하나를 골라 시작한다.
-    func poked(now: Date, t: Double, options: [IdleFuss]) -> IdleFussState {
+    /// 누름 하나를 센다. 연타가 `PokeMath.comboCount`에 닿고 반응 중이 아니면 `candidate`를 시작한다.
+    func poked(now: Date, t: Double, candidate: IdleFuss) -> IdleFussState {
         var next = self
         next.combo = PokeMath.combo(previous: combo, lastTap: lastTap, now: now)
         next.lastTap = now
-        guard next.combo >= PokeMath.comboCount, !isActive(at: t), let fuss = options.randomElement() else { return next }
-        next.fuss = fuss
+        guard next.combo >= PokeMath.comboCount, !isActive(at: t) else { return next }
+        next.fuss = candidate
         next.startedAt = t
-        if fuss == .stare { next.stare.begin(at: t) }
+        if candidate == .stare { next.stare.begin(at: t) }
         return next
     }
 

@@ -3,23 +3,44 @@ import XCTest
 @testable import SugarCap
 
 final class IdleFussTests: XCTestCase {
-    func testHeartOnlyWhenFondAndDodgeOnlyWhenThereIsSomewhereToGo() {
-        XCTAssertEqual(IdleFussMath.options(canDodge: false, level: 1), [.shiver, .stare])
-        XCTAssertEqual(
-            IdleFussMath.options(canDodge: true, level: IdleFussMath.fondLevel), [.shiver, .dodge, .stare, .heart]
-        )
+    func testHeartChanceStartsAtFivePercentOnLevelThreeAndGrows() {
+        XCTAssertEqual(IdleFussMath.heartChance(level: 2), 0)
+        XCTAssertEqual(IdleFussMath.heartChance(level: 3), 0.05, accuracy: 1e-9)
+        XCTAssertEqual(IdleFussMath.heartChance(level: 10), 0.4, accuracy: 1e-9)
+        XCTAssertEqual(IdleFussMath.pick(canDodge: false, canStare: true, level: 3, heartRoll: 0.04, otherRoll: 0), .heart)
+        XCTAssertEqual(IdleFussMath.pick(canDodge: false, canStare: true, level: 3, heartRoll: 0.06, otherRoll: 0), .shiver)
+        XCTAssertEqual(IdleFussMath.pick(canDodge: false, canStare: true, level: 2, heartRoll: 0, otherRoll: 0.99), .stare)
+    }
+
+    func testDodgeOnlyWhenThereIsSomewhereToGo() {
+        let picks = Set(stride(from: 0.0, to: 1.0, by: 0.1).map {
+            IdleFussMath.pick(canDodge: false, canStare: true, level: 1, heartRoll: 1, otherRoll: $0)
+        })
+        XCTAssertEqual(picks, [.shiver, .stare])
+        XCTAssertEqual(IdleFussMath.pick(canDodge: true, canStare: true, level: 1, heartRoll: 1, otherRoll: 0.5), .dodge)
+    }
+
+    func testKainSkipsStareWhereStandingFrontWouldLookWrong() {
+        XCTAssertFalse(IdleFussMath.canStare(character: "kain", pose: "swim"))
+        XCTAssertFalse(IdleFussMath.canStare(character: "kain", pose: "lie-left"))
+        XCTAssertTrue(IdleFussMath.canStare(character: "kain", pose: "rim-sit"))
+        XCTAssertTrue(IdleFussMath.canStare(character: "roshu", pose: "in-cup"))
+        let picks = Set(stride(from: 0.0, to: 1.0, by: 0.1).map {
+            IdleFussMath.pick(canDodge: false, canStare: false, level: 1, heartRoll: 1, otherRoll: $0)
+        })
+        XCTAssertEqual(picks, [.shiver])
     }
 
     func testFifthQuickTapStartsAFussAndSlowTapsDoNot() {
         let base = Date(timeIntervalSince1970: 0)
         var quick = IdleFussState()
         for i in 0 ..< PokeMath.comboCount {
-            quick = quick.poked(now: base.addingTimeInterval(Double(i) * 0.3), t: Double(i) * 0.3, options: [.shiver])
+            quick = quick.poked(now: base.addingTimeInterval(Double(i) * 0.3), t: Double(i) * 0.3, candidate: .shiver)
             XCTAssertEqual(quick.fuss, i == PokeMath.comboCount - 1 ? .shiver : nil)
         }
         var slow = IdleFussState()
         for i in 0 ..< 8 {
-            slow = slow.poked(now: base.addingTimeInterval(Double(i) * 1.0), t: Double(i), options: [.shiver])
+            slow = slow.poked(now: base.addingTimeInterval(Double(i) * 1.0), t: Double(i), candidate: .shiver)
         }
         XCTAssertNil(slow.fuss)
     }

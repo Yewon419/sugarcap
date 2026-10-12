@@ -54,10 +54,12 @@ struct IdleCharacterLayer: View {
                     let flinch = flinchAt.map { IdleMotion.flinch(age: timeline.date.timeIntervalSince($0)) } ?? 0
                     let guestFlinch = guestFlinchAt.map { IdleMotion.flinch(age: timeline.date.timeIntervalSince($0)) } ?? 0
                     Canvas { context, _ in
-                        guestSprite?.draw(
+                        let shownGuest = visitor.stare.isStaring(at: t) ? guestSprite?.facingFront(at: guestT) : guestSprite
+                        shownGuest?.draw(
                             in: &context, t: guestT, blink: guestBlink, flinch: guestFlinch, jitter: visitor.jitter(t: t)
                         )
-                        sprite.draw(in: &context, t: hostT, blink: blink, flinch: flinch, jitter: host.jitter(t: t))
+                        let shown = host.stare.isStaring(at: t) ? sprite.facingFront(at: hostT) : sprite
+                        shown.draw(in: &context, t: hostT, blink: blink, flinch: flinch, jitter: host.jitter(t: t))
                         if let guestSprite, let guest, let heart = visitor.heart(t: t) {
                             guestSprite.drawHeart(heart, side: guest, t: guestT, in: context)
                         }
@@ -75,14 +77,26 @@ struct IdleCharacterLayer: View {
                     let t = now.timeIntervalSince(start)
                     if sprite.contains(local, t: hostFuss.stare.time(t)) {
                         flinchAt = now
-                        let options = IdleFussMath.options(canDodge: dodgeTarget() != nil, level: affinityLevel(side))
-                        let poked = hostFuss.poked(now: now, t: t, options: options)
+                        let candidate = IdleFussMath.pick(
+                            canDodge: dodgeTarget() != nil,
+                            canStare: IdleFussMath.canStare(character: side.idleCast.character, pose: pose),
+                            level: affinityLevel(side),
+                            heartRoll: Double.random(in: 0 ..< 1), otherRoll: Double.random(in: 0 ..< 1)
+                        )
+                        let poked = hostFuss.poked(now: now, t: t, candidate: candidate)
                         hostFuss = poked
                         if poked.fuss == .dodge, poked.startedAt == t { scheduleDodge() }
                     } else if let guestSprite, let guest, guestSprite.contains(local, t: guestFuss.stare.time(t)) {
                         guestFlinchAt = now
-                        let options = IdleFussMath.options(canDodge: false, level: affinityLevel(guest))
-                        guestFuss = guestFuss.poked(now: now, t: t, options: options)
+                        let candidate = IdleFussMath.pick(
+                            canDodge: false,
+                            canStare: IdleFussMath.canStare(
+                                character: guest.idleCast.character, pose: IdleOnlooker.look(guest).pose
+                            ),
+                            level: affinityLevel(guest),
+                            heartRoll: Double.random(in: 0 ..< 1), otherRoll: Double.random(in: 0 ..< 1)
+                        )
+                        guestFuss = guestFuss.poked(now: now, t: t, candidate: candidate)
                     } else {
                         onMiss(location)
                     }
@@ -162,7 +176,7 @@ struct IdleCharacterLayer: View {
         }
     }
 
-    /// 화면에 그릴 켜진 쪽 반응. CI 스크린샷(Debug `-pokeFuss shiver|heart` `-pokeFussAt <반응 뒤 초>`)이면 그 장면.
+    /// 화면에 그릴 켜진 쪽 반응. CI 스크린샷(Debug `-pokeFuss shiver|stare|heart` `-pokeFussAt <반응 뒤 초>`)이면 그 장면.
     private func shownFuss(_ state: IdleFussState, t: Double) -> IdleFussState {
         #if DEBUG
         if let raw = UserDefaults.standard.string(forKey: "pokeFuss"), let fuss = IdleFuss(rawValue: raw) {
@@ -232,6 +246,34 @@ struct IdleSprite {
         return IdleSprite(
             cast: cast, cupSetID: host.cupSetID, pose: look.pose, step: step, size: size, acrossCup: look.acrossCup
         )
+    }
+
+    /// 멈춰 보기(`IdleFuss.stare`) 동안의 정면 그림. 지금 자리(걷던 곳 포함)에 발끝을 맞춰 선다. 정면 그림이 없으면 그대로.
+    func facingFront(at t: Double) -> IdleSprite {
+        guard let front = IdleFussMath.frontPose(character: cast.character), front != spec.rule.art,
+              let frontSpec = cast.poseSet?.poses[front],
+              let frontArt = IdleRig.arts[cast.character]?[frontSpec.rule.art]
+        else { return self }
+        let now = frame(t)
+        let then = IdleSprite(copying: self, spec: frontSpec, art: frontArt, base: .zero).frame(t)
+        let at = CGPoint(x: base.x + now.dx - then.dx, y: base.y + now.dy - then.dy)
+        return IdleSprite(copying: self, spec: frontSpec, art: frontArt, base: at)
+    }
+
+    private init(copying other: IdleSprite, spec: IdlePoseSpec, art: IdleArt, base: CGPoint) {
+        cast = other.cast
+        rule = spec.rule
+        self.spec = spec
+        self.art = art
+        photo = other.photo
+        cutout = other.cutout
+        step = other.step
+        bounds = other.bounds
+        scale = other.scale
+        acrossCup = other.acrossCup
+        self.base = base
+        pivot = CGPoint(x: Double(art.bbox.midX) * other.scale, y: Double(art.bbox.maxY) * other.scale)
+        footY = Double(art.bbox.maxY) * other.scale
     }
 
     init?(cast: IdleCast, cupSetID: String, pose: String, step: Int, size: CGSize, acrossCup: Bool) {

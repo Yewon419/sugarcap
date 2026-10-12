@@ -19,13 +19,13 @@ struct WeekKeptCelebration: Identifiable, Equatable {
 /// 축하 시간표. `t` = 시작 뒤 초(가속된 시계). 전부 `t`의 순수 함수다.
 enum WeekKeptTimeline {
     /// 첫 면은 화면이 올라온 뒤 잠깐 그대로 보여 주고, 다음 면은 넘어오자마자 시작한다.
-    static let firstLead = 0.7
-    static let nextLead = 0.25
-    static let scrambleLength = 0.5
-    static let stagger = 0.07
+    static let firstLead = 0.4
+    static let nextLead = 0.2
+    static let scrambleLength = 0.4
+    static let stagger = 0.05
     /// 글자가 멈춘 뒤 점프·팡파레가 다 끝날 때까지.
-    static let hold = 1.8
-    static let slide = 0.6
+    static let hold = 1.4
+    static let slide = 0.5
     /// 두 면이면 시계를 이만큼 빨리 돌린다(대표님 "조금 빠른 모션").
     static func baseRate(sides: Int) -> Double { sides > 1 ? 1.25 : 1 }
 

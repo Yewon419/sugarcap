@@ -59,6 +59,8 @@ struct TodayView: View {
     @State private var failureMessage: String?
     /// 상자를 눌러 조명 무대가 떠 있는 선물(SPEC §4.9). 눌러 닫아야 연 것으로 저장한다.
     @State private var reveal: GiftReveal?
+    /// 상자를 눌러 뚜껑이 열리는 동안(무대 뜨기 전) 기다리는 일. 그 사이 다시 열지 않는다.
+    @State private var revealLead: Task<Void, Never>?
     /// 첫 보상 전에 추이 버튼을 누른 때. 2초 동안 "아직 잠긴 기능이에요".
     @State private var trendsLockToastAt: Date?
     /// 첫 선물(추이 열림) 연출 중이면 채운다(SPEC §4.9). 열린 추이 버튼을 누르면 비운다.
@@ -402,13 +404,23 @@ struct TodayView: View {
 
     /// 상자를 눌렀을 때. 추이 열림 선물은 열쇠 연출로, 나머지(Phase 2·3)는 조명 무대로 연다. 보고 있는 면만 받는다.
     private func beginOpening(_ gift: GiftEvent, at time: Double?, on cupSide: CupSide) {
-        guard cupSide == side, opening == nil, reveal == nil else { return }
+        guard cupSide == side, opening == nil, reveal == nil, revealLead == nil else { return }
         if gift.giftKind == .trendsUnlock {
             opening = GiftOpening(gift: gift, side: cupSide, openedAt: time, startedAt: Date())
         } else {
             // 내용은 상자가 생길 때 정해져 있다. 그 전에 생긴 옛 상자만 여기서 뽑는다(§4.9 2026-10-11).
             GiftStore.reveal(gift, isPro: pro.isPro, takenItems: GiftContent.takenItems(in: gifts), roll: Double.random(in: 0 ..< 1))
-            reveal = GiftReveal(gift: gift, startedAt: Date())
+            // 무대가 뜨면 운반 캐릭터가 멈춰서, 바로 띄우면 뚜껑 열림·조각이 한 프레임도 안 보였다(빌드 227 대표님
+            // "상자 열리는 연출이 아예 없던데"). 뚜껑이 열리고 조각이 솟은 뒤에 띄운다. 동작 줄이기·보이스오버면 바로.
+            guard time != nil, !reduceMotion else {
+                reveal = GiftReveal(gift: gift, startedAt: Date())
+                return
+            }
+            revealLead = Task { @MainActor in
+                try? await Task.sleep(for: .seconds(GiftOpeningTimeline.revealAfter))
+                revealLead = nil
+                reveal = GiftReveal(gift: gift, startedAt: Date())
+            }
         }
     }
 

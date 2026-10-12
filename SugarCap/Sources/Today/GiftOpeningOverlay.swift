@@ -7,6 +7,8 @@ enum GiftOpeningTimeline {
     static let lidStart = 0.05
     static let lidLength = 0.42
     static let lidOpen = -38.0
+    /// 첫 선물 말고 다른 선물: 누른 뒤 조명 무대(`GiftRevealStage`)가 뜨는 때. 뚜껑이 다 열리고 조각이 솟은 뒤.
+    static let revealAfter = 0.8
     static let burstStart = 0.22
     static let burstLength = 1.1
     static let keyStart = 0.3

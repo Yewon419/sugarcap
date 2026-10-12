@@ -1121,6 +1121,9 @@ struct TodayView: View {
                 kind: .feed, day: yesterday, sugarLeftG: dayTotals.leftSugarG, caffeineLeftMg: dayTotals.leftCaffeineMg,
                 limits: limits, sugarOverG: dayTotals.overSugarG, caffeineOverMg: dayTotals.overCaffeineMg
             )
+        case .weekKept:
+            let today = DayKey(at: now, boundaryHour: boundaryHour)
+            weekKept = WeekKeptCelebration(closed: today, sides: trackedSides, carrier: side)
         case .firstRun:
             // 루트가 완료 플래그를 지켜보다 온보딩으로 바꾼다. 기록·정산·호감도는 그대로다.
             UserDefaults.standard.removeObject(forKey: CompanionIntro.seenKey)

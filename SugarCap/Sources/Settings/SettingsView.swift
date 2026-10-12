@@ -275,6 +275,9 @@ private struct SettingsContent: View {
             Button("어제 정산 바로 보기") { onTestAction(.yesterdayGate) }
                 .font(AppFont.pretendard(16, .regular, relativeTo: .body))
                 .accessibilityIdentifier("test-yesterday")
+            Button("주 목표 축하 바로 보기") { onTestAction(.weekKept) }
+                .font(AppFont.pretendard(16, .regular, relativeTo: .body))
+                .accessibilityIdentifier("test-week-kept")
             Toggle("Pro 켠 것처럼", isOn: Binding(get: { pro.isProSimulated }, set: { pro.simulatePro($0) }))
                 .rowText()
                 .accessibilityIdentifier("test-pro")

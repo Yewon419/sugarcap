@@ -4034,6 +4034,22 @@
         }
       }
     },
+    "주 목표 축하 바로 보기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preview weekly goal celebration"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "直接預覽本週目標慶祝"
+          }
+        }
+      }
+    },
     "주마다 약 " : {
       "localizations" : {
         "en" : {

@@ -32,6 +32,8 @@ enum SettingsTestAction {
     case feeding
     /// 어젯밤 정산 화면을 저장 없이 연다.
     case yesterdayGate
+    /// 기준 지킨 주 축하 화면을 이번 주로 연다. 선물은 넣지 않는다.
+    case weekKept
     /// 앱 소개·로슈 카인 소개를 처음부터. 기록은 그대로 둔다.
     case firstRun
 }

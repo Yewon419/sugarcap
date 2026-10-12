@@ -99,11 +99,17 @@ enum GiftRevealTimeline {
             let length: Double = max(1, (mx * mx + my * my).squareRoot())
             let px: Double = -my / length * radius
             let py: Double = mx / length * radius
+            // 밑변 b 쪽에 가까운 원 쪽 점을 b 다음에 이어야 네모가 꼬이지 않는다. 꼬이면 나비 모양으로 겹쳐
+            // 깨진 유리처럼 보였다(빌드 227 대표님 "왜 이따구로 깨지는겨").
+            let one = CGPoint(x: cx - px, y: cy - py)
+            let two = CGPoint(x: cx + px, y: cy + py)
+            let oneFromB: Double = (Double(one.x) - bx) * (Double(one.x) - bx) + (Double(one.y) - by) * (Double(one.y) - by)
+            let twoFromB: Double = (Double(two.x) - bx) * (Double(two.x) - bx) + (Double(two.y) - by) * (Double(two.y) - by)
             var beam = Path()
             beam.move(to: CGPoint(x: ax, y: ay))
             beam.addLine(to: CGPoint(x: bx, y: by))
-            beam.addLine(to: CGPoint(x: cx - px, y: cy - py))
-            beam.addLine(to: CGPoint(x: cx + px, y: cy + py))
+            beam.addLine(to: oneFromB < twoFromB ? one : two)
+            beam.addLine(to: oneFromB < twoFromB ? two : one)
             beam.closeSubpath()
             return beam
         }
@@ -136,14 +142,15 @@ enum GiftRevealTimeline {
         return (k, 10 * (1 - k))
     }
 
-    /// 손그림 반짝이(조명 반지름 단위 자리, 크기 pt, 동그라미 여부). 레퍼런스처럼 안팎에 흩어 둔다.
-    private static let sparkles: [(x: Double, y: Double, size: Double, ring: Bool)] = [
-        (0.62, -0.88, 26, true), (-0.82, -0.62, 15, false), (1.02, -0.35, 13, false),
-        (-1.05, 0.22, 22, false), (0.98, 0.42, 18, false), (-0.2, -0.42, 22, true),
-        (0.62, 0.86, 14, false), (-0.72, 0.9, 12, false), (1.18, 0.62, 16, false),
+    /// 반짝이(조명 반지름 단위 자리, 크기 pt). 안팎에 흩어 둔다.
+    private static let sparkles: [(x: Double, y: Double, size: Double)] = [
+        (0.62, -0.88, 24), (-0.82, -0.62, 14), (1.02, -0.35, 12),
+        (-1.05, 0.22, 20), (0.98, 0.42, 16), (-0.2, -0.42, 18),
+        (0.62, 0.86, 13), (-0.72, 0.9, 11), (1.18, 0.62, 15),
     ]
 
-    /// 켜진 뒤 하나씩 톡 붙고, 천천히 반짝인다. 선은 또렷한 흰 선(번짐 없음).
+    /// 켜진 뒤 하나씩 톡 붙고, 천천히 반짝인다. 네 갈래 별을 흰 면으로 칠한다(번짐 없음).
+    /// 처음엔 손그림 `+`(일부는 동그라미)였는데 과녁처럼 보여 바꿨다(빌드 227 대표님 "반짝이도 좀 구림").
     static func drawSparkles(in context: GraphicsContext, size: CGSize, t: Double, calm: Bool) {
         let cx: Double = Double(size.width) / 2
         let cy: Double = Double(size.height) * centerY
@@ -154,22 +161,19 @@ enum GiftRevealTimeline {
             guard pop > 0 else { continue }
             let twinkle: Double = calm ? 1 : 0.82 + 0.18 * sin(2 * Double.pi * (t / 1.6 + Double(index) * 0.37))
             let scale: Double = pop * twinkle
-            let tilt: Double = (Double(index % 3) - 1) * 9
             var mark = context
             mark.translateBy(x: cx + sparkle.x * radius, y: cy + sparkle.y * radius)
-            mark.rotate(by: .degrees(tilt))
             mark.scaleBy(x: scale, y: scale)
-            let s: Double = sparkle.size
-            var cross = Path()
-            // 손으로 그은 것처럼 세로가 길고 가로는 한쪽으로 치우친다.
-            cross.move(to: CGPoint(x: 0.04 * s, y: -0.62 * s))
-            cross.addLine(to: CGPoint(x: -0.03 * s, y: 0.58 * s))
-            cross.move(to: CGPoint(x: -0.42 * s, y: 0.02 * s))
-            cross.addLine(to: CGPoint(x: 0.36 * s, y: -0.04 * s))
-            if sparkle.ring {
-                cross.addEllipse(in: CGRect(x: -0.24 * s, y: -0.26 * s, width: 0.48 * s, height: 0.52 * s))
-            }
-            mark.stroke(cross, with: .color(.white), style: StrokeStyle(lineWidth: 1.4, lineCap: .round))
+            let half: Double = sparkle.size / 2
+            let pinch: Double = half * 0.12
+            var star = Path()
+            star.move(to: CGPoint(x: 0, y: -half))
+            star.addQuadCurve(to: CGPoint(x: half, y: 0), control: CGPoint(x: pinch, y: -pinch))
+            star.addQuadCurve(to: CGPoint(x: 0, y: half), control: CGPoint(x: pinch, y: pinch))
+            star.addQuadCurve(to: CGPoint(x: -half, y: 0), control: CGPoint(x: -pinch, y: pinch))
+            star.addQuadCurve(to: CGPoint(x: 0, y: -half), control: CGPoint(x: -pinch, y: -pinch))
+            star.closeSubpath()
+            mark.fill(star, with: .color(.white))
         }
     }
 
@@ -389,7 +393,12 @@ struct GiftRevealOverlay: View {
             layer.fill(Path(CGRect(origin: .zero, size: size)), with: .color(.black.opacity(GiftRevealTimeline.dim * dark)))
             layer.blendMode = .destinationOut
             if let sweep { layer.fill(sweep, with: .color(.black.opacity(0.5))) }
-            for beam in beams { layer.fill(beam, with: .color(.black.opacity(0.45 * lit))) }
+            // 빛줄기끼리 겹친 곳이 두 번 파이지 않게 한 층에 칠하고 층째로 옅게 판다.
+            var beamLayer = layer
+            beamLayer.opacity = 0.45 * lit
+            beamLayer.drawLayer { inner in
+                for beam in beams { inner.fill(beam, with: .color(.black)) }
+            }
             for spot in spots { layer.fill(spot, with: .color(.black.opacity(spotOn))) }
         }
         // 두 원이 겹친 곳이 더 밝아지지 않게 합쳐서 한 번만 칠한다.

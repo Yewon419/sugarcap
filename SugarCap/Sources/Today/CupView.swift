@@ -1,7 +1,8 @@
 import SwiftUI
 
 /// 컵 장면 한 장. 배경·컵·액체가 다 들어간 원본 사진이다(SPEC §9-10). 단계가 바뀌면 크로스페이드한다.
-/// 2026-09-27 대표님: 오늘 탭은 누끼 없이 원본 사진으로. 오린 컵(`cutout-*`)은 추이 선반·영향 미리보기만 쓴다.
+/// 2026-09-27 대표님: 오늘 탭은 누끼 없이 원본 사진으로. 오린 컵(`cutout-*`)은 추이 선반·영향 미리보기와
+/// 큰 숫자를 잔 뒤로 숨기는 지우개(`CupHero`)로만 쓴다.
 ///
 /// 크기(2026-09-26 대표님 지시): 사진 높이를 화면의 84%로 줄여 바닥에 붙이고, 위 빈 곳은 벽 색(#F3F5F8)으로 채운다.
 /// 사진 윗부분 14%는 벽 색으로 녹아들게 가린다. 폭은 화면 폭 그대로 채우기라 양옆 경계선이 생기지 않는다.
@@ -17,16 +18,19 @@ struct CupView: View {
     let gift: GiftCarrierLayer?
     /// 단계 상승 무대에 선 캐릭터(SPEC §4.9 결정 4). 있는 동안 대기 자세 대신 이게 캐릭터다.
     let stage: LevelUpStageLayer?
+    /// 잔 뒤에 걸친 큰 숫자(2026-10-13). 사진 위·캐릭터 아래.
+    let hero: CupHero?
 
     init(
         step: Int, setID: String = CupLevel.defaultSetID, idle: IdleCharacterLayer? = nil, gift: GiftCarrierLayer? = nil,
-        stage: LevelUpStageLayer? = nil
+        stage: LevelUpStageLayer? = nil, hero: CupHero? = nil
     ) {
         self.step = step
         self.setID = setID
         self.idle = idle
         self.gift = gift
         self.stage = stage
+        self.hero = hero
     }
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -59,11 +63,8 @@ struct CupView: View {
                                 .id(assetName)
                                 .transition(.opacity)
                         }
-                        // 사진 칸 안에 두어 사진과 한 묶음으로 움직인다. 단계가 바뀔 때 자세가 다시 시작되지 않게 `.id` 밖에 둔다.
-                        .overlay { idle }
-                        .overlay { gift }
-                        .overlay { stage }
                         .clipped()
+                        // 위아래 녹임은 사진에만 건다. 숫자(사진 칸 위 14% 안까지 올라온다)·캐릭터는 녹이지 않는다(2026-10-13).
                         .mask {
                             LinearGradient(
                                 stops: [
@@ -73,6 +74,12 @@ struct CupView: View {
                                 startPoint: .top, endPoint: .bottom
                             )
                         }
+                        .overlay { hero }
+                        // 사진 칸 안에 두어 사진과 한 묶음으로 움직인다. 단계가 바뀔 때 자세가 다시 시작되지 않게 `.id` 밖에 둔다.
+                        .overlay { idle }
+                        .overlay { gift }
+                        .overlay { stage }
+                        .clipped()
                         .padding(.bottom, proxy.size.height * Self.liftRatio)
                 }
         }

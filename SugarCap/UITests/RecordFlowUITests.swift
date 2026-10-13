@@ -683,6 +683,7 @@ extension RecordFlowUITests {
         XCTAssertTrue(stage.label.contains("됐어요"), "무대 문구가 없음: \(stage.label)")
         stage.tap()
         XCTAssertTrue(stage.waitForNonExistence(timeout: 3), "눌렀는데 무대가 안 닫힘")
-        XCTAssertTrue(ui.element("cup-summary").isHittable, "무대가 닫혔는데 오늘 화면이 안 눌림")
+        // 숫자 요소는 컵 장면 위에 겹친 보이스오버용이라 누르기를 안 받는다(2026-10-13). 컵 장면이 눌리는지 본다.
+        XCTAssertTrue(ui.element("record-add").isHittable, "무대가 닫혔는데 오늘 화면이 안 눌림")
     }
 }

@@ -53,6 +53,8 @@ struct TodayView: View {
     @State private var paywall: ProFeature?
     /// 오른쪽 위 별 버튼으로 연 결제창(기능 없이 여는 것, 설정의 Pro 줄과 같다).
     @State private var isProPaywallPresented = false
+    /// 면마다 큰 숫자(`CupHero`)의 화면 자리. 누르기·보이스오버 요소를 여기에 맞춘다.
+    @State private var heroFrames: [CupSide: CGRect] = [:]
     @State private var isRecordSheetPresented = false
     @State private var isDayLogPresented = false
     /// 즐겨찾기 `+`로 방금 기록한 음료. 4초 동안 되돌리기 안내를 띄운다.
@@ -270,7 +272,13 @@ struct TodayView: View {
                         },
                         stage: staged.map { stage in
                             LevelUpStageLayer(stage: stage, onFrame: { levelUpFrames[cupSide] = $0 })
-                        }
+                        },
+                        hero: CupHero(
+                            side: cupSide, remaining: cupSide.remaining(totals), limit: cupSide.limit(limits),
+                            overflow: cupSide.overflow(totals), widest: widestNumber(totals),
+                            cutout: CupLevel.cutoutName(setID: cupSide.cupSetID, step: step),
+                            onFrame: { heroFrames[cupSide] = $0 }
+                        )
                     )
                     .frame(width: width)
                 }
@@ -591,11 +599,22 @@ struct TodayView: View {
     /// 컵을 누르면 음료 추가(2026-10-05 대표님, 오른쪽 아래 + 버튼 대신). 위 수치·아래 조작부 자리는 빼고
     /// 잔이 있는 칸만 받는다(프로토 `.cup-tap`과 같은 칸: 양옆 32, 위 35%, 아래 170).
     private func tapCup(at point: CGPoint, screen: CGRect) {
+        // 큰 숫자는 컵 장면 안에 그려져 캐릭터 아래에 있다. 캐릭터가 안 받은 누르기가 숫자 위면 하루 기록(2026-09-26).
+        if heroFrames[side]?.contains(point) == true {
+            isDayLogPresented = true
+            return
+        }
         let area = CGRect(
             x: screen.minX + 32, y: screen.minY + screen.height * 0.35,
             width: screen.width - 64, height: screen.height * 0.65 - 170
         )
         if area.contains(point) { isRecordSheetPresented = true }
+    }
+
+    /// 켜진 면 숫자 중 가장 넓은 것. 두 면 큰 숫자 크기를 맞춘다(2026-10-07 대표님 "양쪽 숫자 크기 맞춰줘").
+    private func widestNumber(_ totals: DayTotals) -> String {
+        let numbers = trackedSides.map { Amount.number($0.remaining(totals)) }
+        return numbers.max { CupHero.size(width: 100, widest: $0) > CupHero.size(width: 100, widest: $1) } ?? ""
     }
 
     private func cupStep(_ cupSide: CupSide, totals: DayTotals) -> Int {
@@ -660,23 +679,24 @@ struct TodayView: View {
             .ignoresSafeArea(edges: .top)
             .allowsHitTesting(false)
 
-            VStack(alignment: .leading, spacing: 6) {
-                headline(remaining: remaining, limit: limit, overflow: side.overflow(totals))
-                // 처음 한 번만: 기록 버튼이 따로 없으니 컵을 누르면 된다고 알려 준다. 첫 기록을 남기면 사라진다.
-                // 큰 숫자 바로 아래에 붙여 둔다(글자를 키워도 숫자와 안 겹치게).
-                if entries.isEmpty || showsCupHintForScreenshot {
-                    Text("컵을 눌러 마신 음료 적기")
-                        .font(AppFont.pretendard(15, .semibold, relativeTo: .subheadline))
-                        .foregroundStyle(.secondary)
-                        .padding(.leading, 24)
-                        .allowsHitTesting(false)
-                        .accessibilityHidden(true)
-                }
+            summaryProxy(remaining: remaining, limit: limit)
+
+            // 처음 한 번만: 기록 버튼이 따로 없으니 컵을 누르면 된다고 알려 준다. 첫 기록을 남기면 사라진다.
+            // 큰 숫자가 잔 입구로 내려가(2026-10-13) 비게 된 왼쪽 위에 둔다.
+            if entries.isEmpty || showsCupHintForScreenshot {
+                Text("컵을 눌러 마신 음료 적기")
+                    .font(AppFont.pretendard(15, .semibold, relativeTo: .subheadline))
+                    .foregroundStyle(.secondary)
+                    .padding(.leading, 24)
+                    .padding(.top, 14)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
             }
 
+            // 오른쪽 위 버튼 바로 아래(2026-10-13 대표님). 큰 숫자가 잔 입구로 내려가 예전 자리(191)와 겹친다.
             banners(today: today)
                 .padding(.horizontal, 20)
-                .padding(.top, 191)
+                .padding(.top, 52)
 
             trendsLockToast()
                 .frame(maxWidth: .infinity)
@@ -734,62 +754,39 @@ struct TodayView: View {
         }
     }
 
-    /// 무엇의 수치인지 → 숫자 순으로 읽힌다. 자간과 크기 대비로 위계를 만든다.
-    /// 날짜 줄은 대표님 지시로 뺐다(2026-09-29). 제목이 그 자리로 올라간다.
-    private func headline(remaining: Double, limit: Double, overflow: Double) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text("오늘 남은 \(side.label)")
-                .font(.system(.caption2, weight: .semibold))
-                .tracking(1.3)
-                .foregroundStyle(.tint)
-                // 빌드 215 대표님 "글씨 좀만 아래로": 8 → 20.
-                .padding(.top, 20)
-
-            HStack(alignment: .firstTextBaseline, spacing: 0) {
-                Text(AttributedString.heroDigits(Amount.number(remaining)))
-                    .font(.system(size: 96, weight: .bold))
-                    .monospacedDigit()
-                    .contentTransition(.numericText())
-                Text(side.unit)
-                    .font(.system(size: 30, weight: .medium))
-                    .opacity(0.85)
-                    .padding(.leading, 2)
-                Text("/\(Amount.number(limit)) \(side.unit)")
-                    .font(.footnote)
-                    .tracking(0.3)
-                    .foregroundStyle(.secondary)
-                    .opacity(0.8)
-                    .padding(.leading, 10)
-            }
-            .animation(.spring(response: 0.4), value: remaining)
-
-            if overflow > 0 {
-                Text("+\(Amount.number(overflow)) \(side.unit) 넘김")
-                    .font(.system(.footnote, weight: .medium))
-                    .foregroundStyle(.secondary)
-                    .padding(.top, 6)
-            }
+    /// 큰 숫자는 컵 장면 안(`CupHero`)에 그린다. 컵 장면은 접근성 요소 하나라, 보이스오버·UI 테스트용 숫자 요소를
+    /// 보고 있는 면 숫자 자리에 투명하게 겹친다. 누르기는 받지 않는다(캐릭터가 먼저 받고, 나머지는 `tapCup`이 숫자로 보낸다).
+    private func summaryProxy(remaining: Double, limit: Double) -> some View {
+        GeometryReader { proxy in
+            let origin = proxy.frame(in: .global).origin
+            let frame = heroFrames[side] ?? .zero
+            Rectangle()
+                .fill(Color.white.opacity(0.001))
+                .frame(width: max(frame.width, 1), height: max(frame.height, 1))
+                .position(x: frame.midX - origin.x, y: frame.midY - origin.y)
+                .allowsHitTesting(false)
+                // 큰 숫자를 누르면 하루 기록 시트(2026-09-26). 기록 보기·지우기는 여기서 한다.
+                .accessibilityElement(children: .ignore)
+                .accessibilityAddTraits(.isButton)
+                .accessibilityAction { isDayLogPresented = true }
+                .accessibilityIdentifier("cup-summary")
+                .accessibilityLabel(
+                    "\(side.label) 남은 \(Amount.number(remaining)) \(side.unit) / \(Amount.number(limit)) \(side.unit)"
+                )
+                // 컵 전환은 화면에서는 좌우 스와이프다. VoiceOver에서는 위아래 쓸기로 같은 일을 한다.
+                .accessibilityAdjustableAction { direction in
+                    switch direction {
+                    case .increment: switchSide(to: .caffeine)
+                    case .decrement: switchSide(to: .sugar)
+                    @unknown default: break
+                    }
+                }
+                .accessibilityHint(
+                    trackedSides.count > 1
+                        ? String(localized: "눌러서 오늘 기록을 봐요. 위아래로 쓸어 당과 카페인 컵을 오가요")
+                        : String(localized: "눌러서 오늘 기록을 봐요")
+                )
         }
-        .padding(.leading, 24)
-        // 큰 숫자를 누르면 하루 기록 시트(2026-09-26). 기록 보기·지우기는 여기서 한다.
-        .contentShape(Rectangle())
-        .onTapGesture { isDayLogPresented = true }
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(.isButton)
-        .accessibilityAction { isDayLogPresented = true }
-        .accessibilityIdentifier("cup-summary")
-        .accessibilityLabel(
-            "\(side.label) 남은 \(Amount.number(remaining)) \(side.unit) / \(Amount.number(limit)) \(side.unit)"
-        )
-        // 컵 전환은 화면에서는 좌우 스와이프다. VoiceOver에서는 위아래 쓸기로 같은 일을 한다.
-        .accessibilityAdjustableAction { direction in
-            switch direction {
-            case .increment: switchSide(to: .caffeine)
-            case .decrement: switchSide(to: .sugar)
-            @unknown default: break
-            }
-        }
-        .accessibilityHint(trackedSides.count > 1 ? String(localized: "눌러서 오늘 기록을 봐요. 위아래로 쓸어 당과 카페인 컵을 오가요") : String(localized: "눌러서 오늘 기록을 봐요"))
     }
 
     /// (Pro 별) · 추이 · 설정. 모두 같은 36pt 옅은 원이다. 호감도 버튼은 2026-10-06 대표님 지시로 뺐다.

@@ -68,6 +68,7 @@ targets:
           - Pretendard-ExtraBold.otf
           - Pretendard-Black.otf
           - ArchivoBlack-Regular.ttf
+          - Anton-Regular.ttf
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         ITSAppUsesNonExemptEncryption: false

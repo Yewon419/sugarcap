@@ -260,7 +260,8 @@ struct TodayView: View {
                             unlockedLevel: unlockedLevel(cupSide),
                             onMiss: { tapCup(at: $0, screen: proxy.frame(in: .global)) },
                             guest: trackedSides.count == 1 && hasOnlooker ? cupSide.other : nil,
-                            affinityLevel: affinityLevel
+                            affinityLevel: affinityLevel,
+                            halo: heroFrames[cupSide]
                         ),
                         gift: gift.map { gift in
                             GiftCarrierLayer(

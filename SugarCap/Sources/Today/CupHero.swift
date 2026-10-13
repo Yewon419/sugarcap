@@ -29,6 +29,14 @@ struct CupHero: View {
     /// 라벨 바닥과 숫자 머리 사이.
     static let labelGap = 4.0
 
+    /// 당 = 왼쪽, 카페인 = 오른쪽 정렬(대표님 베타 피드백 2026-10-13 "카페인은 우측정렬해볼까").
+    static func edge(_ side: CupSide) -> HorizontalAlignment {
+        switch side {
+        case .sugar: .leading
+        case .caffeine: .trailing
+        }
+    }
+
     /// 당 = 시안 회청색, 카페인 = 진갈색(대표님 2026-10-13).
     static func color(_ side: CupSide) -> Color {
         switch side {
@@ -56,19 +64,22 @@ struct CupHero: View {
             let baseline: Double = photo.top + Self.baselineRatio * photo.height
             let capTop: Double = baseline - cap
             let rowTop: Double = baseline - Self.ascentRatio * size
+            let edge = Self.edge(side)
             ZStack(alignment: .topLeading) {
                 Color.clear
                 label
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .frame(height: max(capTop - Self.labelGap, 0), alignment: .bottomLeading)
-                    .padding(.leading, 24)
+                    .frame(maxWidth: .infinity, alignment: Alignment(horizontal: edge, vertical: .center))
+                    .frame(height: max(capTop - Self.labelGap, 0), alignment: Alignment(horizontal: edge, vertical: .bottom))
+                    .padding(.horizontal, 24)
                 numberRow(size: size, cap: cap)
                     .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { row in
                         let top: Double = row.minY + (Self.ascentRatio - Self.capRatio) * size - Self.labelGap - 20
                         let bottom: Double = row.minY + Self.ascentRatio * size
                         onFrame(CGRect(x: row.minX, y: top, width: row.width, height: bottom - top))
                     }
-                    .offset(x: 24, y: rowTop)
+                    .frame(maxWidth: .infinity, alignment: Alignment(horizontal: edge, vertical: .top))
+                    .padding(.horizontal, 24)
+                    .offset(y: rowTop)
             }
         }
         .mask {

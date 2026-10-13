@@ -22,6 +22,9 @@ struct IdleCharacterLayer: View {
     var guest: CupSide?
     /// 캐릭터별 호감도 단계. 연타 반응의 하트(`IdleFuss.heart`)를 고르는 데만 쓴다.
     var affinityLevel: (CupSide) -> Int = { _ in 0 }
+    /// 큰 숫자(`CupHero`) 자리(전역 좌표). 이 안에서만 캐릭터 둘레에 벽 색 테두리를 둘러 같은 색 숫자와 갈라 보이게 한다
+    /// (대표님 베타 피드백 2026-10-13 "카인이랑 글씨 겹칠 때 구분 잘 되도록"). 커피 위 등 그 밖에는 테두리가 없다.
+    var halo: CGRect?
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
@@ -54,12 +57,17 @@ struct IdleCharacterLayer: View {
                     let flinch = flinchAt.map { IdleMotion.flinch(age: timeline.date.timeIntervalSince($0)) } ?? 0
                     let guestFlinch = guestFlinchAt.map { IdleMotion.flinch(age: timeline.date.timeIntervalSince($0)) } ?? 0
                     Canvas { context, _ in
+                        let origin = proxy.frame(in: .global).origin
+                        let ring = halo.map { Path($0.offsetBy(dx: -origin.x, dy: -origin.y)) }
                         let shownGuest = visitor.stare.isStaring(at: t) ? guestSprite?.facingFront(at: guestT) : guestSprite
                         shownGuest?.draw(
-                            in: &context, t: guestT, blink: guestBlink, flinch: guestFlinch, jitter: visitor.jitter(t: t)
+                            in: &context, t: guestT, blink: guestBlink, flinch: guestFlinch, jitter: visitor.jitter(t: t),
+                            halo: ring
                         )
                         let shown = host.stare.isStaring(at: t) ? sprite.facingFront(at: hostT) : sprite
-                        shown.draw(in: &context, t: hostT, blink: blink, flinch: flinch, jitter: host.jitter(t: t))
+                        shown.draw(
+                            in: &context, t: hostT, blink: blink, flinch: flinch, jitter: host.jitter(t: t), halo: ring
+                        )
                         if let guestSprite, let guest, let heart = visitor.heart(t: t) {
                             guestSprite.drawHeart(heart, side: guest, t: guestT, in: context)
                         }
@@ -325,9 +333,25 @@ struct IdleSprite {
 
     /// `flinch`: 눌렸을 때 움찔(0 ~ 1, `IdleMotion.flinch`). 기준점을 축으로 아래로 눌렸다 돌아온다.
     /// `jitter`: 연타 반응 부르르(-1 ~ 1, `IdleFussMath.shiver`). 그림자·반사까지 같이 가로로 민다.
-    func draw(in context: inout GraphicsContext, t: Double, blink: Double, flinch: Double, jitter: Double) {
+    /// `halo`: 이 영역 안에서만 몸 둘레에 벽 색 테두리(`haloWidth`)를 먼저 깐다. 또렷한 단색 선이다(에어브러시 아님).
+    func draw(
+        in context: inout GraphicsContext, t: Double, blink: Double, flinch: Double, jitter: Double, halo: Path? = nil
+    ) {
         var m = frame(t)
         m.dx += jitter * IdleFussMath.shiverWidth * Double(art.bbox.width) * scale
+        if let halo {
+            var ring = context
+            ring.clip(to: halo)
+            ring.addFilter(.colorMatrix(Self.haloMatrix))
+            ring.drawLayer { layer in
+                for k in 0 ..< Self.haloSteps {
+                    let angle: Double = Double(k) / Double(Self.haloSteps) * 2 * Double.pi
+                    var copy = layer
+                    copy.translateBy(x: cos(angle) * Self.haloWidth, y: sin(angle) * Self.haloWidth)
+                    drawParts(in: placed(copy, m: m, flinch: flinch), m: m, blink: blink)
+                }
+            }
+        }
         if let reflection = rule.reflection {
             drawReflection(reflection, in: context, m: m, flinch: flinch)
         }
@@ -593,6 +617,21 @@ struct IdleSprite {
         )
         context.draw(Image("idle-\(cast.character)-\(rule.art)-\(part)"), in: rect)
     }
+
+    /// 테두리 두께(pt)와 둘레를 찍는 방향 수.
+    static let haloWidth = 2.5
+    static let haloSteps = 12
+    /// 몸 그림의 색을 버리고 벽 색(#F3F5F8, `CupView`)으로 칠한다. 투명도는 그대로.
+    static let haloMatrix: ColorMatrix = {
+        var matrix = ColorMatrix()
+        matrix.r1 = 0
+        matrix.g2 = 0
+        matrix.b3 = 0
+        matrix.r5 = Float(0xF3) / 255
+        matrix.g5 = Float(0xF5) / 255
+        matrix.b5 = Float(0xF8) / 255
+        return matrix
+    }()
 
     /// "#RRGGBB". 형식은 그림 정보를 읽을 때(`IdleRig`)와 설정(`IdleCast`)에서 걸렀다.
     static func color(hex: String) -> Color {

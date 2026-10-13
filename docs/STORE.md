@@ -124,7 +124,7 @@
 
 ## 9. 스크린샷
 
-CI(`iOS` 워크플로)가 6.9인치 시뮬레이터로 찍어 `store-screenshots` 아티팩트로 올린다.
+CI(`Store screenshots` 워크플로, 수동 실행 `gh workflow run "Store screenshots" --ref main`)가 6.9인치 시뮬레이터로 찍어 `store-screenshots` 아티팩트로 올린다. 2026-10-13까지는 `iOS` 워크플로가 푸시마다 찍었다.
 데모 기록이 들어간 상태로 찍히며, 그 데이터는 Debug 빌드 전용 코드(`DemoData`)라 출시 빌드에는 없다.
 
 | 파일 | 화면 |

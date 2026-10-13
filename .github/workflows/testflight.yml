@@ -28,6 +28,7 @@ jobs:
     # 스크린샷(먹이기 단계·전환·소개·릴 프레임)이 늘어 25~30분 걸린다. 30분에서 잘려 취소된 적이 있다(2026-09-28).
     # 45분도 넘겨 끝 단계에서 취소됐다(2026-10-07, 영어 스크린샷 추가 전 46분).
     # 60분도 대만 스크린샷을 더하자 스토어 단계에서 잘렸다(2026-10-08, 63분).
+    # 80분도 스토어 단계까지 마친 뒤 55초 넘겨 취소됐다(2026-10-13, 81분). 스토어 스크린샷은 `store-screenshots.yml`로 뺐다.
     timeout-minutes: 80
     steps:
       - uses: actions/checkout@v4
@@ -420,106 +421,6 @@ jobs:
           name: localizations
           path: ${{ runner.temp }}/localizations
           retention-days: 14
-
-      # App Store 제출용 6.9인치 스크린샷(docs/STORE.md §9). 데모 기록을 넣은 상태로 찍는다.
-      - name: 스토어 스크린샷 (6.9인치)
-        working-directory: SugarCap
-        run: |
-          BIG=$(xcrun simctl list devices available -j | /usr/bin/python3 -c '
-          import json, sys
-          devices = json.load(sys.stdin)["devices"]
-          best = None
-          for runtime, items in sorted(devices.items()):
-              if "iOS" not in runtime:
-                  continue
-              for device in items:
-                  if not device.get("isAvailable"):
-                      continue
-                  name = device["name"]
-                  rank = 2 if "Pro Max" in name else (1 if "Max" in name or "Plus" in name else 0)
-                  if best is None or rank > best[0]:
-                      best = (rank, device["udid"], name)
-          if best is None:
-              sys.exit(1)
-          print(best[1], best[2], sep="\t")')
-          UDID=${BIG%%$'\t'*}
-          echo "기기: ${BIG#*$'\t'}"
-
-          APP=build/Build/Products/Debug-iphonesimulator/SugarCap.app
-          OUT="$RUNNER_TEMP/store-screenshots"
-          mkdir -p "$OUT"
-          xcrun simctl boot "$UDID" || true
-          xcrun simctl bootstatus "$UDID" -b
-          xcrun simctl ui "$UDID" appearance light
-          xcrun simctl install "$UDID" "$APP"
-          # 위 스크린샷 단계와 같은 이유로 콜드 런치를 한 번 소모한다.
-          xcrun simctl launch "$UDID" com.sugarcap.app -onboardingCompleted YES
-          sleep 8
-          xcrun simctl terminate "$UDID" com.sugarcap.app
-          # 상태 바를 스토어 관례대로 고정한다(9:41, 통신·배터리 가득).
-          xcrun simctl status_bar "$UDID" override --time "9:41" --cellularBars 4 --batteryState charged --batteryLevel 100
-
-          store_shot() {
-            local name="$1"; shift
-            xcrun simctl launch "$UDID" com.sugarcap.app -AppleLanguages "(ko)" -AppleLocale ko_KR -seedDemo YES -onboardingCompleted YES "$@"
-            sleep 5
-            xcrun simctl io "$UDID" screenshot "$OUT/$name.png"
-            xcrun simctl terminate "$UDID" com.sugarcap.app
-          }
-
-          store_shot 01-today
-          store_shot 02-trends -initialTab trends -mockProOwned YES
-          store_shot 03-feeding -screenshotFeeding YES
-          store_shot 04-paywall -mockPro YES -screenshotPaywall YES
-
-          # 미국 스토어(영어, SPEC §9.9 ③). 데모 기록은 빈 앱에만 들어가니 지우고 다시 깔아 미국 메뉴로 채운다.
-          xcrun simctl uninstall "$UDID" com.sugarcap.app
-          xcrun simctl install "$UDID" "$APP"
-          xcrun simctl launch "$UDID" com.sugarcap.app -onboardingCompleted YES
-          sleep 8
-          xcrun simctl terminate "$UDID" com.sugarcap.app
-          mkdir -p "$OUT/en-US"
-          store_shot_en() {
-            local name="$1"; shift
-            xcrun simctl launch "$UDID" com.sugarcap.app -AppleLanguages "(en)" -AppleLocale en_US -screenshotMenuCountry us -seedDemo YES -onboardingCompleted YES "$@"
-            sleep 5
-            xcrun simctl io "$UDID" screenshot "$OUT/en-US/$name.png"
-            xcrun simctl terminate "$UDID" com.sugarcap.app
-          }
-          store_shot_en 01-today
-          store_shot_en 02-trends -initialTab trends -mockProOwned YES
-          store_shot_en 03-feeding -screenshotFeeding YES
-          store_shot_en 04-paywall -mockPro YES -screenshotPaywall YES
-
-          # 대만 스토어(번체, SPEC §9.9 ④). 미국과 같은 이유로 다시 깔아 대만 메뉴로 채운다.
-          xcrun simctl uninstall "$UDID" com.sugarcap.app
-          xcrun simctl install "$UDID" "$APP"
-          xcrun simctl launch "$UDID" com.sugarcap.app -onboardingCompleted YES
-          sleep 8
-          xcrun simctl terminate "$UDID" com.sugarcap.app
-          mkdir -p "$OUT/zh-Hant"
-          store_shot_zh() {
-            local name="$1"; shift
-            xcrun simctl launch "$UDID" com.sugarcap.app -AppleLanguages "(zh-Hant)" -AppleLocale zh_TW -screenshotMenuCountry tw -seedDemo YES -onboardingCompleted YES "$@"
-            sleep 5
-            xcrun simctl io "$UDID" screenshot "$OUT/zh-Hant/$name.png"
-            xcrun simctl terminate "$UDID" com.sugarcap.app
-          }
-          store_shot_zh 01-today
-          store_shot_zh 02-trends -initialTab trends -mockProOwned YES
-          store_shot_zh 03-feeding -screenshotFeeding YES
-          store_shot_zh 04-paywall -mockPro YES -screenshotPaywall YES
-
-          # 업로드 전에 크기를 찍어 둔다. App Store 6.9인치는 1320x2868이어야 한다.
-          for shot in "$OUT"/*.png "$OUT"/en-US/*.png "$OUT"/zh-Hant/*.png; do
-            sips -g pixelWidth -g pixelHeight "$shot" | xargs echo
-          done
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: store-screenshots
-          path: ${{ runner.temp }}/store-screenshots
-          retention-days: 30
 
   # TestFlight 업로드. Actions 탭에서 수동 실행한다.
   testflight:

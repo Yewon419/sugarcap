@@ -223,24 +223,40 @@ struct TrendsView: View {
         }
     }
 
-    /// 주↔월. 무료가 월을 고르면 주에 머물고 페이월을 연다.
+    /// 주↔월 메뉴. 무료는 고를 게 이번 주뿐이라 메뉴 대신 "월별 비교?" 버튼 하나를 두고, 누르면 페이월을 연다
+    /// (2026-10-13 대표님). 사고 돌아오면 월 보기로 바뀐다(`pendingMonth`).
+    @ViewBuilder
     private func periodMenu(today: DayKey) -> some View {
+        if pro.isPro {
+            proPeriodMenu(today: today)
+        } else {
+            Button {
+                pendingMonth = true
+                paywall = .monthlyTrends
+            } label: {
+                Text("월별 비교?")
+                    .font(AppFont.pretendard(15, .bold, relativeTo: .subheadline))
+                    .foregroundStyle(Color.ink)
+                    .frame(minHeight: 44)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { coachFrames[.range] = $0 }
+            .accessibilityHint("슈가캡 Pro에서 월 추이를 볼 수 있어요")
+            .accessibilityIdentifier("trend-range")
+        }
+    }
+
+    private func proPeriodMenu(today: DayKey) -> some View {
         let selection = Binding<TrendRange>(
             get: { isMonth ? .month : .week },
-            set: { newValue in
-                if newValue == .month, !pro.isPro {
-                    pendingMonth = true
-                    paywall = .monthlyTrends
-                } else {
-                    range = newValue
-                }
-            }
+            set: { range = $0 }
         )
         let monthLabel = Self.appCalendar.shortStandaloneMonthSymbols[today.month - 1]
         return Menu {
             Picker("기간", selection: selection) {
                 Text("이번 주").tag(TrendRange.week)
-                Text(pro.isPro ? monthLabel : "\(monthLabel) · Pro").tag(TrendRange.month)
+                Text(monthLabel).tag(TrendRange.month)
             }
         } label: {
             HStack(spacing: 6) {

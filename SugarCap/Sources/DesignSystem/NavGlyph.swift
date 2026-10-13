@@ -7,6 +7,8 @@ enum NavGlyph {
     case trends
     /// 잔을 가로지르는 기준선과 손잡이.
     case settings
+    /// 다섯 갈래 별 윤곽. 무료일 때만 보이는 Pro 버튼(2026-10-13 대표님).
+    case pro
 }
 
 struct NavGlyphView: View {
@@ -28,6 +30,8 @@ struct NavGlyphView: View {
                 context.stroke(Self.settingsGlass, with: .foreground, style: line)
                 context.stroke(Path { $0.move(to: CGPoint(x: 2.5, y: 10.5)); $0.addLine(to: CGPoint(x: 16, y: 10.5)) }, with: .foreground, style: line)
                 context.fill(Path(ellipseIn: CGRect(x: 16.5, y: 8, width: 5, height: 5)), with: .foreground)
+            case .pro:
+                context.stroke(Self.star, with: .foreground, style: line)
             }
         }
         .frame(width: size, height: size)
@@ -52,6 +56,17 @@ struct NavGlyphView: View {
             path.addLine(to: CGPoint(x: x + 0.9, y: 19))
             path.closeSubpath()
         }
+    }
+
+    /// 바깥 꼭짓점 반지름 9.6, 안쪽 4.1. 무게중심을 맞추려 가운데를 조금 내렸다.
+    private static let star = Path { path in
+        for index in 0 ..< 10 {
+            let radius: Double = index % 2 == 0 ? 9.6 : 4.1
+            let angle: Double = -Double.pi / 2 + Double(index) * Double.pi / 5
+            let point = CGPoint(x: 12 + radius * cos(angle), y: 12.8 + radius * sin(angle))
+            if index == 0 { path.move(to: point) } else { path.addLine(to: point) }
+        }
+        path.closeSubpath()
     }
 
     /// 아래 모서리는 프로토의 반지름 1.7 호를 2차 곡선으로 옮겼다.

@@ -2882,6 +2882,22 @@
         }
       }
     },
+    "슈가캡 Pro에서 월 추이를 볼 수 있어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "See monthly trends with SugarCap Pro"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SugarCap Pro 可以查看每月趨勢"
+          }
+        }
+      }
+    },
     "승인을 기다리는 중이에요." : {
       "localizations" : {
         "en" : {
@@ -3614,6 +3630,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "每月趨勢需要 Pro"
+          }
+        }
+      }
+    },
+    "월별 비교?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compare by month?"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按月比較？"
           }
         }
       }

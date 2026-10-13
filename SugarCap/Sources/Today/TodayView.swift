@@ -51,6 +51,8 @@ struct TodayView: View {
     /// 지난 마감분이 방금 확정됐을 때만 채운다. 이번 실행 동안만 보인다.
     @State private var creditNotice: [FeedResult]?
     @State private var paywall: ProFeature?
+    /// 오른쪽 위 별 버튼으로 연 결제창(기능 없이 여는 것, 설정의 Pro 줄과 같다).
+    @State private var isProPaywallPresented = false
     @State private var isRecordSheetPresented = false
     @State private var isDayLogPresented = false
     /// 즐겨찾기 `+`로 방금 기록한 음료. 4초 동안 되돌리기 안내를 띄운다.
@@ -208,6 +210,9 @@ struct TodayView: View {
         }
         .sheet(item: $paywall) { feature in
             PaywallView(feature: feature)
+        }
+        .sheet(isPresented: $isProPaywallPresented) {
+            PaywallView(feature: nil)
         }
         .alert(
             failureMessage ?? "",
@@ -787,9 +792,15 @@ struct TodayView: View {
         .accessibilityHint(trackedSides.count > 1 ? String(localized: "눌러서 오늘 기록을 봐요. 위아래로 쓸어 당과 카페인 컵을 오가요") : String(localized: "눌러서 오늘 기록을 봐요"))
     }
 
-    /// 추이 · 설정. 둘 다 같은 36pt 옅은 원이다. 호감도 버튼은 2026-10-06 대표님 지시로 뺐다.
+    /// (Pro 별) · 추이 · 설정. 모두 같은 36pt 옅은 원이다. 호감도 버튼은 2026-10-06 대표님 지시로 뺐다.
+    /// 별은 무료일 때만 추이 왼쪽에 둔다. 누르면 결제창(2026-10-13 대표님).
     private var cornerButtons: some View {
         HStack(spacing: 0) {
+            if !pro.isPro {
+                Button { isProPaywallPresented = true } label: { cornerCircle(NavGlyphView(glyph: .pro)) }
+                    .accessibilityLabel("슈가캡 Pro")
+                    .accessibilityIdentifier("open-pro")
+            }
             // 첫 보상 전에는 잠겨 있다(SPEC §4.9). 버튼은 그대로 두고 누르면 한 줄만 띄운다(2026-10-09 대표님).
             Button { openTrends() } label: { cornerCircle(NavGlyphView(glyph: .trends)) }
                 .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { trendsButtonFrame = $0 }

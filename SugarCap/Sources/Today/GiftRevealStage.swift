@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// 상자에서 나온 것을 보여 주는 조명 무대(SPEC §4.9, 대표님 레퍼런스 2026-10-11 "팝업 대신 이런 연출").
-/// 화면이 어두워지고 → 조명 두 개와 비스듬한 빛줄기가 화면을 훑고 → 가운데로 모여 "딱" 켜지며 물건이 드러나고
+/// 화면이 어두워지고 → 조명 두 개가 화면을 훑고 → 가운데로 모여 "딱" 켜지며 물건이 드러나고
 /// → 손그림 반짝이와 “ 이름 ” 캡션이 붙는다. 아무 데나 누르면 닫힌다(드러나기 전에 누르면 드러난 장면으로 건너뛴다).
 /// 전부 `t`(시작 뒤 초)의 순수 함수다. 에어브러시 없음(CLAUDE.md 모션 규칙): 조명은 가장자리가 또렷한 단색 면.
 enum GiftRevealTimeline {
@@ -49,69 +49,6 @@ enum GiftRevealTimeline {
             (center: a, radius: Motion.lerp(w * 0.30, finalRadius, gather)),
             (center: b, radius: Motion.lerp(w * 0.25, finalRadius, gather)),
         ]
-    }
-
-    /// 훑는 동안 화면을 비스듬히 지나가는 빛줄기(레퍼런스 2번째 장). 모이기 시작하면 꺼진다.
-    static func sweep(_ t: Double, size: CGSize) -> Path? {
-        guard t >= searchStart, t < landStart else { return nil }
-        let w = Double(size.width)
-        let h = Double(size.height)
-        let u: Double = Motion.seg(t, searchStart, landStart, Ease.sineInOut)
-        let px: Double = Motion.lerp(w * 0.95, w * 0.25, u)
-        let py: Double = Motion.lerp(h * 0.25, h * 0.7, u)
-        let angle: Double = Motion.lerp(-36, -50, u) * Double.pi / 180
-        let half: Double = w * 0.24
-        let length: Double = h * 1.6
-        let dx: Double = cos(angle)
-        let dy: Double = sin(angle)
-        let nx: Double = -dy * half
-        let ny: Double = dx * half
-        var band = Path()
-        band.move(to: CGPoint(x: px - dx * length + nx, y: py - dy * length + ny))
-        band.addLine(to: CGPoint(x: px + dx * length + nx, y: py + dy * length + ny))
-        band.addLine(to: CGPoint(x: px + dx * length - nx, y: py + dy * length - ny))
-        band.addLine(to: CGPoint(x: px - dx * length - nx, y: py - dy * length - ny))
-        band.closeSubpath()
-        return band
-    }
-
-    /// 드러난 뒤 화면 양옆 위에서 조명으로 모이는 빛줄기 두 개(레퍼런스 1번째 장). 밑변 두 점(화면 비율).
-    /// 아래 두 줄기는 원 밑에서 X자로 겹쳐 뺐다(빌드 231 대표님 "원 아래쪽 부분은 없어야지").
-    private static let beamBases: [(CGPoint, CGPoint)] = [
-        (CGPoint(x: 0, y: 0.15), CGPoint(x: 0, y: 0.45)),
-        (CGPoint(x: 1, y: 0.10), CGPoint(x: 1, y: 0.42)),
-    ]
-
-    static func beams(size: CGSize) -> [Path] {
-        let w = Double(size.width)
-        let h = Double(size.height)
-        let cx: Double = w / 2
-        let cy: Double = h * centerY
-        let radius: Double = w * spotRatio * 0.92
-        return beamBases.map { first, second in
-            let ax: Double = Double(first.x) * w
-            let ay: Double = Double(first.y) * h
-            let bx: Double = Double(second.x) * w
-            let by: Double = Double(second.y) * h
-            let mx: Double = (ax + bx) / 2 - cx
-            let my: Double = (ay + by) / 2 - cy
-            let length: Double = max(1, (mx * mx + my * my).squareRoot())
-            let px: Double = -my / length * radius
-            let py: Double = mx / length * radius
-            // 밑변 b 쪽에 가까운 원 쪽 점을 b 다음에 이어야 네모가 꼬이지 않는다. 꼬이면 나비 모양으로 겹쳐
-            // 깨진 유리처럼 보였다(빌드 227 대표님 "왜 이따구로 깨지는겨").
-            let one = CGPoint(x: cx - px, y: cy - py)
-            let two = CGPoint(x: cx + px, y: cy + py)
-            let oneFromB: Double = (Double(one.x) - bx) * (Double(one.x) - bx) + (Double(one.y) - by) * (Double(one.y) - by)
-            let twoFromB: Double = (Double(two.x) - bx) * (Double(two.x) - bx) + (Double(two.y) - by) * (Double(two.y) - by)
-            var beam = Path()
-            beam.move(to: CGPoint(x: ax, y: ay))
-            beam.addLine(to: CGPoint(x: bx, y: by))
-            beam.addLine(to: oneFromB < twoFromB ? one : two)
-            beam.addLine(to: oneFromB < twoFromB ? two : one)
-            beam.closeSubpath()
-            return beam
-        }
     }
 
     /// 물건 밝기(0 = 어둠과 같은 진하기, 1 = 제 색). 훑는 조명이 지나가면 그만큼 밝아진다.
@@ -384,20 +321,11 @@ struct GiftRevealOverlay: View {
                 ))
             }
         }
-        let beams: [Path] = lit > 0 ? GiftRevealTimeline.beams(size: size) : []
-        let sweep: Path? = calm ? nil : GiftRevealTimeline.sweep(t, size: size)
         let spotOn: Double = calm || lit > 0 ? lit : 1
 
         context.drawLayer { layer in
             layer.fill(Path(CGRect(origin: .zero, size: size)), with: .color(.black.opacity(GiftRevealTimeline.dim * dark)))
             layer.blendMode = .destinationOut
-            if let sweep { layer.fill(sweep, with: .color(.black.opacity(0.5))) }
-            // 빛줄기끼리 겹친 곳이 두 번 파이지 않게 한 층에 칠하고 층째로 옅게 판다.
-            var beamLayer = layer
-            beamLayer.opacity = 0.45 * lit
-            beamLayer.drawLayer { inner in
-                for beam in beams { inner.fill(beam, with: .color(.black)) }
-            }
             for spot in spots { layer.fill(spot, with: .color(.black.opacity(spotOn))) }
         }
         // 두 원이 겹친 곳이 더 밝아지지 않게 합쳐서 한 번만 칠한다.

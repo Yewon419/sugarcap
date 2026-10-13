@@ -37,12 +37,13 @@ struct CupHero: View {
         }
     }
 
-    /// 숫자 크기(pt). 두 자리 "50"이 화면 폭의 약 45%(시안). 자리가 늘면 숫자 폭이 화면 폭 62%를 넘지 않게 줄인다.
+    /// 숫자 크기(pt). 두 자리 "50"이 화면 폭의 약 32%. 자리가 늘면 숫자 폭이 화면 폭 42%를 넘지 않게 줄인다.
+    /// 처음엔 시안대로 45%였는데 대표님이 "숫자 너무 큰데"(2026-10-13)라고 해서 줄였다.
     static func size(width: Double, widest: String) -> Double {
         let ems: Double = widest.reduce(0) { $0 + ($1.isNumber ? digitAdvance : commaAdvance) }
-        let base: Double = width * 0.455
+        let base: Double = width * 0.32
         guard ems > 0 else { return base }
-        return min(base, width * 0.62 / ems)
+        return min(base, width * 0.42 / ems)
     }
 
     // 정렬 가이드(`alignmentGuide(.top) { $0[.lastTextBaseline] }`)는 ZStack 안에서 먹지 않아 숫자 윗변이 입구에 놓였다

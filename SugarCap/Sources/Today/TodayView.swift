@@ -688,6 +688,8 @@ struct TodayView: View {
                     .font(AppFont.pretendard(15, .semibold, relativeTo: .subheadline))
                     .foregroundStyle(.secondary)
                     .padding(.leading, 24)
+                    // 오른쪽 위 버튼 3개(별·추이·설정) 자리를 비운다. 큰 글자에서 겹치지 않고 줄을 바꾼다.
+                    .padding(.trailing, 160)
                     .padding(.top, 14)
                     .allowsHitTesting(false)
                     .accessibilityHidden(true)

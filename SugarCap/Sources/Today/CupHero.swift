@@ -16,8 +16,9 @@ struct CupHero: View {
     var onFrame: (CGRect) -> Void = { _ in }
 
     static let fontName = "Anton-Regular"
-    /// 숫자 바닥(사진 비율) = 잔 앞쪽 입구 선. 사진 10장의 앞 입구가 0.318~0.328, 음료 윗면은 가장 높아야 0.331이다.
-    static let baselineRatio = 0.322
+    /// 숫자 바닥(사진 비율). 시안처럼 잔 앞쪽 입구 선(사진 10장 0.318~0.328)보다 살짝 아래까지 내려 선 너머로 글자 조각이
+    /// 보이게 한다. 음료 윗면은 가장 높아야 0.331이다.
+    static let baselineRatio = 0.328
     /// Anton 글자 비율(unitsPerEm 2048): 숫자 폭 1012, 쉼표 484, 대문자 높이 1760, 위 여백(hhea ascent) 2409.
     static let digitAdvance = 1012.0 / 2048
     static let commaAdvance = 484.0 / 2048

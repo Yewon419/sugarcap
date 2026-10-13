@@ -24,8 +24,9 @@ struct CupHero: View {
     static let commaAdvance = 484.0 / 2048
     static let capRatio = 1760.0 / 2048
     static let ascentRatio = 2409.0 / 2048
-    /// 단위·기준이 숫자 바닥보다 올라간 높이(대문자 높이 대비, 시안). 입구 위에 있어야 잔에 안 가린다.
-    static let unitRise = 0.36
+    /// 단위·기준의 바닥(사진 비율). 뒤쪽 입구 위끝(0.254)보다 위라 유리 선에 안 끊긴다(대표님 2026-10-13 "단위를 위로").
+    /// 처음엔 숫자 크기 비례(대문자 높이의 0.36)였는데, 숫자를 줄이자 단위가 입구 선에 걸렸다.
+    static let unitBaselineRatio = 0.243
     /// 라벨 바닥과 숫자 머리 사이.
     static let labelGap = 4.0
 
@@ -71,7 +72,7 @@ struct CupHero: View {
                     .frame(maxWidth: .infinity, alignment: Alignment(horizontal: edge, vertical: .center))
                     .frame(height: max(capTop - Self.labelGap, 0), alignment: Alignment(horizontal: edge, vertical: .bottom))
                     .padding(.horizontal, 24)
-                numberRow(size: size, cap: cap)
+                numberRow(size: size, rise: baseline - (photo.top + Self.unitBaselineRatio * photo.height))
                     .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { row in
                         let top: Double = row.minY + (Self.ascentRatio - Self.capRatio) * size - Self.labelGap - 20
                         let bottom: Double = row.minY + Self.ascentRatio * size
@@ -109,7 +110,7 @@ struct CupHero: View {
     }
 
     /// 숫자 + 올라간 단위·기준. 행 위끝 = Anton 위 여백 위끝(바닥에서 `ascentRatio × size`).
-    private func numberRow(size: Double, cap: Double) -> some View {
+    private func numberRow(size: Double, rise: Double) -> some View {
         let tint = Self.color(side)
         return HStack(alignment: .lastTextBaseline, spacing: 0) {
             Text(Amount.number(remaining))
@@ -127,7 +128,7 @@ struct CupHero: View {
                     .padding(.leading, 6)
             }
             .padding(.leading, 6)
-            .alignmentGuide(.lastTextBaseline) { $0[.lastTextBaseline] + Self.unitRise * cap }
+            .alignmentGuide(.lastTextBaseline) { $0[.lastTextBaseline] + rise }
         }
         .fixedSize()
         .animation(.spring(response: 0.4), value: remaining)

@@ -24,6 +24,10 @@ struct CupHero: View {
     static let commaAdvance = 484.0 / 2048
     static let capRatio = 1760.0 / 2048
     static let ascentRatio = 2409.0 / 2048
+    /// 아래 여백(hhea descent 674).
+    static let descentRatio = 674.0 / 2048
+    /// 단위 글자 크기(숫자 대비).
+    static let unitScale = 0.3
     /// 단위·기준의 바닥(사진 비율). 뒤쪽 입구 위끝(0.254)보다 위라 유리 선에 안 끊긴다(대표님 2026-10-13 "단위를 위로").
     /// 처음엔 숫자 크기 비례(대문자 높이의 0.36)였는데, 숫자를 줄이자 단위가 입구 선에 걸렸다.
     static let unitBaselineRatio = 0.243
@@ -109,28 +113,57 @@ struct CupHero: View {
         }
     }
 
-    /// 숫자 + 올라간 단위·기준. 행 위끝 = Anton 위 여백 위끝(바닥에서 `ascentRatio × size`).
+    /// 행 위끝 = 숫자의 Anton 위 여백 위끝(바닥에서 `ascentRatio × size`).
+    /// 당: 숫자 + 오른쪽 위로 올라간 단위·기준. 카페인: 오른쪽 정렬로 숫자 아래에 단위, 그 아래 기준(대표님 시안 2026-10-13).
+    @ViewBuilder
     private func numberRow(size: Double, rise: Double) -> some View {
-        let tint = Self.color(side)
-        return HStack(alignment: .lastTextBaseline, spacing: 0) {
-            Text(Amount.number(remaining))
-                .font(.custom(Self.fontName, fixedSize: size))
-                .foregroundStyle(tint)
-                .contentTransition(.numericText())
+        switch side {
+        case .sugar:
             HStack(alignment: .lastTextBaseline, spacing: 0) {
-                Text(side.unit)
-                    .font(.custom(Self.fontName, fixedSize: size * 0.3))
-                    .foregroundStyle(tint)
-                Text("/\(Amount.number(limit)) \(side.unit)")
-                    .font(.footnote)
-                    .tracking(0.3)
-                    .foregroundStyle(.secondary)
-                    .padding(.leading, 6)
+                digits(size: size)
+                HStack(alignment: .lastTextBaseline, spacing: 0) {
+                    unit(size: size)
+                    limitText
+                        .padding(.leading, 6)
+                }
+                .padding(.leading, 6)
+                .alignmentGuide(.lastTextBaseline) { $0[.lastTextBaseline] + rise }
             }
-            .padding(.leading, 6)
-            .alignmentGuide(.lastTextBaseline) { $0[.lastTextBaseline] + rise }
+            .fixedSize()
+            .animation(.spring(response: 0.4), value: remaining)
+        case .caffeine:
+            // 숫자 글자 칸의 아래 여백(descent)과 단위 글자 칸의 위 여백을 빼서 단위를 숫자 바닥 바로 아래에 붙인다.
+            let unitGap: Double = 0.15 * Self.capRatio * size
+            let pull: Double = Self.descentRatio * size + (Self.ascentRatio - Self.capRatio) * Self.unitScale * size
+            VStack(alignment: .trailing, spacing: 0) {
+                digits(size: size)
+                unit(size: size)
+                    .padding(.top, unitGap - pull)
+                limitText
+                    .padding(.top, 2)
+            }
+            .fixedSize()
+            .animation(.spring(response: 0.4), value: remaining)
         }
-        .fixedSize()
-        .animation(.spring(response: 0.4), value: remaining)
+    }
+
+    private func digits(size: Double) -> some View {
+        Text(Amount.number(remaining))
+            .font(.custom(Self.fontName, fixedSize: size))
+            .foregroundStyle(Self.color(side))
+            .contentTransition(.numericText())
+    }
+
+    private func unit(size: Double) -> some View {
+        Text(side.unit)
+            .font(.custom(Self.fontName, fixedSize: size * Self.unitScale))
+            .foregroundStyle(Self.color(side))
+    }
+
+    private var limitText: some View {
+        Text("/\(Amount.number(limit)) \(side.unit)")
+            .font(.footnote)
+            .tracking(0.3)
+            .foregroundStyle(.secondary)
     }
 }

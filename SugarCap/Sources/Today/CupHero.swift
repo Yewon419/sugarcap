@@ -11,7 +11,7 @@ struct CupHero: View {
     /// 켜진 면 숫자 중 가장 넓은 글자. 두 면 숫자 크기를 맞춘다.
     let widest: String
     let cutout: String
-    /// 라벨·숫자 묶음의 화면 자리. 숫자를 누르면 하루 기록이 열린다(`TodayView.tapCup`).
+    /// 라벨 위끝 ~ 숫자 바닥(입구 위로 보이는 부분)의 화면 자리. 숫자를 누르면 하루 기록이 열린다(`TodayView.tapCup`).
     var onFrame: (CGRect) -> Void = { _ in }
 
     static let fontName = "Anton-Regular"
@@ -26,6 +26,8 @@ struct CupHero: View {
     static let sink = 0.16
     /// 단위·기준이 숫자 바닥보다 올라간 높이(대문자 높이 대비, 시안). 입구 위에 있어야 잔에 안 가린다.
     static let unitRise = 0.36
+    /// 라벨 바닥과 숫자 머리 사이.
+    static let labelGap = 4.0
 
     /// 당 = 시안 회청색, 카페인 = 진갈색(대표님 2026-10-13).
     static func color(_ side: CupSide) -> Color {
@@ -43,18 +45,29 @@ struct CupHero: View {
         return min(base, width * 0.62 / ems)
     }
 
+    // 정렬 가이드(`alignmentGuide(.top) { $0[.lastTextBaseline] }`)는 ZStack 안에서 먹지 않아 숫자 윗변이 입구에 놓였다
+    // (2026-10-13 CI, 숫자가 화면 가운데를 덮어 컵 누르기가 하루 기록으로 감). 자리는 글자 비율로 직접 계산한다.
     var body: some View {
         GeometryReader { proxy in
             let photo = IdlePhoto(slot: proxy.size)
             let size = Self.size(width: Double(proxy.size.width), widest: widest)
             let cap: Double = size * Self.capRatio
             let baseline: Double = photo.top + Self.rim * photo.height + Self.sink * cap
+            let capTop: Double = baseline - cap
+            let rowTop: Double = baseline - Self.ascentRatio * size
             ZStack(alignment: .topLeading) {
                 Color.clear
-                block(size: size, cap: cap)
-                    .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { onFrame($0) }
-                    .alignmentGuide(.top) { $0[.lastTextBaseline] }
-                    .offset(x: 24, y: baseline)
+                label
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .frame(height: max(capTop - Self.labelGap, 0), alignment: .bottomLeading)
+                    .padding(.leading, 24)
+                numberRow(size: size, cap: cap)
+                    .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { row in
+                        let top: Double = row.minY + (Self.ascentRatio - Self.capRatio) * size - Self.labelGap - 20
+                        let bottom: Double = row.minY + Self.ascentRatio * size
+                        onFrame(CGRect(x: row.minX, y: top, width: row.width, height: bottom - top))
+                    }
+                    .offset(x: 24, y: rowTop)
             }
         }
         .mask {
@@ -68,40 +81,43 @@ struct CupHero: View {
         .accessibilityHidden(true)
     }
 
-    /// 라벨(+ 넘김) → 숫자 + 올라간 단위·기준. 라벨은 Anton 위 여백만큼 당겨 숫자 머리에 붙인다.
-    private func block(size: Double, cap: Double) -> some View {
-        let tint = Self.color(side)
-        return VStack(alignment: .leading, spacing: 4 - (Self.ascentRatio - Self.capRatio) * size) {
-            HStack(spacing: 8) {
-                Text("오늘 남은 \(side.label)")
-                    .font(.system(.caption2, weight: .semibold))
-                    .tracking(1.3)
-                    .foregroundStyle(tint)
-                if overflow > 0 {
-                    Text("+\(Amount.number(overflow)) \(side.unit) 넘김")
-                        .font(.system(.caption2, weight: .medium))
-                        .foregroundStyle(.secondary)
-                }
+    /// "오늘 남은 당" (+ 넘긴 양). 숫자 머리 바로 위에 붙는다.
+    private var label: some View {
+        HStack(spacing: 8) {
+            Text("오늘 남은 \(side.label)")
+                .font(.system(.caption2, weight: .semibold))
+                .tracking(1.3)
+                .foregroundStyle(Self.color(side))
+            if overflow > 0 {
+                Text("+\(Amount.number(overflow)) \(side.unit) 넘김")
+                    .font(.system(.caption2, weight: .medium))
+                    .foregroundStyle(.secondary)
             }
-            HStack(alignment: .lastTextBaseline, spacing: 0) {
-                Text(Amount.number(remaining))
-                    .font(.custom(Self.fontName, fixedSize: size))
-                    .foregroundStyle(tint)
-                    .contentTransition(.numericText())
-                HStack(alignment: .lastTextBaseline, spacing: 0) {
-                    Text(side.unit)
-                        .font(.custom(Self.fontName, fixedSize: size * 0.3))
-                        .foregroundStyle(tint)
-                    Text("/\(Amount.number(limit)) \(side.unit)")
-                        .font(.footnote)
-                        .tracking(0.3)
-                        .foregroundStyle(.secondary)
-                        .padding(.leading, 6)
-                }
-                .padding(.leading, 6)
-                .alignmentGuide(.lastTextBaseline) { $0[.lastTextBaseline] + Self.unitRise * cap }
-            }
-            .animation(.spring(response: 0.4), value: remaining)
         }
+    }
+
+    /// 숫자 + 올라간 단위·기준. 행 위끝 = Anton 위 여백 위끝(바닥에서 `ascentRatio × size`).
+    private func numberRow(size: Double, cap: Double) -> some View {
+        let tint = Self.color(side)
+        return HStack(alignment: .lastTextBaseline, spacing: 0) {
+            Text(Amount.number(remaining))
+                .font(.custom(Self.fontName, fixedSize: size))
+                .foregroundStyle(tint)
+                .contentTransition(.numericText())
+            HStack(alignment: .lastTextBaseline, spacing: 0) {
+                Text(side.unit)
+                    .font(.custom(Self.fontName, fixedSize: size * 0.3))
+                    .foregroundStyle(tint)
+                Text("/\(Amount.number(limit)) \(side.unit)")
+                    .font(.footnote)
+                    .tracking(0.3)
+                    .foregroundStyle(.secondary)
+                    .padding(.leading, 6)
+            }
+            .padding(.leading, 6)
+            .alignmentGuide(.lastTextBaseline) { $0[.lastTextBaseline] + Self.unitRise * cap }
+        }
+        .fixedSize()
+        .animation(.spring(response: 0.4), value: remaining)
     }
 }

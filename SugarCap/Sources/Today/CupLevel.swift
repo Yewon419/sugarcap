@@ -20,6 +20,11 @@ enum CupLevel {
         "cutout-\(setID)-\(step)"
     }
 
+    /// 같은 단계의 유리 선(입구 앞·뒤 호, 벽). 오늘 화면 큰 숫자를 끊는 지우개(`design/assets/cups/make_rim_lines.py`).
+    static func rimLineName(setID: String = defaultSetID, step: Int) -> String {
+        "rimline-\(setID)-\(step)"
+    }
+
     /// - Parameter remaining: 남은 양. `limit`과 같은 단위여야 한다.
     static func step(remaining: Double, limit: Double) -> Int {
         guard limit > 0 else { return 0 }

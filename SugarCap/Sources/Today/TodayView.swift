@@ -276,7 +276,7 @@ struct TodayView: View {
                         hero: CupHero(
                             side: cupSide, remaining: cupSide.remaining(totals), limit: cupSide.limit(limits),
                             overflow: cupSide.overflow(totals), widest: widestNumber(totals),
-                            cutout: CupLevel.cutoutName(setID: cupSide.cupSetID, step: step),
+                            rimLine: CupLevel.rimLineName(setID: cupSide.cupSetID, step: step),
                             onFrame: { heroFrames[cupSide] = $0 }
                         )
                     )

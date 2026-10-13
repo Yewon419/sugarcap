@@ -1,7 +1,8 @@
 import SwiftUI
 
-/// 오늘 화면 큰 숫자(2026-10-13 대표님 시안). 잔 입구에 걸쳐 두고, 입구 아래로 들어간 부분은 오린 잔(`cutout-*`)
-/// 모양만큼 지워 잔 뒤에 있는 것처럼 보이게 한다. 잔 그림을 위에 덮지 않아 얼음 루프(`CupIdleOverlay`)는 그대로 움직인다.
+/// 오늘 화면 큰 숫자(2026-10-13 대표님 시안). 바닥을 잔 앞쪽 입구 선에 맞춰 잔 뒤에 세운다. 숫자는 유리 너머로 그대로
+/// 비치고 유리 선(입구 앞·뒤 호, 벽, `rimline-*`)만 숫자를 끊는다(대표님 "컵 경계만 지워져 있거든"). 처음엔 오린 잔
+/// 모양 전체로 지웠다. 잔 그림을 위에 덮지 않아 얼음 루프(`CupIdleOverlay`)는 그대로 움직인다.
 /// 사진 칸(`CupView`) 안에서 사진과 캐릭터 사이에 그린다. 보이스오버·누르기는 `TodayView`의 숫자 요소가 맡는다.
 struct CupHero: View {
     let side: CupSide
@@ -10,20 +11,18 @@ struct CupHero: View {
     let overflow: Double
     /// 켜진 면 숫자 중 가장 넓은 글자. 두 면 숫자 크기를 맞춘다.
     let widest: String
-    let cutout: String
+    let rimLine: String
     /// 라벨 위끝 ~ 숫자 바닥(입구 위로 보이는 부분)의 화면 자리. 숫자를 누르면 하루 기록이 열린다(`TodayView.tapCup`).
     var onFrame: (CGRect) -> Void = { _ in }
 
     static let fontName = "Anton-Regular"
-    /// 잔 입구 높이(사진 비율). 오린 잔 10장 모두 위끝이 0.254~0.261이다.
-    static let rim = 0.257
+    /// 숫자 바닥(사진 비율) = 잔 앞쪽 입구 선. 사진 10장의 앞 입구가 0.318~0.328, 음료 윗면은 가장 높아야 0.331이다.
+    static let baselineRatio = 0.322
     /// Anton 글자 비율(unitsPerEm 2048): 숫자 폭 1012, 쉼표 484, 대문자 높이 1760, 위 여백(hhea ascent) 2409.
     static let digitAdvance = 1012.0 / 2048
     static let commaAdvance = 484.0 / 2048
     static let capRatio = 1760.0 / 2048
     static let ascentRatio = 2409.0 / 2048
-    /// 숫자 바닥이 입구 아래로 들어가는 깊이(대문자 높이 대비, 시안).
-    static let sink = 0.16
     /// 단위·기준이 숫자 바닥보다 올라간 높이(대문자 높이 대비, 시안). 입구 위에 있어야 잔에 안 가린다.
     static let unitRise = 0.36
     /// 라벨 바닥과 숫자 머리 사이.
@@ -53,7 +52,7 @@ struct CupHero: View {
             let photo = IdlePhoto(slot: proxy.size)
             let size = Self.size(width: Double(proxy.size.width), widest: widest)
             let cap: Double = size * Self.capRatio
-            let baseline: Double = photo.top + Self.rim * photo.height + Self.sink * cap
+            let baseline: Double = photo.top + Self.baselineRatio * photo.height
             let capTop: Double = baseline - cap
             let rowTop: Double = baseline - Self.ascentRatio * size
             ZStack(alignment: .topLeading) {
@@ -75,7 +74,7 @@ struct CupHero: View {
             Canvas { context, size in
                 context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(.black))
                 context.blendMode = .destinationOut
-                context.draw(Image(cutout), in: IdlePhoto(slot: size).rect)
+                context.draw(Image(rimLine), in: IdlePhoto(slot: size).rect)
             }
         }
         .allowsHitTesting(false)

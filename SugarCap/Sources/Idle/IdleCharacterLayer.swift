@@ -646,11 +646,12 @@ struct IdleSprite {
 }
 
 /// 구경꾼 자세(2026-10-07 대표님 "모션이 없고 우두커니 서 있으니"). 대기 자세 그대로 숨 쉬고 깜빡이고 눌리면 움찔한다.
-/// 카인은 딸기 컵 뒤 가장자리에 걸터앉고, 로슈는 커피 컵 오른쪽에 붙어 들여다본다(`watch`를 좌우로 뒤집음).
+/// 카인은 딸기 컵 뒤 가장자리 오른쪽에 걸터앉고(`rim-sit`은 카페인 숫자를 피해 왼쪽이라 뒤집어 당 숫자를 피한다),
+/// 로슈는 커피 컵 오른쪽에 붙어 들여다본다(`watch`를 좌우로 뒤집음).
 enum IdleOnlooker {
     static func look(_ guest: CupSide) -> (pose: String, acrossCup: Bool) {
         switch guest {
-        case .caffeine: return ("rim-sit", false)
+        case .caffeine: return ("rim-sit", true)
         case .sugar: return ("watch", true)
         }
     }

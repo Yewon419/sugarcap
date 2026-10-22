@@ -2338,18 +2338,18 @@
         }
       }
     },
-    "모르는 값은 비워 두세요. 합계에는 0으로 더하고 기록에는 \"미공개\"로 남아요." : {
+    "모르는 값은 비워 두세요." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Leave unknown values blank. They count as 0 in totals and show as \"Not published\" in your log."
+            "value" : "Leave unknown values blank."
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "不知道的數值請留空。合計時以0計算，記錄中會顯示「未公開」。"
+            "value" : "不知道的數值請留空。"
           }
         }
       }

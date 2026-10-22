@@ -56,7 +56,7 @@ struct ManualEntrySheet: View {
                     )
                 }
                 Section {
-                    Text("모르는 값은 비워 두세요. 합계에는 0으로 더하고 기록에는 \"미공개\"로 남아요.")
+                    Text("모르는 값은 비워 두세요.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }

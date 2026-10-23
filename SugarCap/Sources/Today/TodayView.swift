@@ -46,7 +46,7 @@ struct TodayView: View {
     /// 이번 실행에서 실제로 먹였는지. 먹이기 화면이 닫히면 첫 마감 뒤 알림을 한 번 묻는 데 쓴다.
     @State private var didFeed = false
     @State private var asksReminder = false
-    /// "어젯밤 이후 마신 만큼 빠졌어요"를 X로 닫은 날. 그날엔 다시 띄우지 않는다.
+    /// "어젯밤 이후 마신 만큼 빠졌어요"를 보여 준 날. 그날엔 다시 띄우지 않는다.
     @AppStorage("dismissedShrankNoticeDay") private var dismissedShrankDay = ""
     /// 지난 마감분이 방금 확정됐을 때만 채운다. 이번 실행 동안만 보인다.
     @State private var creditNotice: [FeedResult]?
@@ -241,7 +241,7 @@ struct TodayView: View {
 
     /// 당 · 카페인 컵 장면 두 장을 옆으로 붙여 두고 손가락을 따라 통째로 민다(2026-09-27 대표님:
     /// "이미지 두 개 붙여 놓고 미는 식으로"). 놓으면 끈 거리·속도로 가까운 쪽에 붙는다. 끝에서는 고무줄처럼 덜 끌린다.
-    private func cupStrip(totals: DayTotals) -> some View {
+    private func cupStrip(totals: DayTotals, notice: String?) -> some View {
         GeometryReader { proxy in
             let width = proxy.size.width
             let index = CGFloat(trackedSides.firstIndex(of: side) ?? 0)
@@ -278,6 +278,7 @@ struct TodayView: View {
                             side: cupSide, remaining: cupSide.remaining(totals), limit: cupSide.limit(limits),
                             overflow: cupSide.overflow(totals), widest: widestNumber(totals),
                             rimLine: CupLevel.rimLineName(setID: cupSide.cupSetID, step: step),
+                            notice: notice,
                             onFrame: { heroFrames[cupSide] = $0 }
                         )
                     )
@@ -669,7 +670,7 @@ struct TodayView: View {
         let limit = side.limit(limits)
 
         ZStack(alignment: .topLeading) {
-            cupStrip(totals: totals)
+            cupStrip(totals: totals, notice: shownNotice(today: today))
 
             // 상태 바 글자가 밝은 사진 위에서 묻히지 않게 아주 옅게만 깐다.
             LinearGradient(
@@ -696,10 +697,16 @@ struct TodayView: View {
                     .accessibilityHidden(true)
             }
 
-            // 오른쪽 위 버튼 바로 아래(2026-10-13 대표님). 큰 숫자가 잔 입구로 내려가 예전 자리(191)와 겹친다.
-            banners(today: today)
-                .padding(.horizontal, 20)
-                .padding(.top, 52)
+            // 안내 한 줄(큰 숫자 라벨 위, `CupHero.notice`)을 3.5초 보여 준 뒤 지운다. 둘 다 있으면 차례로.
+            Color.clear
+                .frame(width: 0, height: 0)
+                .task(id: shownNotice(today: today)) {
+                    guard let line = shownNotice(today: today) else { return }
+                    AccessibilityNotification.Announcement(line).post()
+                    try? await Task.sleep(for: .seconds(3.5))
+                    guard !Task.isCancelled else { return }
+                    dismissNotice(today: today)
+                }
 
             trendsLockToast()
                 .frame(maxWidth: .infinity)
@@ -852,56 +859,31 @@ struct TodayView: View {
 
     // MARK: - 정산(§4.7)
 
-    /// 컵 위에 뜨는 안내. 음료를 가리므로 투명하게 두고 반드시 X로 닫을 수 있게 한다(2026-09-27 대표님 베타 피드백).
+    /// 큰 숫자 라벨 위에 잠깐 뜨는 안내(2026-10-23 대표님: 카드·X 대신 한 줄, 몇 초 뒤 사라짐). 반영 알림이 먼저.
     /// 어제 먹이기·"안 마셨나요?"는 여기가 아니라 앱을 열면 먼저 뜨는 전체 화면(`YesterdayGateView`)이 맡는다.
-    private func banners(today: DayKey) -> some View {
+    private func noticeLine(today: DayKey) -> String? {
+        // 단계가 오른 건 여기 말고 무대 연출로 알린다(SPEC §4.9 결정 4).
+        if creditNotice != nil { return String(localized: "지난밤 먹인 음료가 반영됐어요") }
         let yesterday = today.shifted(by: -1)
         let yesterdayRow = settlements.first { $0.day == yesterday.rawValue }
-        let showsShrank = yesterdayRow?.shrankAfterClose(on: trackedSides) == true && dismissedShrankDay != yesterday.rawValue
-
-        return VStack(spacing: 10) {
-            if creditNotice != nil {
-                notice(onClose: { self.creditNotice = nil }) {
-                    // 단계가 오른 건 여기 말고 무대 연출로 알린다(SPEC §4.9 결정 4).
-                    Text("지난밤 먹인 음료가 반영됐어요")
-                }
-                .accessibilityIdentifier("notice-credit")
-            }
-            if showsShrank {
-                notice(onClose: { dismissedShrankDay = yesterday.rawValue }) {
-                    Text("어젯밤 이후 마신 만큼 빠졌어요")
-                }
-                .accessibilityIdentifier("notice-shrank")
-            }
+        if yesterdayRow?.shrankAfterClose(on: trackedSides) == true && dismissedShrankDay != yesterday.rawValue {
+            return String(localized: "어젯밤 이후 마신 만큼 빠졌어요")
         }
-        .animation(.easeOut(duration: 0.2), value: creditNotice == nil)
-        .animation(.easeOut(duration: 0.2), value: showsShrank)
+        return nil
     }
 
-    /// 투명한 안내 카드 + X. 컵 사진이 비쳐 보이게 옅은 흰 막만 깐다.
-    private func notice(onClose: @escaping () -> Void, @ViewBuilder _ content: () -> some View) -> some View {
-        HStack(alignment: .top, spacing: 8) {
-            content()
-                .font(AppFont.pretendard(15, .regular, relativeTo: .subheadline))
-                .frame(maxWidth: .infinity, alignment: .leading)
-            Button(action: onClose) {
-                Image(systemName: "xmark")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundStyle(.secondary)
-                    .frame(width: 26, height: 26)
-                    .background(.white.opacity(0.5), in: Circle())
-                    .tapTarget()
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("닫기")
+    /// 전체 화면(어제 먹이기·먹이기·주간 축하)에 가려져 있으면 띄우지 않는다. 뒤에서 시간이 흘러 못 보고 지나가지 않게.
+    private func shownNotice(today: DayKey) -> String? {
+        guard gate == nil, feeding == nil, weekKept == nil else { return nil }
+        return noticeLine(today: today)
+    }
+
+    private func dismissNotice(today: DayKey) {
+        if creditNotice != nil {
+            creditNotice = nil
+        } else {
+            dismissedShrankDay = today.shifted(by: -1).rawValue
         }
-        .padding(.leading, 16)
-        .padding(.trailing, 6)
-        .padding(.vertical, 6)
-        .frame(minHeight: 52)
-        .background(.white.opacity(0.28), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(.white.opacity(0.6)))
-        .transition(.opacity.combined(with: .move(edge: .top)))
     }
 
     /// 마감 가능 시각 이후에만 연다(이른 마감 방지). 마감한 뒤에도 기록은 계속 된다.

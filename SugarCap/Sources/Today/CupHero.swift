@@ -12,6 +12,8 @@ struct CupHero: View {
     /// 켜진 면 숫자 중 가장 넓은 글자. 두 면 숫자 크기를 맞춘다.
     let widest: String
     let rimLine: String
+    /// 라벨 바로 위에 잠깐 뜨는 한 줄 안내("지난밤 먹인 음료가 반영됐어요" 등). 언제 지울지는 `TodayView`가 정한다.
+    var notice: String?
     /// 라벨 위끝 ~ 숫자 바닥(입구 위로 보이는 부분)의 화면 자리. 숫자를 누르면 하루 기록이 열린다(`TodayView.tapCup`).
     var onFrame: (CGRect) -> Void = { _ in }
 
@@ -98,8 +100,27 @@ struct CupHero: View {
         .accessibilityHidden(true)
     }
 
-    /// "오늘 남은 당" (+ 넘긴 양). 숫자 머리 바로 위에 붙는다.
+    /// "오늘 남은 당" (+ 넘긴 양). 숫자 머리 바로 위에 붙는다. 안내 한 줄은 그 위로 쌓여 라벨·숫자를 밀지 않는다.
+    /// 카드·X 없이 면 색 점 + 작은 글자(2026-10-23 대표님, 시안 `summary-v3.html`).
     private var label: some View {
+        VStack(alignment: Self.edge(side), spacing: 8) {
+            if let notice {
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(Self.color(side))
+                        .frame(width: 5, height: 5)
+                    Text(notice)
+                        .font(.system(.caption, weight: .medium))
+                        .foregroundStyle(.secondary)
+                }
+                .transition(.asymmetric(insertion: .opacity.combined(with: .offset(y: 6)), removal: .opacity))
+            }
+            valueLabel
+        }
+        .animation(.timingCurve(0.23, 1, 0.32, 1, duration: 0.3), value: notice)
+    }
+
+    private var valueLabel: some View {
         HStack(spacing: 8) {
             Text("오늘 남은 \(side.label)")
                 .font(.system(.caption2, weight: .semibold))

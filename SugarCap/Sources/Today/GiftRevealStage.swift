@@ -1,15 +1,14 @@
 import SwiftUI
 
 /// 상자에서 나온 것을 보여 주는 조명 무대(SPEC §4.9, 대표님 레퍼런스 2026-10-11 "팝업 대신 이런 연출").
-/// 화면이 어두워지고 → 조명 두 개가 화면을 훑고 → 가운데로 모여 "딱" 켜지며 물건이 드러나고
-/// → 손그림 반짝이와 “ 이름 ” 캡션이 붙는다. 아무 데나 누르면 닫힌다(드러나기 전에 누르면 드러난 장면으로 건너뛴다).
+/// 화면이 어두워지고 → 가운데 조명이 "딱" 켜지며 물건이 드러나고 → 손그림 반짝이와 “ 이름 ” 캡션이 붙는다.
+/// 조명 두 개가 화면을 훑다 모이던 연출은 뺐다(빌드 264 대표님 "빛 와리가리하는 연출 빼자").
+/// 아무 데나 누르면 닫힌다(드러나기 전에 누르면 드러난 장면으로 건너뛴다).
 /// 전부 `t`(시작 뒤 초)의 순수 함수다. 에어브러시 없음(CLAUDE.md 모션 규칙): 조명은 가장자리가 또렷한 단색 면.
 enum GiftRevealTimeline {
     static let dimLength = 0.3
-    static let searchStart = 0.45
-    static let landStart = 1.6
-    /// 조명이 물건에 모여 켜지는 때.
-    static let land = 2.0
+    /// 조명이 물건에 켜지는 때(어두워진 직후).
+    static let land = 0.55
     static let captionIn = land + 0.3
     static let dim = 0.62
     /// 최종 조명 반지름(화면 폭 대비, 레퍼런스 300/923).
@@ -30,40 +29,9 @@ enum GiftRevealTimeline {
         return 1
     }
 
-    /// 훑는 조명 두 개(중심, 반지름). 착지 동안 가운데로 모이며 최종 크기가 된다.
-    static func spots(_ t: Double, size: CGSize) -> [(center: CGPoint, radius: Double)] {
-        guard t >= searchStart else { return [] }
-        let w = Double(size.width)
-        let h = Double(size.height)
-        let u: Double = t - searchStart
-        let gather: Double = Motion.seg(t, landStart, land, Ease.power3InOut)
-        let target = CGPoint(x: w / 2, y: h * centerY)
-        let finalRadius: Double = w * spotRatio
-        let ax: Double = w * (0.5 + 0.36 * sin(2 * Double.pi * 0.62 * u + 0.6))
-        let ay: Double = h * (0.42 + 0.24 * sin(2 * Double.pi * 0.41 * u + 2.2))
-        let bx: Double = w * (0.5 + 0.34 * sin(2 * Double.pi * 0.52 * u + 3.6))
-        let by: Double = h * (0.66 + 0.18 * sin(2 * Double.pi * 0.55 * u + 0.3))
-        let a = CGPoint(x: Motion.lerp(ax, Double(target.x), gather), y: Motion.lerp(ay, Double(target.y), gather))
-        let b = CGPoint(x: Motion.lerp(bx, Double(target.x), gather), y: Motion.lerp(by, Double(target.y), gather))
-        return [
-            (center: a, radius: Motion.lerp(w * 0.30, finalRadius, gather)),
-            (center: b, radius: Motion.lerp(w * 0.25, finalRadius, gather)),
-        ]
-    }
-
-    /// 물건 밝기(0 = 어둠과 같은 진하기, 1 = 제 색). 훑는 조명이 지나가면 그만큼 밝아진다.
-    static func itemLight(_ t: Double, size: CGSize, calm: Bool) -> Double {
-        let shown: Double = lit(t, calm: calm)
-        if calm || t >= land { return shown }
-        let center = CGPoint(x: Double(size.width) / 2, y: Double(size.height) * centerY)
-        var cover = 0.0
-        for spot in spots(t, size: size) {
-            let dx: Double = Double(spot.center.x - center.x)
-            let dy: Double = Double(spot.center.y - center.y)
-            let inside: Double = (spot.radius - (dx * dx + dy * dy).squareRoot()) / 24
-            cover = max(cover, Motion.clamp01(inside))
-        }
-        return cover
+    /// 물건 밝기(0 = 어둠과 같은 진하기, 1 = 제 색).
+    static func itemLight(_ t: Double, calm: Bool) -> Double {
+        lit(t, calm: calm)
     }
 
     /// 물건이 켜질 때 한 번 톡.
@@ -228,7 +196,7 @@ struct GiftRevealOverlay: View {
 
     @ViewBuilder
     private func itemView(width: Double, t: Double, size: CGSize) -> some View {
-        let light: Double = GiftRevealTimeline.itemLight(t, size: size, calm: reduceMotion)
+        let light: Double = GiftRevealTimeline.itemLight(t, calm: reduceMotion)
         let dark: Double = GiftRevealTimeline.dim * GiftRevealTimeline.darkness(t, calm: reduceMotion) * (1 - light)
         Group {
             if let item, let asset = item.asset {
@@ -323,28 +291,13 @@ struct GiftRevealOverlay: View {
             x: Double(center.x) - finalRadius, y: Double(center.y) - finalRadius,
             width: finalRadius * 2, height: finalRadius * 2
         ))
-        var spots: [Path] = []
-        if lit > 0 || calm {
-            spots = [finalSpot]
-        } else {
-            spots = GiftRevealTimeline.spots(t, size: size).map { spot in
-                Path(ellipseIn: CGRect(
-                    x: Double(spot.center.x) - spot.radius, y: Double(spot.center.y) - spot.radius,
-                    width: spot.radius * 2, height: spot.radius * 2
-                ))
-            }
-        }
-        let spotOn: Double = calm || lit > 0 ? lit : 1
-
         context.drawLayer { layer in
             layer.fill(Path(CGRect(origin: .zero, size: size)), with: .color(.black.opacity(GiftRevealTimeline.dim * dark)))
+            guard lit > 0 else { return }
             layer.blendMode = .destinationOut
-            for spot in spots { layer.fill(spot, with: .color(.black.opacity(spotOn))) }
+            layer.fill(finalSpot, with: .color(.black.opacity(lit)))
         }
-        // 두 원이 겹친 곳이 더 밝아지지 않게 합쳐서 한 번만 칠한다.
-        var union = Path()
-        for spot in spots { union.addPath(spot) }
-        let wash: Double = lit > 0 ? 0.62 * lit : 0.5
-        context.fill(union, with: .color(.white.opacity(wash * (calm ? lit : 1))), style: FillStyle(eoFill: false))
+        guard lit > 0 else { return }
+        context.fill(finalSpot, with: .color(.white.opacity(0.62 * lit)))
     }
 }

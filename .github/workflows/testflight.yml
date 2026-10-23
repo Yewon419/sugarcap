@@ -302,8 +302,9 @@ jobs:
           # 3단계(§4.9): 병뚜껑 카드, 추이의 병뚜껑 수, 별명(조사는 끝 글자 받침으로: 몽실과).
           shoot gift-cap light large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent cap -giftRevealAt 3
           shoot gift-cap-kain light large -mockPro YES -screenshotSide caffeine -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent cap -giftRevealAt 3
-          # 조명 무대(2026-10-11): -giftRevealAt = 시작 뒤 초. 1.0 조명이 훑는 중, 3 드러난 뒤.
-          shoot gift-reveal-search light large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent item:strawberry -giftRevealAt 1.0
+          # 조명 무대(2026-10-11): -giftRevealAt = 시작 뒤 초. 0.4 어두워진 뒤 조명 켜기 전, 3 드러난 뒤.
+          # 훑는 조명은 빌드 264에서 뺐다.
+          shoot gift-reveal-dark light large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent item:strawberry -giftRevealAt 0.4
           shoot gift-reveal-strawberry light large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent item:strawberry -giftRevealAt 3
           shoot trends-caps light large -initialTab trends -screenshotCaps 3
           # 기준 지킨 주 축하(2026-10-12): -weekKeptAt = 시작 뒤 초(가속 시계). 한 면: 0.8 글자 섞이는 중, 1.3 점프·팡파레.

@@ -189,8 +189,8 @@ struct FeedingView: View {
         }
         // 마감 진입 전에는 비워 둬 밑의 오늘 화면 위로 밤하늘이 차오르게 한다.
         .presentationBackground(isSceneVisible || isIntroPlaying ? Color.black : Color.clear)
-        // 요약은 밝은 벽 바탕이라 상태 표시줄도 라이트로.
-        .preferredColorScheme(isIntroPlaying || step == .done ? .light : .dark)
+        // 요약·마감 진입/마무리 덮개는 밝은 벽 바탕이라 상태 표시줄도 라이트로.
+        .preferredColorScheme(isIntroPlaying || step == .done || fx != nil && fx != .turn ? .light : .dark)
         .onAppear(perform: applySnapshot)
         .sheet(isPresented: $isRecordPresented) {
             FeedingRecordSheet(catalog: catalog, request: request, onRecord: addDrink)
@@ -269,7 +269,7 @@ struct FeedingView: View {
                 }
 
                 // 한 손 진행(대표님 2026-10-23): 오른쪽 아래를 누를 때마다 다음 동작(컵 누르기 → 먹이기 → 다음).
-                // 같은 동작은 컵·방울·아래 버튼에도 있어 보이스오버에서는 숨긴다.
+                // 같은 동작은 컵·방울·오른쪽 아래 화살표에도 있어 보이스오버에서는 숨긴다.
                 Color.clear
                     .contentShape(Rectangle())
                     .frame(width: proxy.size.width * 0.5, height: proxy.size.height * 0.3)
@@ -462,32 +462,43 @@ struct FeedingView: View {
         }
     }
 
+    /// 다음·마무리 버튼은 뺐다(빌드 258 대표님 "다음 버튼을 아예 없애자"). 오른쪽 아래 흰 화살표 하나로
+    /// 컵 누르기 → 먹이기 → 다음 면(마지막 면이면 마무리)을 차례로 넘긴다. 같은 자리의 한 손 진행 영역과 같은 동작.
     private var foot: some View {
         VStack(spacing: 12) {
-            ZStack {
-                if stage == .eaten {
-                    Button(action: nextStep) {
-                        Text(isLastSide ? String(localized: "마무리") : String(localized: "다음 · \(sides[stepIndex + 1].characterName)"))
-                            .ctaLabel()
+            HStack {
+                Spacer()
+                if stage != .searching {
+                    Button(action: advance) {
+                        Image(systemName: "arrow.right")
+                            .font(.system(size: 24, weight: .semibold))
                             .foregroundStyle(.white)
-                            .background(Color.accentColor, in: Capsule())
+                            .frame(width: 56, height: 56)
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(PressScaleStyle())
+                    .accessibilityLabel(arrowLabel)
                     .accessibilityIdentifier("feeding-next")
                     .transition(.opacity)
                 }
             }
             .frame(minHeight: 56)
-            // 안내 자리는 늘 잡아 둔다. 문구가 빠져도 버튼이 내려앉지 않게.
+            // 안내 자리는 늘 잡아 둔다. 문구가 빠져도 화살표가 내려앉지 않게.
             Text("마감 뒤에 마신 음료도 오늘 몫으로 빠져요")
                 .font(AppFont.pretendard(12, .regular, relativeTo: .caption))
                 .foregroundStyle(.white.opacity(0.6))
                 .multilineTextAlignment(.center)
                 .opacity(request.kind == .closeToday && stage != .eaten ? 1 : 0)
+                .allowsHitTesting(false)
         }
         .padding(.horizontal, 24)
         .padding(.bottom, 8)
         .animation(.easeOut(duration: 0.25), value: stage)
+    }
+
+    private var arrowLabel: String {
+        guard stage == .eaten else { return String(localized: "다음") }
+        return isLastSide ? String(localized: "마무리") : String(localized: "다음 · \(sides[stepIndex + 1].characterName)")
     }
 
     /// 유리 알약이 "구리다"(2026-10-05 대표님) → 밤 장면 위 흰 단색 칸. 그림자·유리 없음.

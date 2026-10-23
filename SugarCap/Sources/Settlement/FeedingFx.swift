@@ -36,9 +36,11 @@ struct FeedFxOverlay: View {
     /// 밤 전환 방울은 먹인 면만(설정 "기록할 것").
     @Environment(\.trackedSides) private var sides
 
-    /// 덮개 면 색. 먹이기 장면 위쪽(사진 + `NightScrim`)과 같은 중성 회색이다. 처음엔 남색 밤하늘(`Color.nightSky`)이었는데
-    /// 오늘 화면·먹이기·요약이 다 무채색이라 색이 튀었다(대표님 2026-10-23 빌드 258 "진한 파랑 밤 색깔을 아예 없애줘").
-    private static let sky = Color(red: 0x7A / 255, green: 0x7B / 255, blue: 0x7D / 255)
+    /// 덮개 면 색 = 오늘 화면·요약과 같은 밝은 벽. 처음엔 남색 밤하늘(`Color.nightSky`)이었는데 오늘 화면·먹이기·요약이
+    /// 다 무채색이라 색이 튀었다(대표님 2026-10-23 빌드 258 "진한 파랑 밤 색깔을 아예 없애줘", 회색 거쳐 "그냥 흰색").
+    private static let sky = Color.wall
+    /// 흰 덮개 위의 달·별·링(전엔 흰색). 글자는 `Color.ink`.
+    private static let mark = Color.nightKicker
 
     private static let stars: [CGPoint] = [
         CGPoint(x: 46, y: 150), CGPoint(x: 330, y: 118), CGPoint(x: 262, y: 226), CGPoint(x: 104, y: 292),
@@ -82,7 +84,7 @@ struct FeedFxOverlay: View {
                 .offset(x: -60, y: -70)
 
             Circle()
-                .fill(Color.wall)
+                .fill(Self.mark)
                 .frame(width: 64 * sx, height: 64 * sx)
                 .scaleEffect(Motion.lerp(0.6, 1, moonK))
                 .offset(x: 290 * sx, y: 190 * sy + Motion.lerp(300, 0, moonK) * sy)
@@ -91,7 +93,7 @@ struct FeedFxOverlay: View {
                 let start: Double = 0.45 + Double(index) * 0.05
                 let k: Double = seg(t, start, start + 0.3) { Ease.backOut($0, overshoot: 3) }
                 Circle()
-                    .fill(.white)
+                    .fill(Self.mark)
                     .frame(width: 6, height: 6)
                     .scaleEffect(max(0, k))
                     .offset(x: point.x * sx, y: point.y * sy)
@@ -100,12 +102,12 @@ struct FeedFxOverlay: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text(date)
                     .font(AppFont.pretendardFixed(15, .semibold))
-                    .foregroundStyle(.white.opacity(0.72))
+                    .foregroundStyle(Color.ink.opacity(0.55))
                     .opacity(small)
                     .offset(y: 8 * (1 - small))
                 MaskLine(
                     text: title, font: AppFont.pretendardFixed(56, .extraBold), lineHeight: 64,
-                    color: .white, tracking: AppFont.displayTracking(for: 56),
+                    color: Color.ink, tracking: AppFont.displayTracking(for: 56),
                     reveal: seg(t, 0.45, 1.0, Ease.power4Out)
                 )
             }
@@ -188,7 +190,7 @@ struct FeedFxOverlay: View {
             }
 
             Circle()
-                .strokeBorder(.white, lineWidth: 3 / max(0.3, 1 + 6 * ring))
+                .strokeBorder(Self.mark, lineWidth: 3 / max(0.3, 1 + 6 * ring))
                 .frame(width: 60, height: 60)
                 .scaleEffect(t < 1.22 ? 0 : 1 + 6 * ring)
                 .opacity(t < 1.22 ? 0 : 1 - ring)
@@ -200,7 +202,7 @@ struct FeedFxOverlay: View {
                 let x: Double = Double(center.x) + cos(angle) * distance * burst
                 let y: Double = Double(center.y) + sin(angle) * distance * 1.3 * burst
                 Circle()
-                    .fill(.white)
+                    .fill(Self.mark)
                     .frame(width: 6, height: 6)
                     .scaleEffect(t < 1.24 ? 0 : burst)
                     .opacity(1 - starsOut)

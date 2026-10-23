@@ -182,7 +182,8 @@ struct GiftRevealOverlay: View {
             GeometryReader { proxy in
                 let size = proxy.size
                 let itemY: CGFloat = size.height * CGFloat(GiftRevealTimeline.centerY)
-                let captionY: CGFloat = itemY + size.width * CGFloat(GiftRevealTimeline.spotRatio) + 60
+                let spot: CGFloat = size.width * CGFloat(GiftRevealTimeline.spotRatio)
+                let captionY: CGFloat = itemY + spot + 60
                 ZStack {
                     Canvas { context, canvasSize in
                         drawLights(in: context, size: canvasSize, t: t)
@@ -192,6 +193,10 @@ struct GiftRevealOverlay: View {
                     Canvas { context, canvasSize in
                         GiftRevealTimeline.drawSparkles(in: context, size: canvasSize, t: t, calm: reduceMotion)
                     }
+                    // 이름은 그림 위(빌드 264 대표님 "이름 그림 위쪽에 쓰고 폰트 두꺼운 걸로").
+                    nameView(t: t)
+                        .frame(width: size.width - 48)
+                        .position(x: size.width / 2, y: itemY - spot - 52)
                     captionView(t: t)
                         .frame(width: size.width - 48)
                         .position(x: size.width / 2, y: captionY)
@@ -258,26 +263,34 @@ struct GiftRevealOverlay: View {
         .padding(width * 0.1)
     }
 
+    private func nameView(t: Double) -> some View {
+        let caption = GiftRevealTimeline.caption(t, calm: reduceMotion)
+        return Button(action: onClose) {
+            HStack(alignment: .top, spacing: 10) {
+                Text(verbatim: "\u{201C}")
+                    .font(AppFont.pretendardFixed(30, .extraBold))
+                Text(item?.name ?? "")
+                    .font(AppFont.pretendard(26, .extraBold, relativeTo: .title2))
+                    .padding(.top, 6)
+                Text(verbatim: "\u{201D}")
+                    .font(AppFont.pretendardFixed(30, .extraBold))
+            }
+            .foregroundStyle(.white)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(item?.name ?? "")
+        .accessibilityHint("눌러서 닫기")
+        .accessibilityIdentifier("gift-confirm")
+        .dynamicTypeSize(...DynamicTypeSize.accessibility2)
+        .opacity(caption.opacity)
+        .offset(y: caption.dy)
+        .allowsHitTesting(caption.opacity > 0.5)
+    }
+
     @ViewBuilder
     private func captionView(t: Double) -> some View {
         let caption = GiftRevealTimeline.caption(t, calm: reduceMotion)
         VStack(spacing: 14) {
-            Button(action: onClose) {
-                HStack(alignment: .top, spacing: 10) {
-                    Text(verbatim: "\u{201C}")
-                        .font(AppFont.pretendardFixed(30, .regular))
-                    Text(item?.name ?? "")
-                        .font(AppFont.pretendard(24, .medium, relativeTo: .title2))
-                        .padding(.top, 8)
-                    Text(verbatim: "\u{201D}")
-                        .font(AppFont.pretendardFixed(30, .regular))
-                }
-                .foregroundStyle(.white)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(item?.name ?? "")
-            .accessibilityHint("눌러서 닫기")
-            .accessibilityIdentifier("gift-confirm")
             if offersPro, reveal.gift.isHeart {
                 Button(action: onPro) {
                     Text("이제 마음 말고 슬슬 다른 것도 받고 싶으시다고요?")

@@ -70,10 +70,11 @@ struct YesterdayGateView: View {
                 Text("어제 · \(dateText)")
                     .dateLabel()
                     .padding(.top, 8)
-                Text(gate.kind == .feed ? String(localized: "어젯밤 마감을 못 했어요") : String(localized: "어제는 기록이 없어요"))
+                // 머리말·제목을 맞바꿨다(빌드 264 대표님 "남은 음료를 아직 못 먹였어요 -> 어젯밤 마감").
+                Text(gate.kind == .feed ? String(localized: "남은 음료를 아직 못 먹였어요") : String(localized: "어제는 기록이 없어요"))
                     .kicker()
                     .padding(.top, 28)
-                Text(gate.kind == .feed ? String(localized: "남은 음료를\n아직 못 먹였어요") : String(localized: "어제 음료를\n안 마셨나요?"))
+                Text(gate.kind == .feed ? String(localized: "어젯밤 마감") : String(localized: "어제 음료를\n안 마셨나요?"))
                     .font(AppFont.pretendard(34, .bold, relativeTo: .largeTitle))
                     .tracking(AppFont.displayTracking(for: 34))
                     .lineSpacing(2)
@@ -98,14 +99,9 @@ struct YesterdayGateView: View {
             .padding(.horizontal, 24)
         }
         .overlay(alignment: .bottom) {
-            VStack(spacing: 18) {
-                HStack(alignment: .bottom, spacing: 18) {
-                    // 카인 = 로슈 × 0.91(오늘 화면 비율). 로슈 130은 카인보다 너무 커 보였다(베타 피드백 "로슈 사이즈 줄여").
-                    ForEach(sides) { side in waiting(side, height: side == .sugar ? 114 : 104) }
-                }
-                actions
-            }
-            .padding(.horizontal, 24)
+            // 캐릭터·"기다렸어요" 말풍선은 뺐다(빌드 264 대표님).
+            actions
+                .padding(.horizontal, 24)
             .padding(.bottom, 8)
         }
     }
@@ -137,27 +133,11 @@ struct YesterdayGateView: View {
                 Text(side.unit)
                     .font(AppFont.pretendard(13, .medium, relativeTo: .footnote))
             }
-            Text("남은 \(side.label) · \(side.characterName) 몫")
+            Text("남은 \(side.label)")
                 .font(AppFont.pretendard(12, .regular, relativeTo: .caption))
                 .foregroundStyle(.secondary)
         }
         .accessibilityElement(children: .combine)
-    }
-
-    private func waiting(_ side: CupSide, height: CGFloat) -> some View {
-        VStack(spacing: 8) {
-            Text("기다렸어요")
-                .font(AppFont.pretendard(12, .semibold, relativeTo: .caption))
-                .foregroundStyle(.tint)
-                .padding(.horizontal, 12)
-                .frame(minHeight: 28)
-                .background(.white.opacity(0.8), in: Capsule())
-            Image(side.characterAsset)
-                .resizable()
-                .scaledToFit()
-                .frame(height: height)
-        }
-        .accessibilityHidden(true)
     }
 
     @ViewBuilder

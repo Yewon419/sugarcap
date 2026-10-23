@@ -151,22 +151,6 @@
         }
       }
     },
-    "컵을 눌러 주세요." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tap the cup."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "點一下杯子。"
-          }
-        }
-      }
-    },
     "%@ 기다리고 있어요. 먹이고 오늘을 시작해요." : {
       "localizations" : {
         "en" : {
@@ -1138,22 +1122,6 @@
         }
       }
     },
-    "기다렸어요" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Missed you"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "等你好久了"
-          }
-        }
-      }
-    },
     "기록" : {
       "localizations" : {
         "en" : {
@@ -1426,22 +1394,6 @@
         }
       }
     },
-    "남은 %@ · %@ 몫" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ left · for %2$@"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "剩下的%1$@ · %2$@的份"
-          }
-        }
-      }
-    },
     "남은 당·카페인" : {
       "localizations" : {
         "en" : {
@@ -1474,18 +1426,18 @@
         }
       }
     },
-    "남은 음료를\n아직 못 먹였어요" : {
+    "남은 음료를 아직 못 먹였어요" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You haven't fed\nyour leftovers yet"
+            "value" : "You haven't fed your leftovers yet"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "剩下的飲料\n還沒餵"
+            "value" : "剩下的飲料還沒餵"
           }
         }
       }
@@ -3234,18 +3186,18 @@
         }
       }
     },
-    "어젯밤 마감을 못 했어요" : {
+    "어젯밤 마감" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You didn't close last night"
+            "value" : "Last night's close"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "昨晚沒有結算"
+            "value" : "昨晚結算"
           }
         }
       }
@@ -4798,6 +4750,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "點一下杯子，記下喝了什麼"
+          }
+        }
+      }
+    },
+    "컵을 눌러 주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap the cup."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "點一下杯子。"
           }
         }
       }

@@ -65,6 +65,8 @@ private struct SettingsContent: View {
     @State private var namingSide: CupSide?
     @State private var nicknameDraft = ""
     @State private var renamed = 0
+    @State private var showsInventory = false
+    @Query private var gifts: [GiftEvent]
 
     @Query private var affinities: [Affinity]
     @Environment(\.modelContext) private var context
@@ -74,6 +76,30 @@ private struct SettingsContent: View {
 
     var body: some View {
         List {
+            // 보관함(대표님 2026-10-24). 맨 위 줄, 오른쪽에 병뚜껑 개수.
+            Section {
+                Button {
+                    showsInventory = true
+                } label: {
+                    HStack {
+                        Text("보관함")
+                        Spacer()
+                        Image(systemName: "seal.fill")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                        Text("\(capCount)").foregroundStyle(.secondary)
+                        Image(systemName: "chevron.right")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(.tertiary)
+                    }
+                    .rowText()
+                    .contentShape(Rectangle())
+                }
+                .accessibilityIdentifier("open-inventory")
+            } footer: {
+                Text("모은 병뚜껑과 물건을 볼 수 있어요.")
+            }
+
             Section {
                 ForEach(CupSide.allCases) { side in
                     Toggle(side.label, isOn: Binding(get: { settings.tracks(side) }, set: { setTracks($0, side) }))
@@ -175,7 +201,11 @@ private struct SettingsContent: View {
         }
         .scrollContentBackground(.hidden)
         .background(Color.wall.ignoresSafeArea())
+        .navigationDestination(isPresented: $showsInventory) { InventoryView() }
         .task {
+            #if DEBUG
+            if UserDefaults.standard.bool(forKey: "screenshotInventory") { showsInventory = true }
+            #endif
             await CloseReminder.refresh(closeFromHour: settings.closeFromHour)
             isTestBuild = await TestBuild.isActive()
         }
@@ -371,6 +401,16 @@ private struct SettingsContent: View {
     }
 
     @ViewBuilder
+    /// 열어 본 병뚜껑 수(보관함 줄). Debug `-screenshotCaps <n>`이면 그 값.
+    private var capCount: Int {
+        #if DEBUG
+        if UserDefaults.standard.object(forKey: "screenshotCaps") != nil {
+            return UserDefaults.standard.integer(forKey: "screenshotCaps")
+        }
+        #endif
+        return gifts.filter { $0.isCap && $0.isOpened }.count
+    }
+
     private var proRow: some View {
         if pro.isPro {
             HStack {

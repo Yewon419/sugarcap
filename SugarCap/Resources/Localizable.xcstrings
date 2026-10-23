@@ -2546,6 +2546,22 @@
         }
       }
     },
+    "모은 병뚜껑과 물건을 볼 수 있어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "See the bottle caps and things you've collected."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "看看收集到的瓶蓋和物品。"
+          }
+        }
+      }
+    },
     "목록에 없을 때" : {
       "localizations" : {
         "en" : {
@@ -2622,6 +2638,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "照著目標少喝一點吧"
+          }
+        }
+      }
+    },
+    "물건" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Things"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "物品"
           }
         }
       }
@@ -2802,6 +2834,22 @@
         }
       }
     },
+    "보관함" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collection"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "收藏"
+          }
+        }
+      }
+    },
     "복원하지 못했어요." : {
       "localizations" : {
         "en" : {
@@ -2974,6 +3022,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "禮物"
+          }
+        }
+      }
+    },
+    "선물 상자에서 모은 것" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collected from gift boxes"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "從禮物盒收集的"
           }
         }
       }
@@ -3278,6 +3342,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "還沒有記錄。杯子滿滿地等著你。"
+          }
+        }
+      }
+    },
+    "아직 몰라요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not found yet"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "還不知道"
           }
         }
       }

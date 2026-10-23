@@ -641,7 +641,9 @@ struct FeedingView: View {
 
     // MARK: - 동작
 
+    /// 전환이 도는 동안은 받지 않는다. 연타하면 `nextStep`이 전환을 처음부터 다시 틀었다(빌드 264 대표님).
     private func advance() {
+        guard fx == nil else { return }
         switch stage {
         case .ask: tapCup()
         case .dropped: feedDrop()
@@ -686,7 +688,7 @@ struct FeedingView: View {
     }
 
     private func feedDrop() {
-        guard stage == .dropped else { return }
+        guard stage == .dropped, !isDropEaten else { return }
         isDropEaten = true
         isOverCharacter = false
         Task {
@@ -697,7 +699,7 @@ struct FeedingView: View {
     }
 
     private func nextStep() {
-        guard stage == .eaten else { return }
+        guard stage == .eaten, fx == nil else { return }
         let next: FeedFx = isLastSide ? .night : .turn
         if reduceMotion {
             swap(for: next)

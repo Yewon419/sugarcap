@@ -4722,6 +4722,22 @@
         }
       }
     },
+    "캐릭터 소개 바로 보기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show character intro now"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "直接看角色介紹"
+          }
+        }
+      }
+    },
     "컵을 눌러 마신 음료 적기" : {
       "localizations" : {
         "en" : {

@@ -166,12 +166,21 @@ struct IdleCharacterLayer: View {
         guest.map { IdleOnlooker.hostAvoids(guest: $0) } ?? []
     }
 
-    /// 연타 반응 `dodge`로 옮겨 갈 자세. 지금 자세 말고 고를 게 없으면 nil(그땐 `dodge`를 안 뽑는다).
+    /// 연타 반응 `dodge`로 옮겨 갈 자세. 지금 자리에서 떨어진 자세(`isElsewhere`)를 먼저 고른다. 같은 자리 다른 자세로
+    /// 바뀌면 피한 게 아니라 제자리에서 모양만 바뀌어 보인다(대표님 2026-10-23 "위치를 고려하게").
+    /// 떨어진 자세가 없으면 아무 다른 자세, 그것도 없으면 nil(그땐 `dodge`를 안 뽑는다).
     private func dodgeTarget() -> String? {
-        guard let pose, let set = side.idleCast.poseSet else { return nil }
-        var generator = SystemRandomNumberGenerator()
-        let next = set.pick(step: step, unlockedLevel: unlockedLevel, avoiding: avoiding.union([pose]), using: &generator)
-        return next == pose ? nil : next
+        guard let pose, let set = side.idleCast.poseSet, let here = set.poses[pose]?.place else { return nil }
+        let pool = set.poses.keys.sorted().filter {
+            $0 != pose && !avoiding.contains($0) && set.allows($0, step: step, unlockedLevel: unlockedLevel)
+        }
+        let away = pool.filter { set.poses[$0].map { Self.isElsewhere($0.place, from: here) } ?? false }
+        return (away.isEmpty ? pool : away).randomElement()
+    }
+
+    /// 다른 높이(바닥·가장자리·음료 속)이거나 가로로 사진 폭 20% 이상 떨어진 자리.
+    private static func isElsewhere(_ place: IdlePlace, from here: IdlePlace) -> Bool {
+        place.y != here.y || abs(place.photoX - here.photoX) >= 0.2
     }
 
     /// 부르르 떤 뒤 다른 자세로 옮긴다. 자세 사이 전환 동작은 없다(위 규칙).

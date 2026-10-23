@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>마감 요약 · 배너 시안 v3</title>
+<style>
+@font-face { font-family: Anton; src: url(../../SugarCap/Resources/Fonts/Anton-Regular.ttf); }
+@font-face { font-family: Pretendard; font-weight: 400; src: url(../../SugarCap/Resources/Fonts/Pretendard-Regular.otf); }
+@font-face { font-family: Pretendard; font-weight: 500; src: url(../../SugarCap/Resources/Fonts/Pretendard-Medium.otf); }
+@font-face { font-family: Pretendard; font-weight: 600; src: url(../../SugarCap/Resources/Fonts/Pretendard-SemiBold.otf); }
+@font-face { font-family: Pretendard; font-weight: 700; src: url(../../SugarCap/Resources/Fonts/Pretendard-Bold.otf); }
+@font-face { font-family: Pretendard; font-weight: 800; src: url(../../SugarCap/Resources/Fonts/Pretendard-ExtraBold.otf); }
+:root { --wall: #F4F4F5; --ink: #18181B; --sugar: #698394; --caf: #4A3226; --line: #E4E4E7; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #D4D4D8; font-family: Pretendard, sans-serif; color: var(--ink); padding: 32px; }
+h1.page { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+p.page { font-size: 13px; color: #52525B; margin-bottom: 24px; }
+.row { display: flex; gap: 32px; flex-wrap: wrap; align-items: flex-start; }
+.col h2 { font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+.col p.why { font-size: 12px; color: #52525B; width: 402px; margin-top: 10px; line-height: 1.5; }
+.phone { width: 402px; height: 874px; border-radius: 48px; background: var(--wall); position: relative; overflow: hidden; box-shadow: 0 0 0 10px #18181B; }
+.status { height: 62px; }
+.cta { position: absolute; left: 24px; right: 24px; bottom: 42px; height: 56px; border-radius: 28px; background: var(--ink); color: #fff; font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.close { position: absolute; right: 16px; top: 62px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #71717A; font-size: 20px; }
+.date { font-size: 13px; font-weight: 600; color: #71717A; }
+.title { font-size: 34px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; margin-top: 8px; }
+.sub { font-size: 14px; color: #71717A; margin-top: 8px; }
+.anton { font-family: Anton; line-height: 1; }
+
+/* A 기록지 */
+.a .head { padding: 24px 24px 0; }
+.a .ledger { position: absolute; left: 24px; right: 24px; bottom: 138px; }
+.a .item { border-top: 1px solid var(--line); padding: 22px 0 24px; display: flex; justify-content: space-between; align-items: flex-end; }
+.a .item:last-child { border-bottom: 1px solid var(--line); }
+.a .k { font-size: 15px; font-weight: 700; }
+.a .n { font-size: 13px; color: #71717A; margin-top: 6px; }
+.a .v { display: flex; align-items: baseline; gap: 4px; }
+.a .v .anton { font-size: 72px; }
+.a .v .u { font-size: 17px; font-weight: 600; }
+
+/* B 두 면 */
+.b .head { padding: 24px 24px 0; }
+.b .blocks { position: absolute; left: 0; right: 0; top: 236px; bottom: 138px; display: flex; flex-direction: column; gap: 0; }
+.b .blk { flex: 1; color: #fff; padding: 20px 24px; display: flex; flex-direction: column; justify-content: space-between; }
+.b .blk.s { background: var(--sugar); }
+.b .blk.c { background: var(--caf); align-items: flex-end; text-align: right; }
+.b .blk .k { font-size: 13px; font-weight: 600; opacity: .8; }
+.b .blk .anton { font-size: 120px; }
+.b .blk .anton small { font-family: Pretendard; font-size: 22px; font-weight: 600; margin-left: 6px; }
+
+/* C 오늘 화면 연속 */
+.c .head { padding: 24px 24px 0; }
+.c .s1 { position: absolute; left: 24px; top: 270px; color: var(--sugar); }
+.c .s2 { position: absolute; right: 24px; top: 470px; color: var(--caf); text-align: right; }
+.c .lab { font-size: 11px; font-weight: 600; letter-spacing: 1.3px; }
+.c .big { font-size: 128px; margin-top: 6px; }
+.c .big small { font-family: Pretendard; font-size: 24px; font-weight: 600; margin-left: 4px; vertical-align: top; position: relative; top: 14px; }
+.c .note { font-size: 13px; color: #71717A; margin-top: 8px; }
+
+/* 배너 */
+.today { background: #F3F5F8; }
+.today img.cup { position: absolute; left: 0; top: 150px; width: 402px; }
+.hero { position: absolute; left: 24px; top: 190px; color: var(--sugar); }
+.hero .lab { font-size: 11px; font-weight: 600; letter-spacing: 1.3px; }
+.hero .big { font-size: 128px; margin-top: 4px; }
+.notice { position: absolute; left: 24px; top: 160px; font-size: 12px; font-weight: 500; color: #52525B; display: flex; align-items: center; gap: 6px; opacity: 0; }
+.notice i { width: 5px; height: 5px; border-radius: 50%; background: var(--sugar); display: inline-block; }
+.play .notice { animation: note 4.2s cubic-bezier(.23,1,.32,1) forwards; }
+@keyframes note {
+  0% { opacity: 0; transform: translateY(6px); }
+  7% { opacity: 1; transform: translateY(0); }
+  88% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(0); }
+}
+button.replay { margin-top: 10px; font: 600 13px Pretendard; padding: 8px 14px; border: 1px solid #A1A1AA; background: #fff; border-radius: 8px; cursor: pointer; }
+</style>
+</head>
+<body>
+<h1 class="page">마감 요약 새 디자인 3안 + 반영 알림 1안</h1>
+<p class="page">밤하늘·캐릭터 없음. 완료 버튼은 먹이기 화면 "마무리"와 같은 자리·크기(좌우 24, 아래 8 + 홈 인디케이터, 높이 56). 숫자는 오늘 화면과 같은 Anton + 면별 색.</p>
+
+<div class="row">
+  <div class="col">
+    <h2>A. 기록지</h2>
+    <div class="phone a">
+      <div class="status"></div>
+      <div class="close">✕</div>
+      <div class="head">
+        <div class="date">10월 23일 목요일</div>
+        <div class="title">오늘 마감</div>
+        <div class="sub">호감도는 내일 아침에 반영돼요.</div>
+      </div>
+      <div class="ledger">
+        <div class="item">
+          <div><div class="k" style="color:var(--sugar)">당</div><div class="n">로슈가 먹었어요</div></div>
+          <div class="v" style="color:var(--sugar)"><span class="anton">18</span><span class="u">g</span></div>
+        </div>
+        <div class="item">
+          <div><div class="k" style="color:var(--caf)">카페인</div><div class="n">4 mg 넘겼어요</div></div>
+          <div class="v" style="color:var(--caf)"><span class="anton">0</span><span class="u">mg</span></div>
+        </div>
+      </div>
+      <div class="cta">완료</div>
+    </div>
+    <p class="why">영수증처럼 위에서 아래로 읽힌다. 줄 두 개와 얇은 선만 써서 가장 조용함. 엄지 근처에 숫자가 모여 있음.</p>
+  </div>
+
+  <div class="col">
+    <h2>B. 두 면</h2>
+    <div class="phone b">
+      <div class="status"></div>
+      <div class="close">✕</div>
+      <div class="head">
+        <div class="date">10월 23일 목요일</div>
+        <div class="title">오늘 마감</div>
+        <div class="sub">호감도는 내일 아침에 반영돼요.</div>
+      </div>
+      <div class="blocks">
+        <div class="blk s"><div class="k">로슈가 먹은 당</div><div class="anton">18<small>g</small></div></div>
+        <div class="blk c"><div class="k">카인이 먹은 카페인 · 4 mg 넘김</div><div class="anton">0<small>mg</small></div></div>
+      </div>
+      <div class="cta">완료</div>
+    </div>
+    <p class="why">면 색을 통째로 깔아 포스터처럼. 가장 강하고 "하루 끝" 무게감이 있음. 한 면만 기록하면 블록 하나가 꽉 참.</p>
+  </div>
+
+  <div class="col">
+    <h2>C. 오늘 화면 이어서</h2>
+    <div class="phone c">
+      <div class="status"></div>
+      <div class="close">✕</div>
+      <div class="head">
+        <div class="date">10월 23일 목요일</div>
+        <div class="title">오늘 마감</div>
+        <div class="sub">호감도는 내일 아침에 반영돼요.</div>
+      </div>
+      <div class="s1"><div class="lab">로슈가 먹은 당</div><div class="anton big">18<small>g</small></div></div>
+      <div class="s2"><div class="lab">카인이 먹은 카페인</div><div class="anton big">0<small>mg</small></div><div class="note">4 mg 넘겼어요</div></div>
+      <div class="cta">완료</div>
+    </div>
+    <p class="why">오늘 화면 큰 숫자 문법(당 왼쪽, 카페인 오른쪽, 라벨 위)을 그대로 대각선으로. 앱 안에서 가장 자연스럽게 이어짐.</p>
+  </div>
+
+  <div class="col">
+    <h2>반영 알림 (오늘 화면)</h2>
+    <div class="phone today" id="today">
+      <div class="status"></div>
+      <img class="cup" src="../../SugarCap/Resources/Assets.xcassets/cup-strawberry-latte-0.imageset/0.png" alt="">
+      <div class="notice"><i></i>지난밤 먹인 음료가 반영됐어요</div>
+      <div class="hero"><div class="lab">오늘 남은 당</div><div class="anton big">32</div></div>
+    </div>
+    <button class="replay" onclick="replay()">다시 재생</button>
+    <p class="why">카드·X 없이 "오늘 남은 당" 바로 위 한 줄. 6px 올라오며 나타나 약 3.5초 뒤 사라짐. 자리를 따로 잡지 않아 숫자가 밀리지 않음. 점은 면 색.</p>
+  </div>
+</div>
+<script>
+function replay() { const t = document.getElementById('today'); t.classList.remove('play'); void t.offsetWidth; t.classList.add('play'); }
+setTimeout(replay, 600);
+</script>
+</body>
+</html>

@@ -134,8 +134,6 @@ struct FeedingView: View {
     /// 컵 비우기(꿀꺽꿀꺽 내려가는 수위)를 시작한 시각. 도는 동안만 있다.
     @State private var drainStart: Date?
     @State private var drainTick = 0
-    /// 요약 바닥 면 윗선(캐릭터 발밑, 좌표 공간 "summary").
-    @State private var summaryFloorY: CGFloat = 0
 
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "feeding")
 
@@ -193,7 +191,8 @@ struct FeedingView: View {
         }
         // 마감 진입 전에는 비워 둬 밑의 오늘 화면 위로 밤하늘이 차오르게 한다.
         .presentationBackground(isSceneVisible || isIntroPlaying ? Color.black : Color.clear)
-        .preferredColorScheme(isIntroPlaying ? .light : .dark)
+        // 요약은 밝은 벽 바탕이라 상태 표시줄도 라이트로.
+        .preferredColorScheme(isIntroPlaying || step == .done ? .light : .dark)
         .onAppear(perform: applySnapshot)
         .sheet(isPresented: $isRecordPresented) {
             FeedingRecordSheet(catalog: catalog, request: request, onRecord: addDrink)
@@ -540,118 +539,104 @@ struct FeedingView: View {
 
     // MARK: - 마무리 요약
 
-    /// 밤 전환(남색)에서 이어지는 남색 밤(2026-10-01 HTML 시안 확정). 둘이 정면으로 나란히 서고 아래에 먹은 양.
-    /// 캐릭터가 허공에 뜨지 않게 발밑부터 한 톤 밝은 남색 바닥 면을 깐다. 완료 버튼은 남색 위에서 보이게 흰 바탕.
+    /// 밤하늘·캐릭터 없이 면 색 판 두 장(2026-10-23 대표님 HTML 시안 B "두 면"). 위에 날짜·제목, 가운데를 판이 나눠
+    /// 채우고 판마다 먹은 양을 큰 Anton 숫자로. 당은 왼쪽, 카페인은 오른쪽 정렬(오늘 화면 큰 숫자와 같은 쪽).
+    /// 완료 버튼은 먹이기 "마무리"와 같은 자리·크기다(`foot`과 같은 틀: 안내 자리를 비워 둔 채 아래 8).
     private var summary: some View {
-        ZStack(alignment: .topLeading) {
-            Color.nightSky.ignoresSafeArea()
-            NightSkyDecor(isIn: summaryIn).ignoresSafeArea()
-            Color(red: 0x1F / 255, green: 0x2C / 255, blue: 0x47 / 255)
-                .padding(.top, summaryFloorY)
-                .ignoresSafeArea(edges: .bottom)
-                .opacity(summaryFloorY > 0 ? 1 : 0)
-
-            VStack(alignment: .leading, spacing: 0) {
-                NightDateLabel(text: dateText)
-                    .padding(.top, 8)
-                    .summaryEntrance(summaryIn, delay: 0)
-                Text("잘 먹었어요")
-                    .font(AppFont.pretendard(11, .semibold, relativeTo: .caption2))
-                    .tracking(1.3)
-                    .foregroundStyle(Color.nightKicker)
-                    .padding(.top, 28)
-                    .summaryEntrance(summaryIn, delay: 0.03)
-                Text("오늘도\n잘 마무리했어요")
-                    .font(AppFont.pretendard(40, .bold, relativeTo: .largeTitle))
-                    .tracking(-0.8)
-                    .lineSpacing(2)
-                    .foregroundStyle(.white)
-                    .padding(.top, 14)
-                    .summaryEntrance(summaryIn, delay: 0.06)
+        VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(dateText)
+                    .font(AppFont.pretendard(13, .semibold, relativeTo: .footnote))
+                    .foregroundStyle(Color.ink.opacity(0.55))
+                Text(request.kind == .closeToday ? String(localized: "오늘 마감") : String(localized: "어제 마감"))
+                    .font(AppFont.pretendard(34, .bold, relativeTo: .largeTitle))
+                    .tracking(AppFont.displayTracking(for: 34))
+                    .foregroundStyle(Color.ink)
                 Text(request.kind == .closeToday ? String(localized: "호감도는 내일 아침에 반영돼요.") : String(localized: "호감도에 바로 반영했어요."))
-                    .font(AppFont.pretendard(13, .regular, relativeTo: .footnote))
-                    .foregroundStyle(.white.opacity(0.78))
-                    .padding(.top, 8)
-                    .summaryEntrance(summaryIn, delay: 0.09)
+                    .font(AppFont.pretendard(14, .regular, relativeTo: .subheadline))
+                    .foregroundStyle(Color.ink.opacity(0.55))
             }
-            .shadow(color: .black.opacity(0.28), radius: 10, y: 1)
             .padding(.horizontal, 24)
-        }
-        .overlay(alignment: .bottom) {
-            VStack(spacing: 28) {
-                HStack(alignment: .bottom, spacing: 0) {
-                    ForEach(Array(sides.enumerated()), id: \.element) { index, side in
-                        summaryColumn(side, delay: 0.1 + 0.05 * Double(index))
-                    }
+            .padding(.top, 24)
+            .padding(.bottom, 32)
+            .summaryEntrance(summaryIn, delay: 0)
+
+            VStack(spacing: 0) {
+                ForEach(Array(sides.enumerated()), id: \.element) { index, side in
+                    summaryPanel(side)
+                        .summaryEntrance(summaryIn, delay: 0.06 + 0.05 * Double(index), distance: 16)
                 }
+            }
+            .frame(maxHeight: .infinity)
+
+            VStack(spacing: 12) {
                 Button { dismiss() } label: {
                     Text("완료")
                         .ctaLabel()
-                        .foregroundStyle(Color.ink)
-                        .background(Color.wall, in: Capsule())
+                        .foregroundStyle(.white)
+                        .background(Color.accentColor, in: Capsule())
                 }
                 .buttonStyle(PressScaleStyle())
                 .accessibilityIdentifier("feeding-done")
+                .frame(minHeight: 56)
+                // 먹이기 화면 `foot`의 안내 자리. 보이지 않게 두고 높이만 맞춘다.
+                Text("마감 뒤에 마신 음료도 오늘 몫으로 빠져요")
+                    .font(AppFont.pretendard(12, .regular, relativeTo: .caption))
+                    .multilineTextAlignment(.center)
+                    .hidden()
+                    .accessibilityHidden(true)
             }
             .padding(.horizontal, 24)
+            .padding(.top, 24)
             .padding(.bottom, 8)
         }
-        .overlay(alignment: .topTrailing) { closeButton }
-        .coordinateSpace(.named("summary"))
-        // 하루 한 번 보는 한 장짜리 요약이라 제목·캐릭터·숫자가 한 화면에 들어가야 한다. 글자 상한을 둔다.
+        .background(Color.wall.ignoresSafeArea())
+        .overlay(alignment: .topTrailing) {
+            Button { dismiss() } label: {
+                Text("닫기")
+                    .font(AppFont.pretendard(15, .regular, relativeTo: .subheadline))
+                    .foregroundStyle(Color.ink.opacity(0.55))
+                    .tapTarget()
+            }
+            .padding(.trailing, 16)
+            .accessibilityIdentifier("feeding-close")
+        }
+        // 하루 한 번 보는 한 장짜리 요약이라 제목·숫자가 한 화면에 들어가야 한다. 글자 상한을 둔다.
         .dynamicTypeSize(...DynamicTypeSize.xxLarge)
         .onAppear {
             if reduceMotion { summaryIn = true } else { withAnimation { summaryIn = true } }
         }
     }
 
-    /// 말풍선·숫자·캐릭터가 같이 살짝 올라오며 나타난다(`SummaryCharacter`).
-    private func summaryColumn(_ side: CupSide, delay: Double) -> some View {
-        // 단계가 오른 건 여기 말고 오늘 화면 무대 연출로 알린다(SPEC §4.9 결정 4).
-        let note = request.over(side) > 0 ? String(localized: "조금 아쉬워요") : String(localized: "\(side.characterNameWithIga) 먹었어요")
-        return VStack(spacing: 10) {
-            NightBubble(text: note)
-                .summaryEntrance(summaryIn, delay: delay + 0.08)
-            SummaryCharacter(side: side, isIn: summaryIn, delay: delay)
-                // 틀 위 여유는 말풍선과 겹쳐 둔다.
-                .padding(.top, -SummaryCharacter.headroom)
-                .background {
-                    if side == sides.first {
-                        GeometryReader { geo in
-                            Color.clear
-                                .onAppear { summaryFloorY = geo.frame(in: .named("summary")).maxY - 4 }
-                                .onChange(of: geo.frame(in: .named("summary")).maxY) { _, y in summaryFloorY = y - 4 }
-                        }
-                    }
-                }
-                .accessibilityLabel(side.characterName)
-            summaryAmount(side)
-                .summaryEntrance(summaryIn, delay: delay, distance: 16)
-        }
-        .frame(maxWidth: .infinity)
-        .accessibilityElement(children: .combine)
-    }
-
-    private func summaryAmount(_ side: CupSide) -> some View {
-        VStack(spacing: 10) {
-            HStack(alignment: .firstTextBaseline, spacing: 3) {
-                Text(Amount.number(request.left(side)))
-                    .font(AppFont.pretendard(44, .bold, relativeTo: .largeTitle))
-                    .tracking(-1.8)
-                    .monospacedDigit()
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
-                Text(side.unit)
-                    .font(AppFont.pretendard(17, .medium, relativeTo: .body))
-                    .opacity(0.85)
+    /// 면 색 판 한 장: 위에 "로슈가 먹은 당"(+ 넘긴 양), 아래에 먹은 양.
+    private func summaryPanel(_ side: CupSide) -> some View {
+        let edge = CupHero.edge(side)
+        let alignment = Alignment(horizontal: edge, vertical: .center)
+        let over = request.over(side)
+        return VStack(alignment: edge, spacing: 4) {
+            Text("\(side.characterNameWithIga) 먹은 \(side.label)")
+                .font(AppFont.pretendard(13, .semibold, relativeTo: .footnote))
+            if over > 0 {
+                Text("\(Amount.number(over)) \(side.unit) 넘겼어요.")
+                    .font(AppFont.pretendard(13, .regular, relativeTo: .footnote))
+                    .opacity(0.8)
             }
-            .foregroundStyle(.white)
-            .padding(.top, 6)
-            Text(side.label)
-                .font(AppFont.pretendard(11, .semibold, relativeTo: .caption2))
-                .tracking(1.3)
-                .foregroundStyle(Color.nightKicker)
+            Spacer(minLength: 8)
+            HStack(alignment: .lastTextBaseline, spacing: 6) {
+                Text(Amount.number(request.left(side)))
+                    .font(.custom(CupHero.fontName, fixedSize: 120))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.4)
+                Text(side.unit)
+                    .font(AppFont.pretendard(22, .semibold, relativeTo: .title3))
+            }
         }
+        .foregroundStyle(.white)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment)
+        .padding(.horizontal, 24)
+        .padding(.vertical, 20)
+        .background(CupHero.color(side))
+        .accessibilityElement(children: .combine)
     }
 
     // MARK: - 동작

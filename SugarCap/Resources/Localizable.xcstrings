@@ -263,6 +263,22 @@
         }
       }
     },
+    "%@ 먹은 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$@ %1$@ ate"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@吃掉的%2$@"
+          }
+        }
+      }
+    },
     "%@ 목표 정하기" : {
       "localizations" : {
         "en" : {

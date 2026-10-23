@@ -259,17 +259,36 @@ struct GiftRevealOverlay: View {
     private func captionView(t: Double) -> some View {
         let caption = GiftRevealTimeline.caption(t, calm: reduceMotion)
         VStack(spacing: 14) {
+            // 결제 줄: 밑줄 글자 대신 잠긴 선물(딸기·병뚜껑·앞으로 올 것) + 글자 ›(빌드 264 대표님, 시안 B).
             if offersPro, reveal.gift.isHeart {
                 Button(action: onPro) {
-                    Text("이제 마음 말고 슬슬 다른 것도 받고 싶으시다고요?")
-                        .underline()
+                    VStack(spacing: 14) {
+                        HStack(spacing: 14) {
+                            lockedGift { Color.white.mask(Image("gift-item-strawberry").resizable().scaledToFit()) }
+                            lockedGift { Image(systemName: "seal.fill").resizable().scaledToFit().foregroundStyle(.white) }
+                            lockedGift {
+                                Image(systemName: "questionmark").resizable().scaledToFit().fontWeight(.bold)
+                                    .foregroundStyle(.white).padding(3)
+                            }
+                        }
+                        HStack(alignment: .firstTextBaseline, spacing: 4) {
+                            Text("이제 마음 말고 슬슬 다른 것도 받고 싶으시다고요?")
+                                .multilineTextAlignment(.center)
+                                .fixedSize(horizontal: false, vertical: true)
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 11, weight: .bold))
+                                .opacity(0.75)
+                        }
                         .font(AppFont.pretendard(14, .semibold, relativeTo: .subheadline))
-                        .foregroundStyle(.white.opacity(0.85))
-                        .multilineTextAlignment(.center)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .foregroundStyle(.white)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(PressScaleStyle())
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("이제 마음 말고 슬슬 다른 것도 받고 싶으시다고요?")
+                .accessibilityAddTraits(.isButton)
                 .accessibilityIdentifier("gift-pro")
             }
         }
@@ -277,6 +296,24 @@ struct GiftRevealOverlay: View {
         .opacity(caption.opacity)
         .offset(y: caption.dy)
         .allowsHitTesting(caption.opacity > 0.5)
+    }
+
+    /// Pro에서 받을 수 있는 선물 하나. 흐린 흰 실루엣 + 오른쪽 아래 자물쇠.
+    private func lockedGift<Art: View>(@ViewBuilder _ art: () -> Art) -> some View {
+        art()
+            .opacity(0.55)
+            .frame(width: 24, height: 24)
+            .frame(width: 52, height: 52)
+            .background(Color.white.opacity(0.12), in: Circle())
+            .overlay(Circle().strokeBorder(Color.white.opacity(0.22), lineWidth: 1))
+            .overlay(alignment: .bottomTrailing) {
+                Image(systemName: "lock.fill")
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundStyle(Color.ink)
+                    .frame(width: 20, height: 20)
+                    .background(.white, in: Circle())
+                    .offset(x: 2, y: 2)
+            }
     }
 
     /// 어둠은 한 장을 깔고 조명 자리를 도려낸다. 조명 원은 흰빛을 얹어 레퍼런스처럼 하얗게 바랜다.

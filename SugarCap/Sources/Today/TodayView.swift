@@ -589,6 +589,15 @@ struct TodayView: View {
         #endif
     }
 
+    /// CI 스크린샷 전용(Debug `-screenshotCreditNotice YES`). 반영 알림을 띄운 채 사라지지 않게 둔다.
+    private var showsCreditNoticeForScreenshot: Bool {
+        #if DEBUG
+        return UserDefaults.standard.bool(forKey: "screenshotCreditNotice")
+        #else
+        return false
+        #endif
+    }
+
     /// CI 스크린샷 전용(Debug `-screenshotCupHint YES`). CI 시뮬레이터는 UI 테스트 기록이 남아 첫 안내가 안 찍힌다.
     private var showsCupHintForScreenshot: Bool {
         #if DEBUG
@@ -703,6 +712,7 @@ struct TodayView: View {
                 .task(id: shownNotice(today: today)) {
                     guard let line = shownNotice(today: today) else { return }
                     AccessibilityNotification.Announcement(line).post()
+                    guard !showsCreditNoticeForScreenshot else { return }
                     try? await Task.sleep(for: .seconds(3.5))
                     guard !Task.isCancelled else { return }
                     dismissNotice(today: today)
@@ -863,7 +873,7 @@ struct TodayView: View {
     /// 어제 먹이기·"안 마셨나요?"는 여기가 아니라 앱을 열면 먼저 뜨는 전체 화면(`YesterdayGateView`)이 맡는다.
     private func noticeLine(today: DayKey) -> String? {
         // 단계가 오른 건 여기 말고 무대 연출로 알린다(SPEC §4.9 결정 4).
-        if creditNotice != nil { return String(localized: "지난밤 먹인 음료가 반영됐어요") }
+        if creditNotice != nil || showsCreditNoticeForScreenshot { return String(localized: "지난밤 먹인 음료가 반영됐어요") }
         let yesterday = today.shifted(by: -1)
         let yesterdayRow = settlements.first { $0.day == yesterday.rawValue }
         if yesterdayRow?.shrankAfterClose(on: trackedSides) == true && dismissedShrankDay != yesterday.rawValue {

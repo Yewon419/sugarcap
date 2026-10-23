@@ -132,8 +132,6 @@ struct FeedingView: View {
     /// "컵을 눌러 주세요." 안내. 컵 차례에서 2초 동안 아무것도 안 하면 뜬다(대표님 2026-10-23).
     @State private var isCupHintShown = false
     /// 컵 비우기(꿀꺽꿀꺽 내려가는 수위)를 시작한 시각. 도는 동안만 있다.
-    @State private var drainStart: Date?
-    @State private var drainTick = 0
 
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "feeding")
 
@@ -216,16 +214,10 @@ struct FeedingView: View {
             ZStack(alignment: .topLeading) {
                 // 흔들 때 컵 장면이 돌아도 모서리에 검은 바탕이 비치지 않게 벽은 따로 고정해 깐다.
                 CupView.wallColor.ignoresSafeArea()
-                // 컵 비우기: 빈 잔 위에 찬 잔을 겹치고, 찬 잔을 수위선 위쪽부터 지워 액체가 꿀꺽꿀꺽 내려가게 한다.
-                // 빈 잔은 늘 밑에 깐다. 지워진 찬 잔 위쪽(수위선 위 유리)을 받친다.
-                ZStack {
-                    CupView(step: 0, setID: side.cupSetID)
-                    if stage == .ask && cupStart > 0 {
-                        CupView(step: cupStart, setID: side.cupSetID)
-                            .mask { CupDrainMask(side: side, step: cupStart, start: drainStart) }
-                    }
-                }
-                .modifier(CupShake(trigger: shakeTrigger))
+                // 컵 비우기: 컵이 좌우로 흔들리며 빈 잔으로 한 번에 바뀐다(0.6초). 꿀꺽 세 번 끊어 내려가기는
+                // 대표님이 빌드 258에서 되돌렸다(2026-10-23 "옛날 컵이 흔들리며 한번에 사라지는 연출로").
+                CupView(step: stage == .ask ? cupStart : 0, setID: side.cupSetID)
+                    .modifier(CupShake(trigger: shakeTrigger))
                     .modifier(CupTap(trigger: patTrigger))
                     .ignoresSafeArea()
 
@@ -297,10 +289,8 @@ struct FeedingView: View {
             isCupHintShown = false
             guard stage == .ask else { return }
             try? await Task.sleep(for: .seconds(2))
-            if !Task.isCancelled, drainStart == nil { isCupHintShown = true }
+            if !Task.isCancelled { isCupHintShown = true }
         }
-        // 꿀꺽마다 한 번씩 말랑한 진동(컵 비우기 손맛, 대표님 2026-10-23 "햅틱도").
-        .sensoryFeedback(.impact(flexibility: .soft, intensity: 0.75), trigger: drainTick)
         .sensoryFeedback(.impact(weight: .light), trigger: shakeTrigger)
         .sensoryFeedback(.impact(weight: .light, intensity: 0.6), trigger: patTrigger)
         .sensoryFeedback(.success, trigger: bounceTrigger)
@@ -650,35 +640,15 @@ struct FeedingView: View {
     }
 
     private func tapCup() {
-        guard stage == .ask, drainStart == nil else { return }
+        guard stage == .ask else { return }
         if !reduceMotion { shakeTrigger += 1 }
         isCupHintShown = false
         if request.left(side) <= 0, !reduceMotion {
             searchBeat = .emptied
             stage = .searching
             searchEmptyCup()
-        } else if reduceMotion {
-            withAnimation(.easeInOut(duration: 0.6)) { stage = .dropped }
         } else {
-            drainCup()
-        }
-    }
-
-    /// 꿀꺽 박자마다 진동을 주고, 다 비우면 방울을 낸다(`CupDrainMask`와 같은 시간표).
-    private func drainCup() {
-        let current = side
-        drainStart = Date()
-        Task {
-            var last = 0.0
-            for at in CupDrainMask.gulps {
-                try? await Task.sleep(for: .milliseconds(Int((at - last) * 1000)))
-                last = at
-                guard drainStart != nil, side == current else { return }
-                drainTick += 1
-            }
-            drainStart = nil
-            guard stage == .ask, side == current else { return }
-            stage = .dropped
+            withAnimation(.easeInOut(duration: 0.6)) { stage = .dropped }
         }
     }
 
@@ -761,7 +731,6 @@ struct FeedingView: View {
     private func skip() {
         guard step != .done else { return }
         fx = nil
-        drainStart = nil
         stage = .ask
         resetDrop()
         do {
@@ -927,62 +896,6 @@ private struct DropPop: ViewModifier {
             .onAppear {
                 if isActive { fired = true }
             }
-    }
-}
-
-/// 컵 비우기 마스크(대표님 2026-10-23 "비우는 쾌감, 쫀득하게"). 찬 잔 사진을 수위선 위쪽부터 지워
-/// 음료 윗면에서 잔 바닥까지 수위가 꿀꺽, 꿀꺽, 꿀꺽 세 번 끊어 내려간다. 빠르게 떨어지고(강한 감속) 잠깐 머무는 걸 되풀이한다.
-private struct CupDrainMask: View {
-    let side: CupSide
-    let step: Int
-    let start: Date?
-
-    /// (시각 초, 수위 진행 0~1). 구간마다 강한 감속으로 잇는다.
-    private static let keys: [(t: Double, p: Double)] = [
-        (0, 0), (0.14, 0.26), (0.26, 0.3), (0.42, 0.62), (0.54, 0.66), (0.72, 1),
-    ]
-    /// 진동 박자(꿀꺽이 시작하는 시각, 첫 꿀꺽은 누를 때 진동). 마지막은 다 비운 순간.
-    static let gulps: [Double] = [0.26, 0.54, 0.72]
-
-    private static func level(_ t: Double) -> Double {
-        guard let last = keys.last, t < last.t else { return 1 }
-        for (a, b) in zip(keys, keys.dropFirst()) where t < b.t {
-            let k: Double = Ease.power3Out(max(0, (t - a.t) / (b.t - a.t)))
-            return a.p + (b.p - a.p) * k
-        }
-        return 1
-    }
-
-    var body: some View {
-        // 누르기 전엔 찬 잔을 통째로 보인다. 수위선 위로 솟은 얼음·유리까지 잘리지 않게.
-        if start == nil {
-            Color.black.ignoresSafeArea()
-        } else {
-            drain
-        }
-    }
-
-    private var drain: some View {
-        GeometryReader { geo in
-            TimelineView(.animation) { timeline in
-                let t: Double = start.map { timeline.date.timeIntervalSince($0) } ?? 0
-                let height = Double(geo.size.height)
-                let photo = IdlePhoto(slot: CGSize(width: geo.size.width, height: geo.size.height * CupView.heightRatio))
-                let slotTop: Double = height * Double(1 - CupView.heightRatio - CupView.liftRatio)
-                let cast = side.idleCast
-                let top: Double = Double(photo.point(0.5, cast.liquidTop(step: step) - 0.02).y) + slotTop
-                let bottom: Double = Double(photo.point(0.5, cast.bottom + 0.005).y) + slotTop
-                let edge: Double = (top + (bottom - top) * Self.level(t)) / max(1, height)
-                LinearGradient(
-                    stops: [
-                        .init(color: .clear, location: max(0, edge - 0.004)),
-                        .init(color: .black, location: min(1, edge + 0.004)),
-                    ],
-                    startPoint: .top, endPoint: .bottom
-                )
-            }
-        }
-        .ignoresSafeArea()
     }
 }
 

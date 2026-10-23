@@ -36,6 +36,10 @@ struct FeedFxOverlay: View {
     /// 밤 전환 방울은 먹인 면만(설정 "기록할 것").
     @Environment(\.trackedSides) private var sides
 
+    /// 덮개 면 색. 먹이기 장면 위쪽(사진 + `NightScrim`)과 같은 중성 회색이다. 처음엔 남색 밤하늘(`Color.nightSky`)이었는데
+    /// 오늘 화면·먹이기·요약이 다 무채색이라 색이 튀었다(대표님 2026-10-23 빌드 258 "진한 파랑 밤 색깔을 아예 없애줘").
+    private static let sky = Color(red: 0x7A / 255, green: 0x7B / 255, blue: 0x7D / 255)
+
     private static let stars: [CGPoint] = [
         CGPoint(x: 46, y: 150), CGPoint(x: 330, y: 118), CGPoint(x: 262, y: 226), CGPoint(x: 104, y: 292),
         CGPoint(x: 356, y: 318), CGPoint(x: 30, y: 404), CGPoint(x: 190, y: 96), CGPoint(x: 300, y: 430),
@@ -73,7 +77,7 @@ struct FeedFxOverlay: View {
         return ZStack(alignment: .topLeading) {
             // 위아래가 둥근 하늘 한 장(지평선처럼 차오르고 그대로 걷힌다).
             RoundedRectangle(cornerRadius: 70, style: .continuous)
-                .fill(Color.nightSky)
+                .fill(Self.sky)
                 .frame(width: size.width + 120, height: skyHeight)
                 .offset(x: -60, y: -70)
 
@@ -161,7 +165,7 @@ struct FeedFxOverlay: View {
 
         return ZStack(alignment: .topLeading) {
             UnevenRoundedRectangle(bottomLeadingRadius: 70, bottomTrailingRadius: 70, style: .continuous)
-                .fill(Color.nightSky)
+                .fill(Self.sky)
                 .frame(width: size.width + 120, height: skyHeight)
                 .offset(x: -60, y: -skyHeight * (1 - down) - 70 * down + 0)
                 .opacity(1 - fade)

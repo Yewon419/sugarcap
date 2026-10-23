@@ -143,6 +143,10 @@ struct FeedingCharacter: View {
         side == .sugar ? roshu(mood: mood, t: t, since: since, unit: unit) : kain(mood: mood, t: t, since: since, unit: unit)
     }
 
+    /// 로슈 까치발 최대 높이(393pt 기준). watch 그림은 발이 몸과 떨어진 조각이라 몸만 올리면 발 뿌리가 드러나 다리가
+    /// 늘어나 보인다. 뿌리 길이를 넘기면 몸과 다리가 떨어져 보인다(빌드 258 대표님 "몸이랑 다리 분리"). 오늘 화면 watch와 같은 값.
+    private static let tiptoe = 2.2
+
     /// 로슈 · 컵 옆에 매달려 조르기. 오늘 화면은 5.5초마다 까치발 한 번, 여기선 1.3초마다 두 번.
     private static func roshu(mood: Mood, t: Double, since: Double, unit: Double) -> Pose {
         var p = Pose()
@@ -150,22 +154,22 @@ struct FeedingCharacter: View {
         case .asking:
             let v = RigMotion.remainder(t, 1.3)
             let k: Double = RigMotion.bump(v, 0, 0.28) + RigMotion.bump(v, 0.36, 0.28)
-            p.frame.bodyDy = -4.2 * k * unit
+            p.frame.bodyDy = -tiptoe * k * unit
             p.frame.limbs["arm"] = 14 * k
             p.frame.sy = 1 + 0.02 * k
         case .sulking:
             // 기준을 넘긴 날: 천천히 한 번씩만.
             let k = RigMotion.bump(RigMotion.remainder(t, 2.6), 0, 0.5)
-            p.frame.bodyDy = -2.2 * k * unit
+            p.frame.bodyDy = -tiptoe * k * unit
             p.frame.limbs["arm"] = 6 * k
         case .waiting:
             // 방울이 나오면 까치발을 든 채 동동.
             let up = RigMotion.smooth(since / 0.25)
             let w = abs(sin(2 * Double.pi * since / 0.7))
-            p.frame.bodyDy = (-3.6 * up - 1.2 * w) * unit
+            p.frame.bodyDy = -tiptoe * (0.7 * up + 0.3 * w) * unit
             p.frame.limbs["arm"] = 12 * up + 5 * w
         case .ready:
-            p.frame.bodyDy = -5.5 * unit
+            p.frame.bodyDy = -tiptoe * unit
             p.frame.limbs["arm"] = 20
             p.frame.sy = 1.03
         case .eaten:
@@ -177,7 +181,7 @@ struct FeedingCharacter: View {
         case .emptied:
             // 누르는 순간 기대하며 까치발 → 아무것도 안 나오자 내려앉는다.
             let up: Double = ramp(since, 0, 0.22) * (1 - ramp(since, 0.45, 0.65))
-            p.frame.bodyDy = -4 * up * unit
+            p.frame.bodyDy = -tiptoe * up * unit
             p.frame.limbs["arm"] = 14 * up
         case .puzzled:
             // 갸웃: 컵에서 몸을 떼며 바깥으로 기운다.

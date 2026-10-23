@@ -15,8 +15,6 @@ struct CompanionIntroView: View {
 
     static let open = 2.6
     static let chapters = ReelChapters(starts: [0, open, open + 3.7, open + 7.3], end: open + 11)
-    /// 밤으로 넘어가는 시각(소개 뒤 세 장 기준).
-    private static let nightAt = 10.2
 
     @State private var clock = ReelClock(end: CompanionIntroView.chapters.end)
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -50,16 +48,15 @@ struct CompanionIntroView: View {
         .accessibilityLabel("로슈와 카인 소개. 남긴 당은 로슈가, 남긴 카페인은 카인이 먹어요. 많이 남길수록 더 가까워져요.")
     }
 
-    /// 진행 막대 + 건너뛰기. 밤이 되면 흰색으로.
+    /// 진행 막대 + 건너뛰기.
     private func chrome(t: Double) -> some View {
-        let isNight = t >= Self.open + Self.nightAt + 0.3
-        return VStack(alignment: .trailing, spacing: 0) {
+        VStack(alignment: .trailing, spacing: 0) {
             HStack(spacing: 5) {
                 ForEach(0..<Self.chapters.starts.count, id: \.self) { index in
                     GeometryReader { bar in
-                        Capsule().fill(isNight ? Color.white.opacity(0.22) : Color.ink.opacity(0.16))
+                        Capsule().fill(Color.ink.opacity(0.16))
                             .overlay(alignment: .leading) {
-                                Capsule().fill(isNight ? Color.white : Color.ink)
+                                Capsule().fill(Color.ink)
                                     .frame(width: bar.size.width * Self.chapters.progress(of: index, at: t))
                             }
                     }
@@ -68,7 +65,7 @@ struct CompanionIntroView: View {
             }
             Button("건너뛰기") { clock.seek(to: Self.chapters.end) }
                 .font(AppFont.pretendard(14, .medium, relativeTo: .footnote))
-                .foregroundStyle(isNight ? Color.white.opacity(0.8) : Color.ink.opacity(0.72))
+                .foregroundStyle(Color.ink.opacity(0.72))
                 .tapTarget()
                 .accessibilityIdentifier("intro-skip")
         }
@@ -76,14 +73,15 @@ struct CompanionIntroView: View {
         .padding(.top, 8)
     }
 
-    /// 밤에 뜨는 버튼이라 흰 바탕에 진한 글자(남색 위 진한 버튼은 안 보인다, 대표님 2026-10-01). 마무리 요약 버튼과 같다.
+    /// 마무리 요약 "완료"와 같은 검정 바탕 흰 글자. 밤 남색을 벽색으로 바꾸며(빌드 258 대표님 "소개 화면 남색도 흰색으로")
+    /// 흰 버튼에서 되돌렸다.
     private func cta(t: Double) -> some View {
         let k = Motion.seg(t, Self.open + 10.45, Self.open + 10.9, Ease.power3Out)
         return Button(action: onFinish) {
             Text("먹이러 가기")
                 .ctaLabel()
-                .foregroundStyle(Color.ink)
-                .background(Color.wall, in: Capsule())
+                .foregroundStyle(.white)
+                .background(Color.ink, in: Capsule())
         }
         .buttonStyle(PressScaleStyle())
         .padding(.horizontal, 24)
@@ -453,18 +451,14 @@ private struct IntroStage: View {
         let x = togetherX
         let roshuX = x.roshu
         let kainX = x.kain
-        let night = useg(10.2, 11.0, Ease.power2InOut)
         let bondIn = useg(9.75, 10.25, Ease.power3Out)
-        let textColor = Color.ink(towardWhite: night)
+        let textColor = Color.ink
 
         return ZStack(alignment: .topLeading) {
             Circle()
                 .fill(Color.wall)
                 .frame(width: radius * 2, height: radius * 2)
                 .position(x: 540, y: 1250)
-            Color.nightSky
-                .frame(width: 1080, height: 1920)
-                .opacity(night)
 
             ForEach(Array(Self.rain.enumerated()), id: \.offset) { index, drop in
                 let at: Double = 8.2 + Double(index) * 0.1
@@ -495,7 +489,6 @@ private struct IntroStage: View {
                 GeometryReader { bar in
                     Capsule().fill(Color(white: 0.5, opacity: 0.3))
                         .overlay(alignment: .leading) {
-                            // 강조색(진한 잉크)은 밤 남색에 묻힌다. 글자와 같이 흰색으로 넘어간다.
                             Capsule().fill(textColor)
                                 .frame(width: bar.size.width * 0.1 * useg(9.95, 10.75, Ease.power3Out))
                         }

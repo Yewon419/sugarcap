@@ -233,17 +233,20 @@ struct GiftRevealOverlay: View {
 
     private func nameView(t: Double) -> some View {
         let caption = GiftRevealTimeline.caption(t, calm: reduceMotion)
+        // 선물 꼬리표: 흰 바탕 + 검정 굵은 글씨 + 왼쪽 끈 구멍(빌드 264 대표님 시안 1). 따옴표는 뺐다.
         return Button(action: onClose) {
-            HStack(alignment: .top, spacing: 10) {
-                Text(verbatim: "\u{201C}")
-                    .font(AppFont.pretendardFixed(30, .extraBold))
+            HStack(spacing: 10) {
+                Circle()
+                    .fill(Color.ink.opacity(0.7))
+                    .frame(width: 8, height: 8)
                 Text(item?.name ?? "")
-                    .font(AppFont.pretendard(26, .extraBold, relativeTo: .title2))
-                    .padding(.top, 6)
-                Text(verbatim: "\u{201D}")
-                    .font(AppFont.pretendardFixed(30, .extraBold))
+                    .font(AppFont.pretendard(20, .extraBold, relativeTo: .title3))
+                    .foregroundStyle(Color.ink)
             }
-            .foregroundStyle(.white)
+            .padding(.leading, 12)
+            .padding(.trailing, 18)
+            .padding(.vertical, 10)
+            .background(.white, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
         }
         .buttonStyle(.plain)
         .accessibilityLabel(item?.name ?? "")

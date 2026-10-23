@@ -55,22 +55,6 @@
         }
       }
     },
-    "%@ %@ 기다리고 있어요. 먹이고 오늘을 시작해요." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Waiting for you: %1$@ and %2$@. Feed them and start your day."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@和%2$@在等你。餵完再開始今天吧。"
-          }
-        }
-      }
-    },
     "%@ %@ 넘겼어요." : {
       "localizations" : {
         "en" : {
@@ -147,22 +131,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "戳戳%@"
-          }
-        }
-      }
-    },
-    "%@ 기다리고 있어요. 먹이고 오늘을 시작해요." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Waiting for you: %@. Feed them and start your day."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@在等你。餵完再開始今天吧。"
           }
         }
       }
@@ -3102,6 +3070,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "昨天 · %@"
+          }
+        }
+      }
+    },
+    "어제 남긴 만큼 먹이고 오늘을 시작해요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feed what you saved yesterday, then start today."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "把昨天留下的餵完，再開始今天吧。"
           }
         }
       }

@@ -15,6 +15,11 @@ enum CupLevel {
         "cup-\(setID)-\(step)"
     }
 
+    /// 같은 단계 사진을 원본에서 좌우로 넓게 자른 것. 오늘 화면 넘기기 이음매용(`design/assets/cups/make_wide.py`).
+    static func wideName(setID: String = defaultSetID, step: Int) -> String {
+        "cupwide-\(setID)-\(step)"
+    }
+
     /// 같은 단계의 오린 컵(배경 없음). 추이 선반·영향 미리보기용(`design/assets/cups/make_cutouts.py`).
     static func cutoutName(setID: String = defaultSetID, step: Int) -> String {
         "cutout-\(setID)-\(step)"

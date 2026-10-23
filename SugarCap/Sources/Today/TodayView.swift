@@ -283,12 +283,16 @@ struct TodayView: View {
                             rimLine: CupLevel.rimLineName(setID: cupSide.cupSetID, step: step),
                             notice: notice,
                             onFrame: { heroFrames[cupSide] = $0 }
-                        )
+                        ),
+                        seam: seam(of: cupSide, index: index, width: width)
                     )
                     .frame(width: width)
                 }
             }
             .offset(x: -index * width + dragX)
+            .onAppear {
+                if slideForScreenshot > 0 { dragX = (index > 0 ? 1 : -1) * width * slideForScreenshot }
+            }
             .frame(width: width, alignment: .leading)
             .contentShape(Rectangle())
             // 캐릭터가 누르기를 안 받을 때(동작 줄이기·넘기는 중) 여기로 온다. 받을 때는 캐릭터 밖 누르기가 `onMiss`로 온다.
@@ -300,7 +304,11 @@ struct TodayView: View {
                         isSliding = true
                         let pullingPastEdge = (side == trackedSides.first && value.translation.width > 0)
                             || (side == trackedSides.last && value.translation.width < 0)
-                        dragX = pullingPastEdge ? value.translation.width * 0.25 : value.translation.width
+                        var follow = Transaction()
+                        follow.disablesAnimations = true
+                        withTransaction(follow) {
+                            dragX = pullingPastEdge ? value.translation.width * 0.25 : value.translation.width
+                        }
                     }
                     .onEnded { value in
                         let travel = value.predictedEndTranslation.width
@@ -327,6 +335,15 @@ struct TodayView: View {
             }
         }
         .accessibilityIdentifier("record-add")
+    }
+
+    /// 이 장의 왼쪽 날개를 얼마나 드러낼지(`CupView.seam`). 첫 장은 옆 장이 없어 늘 다 드러낸다. 나머지는 왼쪽 장에서
+    /// 이 장으로 넘어간 정도(0~1)라, 가만히 있을 때는 한 장 사진만 보이고 넘기는 동안 냅킨·벽이 겹쳐 녹는다.
+    private func seam(of cupSide: CupSide, index: CGFloat, width: CGFloat) -> Double {
+        let page = trackedSides.firstIndex(of: cupSide) ?? 0
+        guard page > 0, width > 0 else { return 1 }
+        let position = Double(index - dragX / width)
+        return min(max(position - Double(page - 1), 0), 1)
     }
 
     // MARK: - 선물(§4.9)
@@ -589,6 +606,15 @@ struct TodayView: View {
         return UserDefaults.standard.bool(forKey: "screenshotOnlooker")
         #else
         return Double.random(in: 0 ..< 1) < TrendEntrance.chance
+        #endif
+    }
+
+    /// CI 스크린샷 전용(Debug `-screenshotCupSlide 0.5`). 옆 장 쪽으로 화면 폭의 이만큼 끈 채 멈춰 이음매 녹임을 찍는다.
+    private var slideForScreenshot: CGFloat {
+        #if DEBUG
+        return CGFloat(UserDefaults.standard.double(forKey: "screenshotCupSlide"))
+        #else
+        return 0
         #endif
     }
 

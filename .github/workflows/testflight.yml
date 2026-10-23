@@ -147,6 +147,10 @@ jobs:
           shoot cup-hint-type-ax-xl light accessibility-extra-large -screenshotCupHint YES
           # 오늘 화면 반영 알림 한 줄(큰 숫자 라벨 위). 3.5초 뒤 사라지므로 인자로 띄운 채 둔다.
           shoot notice-credit light large -screenshotCreditNotice YES
+          # 두 컵 사이를 넘기는 중(넓힌 사진의 날개가 겹쳐 녹는 자리). 0.3·0.5·0.7만큼 끈 채로.
+          shoot slide-30 light large -screenshotCupSlide 0.3
+          shoot slide-50 light large -screenshotCupSlide 0.5
+          shoot slide-70 light large -screenshotCupSlide 0.7
           shoot settings light large -initialTab settings
           # 온보딩 릴(한 시각에 멈춰) + 하루 기준 두 단계(2 = 당, 3 = 카페인).
           for at in 0.9 2.0 3.9 6.4 8.1 9.8 12.2 14.4; do

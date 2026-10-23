@@ -14,6 +14,10 @@ struct CupHero: View {
     let rimLine: String
     /// 라벨 바로 위에 잠깐 뜨는 한 줄 안내("지난밤 먹인 음료가 반영됐어요" 등). 언제 지울지는 `TodayView`가 정한다.
     var notice: String?
+    /// 날짜 머리기사(요일 · 날짜 · 상식 한 줄 · 선)의 날. nil이면 그리지 않는다.
+    var day: DayKey?
+    /// 화면 위 안전 영역. 머리기사는 오른쪽 위 버튼 줄 바로 아래에서 시작한다.
+    var topInset: Double = 0
     /// 라벨 위끝 ~ 숫자 바닥(입구 위로 보이는 부분)의 화면 자리. 숫자를 누르면 하루 기록이 열린다(`TodayView.tapCup`).
     var onFrame: (CGRect) -> Void = { _ in }
 
@@ -35,6 +39,15 @@ struct CupHero: View {
     static let unitBaselineRatio = 0.243
     /// 라벨 바닥과 숫자 머리 사이.
     static let labelGap = 4.0
+    /// "오늘 남은 당" 한 줄 높이(넉넉히).
+    static let labelHeight = 16.0
+    /// 머리기사 위끝 = 안전 영역 + 버튼 줄(위 2 + 44) 아래 조금.
+    static let mastheadInset = 50.0
+    /// 머리기사 선과 라벨 사이 최소 간격.
+    static let mastheadGap = 10.0
+    /// 머리기사 높이: 상식 두 줄까지 / 요일·날짜·선만. 자리가 모자라면 상식부터, 그다음 통째로 뺀다(작은 화면).
+    static let mastheadHeight = 104.0
+    static let mastheadShortHeight = 64.0
 
     /// 당 = 왼쪽, 카페인 = 오른쪽 정렬(대표님 베타 피드백 2026-10-13 "카페인은 우측정렬해볼까").
     static func edge(_ side: CupSide) -> HorizontalAlignment {
@@ -72,8 +85,16 @@ struct CupHero: View {
             let capTop: Double = baseline - cap
             let rowTop: Double = baseline - Self.ascentRatio * size
             let edge = Self.edge(side)
+            let mastheadTop: Double = topInset + Self.mastheadInset
+            let room: Double = capTop - Self.labelGap - Self.labelHeight - Self.mastheadGap - mastheadTop
             ZStack(alignment: .topLeading) {
                 Color.clear
+                if let day, room >= Self.mastheadShortHeight {
+                    masthead(day: day, showsFact: notice == nil && room >= Self.mastheadHeight)
+                        .frame(maxWidth: .infinity, alignment: Alignment(horizontal: edge, vertical: .top))
+                        .padding(.horizontal, 24)
+                        .offset(y: mastheadTop)
+                }
                 label
                     .frame(maxWidth: .infinity, alignment: Alignment(horizontal: edge, vertical: .center))
                     .frame(height: max(capTop - Self.labelGap, 0), alignment: Alignment(horizontal: edge, vertical: .bottom))
@@ -98,6 +119,44 @@ struct CupHero: View {
         }
         .allowsHitTesting(false)
         .accessibilityHidden(true)
+    }
+
+    /// 매거진 머리기사(2026-10-24 대표님 시안 A + 상식 줄 + 선). 요일 · 날짜 · 회색 상식 한 줄 · 가는 선.
+    /// 큰 글자 설정에서도 자리를 넘지 않게 고정 크기 글자를 쓴다. 안내 한 줄이 뜨는 동안엔 상식을 접어 자리를 비운다.
+    private func masthead(day: DayKey, showsFact: Bool) -> some View {
+        let components = DateComponents(year: day.year, month: day.month, day: day.day, hour: 12)
+        let date = Calendar.current.date(from: components) ?? Date()
+        let edge = Self.edge(side)
+        let textAlignment: TextAlignment = side == .sugar ? .leading : .trailing
+        return VStack(alignment: edge, spacing: 0) {
+            Text(date.formatted(.dateTime.weekday(.wide)))
+                .font(AppFont.pretendardFixed(12, .semibold))
+                .tracking(1.3)
+                .foregroundStyle(Self.color(side))
+            Text(date.formatted(.dateTime.month(.wide).day()))
+                .font(AppFont.pretendardFixed(28, .extraBold))
+                .tracking(-0.4)
+                .foregroundStyle(Color.ink)
+                .padding(.top, 2)
+            if showsFact {
+                Text(CupFacts.line(for: side, day: day))
+                    .font(AppFont.pretendardFixed(12.5, .regular))
+                    .lineSpacing(3)
+                    .foregroundStyle(Color.ink.opacity(0.55))
+                    .multilineTextAlignment(textAlignment)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.85)
+                    .frame(maxWidth: 260, alignment: Alignment(horizontal: edge, vertical: .top))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, 6)
+                    .transition(.opacity)
+            }
+            Rectangle()
+                .fill(Color.ink.opacity(0.5))
+                .frame(width: 132, height: 1)
+                .padding(.top, 11)
+        }
+        .animation(.timingCurve(0.23, 1, 0.32, 1, duration: 0.3), value: showsFact)
     }
 
     /// "오늘 남은 당" (+ 넘긴 양). 숫자 머리 바로 위에 붙는다. 안내 한 줄은 그 위로 쌓여 라벨·숫자를 밀지 않는다.

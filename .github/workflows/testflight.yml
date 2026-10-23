@@ -148,6 +148,7 @@ jobs:
           # 오늘 화면 반영 알림 한 줄(큰 숫자 라벨 위). 3.5초 뒤 사라지므로 인자로 띄운 채 둔다.
           shoot notice-credit light large -screenshotCreditNotice YES
           # 두 컵 사이를 넘기는 중(넓힌 사진의 날개가 겹쳐 녹는 자리). 0.3·0.5·0.7만큼 끈 채로.
+          shoot today-caffeine light large -lastCupSide caffeine
           shoot slide-30 light large -screenshotCupSlide 0.3
           shoot slide-50 light large -screenshotCupSlide 0.5
           shoot slide-70 light large -screenshotCupSlide 0.7

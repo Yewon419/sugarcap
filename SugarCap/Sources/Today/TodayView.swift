@@ -244,7 +244,7 @@ struct TodayView: View {
 
     /// 당 · 카페인 컵 장면 두 장을 옆으로 붙여 두고 손가락을 따라 통째로 민다(2026-09-27 대표님:
     /// "이미지 두 개 붙여 놓고 미는 식으로"). 놓으면 끈 거리·속도로 가까운 쪽에 붙는다. 끝에서는 고무줄처럼 덜 끌린다.
-    private func cupStrip(totals: DayTotals, notice: String?) -> some View {
+    private func cupStrip(totals: DayTotals, notice: String?, today: DayKey) -> some View {
         GeometryReader { proxy in
             let width = proxy.size.width
             let index = CGFloat(trackedSides.firstIndex(of: side) ?? 0)
@@ -282,6 +282,8 @@ struct TodayView: View {
                             overflow: cupSide.overflow(totals), widest: widestNumber(totals),
                             rimLine: CupLevel.rimLineName(setID: cupSide.cupSetID, step: step),
                             notice: notice,
+                            day: today,
+                            topInset: Double(proxy.safeAreaInsets.top),
                             onFrame: { heroFrames[cupSide] = $0 }
                         ),
                         seam: seam(of: cupSide, index: index, width: width)
@@ -713,7 +715,7 @@ struct TodayView: View {
         let limit = side.limit(limits)
 
         ZStack(alignment: .topLeading) {
-            cupStrip(totals: totals, notice: shownNotice(today: today))
+            cupStrip(totals: totals, notice: shownNotice(today: today), today: today)
 
             // 상태 바 글자가 밝은 사진 위에서 묻히지 않게 아주 옅게만 깐다.
             LinearGradient(

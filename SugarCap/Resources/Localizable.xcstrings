@@ -685,6 +685,54 @@
         }
       }
     },
+    "'디저트 배는 따로 있다'는 말, 조금은 근거가 있어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"Room for dessert\" is a little bit real."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「甜點是另一個胃」其實有點道理。"
+          }
+        }
+      }
+    },
+    "'커피는 석유 다음가는 교역품'이라는 말은 사실이 아니에요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"Coffee is the most traded commodity after oil\" is a myth."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「咖啡是僅次於石油的貿易商品」其實是誤傳。"
+          }
+        }
+      }
+    },
+    "'혀 지도'는 사실이 아니에요. 단맛은 혀 어디서든 느껴요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The \"tongue map\" is a myth. You taste sweet all over your tongue."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「舌頭味覺地圖」是假的，整個舌頭都嚐得到甜。"
+          }
+        }
+      }
+    },
     "+%@" : {
       "shouldTranslate" : false
     },
@@ -777,6 +825,22 @@
         }
       }
     },
+    "WHO는 첨가당을 하루 열량의 10% 아래로 권해요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The WHO advises keeping added sugar under 10% of daily calories."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "世衛建議添加糖低於每日熱量的10%。"
+          }
+        }
+      }
+    },
     "g" : {
       "shouldTranslate" : false
     },
@@ -846,6 +910,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "已經是最親近的關係了"
+          }
+        }
+      }
+    },
+    "각설탕 한 개는 3~4 g 정도예요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A sugar cube is about 3 to 4 g."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一顆方糖大約3到4克。"
           }
         }
       }
@@ -958,6 +1038,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "繼續"
+          }
+        }
+      }
+    },
+    "과일 주스의 당도 WHO는 첨가당과 같이 쳐요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The WHO counts the sugar in fruit juice like added sugar."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "世衛把果汁裡的糖也算作添加糖。"
           }
         }
       }
@@ -1250,6 +1346,54 @@
         }
       }
     },
+    "꿀과 시럽도 당은 당이에요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Honey and syrup are still sugar."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "蜂蜜和糖漿也還是糖。"
+          }
+        }
+      }
+    },
+    "꿀벌도 카페인이 든 꽃꿀을 더 잘 기억해요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bees remember flowers with caffeinated nectar better."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "蜜蜂也比較記得有咖啡因花蜜的花。"
+          }
+        }
+      }
+    },
+    "꿀은 잘 보관하면 거의 상하지 않아요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stored well, honey almost never spoils."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "蜂蜜保存得好，幾乎不會壞。"
+          }
+        }
+      }
+    },
     "끈 쪽도 음료 값은 계속 저장돼요. 다시 켜면 지난 기록이 그대로 보여요." : {
       "localizations" : {
         "en" : {
@@ -1474,6 +1618,38 @@
         }
       }
     },
+    "녹차와 초콜릿에도 카페인이 들어 있어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Green tea and chocolate have caffeine too."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "綠茶和巧克力也有咖啡因。"
+          }
+        }
+      }
+    },
+    "뇌는 하루에 포도당을 100 g 넘게 써요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your brain uses over 100 g of glucose a day."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "大腦一天要用掉100克以上的葡萄糖。"
+          }
+        }
+      }
+    },
     "눈인사하는 사이" : {
       "localizations" : {
         "en" : {
@@ -1602,6 +1778,22 @@
         }
       }
     },
+    "단 걸 먹으면 뇌의 보상 회로가 반응해요. 기분 탓만은 아니에요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sweets light up your brain's reward circuit. It's not just a feeling."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "吃甜的會刺激大腦的獎勵迴路，不只是心理作用。"
+          }
+        }
+      }
+    },
     "단 걸 좋아하는 당신!" : {
       "localizations" : {
         "en" : {
@@ -1614,6 +1806,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "喜歡甜食的你！"
+          }
+        }
+      }
+    },
+    "단맛은 다섯 가지 기본 맛 중 하나예요. 나머지 넷도 맛있긴 해요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sweet is one of the five basic tastes. The other four are nice too."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "甜是五種基本味道之一，另外四種也不錯啦。"
           }
         }
       }
@@ -1666,6 +1874,22 @@
         }
       }
     },
+    "달콤한 음료 한 잔이면 하루 기준의 절반을 넘기기 쉬워요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One sweet drink can easily pass half your daily limit."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一杯甜飲料就很容易超過每日上限的一半。"
+          }
+        }
+      }
+    },
     "당" : {
       "localizations" : {
         "en" : {
@@ -1678,6 +1902,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "糖"
+          }
+        }
+      }
+    },
+    "당 50 g은 각설탕 열두 개 반쯤이에요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "50 g of sugar is about twelve and a half sugar cubes."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "50克糖大約是十二顆半方糖。"
           }
         }
       }
@@ -1822,6 +2062,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "獨一無二的關係"
+          }
+        }
+      }
+    },
+    "디카페인 커피에도 카페인이 조금 남아 있어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decaf still has a little caffeine."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低咖啡因咖啡還是有一點咖啡因。"
           }
         }
       }
@@ -2402,6 +2658,22 @@
         }
       }
     },
+    "미지근해지면 같은 음료도 더 달게 느껴져요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The same drink tastes sweeter once it warms up."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "同一杯飲料，變溫了會覺得更甜。"
+          }
+        }
+      }
+    },
     "반가운 사이" : {
       "localizations" : {
         "en" : {
@@ -2430,6 +2702,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "把水滴拖給%@吧。"
+          }
+        }
+      }
+    },
+    "버블티 한 잔의 당은 각설탕 열 개를 넘기도 해요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One bubble tea can top ten sugar cubes."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一杯珍奶的糖可能超過十顆方糖。"
           }
         }
       }
@@ -2578,6 +2866,38 @@
         }
       }
     },
+    "사과 한 개에도 당이 20 g쯤 들어 있어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Even an apple has about 20 g of sugar."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一顆蘋果也有大約20克的糖。"
+          }
+        }
+      }
+    },
+    "사람은 태어날 때부터 단맛을 좋아해요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Humans are born liking sweet tastes."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "人一出生就喜歡甜味。"
+          }
+        }
+      }
+    },
     "사용 중" : {
       "localizations" : {
         "en" : {
@@ -2718,6 +3038,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "無法儲存設定。"
+          }
+        }
+      }
+    },
+    "설탕은 사탕수수나 사탕무에서 나와요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sugar comes from sugarcane or sugar beets."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "砂糖來自甘蔗或甜菜。"
+          }
+        }
+      }
+    },
+    "성인 카페인 하루 권고량은 400 mg 이하예요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The FDA says up to 400 mg a day is fine for most adults."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "衛福部建議成人每天咖啡因不超過300毫克。"
           }
         }
       }
@@ -3202,6 +3554,22 @@
         }
       }
     },
+    "에스프레소 한 샷엔 카페인이 60 mg 안팎 있어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A shot of espresso has around 60 mg of caffeine."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一份濃縮咖啡大約有60毫克咖啡因。"
+          }
+        }
+      }
+    },
     "여기서 연 먹이기와 정산은 기록에 남지 않아요." : {
       "localizations" : {
         "en" : {
@@ -3310,6 +3678,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "無法驗證收據。"
+          }
+        }
+      }
+    },
+    "영양성분표 '당류'엔 재료에 원래 든 당도 포함돼요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"Sugars\" on a label include the ones already in the ingredients."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "營養標示的「糖」也包含原料本身的糖。"
           }
         }
       }
@@ -3506,6 +3890,22 @@
         }
       }
     },
+    "오후 늦게 마신 커피는 잠들 때까지 꽤 남아 있어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Late-afternoon coffee is still hanging around at bedtime."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "傍晚喝的咖啡，到睡覺時還留不少。"
+          }
+        }
+      }
+    },
     "완료" : {
       "localizations" : {
         "en" : {
@@ -3534,6 +3934,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "我們一起慢慢減少吧"
+          }
+        }
+      }
+    },
+    "우유 한 컵(200 ml)엔 유당이 10 g쯤 있어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A 200 ml glass of milk has about 10 g of lactose."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一杯牛奶（200毫升）約有10克乳糖。"
           }
         }
       }
@@ -3902,6 +4318,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "無法儲存。請再試一次。"
+          }
+        }
+      }
+    },
+    "적당한 당은 기분에도 좋아요. 물론 생존에도 필요하고요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A little sugar is good for your mood. And for staying alive, of course."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "適量的糖讓心情變好。當然，活下去也需要它。"
+          }
+        }
+      }
+    },
+    "전설에 따르면 커피 열매는 염소가 먼저 맛봤어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Legend says goats tasted coffee cherries first."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "傳說最先嚐到咖啡果的是山羊。"
           }
         }
       }
@@ -4354,6 +4802,22 @@
         }
       }
     },
+    "진하게 볶은 원두라고 카페인이 더 많은 건 아니에요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A dark roast doesn't mean more caffeine."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "深焙不代表咖啡因比較多。"
+          }
+        }
+      }
+    },
     "처음 만난 사이" : {
       "localizations" : {
         "en" : {
@@ -4690,6 +5154,54 @@
         }
       }
     },
+    "카페인은 마신 뒤 45분 안에 대부분 흡수돼요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Most caffeine is absorbed within 45 minutes."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "咖啡因喝下後45分鐘內大多就吸收了。"
+          }
+        }
+      }
+    },
+    "카페인은 식물이 벌레를 쫓으려고 만든 물질이에요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plants make caffeine to keep bugs away."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "咖啡因是植物用來驅蟲的物質。"
+          }
+        }
+      }
+    },
+    "카페인은 졸음 신호를 잠깐 막을 뿐, 피로를 없애진 않아요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Caffeine blocks the sleepy signal for a while. It doesn't erase tiredness."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "咖啡因只是暫時擋住睡意，不會消除疲勞。"
+          }
+        }
+      }
+    },
     "카페인을" : {
       "localizations" : {
         "en" : {
@@ -4702,6 +5214,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "愛喝咖啡因的"
+          }
+        }
+      }
+    },
+    "카페인이 듣는 정도는 유전자 영향도 받아요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How caffeine hits you depends partly on your genes."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "咖啡因對你的效果，有一部分看基因。"
+          }
+        }
+      }
+    },
+    "카페인이 몸에서 반으로 줄기까지 평균 5시간쯤 걸려요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It takes about 5 hours on average for half the caffeine to leave your body."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "咖啡因在體內減半，平均要5小時左右。"
           }
         }
       }
@@ -4734,6 +5278,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "直接看角色介紹"
+          }
+        }
+      }
+    },
+    "커피 마시고 바로 20분 자는 '커피 낮잠'이란 게 있어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There's such a thing as a coffee nap: drink, then sleep 20 minutes."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有一種「咖啡小睡」：喝完馬上睡20分鐘。"
+          }
+        }
+      }
+    },
+    "커피 열매는 빨갛게 익어서 '커피 체리'라고 불러요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coffee fruit turns red when ripe, so it's called a coffee cherry."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "咖啡果熟了會變紅，所以叫咖啡櫻桃。"
+          }
+        }
+      }
+    },
+    "커피가 맛있는 건 죄가 아니에요. 숫자만 지켜 주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loving coffee isn't a crime. Just keep an eye on the number."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "愛喝咖啡不是罪，記得看一下數字就好。"
           }
         }
       }
@@ -4798,6 +5390,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "杯子空了。\n%@正在把它倒乾淨。"
+          }
+        }
+      }
+    },
+    "콜라 한 캔(355 ml)엔 당이 40 g 가까이 있어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A 355 ml can of cola has close to 40 g of sugar."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一罐可樂（355毫升）含糖將近40克。"
+          }
+        }
+      }
+    },
+    "큰 사이즈 아메리카노 두 잔이면 하루 기준에 금방 닿아요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Two large americanos can hit your daily limit fast."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "兩杯大杯美式很快就到每日上限。"
           }
         }
       }
@@ -5182,6 +5806,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "已立即反映到好感度。"
+          }
+        }
+      }
+    },
+    "홍차 잎은 무게로 치면 커피콩보다 카페인이 많아요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "By weight, black tea leaves have more caffeine than coffee beans."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以重量來算，紅茶葉的咖啡因比咖啡豆多。"
           }
         }
       }

@@ -290,7 +290,8 @@ struct TodayView: View {
                 }
             }
             .offset(x: -index * width + dragX)
-            .onAppear {
+            // 첫 onAppear엔 폭이 0일 수 있어(CI slide-* 가 안 끌린 채 찍힘) 폭이 잡힐 때마다 다시 건다.
+            .onChange(of: width, initial: true) {
                 if slideForScreenshot > 0 { dragX = (index > 0 ? 1 : -1) * width * slideForScreenshot }
             }
             .frame(width: width, alignment: .leading)

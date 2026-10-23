@@ -56,6 +56,17 @@ enum IdleMotion {
         return WalkState(x: x, facingLeft: facingLeft, moving: moving, phase: phase)
     }
 
+    /// 걷기가 사진 폭 비율 `x` 자리에서 시작하는 시각(`walk`의 t). 오른쪽 반이면 왼쪽으로, 왼쪽 반이면 오른쪽으로 걸어 나간다.
+    /// 걷는 구간 밖이면 가까운 끝에서.
+    static func walkStart(at x: Double, gait: IdleGait, photo: IdlePhoto) -> Double {
+        let speed = gait.speed * photo.unit
+        let dist = (gait.from - gait.to) * photo.width
+        guard speed > 0, dist > 0 else { return 0 }
+        let d = (gait.from - min(max(x, gait.to), gait.from)) * photo.width
+        if d <= dist / 2 { return d / speed }
+        return dist / speed + gait.pause + (dist - d) / speed
+    }
+
     /// 한 발의 한 주기(u 0~1). 앞 절반은 들어서 앞으로(그림 기준 -x) 내딛기, 뒤 절반은 바닥을 딛고 뒤로 밀리기.
     /// 반환 x·lift는 393×852 화면 pt.
     static let stepReach = 1.5

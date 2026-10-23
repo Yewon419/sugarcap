@@ -93,7 +93,7 @@ struct IdleCharacterLayer: View {
                         )
                         let poked = hostFuss.poked(now: now, t: t, candidate: candidate)
                         hostFuss = poked
-                        if poked.fuss == .dodge, poked.startedAt == t { scheduleDodge() }
+                        if poked.fuss == .dodge, poked.startedAt == t { scheduleDodge(photo: sprite.photo) }
                     } else if let guestSprite, let guest, guestSprite.contains(local, t: guestFuss.stare.time(t)) {
                         guestFlinchAt = now
                         let candidate = IdleFussMath.pick(
@@ -175,14 +175,22 @@ struct IdleCharacterLayer: View {
     }
 
     /// 부르르 떤 뒤 다른 자세로 옮긴다. 자세 사이 전환 동작은 없다(위 규칙).
-    private func scheduleDodge() {
+    /// 걷기로 옮기면 걷기 주기를 앞당겨 직전 자세 자리에서 걷기 시작한다(대표님 2026-10-23 "왼쪽에 있던 자세면 왼쪽에서부터").
+    /// 그 전엔 늘 오른쪽 끝에서 나타났다.
+    private func scheduleDodge(photo: IdlePhoto) {
         Task { @MainActor in
             try? await Task.sleep(for: .seconds(IdleFussMath.shiverLength))
             guard let next = dodgeTarget() else { return }
+            let set = side.idleCast.poseSet
+            var lead = 0.0
+            if let pose, let from = set?.poses[pose]?.place.photoX, case .walk = set?.poses[next]?.motion {
+                lead = IdleMotion.walkStart(at: from, gait: side.idleCast.gait, photo: photo)
+            }
             hostFuss = IdleFussState()
             guestFuss = IdleFussState()
-            start = Date()
-            if pausedAt != nil { pausedAt = start }
+            let now = Date()
+            start = now.addingTimeInterval(-lead)
+            if pausedAt != nil { pausedAt = now }
             pose = next
         }
     }

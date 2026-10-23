@@ -85,12 +85,18 @@ struct CupHero: View {
             let capTop: Double = baseline - cap
             let rowTop: Double = baseline - Self.ascentRatio * size
             let edge = Self.edge(side)
-            let mastheadTop: Double = topInset + Self.mastheadInset
-            let room: Double = capTop - Self.labelGap - Self.labelHeight - Self.mastheadGap - mastheadTop
+            // 머리기사는 라벨 위에 붙여 두고(이 칸 좌표는 화면 좌표와 어긋나 있다, 2026-10-24 CI에서 안전 영역 기준으로
+            // 잡았다가 자리 부족으로 통째로 숨음), 버튼 줄과 겹치는지만 화면 좌표로 본다.
+            let mastheadBottom: Double = capTop - Self.labelGap - Self.labelHeight - Self.mastheadGap
+            let screenOffset = Double(proxy.frame(in: .global).minY)
+            let buttonsBottom: Double = topInset + Self.mastheadInset
+            let fullFits: Bool = mastheadBottom - Self.mastheadHeight + screenOffset >= buttonsBottom
+            let shortFits: Bool = mastheadBottom - Self.mastheadShortHeight + screenOffset >= buttonsBottom
+            let mastheadTop: Double = mastheadBottom - (fullFits ? Self.mastheadHeight : Self.mastheadShortHeight)
             ZStack(alignment: .topLeading) {
                 Color.clear
-                if let day, room >= Self.mastheadShortHeight {
-                    masthead(day: day, showsFact: notice == nil && room >= Self.mastheadHeight)
+                if let day, shortFits {
+                    masthead(day: day, showsFact: notice == nil && fullFits)
                         .frame(maxWidth: .infinity, alignment: Alignment(horizontal: edge, vertical: .top))
                         .padding(.horizontal, 24)
                         .offset(y: mastheadTop)

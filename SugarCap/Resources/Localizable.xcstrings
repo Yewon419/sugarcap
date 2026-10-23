@@ -71,18 +71,18 @@
         }
       }
     },
-    "%@ %@ 넘겼어요.\n그래도 %@ 기다려요.\n컵을 눌러 주세요." : {
+    "%@ %@ 넘겼어요." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ %2$@ over.\n%3$@ is still waiting.\nTap the cup."
+            "value" : "%1$@ %2$@ over."
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "超過了%1$@ %2$@。\n%3$@還在等你。\n點一下杯子。"
+            "value" : "超過了%1$@ %2$@。"
           }
         }
       }
@@ -151,18 +151,18 @@
         }
       }
     },
-    "%@ 기다려요.\n컵을 눌러 주세요." : {
+    "컵을 눌러 주세요." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ is waiting.\nTap the cup."
+            "value" : "Tap the cup."
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@在等你。\n點一下杯子。"
+            "value" : "點一下杯子。"
           }
         }
       }

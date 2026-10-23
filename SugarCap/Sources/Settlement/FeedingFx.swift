@@ -1,47 +1,207 @@
 import SwiftUI
 
-/// 먹이기 전환(2026-10-23 대표님 "조잡하고 유치하고 긺"으로 다시 만듦). 밤하늘 단색 면이 빠르게 덮었다가 걷히는 짧은 페이드 하나로
-/// 통일했다. 달·별·제목 카드·카인 팝업·링·별 폭발은 뺐다. 덮을 때보다 걷힐 때를 길게 둬서 새 화면이 부드럽게 드러난다.
+/// 먹이기 전환 모션그래픽(2026-09-26 HTML 프로토타입 `FEED_FX` 확정). 좌표는 프로토타입 폰(402×874) 비율로 잡아
+/// 실제 화면 크기에 맞춘다. 단색 면·또렷한 선만 쓴다(에어브러시 금지, 대표님 교정).
 enum FeedFx: Equatable {
-    /// 마감 진입: 오늘 화면 → 밤 장면.
-    case dusk
-    /// 로슈 → 카인.
+    /// 마감 진입: 밤하늘이 지평선처럼 차오르고 달·별이 뜬 뒤 걷히며 밤 장면이 드러난다.
+    case dusk(title: String)
+    /// 로슈 → 카인: 버튼 자리에서 호박색이 번지고 카인이 튀어나온 뒤 카인 자리로 오므라든다.
     case turn
-    /// 마무리: 카페인 → 요약.
+    /// 마무리: 밤하늘이 내려오고 두 방울이 합쳐져 흰 링과 별로 흩어진다.
     case night
 
     var duration: Double {
         switch self {
-        case .dusk: return 0.38
-        case .turn: return 0.34
-        case .night: return 0.4
+        case .dusk: return 1.8
+        case .turn: return 1.85
+        case .night: return 2.2
         }
     }
 
     /// 화면이 다 덮여 밑 화면을 바꿔도 되는 시각.
     var swapAt: Double {
         switch self {
-        case .dusk: return 0.14
-        case .turn: return 0.12
-        case .night: return 0.14
+        case .dusk: return 1.1
+        case .turn: return 0.95
+        case .night: return 1.35
         }
     }
-
-    /// 바꾼 화면이 한 번 그려질 틈을 두고 걷기 시작한다.
-    static let hold: Double = 0.04
 }
 
 struct FeedFxOverlay: View {
     let fx: FeedFx
     let t: Double
+    let date: String
+
+    /// 밤 전환 방울은 먹인 면만(설정 "기록할 것").
+    @Environment(\.trackedSides) private var sides
+
+    private static let stars: [CGPoint] = [
+        CGPoint(x: 46, y: 150), CGPoint(x: 330, y: 118), CGPoint(x: 262, y: 226), CGPoint(x: 104, y: 292),
+        CGPoint(x: 356, y: 318), CGPoint(x: 30, y: 404), CGPoint(x: 190, y: 96), CGPoint(x: 300, y: 430),
+    ]
 
     var body: some View {
-        let cover: Double = Motion.seg(t, 0, fx.swapAt, Ease.power2Out)
-        let reveal: Double = Motion.seg(t, fx.swapAt + FeedFx.hold, fx.duration, Ease.power3Out)
-        Color.nightSky
-            .opacity(cover * (1 - reveal))
-            .ignoresSafeArea()
-            .allowsHitTesting(true)
-            .accessibilityHidden(true)
+        GeometryReader { proxy in
+            let size = proxy.size
+            // 프로토타입 폰 좌표 → 이 화면 좌표.
+            let sx = size.width / 402
+            let sy = size.height / 874
+            switch fx {
+            case .dusk(let title): dusk(title: title, size: size, sx: sx, sy: sy)
+            case .turn: turn(size: size, sx: sx, sy: sy)
+            case .night: night(size: size, sx: sx, sy: sy)
+            }
+        }
+        .ignoresSafeArea()
+        .allowsHitTesting(true)
+        .accessibilityHidden(true)
+    }
+
+    // MARK: - 마감 진입
+
+    private func dusk(title: String, size: CGSize, sx: CGFloat, sy: CGFloat) -> some View {
+        let seg = Motion.seg
+        let rise = seg(t, 0, 0.6, Ease.power3InOut)
+        let leave = seg(t, 1.25, 1.8, Ease.power3In)
+        let skyHeight = size.height + 140
+        let skyY = (1 - rise) * skyHeight - leave * skyHeight
+        let moonK = seg(t, 0.15, 1.0, Ease.power3Out)
+        let typeOut = seg(t, 1.15, 1.45, Ease.power3In)
+        let small = seg(t, 0.4, 0.75, Ease.power2Out)
+
+        return ZStack(alignment: .topLeading) {
+            // 위아래가 둥근 하늘 한 장(지평선처럼 차오르고 그대로 걷힌다).
+            RoundedRectangle(cornerRadius: 70, style: .continuous)
+                .fill(Color.nightSky)
+                .frame(width: size.width + 120, height: skyHeight)
+                .offset(x: -60, y: -70)
+
+            Circle()
+                .fill(Color.wall)
+                .frame(width: 64 * sx, height: 64 * sx)
+                .scaleEffect(Motion.lerp(0.6, 1, moonK))
+                .offset(x: 290 * sx, y: 190 * sy + Motion.lerp(300, 0, moonK) * sy)
+
+            ForEach(Array(Self.stars.enumerated()), id: \.offset) { index, point in
+                let start: Double = 0.45 + Double(index) * 0.05
+                let k: Double = seg(t, start, start + 0.3) { Ease.backOut($0, overshoot: 3) }
+                Circle()
+                    .fill(.white)
+                    .frame(width: 6, height: 6)
+                    .scaleEffect(max(0, k))
+                    .offset(x: point.x * sx, y: point.y * sy)
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text(date)
+                    .font(AppFont.pretendardFixed(15, .semibold))
+                    .foregroundStyle(.white.opacity(0.72))
+                    .opacity(small)
+                    .offset(y: 8 * (1 - small))
+                MaskLine(
+                    text: title, font: AppFont.pretendardFixed(56, .extraBold), lineHeight: 64,
+                    color: .white, tracking: AppFont.displayTracking(for: 56),
+                    reveal: seg(t, 0.45, 1.0, Ease.power4Out)
+                )
+            }
+            .offset(x: 24, y: 480 * sy - 40 * typeOut)
+            .opacity(1 - typeOut)
+        }
+        .offset(y: skyY)
+    }
+
+    // MARK: - 로슈 → 카인
+
+    private func turn(size: CGSize, sx: CGFloat, sy: CGFloat) -> some View {
+        let seg = Motion.seg
+        let grow = seg(t, 0, 0.6, Ease.expoInOut)
+        let shrink = seg(t, 1.3, 1.85, Ease.expoInOut)
+        let radius = 1000 * sy * grow * (1 - shrink)
+        let center = CGPoint(x: size.width / 2, y: Motion.lerp(802, 662, shrink) * sy)
+        let pop = seg(t, 0.42, 0.92) { Ease.backOut($0, overshoot: 1.7) }
+        let drop = seg(t, 1.25, 1.7, Ease.power3In)
+
+        // 글자 없이 카페인색 전환만 둔다(대표님 2026-10-11 "카인 차례! 빼").
+        return ZStack(alignment: .top) {
+            Circle()
+                .fill(Color.caffeineAmber)
+                .frame(width: radius * 2, height: radius * 2)
+                .position(center)
+
+            // 카인은 한 바퀴 돌지 않는다(대표님 2026-10-06·10-11). 튀어나올 때 기울었다 바로 서기만 한다.
+            let kainAngle: Double = Motion.lerp(-25, 0, pop)
+            let kainScale: Double = Motion.lerp(0.4, 1, pop) * Motion.lerp(1, 0.55, drop)
+            let kainOpacity: Double = min(1, max(0, pop * 2)) * (1 - seg(t, 1.62, 1.74, Ease.linear))
+            let kainY: Double = 360 * Double(sy) + Motion.lerp(140, 0, pop) + 250 * drop
+            Image(CupSide.caffeine.characterAsset)
+                .resizable()
+                .scaledToFit()
+                .frame(height: 150)
+                .rotationEffect(.degrees(kainAngle), anchor: UnitPoint(x: 0.5, y: 0.55))
+                .scaleEffect(kainScale)
+                .opacity(kainOpacity)
+                .offset(y: kainY)
+        }
+    }
+
+    // MARK: - 마무리
+
+    private func night(size: CGSize, sx: CGFloat, sy: CGFloat) -> some View {
+        let seg = Motion.seg
+        let skyHeight = size.height + 140
+        let down = seg(t, 0, 0.6, Ease.power3InOut)
+        let fade = seg(t, 1.45, 1.95, Ease.power2InOut)
+        let center = CGPoint(x: size.width / 2, y: size.height / 2)
+        let merge = seg(t, 0.98, 1.26, Ease.power3In)
+        let vanish = seg(t, 1.22, 1.34, Ease.power2In)
+        let ring = seg(t, 1.22, 1.92, Ease.power2Out)
+        let burst = seg(t, 1.24, 1.94, Ease.power3Out)
+        let starsOut = seg(t, 1.6, 2.2, Ease.power2In)
+
+        return ZStack(alignment: .topLeading) {
+            UnevenRoundedRectangle(bottomLeadingRadius: 70, bottomTrailingRadius: 70, style: .continuous)
+                .fill(Color.nightSky)
+                .frame(width: size.width + 120, height: skyHeight)
+                .offset(x: -60, y: -skyHeight * (1 - down) - 70 * down + 0)
+                .opacity(1 - fade)
+
+            ForEach(sides) { side in
+                let sign: Double = side == .sugar ? -1 : 1
+                let start: Double = side == .sugar ? 0.35 : 0.42
+                let enter: Double = seg(t, start, start + 0.55, Ease.power3Out)
+                let spread: Double = Motion.lerp(Motion.lerp(150, 46, enter), 0, merge)
+                let x: Double = Double(center.x) + sign * spread
+                let y: Double = Double(center.y) + Motion.lerp(300, 0, enter)
+                let scale: Double = Motion.lerp(0.4, 1, enter) * (1 - vanish)
+                Image(side.dropAsset)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 76, height: 76)
+                    .scaleEffect(scale)
+                    .opacity(enter)
+                    .position(x: x, y: y)
+            }
+
+            Circle()
+                .strokeBorder(.white, lineWidth: 3 / max(0.3, 1 + 6 * ring))
+                .frame(width: 60, height: 60)
+                .scaleEffect(t < 1.22 ? 0 : 1 + 6 * ring)
+                .opacity(t < 1.22 ? 0 : 1 - ring)
+                .position(center)
+
+            ForEach(0..<14, id: \.self) { index in
+                let angle: Double = Double(index) / 14 * Double.pi * 2 + 0.3
+                let distance: Double = 120 + Double(index % 4) * 45
+                let x: Double = Double(center.x) + cos(angle) * distance * burst
+                let y: Double = Double(center.y) + sin(angle) * distance * 1.3 * burst
+                Circle()
+                    .fill(.white)
+                    .frame(width: 6, height: 6)
+                    .scaleEffect(t < 1.24 ? 0 : burst)
+                    .opacity(1 - starsOut)
+                    .position(x: x, y: y)
+            }
+        }
     }
 }

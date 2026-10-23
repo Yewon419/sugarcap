@@ -960,8 +960,7 @@ struct TodayView: View {
     /// 첫 먹이기면 로슈·카인 소개부터(§4.5), 그 뒤로는 마감 진입 모션.
     private func feedingOpening() -> FeedingOpening {
         let seen = UserDefaults.standard.bool(forKey: CompanionIntro.seenKey)
-        // 진입 전환이 페이드뿐이라 모션 줄이기에서도 쓴다.
-        return !seen ? .companionIntro : .dusk
+        return !seen ? .companionIntro : (reduceMotion ? .immediate : .dusk)
     }
 
     /// 먹이기를 연다. 첫 마감이면 로슈·카인 소개부터(§4.5), 그 뒤로는 마감 진입 모션.
@@ -1204,7 +1203,7 @@ struct TodayView: View {
             var snapshot = FeedingSnapshot()
             snapshot.stage = defaults.string(forKey: "screenshotFeedingStage").flatMap(FeedingSnapshot.Stage.init(rawValue:)) ?? .ask
             switch defaults.string(forKey: "screenshotFx") {
-            case "dusk": snapshot.fx = .dusk
+            case "dusk": snapshot.fx = .dusk(title: String(localized: "오늘 마감"))
             case "turn": snapshot.fx = .turn
             case "night": snapshot.fx = .night
             default: break

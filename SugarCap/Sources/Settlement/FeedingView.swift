@@ -86,7 +86,7 @@ struct FeedingSnapshot: Equatable {
 ///  2) 컵을 누르면 흔들리며 빈 컵이 되고 남은 양 방울이 나온다
 ///  3) 방울을 캐릭터에게 끌어다 놓으면(또는 방울을 누르면) 먹는다
 ///  4) 카페인도 같은 과정 → 마무리 요약으로 넘어가는 순간에만 저장한다. 중간에 닫으면 남기지 않는다.
-/// 하루 한 번 보는 장면이라 연출을 허용한다. 모션 줄이기면 흔들기·튀기를 빼고, 전환은 원래 페이드라 그대로 둔다.
+/// 하루 한 번 보는 장면이라 연출을 허용한다. 모션 줄이기면 흔들기·전환·튀기를 빼고 결과만 바꾼다.
 struct FeedingView: View {
     let opening: FeedingOpening
     let catalog: CatalogIndex
@@ -129,6 +129,11 @@ struct FeedingView: View {
     @State private var isDropEaten = false
     @State private var characterFrame: CGRect = .zero
     @State private var summaryIn = false
+    /// "컵을 눌러 주세요." 안내. 컵 차례에서 2초 동안 아무것도 안 하면 뜬다(대표님 2026-10-23).
+    @State private var isCupHintShown = false
+    /// 컵 비우기(꿀꺽꿀꺽 내려가는 수위)를 시작한 시각. 도는 동안만 있다.
+    @State private var drainStart: Date?
+    @State private var drainTick = 0
     /// 요약 바닥 면 윗선(캐릭터 발밑, 좌표 공간 "summary").
     @State private var summaryFloorY: CGFloat = 0
 
@@ -150,7 +155,7 @@ struct FeedingView: View {
         self.onAddDrink = onAddDrink
         _isIntroPlaying = State(initialValue: opening == .companionIntro)
         _isSceneVisible = State(initialValue: opening == .immediate)
-        _fx = State(initialValue: opening == .dusk ? .dusk : nil)
+        _fx = State(initialValue: opening == .dusk ? .dusk(title: request.kind == .closeToday ? String(localized: "오늘 마감") : String(localized: "어제 마감")) : nil)
     }
 
     private var stepIndex: Int {
@@ -181,7 +186,7 @@ struct FeedingView: View {
                     cues: [(fx.swapAt, { swap(for: fx) }), (fx.duration, { self.fx = nil })],
                     frozenAt: snapshot?.fx == fx ? snapshot?.fxAt : nil
                 ) { t in
-                    FeedFxOverlay(fx: fx, t: t)
+                    FeedFxOverlay(fx: fx, t: t, date: dateText)
                 }
                 .id(fxRun)
             }
@@ -212,8 +217,17 @@ struct FeedingView: View {
             ZStack(alignment: .topLeading) {
                 // 흔들 때 컵 장면이 돌아도 모서리에 검은 바탕이 비치지 않게 벽은 따로 고정해 깐다.
                 CupView.wallColor.ignoresSafeArea()
-                CupView(step: stage == .ask ? cupStart : 0, setID: side.cupSetID)
-                    .modifier(CupShake(trigger: shakeTrigger))
+                // 컵 비우기: 빈 잔 위에 찬 잔을 겹치고, 찬 잔을 수위선 위쪽부터 지워 액체가 꿀꺽꿀꺽 내려가게 한다.
+                ZStack {
+                    if stage != .ask || drainStart != nil || cupStart == 0 {
+                        CupView(step: 0, setID: side.cupSetID)
+                    }
+                    if stage == .ask && cupStart > 0 {
+                        CupView(step: cupStart, setID: side.cupSetID)
+                            .mask { CupDrainMask(side: side, step: cupStart, start: drainStart) }
+                    }
+                }
+                .modifier(CupShake(trigger: shakeTrigger))
                     .modifier(CupTap(trigger: patTrigger))
                     .ignoresSafeArea()
 
@@ -245,7 +259,16 @@ struct FeedingView: View {
                     .accessibilityIdentifier("feeding-cup")
                 }
 
-                headline(left: left, over: over)
+                VStack(alignment: .leading, spacing: 16) {
+                    headline(left: left, over: over)
+                    // 깜빡한 음료를 먹이기 전에 넣는다(2026-10-02 대표님). 아래 오른쪽은 한 손 진행 자리라 위로 올렸다(2026-10-23).
+                    if step == .side(0) && stage == .ask {
+                        addDrinkButton
+                            .padding(.horizontal, 24)
+                            .transition(.opacity)
+                    }
+                }
+                .animation(.easeOut(duration: 0.25), value: stage)
 
                 if stage == .dropped || stage == .eaten {
                     // 먹일 게 없는 날의 작은 방울은 컵 입구 바로 아래에 뜬다(이름표 없음).
@@ -254,6 +277,15 @@ struct FeedingView: View {
                         .position(x: proxy.size.width / 2, y: dropY - proxy.safeAreaInsets.top)
                         .offset(dragOffset)
                 }
+
+                // 한 손 진행(대표님 2026-10-23): 오른쪽 아래를 누를 때마다 다음 동작(컵 누르기 → 먹이기 → 다음).
+                // 같은 동작은 컵·방울·아래 버튼에도 있어 보이스오버에서는 숨긴다.
+                Color.clear
+                    .contentShape(Rectangle())
+                    .frame(width: proxy.size.width * 0.5, height: proxy.size.height * 0.3)
+                    .onTapGesture(perform: advance)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                    .accessibilityHidden(true)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .overlay(alignment: .bottom) { foot }
@@ -263,19 +295,25 @@ struct FeedingView: View {
             }
         }
         .coordinateSpace(.named("feed"))
+        .task(id: "\(stepIndex)-\(stage)") {
+            isCupHintShown = false
+            guard stage == .ask else { return }
+            try? await Task.sleep(for: .seconds(2))
+            if !Task.isCancelled, drainStart == nil { isCupHintShown = true }
+        }
+        // 꿀꺽마다 한 번씩 말랑한 진동(컵 비우기 손맛, 대표님 2026-10-23 "햅틱도").
+        .sensoryFeedback(.impact(flexibility: .soft, intensity: 0.75), trigger: drainTick)
         .sensoryFeedback(.impact(weight: .light), trigger: shakeTrigger)
         .sensoryFeedback(.impact(weight: .light, intensity: 0.6), trigger: patTrigger)
         .sensoryFeedback(.success, trigger: bounceTrigger)
     }
 
     private func headline(left: Double, over: Double) -> some View {
-        let caption: String = {
-            // 줄을 짧게 끊는다. 길면 가장자리 오른쪽에 선 카인 몸 밑으로 글이 들어간다.
+        let caption: String? = {
             switch stage {
             case .ask:
-                return over > 0
-                    ? String(localized: "\(Amount.number(over)) \(side.unit) 넘겼어요.\n그래도 \(side.characterNameWithIga) 기다려요.\n컵을 눌러 주세요.")
-                    : String(localized: "\(side.characterNameWithIga) 기다려요.\n컵을 눌러 주세요.")
+                // "기다려요"는 뺐다(대표님 2026-10-23). 누르라는 안내는 가만히 있을 때만 따로 뜬다(`isCupHintShown`).
+                return over > 0 ? String(localized: "\(Amount.number(over)) \(side.unit) 넘겼어요.") : nil
             case .searching:
                 return searchBeat == .patting
                     ? String(localized: "컵이 비었어요.\n\(side.characterNameWithIga) 털어 보는 중이에요.")
@@ -310,13 +348,31 @@ struct FeedingView: View {
             }
             .foregroundStyle(.white)
             .animation(.easeOut(duration: 0.5), value: stage)
-            Text("남은 \(side.label) · \(caption)")
-                .font(AppFont.pretendard(13, .regular, relativeTo: .footnote))
-                .tracking(0.3)
-                .lineSpacing(4)
-                .foregroundStyle(.white.opacity(0.78))
-                .padding(.top, 8)
-                .fixedSize(horizontal: false, vertical: true)
+            Group {
+                if let caption {
+                    Text("남은 \(side.label) · \(caption)")
+                } else {
+                    Text("남은 \(side.label)")
+                }
+            }
+            .font(AppFont.pretendard(13, .regular, relativeTo: .footnote))
+            .tracking(0.3)
+            .lineSpacing(4)
+            .foregroundStyle(.white.opacity(0.78))
+            .padding(.top, 8)
+            .fixedSize(horizontal: false, vertical: true)
+            if stage == .ask {
+                // 자리는 늘 잡아 둬서 안내가 떠도 아래가 밀리지 않는다.
+                Text("컵을 눌러 주세요.")
+                    .font(AppFont.pretendard(13, .regular, relativeTo: .footnote))
+                    .tracking(0.3)
+                    .foregroundStyle(.white.opacity(0.78))
+                    .padding(.top, 4)
+                    .opacity(isCupHintShown ? 1 : 0)
+                    .animation(.easeOut(duration: 0.3), value: isCupHintShown)
+                    // 보이스오버는 컵 버튼 이름("컵 누르기")이 같은 안내를 한다. 제목 줄 읽기가 시간 따라 바뀌지 않게 숨긴다.
+                    .accessibilityHidden(true)
+            }
             if let errorText {
                 Text(errorText)
                     .font(AppFont.pretendard(13, .semibold, relativeTo: .footnote))
@@ -431,20 +487,6 @@ struct FeedingView: View {
                     .buttonStyle(PressScaleStyle())
                     .accessibilityIdentifier("feeding-next")
                     .transition(.opacity)
-                } else if step == .side(0) && stage == .ask {
-                    // 깜빡한 음료를 먹이기 전에 넣는다(2026-10-02 대표님). 먹이기를 시작하면 숨긴다.
-                    // 유리 알약이 "구리다"(2026-10-05 대표님) → 밤 장면 위 흰 단색 칸. 그림자·유리 없음.
-                    Button { isRecordPresented = true } label: {
-                        Label("음료 추가", systemImage: "plus")
-                            .font(AppFont.pretendard(15, .bold, relativeTo: .subheadline))
-                            .foregroundStyle(Color.accentColor)
-                            .padding(.horizontal, 20)
-                            .frame(minHeight: 48)
-                            .background(.white, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    }
-                    .buttonStyle(PressScaleStyle())
-                    .accessibilityIdentifier("feeding-add-drink")
-                    .transition(.opacity)
                 }
             }
             .frame(minHeight: 56)
@@ -458,6 +500,20 @@ struct FeedingView: View {
         .padding(.horizontal, 24)
         .padding(.bottom, 8)
         .animation(.easeOut(duration: 0.25), value: stage)
+    }
+
+    /// 유리 알약이 "구리다"(2026-10-05 대표님) → 밤 장면 위 흰 단색 칸. 그림자·유리 없음.
+    private var addDrinkButton: some View {
+        Button { isRecordPresented = true } label: {
+            Label("음료 추가", systemImage: "plus")
+                .font(AppFont.pretendard(14, .bold, relativeTo: .subheadline))
+                .foregroundStyle(Color.accentColor)
+                .padding(.horizontal, 16)
+                .frame(minHeight: 44)
+                .background(.white, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        }
+        .buttonStyle(PressScaleStyle())
+        .accessibilityIdentifier("feeding-add-drink")
     }
 
     private var closeButton: some View {
@@ -600,15 +656,45 @@ struct FeedingView: View {
 
     // MARK: - 동작
 
+    private func advance() {
+        switch stage {
+        case .ask: tapCup()
+        case .dropped: feedDrop()
+        case .eaten: nextStep()
+        case .searching: break
+        }
+    }
+
     private func tapCup() {
-        guard stage == .ask else { return }
+        guard stage == .ask, drainStart == nil else { return }
         if !reduceMotion { shakeTrigger += 1 }
+        isCupHintShown = false
         if request.left(side) <= 0, !reduceMotion {
             searchBeat = .emptied
             stage = .searching
             searchEmptyCup()
-        } else {
+        } else if reduceMotion {
             withAnimation(.easeInOut(duration: 0.6)) { stage = .dropped }
+        } else {
+            drainCup()
+        }
+    }
+
+    /// 꿀꺽 박자마다 진동을 주고, 다 비우면 방울을 낸다(`CupDrainMask`와 같은 시간표).
+    private func drainCup() {
+        let current = side
+        drainStart = Date()
+        Task {
+            var last = 0.0
+            for at in CupDrainMask.gulps {
+                try? await Task.sleep(for: .milliseconds(Int((at - last) * 1000)))
+                last = at
+                guard drainStart != nil, side == current else { return }
+                drainTick += 1
+            }
+            drainStart = nil
+            guard stage == .ask, side == current else { return }
+            stage = .dropped
         }
     }
 
@@ -647,9 +733,13 @@ struct FeedingView: View {
 
     private func nextStep() {
         guard stage == .eaten else { return }
-        // 전환이 페이드뿐이라 모션 줄이기에서도 그대로 쓴다.
-        fxRun += 1
-        fx = isLastSide ? .night : .turn
+        let next: FeedFx = isLastSide ? .night : .turn
+        if reduceMotion {
+            swap(for: next)
+        } else {
+            fxRun += 1
+            fx = next
+        }
     }
 
     /// 전환이 화면을 다 덮은 순간 밑 화면을 바꾼다.
@@ -687,6 +777,7 @@ struct FeedingView: View {
     private func skip() {
         guard step != .done else { return }
         fx = nil
+        drainStart = nil
         stage = .ask
         resetDrop()
         do {
@@ -852,6 +943,53 @@ private struct DropPop: ViewModifier {
             .onAppear {
                 if isActive { fired = true }
             }
+    }
+}
+
+/// 컵 비우기 마스크(대표님 2026-10-23 "비우는 쾌감, 쫀득하게"). 찬 잔 사진을 수위선 위쪽부터 지워
+/// 음료 윗면에서 잔 바닥까지 수위가 꿀꺽, 꿀꺽, 꿀꺽 세 번 끊어 내려간다. 빠르게 떨어지고(강한 감속) 잠깐 머무는 걸 되풀이한다.
+private struct CupDrainMask: View {
+    let side: CupSide
+    let step: Int
+    let start: Date?
+
+    /// (시각 초, 수위 진행 0~1). 구간마다 강한 감속으로 잇는다.
+    private static let keys: [(t: Double, p: Double)] = [
+        (0, 0), (0.14, 0.26), (0.26, 0.3), (0.42, 0.62), (0.54, 0.66), (0.72, 1),
+    ]
+    /// 진동 박자(꿀꺽이 시작하는 시각, 첫 꿀꺽은 누를 때 진동). 마지막은 다 비운 순간.
+    static let gulps: [Double] = [0.26, 0.54, 0.72]
+
+    private static func level(_ t: Double) -> Double {
+        guard let last = keys.last, t < last.t else { return 1 }
+        for (a, b) in zip(keys, keys.dropFirst()) where t < b.t {
+            let k: Double = Ease.power3Out(max(0, (t - a.t) / (b.t - a.t)))
+            return a.p + (b.p - a.p) * k
+        }
+        return 1
+    }
+
+    var body: some View {
+        GeometryReader { geo in
+            TimelineView(.animation(paused: start == nil)) { timeline in
+                let t: Double = start.map { timeline.date.timeIntervalSince($0) } ?? 0
+                let height = Double(geo.size.height)
+                let photo = IdlePhoto(slot: CGSize(width: geo.size.width, height: geo.size.height * CupView.heightRatio))
+                let slotTop: Double = height * Double(1 - CupView.heightRatio - CupView.liftRatio)
+                let cast = side.idleCast
+                let top: Double = Double(photo.point(0.5, cast.liquidTop(step: step) - 0.02).y) + slotTop
+                let bottom: Double = Double(photo.point(0.5, cast.bottom + 0.005).y) + slotTop
+                let edge: Double = (top + (bottom - top) * Self.level(t)) / max(1, height)
+                LinearGradient(
+                    stops: [
+                        .init(color: .clear, location: max(0, edge - 0.004)),
+                        .init(color: .black, location: min(1, edge + 0.004)),
+                    ],
+                    startPoint: .top, endPoint: .bottom
+                )
+            }
+        }
+        .ignoresSafeArea()
     }
 }
 

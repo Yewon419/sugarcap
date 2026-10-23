@@ -1,11 +1,12 @@
 import SwiftUI
 
 /// 먹이기 장면의 캐릭터(2026-10-01 HTML 시안 `design/proto/feeding-v2.html` 확정, 대표님 선택 "컵에 붙어 조르기").
-/// 오늘 화면 대기 자세 리그·배율로 그린다. 로슈 = watch(컵 옆에 매달려 까치발), 카인 = rim-stand(가장자리에서 발 동동).
+/// 오늘 화면 대기 자세 리그·배율로 그린다. 로슈 = watch(컵 왼쪽에 매달려 까치발),
+/// 카인 = walk 옆모습(컵 오른쪽 아래 바닥에서 컵을 보며 발 동동, 대표님 2026-10-23. 그 전엔 가장자리에 정면으로 섰다).
 /// 방울을 받으면 통통 두 번 뛰고, 그 뒤 숨 쉬며 깜빡인다.
 ///
 /// 화면 전체(`ignoresSafeArea`)에 깔아 컵 사진 틀(`CupView`: 높이 84%, 아래 8% 띄움)과 같은 좌표를 쓴다.
-/// 말풍선은 머리 오른쪽에 왼쪽 끝을 붙인다(글자가 길어져도 머리를 안 가린다).
+/// 말풍선은 컵 쪽(로슈 = 머리 오른쪽, 카인 = 머리 왼쪽)에 붙인다(글자가 길어져도 머리를 안 가린다).
 struct FeedingCharacter: View {
     /// emptied·puzzled·patting·savoring = 먹일 게 없는 날(남은 0) 빈 컵 털기(2026-10-02 시안 `design/proto/feeding-empty.html`):
     /// 눌러도 안 나옴 → 갸웃 → 컵을 톡톡 세 번 → 작은 방울을 눈 감고 아껴 먹기.
@@ -42,13 +43,14 @@ struct FeedingCharacter: View {
                 }
                 .accessibilityHidden(true)
 
-                let bubbleX: Double = Double(base.x) + (side == .sugar ? 22 : 26)
-                let bubbleY: Double = Double(base.y) - painter.height + (side == .sugar ? -2 : 14)
+                let isLeft = side == .sugar
+                let bubbleX: Double = Double(base.x) + (isLeft ? 22 : -22)
+                let bubbleY: Double = Double(base.y) - painter.height - 2
                 NightBubble(text: bubble)
                     .fixedSize()
                     .id(bubble)
-                    .transition(.scale(scale: 0.85, anchor: .leading).combined(with: .opacity))
-                    .frame(width: 0, height: 0, alignment: .leading)
+                    .transition(.scale(scale: 0.85, anchor: isLeft ? .leading : .trailing).combined(with: .opacity))
+                    .frame(width: 0, height: 0, alignment: isLeft ? .leading : .trailing)
                     .position(x: bubbleX, y: bubbleY)
                     .accessibilityLabel("\(side.characterName): \(bubble)")
 
@@ -77,7 +79,7 @@ struct FeedingCharacter: View {
 
     private static func painter(side: CupSide, height: Double) -> RigPainter? {
         let cast = side.idleCast
-        let pose = side == .sugar ? "watch" : "rim-stand"
+        let pose = side == .sugar ? "watch" : "walk"
         guard let rule = cast.poseSet?.poses[pose]?.rule, height > 0 else { return nil }
         let photoHeight = height * CupView.heightRatio
         return RigPainter(
@@ -86,9 +88,7 @@ struct FeedingCharacter: View {
         )
     }
 
-    /// 기준점(발밑 가운데). 로슈 = 오늘 화면 watch 자리.
-    /// 카인 = 가장자리 오른쪽(가운데에서 가장자리 폭 .35). 오늘 화면 자리(가운데)면 주인공 숫자 "mg"와 머리가 겹친다.
-    /// 앞 가장자리 선은 타원이라 옆으로 갈수록 올라간다(가장자리 반폭 = .5).
+    /// 기준점(발밑 가운데). 로슈 = 오늘 화면 watch 자리, 카인 = 그 맞은편(잔 가운데 .498을 축으로 뒤집은 자리) 바닥.
     static func base(side: CupSide, step: Int, size: CGSize) -> CGPoint {
         let cast = side.idleCast
         let slot = CGSize(width: size.width, height: size.height * CupView.heightRatio)
@@ -99,17 +99,10 @@ struct FeedingCharacter: View {
         case .sugar:
             point = photo.point(0.25, cast.bottom - 0.005)
         case .caffeine:
-            let rim = cast.rimLine(step: step)
-            let along = kainAlong / 0.5
-            let middle: Double = (rim.back + rim.front) / 2
-            let half: Double = (rim.front - rim.back) / 2
-            let y: Double = middle + half * (1 - along * along).squareRoot()
-            point = photo.point(0.498 + kainAlong * 0.477, y)
+            point = photo.point(0.746, cast.bottom - 0.005)
         }
         return CGPoint(x: point.x, y: point.y + slotTop)
     }
-
-    private static let kainAlong = 0.35
 
     /// 몸 둘레를 조금 넓힌 사각형(화면 좌표 → "feed" 좌표).
     private static func target(base: CGPoint, painter: RigPainter, origin: CGPoint) -> CGRect {
@@ -209,7 +202,7 @@ struct FeedingCharacter: View {
         return p
     }
 
-    /// 카인 · 가장자리에 서서 발 동동. 오늘 화면처럼 발밑을 축으로 아주 느리게 흔들린다.
+    /// 카인 · 컵 옆 바닥에 옆으로 서서 발 동동. 발밑을 축으로 아주 느리게 흔들린다. 다리는 walk 그림의 앞(near)·뒤(far).
     private static func kain(mood: Mood, t: Double, since: Double, unit: Double) -> Pose {
         var p = Pose()
         p.frame.rot = 0.8 * sin(2 * Double.pi * t / 3.6)
@@ -217,17 +210,17 @@ struct FeedingCharacter: View {
         case .asking:
             // 오른발로 톡톡(0.55초마다), 톡 할 때 몸이 살짝 내려앉는다.
             let v = RigMotion.remainder(t, 0.55)
-            p.frame.limbs["leg_right"] = -16 * RigMotion.bump(v, 0, 0.2)
+            p.frame.limbs["leg_near"] = -16 * RigMotion.bump(v, 0, 0.2)
             p.frame.bodyDy = RigMotion.bump(v, 0.14, 0.12) * unit
         case .sulking:
             let v = RigMotion.remainder(t, 1.4)
-            p.frame.limbs["leg_right"] = -10 * RigMotion.bump(v, 0, 0.3)
+            p.frame.limbs["leg_near"] = -10 * RigMotion.bump(v, 0, 0.3)
             p.frame.rot -= 3
         case .waiting:
             // 두 발 번갈아 동동.
             let k = sin(Double.pi * since / 0.36)
-            p.frame.limbs["leg_right"] = -12 * max(0, k)
-            p.frame.limbs["leg_left"] = 12 * max(0, -k)
+            p.frame.limbs["leg_near"] = -12 * max(0, k)
+            p.frame.limbs["leg_far"] = 12 * max(0, -k)
             p.frame.bodyDy = -0.8 * abs(k) * unit
         case .ready:
             p.frame.bodyDy = -1.5 * unit
@@ -236,8 +229,8 @@ struct FeedingCharacter: View {
             let hop = RigMotion.hops(since, at: 0.05, height: 14 * unit)
             p.frame.dy = -hop.lift
             p.squash = hop.squash
-            p.frame.limbs["leg_left"] = 12 * hop.air
-            p.frame.limbs["leg_right"] = -12 * hop.air
+            p.frame.limbs["leg_far"] = 12 * hop.air
+            p.frame.limbs["leg_near"] = -12 * hop.air
             RigMotion.breathe(&p.frame, t: since, period: 1.9, amount: 0.012)
         case .emptied:
             let up: Double = ramp(since, 0, 0.22) * (1 - ramp(since, 0.45, 0.65))
@@ -254,7 +247,7 @@ struct FeedingCharacter: View {
                 squash += RigMotion.bump(since, a, 0.12)
             }
             p.frame.rot += 13 * (1 - ramp(since, 0, 0.18))
-            p.frame.limbs["leg_right"] = -24 * lift
+            p.frame.limbs["leg_near"] = -24 * lift
             p.frame.bodyDy = -1.2 * lift * unit
             p.squash = 0.875 * squash
         case .savoring:

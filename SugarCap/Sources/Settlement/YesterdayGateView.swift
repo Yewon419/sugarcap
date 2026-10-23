@@ -31,12 +31,13 @@ struct YesterdayGateView: View {
     let onDrank: () -> Void
 
     @State private var feeding: FeedingRequest?
+    @State private var isSkipped = false
     @Environment(\.trackedSides) private var sides
 
     var body: some View {
         if let feeding {
             FeedingView(
-                request: feeding, opening: opening, catalog: catalog,
+                request: feeding, opening: isSkipped ? .skipped : opening, catalog: catalog,
                 onFeed: { try onFeed(feeding) },
                 onAddDrink: { entry in try onAddDrink(entry, feeding) }
             )
@@ -97,6 +98,22 @@ struct YesterdayGateView: View {
                 }
             }
             .padding(.horizontal, 24)
+        }
+        // 먹이기 화면과 같은 자리의 건너뛰기(빌드 264 대표님). 먹이는 모션 없이 저장하고 요약으로 간다.
+        .overlay(alignment: .topTrailing) {
+            if gate.kind == .feed {
+                Button {
+                    isSkipped = true
+                    start(sugarLeft: gate.sugarLeftG, caffeineLeft: gate.caffeineLeftMg, sugarOver: gate.sugarOverG, caffeineOver: gate.caffeineOverMg)
+                } label: {
+                    Text("건너뛰기")
+                        .font(AppFont.pretendard(15, .regular, relativeTo: .subheadline))
+                        .foregroundStyle(Color.ink.opacity(0.72))
+                        .tapTarget()
+                }
+                .padding(.trailing, 16)
+                .accessibilityIdentifier("gate-skip")
+            }
         }
         .overlay(alignment: .bottom) {
             // 캐릭터·"기다렸어요" 말풍선은 뺐다(빌드 264 대표님).

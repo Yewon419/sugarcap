@@ -70,6 +70,8 @@ enum FeedingOpening: Equatable {
     case dusk
     /// 모션 없이 바로(모션 줄이기, 스크린샷).
     case immediate
+    /// 어제 마감 화면의 건너뛰기(빌드 264 대표님). 열자마자 먹이기 화면의 건너뛰기처럼 저장하고 요약부터 보인다.
+    case skipped
 }
 
 /// CI 스크린샷 전용(Debug 인자). 특정 단계·전환 시각에 멈춘 화면을 찍는다.
@@ -191,7 +193,13 @@ struct FeedingView: View {
         .presentationBackground(isSceneVisible || isIntroPlaying ? Color.black : Color.clear)
         // 요약·마감 진입/마무리 덮개는 밝은 벽 바탕이라 상태 표시줄도 라이트로.
         .preferredColorScheme(isIntroPlaying || step == .done || fx != nil && fx != .turn ? .light : .dark)
-        .onAppear(perform: applySnapshot)
+        .onAppear {
+            if opening == .skipped {
+                skip()
+                isSceneVisible = true
+            }
+            applySnapshot()
+        }
         .sheet(isPresented: $isRecordPresented) {
             FeedingRecordSheet(catalog: catalog, request: request, onRecord: addDrink)
                 .environment(\.recordCup, side)

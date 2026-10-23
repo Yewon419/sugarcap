@@ -217,10 +217,9 @@ struct FeedingView: View {
                 // 흔들 때 컵 장면이 돌아도 모서리에 검은 바탕이 비치지 않게 벽은 따로 고정해 깐다.
                 CupView.wallColor.ignoresSafeArea()
                 // 컵 비우기: 빈 잔 위에 찬 잔을 겹치고, 찬 잔을 수위선 위쪽부터 지워 액체가 꿀꺽꿀꺽 내려가게 한다.
+                // 빈 잔은 늘 밑에 깐다. 지워진 찬 잔 위쪽(수위선 위 유리)을 받친다.
                 ZStack {
-                    if stage != .ask || drainStart != nil || cupStart == 0 {
-                        CupView(step: 0, setID: side.cupSetID)
-                    }
+                    CupView(step: 0, setID: side.cupSetID)
                     if stage == .ask && cupStart > 0 {
                         CupView(step: cupStart, setID: side.cupSetID)
                             .mask { CupDrainMask(side: side, step: cupStart, start: drainStart) }
@@ -955,8 +954,17 @@ private struct CupDrainMask: View {
     }
 
     var body: some View {
+        // 누르기 전엔 찬 잔을 통째로 보인다. 수위선 위로 솟은 얼음·유리까지 잘리지 않게.
+        if start == nil {
+            Color.black.ignoresSafeArea()
+        } else {
+            drain
+        }
+    }
+
+    private var drain: some View {
         GeometryReader { geo in
-            TimelineView(.animation(paused: start == nil)) { timeline in
+            TimelineView(.animation) { timeline in
                 let t: Double = start.map { timeline.date.timeIntervalSince($0) } ?? 0
                 let height = Double(geo.size.height)
                 let photo = IdlePhoto(slot: CGSize(width: geo.size.width, height: geo.size.height * CupView.heightRatio))

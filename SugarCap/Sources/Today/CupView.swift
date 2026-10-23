@@ -76,7 +76,9 @@ struct CupView: View {
                             }
                             .padding(.bottom, proxy.size.height * Self.liftRatio)
                     }
-                    .padding(.horizontal, -wing)
+                    // 마스크는 넓힌 폭에서 건다. 음수 패딩 뒤에 걸면 마스크 칸이 이 칸 폭이라 날개가 통째로 가려진다
+                    // (빌드 267 CI slide-*: 두 장 사이 흰 띠). 마지막 frame이 칸 폭을 알리고 날개는 양옆으로 넘친다.
+                    .frame(width: slot.width + 2 * wing)
                     .mask(alignment: .leading) {
                         if let seam {
                             // 왼쪽 날개 폭만큼 투명 → 불투명. 0이면 이 칸 왼쪽 끝부터, 1이면 왼쪽 날개 끝부터 드러난다.
@@ -90,6 +92,7 @@ struct CupView: View {
                             Color.black
                         }
                     }
+                    .frame(width: slot.width)
                 Color.clear
                     .frame(height: slot.height)
                     .overlay { hero }

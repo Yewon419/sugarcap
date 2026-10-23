@@ -264,8 +264,8 @@ struct FeedingCharacter: View {
     }
 }
 
-/// 마무리 요약의 캐릭터: 정면(로슈 stand, 카인 rim-stand)으로 위에서 콩 떨어져 들어오고,
-/// 숫자가 다 세질 즈음 둘이 같이 한 번 뛴 뒤 숨 쉬며 깜빡인다. 로슈는 손 인사, 카인은 발 까딱.
+/// 마무리 요약의 캐릭터: 정면(로슈 stand, 카인 rim-stand)으로 살짝 올라오며 나타나고 숨 쉬며 깜빡인다.
+/// 떨어지기·점프·손 인사·발 까딱은 뺐다(대표님 2026-10-23 "유치하고 긺").
 /// 크기는 둘 다 150pt(빌드 215 대표님 "로슈 카인 키 맞춰". 그 전엔 카인 137pt, 오늘 화면 대기 자세 비율).
 /// 틀은 그림 높이 + 위 여유(`headroom`)다. 쓰는 쪽에서 위 여유만큼 겹쳐 둔다.
 struct SummaryCharacter: View {
@@ -287,6 +287,8 @@ struct SummaryCharacter: View {
             let u: Double = frozenTime ?? inAt.map { timeline.date.timeIntervalSince($0) } ?? 0
             Canvas { context, size in
                 guard isIn, let painter = self.painter(height: height), let rigPose = self.pose(u: u) else { return }
+                var context = context
+                context.opacity = Self.entrance(u - delay)
                 let blink: Double = frozenTime == nil ? IdleMotion.blink(t: u, seed: side == .sugar ? 13 : 14) : 0
                 painter.draw(
                     in: context, base: CGPoint(x: size.width / 2, y: size.height),
@@ -325,29 +327,19 @@ struct SummaryCharacter: View {
     private func pose(u: Double) -> FeedingCharacter.Pose? {
         guard u >= delay else { return nil }
         var p = FeedingCharacter.Pose()
-        let fall = min(1, (u - delay) / 0.38)
-        p.frame.dy = -Double(Self.headroom) * (1 - fall * fall)
-        let land = RigMotion.bump(u, delay + 0.38, 0.16)
-        let cheer = RigMotion.hops(u, at: side == .sugar ? 1.45 : 1.51, height: 18)
-        p.frame.dy -= cheer.lift
-        p.squash = 1.25 * land + cheer.squash
-        if side == .sugar {
-            let wave: Double = RigMotion.smooth((u - 2.6) / 0.15) * (1 - RigMotion.smooth((u - 3.5) / 0.2))
-            let swing: Double = -14 - 10 * sin(2 * Double.pi * (u - 2.6) / 0.36)
-            p.frame.limbs["arm_left"] = 18 * cheer.air
-            p.frame.limbs["arm_right"] = -18 * cheer.air + wave * swing
-        } else {
-            let kick: Double = RigMotion.bump(u, 3.2, 0.3) + RigMotion.bump(u, 3.6, 0.3)
-            p.frame.limbs["leg_left"] = 10 * cheer.air
-            p.frame.limbs["leg_right"] = -10 * cheer.air - 9 * kick
-        }
-        if u > delay + 0.5 {
-            RigMotion.breathe(
-                &p.frame, t: u - delay - 0.5,
-                period: side == .sugar ? 1.7 : 1.9, amount: side == .sugar ? 0.016 : 0.012
-            )
-        }
+        p.frame.dy = Self.rise * (1 - Self.entrance(u - delay))
+        RigMotion.breathe(
+            &p.frame, t: u - delay,
+            period: side == .sugar ? 1.7 : 1.9, amount: side == .sugar ? 0.016 : 0.012
+        )
         return p
+    }
+
+    /// 등장 이동 거리(pt). 말풍선·숫자(`summaryEntrance`)와 같은 0.3초 강한 감속으로 올라온다.
+    private static let rise: Double = 12
+
+    private static func entrance(_ t: Double) -> Double {
+        Ease.power3Out(min(1, max(0, t / 0.3)))
     }
 }
 

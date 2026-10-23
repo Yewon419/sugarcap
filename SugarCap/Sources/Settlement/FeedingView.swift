@@ -86,7 +86,7 @@ struct FeedingSnapshot: Equatable {
 ///  2) 컵을 누르면 흔들리며 빈 컵이 되고 남은 양 방울이 나온다
 ///  3) 방울을 캐릭터에게 끌어다 놓으면(또는 방울을 누르면) 먹는다
 ///  4) 카페인도 같은 과정 → 마무리 요약으로 넘어가는 순간에만 저장한다. 중간에 닫으면 남기지 않는다.
-/// 하루 한 번 보는 장면이라 연출을 허용한다. 모션 줄이기면 흔들기·전환·튀기를 빼고 결과만 바꾼다.
+/// 하루 한 번 보는 장면이라 연출을 허용한다. 모션 줄이기면 흔들기·튀기를 빼고, 전환은 원래 페이드라 그대로 둔다.
 struct FeedingView: View {
     let opening: FeedingOpening
     let catalog: CatalogIndex
@@ -150,7 +150,7 @@ struct FeedingView: View {
         self.onAddDrink = onAddDrink
         _isIntroPlaying = State(initialValue: opening == .companionIntro)
         _isSceneVisible = State(initialValue: opening == .immediate)
-        _fx = State(initialValue: opening == .dusk ? .dusk(title: request.kind == .closeToday ? String(localized: "오늘 마감") : String(localized: "어제 마감")) : nil)
+        _fx = State(initialValue: opening == .dusk ? .dusk : nil)
     }
 
     private var stepIndex: Int {
@@ -181,7 +181,7 @@ struct FeedingView: View {
                     cues: [(fx.swapAt, { swap(for: fx) }), (fx.duration, { self.fx = nil })],
                     frozenAt: snapshot?.fx == fx ? snapshot?.fxAt : nil
                 ) { t in
-                    FeedFxOverlay(fx: fx, t: t, date: dateText)
+                    FeedFxOverlay(fx: fx, t: t)
                 }
                 .id(fxRun)
             }
@@ -504,19 +504,19 @@ struct FeedingView: View {
                     .tracking(1.3)
                     .foregroundStyle(Color.nightKicker)
                     .padding(.top, 28)
-                    .summaryEntrance(summaryIn, delay: 0.07)
+                    .summaryEntrance(summaryIn, delay: 0.03)
                 Text("오늘도\n잘 마무리했어요")
                     .font(AppFont.pretendard(40, .bold, relativeTo: .largeTitle))
                     .tracking(-0.8)
                     .lineSpacing(2)
                     .foregroundStyle(.white)
                     .padding(.top, 14)
-                    .summaryEntrance(summaryIn, delay: 0.14)
+                    .summaryEntrance(summaryIn, delay: 0.06)
                 Text(request.kind == .closeToday ? String(localized: "호감도는 내일 아침에 반영돼요.") : String(localized: "호감도에 바로 반영했어요."))
                     .font(AppFont.pretendard(13, .regular, relativeTo: .footnote))
                     .foregroundStyle(.white.opacity(0.78))
                     .padding(.top, 8)
-                    .summaryEntrance(summaryIn, delay: 0.21)
+                    .summaryEntrance(summaryIn, delay: 0.09)
             }
             .shadow(color: .black.opacity(0.28), radius: 10, y: 1)
             .padding(.horizontal, 24)
@@ -525,7 +525,7 @@ struct FeedingView: View {
             VStack(spacing: 28) {
                 HStack(alignment: .bottom, spacing: 0) {
                     ForEach(Array(sides.enumerated()), id: \.element) { index, side in
-                        summaryColumn(side, delay: 0.2 + 0.12 * Double(index))
+                        summaryColumn(side, delay: 0.1 + 0.05 * Double(index))
                     }
                 }
                 Button { dismiss() } label: {
@@ -549,15 +549,15 @@ struct FeedingView: View {
         }
     }
 
-    /// 말풍선·숫자는 아래에서 올라오고, 캐릭터는 따로 위에서 떨어져 들어온다(`SummaryCharacter`).
+    /// 말풍선·숫자·캐릭터가 같이 살짝 올라오며 나타난다(`SummaryCharacter`).
     private func summaryColumn(_ side: CupSide, delay: Double) -> some View {
         // 단계가 오른 건 여기 말고 오늘 화면 무대 연출로 알린다(SPEC §4.9 결정 4).
         let note = request.over(side) > 0 ? String(localized: "조금 아쉬워요") : String(localized: "\(side.characterNameWithIga) 먹었어요")
         return VStack(spacing: 10) {
             NightBubble(text: note)
-                .summaryEntrance(summaryIn, delay: delay + 0.4)
+                .summaryEntrance(summaryIn, delay: delay + 0.08)
             SummaryCharacter(side: side, isIn: summaryIn, delay: delay)
-                // 틀 위 여유(떨어져 들어오는 자리)는 말풍선과 겹쳐 둔다.
+                // 틀 위 여유는 말풍선과 겹쳐 둔다.
                 .padding(.top, -SummaryCharacter.headroom)
                 .background {
                     if side == sides.first {
@@ -570,7 +570,7 @@ struct FeedingView: View {
                 }
                 .accessibilityLabel(side.characterName)
             summaryAmount(side)
-                .summaryEntrance(summaryIn, delay: delay, distance: 60)
+                .summaryEntrance(summaryIn, delay: delay, distance: 16)
         }
         .frame(maxWidth: .infinity)
         .accessibilityElement(children: .combine)
@@ -579,14 +579,12 @@ struct FeedingView: View {
     private func summaryAmount(_ side: CupSide) -> some View {
         VStack(spacing: 10) {
             HStack(alignment: .firstTextBaseline, spacing: 3) {
-                Text(Amount.number(summaryIn ? request.left(side) : 0))
+                Text(Amount.number(request.left(side)))
                     .font(AppFont.pretendard(44, .bold, relativeTo: .largeTitle))
                     .tracking(-1.8)
                     .monospacedDigit()
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
-                    .contentTransition(.numericText())
-                    .animation(reduceMotion ? nil : .easeOut(duration: 0.9).delay(0.3), value: summaryIn)
                 Text(side.unit)
                     .font(AppFont.pretendard(17, .medium, relativeTo: .body))
                     .opacity(0.85)
@@ -649,13 +647,9 @@ struct FeedingView: View {
 
     private func nextStep() {
         guard stage == .eaten else { return }
-        let next: FeedFx = isLastSide ? .night : .turn
-        if reduceMotion {
-            swap(for: next)
-        } else {
-            fxRun += 1
-            fx = next
-        }
+        // 전환이 페이드뿐이라 모션 줄이기에서도 그대로 쓴다.
+        fxRun += 1
+        fx = isLastSide ? .night : .turn
     }
 
     /// 전환이 화면을 다 덮은 순간 밑 화면을 바꾼다.
@@ -901,11 +895,24 @@ private struct CupShake: ViewModifier {
     }
 }
 
+/// 요약 화면 등장: 살짝 올라오며 나타난다(0.3초, 강한 감속). 줄마다 조금씩 늦게. 모션 줄이기면 제자리에서 나타나기만.
+private struct SummaryEntrance: ViewModifier {
+    let isIn: Bool
+    let delay: Double
+    let distance: CGFloat
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(isIn ? 1 : 0)
+            .offset(y: isIn || reduceMotion ? 0 : distance)
+            .animation(.timingCurve(0.23, 1, 0.32, 1, duration: 0.3).delay(delay), value: isIn)
+    }
+}
+
 private extension View {
-    /// 요약 화면 등장: 아래에서 올라오며 나타난다. 줄마다 조금씩 늦게.
-    func summaryEntrance(_ isIn: Bool, delay: Double, distance: CGFloat = 24) -> some View {
-        opacity(isIn ? 1 : 0)
-            .offset(y: isIn ? 0 : distance)
-            .animation(.spring(response: 0.55, dampingFraction: 0.82).delay(delay), value: isIn)
+    func summaryEntrance(_ isIn: Bool, delay: Double, distance: CGFloat = 12) -> some View {
+        modifier(SummaryEntrance(isIn: isIn, delay: delay, distance: distance))
     }
 }

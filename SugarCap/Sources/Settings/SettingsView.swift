@@ -400,7 +400,6 @@ private struct SettingsContent: View {
         .rowText()
     }
 
-    @ViewBuilder
     /// 열어 본 병뚜껑 수(보관함 줄). Debug `-screenshotCaps <n>`이면 그 값.
     private var capCount: Int {
         #if DEBUG
@@ -411,6 +410,7 @@ private struct SettingsContent: View {
         return gifts.filter { $0.isCap && $0.isOpened }.count
     }
 
+    @ViewBuilder
     private var proRow: some View {
         if pro.isPro {
             HStack {

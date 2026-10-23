@@ -113,6 +113,9 @@ struct IdleCharacterLayer: View {
         }
         // 동작 줄이기·멈춘 화면·넘기는 중에는 누르기를 받지 않는다(움찔도 움직임이라).
         .allowsHitTesting(isActive && frozenTime == nil)
+        // 캐릭터를 누르면 컵(`TodayView.tapCup`)보다 작은 진동(대표님 2026-10-23).
+        .sensoryFeedback(.impact(weight: .light, intensity: 0.5), trigger: flinchAt) { _, new in new != nil }
+        .sensoryFeedback(.impact(weight: .light, intensity: 0.5), trigger: guestFlinchAt) { _, new in new != nil }
         .accessibilityHidden(true)
         .onAppear {
             if pose == nil { repick() }

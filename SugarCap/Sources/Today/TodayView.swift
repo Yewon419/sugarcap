@@ -56,6 +56,8 @@ struct TodayView: View {
     /// 면마다 큰 숫자(`CupHero`)의 화면 자리. 누르기·보이스오버 요소를 여기에 맞춘다.
     @State private var heroFrames: [CupSide: CGRect] = [:]
     @State private var isRecordSheetPresented = false
+    /// 컵(숫자 포함)을 누른 횟수. 누를 때마다 진동(대표님 2026-10-23, 캐릭터보다 한 단계 큰 진동).
+    @State private var cupTaps = 0
     @State private var isDayLogPresented = false
     /// 즐겨찾기 `+`로 방금 기록한 음료. 4초 동안 되돌리기 안내를 띄운다.
     @State private var undoToast: UndoToast?
@@ -237,6 +239,7 @@ struct TodayView: View {
         }
         // 기록할 때만 햅틱 1회(§4.1). 삭제로 줄어들 때는 울리지 않는다.
         .sensoryFeedback(.success, trigger: entries.count) { old, new in new > old }
+        .sensoryFeedback(.impact(weight: .medium, intensity: 0.7), trigger: cupTaps)
     }
 
     /// 당 · 카페인 컵 장면 두 장을 옆으로 붙여 두고 손가락을 따라 통째로 민다(2026-09-27 대표님:
@@ -612,6 +615,7 @@ struct TodayView: View {
     private func tapCup(at point: CGPoint, screen: CGRect) {
         // 큰 숫자는 컵 장면 안에 그려져 캐릭터 아래에 있다. 캐릭터가 안 받은 누르기가 숫자 위면 하루 기록(2026-09-26).
         if heroFrames[side]?.contains(point) == true {
+            cupTaps += 1
             isDayLogPresented = true
             return
         }
@@ -619,7 +623,10 @@ struct TodayView: View {
             x: screen.minX + 32, y: screen.minY + screen.height * 0.35,
             width: screen.width - 64, height: screen.height * 0.65 - 170
         )
-        if area.contains(point) { isRecordSheetPresented = true }
+        if area.contains(point) {
+            cupTaps += 1
+            isRecordSheetPresented = true
+        }
     }
 
     /// 켜진 면 숫자 중 가장 넓은 것. 두 면 큰 숫자 크기를 맞춘다(2026-10-07 대표님 "양쪽 숫자 크기 맞춰줘").

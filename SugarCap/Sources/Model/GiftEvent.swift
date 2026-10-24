@@ -13,6 +13,8 @@ enum GiftKind: String, Sendable, CaseIterable {
     case goalReached
     /// Pro 첫 구매 축하(대표님 2026-10-12). 주인 고정 물건 하나(`GiftContent.welcome`), 한 번만.
     case proWelcome
+    /// 튜토리얼 상자(SPEC §4.10 초반 보상 고정). 2·3번째 마감 뒤 하나씩, 늘 병뚜껑 1개.
+    case starterCap
 }
 
 /// 오늘 화면으로 오는 선물 1개(SPEC §4.9). 아직 안 연 것(`openedAt == nil`)이 큐다.

@@ -57,6 +57,16 @@ enum GiftMath {
         }
     }
 
+    /// 튜토리얼 상자(병뚜껑 1개) 수(§4.10 초반 보상 고정).
+    static let starterCaps = 2
+
+    /// 마감 직후 튜토리얼 상자를 줄지. 첫 마감(추이 열림) 다음부터 마감마다 하나씩, 두 개까지.
+    /// `closedDays`는 방금 마감한 날을 포함한 마감한 날 수. 업데이트 전에 많이 마감한 기기도 마감마다 하나씩 받는다.
+    static func grantsStarterCap(closedDays: Int, gifts: [Record]) -> Bool {
+        let given = gifts.filter { $0.kind == .starterCap }.count
+        return given < starterCaps && given < closedDays - 1
+    }
+
     /// 상자에서 나오는 것의 종류.
     enum Outcome: Equatable, Sendable {
         case heart, item, cap

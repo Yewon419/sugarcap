@@ -83,6 +83,16 @@ struct TodayView: View {
     /// 방금 먹이기로 기준 지킨 주 선물이 생겼으면 채운다. 먹이기 화면이 닫히면 축하 화면으로 넘긴다(§4.9 2026-10-12).
     @State private var pendingWeekKept: WeekKeptCelebration?
     @State private var weekKept: WeekKeptCelebration?
+    /// 거래 제안(§4.10). 제안 순서대로.
+    @Query(sort: \TradeOffer.offeredAt) private var trades: [TradeOffer]
+    /// 열려 있는 거래 무대.
+    @State private var trade: TradeStage?
+    /// "다음에"로 상자를 들고 나가는 중인 제안. 다 나가면 지운다.
+    @State private var leavingOffer: UUID?
+    /// 바꾸기 성공 햅틱 신호.
+    @State private var tradesAccepted = 0
+    /// CI 스크린샷·UI 테스트 전용 제안(Debug `-screenshotTrade`). 저장소에 넣지 않는다.
+    @State private var screenshotOffer: TradeOffer?
 
     @Environment(ProStore.self) private var pro
 
@@ -262,11 +272,15 @@ struct TodayView: View {
                     let isActive = cupSide == side && !isSliding && isOnScreen && !isSettingsPresented
                     let staged = levelUp.flatMap { $0.side == cupSide ? $0 : nil }
                     let gift = staged == nil ? carriedGift(for: cupSide) : nil
-                    // 선물이 와 있으면 운반 캐릭터가 곧 그 캐릭터다. 열고 나면 대기 자세로 돌아온다(SPEC §4.9).
+                    let offer = staged == nil && gift == nil ? carriedOffer(for: cupSide) : nil
+                    let carrier = carrierLayer(
+                        gift: gift, offer: offer, side: cupSide, step: step, isActive: isActive, screen: proxy.frame(in: .global)
+                    )
+                    // 선물·거래 상자가 와 있으면 운반 캐릭터가 곧 그 캐릭터다. 열고 나면 대기 자세로 돌아온다(SPEC §4.9·4.10).
                     // 단계 상승 무대 중이면 무대에 선 캐릭터가 그 캐릭터다.
                     CupView(
                         step: step, setID: cupSide.cupSetID,
-                        idle: gift != nil || staged != nil ? nil : IdleCharacterLayer(
+                        idle: carrier != nil || staged != nil ? nil : IdleCharacterLayer(
                             side: cupSide, step: step, isActive: isActive,
                             unlockedLevel: unlockedLevel(cupSide),
                             onMiss: { tapCup(at: $0, screen: proxy.frame(in: .global)) },
@@ -274,14 +288,7 @@ struct TodayView: View {
                             affinityLevel: affinityLevel,
                             halo: heroFrames[cupSide]
                         ),
-                        gift: gift.map { gift in
-                            GiftCarrierLayer(
-                                side: cupSide, step: step, isActive: isActive && reveal == nil,
-                                onOpen: { beginOpening(gift, at: $0, on: cupSide) },
-                                onMiss: { tapCup(at: $0, screen: proxy.frame(in: .global)) },
-                                onFrame: { giftCarrierFrames[cupSide] = $0 }
-                            )
-                        },
+                        gift: carrier,
                         stage: staged.map { stage in
                             LevelUpStageLayer(stage: stage, onFrame: { levelUpFrames[cupSide] = $0 })
                         },
@@ -343,6 +350,8 @@ struct TodayView: View {
         .accessibilityActions {
             if let gift = pendingGift(for: side) {
                 Button("선물 열기") { beginOpening(gift, at: nil, on: side) }
+            } else if let offer = carriedOffer(for: side), offer.accepted == nil {
+                Button("거래 상자 열기") { beginTrade(offer, on: side) }
             }
         }
         .accessibilityIdentifier("record-add")
@@ -375,7 +384,7 @@ struct TodayView: View {
 
     /// 무대를 열어도 되는 때의 단계 상승 id. 다른 연출·시트·화면이 떠 있거나 넘기는 중이면 없다.
     private var levelUpCue: UUID? {
-        guard levelUp == nil, opening == nil, reveal == nil, feeding == nil, gate == nil, paywall == nil,
+        guard levelUp == nil, opening == nil, reveal == nil, trade == nil, feeding == nil, gate == nil, paywall == nil,
               isOnScreen, !isSliding, !isSettingsPresented, !isTrendsPresented, !isRecordSheetPresented,
               !isDayLogPresented, !isManualEntryPresented, path.isEmpty
         else { return nil }
@@ -443,6 +452,8 @@ struct TodayView: View {
         #if DEBUG
         // CI 대기 자세 컷(`-idlePose`)은 앞 단계(UI 테스트)가 남긴 안 연 상자에 가려 로슈 자세가 안 찍혔다(빌드 227 확인).
         if UserDefaults.standard.string(forKey: "idlePose") != nil { return nil }
+        // 거래 컷(`-screenshotTrade`)도 같은 이유로 남은 상자를 치운다.
+        if UserDefaults.standard.string(forKey: "screenshotTrade") != nil { return nil }
         #endif
         if let opening, opening.gift.cupSide == cupSide { return opening.gift }
         return pendingGift(for: cupSide)
@@ -593,6 +604,170 @@ struct TodayView: View {
             )
             .transition(.opacity)
         }
+    }
+
+    // MARK: - 거래(§4.10)
+
+    /// 컵 앞 운반 캐릭터. 선물이 먼저고, 없으면 거래 상자(병뚜껑 꼬리표).
+    private func carrierLayer(
+        gift: GiftEvent?, offer: TradeOffer?, side cupSide: CupSide, step: Int, isActive: Bool, screen: CGRect
+    ) -> GiftCarrierLayer? {
+        if let gift {
+            return GiftCarrierLayer(
+                side: cupSide, step: step, isActive: isActive && reveal == nil,
+                onOpen: { beginOpening(gift, at: $0, on: cupSide) },
+                onMiss: { tapCup(at: $0, screen: screen) },
+                onFrame: { giftCarrierFrames[cupSide] = $0 }
+            )
+        }
+        guard let offer else { return nil }
+        return GiftCarrierLayer(
+            side: cupSide, step: step, isActive: isActive && trade == nil,
+            onOpen: { _ in beginTrade(offer, on: cupSide) },
+            onMiss: { tapCup(at: $0, screen: screen) },
+            onFrame: { giftCarrierFrames[cupSide] = $0 },
+            tag: offer.price,
+            isLeaving: offer.id == leavingOffer
+        )
+    }
+
+    /// 이 면에 와 있는 거래 제안. 아직 안 정한 것, 또는 "다음에"로 들고 나가는 중인 것.
+    private func carriedOffer(for cupSide: CupSide) -> TradeOffer? {
+        #if DEBUG
+        if UserDefaults.standard.string(forKey: "idlePose") != nil { return nil }
+        if let screenshotOffer, screenshotOffer.cupSide == cupSide,
+           screenshotOffer.accepted == nil || screenshotOffer.id == leavingOffer {
+            return screenshotOffer
+        }
+        #endif
+        return trades.first { $0.cupSide == cupSide && ($0.accepted == nil || $0.id == leavingOffer) }
+    }
+
+    /// 제안을 낼지 볼 때. 다른 연출·시트·화면이 떠 있거나 넘기는 중이면 없다(§4.10 "자리 잡았다").
+    /// 켜 둔 사이에 다음 제안 시각이 지날 수 있어 10분마다 값이 바뀐다.
+    private func tradeCue(now: Date) -> String? {
+        guard trade == nil, leavingOffer == nil, levelUp == nil, opening == nil, reveal == nil, feeding == nil,
+              gate == nil, paywall == nil, weekKept == nil, isOnScreen, !isSliding, !isSettingsPresented,
+              !isTrendsPresented, !isRecordSheetPresented, !isDayLogPresented, !isManualEntryPresented, path.isEmpty,
+              !trades.contains(where: { $0.accepted == nil })
+        else { return nil }
+        let opened = gifts.filter(\.isOpened).count
+        return "\(Int(now.timeIntervalSince1970 / 600))-\(gifts.count)-\(opened)-\(trades.count)"
+    }
+
+    /// 화면이 자리 잡고 잠깐 뒤에 본다. 제안이 오면 캐릭터가 상자를 들고 들어온다.
+    private func offerTradeIfDue(today: DayKey) async {
+        try? await Task.sleep(for: .seconds(0.8))
+        guard !Task.isCancelled, trade == nil, leavingOffer == nil else { return }
+        #if DEBUG
+        // CI 스크린샷은 저장소를 이어 쓰니 앞 단계가 남긴 병뚜껑으로 제안이 끼어들지 않게 한다.
+        let defaults = UserDefaults.standard
+        if defaults.string(forKey: "screenshotTrade") != nil || defaults.string(forKey: "idlePose") != nil { return }
+        #endif
+        do {
+            let offered = try TradeStore.offerIfDue(
+                sides: trackedSides, today: today, boundaryHour: boundaryHour, now: Date(),
+                roll: Double.random(in: 0 ..< 1), in: context
+            )
+            if offered != nil { try context.save() }
+        } catch {
+            Self.logger.error("거래 제안 저장 실패: \(String(describing: error), privacy: .public)")
+            context.rollback()
+        }
+    }
+
+    /// 거래 상자를 눌렀을 때. 보고 있는 면만 받는다.
+    private func beginTrade(_ offer: TradeOffer, on cupSide: CupSide) {
+        guard cupSide == side, trade == nil, offer.accepted == nil else { return }
+        trade = TradeStage(offer: offer, startedAt: Date())
+    }
+
+    /// 바꾸기. 저장한 뒤 무대를 닫고 그 면의 잔을 새 잔으로 바꾼다(`CupView`가 크로스페이드). 캐릭터는 대기 자세로 돌아온다.
+    /// 스크린샷용 제안(저장소 밖)은 저장하지 않는다.
+    private func acceptTrade(_ stage: TradeStage) {
+        guard trade?.id == stage.id else { return }
+        let offer = stage.offer
+        guard let item = TradeCatalog.item(offer.itemID) else {
+            Self.logger.error("모르는 거래 상품: \(offer.itemID, privacy: .public)")
+            trade = nil
+            return
+        }
+        if offer.modelContext != nil {
+            do {
+                try TradeStore.accept(offer, now: Date(), roll: Double.random(in: 0 ..< 1), in: context)
+                try context.save()
+            } catch {
+                Self.logger.error("거래 수락 실패: \(String(describing: error), privacy: .public)")
+                context.rollback()
+                trade = nil
+                failureMessage = String(localized: "바꾸지 못했어요. 다시 시도해 주세요.")
+                return
+            }
+        } else {
+            offer.accepted = true
+        }
+        tradesAccepted += 1
+        trade = nil
+        switch item.side {
+        case .sugar: sugarCupSet = item.id
+        case .caffeine: caffeineCupSet = item.id
+        }
+    }
+
+    /// 다음에. 무대가 닫히고 캐릭터가 상자를 들고 들어온 쪽으로 나간다(동작 줄이기면 바로 사라진다).
+    private func refuseTrade(_ stage: TradeStage) {
+        guard trade?.id == stage.id else { return }
+        let offer = stage.offer
+        if offer.modelContext != nil {
+            TradeStore.refuse(offer, now: Date(), roll: Double.random(in: 0 ..< 1))
+            do {
+                try context.save()
+            } catch {
+                Self.logger.error("거래 거절 저장 실패: \(String(describing: error), privacy: .public)")
+                context.rollback()
+                trade = nil
+                failureMessage = String(localized: "저장하지 못했어요. 다시 시도해 주세요.")
+                return
+            }
+        } else {
+            offer.accepted = false
+        }
+        if !reduceMotion { leavingOffer = offer.id }
+        trade = nil
+    }
+
+    /// 나가는 캐릭터가 화면 밖으로 다 나가면 지운다.
+    private func finishLeaving(_ id: UUID) async {
+        let length: Double = CupSide.allCases.map(GiftCarrierFigure.leaveLength).max() ?? 1.4
+        try? await Task.sleep(for: .seconds(length + 0.2))
+        guard !Task.isCancelled, leavingOffer == id else { return }
+        leavingOffer = nil
+    }
+
+    @ViewBuilder
+    private func tradeOverlay() -> some View {
+        if let trade {
+            TradeOfferOverlay(
+                stage: trade,
+                onAccept: { acceptTrade(trade) },
+                onRefuse: { refuseTrade(trade) }
+            )
+            .transition(.opacity)
+        }
+    }
+
+    /// CI 스크린샷·UI 테스트 전용(Debug `-screenshotTrade offer|card`): 첫 상품 제안이 와 있는 상태(`offer`),
+    /// 무대를 연 상태(`card`). 제안은 저장소에 넣지 않는다(뒤 컷에 상자가 남지 않게).
+    private func presentScreenshotTradeIfRequested() {
+        #if DEBUG
+        guard let raw = UserDefaults.standard.string(forKey: "screenshotTrade"), screenshotOffer == nil,
+              let item = TradeCatalog.items.first
+        else { return }
+        let offer = TradeOffer(itemID: item.id, side: item.side, price: TradeMath.firstPrice, offeredAt: Date())
+        screenshotOffer = offer
+        pickedSide = item.side
+        if raw == "card" { trade = TradeStage(offer: offer, startedAt: Date()) }
+        #endif
     }
 
     @ViewBuilder
@@ -792,6 +967,15 @@ struct TodayView: View {
         .animation(.easeOut(duration: 0.25), value: levelUp?.id)
         .overlay { giftRevealOverlay() }
         .animation(.easeOut(duration: 0.25), value: reveal?.id)
+        .overlay { tradeOverlay() }
+        .animation(.easeOut(duration: 0.25), value: trade?.id)
+        .task(id: tradeCue(now: now)) {
+            if tradeCue(now: Date()) != nil { await offerTradeIfDue(today: today) }
+        }
+        .task(id: leavingOffer) {
+            if let leavingOffer { await finishLeaving(leavingOffer) }
+        }
+        .sensoryFeedback(.success, trigger: tradesAccepted)
         .task(id: levelUpCue) {
             if let levelUpCue { await startLevelUp(after: levelUpCue) }
         }
@@ -815,6 +999,7 @@ struct TodayView: View {
             presentScreenshotGiftIfRequested()
             presentScreenshotLevelUpIfRequested()
             presentScreenshotWeekKeptIfRequested(today: today)
+            presentScreenshotTradeIfRequested()
         }
     }
 
@@ -1089,6 +1274,8 @@ struct TodayView: View {
                 keptWeek = day
             }
         }
+        // `close`가 행에 마감 시각을 적은 뒤라 방금 마감한 날도 센다.
+        _ = try GiftStore.grantStarterCap(sides: trackedSides, now: now, in: context)
         try context.save()
         didFeed = true
         if let keptWeek { pendingWeekKept = try weekKeptCelebration(closed: keptWeek) }

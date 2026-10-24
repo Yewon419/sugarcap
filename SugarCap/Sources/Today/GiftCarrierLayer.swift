@@ -14,6 +14,10 @@ struct GiftCarrierLayer: View {
     var onMiss: (CGPoint) -> Void = { _ in }
     /// 이 레이어의 화면 자리. 열쇠 오버레이가 이 크기로 입구를 다시 계산해 화면 좌표로 옮긴다.
     var onFrame: (CGRect) -> Void = { _ in }
+    /// 거래 상자(SPEC §4.10)면 상자 위 병뚜껑 꼬리표에 쓸 가격. 거래 상자는 눌러도 뚜껑이 열리지 않는다.
+    var tag: Int? = nil
+    /// 거절해서 들어온 쪽으로 나가는 중(로슈는 걸어서, 카인은 위로 튀어 올라).
+    var isLeaving = false
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var start = Date()
@@ -21,6 +25,8 @@ struct GiftCarrierLayer: View {
     @State private var seed = UInt64.random(in: 0 ... UInt64.max)
     /// 누른 시각(이 레이어 시계). 한 번 열면 다시 누르지 않는다.
     @State private var openedAt: Double?
+    /// 나가기 시작한 시각(이 레이어 시계).
+    @State private var leftAt: Double?
 
     var body: some View {
         GeometryReader { proxy in
@@ -31,7 +37,10 @@ struct GiftCarrierLayer: View {
                     let t = frozen ?? (pausedAt ?? timeline.date).timeIntervalSince(start)
                     let blink = frozen == nil ? IdleMotion.blink(t: t, seed: seed) : 0
                     Canvas { context, _ in
-                        figure.draw(in: context, t: t, blink: blink, openedAt: opened, instant: reduceMotion)
+                        figure.draw(
+                            in: context, t: t, blink: blink, openedAt: tag == nil ? opened : nil, instant: reduceMotion,
+                            tag: tag, leftAt: leftAt
+                        )
                     }
                 }
                 .contentShape(Rectangle())
@@ -39,7 +48,7 @@ struct GiftCarrierLayer: View {
                     let origin = proxy.frame(in: .global).origin
                     let local = CGPoint(x: location.x - origin.x, y: location.y - origin.y)
                     let t = frozenTime ?? (pausedAt ?? Date()).timeIntervalSince(start)
-                    if openedAt == nil, figure.contains(local, t: t) {
+                    if openedAt == nil, leftAt == nil, figure.contains(local, t: t) {
                         openedAt = t
                         onOpen(t)
                     } else if openedAt == nil {
@@ -58,6 +67,10 @@ struct GiftCarrierLayer: View {
         .allowsHitTesting(isActive)
         // 컵 장면이 접근성 요소 하나라 여기는 숨긴다. 보이스오버는 컵 장면의 "선물 열기" 동작으로 연다(`TodayView`).
         .accessibilityHidden(true)
+        .onChange(of: isLeaving, initial: true) { _, leaving in
+            guard leaving, leftAt == nil else { return }
+            leftAt = frozenTime ?? (pausedAt ?? Date()).timeIntervalSince(start)
+        }
         .onChange(of: isActive, initial: true) { _, active in
             if active {
                 if let pausedAt { start = start.addingTimeInterval(Date().timeIntervalSince(pausedAt)) }
@@ -116,6 +129,11 @@ struct GiftCarrierFigure {
         side == .sugar ? walkEnd : fallEnd + 0.4
     }
 
+    /// 나가기 시작해서 화면 밖으로 다 나갈 때까지(초).
+    static func leaveLength(_ side: CupSide) -> Double {
+        side == .sugar ? 1.4 : 0.7
+    }
+
     static func screenshotOpenAt(_ side: CupSide) -> Double {
         arriveEnd(side) + 1
     }
@@ -136,7 +154,8 @@ struct GiftCarrierFigure {
     }
 
     /// 자리에서 벗어난 거리(pt): 로슈는 오른쪽으로(걷기), 카인은 위로(떨어지기).
-    private func offset(_ t: Double) -> (x: Double, y: Double) {
+    private func offset(_ t: Double, leftAt: Double?) -> (x: Double, y: Double) {
+        if let leftAt { return leave(t - leftAt) }
         switch side {
         case .sugar:
             return (IntroRig.entrance(t, Self.delay, Self.walkEnd, from: distance, to: 0).x, 0)
@@ -147,8 +166,23 @@ struct GiftCarrierFigure {
         }
     }
 
-    private func frame(_ t: Double, openedAt: Double?, instant: Bool) -> IdleFrame {
+    /// 나가는 길(나가기 시작한 뒤 o초). 로슈는 오른쪽 밖으로 걷고, 카인은 살짝 웅크렸다 위로 튀어 오른다.
+    private func leave(_ o: Double) -> (x: Double, y: Double) {
+        switch side {
+        case .sugar:
+            return (distance * Motion.seg(o, 0, Self.leaveLength(side), Ease.power2In), 0)
+        case .caffeine:
+            let height: Double = Double(base.y) + painter.height * r + 20
+            return (0, -height * Motion.seg(o, 0.15, Self.leaveLength(side), Ease.power2In))
+        }
+    }
+
+    private func frame(_ t: Double, openedAt: Double?, instant: Bool, leftAt: Double?) -> IdleFrame {
         var m = IdleFrame()
+        if side == .sugar, let leftAt {
+            IntroRig.roshuGiftWalk(&m, travelled: leave(t - leftAt).x / r, moving: 1)
+            return m
+        }
         if side == .sugar {
             let walk = IntroRig.entrance(t, Self.delay, Self.walkEnd, from: distance, to: 0)
             IntroRig.roshuGiftWalk(&m, travelled: walk.travelled / r, moving: walk.moving)
@@ -164,7 +198,10 @@ struct GiftCarrierFigure {
     }
 
     /// 착지 눌림(로슈 걸음 끝, 카인 착지) + 누를 때 한 번 눌림. RigPainter 눌림 1 = 세로 8% 줄음.
-    private func squash(_ t: Double, openedAt: Double?) -> Double {
+    private func squash(_ t: Double, openedAt: Double?, leftAt: Double?) -> Double {
+        if let leftAt {
+            return side == .caffeine ? 1.2 * RigMotion.bump(t - leftAt, 0.05, 0.2) : 0
+        }
         let land: Double =
             switch side {
             case .sugar: IntroRig.roshuSquash * RigMotion.bump(t, Self.walkEnd - 0.05, 0.28)
@@ -174,26 +211,53 @@ struct GiftCarrierFigure {
         return land + press
     }
 
-    func draw(in context: GraphicsContext, t: Double, blink: Double, openedAt: Double?, instant: Bool) {
-        let shift = offset(t)
-        let m = frame(t, openedAt: openedAt, instant: instant)
+    func draw(
+        in context: GraphicsContext, t: Double, blink: Double, openedAt: Double?, instant: Bool, tag: Int? = nil,
+        leftAt: Double? = nil
+    ) {
+        let shift = offset(t, leftAt: leftAt)
+        let m = frame(t, openedAt: openedAt, instant: instant, leftAt: leftAt)
         let x: Double = Double(base.x) + shift.x
         drawShadow(in: context, x: x, lift: -m.bodyDy * r - shift.y)
         var stage = context
         stage.translateBy(x: x, y: Double(base.y) + shift.y)
         stage.scaleBy(x: r, y: r)
-        painter.draw(in: stage, base: .zero, m: m, squash: squash(t, openedAt: openedAt), blink: blink)
+        painter.draw(in: stage, base: .zero, m: m, squash: squash(t, openedAt: openedAt, leftAt: leftAt), blink: blink)
         if let openedAt, !instant {
             GiftOpeningTimeline.drawBits(in: context, at: mouth(t: t), o: t - openedAt, colors: Self.bitColors(side))
         }
+        if let tag {
+            drawTag(in: context, price: tag, at: mouth(t: t, leftAt: leftAt))
+        }
+    }
+
+    /// 거래 상자 꼬리표: 흰 바탕 + 병뚜껑 기호 + 가격(무대 이름 꼬리표와 같은 모양). 상자 입구 바로 위.
+    private func drawTag(in context: GraphicsContext, price: Int, at mouth: CGPoint) {
+        var symbol = context.resolve(Image(systemName: "seal.fill"))
+        symbol.shading = .color(side == .sugar ? .sugarPink : .caffeineAmber)
+        let label = context.resolve(
+            Text(verbatim: String(price)).font(AppFont.pretendardFixed(15, .extraBold)).foregroundColor(Color.ink)
+        )
+        let icon: Double = 15
+        let gap: Double = 4
+        let text = label.measure(in: CGSize(width: 100, height: 100))
+        let width: Double = 8 + icon + gap + Double(text.width) + 9
+        let height: Double = max(icon, Double(text.height)) + 8
+        let centerY: Double = Double(mouth.y) - height / 2 - 6
+        let box = CGRect(x: Double(mouth.x) - width / 2, y: centerY - height / 2, width: width, height: height)
+        context.fill(Path(roundedRect: box, cornerRadius: 7, style: .continuous), with: .color(.white))
+        let iconX: Double = Double(box.minX) + 8 + icon / 2
+        context.draw(symbol, in: CGRect(x: iconX - icon / 2, y: centerY - icon / 2, width: icon, height: icon))
+        let textX: Double = iconX + icon / 2 + gap + Double(text.width) / 2
+        context.draw(label, at: CGPoint(x: textX, y: centerY))
     }
 
     /// 상자 입구 가운데(뚜껑 자른 선, pt). 조각과 열쇠가 여기서 나온다.
-    func mouth(t: Double) -> CGPoint {
+    func mouth(t: Double, leftAt: Double? = nil) -> CGPoint {
         guard let lid = painter.art.parts.first(where: { $0.name == "lid" }) else {
             return CGPoint(x: Double(base.x), y: Double(base.y) - painter.height * r * 0.6)
         }
-        let shift = offset(t)
+        let shift = offset(t, leftAt: leftAt)
         let k: Double = painter.scale * r
         let x: Double = Double(base.x) + shift.x + (Double(lid.frame.midX) - Double(painter.art.bbox.midX)) * k
         let y: Double = Double(base.y) + shift.y + (Double(lid.pivot.y) - Double(painter.art.bbox.maxY)) * k
@@ -233,7 +297,7 @@ struct GiftCarrierFigure {
 
     /// 화면 위 점이 시각 t의 캐릭터(상자 포함) 위인지. 손가락 여유 8pt.
     func contains(_ point: CGPoint, t: Double) -> Bool {
-        let shift = offset(t)
+        let shift = offset(t, leftAt: nil)
         let w: Double = painter.width * r
         let h: Double = painter.height * r
         let box = CGRect(x: Double(base.x) + shift.x - w / 2, y: Double(base.y) + shift.y - h, width: w, height: h)

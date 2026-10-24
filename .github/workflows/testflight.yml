@@ -322,6 +322,14 @@ jobs:
           # 훑는 조명은 빌드 264에서 뺐다.
           shoot gift-reveal-dark light large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent item:strawberry -giftRevealAt 0.4
           shoot gift-reveal-strawberry light large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent item:strawberry -giftRevealAt 3
+          # 거래(SPEC §4.10 Phase 2): 로슈가 병뚜껑 꼬리표 붙은 상자를 들고 들어오고(-giftAt), 누르면 조명 무대에
+          # 프라페 잔·이름·"병뚜껑 2개랑 바꿀래?"와 버튼 둘(-giftRevealAt). 튜토리얼 상자(starterCap)는 병뚜껑 무대.
+          shoot trade-walk light large -screenshotTrade offer -giftAt 1.4
+          shoot trade-wait light large -screenshotTrade offer -giftAt 3
+          shoot trade-card-dark light large -screenshotTrade card -giftRevealAt 0.4
+          shoot trade-card light large -screenshotTrade card -giftRevealAt 3
+          shoot trade-card-ax-xl light accessibility-extra-large -screenshotTrade card -giftRevealAt 3
+          shoot starter-cap light large -screenshotGift starterCap -screenshotGiftCard YES -screenshotGiftContent cap -giftRevealAt 3
           shoot trends-caps light large -initialTab trends -screenshotCaps 3
           # 기준 지킨 주 축하(2026-10-12): -weekKeptAt = 시작 뒤 초(가속 시계). 한 면: 0.8 글자 섞이는 중, 1.3 점프·팡파레.
           # 두 면: 2.75 카페인으로 넘기는 중, 4.1 카페인 점프.
@@ -363,6 +371,7 @@ jobs:
           shoot_en gift-heart-offer large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotHearts 1 -giftRevealAt 3
           shoot_en levelup large -screenshotLevelUp 5 -levelUpAt 2.2
           shoot_en gift-cap large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent cap -giftRevealAt 3
+          shoot_en trade-card large -screenshotTrade card -giftRevealAt 3
           shoot_en trends-caps large -initialTab trends -screenshotCaps 3
           shoot_en weekkept large -screenshotWeekKept sugar -weekKeptAt 1.75
           shoot_en paywall-type-ax-xl accessibility-extra-large -mockPro YES -screenshotPaywall YES
@@ -405,6 +414,7 @@ jobs:
           shoot_zh gift-heart-offer large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotHearts 1 -giftRevealAt 3
           shoot_zh levelup large -screenshotLevelUp 5 -levelUpAt 2.2
           shoot_zh gift-cap large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent cap -giftRevealAt 3
+          shoot_zh trade-card large -screenshotTrade card -giftRevealAt 3
           shoot_zh trends-caps large -initialTab trends -screenshotCaps 3
           shoot_zh paywall-type-ax-xl accessibility-extra-large -mockPro YES -screenshotPaywall YES
           shoot_zh record large -seedDemo YES -screenshotRecord YES

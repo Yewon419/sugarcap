@@ -686,4 +686,63 @@ extension RecordFlowUITests {
         // 숫자 요소는 컵 장면 위에 겹친 보이스오버용이라 누르기를 안 받는다(2026-10-13). 컵 장면이 눌리는지 본다.
         XCTAssertTrue(ui.element("record-add").isHittable, "무대가 닫혔는데 오늘 화면이 안 눌림")
     }
+
+    /// 거래 제안(SPEC §4.10): 로슈가 든 상자를 누르면 무대가 뜬다. "다음에"면 닫히고 상자를 들고 나간다.
+    /// 다시 왔을 때 "바꾸기"면 당 면 잔이 초코 프라페로 바뀐다(보관함에서 확인하고 기본 잔으로 되돌린다).
+    /// 잔액·다음 제안 시각은 저장소 테스트(`TradeTests`)가 본다. 여기 제안은 Debug `-screenshotTrade`라 저장되지 않는다.
+    @MainActor
+    func testTradeOfferRefuseThenAccept() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        // 운반 캐릭터는 들어와 선 시각(-giftAt), 무대는 버튼이 다 떠오른 시각(-giftRevealAt)에 멈춰 둔다.
+        app.launchArguments += [
+            "-trendsUnlocked", "YES", "-initialTab", "today", "-screenshotTrade", "offer", "-giftAt", "3",
+            "-giftRevealAt", "2",
+        ]
+        app.launch()
+        completeOnboardingIfPresented(app)
+        let ui = Driver(app: app)
+        XCTAssertTrue(ui.element("cup-summary").waitForExistence(timeout: 15))
+
+        let box = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.81))
+        let card = ui.element("trade-card")
+        box.tap()
+        XCTAssertTrue(card.waitForExistence(timeout: 5), "거래 상자를 눌렀는데 무대가 안 뜸")
+        XCTAssertTrue(ui.element("trade-item").label.contains("초코 프라페"), "상품 이름이 없음: \(ui.element("trade-item").label)")
+        XCTAssertTrue(ui.element("trade-question").label.contains("2개"), "첫 거래 가격이 2가 아님: \(ui.element("trade-question").label)")
+        let refuse = app.buttons["trade-refuse"]
+        XCTAssertTrue(refuse.waitForExistence(timeout: 3), "다음에 버튼이 없음")
+        refuse.tap()
+        XCTAssertTrue(card.waitForNonExistence(timeout: 3), "다음에를 눌렀는데 무대가 남음")
+        // 나가고 나면 상자가 없다. 같은 자리를 눌러도 무대가 다시 뜨지 않는다.
+        sleep(2)
+        box.tap()
+        XCTAssertFalse(card.waitForExistence(timeout: 2), "거절했는데 상자가 남아 무대가 또 뜸")
+
+        app.terminate()
+        app.launch()
+        XCTAssertTrue(ui.element("cup-summary").waitForExistence(timeout: 15))
+        box.tap()
+        XCTAssertTrue(card.waitForExistence(timeout: 5), "다시 온 거래 상자를 눌렀는데 무대가 안 뜸")
+        let accept = app.buttons["trade-accept"]
+        XCTAssertTrue(accept.waitForExistence(timeout: 3), "바꾸기 버튼이 없음")
+        accept.tap()
+        XCTAssertTrue(card.waitForNonExistence(timeout: 3), "바꾸기를 눌렀는데 무대가 남음")
+
+        app.buttons["open-settings"].tap()
+        let inventory = ui.element("open-inventory")
+        XCTAssertTrue(inventory.waitForExistence(timeout: 5), "설정에 보관함이 없음")
+        ui.reveal(inventory)
+        inventory.tap()
+        let frappe = ui.element("inventory-cup-choco-frappe")
+        XCTAssertTrue(frappe.waitForExistence(timeout: 5), "바꿨는데 보관함에 프라페 잔이 없음")
+        XCTAssertTrue(frappe.isSelected, "바꿨는데 당 면 잔이 프라페가 아님")
+        // 뒤 테스트·스크린샷이 기본 잔으로 찍히게 되돌린다.
+        let latte = ui.element("inventory-cup-strawberry-latte")
+        latte.tap()
+        XCTAssertTrue(latte.waitForSelected(), "기본 잔으로 안 돌아감")
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        app.buttons["settings-close"].tap()
+        XCTAssertTrue(app.buttons["open-settings"].waitForExistence(timeout: 5), "설정이 안 닫힘")
+    }
 }

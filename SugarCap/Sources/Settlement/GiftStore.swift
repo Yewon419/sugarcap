@@ -56,6 +56,16 @@ enum GiftStore {
         return true
     }
 
+    /// 마감(오늘 마감·어젯밤 먹이기)을 저장한 직후. 튜토리얼 상자 차례면 병뚜껑 1개 상자를 넣는다(§4.10).
+    /// 첫 상품 주인(로슈)이 가져오고, 당 면을 껐으면 카인이 가져온다. 넣었으면 참.
+    static func grantStarterCap(sides: [CupSide], now: Date, in context: ModelContext) throws -> Bool {
+        let closedDays = try context.fetch(FetchDescriptor<DaySettlement>()).filter(\.isClosed).count
+        guard GiftMath.grantsStarterCap(closedDays: closedDays, gifts: try records(in: context)) else { return false }
+        let carrier: CupSide = sides.contains(.sugar) ? .sugar : .caffeine
+        context.insert(GiftEvent(kind: .starterCap, side: carrier, payload: GiftContent.cap, createdAt: now))
+        return true
+    }
+
     /// 적립으로 단계가 오른 캐릭터마다 단계 상승 이벤트를 넣는다(§4.9 결정 4). 상자가 아니라 오늘 화면의 무대 연출로 보이고,
     /// 다 보면 연 것으로 저장한다. 넣은 개수.
     static func queueLevelUps(credited: [FeedResult], now: Date, in context: ModelContext) -> Int {
@@ -108,7 +118,7 @@ enum GiftStore {
         switch gift.giftKind {
         case .weekKept, .goalReached:
             gift.payload = content(owners: [side], isPro: isPro, taken: takenItems, roll: roll).payload
-        case .trendsUnlock, .levelUp, .proWelcome, nil: break
+        case .trendsUnlock, .levelUp, .proWelcome, .starterCap, nil: break
         }
     }
 
@@ -117,7 +127,7 @@ enum GiftStore {
         gift.openedAt = now
         switch gift.giftKind {
         case .weekKept, .goalReached: if gift.payload == nil { gift.payload = GiftContent.heart }
-        case .trendsUnlock, .levelUp, .proWelcome, nil: break
+        case .trendsUnlock, .levelUp, .proWelcome, .starterCap, nil: break
         }
     }
 }

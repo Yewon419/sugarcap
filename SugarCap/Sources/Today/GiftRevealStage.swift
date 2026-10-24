@@ -55,7 +55,7 @@ enum GiftRevealTimeline {
 
     /// 켜진 뒤 하나씩 톡 붙고, 천천히 반짝인다. 네 갈래 별을 흰 면으로 칠한다(번짐 없음).
     /// 처음엔 손그림 `+`(일부는 동그라미)였는데 과녁처럼 보여 바꿨다(빌드 227 대표님 "반짝이도 좀 구림").
-    static func drawSparkles(in context: GraphicsContext, size: CGSize, t: Double, calm: Bool) {
+    static func drawSparkles(in context: GraphicsContext, size: CGSize, t: Double, calm: Bool, centerY: Double = centerY) {
         let cx: Double = Double(size.width) / 2
         let cy: Double = Double(size.height) * centerY
         let radius: Double = Double(size.width) * spotRatio
@@ -319,13 +319,19 @@ struct GiftRevealOverlay: View {
             }
     }
 
-    /// 어둠은 한 장을 깔고 조명 자리를 도려낸다. 조명 원은 흰빛을 얹어 레퍼런스처럼 하얗게 바랜다.
     private func drawLights(in context: GraphicsContext, size: CGSize, t: Double) {
-        let calm = reduceMotion
+        GiftRevealTimeline.drawLights(in: context, size: size, t: t, calm: reduceMotion)
+    }
+}
+
+extension GiftRevealTimeline {
+    /// 어둠은 한 장을 깔고 조명 자리를 도려낸다. 조명 원은 흰빛을 얹어 레퍼런스처럼 하얗게 바랜다.
+    /// 거래 무대(`TradeOfferOverlay`)는 아래 버튼 자리 때문에 조명을 조금 올려 쓴다(`centerY`).
+    static func drawLights(in context: GraphicsContext, size: CGSize, t: Double, calm: Bool, centerY: Double = centerY) {
         let dark: Double = GiftRevealTimeline.darkness(t, calm: calm)
         guard dark > 0 else { return }
         let lit: Double = GiftRevealTimeline.lit(t, calm: calm)
-        let center = CGPoint(x: Double(size.width) / 2, y: Double(size.height) * GiftRevealTimeline.centerY)
+        let center = CGPoint(x: Double(size.width) / 2, y: Double(size.height) * centerY)
         let finalRadius: Double = Double(size.width) * GiftRevealTimeline.spotRatio
         let finalSpot = Path(ellipseIn: CGRect(
             x: Double(center.x) - finalRadius, y: Double(center.y) - finalRadius,

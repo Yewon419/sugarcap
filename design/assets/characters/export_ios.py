@@ -18,7 +18,7 @@ from __future__ import annotations
 import json
 import shutil
 from pathlib import Path
-from typing import TypedDict
+from typing import NotRequired, TypedDict
 
 from PIL import Image
 
@@ -38,26 +38,54 @@ EXTRA_ARTS: dict[str, list[str]] = {
 }
 # Arts whose canvas is not 2500 px. Roshu "stand" is 935x1024 and draws at 150 pt.
 ART_SCALE: dict[str, float] = {"stand": 0.5}
+# The pose canvases draw the character at different sizes, and the app draws every art of a
+# character at one px->pt scale, so Today grew and shrank with the random pose. Each art's rig
+# coordinates are multiplied by this factor so all poses match the smallest unoccluded one
+# (roshu "wave", kain "swim"; 2026-10-24). Factor = sqrt(reference area / art area) of the
+# character's own pixels (items filtered by color). Roshu hug-strawberry is already smaller and is
+# left alone; roshu gift-carry is mostly hidden by the box, so it takes the walk factor.
+ART_NORM: dict[str, dict[str, float]] = {
+    "roshu": {
+        "in-cup": 0.870,
+        "watch": 0.857,
+        "walk": 0.891,
+        "slump": 0.796,
+        "doze-lean": 0.796,
+        "gift-carry": 0.891,
+    },
+    "kain": {
+        "rim-stand": 0.989,
+        "sit": 0.915,
+        "walk": 0.964,
+        "doze-one-leg": 0.998,
+        "lie": 0.937,
+        "gift-carry": 0.977,
+    },
+}
+
+
+def scaled(values: list[float], k: float) -> list[float]:
+    return [round(v * k, 1) for v in values]
 
 
 class Eye(TypedDict):
-    box: list[int]
+    box: list[float]
     lid: str
 
 
 class Part(TypedDict):
     name: str
     z: str
-    frame: list[int]
-    pivot: list[int]
+    frame: list[float]
+    pivot: list[float]
 
 
 class Art(TypedDict):
-    canvas: list[int]
-    bbox: list[int]
-    rimLineY: int | None
+    canvas: list[float]
+    bbox: list[float]
+    rimLineY: float | None
     eyes: list[Eye]
-    body: list[int]
+    body: list[float]
     parts: list[Part]
 
 
@@ -113,19 +141,33 @@ def export_character(character: str, arts: list[str]) -> dict[str, Art]:
                 folder / f"{part['name']}.png",
                 scale,
             )
+        k = ART_NORM[character].get(art, 1.0)
+        rim_line = pose_meta["rimLineY"]
         out[art] = Art(
-            canvas=pose_meta["canvas"],
-            bbox=pose_meta["bbox"],
-            rimLineY=pose_meta["rimLineY"],
-            eyes=pose_meta["eyes"],
-            body=rig["body"],
-            parts=rig["parts"],
+            canvas=scaled(pose_meta["canvas"], k),
+            bbox=scaled(pose_meta["bbox"], k),
+            rimLineY=None if rim_line is None else round(rim_line * k, 1),
+            eyes=[
+                Eye(box=scaled(e["box"], k), lid=e["lid"]) for e in pose_meta["eyes"]
+            ],
+            body=scaled(rig["body"], k),
+            parts=[
+                Part(
+                    name=p["name"],
+                    z=p["z"],
+                    frame=scaled(p["frame"], k),
+                    pivot=scaled(p["pivot"], k),
+                )
+                for p in rig["parts"]
+            ],
         )
     return out
 
 
 class PoseSpec(TypedDict):
     art: str
+    # "from" is canvas px (beak tip), so it takes the art's ART_NORM factor.
+    bubbles: NotRequired[dict[str, object]]
 
 
 class PoseBook(TypedDict):
@@ -151,6 +193,17 @@ def main() -> None:
         encoding="utf-8",
     )
     poses = {character: load_poses(character) for character in CHARACTER_IDS}
+    for character, book in poses.items():
+        for pose in book["poses"].values():
+            bubbles = pose.get("bubbles")
+            if bubbles is None:
+                continue
+            start = bubbles["from"]
+            if not isinstance(start, list):
+                raise TypeError(
+                    f"{character}/{pose['art']}: bubbles.from must be [x, y]"
+                )
+            bubbles["from"] = scaled(start, ART_NORM[character].get(pose["art"], 1.0))
     rig = {
         character: export_character(character, arts_for(character, poses[character]))
         for character in CHARACTER_IDS

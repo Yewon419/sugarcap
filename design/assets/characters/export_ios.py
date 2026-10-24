@@ -40,16 +40,18 @@ EXTRA_ARTS: dict[str, list[str]] = {
 ART_SCALE: dict[str, float] = {"stand": 0.5}
 # The pose canvases draw the character at different sizes, and the app draws every art of a
 # character at one px->pt scale, so Today grew and shrank with the random pose. Each art's rig
-# coordinates are multiplied by this factor so all poses match the smallest unoccluded one
-# (roshu "wave", kain "swim"; 2026-10-24). Factor = sqrt(reference area / art area) of the
-# character's own pixels (items filtered by color). Roshu hug-strawberry is already smaller and is
-# left alone; roshu gift-carry is mostly hidden by the box, so it takes the walk factor.
+# coordinates are multiplied by this factor so all poses match one reference pose (roshu "wave",
+# kain "swim"; 2026-10-24). Factor = sqrt(reference area / art area) of the character's own pixels
+# (items filtered by color). Roshu hug-strawberry is drawn smaller and is scaled up; its area counts
+# the strawberry, which covers the body. Roshu gift-carry is mostly hidden by the box, so it takes
+# the walk factor.
 ART_NORM: dict[str, dict[str, float]] = {
     "roshu": {
         "in-cup": 0.870,
         "watch": 0.857,
         "walk": 0.891,
         "slump": 0.796,
+        "hug-strawberry": 1.140,
         "doze-lean": 0.796,
         "gift-carry": 0.891,
     },

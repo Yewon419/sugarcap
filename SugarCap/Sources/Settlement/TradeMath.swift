@@ -44,12 +44,13 @@ enum TradeMath {
     /// 지금 들고 올 상품(§4.10 "제안이 오는 조건"). nil이면 제안하지 않는다.
     /// - `trades`: 제안 순서대로. 아직 안 정한 제안이 있으면 그걸 먼저 끝낸다.
     /// - `balance`: 잔액(음수면 기록이 어긋난 것이라 멈춘다).
-    /// - `sides`: 지금 제안을 받을 수 있는 면(기록하는 면 중 안 연 상자·단계 상승이 없는 면).
+    /// - `sides`: 기록하는 면. `busy`: 그중 안 연 상자·단계 상승이 있는 면(선물이 먼저라 그 면 상품은 지금 안 온다).
     /// - `capDays`: 열어 본 병뚜껑 선물의 연 날, 오래된 것부터. 첫 제안은 잔액이 첫 가격에 닿은 다음 날부터 온다.
     /// - `roll`: 0..<1 무작위 값.
+    /// 첫 제안은 무작위가 아니라 목록 앞의 상품(튜토리얼, `TradeCatalog.tutorialItem`)이고, 그 면이 바쁘면 기다린다.
     static func offerItem(
-        trades: [Record], balance: Int, sides: [CupSide], capDays: [DayKey], today: DayKey, now: Date, roll: Double,
-        catalog: [TradeItem] = TradeCatalog.items
+        trades: [Record], balance: Int, sides: [CupSide], busy: Set<CupSide> = [], capDays: [DayKey], today: DayKey,
+        now: Date, roll: Double, catalog: [TradeItem] = TradeCatalog.items
     ) -> TradeItem? {
         guard !trades.contains(where: { $0.accepted == nil }), balance >= 0 else { return nil }
         let cost = price(trades: trades)
@@ -59,8 +60,12 @@ enum TradeMath {
         } else {
             guard capDays.count >= cost, capDays[cost - 1] < today else { return nil }
         }
+        if trades.isEmpty {
+            guard let first = catalog.first(where: { sides.contains($0.side) }), !busy.contains(first.side) else { return nil }
+            return first
+        }
         let owned = ownedSets(trades: trades)
-        var candidates = catalog.filter { sides.contains($0.side) && !owned.contains($0.id) }
+        var candidates = catalog.filter { sides.contains($0.side) && !busy.contains($0.side) && !owned.contains($0.id) }
         if let refused = trades.last(where: { $0.accepted == false })?.itemID, candidates.count > 1 {
             candidates.removeAll { $0.id == refused }
         }
@@ -157,8 +162,8 @@ enum TradeStore {
             logger.error("병뚜껑 잔액이 음수라 제안을 멈춤: caps=\(capDays.count) trades=\(records.count)")
         }
         guard let item = TradeMath.offerItem(
-            trades: records, balance: balance, sides: sides.filter { !busy.contains($0) }, capDays: capDays,
-            today: today, now: now, roll: roll
+            trades: records, balance: balance, sides: sides, busy: busy, capDays: capDays, today: today, now: now,
+            roll: roll
         ) else { return nil }
         let offer = TradeOffer(itemID: item.id, side: item.side, price: TradeMath.price(trades: records), offeredAt: now)
         context.insert(offer)

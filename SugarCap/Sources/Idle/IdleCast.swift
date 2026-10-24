@@ -100,6 +100,8 @@ struct CupSetGeometry: Sendable {
         switch setID {
         case "strawberry-latte": return .strawberryLatte
         case "iced-americano": return .icedAmericano
+        // 아메리카노 사진에서 음료만 바꾼 편집본이라 잔 자리·누끼가 같다.
+        case "cafe-latte": return .icedAmericano
         case "choco-frappe": return .chocoFrappe
         default: return nil
         }

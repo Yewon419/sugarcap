@@ -5986,6 +5986,22 @@
         }
       }
     },
+    "카페라떼" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Café Latte"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拿鐵"
+          }
+        }
+      }
+    },
     "초코 프라페" : {
       "localizations" : {
         "en" : {

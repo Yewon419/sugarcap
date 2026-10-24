@@ -695,9 +695,10 @@ extension RecordFlowUITests {
         continueAfterFailure = false
         let app = XCUIApplication()
         // 운반 캐릭터는 들어와 선 시각(-giftAt), 무대는 버튼이 다 떠오른 시각(-giftRevealAt)에 멈춰 둔다.
+        // 기본 상품은 튜토리얼 상품(카인의 카페라떼)이라 프라페로 고정한다.
         app.launchArguments += [
-            "-trendsUnlocked", "YES", "-initialTab", "today", "-screenshotTrade", "offer", "-giftAt", "3",
-            "-giftRevealAt", "2",
+            "-trendsUnlocked", "YES", "-initialTab", "today", "-screenshotTrade", "offer", "-screenshotTradeItem",
+            "choco-frappe", "-giftAt", "3", "-giftRevealAt", "2",
         ]
         app.launch()
         completeOnboardingIfPresented(app)

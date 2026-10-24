@@ -57,11 +57,11 @@ enum GiftStore {
     }
 
     /// 마감(오늘 마감·어젯밤 먹이기)을 저장한 직후. 튜토리얼 상자 차례면 병뚜껑 1개 상자를 넣는다(§4.10).
-    /// 첫 상품 주인(로슈)이 가져오고, 당 면을 껐으면 카인이 가져온다. 넣었으면 참.
+    /// 첫 거래 상품 주인(`TradeCatalog.tutorialItem`, 카인)이 가져오고, 카페인 면을 껐으면 로슈가 가져온다. 넣었으면 참.
     static func grantStarterCap(sides: [CupSide], now: Date, in context: ModelContext) throws -> Bool {
         let closedDays = try context.fetch(FetchDescriptor<DaySettlement>()).filter(\.isClosed).count
         guard GiftMath.grantsStarterCap(closedDays: closedDays, gifts: try records(in: context)) else { return false }
-        let carrier: CupSide = sides.contains(.sugar) ? .sugar : .caffeine
+        let carrier = TradeCatalog.tutorialItem(tracked: sides)?.side ?? sides.first ?? .caffeine
         context.insert(GiftEvent(kind: .starterCap, side: carrier, payload: GiftContent.cap, createdAt: now))
         return true
     }

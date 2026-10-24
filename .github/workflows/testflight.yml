@@ -293,6 +293,11 @@ jobs:
           shoot frappe-feeding-dropped light large -cupSet.sugar choco-frappe -screenshotFeeding YES -screenshotFeedingStage dropped
           shoot frappe-trends light large -cupSet.sugar choco-frappe -seedDemo YES -initialTab trends
           shoot frappe-inventory light large -cupSet.sugar choco-frappe -initialTab settings -screenshotInventory YES -screenshotCaps 3
+          # 카페라떼(카인 거래 상품, 2026-10-24): 아메리카노와 같은 잔이라 같은 자세에서 음료만 다르게 보여야 한다.
+          shoot latte-rim-stand light large -cupSet.caffeine cafe-latte -screenshotSide caffeine -idlePose rim-stand -idleStep 100 -idleAt 2.5
+          shoot latte-swim-50 light large -cupSet.caffeine cafe-latte -screenshotSide caffeine -idlePose swim -idleStep 50 -idleAt 3.7
+          shoot latte-walk-30 light large -cupSet.caffeine cafe-latte -screenshotSide caffeine -idlePose walk -idleStep 30 -idleAt 3.2
+          shoot latte-feeding light large -cupSet.caffeine cafe-latte -screenshotSide caffeine -screenshotFeeding YES
           # 선물(SPEC §4.9): 로슈는 상자를 들고 걸어 들어오고, 카인은 위에서 떨어져 상자 옆에 앉는다.
           # 누르면(-giftOpenAt = 누른 뒤 초) 뚜껑이 열리며 조각이 터지고, 열쇠가 추이 버튼으로 날아가 버튼만 남기고 어두워진다.
           shoot gift-walk light large -screenshotGift trends -giftAt 1.4
@@ -322,14 +327,17 @@ jobs:
           # 훑는 조명은 빌드 264에서 뺐다.
           shoot gift-reveal-dark light large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent item:strawberry -giftRevealAt 0.4
           shoot gift-reveal-strawberry light large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent item:strawberry -giftRevealAt 3
-          # 거래(SPEC §4.10 Phase 2): 로슈가 병뚜껑 꼬리표 붙은 상자를 들고 들어오고(-giftAt), 누르면 조명 무대에
-          # 프라페 잔·이름·"병뚜껑 2개랑 바꿀래?"와 버튼 둘(-giftRevealAt). 튜토리얼 상자(starterCap)는 병뚜껑 무대.
+          # 거래(SPEC §4.10): 첫 거래는 카인이 병뚜껑 꼬리표 붙은 상자를 들고 들어오고(-giftAt), 누르면 조명 무대에
+          # 카페라떼 잔·이름·"병뚜껑 2개랑 바꿀래?"와 버튼 둘(-giftRevealAt). 프라페는 -screenshotTradeItem으로 로슈 컷.
+          # 튜토리얼 상자(starterCap)도 카인이 가져오는 병뚜껑 무대.
           shoot trade-walk light large -screenshotTrade offer -giftAt 1.4
           shoot trade-wait light large -screenshotTrade offer -giftAt 3
           shoot trade-card-dark light large -screenshotTrade card -giftRevealAt 0.4
           shoot trade-card light large -screenshotTrade card -giftRevealAt 3
           shoot trade-card-ax-xl light accessibility-extra-large -screenshotTrade card -giftRevealAt 3
-          shoot starter-cap light large -screenshotGift starterCap -screenshotGiftCard YES -screenshotGiftContent cap -giftRevealAt 3
+          shoot trade-wait-frappe light large -screenshotTrade offer -screenshotTradeItem choco-frappe -giftAt 3
+          shoot trade-card-frappe light large -screenshotTrade card -screenshotTradeItem choco-frappe -giftRevealAt 3
+          shoot starter-cap light large -screenshotSide caffeine -screenshotGift starterCap -screenshotGiftCard YES -screenshotGiftContent cap -giftRevealAt 3
           shoot trends-caps light large -initialTab trends -screenshotCaps 3
           # 기준 지킨 주 축하(2026-10-12): -weekKeptAt = 시작 뒤 초(가속 시계). 한 면: 0.8 글자 섞이는 중, 1.3 점프·팡파레.
           # 두 면: 2.75 카페인으로 넘기는 중, 4.1 카페인 점프.

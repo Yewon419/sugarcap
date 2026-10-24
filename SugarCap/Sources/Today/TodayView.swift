@@ -758,10 +758,12 @@ struct TodayView: View {
 
     /// CI 스크린샷·UI 테스트 전용(Debug `-screenshotTrade offer|card`): 첫 상품 제안이 와 있는 상태(`offer`),
     /// 무대를 연 상태(`card`). 제안은 저장소에 넣지 않는다(뒤 컷에 상자가 남지 않게).
+    /// 상품은 `-screenshotTradeItem <id>`, 없으면 튜토리얼 상품.
     private func presentScreenshotTradeIfRequested() {
         #if DEBUG
         guard let raw = UserDefaults.standard.string(forKey: "screenshotTrade"), screenshotOffer == nil,
-              let item = TradeCatalog.items.first
+              let item = UserDefaults.standard.string(forKey: "screenshotTradeItem").flatMap(TradeCatalog.item)
+                ?? TradeCatalog.tutorialItem(tracked: trackedSides) ?? TradeCatalog.items.first
         else { return }
         let offer = TradeOffer(itemID: item.id, side: item.side, price: TradeMath.firstPrice, offeredAt: Date())
         screenshotOffer = offer

@@ -30,7 +30,9 @@ struct FeedingRecordSheet: View {
                 },
                 onQuickAdd: { drink in
                     save(drink.selection.makeEntry(brandName: drink.brand.name, at: loggedAt()))
-                }
+                },
+                todayCount: 0,
+                onTodayLog: {}
             )
             .toolbar(.hidden, for: .navigationBar)
             .navigationTitle("기록")

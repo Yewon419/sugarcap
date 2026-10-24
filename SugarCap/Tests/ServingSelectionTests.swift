@@ -35,6 +35,8 @@ final class ServingSelectionTests: XCTestCase {
     func testPrimarySideSplitsCaffeineDrinksFromSugarDrinks() {
         XCTAssertEqual(CupSide.primary(name: "", sugarG: 8, caffeineMg: 75), .caffeine, "우유 당이 있는 카페라떼")
         XCTAssertEqual(CupSide.primary(name: "", sugarG: 43, caffeineMg: 75), .caffeine, "카페인이 한 샷 이상이면 단 커피도 카페인")
+        XCTAssertEqual(CupSide.primary(name: "", sugarG: 62, caffeineMg: 73), .sugar, "카페인보다 당이 훨씬 많은 리프레셔")
+        XCTAssertEqual(CupSide.primary(name: "", sugarG: 24, caffeineMg: 75), .caffeine, "바닐라 라떼")
         XCTAssertEqual(CupSide.primary(name: "", sugarG: 41, caffeineMg: 0), .sugar, "딸기라떼")
         XCTAssertEqual(CupSide.primary(name: "", sugarG: 0, caffeineMg: 25), .caffeine, "당 없는 차")
         XCTAssertEqual(CupSide.primary(name: "", sugarG: 30, caffeineMg: 30), .sugar, "카페인이 적은 단 음료")
@@ -43,12 +45,31 @@ final class ServingSelectionTests: XCTestCase {
         XCTAssertEqual(CupSide.primary(name: "흑당 카페라떼", sugarG: 40.6, caffeineMg: 123.87), .sugar, "흑당은 카페인과 상관없이 당")
     }
 
-    func testCaffeineCupShowsCaffeineForEveryDrink() {
+    func testEachCupShowsItsOwnSideForEveryDrink() {
         let both = CupSide.allCases
         XCTAssertEqual(CupSide.shown(in: .caffeine, primary: .sugar, tracked: both), .caffeine, "카페인 컵에서 연 딸기라떼")
-        XCTAssertEqual(CupSide.shown(in: .sugar, primary: .caffeine, tracked: both), .caffeine, "당 컵에서도 카페인 음료는 카페인")
+        XCTAssertEqual(CupSide.shown(in: .sugar, primary: .caffeine, tracked: both), .sugar, "당 컵에서 연 카페라떼")
         XCTAssertEqual(CupSide.shown(in: .sugar, primary: .sugar, tracked: both), .sugar)
-        XCTAssertEqual(CupSide.shown(in: nil, primary: .sugar, tracked: both), .sugar, "하루 기록처럼 컵 밖")
+        XCTAssertEqual(CupSide.shown(in: nil, primary: .caffeine, tracked: both), .caffeine, "하루 기록처럼 컵 밖은 대표 면")
+    }
+
+    func testCupSideDrinksComeFirstInTheirOriginalOrder() throws {
+        let drinks = try catalog().drinks.filter { $0.brandId == "starbucks" }
+        let both = CupSide.allCases
+
+        let sugarFirst = CupSide.leading(drinks, in: .sugar, tracked: both)
+        let sugarCount = drinks.filter { CupSide.primary(of: $0) == .sugar }.count
+        XCTAssertGreaterThan(sugarCount, 0)
+        XCTAssertLessThan(sugarCount, drinks.count)
+        XCTAssertTrue(sugarFirst.prefix(sugarCount).allSatisfy { CupSide.primary(of: $0) == .sugar })
+        XCTAssertEqual(sugarFirst.count, drinks.count)
+        XCTAssertEqual(
+            sugarFirst.prefix(sugarCount).map(\.id),
+            drinks.filter { CupSide.primary(of: $0) == .sugar }.map(\.id),
+            "같은 면 안에서는 원래 순서"
+        )
+        XCTAssertEqual(CupSide.leading(drinks, in: nil, tracked: both).map(\.id), drinks.map(\.id), "컵 밖은 그대로")
+        XCTAssertEqual(CupSide.leading(drinks, in: .sugar, tracked: [.sugar]).map(\.id), drinks.map(\.id), "한 면만 켜면 그대로")
     }
 
     func testOneTrackedSideIsAlwaysShown() {

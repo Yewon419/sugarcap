@@ -16,11 +16,25 @@ extension EnvironmentValues {
 
 extension CupSide {
     /// 기록 화면에서 크게 보일 면. 한 면만 켰으면 늘 그 면.
-    /// 카페인 컵에서 열면 늘 카페인(대표님 2026-10-06, 빌드 105 베타 피드백).
-    /// 당 컵이나 컵 밖(하루 기록)에서는 음료의 대표 면이라 카페인 음료는 그대로 카페인이 크다.
+    /// 연 컵의 면(카페인 컵은 대표님 2026-10-06 빌드 105, 당 컵은 빌드 272 "당음료 위주로").
+    /// 컵 밖(하루 기록·지난날 추가)에서는 음료의 대표 면.
     static func shown(in cup: CupSide?, primary: CupSide, tracked: [CupSide]) -> CupSide {
         if tracked.count == 1, let only = tracked.first { return only }
-        return cup == .caffeine ? .caffeine : primary
+        return cup ?? primary
+    }
+
+    /// 연 컵 쪽 대표 면 음료를 앞으로, 나머지는 원래 순서대로 뒤로(빌드 272 대표님). 컵 밖이거나 한 면만 켰으면 그대로.
+    static func leading(_ drinks: [Drink], in cup: CupSide?, tracked: [CupSide]) -> [Drink] {
+        guard let cup, tracked.count > 1 else { return drinks }
+        let isCup = { (drink: Drink) in Self.primary(of: drink) == cup }
+        return drinks.filter(isCup) + drinks.filter { !isCup($0) }
+    }
+
+    /// 목록 줄 수치와 같은 첫 잔으로 고른 음료의 대표 면.
+    static func primary(of drink: Drink) -> CupSide {
+        let serving = drink.servings.first
+        let caffeine = serving.flatMap { $0.caffeineVariants.first?.caffeineMg ?? $0.caffeineMg }
+        return primary(name: drink.name, sugarG: serving?.sugarG, caffeineMg: caffeine)
     }
 }
 
@@ -165,15 +179,33 @@ struct StarButton: View {
 struct SheetHeader<Actions: View>: View {
     let title: String
     @ViewBuilder var actions: Actions
+    /// 있으면 제목이 버튼이 된다(꺾쇠가 붙는다).
+    var onTitle: (() -> Void)?
 
     var body: some View {
         HStack {
-            Text(title)
-                .kicker()
+            if let onTitle {
+                Button(action: onTitle) {
+                    HStack(spacing: 4) {
+                        Text(title).kicker()
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .buttonStyle(.plain)
+                .tapTarget()
                 .padding(.leading, 4)
+            } else {
+                Text(title)
+                    .kicker()
+                    .padding(.leading, 4)
+            }
             Spacer()
+            // 제목(kicker)과 같은 글자. 15pt Regular였을 때 "닫기"만 다른 글꼴처럼 보였다(빌드 272 대표님).
             HStack(spacing: 14) { actions }
-                .font(AppFont.pretendard(15, .regular, relativeTo: .subheadline))
+                .font(AppFont.pretendard(11, .semibold, relativeTo: .caption2))
+                .tracking(1.3)
         }
         .padding(.horizontal, 20)
         .padding(.top, 22)

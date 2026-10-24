@@ -14,6 +14,8 @@ struct BrandMenuView: View {
     @State private var query = BrandMenuView.initialQuery
     @State private var category = BrandMenuView.allCategory
     @State private var panelDrink: Drink?
+    @Environment(\.recordCup) private var recordCup
+    @Environment(\.trackedSides) private var trackedSides
 
     private static let allCategory = String(localized: "전체")
     /// 이보다 메뉴가 많으면(편의점) 전체 목록·분류 칩 대신 검색부터 보여 준다. 카페 최대는 빽다방 296개.
@@ -36,8 +38,10 @@ struct BrandMenuView: View {
 
     private func results() -> [Drink] {
         let found = catalog.drinks(brandID: brand.id, matching: DrinkQuery(query))
-        guard category != Self.allCategory else { return found }
-        return found.filter { $0.category == category }
+        let inCategory = category == Self.allCategory ? found : found.filter { $0.category == category }
+        // 검색 중에는 이름 순위를 그대로 둔다.
+        guard DrinkQuery(query).isEmpty else { return inCategory }
+        return CupSide.leading(inCategory, in: recordCup, tracked: trackedSides)
     }
 
     /// 브랜드 잔 기준 안내가 짧으면 소제목으로, 길면 메뉴 수로(길면 줄이 넘친다).

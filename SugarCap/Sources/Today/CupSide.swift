@@ -146,15 +146,22 @@ enum CupSide: String, CaseIterable, Identifiable, Sendable {
     /// 이 정도 카페인이면 카페인 음료로 본다. 에스프레소 한 샷 안팎.
     static let caffeineDrinkMinMg: Double = 50
 
+    /// 카페인 음료라도 당(g)이 카페인(mg)의 이만큼 이상이면 당 음료로 본다.
+    static let sugarPerCaffeineMin: Double = 0.75
+
     /// 음료 한 잔이 주로 어느 쪽 음료인지. 목록 수치와 메뉴 패널이 이 면을 크게 보여 준다.
     /// 카페인이 기준 이상이거나, 당이 0인데 카페인이 있으면 카페인 음료. 나머지는 당 음료다.
     /// 하루 기준 대비 비율로 가르면 같은 바닐라라떼가 HOT은 당·ICED는 카페인으로 갈려서 카페인 절대량으로 정했다
     /// (2026-10-04, 아이스카페라떼가 우유 당 때문에 당 음료로 뜨던 문제).
+    /// 다만 카페인이 기준을 넘어도 당이 카페인 mg의 0.75배(g) 이상이면 당 음료다(빌드 272 대표님, 딸기 아사이 레모네이드
+    /// 당 62 g·카페인 73 mg). 카탈로그에서 넘어가는 건 단 차·쉐이크·에이드 16종이고 커피·라떼는 그대로 카페인이다.
     /// 이름에 "흑당"이 들어간 메뉴는 카페인과 상관없이 당 음료다(대표님 2026-10-06, 흑당 카페라떼).
     static func primary(name: String, sugarG: Double?, caffeineMg: Double?) -> CupSide {
         if name.contains("흑당") { return .sugar }
         guard let caffeineMg, caffeineMg > 0 else { return .sugar }
-        if caffeineMg >= caffeineDrinkMinMg { return .caffeine }
+        if caffeineMg >= caffeineDrinkMinMg {
+            return (sugarG ?? 0) >= caffeineMg * sugarPerCaffeineMin ? .sugar : .caffeine
+        }
         return (sugarG ?? 0) > 0 ? .sugar : .caffeine
     }
 }

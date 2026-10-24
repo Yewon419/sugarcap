@@ -180,6 +180,11 @@ struct TodayView: View {
                     let entry = drink.selection.makeEntry(brandName: drink.brand.name, at: Date())
                     record(entry)
                     undoToast = UndoToast(entryID: entry.id, text: String(localized: "\(drink.name) 기록했어요"))
+                },
+                todayCount: todaysEntries(now: Date()).count,
+                onTodayLog: {
+                    isRecordSheetPresented = false
+                    isDayLogPresented = true
                 }
             )
             .environment(\.recordCup, side)
@@ -886,7 +891,8 @@ struct TodayView: View {
             Spacer(minLength: 0)
         }
         .frame(minHeight: 59)
-        .overlay { pageDots }
+        // 점은 냅킨 아래 빈 바닥으로 내린다(빌드 272 대표님). 냅킨 아래 끝은 가운데에서 화면 높이 약 93%.
+        .overlay { pageDots.offset(y: 30) }
         .padding(.horizontal, 20)
         .padding(.bottom, 12)
     }

@@ -491,13 +491,7 @@ struct FeedingView: View {
                 }
             }
             .frame(minHeight: 56)
-            // 안내 자리는 늘 잡아 둔다. 문구가 빠져도 화살표가 내려앉지 않게.
-            Text("마감 뒤에 마신 음료도 오늘 몫으로 빠져요")
-                .font(AppFont.pretendard(12, .regular, relativeTo: .caption))
-                .foregroundStyle(.white.opacity(0.6))
-                .multilineTextAlignment(.center)
-                .opacity(request.kind == .closeToday && stage != .eaten ? 1 : 0)
-                .allowsHitTesting(false)
+            // 맨 아래 안내("마감 뒤에 마신 음료도 오늘 몫으로 빠져요")는 뺐다(빌드 272 대표님).
         }
         .padding(.horizontal, 24)
         .padding(.bottom, 8)
@@ -549,7 +543,7 @@ struct FeedingView: View {
 
     /// 밤하늘·캐릭터 없이 면 색 판 두 장(2026-10-23 대표님 HTML 시안 B "두 면"). 위에 날짜·제목, 가운데를 판이 나눠
     /// 채우고 판마다 먹은 양을 큰 Anton 숫자로. 당은 왼쪽, 카페인은 오른쪽 정렬(오늘 화면 큰 숫자와 같은 쪽).
-    /// 완료 버튼은 먹이기 "마무리"와 같은 자리·크기다(`foot`과 같은 틀: 안내 자리를 비워 둔 채 아래 8).
+    /// 완료 버튼은 먹이기 "마무리"와 같은 자리·크기다(`foot`과 같은 틀: 높이 56, 아래 8).
     private var summary: some View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 8) {
@@ -587,12 +581,6 @@ struct FeedingView: View {
                 .buttonStyle(PressScaleStyle())
                 .accessibilityIdentifier("feeding-done")
                 .frame(minHeight: 56)
-                // 먹이기 화면 `foot`의 안내 자리. 보이지 않게 두고 높이만 맞춘다.
-                Text("마감 뒤에 마신 음료도 오늘 몫으로 빠져요")
-                    .font(AppFont.pretendard(12, .regular, relativeTo: .caption))
-                    .multilineTextAlignment(.center)
-                    .hidden()
-                    .accessibilityHidden(true)
             }
             .padding(.horizontal, 24)
             .padding(.top, 24)

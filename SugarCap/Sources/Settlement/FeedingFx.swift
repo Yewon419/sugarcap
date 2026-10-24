@@ -5,7 +5,7 @@ import SwiftUI
 enum FeedFx: Equatable {
     /// 마감 진입: 밤하늘이 지평선처럼 차오르고 달·별이 뜬 뒤 걷히며 밤 장면이 드러난다.
     case dusk(title: String)
-    /// 로슈 → 카인: 버튼 자리에서 호박색이 번지고 카인이 튀어나온 뒤 카인 자리로 오므라든다.
+    /// 로슈 → 카인: 버튼 자리에서 호박색이 번진 뒤 카인 자리로 오므라든다(카인은 안 나온다, 대표님 2026-10-24).
     case turn
     /// 마무리: 밤하늘이 내려오고 두 방울이 합쳐져 흰 링과 별로 흩어진다.
     case night
@@ -13,7 +13,7 @@ enum FeedFx: Equatable {
     var duration: Double {
         switch self {
         case .dusk: return 1.8
-        case .turn: return 1.85
+        case .turn: return 1.05
         case .night: return 2.2
         }
     }
@@ -22,7 +22,7 @@ enum FeedFx: Equatable {
     var swapAt: Double {
         switch self {
         case .dusk: return 1.1
-        case .turn: return 0.95
+        case .turn: return 0.45
         case .night: return 1.35
         }
     }
@@ -68,7 +68,8 @@ struct FeedFxOverlay: View {
 
     private func dusk(title: String, size: CGSize, sx: CGFloat, sy: CGFloat) -> some View {
         let seg = Motion.seg
-        let rise = seg(t, 0, 0.6, Ease.power3InOut)
+        // 덮개는 누르자마자 보이게 빨리 출발한다. InOut이면 처음 0.2초가 거의 안 움직여 화면보다 늦게 뜬 것 같았다(대표님 2026-10-24).
+        let rise = seg(t, 0, 0.35, Ease.power3Out)
         let leave = seg(t, 1.25, 1.8, Ease.power3In)
         let skyHeight = size.height + 140
         let skyY = (1 - rise) * skyHeight - leave * skyHeight
@@ -121,33 +122,16 @@ struct FeedFxOverlay: View {
 
     private func turn(size: CGSize, sx: CGFloat, sy: CGFloat) -> some View {
         let seg = Motion.seg
-        let grow = seg(t, 0, 0.6, Ease.expoInOut)
-        let shrink = seg(t, 1.3, 1.85, Ease.expoInOut)
+        let grow = seg(t, 0, 0.4, Ease.power3Out)
+        let shrink = seg(t, 0.55, 1.05, Ease.expoInOut)
         let radius = 1000 * sy * grow * (1 - shrink)
         let center = CGPoint(x: size.width / 2, y: Motion.lerp(802, 662, shrink) * sy)
-        let pop = seg(t, 0.42, 0.92) { Ease.backOut($0, overshoot: 1.7) }
-        let drop = seg(t, 1.25, 1.7, Ease.power3In)
-
-        // 글자 없이 카페인색 전환만 둔다(대표님 2026-10-11 "카인 차례! 빼").
+        // 글자·카인 없이 카페인색 전환만 둔다(대표님 2026-10-11 "카인 차례! 빼", 2026-10-24 카인도 뺌).
         return ZStack(alignment: .top) {
             Circle()
                 .fill(Color.caffeineAmber)
                 .frame(width: radius * 2, height: radius * 2)
                 .position(center)
-
-            // 카인은 한 바퀴 돌지 않는다(대표님 2026-10-06·10-11). 튀어나올 때 기울었다 바로 서기만 한다.
-            let kainAngle: Double = Motion.lerp(-25, 0, pop)
-            let kainScale: Double = Motion.lerp(0.4, 1, pop) * Motion.lerp(1, 0.55, drop)
-            let kainOpacity: Double = min(1, max(0, pop * 2)) * (1 - seg(t, 1.62, 1.74, Ease.linear))
-            let kainY: Double = 360 * Double(sy) + Motion.lerp(140, 0, pop) + 250 * drop
-            Image(CupSide.caffeine.characterAsset)
-                .resizable()
-                .scaledToFit()
-                .frame(height: 150)
-                .rotationEffect(.degrees(kainAngle), anchor: UnitPoint(x: 0.5, y: 0.55))
-                .scaleEffect(kainScale)
-                .opacity(kainOpacity)
-                .offset(y: kainY)
         }
     }
 
@@ -156,7 +140,7 @@ struct FeedFxOverlay: View {
     private func night(size: CGSize, sx: CGFloat, sy: CGFloat) -> some View {
         let seg = Motion.seg
         let skyHeight = size.height + 140
-        let down = seg(t, 0, 0.6, Ease.power3InOut)
+        let down = seg(t, 0, 0.35, Ease.power3Out)
         let fade = seg(t, 1.45, 1.95, Ease.power2InOut)
         let center = CGPoint(x: size.width / 2, y: size.height / 2)
         let merge = seg(t, 0.98, 1.26, Ease.power3In)

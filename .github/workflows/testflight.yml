@@ -279,6 +279,20 @@ jobs:
           shoot idle-kain-floor-sit light large -screenshotSide caffeine -idlePose floor-sit -idleStep 0 -idleAt 2.5
           shoot idle-kain-lie-left light large -screenshotSide caffeine -idlePose lie-left -idleStep 100 -idleAt 2.0
           shoot idle-kain-lie-right light large -screenshotSide caffeine -idlePose lie-right -idleStep 100 -idleAt 5.7
+          # 초코 프라페 잔(§4.10 Phase 1). 대기 자세가 프라페 잔 치수(바닥·입구)에 서는지 본다. 잔은 Debug 인자로 켠다.
+          shoot frappe-in-cup-50 light large -cupSet.sugar choco-frappe -idlePose in-cup -idleStep 50 -idleAt 2.5
+          shoot frappe-in-cup-30 light large -cupSet.sugar choco-frappe -idlePose in-cup -idleStep 30 -idleAt 2.5
+          shoot frappe-watch light large -cupSet.sugar choco-frappe -idlePose watch -idleStep 100 -idleAt 2.5
+          shoot frappe-walk light large -cupSet.sugar choco-frappe -idlePose walk -idleStep 80 -idleAt 3.2
+          shoot frappe-slump light large -cupSet.sugar choco-frappe -idlePose slump -idleStep 0 -idleAt 2.5
+          shoot frappe-wave light large -cupSet.sugar choco-frappe -idlePose wave -idleStep 80 -idleAt 0.3
+          shoot frappe-doze-lean light large -cupSet.sugar choco-frappe -idlePose doze-lean -idleStep 100 -idleAt 2.7
+          shoot frappe-onlooker-kain light large -cupSet.sugar choco-frappe -screenshotTracks sugar -screenshotOnlooker YES -idleStep 80 -idleAt 1.0
+          shoot frappe-gift-wait light large -cupSet.sugar choco-frappe -screenshotGift trends -giftAt 3
+          shoot frappe-feeding light large -cupSet.sugar choco-frappe -screenshotFeeding YES
+          shoot frappe-feeding-dropped light large -cupSet.sugar choco-frappe -screenshotFeeding YES -screenshotFeedingStage dropped
+          shoot frappe-trends light large -cupSet.sugar choco-frappe -seedDemo YES -initialTab trends
+          shoot frappe-inventory light large -cupSet.sugar choco-frappe -initialTab settings -screenshotInventory YES -screenshotCaps 3
           # 선물(SPEC §4.9): 로슈는 상자를 들고 걸어 들어오고, 카인은 위에서 떨어져 상자 옆에 앉는다.
           # 누르면(-giftOpenAt = 누른 뒤 초) 뚜껑이 열리며 조각이 터지고, 열쇠가 추이 버튼으로 날아가 버튼만 남기고 어두워진다.
           shoot gift-walk light large -screenshotGift trends -giftAt 1.4

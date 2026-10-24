@@ -73,21 +73,42 @@ enum CupSide: String, CaseIterable, Identifiable, Sendable {
     }
 
     /// 먹이기·소개에 쓰는 음료 방울 사진(`design/assets/drops`, 힉스필드 Seedream 5.0 lite로 만든 둥근 방울).
+    /// 거래로 산 잔을 쓰는 중이면 그 잔의 방울(§4.10).
     var dropAsset: String {
+        if let item = TradeCatalog.item(cupSetID) { return item.dropAsset }
         switch self {
         case .sugar: return "drop-sugar"
         case .caffeine: return "drop-caffeine"
         }
     }
 
-    /// 이 면에 그리는 컵 세트(SPEC §9-10). 당 컵은 단 음료, 카페인 컵은 커피.
-    /// 세트 선택(§9-9 커스터마이징)이 생기기 전까지는 면마다 고정이다.
+    /// 이 면에 그리는 컵 세트(SPEC §9-10·§4.10). 보관함에서 고른 잔(`cupSetKey`)이 이 면 상품이면 그 잔, 아니면 기본 잔.
+    /// 가진 잔인지는 고를 때(보관함)와 앱 시작 때(`CupSetChoice.dropUnowned`) 본다.
     var cupSetID: String {
+        if let chosen = UserDefaults.standard.string(forKey: cupSetKey), TradeCatalog.item(chosen)?.side == self {
+            return chosen
+        }
+        return defaultCupSetID
+    }
+
+    /// 기본 잔. 당 컵은 단 음료, 카페인 컵은 커피.
+    var defaultCupSetID: String {
         switch self {
         case .sugar: return "strawberry-latte"
         case .caffeine: return "iced-americano"
         }
     }
+
+    /// 기본 잔 이름(보관함 "잔" 칸).
+    var defaultCupSetName: String {
+        switch self {
+        case .sugar: return String(localized: "딸기 라떼")
+        case .caffeine: return String(localized: "아이스 아메리카노")
+        }
+    }
+
+    /// 고른 잔을 두는 기기 설정 키(Debug `-cupSet.sugar choco-frappe`).
+    var cupSetKey: String { "cupSet.\(rawValue)" }
 
     /// 감소 목표가 하루 기준을 낮출 때 쓰는 반올림 단위(SPEC §9.5).
     var reductionStep: Double {

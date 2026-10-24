@@ -48,6 +48,9 @@ struct TodayView: View {
     @State private var asksReminder = false
     /// "어젯밤 이후 마신 만큼 빠졌어요"를 보여 준 날. 그날엔 다시 띄우지 않는다.
     @AppStorage("dismissedShrankNoticeDay") private var dismissedShrankDay = ""
+    /// 보관함에서 잔을 바꾸면 컵을 다시 그린다(§4.10). 값은 `CupSide.cupSetID`가 읽는다.
+    @AppStorage("cupSet.sugar") private var sugarCupSet: String?
+    @AppStorage("cupSet.caffeine") private var caffeineCupSet: String?
     /// 지난 마감분이 방금 확정됐을 때만 채운다. 이번 실행 동안만 보인다.
     @State private var creditNotice: [FeedResult]?
     @State private var paywall: ProFeature?

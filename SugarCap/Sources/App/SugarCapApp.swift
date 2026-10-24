@@ -32,6 +32,15 @@ struct SugarCapApp: App {
         let country = stored?.menuCountry ?? MenuCountry.resolve(storedCode: nil, region: Locale.current.region)
         _catalog = State(initialValue: LoadedCatalog(country: country))
 
+        // 고른 잔이 가진 잔이 아니면 기본 잔으로 그린다(§4.10). 거래 행을 못 읽으면 선택을 건드리지 않는다.
+        do {
+            let trades = try container.mainContext.fetch(FetchDescriptor<TradeOffer>())
+            CupSetChoice.dropUnowned(owned: TradeMath.ownedSets(trades: trades.map(\.record)))
+        } catch {
+            Logger(subsystem: "com.sugarcap.app", category: "store")
+                .error("거래 기록을 읽지 못해 고른 잔을 그대로 둠: \(String(describing: error), privacy: .public)")
+        }
+
         // 기본 카테고리 .soloAmbient는 소리 없는 컵 대기 루프(AVPlayer)만 돌아도 다른 앱 음악을 끊는다. 소리를 내지 않는 앱이라 섞어 둔다.
         do {
             try AVAudioSession.sharedInstance().setCategory(.ambient)

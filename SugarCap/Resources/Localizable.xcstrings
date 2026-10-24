@@ -3026,22 +3026,6 @@
         }
       }
     },
-    "선물 상자에서 모은 것" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Collected from gift boxes"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "從禮物盒收集的"
-          }
-        }
-      }
-    },
     "선물 열기" : {
       "localizations" : {
         "en" : {
@@ -5934,6 +5918,86 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "＋ 手動輸入"
+          }
+        }
+      }
+    },
+    "잔" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cups"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "杯子"
+          }
+        }
+      }
+    },
+    "지금 가진 것" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On hand"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目前擁有"
+          }
+        }
+      }
+    },
+    "딸기 라떼" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strawberry Latte"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "草莓拿鐵"
+          }
+        }
+      }
+    },
+    "아이스 아메리카노" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iced Americano"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "冰美式"
+          }
+        }
+      }
+    },
+    "초코 프라페" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chocolate Frappé"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "巧克力冰沙"
           }
         }
       }

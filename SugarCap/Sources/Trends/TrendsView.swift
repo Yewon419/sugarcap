@@ -48,6 +48,7 @@ struct TrendsView: View {
     @State private var coachFrames: [TrendCoachSpot: CGRect] = [:]
     @Query private var affinities: [Affinity]
     @Query private var gifts: [GiftEvent]
+    @Query private var trades: [TradeOffer]
 
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "trends")
     /// 화면에 뜬 번역 언어의 달력 이름(한국어 = 일…토, 일요일…토요일, 10월). 기기 지역이 아니라 앱 언어를 따라
@@ -744,15 +745,9 @@ struct TrendsView: View {
 
     // MARK: - 당↔카페인
 
-    /// 모은 병뚜껑(§4.9 2026-10-11). 어디에 쓰는지는 말하지 않는다. 하나도 없으면 안 보인다.
-    /// Debug `-screenshotCaps <n>`이면 그 값.
+    /// 병뚜껑 잔액(§4.9 2026-10-11, §4.10). 어디에 쓰는지는 말하지 않는다. 하나도 없으면 안 보인다.
     private var capTotal: Int {
-        #if DEBUG
-        if UserDefaults.standard.object(forKey: "screenshotCaps") != nil {
-            return UserDefaults.standard.integer(forKey: "screenshotCaps")
-        }
-        #endif
-        return gifts.filter { $0.isCap && $0.isOpened }.count
+        CapBalance.current(gifts: gifts, trades: trades)
     }
 
     @ViewBuilder

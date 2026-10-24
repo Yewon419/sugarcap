@@ -67,6 +67,7 @@ private struct SettingsContent: View {
     @State private var renamed = 0
     @State private var showsInventory = false
     @Query private var gifts: [GiftEvent]
+    @Query private var trades: [TradeOffer]
 
     @Query private var affinities: [Affinity]
     @Environment(\.modelContext) private var context
@@ -400,14 +401,9 @@ private struct SettingsContent: View {
         .rowText()
     }
 
-    /// 열어 본 병뚜껑 수(보관함 줄). Debug `-screenshotCaps <n>`이면 그 값.
+    /// 병뚜껑 잔액(보관함 줄, §4.10).
     private var capCount: Int {
-        #if DEBUG
-        if UserDefaults.standard.object(forKey: "screenshotCaps") != nil {
-            return UserDefaults.standard.integer(forKey: "screenshotCaps")
-        }
-        #endif
-        return gifts.filter { $0.isCap && $0.isOpened }.count
+        CapBalance.current(gifts: gifts, trades: trades)
     }
 
     @ViewBuilder

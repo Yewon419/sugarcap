@@ -47,11 +47,28 @@ final class CupLevelTests: XCTestCase {
     func testEveryStepHasAnImageInTheAppBundle() {
         // 호스트 앱에 붙어 도는 테스트라 Bundle.main이 앱이다.
         // 에셋 이름이 어긋나면 화면엔 빈 칸만 뜨고 에러는 안 나므로 여기서 잡는다.
-        for setID in ["iced-americano", "strawberry-latte"] {
+        for setID in ["iced-americano", "strawberry-latte"] + TradeCatalog.items.map(\.id) {
             for step in CupLevel.steps {
-                for name in [CupLevel.assetName(setID: setID, step: step), CupLevel.cutoutName(setID: setID, step: step)] {
+                for name in [
+                    CupLevel.assetName(setID: setID, step: step), CupLevel.cutoutName(setID: setID, step: step),
+                    CupLevel.wideName(setID: setID, step: step), CupLevel.rimLineName(setID: setID, step: step),
+                ] {
                     XCTAssertNotNil(UIImage(named: name, in: .main, with: nil), "\(name) 이미지가 앱 번들에 없음")
                 }
+            }
+        }
+    }
+
+    /// 거래 상품마다 방울 그림과 대기 자세용 잔 치수가 있어야 한다(§4.10). 없으면 캐릭터가 기본 잔 치수에 서서 공중에 뜬다.
+    func testEveryTradeItemHasDropAndGeometry() {
+        for item in TradeCatalog.items {
+            XCTAssertNotNil(UIImage(named: item.dropAsset, in: .main, with: nil), "\(item.dropAsset) 없음")
+            let geometry = CupSetGeometry.of(item.id)
+            XCTAssertNotNil(geometry, "\(item.id) 치수 없음")
+            for step in CupLevel.steps {
+                XCTAssertNotNil(geometry?.rim[step], "\(item.id) \(step) 가장자리")
+                XCTAssertNotNil(geometry?.liquid[step], "\(item.id) \(step) 음료 윗면")
+                XCTAssertNotNil(geometry?.axis[step], "\(item.id) \(step) 잔 가운데")
             }
         }
     }

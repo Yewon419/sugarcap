@@ -254,13 +254,8 @@ struct IdleSprite {
 
     /// 꺼진 쪽 캐릭터를 켜진 쪽 컵 사진에 놓는다. 그림·움직임은 그 캐릭터 것, 잔 바닥·가장자리·가운데는 그 컵 것.
     static func onlooker(_ guest: CupSide, on host: CupSide, step: Int, size: CGSize) -> IdleSprite? {
-        let own = guest.idleCast
-        let cup = host.idleCast
-        let cast = IdleCast(
-            character: own.character, bottom: cup.bottom, rim: cup.rim, liquid: cup.liquid, axis: cup.axis,
-            reflectionLook: own.reflectionLook, scalePerPhotoHeight: own.scalePerPhotoHeight, lidPad: own.lidPad,
-            gait: own.gait
-        )
+        var cast = guest.idleCast
+        cast.cup = host.idleCast.cup
         let look = IdleOnlooker.look(guest)
         return IdleSprite(
             cast: cast, cupSetID: host.cupSetID, pose: look.pose, step: step, size: size, acrossCup: look.acrossCup

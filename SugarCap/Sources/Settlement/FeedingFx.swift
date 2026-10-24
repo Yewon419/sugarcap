@@ -126,10 +126,11 @@ struct FeedFxOverlay: View {
         let shrink = seg(t, 0.55, 1.05, Ease.expoInOut)
         let radius = 1000 * sy * grow * (1 - shrink)
         let center = CGPoint(x: size.width / 2, y: Motion.lerp(802, 662, shrink) * sy)
-        // 글자·카인 없이 카페인색 전환만 둔다(대표님 2026-10-11 "카인 차례! 빼", 2026-10-24 카인도 뺌).
+        // 글자·카인 없이 원 하나만 둔다(대표님 2026-10-11 "카인 차례! 빼", 2026-10-24 카인도 뺌).
+        // 색은 다른 덮개와 같은 밝은 벽(2026-10-24 대표님 "그냥 흰색", 전엔 카페인 호박색).
         return ZStack(alignment: .top) {
             Circle()
-                .fill(Color.caffeineAmber)
+                .fill(Self.sky)
                 .frame(width: radius * 2, height: radius * 2)
                 .position(center)
         }

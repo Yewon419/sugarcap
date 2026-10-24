@@ -191,8 +191,8 @@ struct FeedingView: View {
         }
         // 마감 진입 전에는 비워 둬 밑의 오늘 화면 위로 밤하늘이 차오르게 한다.
         .presentationBackground(isSceneVisible || isIntroPlaying ? Color.black : Color.clear)
-        // 요약·마감 진입/마무리 덮개는 밝은 벽 바탕이라 상태 표시줄도 라이트로.
-        .preferredColorScheme(isIntroPlaying || step == .done || fx != nil && fx != .turn ? .light : .dark)
+        // 요약·전환 덮개(마감 진입·로슈→카인·마무리)는 밝은 벽 바탕이라 상태 표시줄도 라이트로.
+        .preferredColorScheme(isIntroPlaying || step == .done || fx != nil ? .light : .dark)
         .onAppear {
             if opening == .skipped {
                 skip()

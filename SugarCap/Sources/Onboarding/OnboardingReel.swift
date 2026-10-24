@@ -231,13 +231,14 @@ struct OnboardingReelStage: View {
             slam("20", size: 540, color: .ink, at: 1.5, out: 2.18)
             slam("4", size: 540, color: .ink, at: 2.2, out: 2.62)
             // 카페인 숫자는 라떼 무대 위라 흰 외곽선이 안 읽힌다. 카인 링 색으로.
-            slam("400", size: 380, color: .kainRing, at: 3.72, out: 4.52)
-            slam("200", size: 380, color: .kainRing, at: 4.56, out: 5.2)
+            // 링(가운데 960, 안지름 704) 안 가운데에 들어가게. 글자 칸은 숫자 아래 여백이 있어 칸 가운데를 조금 내린다.
+            slam("400", size: 280, color: .kainRing, at: 3.72, out: 4.52, y: 980)
+            slam("200", size: 280, color: .kainRing, at: 4.56, out: 5.2, y: 980)
         }
     }
 
     @ViewBuilder
-    private func slam(_ text: String, size: CGFloat, color: Color, at: Double, out: Double) -> some View {
+    private func slam(_ text: String, size: CGFloat, color: Color, at: Double, out: Double, y: CGFloat = 840) -> some View {
         if t >= at, t < out + 0.12 {
             let enter: Double = seg(at, at + 0.34, Ease.power4Out)
             let exit: Double = seg(out, out + 0.12, Ease.power2In)
@@ -245,7 +246,7 @@ struct OnboardingReelStage: View {
             OutlineText(text: text, font: AppFont.numeralFixed(size), color: color, lineWidth: 8)
                 .scaleEffect(scale)
                 .opacity(enter * (1 - exit))
-                .position(x: 540, y: 840)
+                .position(x: 540, y: y)
         }
     }
 
@@ -320,6 +321,8 @@ struct OnboardingReelStage: View {
                     Text(verbatim: "SUGARCAP")
                         .font(AppFont.numeralFixed(40))
                         .tracking(20)
+                        // 자간이 마지막 글자 뒤에도 붙어 왼쪽으로 쏠렸다. 앞에도 같은 폭을 준다.
+                        .padding(.leading, 20)
                         .foregroundStyle(Color.accentColor)
                         .opacity(en)
                         .offset(y: 20 * (1 - en))

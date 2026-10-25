@@ -231,25 +231,68 @@ struct GiftCarrierFigure {
         }
     }
 
-    /// 거래 상자 꼬리표: 흰 바탕 + 병뚜껑 기호 + 가격(무대 이름 꼬리표와 같은 모양). 상자 입구 바로 위.
+    /// 거래 상자 꼬리표(대표님 2026-10-25 "돼지꼬리 달린 꼬리표"): 상자 리본에서 꼬불꼬불한 끈이 나와
+    /// 오른쪽 위에 비스듬히 매달린 행택 구멍에 이어진다. 행택은 흰 바탕, 끈 쪽 끝이 뾰족하고, 안에 병뚜껑 기호 + 가격.
     private func drawTag(in context: GraphicsContext, price: Int, at mouth: CGPoint) {
+        let knot = CGPoint(x: Double(mouth.x), y: Double(mouth.y) - 4)
+        let hole = CGPoint(x: Double(knot.x) + 22, y: Double(knot.y) - 24)
+        context.stroke(
+            Self.pigtail(from: knot, to: hole, loops: 3, radius: 4.5),
+            with: .color(Color.ink.opacity(0.75)),
+            style: StrokeStyle(lineWidth: 1.3, lineCap: .round, lineJoin: .round)
+        )
+
         var symbol = context.resolve(Image(systemName: "seal.fill"))
         symbol.shading = .color(side == .sugar ? .sugarPink : .caffeineAmber)
         let label = context.resolve(
             Text(verbatim: String(price)).font(AppFont.pretendardFixed(15, .extraBold)).foregroundColor(Color.ink)
         )
-        let icon: Double = 15
-        let gap: Double = 4
+        let icon: Double = 14
+        let gap: Double = 3
         let text = label.measure(in: CGSize(width: 100, height: 100))
-        let width: Double = 8 + icon + gap + Double(text.width) + 9
-        let height: Double = max(icon, Double(text.height)) + 8
-        let centerY: Double = Double(mouth.y) - height / 2 - 6
-        let box = CGRect(x: Double(mouth.x) - width / 2, y: centerY - height / 2, width: width, height: height)
-        context.fill(Path(roundedRect: box, cornerRadius: 7, style: .continuous), with: .color(.white))
-        let iconX: Double = Double(box.minX) + 8 + icon / 2
-        context.draw(symbol, in: CGRect(x: iconX - icon / 2, y: centerY - icon / 2, width: icon, height: icon))
-        let textX: Double = iconX + icon / 2 + gap + Double(text.width) / 2
-        context.draw(label, at: CGPoint(x: textX, y: centerY))
+        // 행택 좌표: 구멍이 원점, 몸통은 +x로. 뾰족한 끝(-7)부터 어깨(5)까지가 끈 쪽 머리.
+        let start: Double = 10
+        let width: Double = start + icon + gap + Double(text.width) + 8
+        let half: Double = (max(icon, Double(text.height)) + 8) / 2
+        var tag = context
+        tag.translateBy(x: hole.x, y: hole.y)
+        tag.rotate(by: .degrees(14))
+        var outline = Path()
+        outline.addLines([
+            CGPoint(x: -7, y: 0), CGPoint(x: 5, y: -half), CGPoint(x: width, y: -half),
+            CGPoint(x: width, y: half), CGPoint(x: 5, y: half),
+        ])
+        outline.closeSubpath()
+        var body = outline
+        body.addEllipse(in: CGRect(x: -2.2, y: -2.2, width: 4.4, height: 4.4))
+        var shadowed = tag
+        shadowed.addFilter(.shadow(color: .black.opacity(0.18), radius: 2, x: 0, y: 1))
+        shadowed.fill(body, with: .color(.white), style: FillStyle(eoFill: true))
+        // 모서리를 둥글게: 같은 흰색으로 바깥선을 굵게 한 번 더(구멍은 건드리지 않는다).
+        tag.stroke(outline, with: .color(.white), style: StrokeStyle(lineWidth: 3, lineJoin: .round))
+        tag.fill(body, with: .color(.white), style: FillStyle(eoFill: true))
+        tag.stroke(
+            Path(ellipseIn: CGRect(x: -2.2, y: -2.2, width: 4.4, height: 4.4)),
+            with: .color(Color.ink.opacity(0.35)), lineWidth: 0.8
+        )
+        let iconX: Double = start + icon / 2
+        tag.draw(symbol, in: CGRect(x: iconX - icon / 2, y: -icon / 2, width: icon, height: icon))
+        tag.draw(label, at: CGPoint(x: iconX + icon / 2 + gap + Double(text.width) / 2, y: 0))
+    }
+
+    /// 돼지꼬리 끈: a에서 b로 가며 고리를 `loops`번 감는다. 양 끝은 고리 없이 a·b에 정확히 닿는다.
+    static func pigtail(from a: CGPoint, to b: CGPoint, loops: Double, radius: Double) -> Path {
+        var path = Path()
+        let steps = 80
+        for i in 0 ... steps {
+            let s: Double = Double(i) / Double(steps)
+            let envelope: Double = max(0, sin(Double.pi * s)).squareRoot()
+            let angle: Double = 2 * Double.pi * loops * s
+            let x: Double = Double(a.x) + (Double(b.x) - Double(a.x)) * s + radius * envelope * sin(angle)
+            let y: Double = Double(a.y) + (Double(b.y) - Double(a.y)) * s - radius * envelope * (1 - cos(angle))
+            if i == 0 { path.move(to: CGPoint(x: x, y: y)) } else { path.addLine(to: CGPoint(x: x, y: y)) }
+        }
+        return path
     }
 
     /// 상자 입구 가운데(뚜껑 자른 선, pt). 조각과 열쇠가 여기서 나온다.

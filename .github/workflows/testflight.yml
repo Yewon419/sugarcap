@@ -295,7 +295,8 @@ jobs:
           shoot frappe-inventory light large -cupSet.sugar choco-frappe -initialTab settings -screenshotInventory YES -screenshotCaps 3
           # 카페라떼(카인 거래 상품, 2026-10-24): 아메리카노와 같은 잔이라 같은 자세에서 음료만 다르게 보여야 한다.
           shoot latte-rim-stand light large -cupSet.caffeine cafe-latte -screenshotSide caffeine -idlePose rim-stand -idleStep 100 -idleAt 2.5
-          shoot latte-swim-50 light large -cupSet.caffeine cafe-latte -screenshotSide caffeine -idlePose swim -idleStep 50 -idleAt 3.7
+          # 라떼는 불투명해 헤엄을 뽑지 않는다(2026-10-25). -idlePose swim을 줘도 다른 자세가 나와야 한다.
+          shoot latte-no-swim-50 light large -cupSet.caffeine cafe-latte -screenshotSide caffeine -idlePose swim -idleStep 50 -idleAt 3.7
           shoot latte-walk-30 light large -cupSet.caffeine cafe-latte -screenshotSide caffeine -idlePose walk -idleStep 30 -idleAt 3.2
           shoot latte-feeding light large -cupSet.caffeine cafe-latte -screenshotSide caffeine -screenshotFeeding YES
           # 선물(SPEC §4.9): 로슈는 상자를 들고 걸어 들어오고, 카인은 위에서 떨어져 상자 옆에 앉는다.

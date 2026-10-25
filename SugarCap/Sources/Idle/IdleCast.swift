@@ -106,6 +106,11 @@ struct CupSetGeometry: Sendable {
         default: return nil
         }
     }
+
+    /// 이 잔에서 뽑지 않는 대기 자세. 음료가 불투명하면 음료 속 헤엄(`swim`)이 안 비쳐 뺀다(대표님 2026-10-25, 카페라떼).
+    static func hiddenPoses(_ setID: String) -> Set<String> {
+        setID == "cafe-latte" ? ["swim"] : []
+    }
 }
 
 /// 캐릭터 하나의 대기 자세 설정(프로토타입 `CHARS`). 잔 치수(`cup`)는 그 면에 그린 잔 세트 것으로 갈아 끼운다.

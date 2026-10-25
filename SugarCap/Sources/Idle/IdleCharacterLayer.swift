@@ -136,6 +136,11 @@ struct IdleCharacterLayer: View {
             if isAllowed(step: step, unlockedLevel: unlockedLevel) { return }
             repick()
         }
+        // 보관함·거래로 잔이 바뀌면 그 잔에서 안 되는 자세만 다시 뽑는다.
+        .onChange(of: side.cupSetID) {
+            if isAllowed(step: step, unlockedLevel: unlockedLevel) { return }
+            repick()
+        }
         .onChange(of: unlockedLevel) { _, newLevel in
             if isAllowed(step: step, unlockedLevel: newLevel) { return }
             repick()
@@ -161,9 +166,9 @@ struct IdleCharacterLayer: View {
         return side.idleCast.poseSet?.allows(pose, step: step, unlockedLevel: unlockedLevel) == true
     }
 
-    /// 구경꾼과 겹치는 자세는 뽑지 않는다.
+    /// 구경꾼과 겹치는 자세, 지금 잔에서 안 보이는 자세(`CupSetGeometry.hiddenPoses`)는 뽑지 않는다.
     private var avoiding: Set<String> {
-        guest.map { IdleOnlooker.hostAvoids(guest: $0) } ?? []
+        (guest.map { IdleOnlooker.hostAvoids(guest: $0) } ?? []).union(CupSetGeometry.hiddenPoses(side.cupSetID))
     }
 
     /// 연타 반응 `dodge`로 옮겨 갈 자세. 지금 자세 말고 고를 게 없으면 nil(그땐 `dodge`를 안 뽑는다).
@@ -211,9 +216,9 @@ struct IdleCharacterLayer: View {
         start = Date()
         if pausedAt != nil { pausedAt = start }
         #if DEBUG
-        // CI 스크린샷 전용: `-idlePose swim`. 이 캐릭터에 없는 자세면 무시한다. 해금과 상관없이 보인다.
+        // CI 스크린샷 전용: `-idlePose swim`. 이 캐릭터에 없는 자세·지금 잔에서 안 보이는 자세면 무시한다. 해금과 상관없이 보인다.
         if let forced = UserDefaults.standard.string(forKey: "idlePose"),
-           side.idleCast.poseSet?.poses[forced] != nil {
+           side.idleCast.poseSet?.poses[forced] != nil, !CupSetGeometry.hiddenPoses(side.cupSetID).contains(forced) {
             pose = forced
             return
         }

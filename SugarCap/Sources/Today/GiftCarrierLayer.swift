@@ -232,13 +232,17 @@ struct GiftCarrierFigure {
     }
 
     /// 거래 상자 꼬리표(대표님 2026-10-25 "돼지꼬리 달린 꼬리표"): 상자 리본에서 꼬불꼬불한 끈이 나와
-    /// 오른쪽 위에 비스듬히 매달린 행택 구멍에 이어진다. 행택은 흰 바탕, 끈 쪽 끝이 뾰족하고, 안에 병뚜껑 기호 + 가격.
+    /// 비스듬히 매달린 행택 구멍에 이어진다. 행택은 흰 바탕, 끈 쪽 끝이 뾰족하고, 안에 병뚜껑 기호 + 가격.
+    /// 로슈는 오른쪽 위, 카인은 상자를 몸 왼쪽에 들어 얼굴을 안 가리게 왼쪽 위로 단다.
+    /// 끈은 흰 테두리를 둘러 진한 커피 앞에서도 보이게 한다.
     private func drawTag(in context: GraphicsContext, price: Int, at mouth: CGPoint) {
+        let dir: Double = side == .sugar ? 1 : -1
         let knot = CGPoint(x: Double(mouth.x), y: Double(mouth.y) - 4)
-        let hole = CGPoint(x: Double(knot.x) + 22, y: Double(knot.y) - 24)
+        let hole = CGPoint(x: Double(knot.x) + 22 * dir, y: Double(knot.y) - 24)
+        let cord = Self.pigtail(from: knot, to: hole, loops: 3, radius: 4.5)
+        context.stroke(cord, with: .color(.white), style: StrokeStyle(lineWidth: 3.4, lineCap: .round, lineJoin: .round))
         context.stroke(
-            Self.pigtail(from: knot, to: hole, loops: 3, radius: 4.5),
-            with: .color(Color.ink.opacity(0.75)),
+            cord, with: .color(Color.ink.opacity(0.85)),
             style: StrokeStyle(lineWidth: 1.3, lineCap: .round, lineJoin: .round)
         )
 
@@ -250,17 +254,17 @@ struct GiftCarrierFigure {
         let icon: Double = 14
         let gap: Double = 3
         let text = label.measure(in: CGSize(width: 100, height: 100))
-        // 행택 좌표: 구멍이 원점, 몸통은 +x로. 뾰족한 끝(-7)부터 어깨(5)까지가 끈 쪽 머리.
+        // 행택 좌표: 구멍이 원점, 몸통은 dir 쪽으로. 뾰족한 끝(-7)부터 어깨(5)까지가 끈 쪽 머리.
         let start: Double = 10
         let width: Double = start + icon + gap + Double(text.width) + 8
         let half: Double = (max(icon, Double(text.height)) + 8) / 2
         var tag = context
         tag.translateBy(x: hole.x, y: hole.y)
-        tag.rotate(by: .degrees(14))
+        tag.rotate(by: .degrees(14 * dir))
         var outline = Path()
         outline.addLines([
-            CGPoint(x: -7, y: 0), CGPoint(x: 5, y: -half), CGPoint(x: width, y: -half),
-            CGPoint(x: width, y: half), CGPoint(x: 5, y: half),
+            CGPoint(x: -7 * dir, y: 0), CGPoint(x: 5 * dir, y: -half), CGPoint(x: width * dir, y: -half),
+            CGPoint(x: width * dir, y: half), CGPoint(x: 5 * dir, y: half),
         ])
         outline.closeSubpath()
         var body = outline
@@ -275,7 +279,9 @@ struct GiftCarrierFigure {
             Path(ellipseIn: CGRect(x: -2.2, y: -2.2, width: 4.4, height: 4.4)),
             with: .color(Color.ink.opacity(0.35)), lineWidth: 0.8
         )
-        let iconX: Double = start + icon / 2
+        // 글자는 뒤집지 않는다. 왼쪽으로 단 행택도 기호 → 숫자 순서로 읽힌다.
+        let left: Double = dir > 0 ? start : -width + 8
+        let iconX: Double = left + icon / 2
         tag.draw(symbol, in: CGRect(x: iconX - icon / 2, y: -icon / 2, width: icon, height: icon))
         tag.draw(label, at: CGPoint(x: iconX + icon / 2 + gap + Double(text.width) / 2, y: 0))
     }

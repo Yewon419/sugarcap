@@ -83,29 +83,35 @@
   },
   "hug-strawberry": {
    "label": "딸기 끌어안기",
-   "note": "물건 자세: 딸기를 선물로 받아 열면 풀린다(단계와 별개, 대표님 2026-10-27, 그 전엔 Lv4). 딸기를 끌어안고 바닥 기준으로 좌우 흔들흔들, 팔은 살짝 늦게 따라 조인다. 6초마다 오른발이 한 번 까딱. 코·눈은 딸기 밑(대표님). 팔다리는 전부 몸 앞이고, 몸과 겹친 곳의 흰 띠는 그림대로 두되 딸기 위 띠는 지웠다.",
+   "note": "물건 자세: 딸기를 선물로 받아 열면 풀린다(단계와 별개, 대표님 2026-10-27, 그 전엔 Lv4). 딸기를 끌어안고 바닥 기준으로 쉬지 않고 좌우 뒹굴뒹굴, 팔은 살짝 늦게 따라 조인다. 흔들기는 주기가 안 맞는 사인 셋(2.6·4.3·1.7초)을 겹쳐 폭(약 2~5°)과 박자가 매번 조금씩 다르다(대표님 2026-10-27 \"계속 뒹굴뒹굴은 좋은데 리듬이 좀 일정했어서\", 처음엔 ±4° 2.6초 하나라 메트로놈 같았다). 6초마다 오른발이 한 번 까딱. 코·눈은 딸기 밑(대표님). 팔다리는 전부 몸 앞이고, 몸과 겹친 곳의 흰 띠는 그림대로 두되 딸기 위 띠는 지웠다.",
    "art": "hug-strawberry", "unlock": 1, "item": "strawberry", "minStep": 1,
    "place": { "x": 0.8, "y": "bottom", "dy": 0.01 },
    "limbDirection": { "foot_left": 1, "foot_right": -1, "arm": 0 },
    "reflection": { "toward": 0.1, "up": 5 },
    "shadow": { "w": 0.85, "h": 0.18, "dx": 0.05, "dy": -0.04 },
    "motion": [
-    { "to": "rot", "shape": "wave", "amp": 4, "period": 2.6 },
-    { "to": "limb.arm", "shape": "wave", "amp": 3, "period": 2.6, "phase": 0.8 },
+    { "to": "rot", "shape": "wave", "amp": 2.8, "period": 2.6 },
+    { "to": "rot", "shape": "wave", "amp": 1.4, "period": 4.3, "phase": 1.1 },
+    { "to": "rot", "shape": "wave", "amp": 0.6, "period": 1.7, "phase": 2 },
+    { "to": "limb.arm", "shape": "wave", "amp": 2, "period": 2.6, "phase": 0.8 },
+    { "to": "limb.arm", "shape": "wave", "amp": 1, "period": 4.3, "phase": 1.9 },
     { "to": "limb.foot_right", "shape": "bump", "amp": 10, "period": 6, "at": 4.2, "length": 0.5 }
    ]
   },
   "hug-strawberry-left": {
    "label": "딸기 끌어안기(왼쪽)",
-   "note": "물건 자세: 딸기를 선물로 받아 열면 풀린다(단계와 별개, 대표님 2026-10-27, 그 전엔 Lv4). 딸기를 끌어안고 바닥 기준으로 좌우 흔들흔들, 팔은 살짝 늦게 따라 조인다. 6초마다 오른발이 한 번 까딱. 코·눈은 딸기 밑(대표님). 팔다리는 전부 몸 앞이고, 몸과 겹친 곳의 흰 띠는 그림대로 두되 딸기 위 띠는 지웠다. 원래 자세를 좌우로 뒤집어 잔 반대편에 둔다(대표님 2026-10-27 잔 아래 자세는 좌우 다, 냅킨 위). 기우는 방향(rot)도 뒤집었다.",
+   "note": "물건 자세: 딸기를 선물로 받아 열면 풀린다(단계와 별개, 대표님 2026-10-27, 그 전엔 Lv4). 딸기를 끌어안고 바닥 기준으로 쉬지 않고 좌우 뒹굴뒹굴, 팔은 살짝 늦게 따라 조인다. 흔들기는 주기가 안 맞는 사인 셋(2.6·4.3·1.7초)을 겹쳐 폭(약 2~5°)과 박자가 매번 조금씩 다르다(대표님 2026-10-27 \"계속 뒹굴뒹굴은 좋은데 리듬이 좀 일정했어서\", 처음엔 ±4° 2.6초 하나라 메트로놈 같았다). 6초마다 오른발이 한 번 까딱. 코·눈은 딸기 밑(대표님). 팔다리는 전부 몸 앞이고, 몸과 겹친 곳의 흰 띠는 그림대로 두되 딸기 위 띠는 지웠다. 원래 자세를 좌우로 뒤집어 잔 반대편에 둔다(대표님 2026-10-27 잔 아래 자세는 좌우 다, 냅킨 위). 기우는 방향(rot)도 뒤집었다.",
    "art": "hug-strawberry", "unlock": 1, "item": "strawberry", "minStep": 1,
    "mirror": true, "place": { "x": 0.2, "y": "bottom", "dy": 0.01 },
    "limbDirection": { "foot_left": 1, "foot_right": -1, "arm": 0 },
    "reflection": { "toward": 0.1, "up": 5 },
    "shadow": { "w": 0.85, "h": 0.18, "dx": -0.05, "dy": -0.04 },
    "motion": [
-    { "to": "rot", "shape": "wave", "amp": -4, "period": 2.6 },
-    { "to": "limb.arm", "shape": "wave", "amp": 3, "period": 2.6, "phase": 0.8 },
+    { "to": "rot", "shape": "wave", "amp": -2.8, "period": 2.6 },
+    { "to": "rot", "shape": "wave", "amp": -1.4, "period": 4.3, "phase": 1.1 },
+    { "to": "rot", "shape": "wave", "amp": -0.6, "period": 1.7, "phase": 2 },
+    { "to": "limb.arm", "shape": "wave", "amp": 2, "period": 2.6, "phase": 0.8 },
+    { "to": "limb.arm", "shape": "wave", "amp": 1, "period": 4.3, "phase": 1.9 },
     { "to": "limb.foot_right", "shape": "bump", "amp": 10, "period": 6, "at": 4.2, "length": 0.5 }
    ]
   },

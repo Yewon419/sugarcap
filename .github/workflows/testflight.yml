@@ -271,6 +271,9 @@ jobs:
           shoot idle-roshu-hug-strawberry light large -idlePose hug-strawberry -idleStep 100 -idleAt 0.65
           shoot idle-roshu-hug-strawberry-left light large -idlePose hug-strawberry-left -idleStep 100 -idleAt 0.65
           shoot idle-roshu-wave light large -idlePose wave -idleStep 100 -idleAt 0.3
+          shoot idle-roshu-guard-cup light large -idlePose guard-cup -idleStep 100 -idleAt 3.5
+          shoot idle-roshu-guard-cup-up light large -idlePose guard-cup -idleStep 100 -idleAt 0.9
+          shoot idle-roshu-guard-cup-left light large -idlePose guard-cup-left -idleStep 100 -idleAt 0.9
           shoot idle-roshu-doze-lean light large -idlePose doze-lean -idleStep 100 -idleAt 2.7
           shoot idle-roshu-doze-lean-right light large -idlePose doze-lean-right -idleStep 100 -idleAt 2.7
           shoot idle-kain-rim-stand light large -screenshotSide caffeine -idlePose rim-stand -idleStep 100 -idleAt 2.5

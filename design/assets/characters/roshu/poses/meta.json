@@ -311,5 +311,39 @@
    }
   ],
   "rimLineY": null
+ },
+ "guard-cup": {
+  "file": "design/assets/characters/roshu/poses/guard-cup.png",
+  "canvas": [
+   2500,
+   2800
+  ],
+  "bbox": [
+   460,
+   499,
+   1955,
+   2334
+  ],
+  "eyes": [
+   {
+    "box": [
+     722,
+     881,
+     768,
+     936
+    ],
+    "lid": "#D5D7DD"
+   },
+   {
+    "box": [
+     822,
+     888,
+     875,
+     945
+    ],
+    "lid": "#D5D7DD"
+   }
+  ],
+  "rimLineY": null
  }
 }

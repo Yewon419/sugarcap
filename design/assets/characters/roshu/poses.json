@@ -173,6 +173,44 @@
     { "to": "bodyDy", "shape": "plateau", "amp": -2.2, "period": 6, "rise": 0.4, "hold": 0.8, "fall": 0.4 }
    ]
   },
+  "guard-cup": {
+   "label": "내 밥 지키기",
+   "note": "Lv9(대표님 2026-10-27 원화). 잔 앞에서 등을 보이고 고개만 돌려 이쪽을 본다(대표님 \"뒤돌아있고 고개만 돌린거\"). 왼쪽을 보므로 잔 앞에서 오른쪽으로 비켜 선다(x .65, 대표님 \"왼쪽을 보고있으면 좀 더 오른쪽에, 반대면 반대로\"). 왼팔을 옆으로 들어 잔을 막는다. 팔 각도는 음수가 바깥(수평 쪽)으로 뻗기, 양수는 코 뒤로 숨는다. 숨쉬기와 팔 들썩임은 주기가 안 맞는 사인을 겹쳐 박자가 일정하지 않다. 5.6초마다 까치발로 몸을 살짝 키우며 팔을 옆으로 쭉 뻗고(\"내 거야\"), 이어 오른발로 한 번 탁 구른다. 발은 땅 층이라 까치발 때 바닥에 남는다. 팔은 몸 뒤(같은 색이라 이음매가 가려진다).",
+   "art": "guard-cup", "unlock": 9, "minStep": 1,
+   "place": { "x": 0.65, "y": "bottom", "dy": 0.024 },
+   "limbDirection": { "arm": 0, "foot_left": 1, "foot_right": -1 },
+   "reflection": { "toward": 0.12, "up": 16 },
+   "shadow": { "w": 0.9, "h": 0.2, "dx": 0.05, "dy": -0.04 },
+   "motion": [
+    { "to": "sy", "shape": "wave", "amp": 0.012, "period": 3.1 },
+    { "to": "rot", "shape": "wave", "amp": 1, "period": 4.1, "phase": 0.6 },
+    { "to": "limb.arm", "shape": "wave", "amp": 3, "period": 2.3 },
+    { "to": "limb.arm", "shape": "wave", "amp": 2, "period": 3.7, "phase": 1 },
+    { "to": "bodyDy", "shape": "plateau", "amp": -2.2, "period": 5.6, "rise": 0.35, "hold": 1.0, "fall": 0.5 },
+    { "to": "sx", "shape": "plateau", "amp": 0.02, "period": 5.6, "rise": 0.35, "hold": 1.0, "fall": 0.5 },
+    { "to": "limb.arm", "shape": "plateau", "amp": -12, "period": 5.6, "rise": 0.35, "hold": 1.0, "fall": 0.5 },
+    { "to": "limb.foot_right", "shape": "bump", "amp": 8, "period": 5.6, "at": 2.2, "length": 0.4 }
+   ]
+  },
+  "guard-cup-left": {
+   "label": "내 밥 지키기(왼쪽)",
+   "note": "Lv9(대표님 2026-10-27 원화). 잔 앞에서 등을 보이고 고개만 돌려 이쪽을 본다(대표님 \"뒤돌아있고 고개만 돌린거\"). 원래 자세를 좌우로 뒤집어 오른쪽을 보므로 잔 앞에서 왼쪽으로 비켜 선다(x .35, 대표님 \"왼쪽을 보고있으면 좀 더 오른쪽에, 반대면 반대로\"). 왼팔을 옆으로 들어 잔을 막는다. 팔 각도는 음수가 바깥(수평 쪽)으로 뻗기, 양수는 코 뒤로 숨는다. 숨쉬기와 팔 들썩임은 주기가 안 맞는 사인을 겹쳐 박자가 일정하지 않다. 5.6초마다 까치발로 몸을 살짝 키우며 팔을 옆으로 쭉 뻗고(\"내 거야\"), 이어 오른발로 한 번 탁 구른다. 발은 땅 층이라 까치발 때 바닥에 남는다. 팔은 몸 뒤(같은 색이라 이음매가 가려진다).",
+   "art": "guard-cup", "mirror": true, "unlock": 9, "minStep": 1,
+   "place": { "x": 0.35, "y": "bottom", "dy": 0.024 },
+   "limbDirection": { "arm": 0, "foot_left": 1, "foot_right": -1 },
+   "reflection": { "toward": 0.12, "up": 16 },
+   "shadow": { "w": 0.9, "h": 0.2, "dx": -0.05, "dy": -0.04 },
+   "motion": [
+    { "to": "sy", "shape": "wave", "amp": 0.012, "period": 3.1 },
+    { "to": "rot", "shape": "wave", "amp": -1, "period": 4.1, "phase": 0.6 },
+    { "to": "limb.arm", "shape": "wave", "amp": 3, "period": 2.3 },
+    { "to": "limb.arm", "shape": "wave", "amp": 2, "period": 3.7, "phase": 1 },
+    { "to": "bodyDy", "shape": "plateau", "amp": -2.2, "period": 5.6, "rise": 0.35, "hold": 1.0, "fall": 0.5 },
+    { "to": "sx", "shape": "plateau", "amp": 0.02, "period": 5.6, "rise": 0.35, "hold": 1.0, "fall": 0.5 },
+    { "to": "limb.arm", "shape": "plateau", "amp": -12, "period": 5.6, "rise": 0.35, "hold": 1.0, "fall": 0.5 },
+    { "to": "limb.foot_right", "shape": "bump", "amp": 8, "period": 5.6, "at": 2.2, "length": 0.4 }
+   ]
+  },
   "doze-lean": {
    "label": "컵에 기대 졸기",
    "note": "Lv5. 천천히 숨쉰다(부풀었다 꺼짐, 배 위 팔이 같이 들썩). 7초마다 고개가 스르르 기울다가 화들짝 돌아온다. 팔은 배 위에 얹혀 몸 앞, 발도 몸 앞.",

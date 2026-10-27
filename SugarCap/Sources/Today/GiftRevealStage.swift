@@ -98,10 +98,12 @@ struct GiftRevealItem {
     let asset: String?
     let symbol: String
     let tint: Color
+    /// 흰 윤곽 바깥 한 겹. 로슈(흰색)만 둘러 흰 바탕에서도 모양이 보이게 한다.
+    var edged: Bool { tint == .roshuWhite }
 
     init?(gift: GiftEvent) {
         guard let side = gift.cupSide, let payload = gift.payload else { return nil }
-        let tint: Color = side == .sugar ? .sugarPink : .caffeineAmber
+        let tint: Color = side == .sugar ? .roshuWhite : .caffeineAmber
         if gift.isHeart {
             self.init(name: String(localized: "\(side.characterName)의 마음"), asset: nil, symbol: "heart.fill", tint: tint)
         } else if gift.isCap {
@@ -225,7 +227,21 @@ struct GiftRevealOverlay: View {
         let symbol = Image(systemName: item.symbol).resizable().scaledToFit()
         return ZStack {
             ForEach(0 ..< 16, id: \.self) { step in
+        let edge: Double = outline * 1.6
                 let angle: Double = Double(step) / 16 * 2 * Double.pi
+            if item.edged {
+                // 로슈 흰 기호: 흰 윤곽 바깥에 옅은 먹색 한 겹. 겹친 조각이 진해지지 않게 한 덩어리로 묶어 옅게 한다.
+                ZStack {
+                    ForEach(0 ..< 16, id: \.self) { step in
+                        let angle: Double = Double(step) / 16 * 2 * Double.pi
+                        symbol
+                            .foregroundStyle(Color.ink)
+                            .offset(x: edge * cos(angle), y: edge * sin(angle))
+                    }
+                }
+                .compositingGroup()
+                .opacity(0.3)
+            }
                 symbol
                     .foregroundStyle(.white)
                     .offset(x: outline * cos(angle), y: outline * sin(angle))

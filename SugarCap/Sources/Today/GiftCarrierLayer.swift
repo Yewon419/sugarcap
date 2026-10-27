@@ -248,7 +248,9 @@ struct GiftCarrierFigure {
         )
 
         var symbol = context.resolve(Image(systemName: "seal.fill"))
-        symbol.shading = .color(side == .sugar ? .sugarPink : .caffeineAmber)
+        symbol.shading = .color(side == .sugar ? .roshuWhite : .caffeineAmber)
+        var symbolEdge = context.resolve(Image(systemName: "seal.fill"))
+        symbolEdge.shading = .color(.ink)
         let label = context.resolve(
             Text(verbatim: String(price)).font(AppFont.pretendardFixed(15, .extraBold)).foregroundColor(Color.ink)
         )
@@ -283,7 +285,19 @@ struct GiftCarrierFigure {
         // 글자는 뒤집지 않는다. 왼쪽으로 단 행택도 기호 → 숫자 순서로 읽힌다.
         let left: Double = dir > 0 ? start : -width + 8
         let iconX: Double = left + icon / 2
-        tag.draw(symbol, in: CGRect(x: iconX - icon / 2, y: -icon / 2, width: icon, height: icon))
+        let iconRect = CGRect(x: iconX - icon / 2, y: -icon / 2, width: icon, height: icon)
+        if side == .sugar {
+            // 로슈 흰 병뚜껑은 흰 행택 위라 옅은 먹색 외곽선으로 모양을 잡는다(겹친 조각이 진해지지 않게 한 층에).
+            var edgeLayer = tag
+            edgeLayer.opacity = 0.45
+            edgeLayer.drawLayer { e in
+                for step in 0 ..< 16 {
+                    let angle: Double = Double(step) / 16 * 2 * Double.pi
+                    e.draw(symbolEdge, in: iconRect.offsetBy(dx: 1.1 * cos(angle), dy: 1.1 * sin(angle)))
+                }
+            }
+        }
+        tag.draw(symbol, in: iconRect)
         tag.draw(label, at: CGPoint(x: iconX + icon / 2 + gap + Double(text.width) / 2, y: 0))
     }
 

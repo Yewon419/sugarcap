@@ -509,11 +509,25 @@ struct IdleSprite {
         var white = context.resolve(Image(systemName: "heart.fill"))
         white.shading = .color(.white)
         var fill = context.resolve(Image(systemName: "heart.fill"))
-        fill.shading = .color(side == .sugar ? .sugarPink : .caffeineAmber)
+        fill.shading = .color(side == .sugar ? .roshuWhite : .caffeineAmber)
+        var ink = context.resolve(Image(systemName: "heart.fill"))
+        ink.shading = .color(.ink)
         let outline = width * 0.1
+        let edge = outline * 1.6
         var layer = context
         layer.opacity = heart.alpha
         layer.drawLayer { inner in
+            if side == .sugar {
+                // 로슈 흰 하트: 흰 윤곽 바깥에 옅은 먹색 한 겹(겹친 조각이 진해지지 않게 한 층에 그려 옅게).
+                var edgeLayer = inner
+                edgeLayer.opacity = 0.3
+                edgeLayer.drawLayer { e in
+                    for step in 0 ..< 16 {
+                        let angle: Double = Double(step) / 16 * 2 * Double.pi
+                        e.draw(ink, in: rect.offsetBy(dx: edge * cos(angle), dy: edge * sin(angle)))
+                    }
+                }
+            }
             for step in 0 ..< 16 {
                 let angle: Double = Double(step) / 16 * 2 * Double.pi
                 inner.draw(white, in: rect.offsetBy(dx: outline * cos(angle), dy: outline * sin(angle)))

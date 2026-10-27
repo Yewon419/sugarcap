@@ -68,7 +68,10 @@ extension Color {
     static let ink = Color(red: 0x18 / 255, green: 0x18 / 255, blue: 0x1B / 255)
     /// 캐릭터 무대 색(대표님 확정 2026-09-29): 당·로슈 딸기 #E5566F, 카페인·카인 밝은 라떼 #E3C29F.
     /// 라떼는 밝아서 위에 얹는 글자는 흰색이 아니라 먹색을 쓴다.
+    /// 딸기색은 온보딩 릴·페이월에만 남는다. 로슈 대표색은 흰색으로 바뀌었다(대표님 2026-10-27, `roshuWhite`).
     static let sugarPink = Color(red: 0xE5 / 255, green: 0x56 / 255, blue: 0x6F / 255)
+    /// 로슈 대표색(선물 마음·병뚜껑·연타 하트). 흰 바탕에 묻히지 않게 흰 윤곽 바깥에 옅은 먹색을 한 겹 두른다.
+    static let roshuWhite = Color.white
     static let caffeineAmber = Color(red: 0xE3 / 255, green: 0xC2 / 255, blue: 0x9F / 255)
     static let kainRing = Color(red: 0x3B / 255, green: 0x1D / 255, blue: 0x0E / 255)
     /// 먹색에서 흰색으로(밤이 되며 글자가 바뀔 때). `Color.mix`는 iOS 18부터라 직접 섞는다.

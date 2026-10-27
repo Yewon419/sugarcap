@@ -155,7 +155,14 @@ const CHARS = {
 let C = CHARS.roshu;
 const artOf = name => C.poses[name].art;
 // 그림마다 캔버스 속 캐릭터 크기가 달라 앱은 export_ios.py ART_NORM 배율을 번들 idle-rig.json 캔버스에 구워 둔다. 그 비율을 그대로 쓴다.
-const scaleOf = name => C.scale * (C.norm[artOf(name)] ?? 1);
+// away(잔 뒤 물러나기)는 앱 IdleSprite처럼 걷기 그림 키 ÷ 이 그림 키(번들 캔버스 기준)에 away.scale을 더 곱한다.
+const awayRatio = name => {
+  const away = C.poses[name].away, art = artOf(name), walk = state.meta?.walk;
+  if (!away || !walk) return 1;
+  const h = (a, k) => (a.bbox[3] - a.bbox[1]) * (C.norm[k] ?? 1);
+  return h(walk, 'walk') / h(state.meta[art], art) * away.scale;
+};
+const scaleOf = name => C.scale * (C.norm[artOf(name)] ?? 1) * awayRatio(name);
 
 const allowed = (pose, step) => {
   const p = C.poses[pose];
@@ -744,6 +751,28 @@ function currentPoses() {
   if (state.pose === 'auto') return [state.picked];
   return [state.pose];
 }
+function awayHost(fade, cutout) {
+  const id = `wall-${Math.round(fade * 100)}`;
+  if (!document.getElementById(id)) {
+    const k = 1 - fade, w = [0xF3, 0xF5, 0xF8].map(c => c / 255 * fade);
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '0'); svg.setAttribute('height', '0');
+    svg.style.position = 'absolute';
+    svg.innerHTML = `<filter id="${id}" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="${k} 0 0 0 ${w[0]} 0 ${k} 0 0 ${w[1]} 0 0 ${k} 0 ${w[2]} 0 0 0 1 0"/></filter>`;
+    document.body.appendChild(svg);
+  }
+  const host = document.createElement('div');
+  host.className = 'chars';
+  host.style.filter = `url(#${id})`;
+  for (const k of ['maskImage', 'webkitMaskImage']) host.style[k] = `${cutout}, linear-gradient(#000, #000)`;
+  for (const k of ['maskSize', 'webkitMaskSize']) host.style[k] = `${PHOTO_W}px ${PHOTO_H}px, 100% 100%`;
+  for (const k of ['maskPosition', 'webkitMaskPosition']) host.style[k] = `${PHOTO_LEFT}px ${PHOTO_TOP}px, 0 0`;
+  host.style.maskRepeat = host.style.webkitMaskRepeat = 'no-repeat';
+  host.style.maskComposite = 'exclude';
+  host.style.webkitMaskComposite = 'xor';
+  return host;
+}
+
 function render() {
   document.getElementById('cup').src = cupSrc('cup', state.step);
   renderHero();
@@ -762,8 +791,12 @@ function render() {
   for (const name of currentPoses()) {
     const sp = makeSprite(name);
     sp.shades = makeShadow(sp);
-    for (const sh of sp.shades) layer.appendChild(sh.el);
-    layer.appendChild(sp.el);
+    const away = C.poses[name].away;
+    // away: 그림자와 몸을 한 층에 묶어 벽 색을 덮고(앱 wallMatrix), 잔 누끼만큼 지워 잔 뒤에 세운다.
+    const host = away ? awayHost(away.fade, cutout) : layer;
+    if (away) layer.appendChild(host);
+    for (const sh of sp.shades) host.appendChild(sh.el);
+    host.appendChild(sp.el);
     sp.bubbles = makeBubbles(sp);
     for (const el of sp.bubbles ?? []) layer.appendChild(el);
     sprites.push(sp);

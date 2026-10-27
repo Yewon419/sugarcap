@@ -88,7 +88,8 @@ struct IdleCharacterLayer: View {
                     let local = CGPoint(x: location.x - origin.x, y: location.y - origin.y)
                     let now = Date()
                     let t = now.timeIntervalSince(start)
-                    if sprite.contains(local, t: hostFuss.stare.time(t)) {
+                    if IdleFussMath.canPoke(character: side.idleCast.character, pose: pose),
+                       sprite.contains(local, t: hostFuss.stare.time(t)) {
                         flinchAt = now
                         let candidate = IdleFussMath.pick(
                             canDodge: dodgeTarget() != nil,

@@ -22,24 +22,18 @@ enum IdleFussMath {
     /// 부르르 떠는 폭(그림 폭 대비).
     static let shiverWidth = 0.05
 
-    /// 멈춰 보기 동안 바꿔 끼울 정면 그림(대표님 2026-10-12). 카인은 옆모습이라 `rim-stand`, 헤엄만 물속 앞모습
-    /// `swim-front`(대표님 2026-10-27). 로슈는 잔을 들여다보는 뒷모습 `watch`와 반측면 `walk`만 `stand`.
-    /// 이미 앞을 보는 그림이면 nil.
+    /// 멈춰 보기 동안 바꿔 끼울 정면 그림(대표님 2026-10-12). 카인은 옆모습이라 `rim-stand`.
+    /// 로슈는 잔을 들여다보는 뒷모습 `watch`와 반측면 `walk`만 `stand`. 이미 앞을 보는 그림이면 nil.
     static func frontArt(character: String, art: String) -> String? {
         switch character {
-        case "kain":
-            switch art {
-            case "rim-stand", "swim-front": nil
-            case "swim": "swim-front"
-            default: "rim-stand"
-            }
+        case "kain": art == "rim-stand" ? nil : "rim-stand"
         case "roshu": ["watch", "walk"].contains(art) ? "stand" : nil
         default: nil
         }
     }
 
     /// 정면으로 서면 어색해 멈춰 보기를 안 뽑는 자세(대표님 2026-10-12): 카인 눕기(바닥에 선 꼴),
-    /// 로슈 딸기 안기·카인 커피콩 얹기·카인 시나몬 스틱(물건이 사라짐)·로슈 잔에 매달리기. 카인 헤엄은 앞모습이 생겨 뽑는다(2026-10-27).
+    /// 로슈 딸기 안기·카인 커피콩 얹기·카인 시나몬 스틱(물건이 사라짐)·로슈 잔에 매달리기.
     static func canStare(character: String, pose: String) -> Bool {
         switch character {
         case "kain":
@@ -50,6 +44,12 @@ enum IdleFussMath {
         case "roshu": !["hug-strawberry", "hug-strawberry-left", "in-cup"].contains(pose)
         default: true
         }
+    }
+
+    /// 눌러도 반응하지 않는 자세(대표님 2026-10-27 "잔속에 있으면 터치 안되게"): 카인 음료 속 헤엄(`swim`·`swim-front`).
+    /// 그 자리를 누르면 캐릭터가 아니라 컵을 누른 것으로 넘긴다.
+    static func canPoke(character: String, pose: String) -> Bool {
+        !(character == "kain" && ["swim", "swim-front"].contains(pose))
     }
 
     /// 하트 확률. Lv3 5%(대표님 2026-10-12)에서 한 단계마다 5%p씩, Lv10 40%.

@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>슈가캡 · 페이월 매거진 시안</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
+<style>
+  /* 2026-10-27 대표님 "유료구독 요구 페이지를 매거진 문법으로", 미감은 캐릭터 소개 영상(C:\hfwork\sugarcap-mag) 참고.
+     v2(반듯한 두 칸)도 "별로" → v3: 소개 영상처럼 기운 지면을 사선으로 엇갈려 놓는다(좌상 로슈 · 우하 카인).
+     사진은 힉스필드 Seedream 5.0 lite로 새로 뽑았다(paywall-img/). 고르고 사는 칸(요금·버튼·약관)은 반듯하게 둔다. */
+  @font-face { font-family: "Anton"; src: url("../../SugarCap/Resources/Fonts/Anton-Regular.ttf"); }
+  @font-face { font-family: "PretendardApp"; font-weight: 400; src: url("../../SugarCap/Resources/Fonts/Pretendard-Regular.otf"); }
+  @font-face { font-family: "PretendardApp"; font-weight: 600; src: url("../../SugarCap/Resources/Fonts/Pretendard-SemiBold.otf"); }
+  @font-face { font-family: "PretendardApp"; font-weight: 700; src: url("../../SugarCap/Resources/Fonts/Pretendard-Bold.otf"); }
+  @font-face { font-family: "PretendardApp"; font-weight: 900; src: url("../../SugarCap/Resources/Fonts/Pretendard-Black.otf"); }
+  :root { --ink: #18181B; --sub: rgba(24,24,27,.58); --faint: rgba(24,24,27,.3); --paper: #FFFFFF; --sugar: #698394; --caffeine: #4A3226; --tilt: -8deg; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #E4E4E7; font-family: "PretendardApp", -apple-system, sans-serif; color: var(--ink); display: flex; gap: 40px; padding: 32px; align-items: flex-start; }
+  .phone { width: 393px; height: 852px; border-radius: 48px; background: #A8AAB0; position: relative; overflow: hidden; flex: none; }
+  .status { position: absolute; top: 18px; left: 44px; font-size: 17px; font-weight: 600; }
+  .island { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 124px; height: 36px; border-radius: 18px; background: #000; }
+  .sheet { position: absolute; inset: 59px 0 0; background: var(--paper); border-radius: 38px 38px 0 0; display: flex; flex-direction: column; overflow: hidden; }
+  .scroll { flex: 1; overflow: auto; overflow-x: hidden; scrollbar-width: none; }
+
+  .lab { font-size: 9.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+  .run { position: relative; z-index: 3; display: flex; align-items: baseline; justify-content: space-between; margin: 20px 20px 0; padding-bottom: 6px; border-bottom: 3px double var(--ink); background: var(--paper); }
+  .run b { font-family: "Playfair Display", serif; font-weight: 900; font-size: 20px; letter-spacing: .12em; }
+  .run .close { background: none; border: 0; font: 400 15px "PretendardApp", sans-serif; color: var(--ink); padding: 8px 0 8px 14px; margin: -8px 0; }
+
+  /* 기운 지면. 칸은 반듯하고 안쪽 판만 돌린다. 아래 가장자리도 같은 기울기로 자른다. */
+  .spread { position: relative; height: 326px; overflow: hidden; clip-path: polygon(0 0, 100% 0, 100% 83%, 0 100%); }
+  .page { position: absolute; left: -44px; top: -32px; width: 480px; transform: rotate(var(--tilt)); transform-origin: 50% 50%; }
+  .story { position: relative; display: flex; height: 160px; }
+  .photo { width: 150px; flex: none; position: relative; background-size: cover; overflow: hidden; }
+  .story.sugar { padding-left: 52px; }
+  .story.sugar .photo { background-image: url("paywall-img/latte.jpg"); background-position: 50% 62%; }
+  .story.caffeine { justify-content: flex-end; padding-right: 58px; margin-top: 6px; height: 150px; }
+  .story.caffeine .photo { background-image: url("paywall-img/americano.jpg"); background-position: 40% 64%; }
+  .copy { flex: 1; padding: 40px 12px 0; position: relative; }
+  .story.caffeine .copy { text-align: right; padding-top: 14px; }
+  .copy .lab { display: block; }
+  .story.sugar .copy .lab { color: var(--sugar); }
+  .story.caffeine .copy .lab { color: var(--caffeine); }
+  .word { font-family: "PretendardApp", sans-serif; font-weight: 900; font-size: 54px; line-height: 1; letter-spacing: -0.02em; margin: 3px 0 5px -2px; background-size: 260px auto; background-position: 40% 40%; -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .story.sugar .word { background-image: url("paywall-img/sugar.jpg"), linear-gradient(var(--sugar), var(--sugar)); background-blend-mode: multiply; }
+  .story.caffeine .word { background-image: url("paywall-img/beans.jpg"), linear-gradient(var(--caffeine), var(--caffeine)); margin-right: -2px; }
+  .copy p { font-size: 12.5px; line-height: 1.4; color: var(--sub); }
+  .copy p b { color: var(--ink); font-weight: 700; }
+
+  .ticker { margin: 8px -40px 0; background: var(--ink); color: #fff; height: 32px; display: flex; align-items: center; gap: 14px; padding-left: 100px; white-space: nowrap; }
+  .ticker .lab { font-size: 10px; letter-spacing: .2em; }
+  .ticker .tk { font-size: 12.5px; font-weight: 700; color: rgba(255,255,255,.72); }
+  .ticker .tk.on { color: #fff; box-shadow: inset 0 -2px 0 #fff; }
+  .ticker i { width: 4px; height: 4px; background: #fff; flex: none; }
+
+  .body { padding: 0 20px 8px; margin-top: -10px; position: relative; }
+  h1 { font-size: 28px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 900; }
+  .deck { margin-top: 6px; font-size: 14px; line-height: 1.45; }
+  .deck span { color: var(--sub); }
+
+  .ko { font-size: 11px; font-weight: 700; letter-spacing: .02em; }
+
+  /* 요금 두 칸도 지면처럼 사선으로 엇갈린다(대표님 2026-10-27): 연간 왼쪽 위, 평생 오른쪽 아래, 같은 기울기.
+     로슈·카인은 사진에서 빼고 평생 칸 위에 앉혀 평생을 민다. 추천·처음 선택도 평생(대표님 같은 날). */
+  .plans { margin-top: 0; position: relative; height: 140px; }
+  .plan { position: absolute; width: 196px; padding: 8px 10px 9px; text-align: left; background: var(--paper); border: 0; border-top: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); font: inherit; color: inherit; cursor: pointer; transform: rotate(var(--tilt)); }
+  .plan[data-p="yearly"] { left: 0; top: 14px; }
+  .plan[data-p="lifetime"] { right: 0; top: 66px; text-align: right; z-index: 1; }
+  .plan .ko { color: var(--sub); }
+  .plan .num { font-family: "Anton", sans-serif; font-size: 40px; line-height: 1.08; margin-top: 2px; color: var(--faint); }
+  .plan .num small { font-size: 20px; margin-right: 1px; }
+  .plan .note { font-size: 11px; color: var(--sub); margin-top: 1px; }
+  .plan.on .num, .plan.on .ko { color: var(--ink); }
+  .plan.on::before { content: ""; position: absolute; left: 0; right: 0; top: -1.5px; height: 4px; background: var(--ink); }
+  .plan .best { color: var(--sugar); }
+  .plan .duo { position: absolute; top: -50px; left: 14px; display: flex; align-items: flex-end; gap: 0; pointer-events: none; }
+  .plan .duo img:last-child { margin-left: -22px; }
+  .plan .duo img:first-child { height: 54px; }
+  .plan .duo img:last-child { height: 49px; }
+
+  .foot { padding: 8px 20px 26px; background: var(--paper); }
+  .cta { width: 100%; height: 52px; border: 0; border-radius: 3px; background: var(--ink); color: #fff; font: 600 17px "PretendardApp", sans-serif; cursor: pointer; }
+  .legal { margin-top: 8px; font-size: 10.5px; line-height: 1.5; color: var(--sub); text-align: center; }
+  .links { margin-top: 7px; display: flex; justify-content: center; gap: 6px; font-size: 12px; font-weight: 600; }
+  .links em { font-style: normal; color: var(--sub); }
+
+  .panel { width: 280px; font-size: 13px; line-height: 1.6; }
+  .panel h2 { font-size: 15px; margin-bottom: 8px; }
+  .panel .btns { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 14px; }
+  .panel button { font: inherit; padding: 5px 10px; border: 1px solid #bbb; background: #fff; border-radius: 6px; cursor: pointer; }
+  .panel button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="status">1:24</div><div class="island"></div>
+  <div class="sheet">
+    <div class="scroll">
+      <div class="run"><b>SUGARCAP</b><span class="lab">Pro Issue</span><button class="close">닫기</button></div>
+
+      <div class="spread">
+        <div class="page">
+          <div class="story sugar">
+            <div class="photo"></div>
+            <div class="copy">
+              <span class="lab">Monthly · 월 추이</span>
+              <div class="word">한 달</div>
+              <p><b>한 달 동안 남긴 양</b>이<br>점 하나씩 쌓여요.</p>
+            </div>
+          </div>
+          <div class="ticker"><span class="lab">Pro</span><i></i><span class="tk" data-f="monthlyTrends">월 추이</span><i></i><span class="tk" data-f="reductionGoal">조금씩 줄이기</span><i></i><span class="tk" data-f="widget">위젯</span><i></i><span class="tk" data-f="gifts">선물</span></div>
+          <div class="story caffeine">
+            <div class="copy">
+              <span class="lab">Step Down · 조금씩 줄이기</span>
+              <div class="word">조금씩</div>
+              <p><b>주마다 기준</b>을<br>조금씩 낮춰 가요.</p>
+            </div>
+            <div class="photo"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="body">
+        <h1>덜 마신 날을<br>더 잘 보이게</h1>
+        <p class="deck" id="deck"></p>
+        <div class="plans">
+          <button class="plan" data-p="yearly"><div class="ko">연간</div><div class="num"><small>₩</small>9,900</div><div class="note">해지할 때까지 매년</div></button>
+          <button class="plan on" data-p="lifetime"><span class="duo"><img src="../assets/characters/roshu/poses/wave.png" alt=""><img src="../assets/characters/kain/poses/rim-stand.png" alt=""></span><div class="ko">평생 · <span class="best">추천</span></div><div class="num"><small>₩</small>29,000</div><div class="note">한 번만 결제</div></button>
+        </div>
+      </div>
+    </div>
+    <div class="foot">
+      <button class="cta" id="cta">평생으로 시작</button>
+      <p class="legal">연간 구독은 기간이 끝나기 24시간 전에 해지하지 않으면 자동으로 갱신돼요. 해지는 App Store 계정 설정에서 해요.</p>
+      <div class="links"><span>구매 복원</span><em>·</em><span>이용약관</span><em>·</em><span>개인정보처리방침</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>페이월 · 매거진 시안 v3</h2>
+  <div>누르다 온 기능</div>
+  <div class="btns" id="features"></div>
+  <div>기울기</div>
+  <div class="btns" id="tilts"></div>
+  <p>요금 칸을 누르면 선택이 바뀐다. 이전 판은 paywall-mag-v2.html.</p>
+</div>
+
+<script>
+const FEATURES = {
+  monthlyTrends: ['월 추이는 Pro에서 열려요.', '한 달 동안 남긴 양이 점 하나씩 쌓여요.'],
+  reductionGoal: ['조금씩 줄이기는 Pro에서 열려요.', '주마다 기준을 조금씩 낮춰 가요.'],
+  gifts: ['마음 말고 다른 선물은 Pro에서 와요.', '로슈와 카인이 물건을 들고 와요.'],
+  none: ['한 번 결제로 아래 기능이 모두 열려요.', ''],
+};
+const state = { f: 'monthlyTrends', plan: 'lifetime', tilt: -8 };
+function render() {
+  const [lead, more] = FEATURES[state.f];
+  document.getElementById('deck').innerHTML = `${lead}${more ? ` <span>${more}</span>` : ''}`;
+  for (const r of document.querySelectorAll('.tk')) r.classList.toggle('on', r.dataset.f === state.f);
+  for (const p of document.querySelectorAll('.plan')) p.classList.toggle('on', p.dataset.p === state.plan);
+  document.getElementById('cta').textContent = state.plan === 'yearly' ? '연간으로 시작' : '평생으로 시작';
+  document.documentElement.style.setProperty('--tilt', `${state.tilt}deg`);
+  for (const b of document.querySelectorAll('#features button')) b.setAttribute('aria-pressed', String(b.dataset.v === state.f));
+  for (const b of document.querySelectorAll('#tilts button')) b.setAttribute('aria-pressed', String(Number(b.dataset.v) === state.tilt));
+}
+const add = (id, items, set) => {
+  const row = document.getElementById(id);
+  for (const [v, label] of items) {
+    const b = document.createElement('button');
+    b.dataset.v = v; b.textContent = label; b.onclick = () => { set(v); render(); };
+    row.appendChild(b);
+  }
+};
+add('features', [['monthlyTrends', '월 추이'], ['reductionGoal', '조금씩 줄이기'], ['gifts', '선물'], ['none', '설정에서']], v => { state.f = v; });
+add('tilts', [[-5, '-5°'], [-8, '-8°'], [-11, '-11°']], v => { state.tilt = Number(v); });
+for (const p of document.querySelectorAll('.plan')) p.onclick = () => { state.plan = p.dataset.p; render(); };
+const q = new URLSearchParams(location.search);
+if (q.get('f') && FEATURES[q.get('f')]) state.f = q.get('f');
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>슈가캡 · 페이월 매거진 시안</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
+<style>
+  /* 2026-10-27 대표님 "유료구독 요구 페이지를 매거진 문법으로", 미감은 캐릭터 소개 영상(C:\hfwork\sugarcap-mag) 참고.
+     v1(흑백 목록)은 "구림"으로 버리고 영상 지면을 따른다: 제호 + 이중 괘선, 면 색 두 칸(세로 탭 + 잔 사진 + 캐릭터),
+     사진 설명, 점선 목차, 좁은 숫자 통계 칸, 쪽 번호 줄. 큰 한글 제목은 고딕(Pretendard Black, 대표님 선택). */
+  @font-face { font-family: "Anton"; src: url("../../SugarCap/Resources/Fonts/Anton-Regular.ttf"); }
+  @font-face { font-family: "PretendardApp"; font-weight: 400; src: url("../../SugarCap/Resources/Fonts/Pretendard-Regular.otf"); }
+  @font-face { font-family: "PretendardApp"; font-weight: 600; src: url("../../SugarCap/Resources/Fonts/Pretendard-SemiBold.otf"); }
+  @font-face { font-family: "PretendardApp"; font-weight: 700; src: url("../../SugarCap/Resources/Fonts/Pretendard-Bold.otf"); }
+  @font-face { font-family: "PretendardApp"; font-weight: 900; src: url("../../SugarCap/Resources/Fonts/Pretendard-Black.otf"); }
+  :root { --ink: #18181B; --sub: rgba(24,24,27,.58); --faint: rgba(24,24,27,.3); --paper: #FFFFFF; --sugar: #698394; --caffeine: #4A3226; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #E4E4E7; font-family: "PretendardApp", -apple-system, sans-serif; color: var(--ink); display: flex; gap: 40px; padding: 32px; align-items: flex-start; }
+  .phone { width: 393px; height: 852px; border-radius: 48px; background: #A8AAB0; position: relative; overflow: hidden; flex: none; }
+  .status { position: absolute; top: 18px; left: 44px; font-size: 17px; font-weight: 600; }
+  .island { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 124px; height: 36px; border-radius: 18px; background: #000; }
+  .sheet { position: absolute; inset: 59px 0 0; background: var(--paper); border-radius: 38px 38px 0 0; display: flex; flex-direction: column; overflow: hidden; }
+  .scroll { flex: 1; overflow: auto; padding: 20px 20px 8px; }
+
+  .lab { font-size: 9.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+  .run { display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 6px; border-bottom: 3px double var(--ink); }
+  .run b { font-family: "Playfair Display", serif; font-weight: 900; font-size: 20px; letter-spacing: .12em; }
+  .run .close { background: none; border: 0; font: 400 15px "PretendardApp", sans-serif; color: var(--ink); padding: 8px 0 8px 14px; margin: -8px 0; }
+
+  .banner { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; padding: 10px 0 9px; border-bottom: 1.5px solid var(--ink); }
+  h1 { font-size: 33px; line-height: 1.08; letter-spacing: -0.02em; font-weight: 900; }
+  .banner .side { text-align: right; padding-bottom: 3px; }
+  .banner .side .lab { display: block; line-height: 1.7; }
+
+  .lead { padding: 8px 0 0; }
+  .lead .ko { color: var(--sugar); }
+  .lead p { margin-top: 3px; font-size: 14.5px; line-height: 1.45; }
+  .lead p span { color: var(--sub); }
+
+  .desks { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .desk { position: relative; height: 158px; overflow: hidden; display: flex; }
+  .desk .tab { width: 20px; flex: none; display: flex; align-items: center; justify-content: center; }
+  .desk .tab span { writing-mode: vertical-rl; transform: rotate(180deg); color: #fff; font-size: 9px; font-weight: 700; letter-spacing: .22em; }
+  .desk .pic { flex: 1; position: relative; background-size: 170% auto; background-repeat: no-repeat; }
+  .desk.sugar .tab { background: var(--sugar); }
+  .desk.caffeine .tab { background: var(--caffeine); }
+  .desk.sugar .pic { background-image: url("../../SugarCap/Resources/Assets.xcassets/cup-strawberry-latte-50.imageset/50.png"); background-position: 50% 92%; }
+  .desk.caffeine .pic { background-image: url("../../SugarCap/Resources/Assets.xcassets/cup-iced-americano-50.imageset/50.png"); background-position: 50% 92%; }
+  .desk .pic img { position: absolute; bottom: 6px; }
+  .desk.sugar .pic img { height: 100px; left: 26px; }
+  .desk.caffeine .pic img { height: 88px; right: 24px; }
+  .desk .name { position: absolute; top: 8px; color: #fff; font-family: "Playfair Display", serif; font-weight: 900; font-size: 26px; line-height: 1; padding: 4px 7px 5px; }
+  .desk.sugar .name { right: 6px; background: var(--sugar); }
+  .desk.caffeine .name { left: 6px; background: var(--caffeine); }
+  .cap { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--sub); padding-top: 5px; }
+
+  .idx { margin-top: 12px; border-top: 1.5px solid var(--ink); padding-top: 7px; }
+  .ko { font-size: 11px; font-weight: 700; letter-spacing: .02em; }
+  .idx .ko { color: var(--sub); }
+  .row { display: flex; align-items: baseline; gap: 8px; padding: 7px 0 5px; font-size: 15px; }
+  .row i { flex: 1; border-bottom: 1.5px dotted rgba(24,24,27,.4); transform: translateY(-4px); }
+  .row span { font-size: 13px; color: var(--sub); }
+  .row.on { font-weight: 700; }
+  .row.on span { color: var(--ink); font-weight: 600; }
+
+  .plans { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; border-top: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); }
+  .plan { padding: 10px 6px 10px; text-align: center; position: relative; background: none; border: 0; font: inherit; color: inherit; cursor: pointer; }
+  .plan + .plan { border-left: 1px solid var(--faint); }
+  .plan .ko { color: var(--sub); }
+  .plan .num { font-family: "Anton", sans-serif; font-size: 40px; line-height: 1.08; margin-top: 3px; color: var(--faint); }
+  .plan .num small { font-size: 20px; margin-right: 1px; }
+  .plan .note { font-size: 11px; color: var(--sub); margin-top: 1px; }
+  .plan.on .num, .plan.on .ko { color: var(--ink); }
+  .plan.on::before { content: ""; position: absolute; left: 0; right: 0; top: -1.5px; height: 4px; background: var(--ink); }
+  .plan .best { color: var(--sugar); }
+
+  .foot { padding: 8px 20px 26px; background: var(--paper); }
+  .cta { width: 100%; height: 52px; border: 0; border-radius: 3px; background: var(--ink); color: #fff; font: 600 17px "PretendardApp", sans-serif; cursor: pointer; }
+  .legal { margin-top: 8px; font-size: 10.5px; line-height: 1.5; color: var(--sub); text-align: center; }
+  .links { margin-top: 7px; display: flex; justify-content: center; gap: 6px; font-size: 12px; font-weight: 600; }
+  .links em { font-style: normal; color: var(--sub); }
+  .folio { margin-top: 10px; display: flex; justify-content: space-between; padding-top: 5px; border-top: 3px double var(--ink); }
+
+  .panel { width: 280px; font-size: 13px; line-height: 1.6; }
+  .panel h2 { font-size: 15px; margin-bottom: 8px; }
+  .panel .btns { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 14px; }
+  .panel button { font: inherit; padding: 5px 10px; border: 1px solid #bbb; background: #fff; border-radius: 6px; cursor: pointer; }
+  .panel button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="status">1:24</div><div class="island"></div>
+  <div class="sheet">
+    <div class="scroll">
+      <div class="run"><b>SUGARCAP</b><span class="lab">Pro Issue</span><button class="close">닫기</button></div>
+
+      <div class="banner">
+        <h1>덜 마신 날을<br>더 잘 보이게</h1>
+        <div class="side"><span class="lab">Special</span><span class="lab">Sugar &amp; Caffeine</span></div>
+      </div>
+
+      <div class="lead">
+        <div class="ko" id="kick">월 추이</div>
+        <p id="deck"></p>
+      </div>
+
+      <div class="desks">
+        <div class="desk sugar">
+          <div class="tab"><span>ROSHU · SUGAR</span></div>
+          <div class="pic"><div class="name">Roshu</div><img src="../assets/characters/roshu/poses/wave.png" alt=""></div>
+        </div>
+        <div class="desk caffeine">
+          <div class="pic"><div class="name">Kain</div><img src="../assets/characters/kain/poses/rim-stand.png" alt=""></div>
+          <div class="tab"><span>KAIN · CAFFEINE</span></div>
+        </div>
+      </div>
+      <div class="cap"><span>남긴 당은 로슈에게, 카페인은 카인에게.</span><span>로슈 · 카인</span></div>
+
+      <div class="idx">
+        <div class="ko">Pro에서 열리는 것</div>
+        <div class="row" data-f="monthlyTrends">월 추이<i></i><span>한 달을 한눈에</span></div>
+        <div class="row" data-f="reductionGoal">조금씩 줄이기<i></i><span>주마다 낮추는 목표</span></div>
+        <div class="row" data-f="widget">위젯<i></i><span>홈 화면에 남은 양</span></div>
+      </div>
+
+      <div class="plans">
+        <button class="plan on" data-p="yearly"><div class="ko">연간 · <span class="best">추천</span></div><div class="num"><small>₩</small>9,900</div><div class="note">해지할 때까지 매년</div></button>
+        <button class="plan" data-p="lifetime"><div class="ko">평생</div><div class="num"><small>₩</small>29,000</div><div class="note">한 번만 결제</div></button>
+      </div>
+    </div>
+    <div class="foot">
+      <button class="cta" id="cta">연간으로 시작</button>
+      <p class="legal">연간 구독은 기간이 끝나기 24시간 전에 해지하지 않으면 자동으로 갱신돼요. 해지는 App Store 계정 설정에서 해요.</p>
+      <div class="links"><span>구매 복원</span><em>·</em><span>이용약관</span><em>·</em><span>개인정보처리방침</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>페이월 · 매거진 시안 v2</h2>
+  <div>누르다 온 기능</div>
+  <div class="btns" id="features"></div>
+  <p>요금 칸을 누르면 선택이 바뀐다.</p>
+</div>
+
+<script>
+const FEATURES = {
+  monthlyTrends: ['월 추이', '월 추이는 Pro에서 열려요.', '한 달 동안 남긴 양이 점 하나씩 쌓여요.'],
+  reductionGoal: ['조금씩 줄이기', '조금씩 줄이기는 Pro에서 열려요.', '주마다 기준을 조금씩 낮춰 가요.'],
+  gifts: ['선물', '마음 말고 다른 선물은 Pro에서 와요.', '로슈와 카인이 물건을 들고 와요.'],
+  none: ['Pro', '한 번 결제로 아래 기능이 모두 열려요.', ''],
+};
+const state = { f: 'monthlyTrends', plan: 'yearly' };
+function render() {
+  const [kick, lead, more] = FEATURES[state.f];
+  document.getElementById('kick').textContent = kick;
+  document.getElementById('deck').innerHTML = `${lead}${more ? ` <span>${more}</span>` : ''}`;
+  for (const r of document.querySelectorAll('.row')) r.classList.toggle('on', r.dataset.f === state.f);
+  for (const p of document.querySelectorAll('.plan')) p.classList.toggle('on', p.dataset.p === state.plan);
+  document.getElementById('cta').textContent = state.plan === 'yearly' ? '연간으로 시작' : '평생으로 시작';
+  for (const b of document.querySelectorAll('#features button')) b.setAttribute('aria-pressed', String(b.dataset.v === state.f));
+}
+const row = document.getElementById('features');
+for (const [v, label] of [['monthlyTrends', '월 추이'], ['reductionGoal', '조금씩 줄이기'], ['gifts', '선물'], ['none', '설정에서']]) {
+  const b = document.createElement('button');
+  b.dataset.v = v; b.textContent = label; b.onclick = () => { state.f = v; render(); };
+  row.appendChild(b);
+}
+for (const p of document.querySelectorAll('.plan')) p.onclick = () => { state.plan = p.dataset.p; render(); };
+const q = new URLSearchParams(location.search);
+if (q.get('f') && FEATURES[q.get('f')]) state.f = q.get('f');
+render();
+</script>
+</body>
+</html>

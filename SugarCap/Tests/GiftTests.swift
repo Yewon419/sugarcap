@@ -61,7 +61,10 @@ final class GiftTests: XCTestCase {
         XCTAssertEqual(item.payload, GiftContent.item("strawberry"), "로슈가 들고 온 옛 상자는 로슈 물건")
         let kainBox = GiftEvent(kind: .goalReached, side: .caffeine, createdAt: Date())
         GiftStore.reveal(kainBox, isPro: true, takenItems: [], roll: 0.45)
-        XCTAssertTrue(kainBox.isCap, "카인이 들고 온 상자엔 로슈 물건이 안 든다")
+        XCTAssertEqual(kainBox.payload, GiftContent.item("coffee-bean"), "카인이 들고 온 상자엔 카인 물건만 든다")
+        let kainLast = GiftEvent(kind: .goalReached, side: .caffeine, createdAt: Date())
+        GiftStore.reveal(kainLast, isPro: true, takenItems: ["coffee-bean"], roll: 0.45)
+        XCTAssertTrue(kainLast.isCap, "카인 물건을 다 모으면 로슈 물건 대신 병뚜껑")
 
         let stage = GiftEvent(kind: .levelUp, side: .sugar, level: 4, createdAt: Date())
         GiftStore.reveal(stage, isPro: true, takenItems: [], roll: 0.1)

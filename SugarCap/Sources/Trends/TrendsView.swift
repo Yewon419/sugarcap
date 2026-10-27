@@ -210,8 +210,30 @@ struct TrendsView: View {
                 weekStart = start == today.weekStart() ? nil : start
                 range = .week
             },
-            onPickSide: { show($0) }
+            onPickSide: { show($0) },
+            inventory: monthInventory(shown: monthShown ?? thisMonth)
         )
+    }
+
+    /// 월 셰이커 보관함. Debug `-screenshotMonthHearts n`이면 마음 수, `-screenshotInventoryItems`면 그중 이 면 주인 물건.
+    /// 병뚜껑은 `CapBalance`가 `-screenshotCaps`를 이미 따른다.
+    private func monthInventory(shown: DayKey) -> MonthInventory {
+        let made = MonthInventory.make(
+            gifts: gifts, capBalance: capTotal, side: side, year: shown.year, month: shown.month, boundaryHour: boundaryHour
+        )
+        #if DEBUG
+        let defaults = UserDefaults.standard
+        let hearts = defaults.object(forKey: "screenshotMonthHearts") != nil
+            ? defaults.integer(forKey: "screenshotMonthHearts") : made.hearts
+        var items = made.items
+        if let list = defaults.string(forKey: "screenshotInventoryItems") {
+            let mine = Set(GiftContent.items.filter { $0.owner == side }.map(\.id))
+            items = list.split(separator: ",").map(String.init).filter { mine.contains($0) }
+        }
+        return MonthInventory(hearts: hearts, caps: made.caps, items: items)
+        #else
+        return made
+        #endif
     }
 
     /// 첫 기록 날(기록이 없으면 오늘). 주·달을 그 앞으로는 못 넘긴다.

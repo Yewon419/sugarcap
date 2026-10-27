@@ -126,4 +126,11 @@ final class MonthMathTests: XCTestCase {
         )
         XCTAssertEqual(caffeine.items, [], "안 연 상자는 아직 없다")
     }
+
+    func testShakerKeysStayTheSameAcrossMonthsSoOnlyTheDifferenceMoves() {
+        let march = ShakerGift.list(MonthInventory(hearts: 2, caps: 1, items: ["strawberry"]))
+        XCTAssertEqual(march.map(\.key), ["item:strawberry:1", "cap:0", "heart:0", "heart:1"], "물건 → 병뚜껑 → 마음")
+        let april = ShakerGift.list(MonthInventory(hearts: 3, caps: 1, items: ["strawberry"]))
+        XCTAssertEqual(Set(april.map(\.key)).subtracting(march.map(\.key)), ["heart:2"], "달이 바뀌면 새 마음만 더해진다")
+    }
 }

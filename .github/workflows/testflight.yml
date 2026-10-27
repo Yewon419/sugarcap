@@ -172,6 +172,9 @@ jobs:
           shoot trends-month-caffeine light large -seedDemo YES -mockProOwned YES -initialTab trends -trendRange month -trendSide caffeine
           shoot trends-month-prev light large -seedDemo YES -mockProOwned YES -initialTab trends -trendRange month -trendMonthsAgo 1
           shoot trends-week-prev light large -seedDemo YES -initialTab trends -trendWeeksAgo 1
+          # 월 셰이커(3단계): 면 주인 물건 + 병뚜껑 + 그해 마음이 격자 위아래에 쌓인 모습.
+          shoot trends-month-shaker light large -seedDemo YES -mockProOwned YES -initialTab trends -trendRange month -screenshotMonthHearts 9 -screenshotCaps 6 -screenshotInventoryItems strawberry,coffee-bean,sugar-cube,cinnamon-stick
+          shoot trends-month-shaker-caffeine light large -seedDemo YES -mockProOwned YES -initialTab trends -trendRange month -trendSide caffeine -screenshotMonthHearts 9 -screenshotCaps 6 -screenshotInventoryItems strawberry,coffee-bean,sugar-cube,cinnamon-stick
           # 가끔 나오는 등장: 로슈 늦게 걸어오기(걷는 중·멈춘 순간), 카인 끝줄 선에 거꾸로 매달리기.
           shoot trends-walk-1.7 light large -seedDemo YES -initialTab trends -trendEntrance walk -trendEntranceAt 1.7
           shoot trends-walk-2.6 light large -seedDemo YES -initialTab trends -trendEntrance walk -trendEntranceAt 2.6

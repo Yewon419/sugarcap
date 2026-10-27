@@ -3,7 +3,7 @@ import SwiftUI
 /// 추이 월 달력(2026-10-27 이식, 프로토 `design/proto/trends-month-dump.html`). 캐릭터 없는 한 달.
 /// 달마다 바뀌는 배경 사진(블러 2) 위 정중앙에 머리("10월 먹은 당") · 요일 · 정사각 격자 · 합계 두 줄. 아래 ◀ ▶로 달을 옮긴다.
 /// 칸 = 그날 먹은 양 사진 5단계, 무작위 순서로 하나씩 찍힌다. 칸을 누르면 그날이 든 월~일 주 보기로 간다(대표님 B).
-/// 굴러다니는 선물(셰이커)은 3단계에서 얹는다.
+/// 그 위로 면 주인의 보관함(물건·병뚜껑·마음)이 굴러다닌다(`MonthShakerScene`). 격자가 벽이다.
 struct MonthTrendsView: View {
     let entries: [Entry]
     let boundaryHour: Int
@@ -17,12 +17,18 @@ struct MonthTrendsView: View {
     let earliest: DayKey
     let onPickDay: (DayKey) -> Void
     let onPickSide: (CupSide) -> Void
+    /// 셰이커에 넣을 보관함(보는 달 기준).
+    let inventory: MonthInventory
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// 칸 번호 → 찍히는 차례. `filledFor`가 지금 달이 아니면 아직 안 찍었다.
     @State private var rank: [Int: Int] = [:]
     @State private var revealed = 0
     @State private var filledFor: String?
+    @State private var shaker: MonthShakerScene?
+    /// 격자 자리(`shakerSpace` 좌표). 셰이커 벽으로 넘긴다.
+    @State private var gridFrame: CGRect = .zero
+    private static let shakerSpace = "monthShaker"
 
     /// 프로토 `.mast --F: 64px`, h1 = F × 1.02.
     private static let titleSize: CGFloat = 64 * 1.02
@@ -45,13 +51,41 @@ struct MonthTrendsView: View {
             block(page: page, change: change)
                 .padding(.horizontal, 30)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .overlay { shakerLayer }
                 .background { photo }
+                .coordinateSpace(.named(Self.shakerSpace))
                 .ignoresSafeArea()
             steps
         }
         .contentShape(Rectangle())
         .simultaneousGesture(sideSwipe)
         .task(id: monthKey) { await fill(page) }
+        .onAppear {
+            if shaker == nil { shaker = MonthShakerScene() }
+            feedShaker()
+            shaker?.startMotion()
+        }
+        .onDisappear { shaker?.stopMotion() }
+        .onChange(of: inventory) { feedShaker() }
+        .onChange(of: side) { feedShaker() }
+        .onChange(of: gridFrame) { shaker?.setGrid(gridFrame) }
+    }
+
+    // MARK: - 셰이커
+
+    @ViewBuilder
+    private var shakerLayer: some View {
+        if let shaker {
+            SpriteView(scene: shaker, options: [.allowsTransparency])
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+        }
+    }
+
+    private func feedShaker() {
+        guard let shaker else { return }
+        shaker.setGrid(gridFrame)
+        shaker.show(ShakerGift.list(inventory), side: side, reduceMotion: reduceMotion)
     }
 
     // MARK: - 배경
@@ -148,6 +182,7 @@ struct MonthTrendsView: View {
         }
         .overlay(alignment: .top) { lineColor.frame(height: 1) }
         .overlay(alignment: .leading) { lineColor.frame(width: 1) }
+        .onGeometryChange(for: CGRect.self) { $0.frame(in: .named(Self.shakerSpace)) } action: { gridFrame = $0 }
         .id(monthKey)
     }
 

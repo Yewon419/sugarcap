@@ -4066,6 +4066,22 @@
         }
       }
     },
+    "월" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Month"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月"
+          }
+        }
+      }
+    },
     "월 추이" : {
       "localizations" : {
         "en" : {
@@ -4558,6 +4574,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "就是"
+          }
+        }
+      }
+    },
+    "주" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Week"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "週"
           }
         }
       }

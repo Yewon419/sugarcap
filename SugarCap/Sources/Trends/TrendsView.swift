@@ -5,7 +5,7 @@ import WidgetKit
 
 /// 추이(SPEC §4.3). 2026-10-06 HTML 프로토타입 "식탁 위 일주일"(`design/proto/screens-trends-table.js`) 이식.
 /// 대표님 "버튼과 글자가 너무 많다, 척 보고 알아야 한다" → 화면 글자는 기간·제목·큰 숫자·잔 숫자·요일뿐이다.
-///  - 지면: 기간 메뉴 + 날짜 → "남긴 당" → 큰 숫자(기록한 날과 오늘 남긴 양의 합) → 지난주 대비(Pro) · 하루 기준.
+///  - 지면: 날짜 범위(주↔월 토글은 막대 오른쪽 위) → "남긴 당" → 큰 숫자(기록한 날과 오늘 남긴 양의 합) → 지난주 대비(Pro) · 하루 기준.
 ///  - 장면: 오늘 탭과 같은 벽·식탁. 잔 = 하루(주) 또는 그 주 하루 평균(월, Pro). 캐릭터는 지금 잔 뒤에서 엿본다.
 ///  - 당↔카페인은 옆으로 밀기 + 점 두 개.
 struct TrendsView: View {
@@ -128,6 +128,9 @@ struct TrendsView: View {
                 pickEntrance()
             }
         }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) { rangeToggle }
+        }
         .overlay {
             if let coachStep {
                 TrendCoachOverlay(steps: coachSteps, index: coachStep, frames: coachFrames, onNext: advanceCoach)
@@ -209,71 +212,44 @@ struct TrendsView: View {
         .padding(.top, 8)
     }
 
+    /// 머리 줄 = 날짜 범위만. 주↔월 토글은 내비게이션 막대 오른쪽 위로 옮겼다(2026-10-27 대표님).
     private func masthead(table: TrendTable, today: DayKey) -> some View {
         HStack(spacing: 8) {
-            periodMenu(today: today)
-            Spacer(minLength: 8)
             Text("\(table.first.month).\(table.first.day) – \(table.last.month).\(table.last.day)")
-                .font(AppFont.pretendard(13, .medium, relativeTo: .footnote))
+                .font(AppFont.pretendard(15, .bold, relativeTo: .subheadline))
                 .monospacedDigit()
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.ink)
                 .lineLimit(1)
+                .frame(minHeight: 44)
+            Spacer(minLength: 8)
         }
         .overlay(alignment: .bottom) {
             Rectangle().fill(Color.ink).frame(height: 1)
         }
     }
 
-    /// 주↔월 메뉴. 무료는 고를 게 이번 주뿐이라 메뉴 대신 "월별 비교?" 버튼 하나를 두고, 누르면 페이월을 연다
+    /// 주↔월 토글(내비게이션 막대 오른쪽 위). 월은 Pro라 무료가 누르면 페이월을 열고 주에 머문다
     /// (2026-10-13 대표님). 사고 돌아오면 월 보기로 바뀐다(`pendingMonth`).
-    @ViewBuilder
-    private func periodMenu(today: DayKey) -> some View {
-        if pro.isPro {
-            proPeriodMenu(today: today)
-        } else {
-            Button {
-                pendingMonth = true
-                paywall = .monthlyTrends
-            } label: {
-                Text("월별 비교?")
-                    .font(AppFont.pretendard(15, .bold, relativeTo: .subheadline))
-                    .foregroundStyle(Color.ink)
-                    .frame(minHeight: 44)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { coachFrames[.range] = $0 }
-            .accessibilityHint("슈가캡 Pro에서 월 추이를 볼 수 있어요")
-            .accessibilityIdentifier("trend-range")
-        }
-    }
-
-    private func proPeriodMenu(today: DayKey) -> some View {
+    private var rangeToggle: some View {
         let selection = Binding<TrendRange>(
             get: { isMonth ? .month : .week },
-            set: { range = $0 }
+            set: { picked in
+                if picked == .month, !pro.isPro {
+                    pendingMonth = true
+                    paywall = .monthlyTrends
+                } else {
+                    range = picked
+                }
+            }
         )
-        let monthLabel = Self.appCalendar.shortStandaloneMonthSymbols[today.month - 1]
-        return Menu {
-            Picker("기간", selection: selection) {
-                Text("이번 주").tag(TrendRange.week)
-                Text(monthLabel).tag(TrendRange.month)
-            }
-        } label: {
-            HStack(spacing: 6) {
-                Text(isMonth ? monthLabel : String(localized: "이번 주"))
-                Image(systemName: "chevron.down")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(.secondary)
-            }
-            .font(AppFont.pretendard(15, .bold, relativeTo: .subheadline))
-            .foregroundStyle(Color.ink)
-            .frame(minHeight: 44)
-            .contentShape(Rectangle())
+        return Picker("기간", selection: selection) {
+            Text("주").tag(TrendRange.week)
+            Text("월").tag(TrendRange.month)
         }
+        .pickerStyle(.segmented)
+        .fixedSize()
         .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { coachFrames[.range] = $0 }
-        .accessibilityLabel("기간")
-        .accessibilityValue(isMonth ? monthLabel : String(localized: "이번 주"))
+        .accessibilityHint(pro.isPro ? "" : String(localized: "슈가캡 Pro에서 월 추이를 볼 수 있어요"))
         .accessibilityIdentifier("trend-range")
     }
 

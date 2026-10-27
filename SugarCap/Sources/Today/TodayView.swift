@@ -409,6 +409,14 @@ struct TodayView: View {
         guard levelUp?.id == stage.id else { return }
         if stage.gift.modelContext != nil { saveOpened(stage.gift) }
         levelUp = nil
+        // 첫 만남(Lv1)은 둘이 같이 받는 거라 다른 컵으로 저절로 넘겨 이어 보여 준다(2026-10-27 대표님).
+        guard stage.level == 1 else { return }
+        let partner: CupSide? = trackedSides.first { other in
+            other != stage.side && gifts.contains { gift in
+                !gift.isOpened && gift.giftKind == .levelUp && gift.level == 1 && gift.cupSide == other
+            }
+        }
+        if let partner { switchSide(to: partner) }
     }
 
     /// 끝까지 기다렸다 닫는다. CI 스크린샷(`-levelUpAt`)은 한 장면에 멈춰 두므로 닫지 않는다.

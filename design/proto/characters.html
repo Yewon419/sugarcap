@@ -11,12 +11,16 @@
     --grey: #71717A;
     --font: "SF Pro Display", -apple-system, "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   }
+  @font-face { font-family: "Anton"; src: url("../../SugarCap/Resources/Fonts/Anton-Regular.ttf"); }
+  @font-face { font-family: "PretendardApp"; font-weight: 400; src: url("../../SugarCap/Resources/Fonts/Pretendard-Regular.otf"); }
+  @font-face { font-family: "PretendardApp"; font-weight: 600; src: url("../../SugarCap/Resources/Fonts/Pretendard-SemiBold.otf"); }
+  @font-face { font-family: "PretendardApp"; font-weight: 800; src: url("../../SugarCap/Resources/Fonts/Pretendard-ExtraBold.otf"); }
   * { box-sizing: border-box; }
   body { margin: 0; background: #E4E4E7; font-family: var(--font); color: var(--ink); display: flex; gap: 32px; padding: 32px; align-items: flex-start; }
 
   /* 393×852 = iPhone 15 Pro. CupView와 같은 비율로 사진을 놓는다. */
   .phone { position: relative; width: 393px; height: 852px; overflow: hidden; background: var(--wall); border-radius: 48px; flex: none; }
-  .photo { position: absolute; left: 0; right: 0; bottom: calc(852px * 0.08); height: calc(852px * 0.84); overflow: hidden;
+  .photo { position: absolute; left: 0; right: 0; bottom: calc(852px * 0.04); height: calc(852px * 0.84); overflow: hidden;
     -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 96%, transparent 100%);
             mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 96%, transparent 100%); }
   .photo img { position: absolute; bottom: 0; left: 50%; height: 100%; transform: translateX(-50%); }
@@ -36,21 +40,28 @@
 
   /* UI는 캐릭터보다 위 층. */
   .ui { position: absolute; inset: 0; pointer-events: none; }
+  /* 오늘 화면 틀(앱 CupHero·TodayView, 2026-10-24 CI 화면 기준). 큰 숫자는 잔 뒤(캐릭터 아래), 버튼·점은 캐릭터 위. */
   .status { position: absolute; top: 18px; left: 44px; font-size: 17px; font-weight: 600; }
-  .heart { position: absolute; top: 54px; right: 20px; width: 38px; height: 38px; border-radius: 50%; background: rgba(0,0,0,.04); display: grid; place-items: center; }
-  .kicker { position: absolute; top: 64px; left: 24px; font-size: 15px; font-weight: 600; color: var(--grey); }
-  .number { position: absolute; top: 86px; left: 22px; display: flex; align-items: baseline; gap: 4px; }
-  .number b { font-size: 92px; font-weight: 800; letter-spacing: -.04em; line-height: 1; }
-  .number i { font-style: normal; font-size: 30px; font-weight: 700; }
-  .number span { font-size: 15px; color: var(--grey); margin-left: 8px; }
-  .dots { position: absolute; top: 722px; left: 50%; transform: translateX(-50%); display: flex; gap: 7px; }
-  .dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(0,0,0,.2); }
-  .dots i:first-child { background: var(--ink); }
-  .fab { position: absolute; top: 698px; right: 20px; width: 58px; height: 58px; border-radius: 50%; background: var(--ink); display: grid; place-items: center; }
-  .tabbar { position: absolute; left: 62px; right: 62px; top: 770px; height: 62px; border-radius: 31px; background: rgba(250,250,250,.92); box-shadow: 0 1px 0 rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.08); display: flex; align-items: center; justify-content: space-around; font-size: 11px; font-weight: 600; }
-  .tabbar div { display: grid; justify-items: center; gap: 3px; color: var(--grey); }
-  .tabbar div:first-child { color: var(--ink); }
-  .tabbar svg { width: 24px; height: 24px; }
+  .icons { position: absolute; top: 67px; right: 16px; display: flex; }
+  .icons i { position: relative; width: 44px; height: 36px; display: grid; place-items: center; }
+  .icons i::before { content: ""; position: absolute; left: 4px; top: 0; width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.22); }
+  .icons svg { position: relative; width: 20px; height: 20px; color: rgba(24,24,27,.7); }
+  .hero { position: absolute; inset: 0; pointer-events: none;
+    -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-composite: xor; mask-composite: exclude; }
+  .hero .fixed { position: absolute; font-family: "PretendardApp", var(--font); white-space: nowrap; }
+  .hero svg { position: absolute; left: 0; top: 0; overflow: visible; }
+  .masthead { display: grid; }
+  .masthead .wd { font-size: 12px; font-weight: 600; letter-spacing: 1.3px; line-height: 1.2; }
+  .masthead .dt { font-size: 28px; font-weight: 800; letter-spacing: -0.4px; color: var(--ink); margin-top: 2px; line-height: 1.2; }
+  .masthead .fact { font-size: 12.5px; color: rgba(24,24,27,.55); line-height: 1.45; white-space: normal; max-width: 260px; margin-top: 6px; }
+  .masthead hr { width: 132px; height: 1px; border: 0; margin: 11px 0 0; background: rgba(24,24,27,.5); }
+  .masthead.right { justify-items: end; text-align: right; }
+  .hero .label { font-family: var(--font); font-size: 11px; font-weight: 600; letter-spacing: 1.3px; }
+  .close { position: absolute; left: 20px; top: 759px; height: 34px; padding: 0 14px 0 12px; border-radius: 17px; background: rgba(255,255,255,.55);
+    box-shadow: 0 0 0 .5px rgba(0,0,0,.06); display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; color: rgba(24,24,27,.75); }
+  .dots { position: absolute; top: 803px; left: 50%; transform: translateX(-50%); display: flex; gap: 7px; }
+  .dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(24,24,27,.25); }
+  .dots i.on { background: rgba(24,24,27,.85); }
 
   /* 조작 패널 */
   .panel { width: 300px; display: grid; gap: 20px; }
@@ -67,20 +78,18 @@
 <body>
   <div class="phone" id="phone">
     <div class="photo"><img id="cup" alt=""></div>
+    <div class="hero" id="hero"></div>
     <canvas class="glass" id="glass"></canvas>
     <div class="chars" id="chars"></div>
     <div class="ui">
       <div class="status">1:50</div>
-      <div class="heart"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#18181B" stroke-width="2"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></div>
-      <div class="kicker" id="kicker">오늘 남은 당</div>
-      <div class="number"><b id="num">25</b><i id="unit">g</i><span id="limit">/25 g</span></div>
-      <div class="dots"><i></i><i></i></div>
-      <div class="fab"><svg width="26" height="26" viewBox="0 0 24 24" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 4v16M4 12h16"/></svg></div>
-      <div class="tabbar">
-        <div><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 8h13v5a6 6 0 0 1-6 6h-1a6 6 0 0 1-6-6zM17 9h1.5a2.5 2.5 0 0 1 0 5H17"/></svg>오늘</div>
-        <div><svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="11" width="4" height="9" rx="1"/><rect x="10" y="6" width="4" height="14" rx="1"/><rect x="16" y="9" width="4" height="11" rx="1"/></svg>추이</div>
-        <div><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3" fill="#FAFAFA"/></svg>설정</div>
+      <div class="icons">
+        <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/></svg></i>
+        <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4.5" y="6" width="3.6" height="9" rx="1"/><rect x="10.2" y="6" width="3.6" height="9" rx="1"/><rect x="15.9" y="6" width="3.6" height="9" rx="1"/><path d="M3 18.5h18"/></svg></i>
+        <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 5h11M7.5 5l1.2 14h5.6L15.5 5M17 11.5h2"/><circle cx="19.5" cy="11.5" r="1.2" fill="currentColor"/></svg></i>
       </div>
+      <div class="close"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>마감함</div>
+      <div class="dots"><i></i><i></i></div>
     </div>
   </div>
 
@@ -97,13 +106,15 @@
 <script>
 const ASSETS = '../../SugarCap/Resources';
 const CHAR_DIR = '../assets/characters';
+// 브라우저가 옛 poses.json·그림을 캐시해 새 자세가 안 보였다(2026-10-27). 열 때마다 새로 받는다.
+const V = `v=${Date.now()}`;
 const H = 852, W = 393;
 const STEPS = [0, 30, 50, 80, 100];
 
-// CupView 사진 틀: 높이 0.84H, 아래에서 0.08H 올림, 가운데 정렬로 폭을 넘친다(937×1666).
+// CupView 사진 틀: 높이 0.84H, 아래에서 0.04H 올림(2026-10-05 탭 바 제거 뒤), 가운데 정렬로 폭을 넘친다(937×1666).
 const PHOTO_H = H * 0.84;
 const PHOTO_W = PHOTO_H * 937 / 1666;
-const PHOTO_TOP = H - H * 0.08 - PHOTO_H;
+const PHOTO_TOP = H - H * 0.04 - PHOTO_H;
 const PHOTO_LEFT = (W - PHOTO_W) / 2;
 const photoPoint = (nx, ny) => ({ x: PHOTO_LEFT + nx * PHOTO_W, y: PHOTO_TOP + ny * PHOTO_H });
 
@@ -117,7 +128,8 @@ const CHARS = {
   roshu: {
     label: '로슈',
     cup: 'strawberry-latte',
-    kicker: '오늘 남은 당', unit: 'g', limit: 25,
+    side: 'sugar', kicker: '오늘 남은 당', unit: 'g', limit: 50, color: '#698394',
+    fact: '적당한 당은 기분에도 좋아요. 물론 생존에도 필요하고요.',
     bottom: 0.885,
     rim: { 0: [0.2626, 0.3280], 30: [0.2605, 0.3247], 50: [0.2614, 0.3247], 80: [0.2581, 0.3235], 100: [0.2686, 0.3268] },
     liquid: { 0: 0.80, 30: 0.557, 50: 0.4466, 80: 0.3511, 100: 0.3397 },
@@ -129,7 +141,8 @@ const CHARS = {
   kain: {
     label: '카인',
     cup: 'iced-americano',
-    kicker: '오늘 남은 카페인', unit: 'mg', limit: 400,
+    side: 'caffeine', kicker: '오늘 남은 카페인', unit: 'mg', limit: 400, color: '#4A3226',
+    fact: '전설에 따르면 커피 열매는 염소가 먼저 맛봤어요.',
     bottom: 0.876,
     rim: { 0: [0.2629, 0.3283], 30: [0.2629, 0.3271], 50: [0.2641, 0.3259], 80: [0.2629, 0.3271], 100: [0.2683, 0.3265] },
     liquid: { 0: 0.87, 30: 0.782, 50: 0.668, 80: 0.568, 100: 0.537 },
@@ -141,6 +154,8 @@ const CHARS = {
 };
 let C = CHARS.roshu;
 const artOf = name => C.poses[name].art;
+// 그림마다 캔버스 속 캐릭터 크기가 달라 앱은 export_ios.py ART_NORM 배율을 번들 idle-rig.json 캔버스에 구워 둔다. 그 비율을 그대로 쓴다.
+const scaleOf = name => C.scale * (C.norm[artOf(name)] ?? 1);
 
 const allowed = (pose, step) => {
   const p = C.poses[pose];
@@ -163,7 +178,7 @@ const isFoot = n => n.startsWith('foot');
 
 function partImg(pose, name, frame, pivot, s) {
   const img = new Image();
-  img.src = `${CHAR_DIR}/${state.char}/parts/${pose}/${name}.png`; img.alt = '';
+  img.src = `${CHAR_DIR}/${state.char}/parts/${pose}/${name}.png?${V}`; img.alt = '';
   const [x, y, w, h] = frame;
   Object.assign(img.style, { left: `${x * s}px`, top: `${y * s}px`, width: `${w * s}px`, height: `${h * s}px` });
   if (pivot) img.style.transformOrigin = `${(pivot[0] - x) * s}px ${(pivot[1] - y) * s}px`;
@@ -172,7 +187,7 @@ function partImg(pose, name, frame, pivot, s) {
 
 // 기준점 = 그림 bbox 아래 가운데(pivot: rimLine이면 그림 속 가장자리 틈, center면 bbox 가운데). 전체 변형은 그 점을 중심으로 한다.
 function makeSprite(name) {
-  const art = artOf(name), m = state.meta[art], rig = state.parts[art], s = C.scale;
+  const art = artOf(name), m = state.meta[art], rig = state.parts[art], s = scaleOf(name);
   const [bx0, by0, bx1, by1] = m.bbox;
   const el = document.createElement('div');
   el.className = 'sprite';
@@ -250,7 +265,7 @@ function placeOf(name) {
     const mid = photoPoint(x, top + (p.floor - top) * p.depth);
     if (!p.centered) return mid;
     const [, by0, , by1] = state.meta[artOf(name)].bbox;
-    return { x: mid.x, y: mid.y + (by1 - by0) / 2 * C.scale };
+    return { x: mid.x, y: mid.y + (by1 - by0) / 2 * scaleOf(name) };
   }
   const [back, front] = C.rim[state.step];
   const y = { bottom: C.bottom, rimFront: front, rimBack: back }[p.y];
@@ -382,7 +397,7 @@ function makeShadow(sp) {
   const c = C.poses[sp.name].shadow;
   if (!c) return [];
   const [bx0, , bx1] = state.meta[artOf(sp.name)].bbox;
-  const bw = (bx1 - bx0) * C.scale;
+  const bw = (bx1 - bx0) * scaleOf(sp.name);
   const shade = (kind, w, h) => {
     const el = document.createElement('div');
     el.className = `shade ${kind}`;
@@ -444,7 +459,7 @@ function apply(sp, t, blinkOn) {
 // 숨 쉬듯 나오는 흰 기포 점(poses.json bubbles, 앱 IdleMotion.bubbles와 같다). every초마다 count개를 gap초 간격으로.
 // 나오는 자리는 그 순간 그림 속 from(부리 끝)이 있던 화면 자리, 나온 뒤엔 몸을 따라가지 않고 life초 동안 rise만큼 곧게 오른다.
 function bubblesAt(sp, base, t) {
-  const b = C.poses[sp.name].bubbles, s = C.scale, out = [];
+  const b = C.poses[sp.name].bubbles, s = scaleOf(sp.name), out = [];
   const spread = (b.count - 1) * b.gap;
   for (let k = Math.trunc((t - b.life - spread) / b.every) - 1; k <= Math.trunc(t / b.every) + 1; k++) {
     for (let j = 0; j < b.count; j++) {
@@ -573,7 +588,7 @@ function measureGlass(step) {
 
 // 반사용 판: 화면과 같은 변형으로 그린다. 로슈는 몸통 조각만 그려 몸 색으로 칠하고, 카인은 다리까지 색 그대로.
 function paintSide(ctx, sp, full) {
-  const { base, m, cx } = sp.state, pv = sp.pivot, s = C.scale;
+  const { base, m, cx } = sp.state, pv = sp.pivot, s = scaleOf(sp.name);
   ctx.save();
   ctx.translate(cx, base.y + m.dy);
   ctx.rotate(m.rot * Math.PI / 180);
@@ -627,7 +642,7 @@ function drawGlass() {
     paintSide(ctx, sp, look.full);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, paper);
     const [bx0, , bx1] = state.meta[artOf(sp.name)].bbox;
-    const s = C.scale, f = sp.state.m.flip;
+    const s = scaleOf(sp.name), f = sp.state.m.flip;
     const mid = sp.state.cx + ((bx0 + bx1) / 2 * s - sp.pivot.x) * f;
     gl.uniform2f(u('uSize'), W, H);
     gl.uniform2f(u('uFrom'), mid, 0);
@@ -639,9 +654,86 @@ function drawGlass() {
   }
 }
 
+// ── 큰 숫자·머리기사(CupHero.swift를 옮김) ─────────────────
+// 숫자 바닥 = 사진 .328(잔 앞 입구 선 살짝 아래), 크기 = 화면 폭 32%(자리가 늘면 42% ÷ 글자 폭). 당은 왼쪽, 카페인은 오른쪽 정렬.
+// 유리 선(rimline-*)만 숫자를 끊는다. 머리기사(요일·날짜·상식·선)는 라벨 위, 버튼 줄과 겹치면 상식부터 뺀다.
+const HERO = {
+  baseline: 0.328, unitBaseline: 0.243, digit: 1012 / 2048, comma: 484 / 2048, cap: 1760 / 2048,
+  descent: 674 / 2048, unitScale: 0.3, labelGap: 4, labelHeight: 16,
+  mastheadGap: 10, mastheadFull: 104, mastheadShort: 64, buttonsBottom: 59 + 50, pad: 24,
+};
+function renderHero() {
+  const hero = document.getElementById('hero');
+  const remaining = Math.round(C.limit * state.step / 100);
+  const text = remaining.toLocaleString('en-US');
+  const ems = [...text].reduce((a, ch) => a + (/\d/.test(ch) ? HERO.digit : HERO.comma), 0);
+  const size = Math.min(W * 0.32, W * 0.42 / ems);
+  const baseline = PHOTO_TOP + HERO.baseline * PHOTO_H;
+  const capTop = baseline - size * HERO.cap;
+  const right = C.side === 'caffeine';
+  const x = right ? W - HERO.pad : HERO.pad;
+  const anchor = right ? 'end' : 'start';
+  const rim = `url(${ASSETS}/Assets.xcassets/rimline-${C.cup}-${state.step}.imageset/${state.step}.png?${V})`;
+  for (const k of ['maskImage', 'webkitMaskImage']) hero.style[k] = `${rim}, linear-gradient(#000, #000)`;
+  for (const k of ['maskSize', 'webkitMaskSize']) hero.style[k] = `${PHOTO_W}px ${PHOTO_H}px, 100% 100%`;
+  for (const k of ['maskPosition', 'webkitMaskPosition']) hero.style[k] = `${PHOTO_LEFT}px ${PHOTO_TOP}px, 0 0`;
+  const us = size * HERO.unitScale;
+  let unitSvg;
+  let limitBase;
+  if (right) {
+    // 카페인: 숫자 바닥 아래 대문자 높이 15% 띄워 단위, 그 아래 2pt 띄워 기준.
+    const unitBase = baseline + 0.15 * HERO.cap * size + HERO.cap * us;
+    unitSvg = `<text x="${x}" y="${unitBase}" text-anchor="end" font-family="Anton" font-size="${us}" fill="${C.color}">${C.unit}</text>`;
+    limitBase = unitBase + HERO.descent * us + 2 + 12.5;
+  } else {
+    limitBase = PHOTO_TOP + HERO.unitBaseline * PHOTO_H;
+    unitSvg = `<text id="hero-unit" y="${limitBase}" font-family="Anton" font-size="${us}" fill="${C.color}">${C.unit}</text>`;
+  }
+  hero.innerHTML = `
+    <svg width="${W}" height="${H}">
+      <text id="hero-num" x="${x}" y="${baseline}" text-anchor="${anchor}" font-family="Anton" font-size="${size}" fill="${C.color}">${text}</text>
+      ${unitSvg}
+      <text id="hero-limit" x="${x}" y="${limitBase}" text-anchor="${anchor}" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="13" letter-spacing="0.3" fill="rgba(60,60,67,.6)">/${C.limit.toLocaleString('en-US')} ${C.unit}</text>
+    </svg>`;
+  if (!right) {
+    // 당: 숫자 오른쪽 6pt에 단위, 또 6pt에 기준(같은 바닥).
+    const place = () => {
+      const num = hero.querySelector('#hero-num');
+      const unit = hero.querySelector('#hero-unit');
+      const lim = hero.querySelector('#hero-limit');
+      if (!num || !unit || !lim) return;
+      const ux = x + num.getComputedTextLength() + 6;
+      unit.setAttribute('x', ux);
+      lim.setAttribute('x', ux + unit.getComputedTextLength() + 6);
+    };
+    place();
+    document.fonts.ready.then(place);
+  }
+  const label = document.createElement('div');
+  label.className = 'fixed label';
+  label.textContent = C.kicker;
+  label.style.color = C.color;
+  label.style.top = `${capTop - HERO.labelGap - 13}px`;
+  label.style[right ? 'right' : 'left'] = `${HERO.pad}px`;
+  hero.appendChild(label);
+  const mastheadBottom = capTop - HERO.labelGap - HERO.labelHeight - HERO.mastheadGap;
+  const full = mastheadBottom - HERO.mastheadFull >= HERO.buttonsBottom;
+  const short = mastheadBottom - HERO.mastheadShort >= HERO.buttonsBottom;
+  if (!short) return;
+  const now = new Date();
+  const m = document.createElement('div');
+  m.className = `fixed masthead${right ? ' right' : ''}`;
+  m.innerHTML = `<div class="wd" style="color:${C.color}">${now.toLocaleDateString('ko-KR', { weekday: 'long' })}</div>`
+    + `<div class="dt">${now.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })}</div>`
+    + (full ? `<div class="fact">${C.fact}</div>` : '') + '<hr>';
+  m.style.top = `${mastheadBottom - (full ? HERO.mastheadFull : HERO.mastheadShort)}px`;
+  m.style[right ? 'right' : 'left'] = `${HERO.pad}px`;
+  hero.appendChild(m);
+}
+
 // ── 화면 ─────────────────────────────────────────────────
 let sprites = [];
-const cupSrc = (kind, step) => `${ASSETS}/Assets.xcassets/${kind}-${C.cup}-${step}.imageset/${step}.png`;
+const cupSrc = (kind, step) => `${ASSETS}/Assets.xcassets/${kind}-${C.cup}-${step}.imageset/${step}.png?${V}`;
 const key = step => `${C.cup}-${step}`;
 function currentPoses() {
   if (state.pose === 'all') return Object.keys(C.poses).filter(k => allowed(k, state.step) || (k === C.zero && state.step === 0));
@@ -650,10 +742,8 @@ function currentPoses() {
 }
 function render() {
   document.getElementById('cup').src = cupSrc('cup', state.step);
-  document.getElementById('num').textContent = Math.round(C.limit * state.step / 100);
-  document.getElementById('kicker').textContent = C.kicker;
-  document.getElementById('unit').textContent = C.unit;
-  document.getElementById('limit').textContent = `/${C.limit} ${C.unit}`;
+  renderHero();
+  for (const [i, d] of [...document.querySelectorAll('.dots i')].entries()) d.classList.toggle('on', (i === 0) === (C.side === 'sugar'));
   document.getElementById('title').textContent = `${C.label} 대기 자세`;
   document.getElementById('rule').textContent = C.rule;
   const layer = document.getElementById('chars'), glass = document.getElementById('glass');
@@ -708,11 +798,16 @@ function buttons(id, items, onPick) {
 
 // 스크린샷용: ?char=kain&step=80&pose=swim&t=1.2
 const q = new URLSearchParams(location.search);
+const bundleRig = fetch(`${ASSETS}/idle-rig.json`, { cache: 'no-store' }).then(r => r.json());
 const loads = Object.keys(CHARS).map(k => Promise.all([
-  fetch(`${CHAR_DIR}/${k}/poses/meta.json`).then(r => r.json()),
-  fetch(`${CHAR_DIR}/${k}/parts/parts.json`).then(r => r.json()),
-  fetch(`${CHAR_DIR}/${k}/poses.json`).then(r => r.json()),
-]).then(([meta, parts, book]) => Object.assign(CHARS[k], { meta, parts, zero: book.zero, poses: book.poses })));
+  fetch(`${CHAR_DIR}/${k}/poses/meta.json`, { cache: 'no-store' }).then(r => r.json()),
+  fetch(`${CHAR_DIR}/${k}/parts/parts.json`, { cache: 'no-store' }).then(r => r.json()),
+  fetch(`${CHAR_DIR}/${k}/poses.json`, { cache: 'no-store' }).then(r => r.json()),
+  bundleRig,
+]).then(([meta, parts, book, rig]) => {
+  const norm = Object.fromEntries(Object.entries(rig[k]).filter(([art]) => meta[art]).map(([art, a]) => [art, a.canvas[0] / meta[art].canvas[0]]));
+  Object.assign(CHARS[k], { meta, parts, norm, zero: book.zero, poses: book.poses });
+}));
 function useChar(k) {
   state.char = k; C = CHARS[k];
   state.meta = C.meta; state.parts = C.parts;

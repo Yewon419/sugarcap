@@ -540,6 +540,20 @@ extension RecordFlowUITests {
         XCTAssertTrue(stage.label.contains("처음 만난 사이"), "두 번째 무대가 첫 만남이 아님: \(stage.label)")
         stage.tap()
         XCTAssertTrue(stage.waitForNonExistence(timeout: 3), "눌렀는데 두 번째 무대가 안 닫힘")
+
+        // 정리: 첫 마감 알림 질문을 닫고 당 컵으로 되돌린다. 넘어간 컵이 저장돼 뒤 테스트가 카페인 컵에서 시작했다(2026-10-27 CI).
+        let noReminder = app.buttons.matching(identifier: "reminder-no")
+        if noReminder.firstMatch.waitForExistence(timeout: 3) {
+            noReminder.allElementsBoundByIndex.first { $0.isHittable }?.tap()
+            XCTAssertTrue(noReminder.firstMatch.waitForNonExistence(timeout: 5), "알림 질문이 안 닫힘")
+        }
+        if summary.label.hasPrefix("카페인 남은") {
+            let window = app.windows.firstMatch
+            let right = window.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.5))
+            let left = window.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.5))
+            left.press(forDuration: 0.1, thenDragTo: right, withVelocity: .slow, thenHoldForDuration: 0.6)
+        }
+        XCTAssertTrue(summary.waitForLabel(prefix: "당 남은", timeout: 5), "당 컵으로 안 돌아옴: \(summary.label)")
     }
 
     /// 편의점은 메뉴가 수천 개라 검색 우선 화면이다(2026-10-01). 검색 전에는 목록이 없고,

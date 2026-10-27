@@ -137,6 +137,23 @@ final class IdlePoseBookTests: XCTestCase {
         }
     }
 
+    /// 카인 시나몬 스틱(대표님 2026-10-27 "뒤에거는 안움직이게"): 날아오를 때 몸과 앞 스틱만 들리고 뒤 스틱·전체 자리는 그대로.
+    func testCinnamonLiftsOnlyFrontStick() throws {
+        let set = try XCTUnwrap(IdleCast.kain.poseSet)
+        for name in ["cinnamon-stick-left", "cinnamon-stick-right"] {
+            let spec = try XCTUnwrap(set.poses[name])
+            for t in stride(from: 0.0, to: 8.0, by: 0.1) {
+                let m = IdleMotion.frame(spec, cast: .kain, t: t, photo: photo, walkBaseX: 200)
+                XCTAssertEqual(m.dy, 0, "\(name) \(t)")
+                XCTAssertEqual(m.rot, 0, "\(name) \(t)")
+                XCTAssertEqual(m.shift["foot_stick_back"] ?? .zero, .zero, "\(name) \(t)")
+                XCTAssertEqual(Double(m.shift["foot_stick_front"]?.dy ?? 0), m.bodyDy, accuracy: 1e-9, "\(name) \(t)")
+            }
+            let up = IdleMotion.frame(spec, cast: .kain, t: 3.7, photo: photo, walkBaseX: 200)
+            XCTAssertLessThan(up.bodyDy, -1, name)
+        }
+    }
+
     /// 바꿔 끼우는 조각(2026-10-06): 카인 졸기는 고개가 반 넘게 떨어지면 감은 눈, 번쩍 뒤엔 반 감은 눈.
     func testDozeSwapsToClosedEyes() throws {
         let set = try XCTUnwrap(IdleCast.kain.poseSet)

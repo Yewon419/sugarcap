@@ -86,6 +86,8 @@ struct IdleChannel: Sendable, Equatable {
         case limb(String)
         /// 바꿔 끼우는 조각을 켠다(값 0.5 이상).
         case show(String)
+        /// 조각 하나만 세로로 옮긴다(pt, 길이 대상처럼 화면 배율을 곱한다). 땅 층 조각을 하나만 들 때.
+        case lift(String)
     }
 
     enum Rectify: String, Sendable, Equatable, Decodable {
@@ -360,6 +362,8 @@ enum IdlePoseBook {
                     target = .limb(String(raw.to.dropFirst(5)))
                 } else if raw.to.hasPrefix("show."), raw.to.count > 5 {
                     target = .show(String(raw.to.dropFirst(5)))
+                } else if raw.to.hasPrefix("lift."), raw.to.count > 5 {
+                    target = .lift(String(raw.to.dropFirst(5)))
                 } else {
                     throw BookError.badTarget(pose: pose, target: raw.to)
                 }
@@ -423,6 +427,7 @@ extension IdleMotion {
                 case .cube: f.cube += v
                 case .limb(let name): f.limbs[name, default: 0] += v
                 case .show(let name): f.show[name, default: 0] += v
+                case .lift(let name): f.shift[name, default: .zero].dy += CGFloat(v * u)
                 }
             }
         }

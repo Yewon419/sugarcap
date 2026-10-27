@@ -339,6 +339,10 @@ function motion(name, t) {
       } else if (c.to.startsWith('show.')) {
         const part = c.to.slice(5);
         m.show[part] = (m.show[part] ?? 0) + v;
+      } else if (c.to.startsWith('lift.')) {
+        const part = c.to.slice(5);
+        const [sx, sy] = m.shift[part] ?? [0, 0];
+        m.shift[part] = [sx, sy + v];
       } else {
         m[c.to] += v;
       }

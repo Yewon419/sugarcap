@@ -469,7 +469,7 @@
     "unlock": 5,
     "minStep": 1,
     "place": {
-     "x": 0.22,
+     "x": 0.245,
      "y": "bottom",
      "dy": 0.012
     },
@@ -536,7 +536,7 @@
     "minStep": 1,
     "mirror": true,
     "place": {
-     "x": 0.76,
+     "x": 0.735,
      "y": "bottom",
      "dy": 0.012
     },

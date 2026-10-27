@@ -679,11 +679,11 @@ enum IdleOnlooker {
         }
     }
 
-    /// 구경꾼과 자리가 겹치는 켜진 쪽 자세. 로슈 컵 안은 가장자리의 카인과, 카인 걷기는 오른쪽 로슈와 겹친다.
+    /// 구경꾼과 자리가 겹치는 켜진 쪽 자세. 로슈 컵 안은 가장자리의 카인과, 카인 걷기·잔 오른쪽 바닥 자세는 오른쪽 로슈와 겹친다.
     static func hostAvoids(guest: CupSide) -> Set<String> {
         switch guest {
         case .caffeine: return ["in-cup"]
-        case .sugar: return ["walk"]
+        case .sugar: return ["walk", "lie-right", "bean-balance-right", "floor-sit-right"]
         }
     }
 }

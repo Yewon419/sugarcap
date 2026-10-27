@@ -36,8 +36,8 @@ enum IdleFussMath {
     /// 로슈 딸기 안기·카인 커피콩 얹기(물건이 사라짐)·로슈 잔에 매달리기.
     static func canStare(character: String, pose: String) -> Bool {
         switch character {
-        case "kain": !["swim", "lie-left", "lie-right", "bean-balance"].contains(pose)
-        case "roshu": !["hug-strawberry", "in-cup"].contains(pose)
+        case "kain": !["swim", "lie-left", "lie-right", "bean-balance-left", "bean-balance-right"].contains(pose)
+        case "roshu": !["hug-strawberry", "hug-strawberry-left", "in-cup"].contains(pose)
         default: true
         }
     }

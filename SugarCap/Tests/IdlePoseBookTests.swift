@@ -106,9 +106,15 @@ final class IdlePoseBookTests: XCTestCase {
         XCTAssertFalse(roshu.allows("hug-strawberry", step: 80, unlockedLevel: 10))
         XCTAssertFalse(roshu.allows("hug-strawberry", step: 80, unlockedLevel: 10, items: ["coffee-bean"]))
         XCTAssertTrue(roshu.allows("hug-strawberry", step: 80, unlockedLevel: 1, items: ["strawberry"]))
+        XCTAssertFalse(roshu.allows("hug-strawberry-left", step: 80, unlockedLevel: 10))
+        XCTAssertTrue(roshu.allows("hug-strawberry-left", step: 80, unlockedLevel: 1, items: ["strawberry"]))
+        XCTAssertTrue(roshu.allows("slump-right", step: 30, unlockedLevel: 1))
+        XCTAssertFalse(roshu.allows("slump-right", step: 0, unlockedLevel: 1))
+        XCTAssertFalse(kain.allows("floor-sit-right", step: 0, unlockedLevel: 1))
+        XCTAssertTrue(kain.allows("floor-sit-right", step: 100, unlockedLevel: 1))
         XCTAssertFalse(roshu.allows("hug-strawberry", step: 0, unlockedLevel: 1, items: ["strawberry"]))
-        XCTAssertFalse(kain.allows("bean-balance", step: 80, unlockedLevel: 10, items: ["strawberry"]))
-        XCTAssertTrue(kain.allows("bean-balance", step: 1, unlockedLevel: 1, items: ["coffee-bean"]))
+        XCTAssertFalse(kain.allows("bean-balance-left", step: 80, unlockedLevel: 10, items: ["strawberry"]))
+        XCTAssertTrue(kain.allows("bean-balance-right", step: 1, unlockedLevel: 1, items: ["coffee-bean"]))
         // 물건 id는 선물 물건 목록에 있어야 한다(오타면 영영 안 풀린다).
         let itemIDs = Set(GiftContent.items.map(\.id))
         for cast in casts {

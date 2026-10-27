@@ -26,6 +26,19 @@
     { "to": "limb.arm", "shape": "plateau", "amp": 6, "period": 5.5, "rise": 0.6, "hold": 1.2, "fall": 0.6 }
    ]
   },
+  "watch-right": {
+   "label": "컵 오른쪽에 붙어 구경",
+   "note": "5.5초마다 까치발로 들여다본다: 몸만 올라가고 발은 바닥에 남는다. 컵 잡은 팔로 몸을 끌어올린다. 발은 돌리지 않는다: 몸이 뜨면 발 뿌리가 드러나며 다리가 늘어나 보인다(뿌리 폭 = 윤곽 폭). 원래 자세를 좌우로 뒤집어 잔 반대편에 둔다(대표님 2026-10-27 잔 아래 자세는 좌우 다, 냅킨 위).",
+   "art": "watch", "unlock": 1, "minStep": 1,
+   "mirror": true, "place": { "x": 0.75, "y": "bottom", "dy": -0.005 },
+   "limbDirection": { "foot_left": -1, "foot_right": 1, "arm": -1 },
+   "reflection": { "toward": 0.43 },
+   "shadow": { "w": 0.8, "h": 0.24, "dx": -0.2, "dy": -0.05 },
+   "motion": [
+    { "to": "bodyDy", "shape": "plateau", "amp": -2.2, "period": 5.5, "rise": 0.6, "hold": 1.2, "fall": 0.6 },
+    { "to": "limb.arm", "shape": "plateau", "amp": 6, "period": 5.5, "rise": 0.6, "hold": 1.2, "fall": 0.6 }
+   ]
+  },
   "walk": {
    "label": "컵 밑 걷기",
    "note": "몸은 흔들지 않고 다리로 걷는다(step): 한 발씩 들어 앞으로 내딛고 딛은 발은 뒤로 밀린다. 팔은 반대쪽 다리와 같이 앞뒤로.",
@@ -52,6 +65,22 @@
     { "to": "limb.foot_left", "shape": "bump", "amp": 7, "period": 7, "at": 6.3, "length": 0.6 }
    ]
   },
+  "slump-right": {
+   "label": "철푸덕(오른쪽)",
+   "note": "30% 이하에서 뽑힌다(0% 자세는 원래 slump 하나). 7초마다 한숨: 부풀었다가 푹 꺼지고 끝에 왼발이 한 번 까딱. 몸이 바닥에 닿아 그늘을 밀지 않고 몸 바로 밑에 좁게. 원래 자세를 좌우로 뒤집어 잔 반대편에 둔다(대표님 2026-10-27 잔 아래 자세는 좌우 다, 냅킨 위).",
+   "art": "slump", "unlock": 1, "maxStep": 30,
+   "mirror": true, "place": { "x": 0.6, "y": "bottom", "dy": 0.02 },
+   "limbDirection": { "foot_left": 1, "foot_right": -1 },
+   "reflection": { "toward": 0.1, "up": 5 },
+   "shadow": { "w": 0.92, "h": 0.1, "dx": -0.03, "dy": -0.025 },
+   "motion": [
+    { "to": "sy", "shape": "arch", "amp": 0.035, "period": 7, "at": 4.5, "length": 0.9 },
+    { "to": "sx", "shape": "arch", "amp": -0.015, "period": 7, "at": 4.5, "length": 0.9 },
+    { "to": "sy", "shape": "arch", "amp": -0.05, "period": 7, "at": 5.4, "length": 1.1 },
+    { "to": "sx", "shape": "arch", "amp": 0.03, "period": 7, "at": 5.4, "length": 1.1 },
+    { "to": "limb.foot_left", "shape": "bump", "amp": 7, "period": 7, "at": 6.3, "length": 0.6 }
+   ]
+  },
   "hug-strawberry": {
    "label": "딸기 끌어안기",
    "note": "물건 자세: 딸기를 선물로 받아 열면 풀린다(단계와 별개, 대표님 2026-10-27, 그 전엔 Lv4). 딸기를 끌어안고 바닥 기준으로 좌우 흔들흔들, 팔은 살짝 늦게 따라 조인다. 6초마다 오른발이 한 번 까딱. 코·눈은 딸기 밑(대표님). 팔다리는 전부 몸 앞이고, 몸과 겹친 곳의 흰 띠는 그림대로 두되 딸기 위 띠는 지웠다.",
@@ -62,6 +91,20 @@
    "shadow": { "w": 0.85, "h": 0.18, "dx": 0.05, "dy": -0.04 },
    "motion": [
     { "to": "rot", "shape": "wave", "amp": 4, "period": 2.6 },
+    { "to": "limb.arm", "shape": "wave", "amp": 3, "period": 2.6, "phase": 0.8 },
+    { "to": "limb.foot_right", "shape": "bump", "amp": 10, "period": 6, "at": 4.2, "length": 0.5 }
+   ]
+  },
+  "hug-strawberry-left": {
+   "label": "딸기 끌어안기(왼쪽)",
+   "note": "물건 자세: 딸기를 선물로 받아 열면 풀린다(단계와 별개, 대표님 2026-10-27, 그 전엔 Lv4). 딸기를 끌어안고 바닥 기준으로 좌우 흔들흔들, 팔은 살짝 늦게 따라 조인다. 6초마다 오른발이 한 번 까딱. 코·눈은 딸기 밑(대표님). 팔다리는 전부 몸 앞이고, 몸과 겹친 곳의 흰 띠는 그림대로 두되 딸기 위 띠는 지웠다. 원래 자세를 좌우로 뒤집어 잔 반대편에 둔다(대표님 2026-10-27 잔 아래 자세는 좌우 다, 냅킨 위). 기우는 방향(rot)도 뒤집었다.",
+   "art": "hug-strawberry", "unlock": 1, "item": "strawberry", "minStep": 1,
+   "mirror": true, "place": { "x": 0.2, "y": "bottom", "dy": 0.01 },
+   "limbDirection": { "foot_left": 1, "foot_right": -1, "arm": 0 },
+   "reflection": { "toward": 0.1, "up": 5 },
+   "shadow": { "w": 0.85, "h": 0.18, "dx": -0.05, "dy": -0.04 },
+   "motion": [
+    { "to": "rot", "shape": "wave", "amp": -4, "period": 2.6 },
     { "to": "limb.arm", "shape": "wave", "amp": 3, "period": 2.6, "phase": 0.8 },
     { "to": "limb.foot_right", "shape": "bump", "amp": 10, "period": 6, "at": 4.2, "length": 0.5 }
    ]
@@ -94,6 +137,22 @@
     { "to": "limb.arm_left", "shape": "wave", "amp": 2, "period": 3.6, "phase": 0.4 },
     { "to": "limb.arm_right", "shape": "wave", "amp": -2, "period": 3.6, "phase": 0.4 },
     { "to": "rot", "shape": "plateau", "amp": -4, "period": 7, "rise": 2.4, "hold": 0.4, "fall": 0.15 },
+    { "to": "dy", "shape": "bump", "amp": -3, "period": 7, "at": 2.8, "length": 0.3 }
+   ]
+  },
+  "doze-lean-right": {
+   "label": "컵 오른쪽에 기대 졸기",
+   "note": "Lv5. 천천히 숨쉰다(부풀었다 꺼짐, 배 위 팔이 같이 들썩). 7초마다 고개가 스르르 기울다가 화들짝 돌아온다. 팔은 배 위에 얹혀 몸 앞, 발도 몸 앞. 원래 자세를 좌우로 뒤집어 잔 반대편에 둔다(대표님 2026-10-27 잔 아래 자세는 좌우 다, 냅킨 위). 기우는 방향(rot)도 뒤집었다.",
+   "art": "doze-lean", "unlock": 5, "minStep": 1,
+   "mirror": true, "place": { "x": 0.76, "y": "bottom", "dy": 0.012 },
+   "limbDirection": { "arm_left": 0, "arm_right": 0, "foot_left": 1, "foot_right": -1 },
+   "reflection": { "toward": 0.3 },
+   "shadow": { "w": 0.85, "h": 0.18, "dx": -0.05, "dy": -0.04 },
+   "motion": [
+    { "to": "sy", "shape": "wave", "amp": 0.012, "period": 3.6 },
+    { "to": "limb.arm_left", "shape": "wave", "amp": 2, "period": 3.6, "phase": 0.4 },
+    { "to": "limb.arm_right", "shape": "wave", "amp": -2, "period": 3.6, "phase": 0.4 },
+    { "to": "rot", "shape": "plateau", "amp": 4, "period": 7, "rise": 2.4, "hold": 0.4, "fall": 0.15 },
     { "to": "dy", "shape": "bump", "amp": -3, "period": 7, "at": 2.8, "length": 0.3 }
    ]
   }

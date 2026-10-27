@@ -23,10 +23,12 @@ final class IdleFussTests: XCTestCase {
     func testKainSkipsStareWhereStandingFrontWouldLookWrong() {
         XCTAssertFalse(IdleFussMath.canStare(character: "kain", pose: "swim"))
         XCTAssertFalse(IdleFussMath.canStare(character: "kain", pose: "lie-left"))
-        XCTAssertFalse(IdleFussMath.canStare(character: "kain", pose: "bean-balance"))
+        XCTAssertFalse(IdleFussMath.canStare(character: "kain", pose: "bean-balance-left"))
+        XCTAssertFalse(IdleFussMath.canStare(character: "kain", pose: "bean-balance-right"))
         XCTAssertTrue(IdleFussMath.canStare(character: "kain", pose: "rim-sit"))
         XCTAssertFalse(IdleFussMath.canStare(character: "roshu", pose: "in-cup"))
         XCTAssertFalse(IdleFussMath.canStare(character: "roshu", pose: "hug-strawberry"))
+        XCTAssertFalse(IdleFussMath.canStare(character: "roshu", pose: "hug-strawberry-left"))
         XCTAssertTrue(IdleFussMath.canStare(character: "roshu", pose: "watch"))
         XCTAssertEqual(IdleFussMath.frontArt(character: "roshu", art: "watch"), "stand")
         XCTAssertEqual(IdleFussMath.frontArt(character: "roshu", art: "walk"), "stand")

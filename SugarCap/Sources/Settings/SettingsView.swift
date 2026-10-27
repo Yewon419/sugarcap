@@ -61,7 +61,7 @@ private struct SettingsContent: View {
     @State private var isTestBuild = false
     @State private var confirmsFirstRun = false
     @AppStorage(CloseReminder.enabledKey) private var isReminderOn = false
-    /// 별명(호감도 Lv8부터, §4.9 2026-10-11). 저장은 기기 설정이라 바꾸면 `renamed`로 행을 다시 그린다.
+    /// 별명(호감도 Lv7부터, §4.9 2026-10-11). 저장은 기기 설정이라 바꾸면 `renamed`로 행을 다시 그린다.
     @State private var namingSide: CupSide?
     @State private var nicknameDraft = ""
     @State private var renamed = 0

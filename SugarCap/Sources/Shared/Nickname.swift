@@ -17,10 +17,10 @@ enum Josa {
     static func withIga(_ word: String) -> String { word + (hasBatchim(word) ? "이" : "가") }
 }
 
-/// 로슈·카인 별명(호감도 Lv8부터, SPEC §4.9 2026-10-11 회의 4). 기기 설정(UserDefaults)에 둔다.
+/// 로슈·카인 별명(호감도 Lv7부터, SPEC §4.9 2026-10-11 회의 4, 2026-10-27 Lv8→Lv7). 기기 설정(UserDefaults)에 둔다.
 /// 정해 두면 화면의 캐릭터 이름(`CupSide.characterName` 등)이 별명으로 바뀐다. 소개 연출의 "로슈!"·"카인!"은 원래 이름 그대로다.
 enum Nickname {
-    static let unlockLevel = 8
+    static let unlockLevel = 7
     static let maxLength = 8
 
     static func key(_ characterID: String) -> String { "nickname.\(characterID)" }

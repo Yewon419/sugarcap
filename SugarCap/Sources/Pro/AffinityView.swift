@@ -15,7 +15,7 @@ struct AffinityView: View {
     @State private var lastTap: Date?
     @State private var combo = 0
     @State private var taps = 0
-    /// 별명(Lv8부터, §4.9 2026-10-11). 저장은 기기 설정이라 바꾸면 `renamed`로 화면을 다시 그린다.
+    /// 별명(Lv7부터, §4.9 2026-10-11). 저장은 기기 설정이라 바꾸면 `renamed`로 화면을 다시 그린다.
     @State private var isNaming = false
     @State private var nicknameDraft = ""
     @State private var renamed = 0
@@ -158,7 +158,7 @@ struct AffinityView: View {
         )
     }
 
-    /// 사이가 충분히 가까워지면(Lv8) 별명을 붙일 수 있다. 조사는 별명 끝 글자로 고른다(`Josa`).
+    /// 사이가 충분히 가까워지면(Lv7) 별명을 붙일 수 있다. 조사는 별명 끝 글자로 고른다(`Josa`).
     private var nicknameButton: some View {
         let hasNickname = Nickname.stored(side.characterID) != nil
         return Button {

@@ -208,7 +208,8 @@ final class GiftTests: XCTestCase {
                        GiftContent.cap, "축하 선물로 받은 딸기는 상자에서 다시 안 나온다")
 
         // 당을 끄고 카페인만 기록하면 카인이 커피콩을 들고 온다(대표님 2026-10-27).
-        let caffeineOnly = try ModelContainer(for: GiftEvent.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true)).mainContext
+        let caffeineContainer = try ModelContainer(for: GiftEvent.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+        let caffeineOnly = caffeineContainer.mainContext
         XCTAssertTrue(try GiftStore.grantProWelcome(sides: [.caffeine], now: now, in: caffeineOnly))
         let bean = try XCTUnwrap(try GiftStore.pending(in: caffeineOnly).first)
         XCTAssertEqual(bean.payload, GiftContent.item("coffee-bean"))

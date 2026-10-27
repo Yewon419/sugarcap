@@ -322,6 +322,7 @@ final class SettlementScenarioTests: XCTestCase {
         XCTAssertEqual(AffinityMath.credited(points: 10, current: 35, isPro: false), 5, "40점에서 멈춘다")
         XCTAssertEqual(AffinityMath.credited(points: 10, current: 40, isPro: false), 0)
         XCTAssertEqual(AffinityMath.credited(points: 10, current: 400, isPro: false), 0, "이미 위인 기존 사용자는 그대로")
+        XCTAssertEqual(AffinityMath.credited(points: 10, current: 150, isPro: false), 0, "Pro를 끊은 Lv4 중간도 다음 단계까지 채우지 않고 0")
         XCTAssertEqual(AffinityMath.credited(points: 10, current: 400, isPro: true), 10)
 
         let h = try Harness()

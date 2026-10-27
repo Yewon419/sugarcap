@@ -106,8 +106,9 @@ struct TodayView: View {
     /// 보이는 면. 보던 면을 껐으면 켜진 면으로.
     private var side: CupSide { CupSide.visible(pickedSide, in: trackedSides) }
 
+    /// 도달한 단계까지 풀린다. Pro를 끊어도 얻은 자세는 남고 점수만 멈춘다(2026-10-27 대표님, §9.8).
     private func unlockedLevel(_ side: CupSide) -> Int {
-        AffinityMath.unlockedLevel(level: affinityLevel(side), isPro: pro.isPro)
+        affinityLevel(side)
     }
     /// 열어 받은 물건(물건 대기 자세 해금, §9.8).
     private var ownedItems: Set<String> { GiftContent.takenItems(in: gifts.filter(\.isOpened)) }

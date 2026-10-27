@@ -285,12 +285,6 @@ final class IdlePoseBookTests: XCTestCase {
         }
     }
 
-    func testFreeUnlockStopsAtCap() {
-        XCTAssertEqual(AffinityMath.unlockedLevel(level: 2, isPro: false), 2)
-        XCTAssertEqual(AffinityMath.unlockedLevel(level: 7, isPro: false), AffinityMath.freeLevelCap)
-        XCTAssertEqual(AffinityMath.unlockedLevel(level: 7, isPro: true), 7)
-    }
-
     /// 누르면 움찔(2026-10-04): 짧게 움츠렸다가 풀리고, 끝나면 정확히 0으로 돌아온다.
     func testFlinchRisesThenSettles() {
         XCTAssertEqual(IdleMotion.flinch(age: -0.1), 0)

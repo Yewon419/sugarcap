@@ -20,6 +20,8 @@ struct MonthTrendsView: View {
     let onPickSide: (CupSide) -> Void
     /// 셰이커에 넣을 보관함(보는 달 기준).
     let inventory: MonthInventory
+    /// 지난해 12월까지 연 마음(이 면). 해가 바뀐 뒤 처음 들어오면 이것들이 터진다.
+    let lastYearHearts: Int
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// 칸 번호 → 찍히는 차례. `filledFor`가 지금 달이 아니면 아직 안 찍었다.
@@ -64,11 +66,15 @@ struct MonthTrendsView: View {
         .onAppear {
             if shaker == nil { shaker = MonthShakerScene() }
             feedShaker()
+            celebrateNewYear()
             shaker?.startMotion()
         }
         .onDisappear { shaker?.stopMotion() }
         .onChange(of: inventory) { feedShaker() }
-        .onChange(of: side) { feedShaker() }
+        .onChange(of: side) {
+            feedShaker()
+            celebrateNewYear()
+        }
         .onChange(of: gridFrame) { shaker?.setGrid(gridFrame) }
     }
 
@@ -81,6 +87,29 @@ struct MonthTrendsView: View {
                 .allowsHitTesting(false)
                 .accessibilityHidden(true)
         }
+    }
+
+    /// 새해 빵빠레(프로토 `newyear`): 면마다 마지막으로 본 해를 저장해 두고, 해가 바뀐 뒤 이번 달 달력에 처음 들어올 때 한 번만.
+    /// 지난해 마음이 없거나 동작 줄이기면 터뜨리지 않고 본 해만 적는다.
+    /// Debug `-screenshotMonthFanfare n`이면 저장과 상관없이 지난해 마음 n개로, `-screenshotMonthFanfareAt s`초 뒤 터진다.
+    private func celebrateNewYear() {
+        guard let shaker, shown.year == today.year, shown.month == today.month else { return }
+        let defaults = UserDefaults.standard
+        let key = "monthFanfareYear.\(side.rawValue)"
+        let seen = defaults.integer(forKey: key)
+        defaults.set(today.year, forKey: key)
+        var count = seen < today.year ? lastYearHearts : 0
+        var delay: TimeInterval = 0.7
+        #if DEBUG
+        if defaults.object(forKey: "screenshotMonthFanfare") != nil {
+            count = defaults.integer(forKey: "screenshotMonthFanfare")
+            if defaults.object(forKey: "screenshotMonthFanfareAt") != nil {
+                delay = defaults.double(forKey: "screenshotMonthFanfareAt")
+            }
+        }
+        #endif
+        guard count > 0, !reduceMotion else { return }
+        shaker.celebrate(ShakerGift.list(inventory), oldHearts: count, side: side, delay: delay)
     }
 
     private func feedShaker() {

@@ -175,6 +175,8 @@ jobs:
           # 월 셰이커(3단계): 면 주인 물건 + 병뚜껑 + 그해 마음이 격자 위아래에 쌓인 모습.
           shoot trends-month-shaker light large -seedDemo YES -mockProOwned YES -initialTab trends -trendRange month -screenshotMonthHearts 9 -screenshotCaps 6 -screenshotInventoryItems strawberry,coffee-bean,sugar-cube,cinnamon-stick
           shoot trends-month-shaker-caffeine light large -seedDemo YES -mockProOwned YES -initialTab trends -trendRange month -trendSide caffeine -screenshotMonthHearts 9 -screenshotCaps 6 -screenshotInventoryItems strawberry,coffee-bean,sugar-cube,cinnamon-stick
+          # 새해 빵빠레(4단계): 지난해 마음 9개가 폭죽과 함께 터지는 중. 들어온 지 2초 뒤에 터뜨려 찍히는 순간에 맞춘다.
+          shoot trends-month-fanfare light large -seedDemo YES -mockProOwned YES -initialTab trends -trendRange month -screenshotMonthHearts 3 -screenshotCaps 2 -screenshotMonthFanfare 9 -screenshotMonthFanfareAt 2
           # 가끔 나오는 등장: 로슈 늦게 걸어오기(걷는 중·멈춘 순간), 카인 끝줄 선에 거꾸로 매달리기.
           shoot trends-walk-1.7 light large -seedDemo YES -initialTab trends -trendEntrance walk -trendEntranceAt 1.7
           shoot trends-walk-2.6 light large -seedDemo YES -initialTab trends -trendEntrance walk -trendEntranceAt 2.6

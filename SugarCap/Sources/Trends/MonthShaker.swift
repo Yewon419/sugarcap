@@ -53,6 +53,13 @@ final class MonthShakerScene: SKScene {
     private var bodies: [Body] = []
     private var shownSide: CupSide?
     private var pending: (gifts: [ShakerGift], side: CupSide)?
+    /// 새해 빵빠레: 다 다시 쏟은 뒤 이만큼 기다렸다가 지난해 마음을 터뜨린다.
+    private var fanfareDelay: TimeInterval?
+    private var fanfareAt: TimeInterval?
+    /// 터질 차례(시각, 지난해 마음).
+    private var pops: [(at: TimeInterval, node: SKNode)] = []
+    private var confetti: [Confetti] = []
+    private var lastFrame: TimeInterval?
     private var reduceMotion = false
     /// 격자 자리(SwiftUI 좌표, 왼쪽 위 원점). 장면 좌표는 y를 뒤집는다.
     private var gridFrame: CGRect = .zero
@@ -87,6 +94,15 @@ final class MonthShakerScene: SKScene {
         pending = (gifts, side)
     }
 
+    /// 해가 바뀐 뒤 처음 들어온 순간(프로토 `newyear`). 올해 보관함에 지난해 마음(`old`)을 섞어 다시 쏟고,
+    /// `delay`초 뒤 양쪽 아래 모서리 폭죽과 함께 지난해 마음이 하나씩 종이 조각으로 터진다.
+    func celebrate(_ gifts: [ShakerGift], oldHearts: Int, side: CupSide, delay: TimeInterval) {
+        let olds = (0..<max(oldHearts, 0)).map { ShakerGift(key: "\(Self.oldPrefix)\($0)", kind: .heart) }
+        shownSide = nil
+        pending = (gifts + olds, side)
+        fanfareDelay = delay
+    }
+
     func setGrid(_ frame: CGRect) {
         gridFrame = frame
     }
@@ -110,9 +126,17 @@ final class MonthShakerScene: SKScene {
         if let pending {
             self.pending = nil
             apply(pending.gifts, side: pending.side)
+            if let delay = fanfareDelay {
+                fanfareDelay = nil
+                fanfareAt = currentTime + delay
+            }
         }
         finishSettling(currentTime)
         readMotion(currentTime)
+        let dt = min(0.04, max(0, currentTime - (lastFrame ?? currentTime)))
+        lastFrame = currentTime
+        runFanfare(currentTime)
+        moveConfetti(dt)
     }
 
     override func didSimulatePhysics() {
@@ -212,6 +236,8 @@ final class MonthShakerScene: SKScene {
     private func load(_ gifts: [ShakerGift], side: CupSide) {
         for body in bodies { body.node.removeFromParent() }
         bodies = []
+        pops = []
+        fanfareAt = nil
         shownSide = side
         settling = false
         physicsWorld.speed = 1
@@ -293,6 +319,122 @@ final class MonthShakerScene: SKScene {
         }
         addChild(node)
         bodies.append(Body(node: node, key: gift.key))
+    }
+
+    // MARK: - 새해 빵빠레
+
+    private static let oldPrefix = "old:"
+    /// 폭죽 종이 색(단색, 그라데이션·빛 번짐 없음). 프로토 `PAPER`.
+    private static let paper: [CupSide: [UIColor]] = [
+        .sugar: [.white, ink, UIColor(red: 0xD8 / 255, green: 0x33 / 255, blue: 0x3A / 255, alpha: 1), UIColor(red: 0x9A / 255, green: 0x9A / 255, blue: 0xA2 / 255, alpha: 1)],
+        .caffeine: [amber, .white, UIColor(red: 0x3B / 255, green: 0x23 / 255, blue: 0x14 / 255, alpha: 1), UIColor(red: 0xB0 / 255, green: 0x7A / 255, blue: 0x4F / 255, alpha: 1)],
+    ]
+
+    /// 납작한 사각·띠 종이 한 장. 뒤집히며(`flip`) 팔랑팔랑 떨어진다. 좌표는 장면(y 위쪽).
+    private struct Confetti {
+        let node: SKSpriteNode
+        var velocity: CGVector
+        var spin: CGFloat
+        var rotation: CGFloat
+        var flip: CGFloat
+        let flipSpeed: CGFloat
+        var age: TimeInterval
+        let life: TimeInterval
+    }
+
+    private func runFanfare(_ now: TimeInterval) {
+        if let start = fanfareAt, now >= start {
+            fanfareAt = nil
+            let olds = bodies.filter { $0.key.hasPrefix(Self.oldPrefix) }.shuffled()
+            guard !olds.isEmpty, let side = shownSide else { return }
+            // 빵! 양쪽 아래 모서리 폭죽(프로토 y 아래쪽 각 -π/2 ± .55 = 장면 π/2 ∓ .55).
+            spray(at: CGPoint(x: 18, y: 60), count: 70, angle: Double.pi / 2 - 0.55, spread: 0.7, speed: 1100, side: side)
+            spray(
+                at: CGPoint(x: size.width - 18, y: 60), count: 70, angle: Double.pi / 2 + 0.55, spread: 0.7, speed: 1100,
+                side: side
+            )
+            pops = olds.enumerated().map { (at: now + 0.25 + Double($0.offset) * 0.055, node: $0.element.node) }
+            let keys = Set(olds.map(\.key))
+            bodies.removeAll { keys.contains($0.key) }
+        }
+        guard let side = shownSide else { return }
+        while let next = pops.first, now >= next.at {
+            pops.removeFirst()
+            pop(next.node, side: side)
+        }
+    }
+
+    /// 지난해 마음 하나: 1 → 1.35로 커지며 120 ms에 사라지고, 그 자리에서 종이 10장이 사방으로 튄다.
+    private func pop(_ node: SKNode, side: CupSide) {
+        node.physicsBody = nil
+        let burst = SKAction.group([.scale(to: 1.35, duration: 0.12), .fadeOut(withDuration: 0.12)])
+        burst.timingMode = .easeOut
+        node.run(.sequence([burst, .removeFromParent()]))
+        spray(at: node.position, count: 10, angle: Double.pi / 2, spread: Double.pi * 1.6, speed: 420, side: side)
+    }
+
+    private func spray(at point: CGPoint, count: Int, angle: Double, spread: Double, speed: Double, side: CupSide) {
+        let colors = Self.paper[side] ?? [.white]
+        for _ in 0..<count {
+            let direction = angle + (Double.random(in: 0...1) - 0.5) * spread
+            let velocity = speed * (0.55 + Double.random(in: 0...1) * 0.6)
+            let strip = Double.random(in: 0...1) < 0.35
+            let width: CGFloat = strip ? 3 : 5 + CGFloat.random(in: 0...3)
+            let height: CGFloat = strip ? 11 + CGFloat.random(in: 0...5) : 4 + CGFloat.random(in: 0...3)
+            let color = colors[Int.random(in: 0..<colors.count)]
+            let size = CGSize(width: width, height: height)
+            // 당 면 흰 종이는 흰 바탕에 묻히지 않게 옅은 먹색 선(프로토 .25, 0.6 pt).
+            let node = side == .sugar && color == .white
+                ? SKSpriteNode(texture: SKTexture(image: Self.outlinedPaper(size)), size: size)
+                : SKSpriteNode(color: color, size: size)
+            node.position = point
+            node.zPosition = 10
+            addChild(node)
+            confetti.append(Confetti(
+                node: node,
+                velocity: CGVector(dx: cos(direction) * velocity, dy: sin(direction) * velocity),
+                spin: CGFloat.random(in: -7...7), rotation: CGFloat.random(in: 0...6.28),
+                flip: CGFloat.random(in: 0...6.28), flipSpeed: 8 + CGFloat.random(in: 0...10),
+                age: 0, life: 1.6 + Double.random(in: 0...0.9)
+            ))
+        }
+    }
+
+    private static func outlinedPaper(_ size: CGSize) -> UIImage {
+        UIGraphicsImageRenderer(size: size).image { context in
+            let rect = CGRect(origin: .zero, size: size)
+            UIColor.white.setFill()
+            context.fill(rect)
+            let cg = context.cgContext
+            cg.setStrokeColor(ink.withAlphaComponent(0.25).cgColor)
+            cg.setLineWidth(0.6)
+            cg.stroke(rect.insetBy(dx: 0.3, dy: 0.3))
+        }
+    }
+
+    /// 공기 저항이 커서 금방 느려지고(초당 0.18배), 그 뒤엔 좌우로 흔들리며 천천히 떨어진다(중력 540). 프로토 `fxTick`.
+    private func moveConfetti(_ dt: TimeInterval) {
+        guard !confetti.isEmpty, dt > 0 else { return }
+        let drag = CGFloat(pow(0.18, dt))
+        let step = CGFloat(dt)
+        for index in confetti.indices {
+            var bit = confetti[index]
+            bit.age += dt
+            bit.velocity.dx *= drag
+            bit.velocity.dy = bit.velocity.dy * drag - 540 * step
+            let sway: CGFloat = sin(bit.flip) * 18
+            bit.node.position.x += (bit.velocity.dx + sway) * step
+            bit.node.position.y += bit.velocity.dy * step
+            bit.rotation += bit.spin * step
+            bit.flip += bit.flipSpeed * step
+            bit.node.zRotation = -bit.rotation
+            bit.node.yScale = cos(bit.flip)
+            bit.node.alpha = CGFloat(min(1, (bit.life - bit.age) / 0.35))
+            confetti[index] = bit
+        }
+        let done = confetti.filter { $0.age >= $0.life || $0.node.position.y < -20 }
+        for bit in done { bit.node.removeFromParent() }
+        confetti.removeAll { $0.age >= $0.life || $0.node.position.y < -20 }
     }
 
     // MARK: - 그림 · 몸체

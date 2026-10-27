@@ -211,7 +211,10 @@ struct TrendsView: View {
                 range = .week
             },
             onPickSide: { show($0) },
-            inventory: monthInventory(shown: monthShown ?? thisMonth)
+            inventory: monthInventory(shown: monthShown ?? thisMonth),
+            lastYearHearts: MonthInventory.make(
+                gifts: gifts, capBalance: 0, side: side, year: today.year - 1, month: 12, boundaryHour: boundaryHour
+            ).hearts
         )
     }
 

@@ -153,7 +153,7 @@ jobs:
           shoot slide-50 light large -screenshotCupSlide 0.5
           shoot slide-70 light large -screenshotCupSlide 0.7
           shoot settings light large -initialTab settings
-          shoot inventory light large -initialTab settings -screenshotInventory YES -screenshotCaps 12 -screenshotInventoryItems strawberry
+          shoot inventory light large -initialTab settings -screenshotInventory YES -screenshotCaps 12 -screenshotInventoryItems strawberry,coffee-bean
           # 온보딩 릴(한 시각에 멈춰) + 하루 기준 두 단계(2 = 당, 3 = 카페인).
           for at in 0.9 2.0 3.9 6.4 8.1 9.8 12.2 14.4; do
             shoot "onboarding-reel-$at" light large -onboardingCompleted NO -onboardingReelAt "$at"
@@ -328,6 +328,7 @@ jobs:
           # 훑는 조명은 빌드 264에서 뺐다.
           shoot gift-reveal-dark light large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent item:strawberry -giftRevealAt 0.4
           shoot gift-reveal-strawberry light large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent item:strawberry -giftRevealAt 3
+          shoot gift-reveal-coffee-bean light large -mockPro YES -screenshotSide caffeine -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent item:coffee-bean -giftRevealAt 3
           # 거래(SPEC §4.10): 첫 거래는 카인이 병뚜껑 꼬리표 붙은 상자를 들고 들어오고(-giftAt), 누르면 조명 무대에
           # 카페라떼 잔·이름·"병뚜껑 2개랑 바꿀래?"와 버튼 둘(-giftRevealAt). 프라페는 -screenshotTradeItem으로 로슈 컷.
           # 튜토리얼 상자(starterCap)도 카인이 가져오는 병뚜껑 무대.

@@ -1,13 +1,19 @@
-"""Cut the strawberry out of Roshu's hug-strawberry art for the gift reveal stage (SPEC 4.9).
+"""Cut the gift items for the gift reveal stage and the collection (SPEC 4.9).
 
-The strawberry is painted into the pose together with Roshu. Its pixels are the red flesh
-plus the dark seeds inside it; Roshu's grey body and white arm lines are dropped. Small
-notches where the arm crossed the tip are filled with the flesh red so the outline is clean.
-The cut is turned tip-down and trimmed, then written for the app at about @3x.
+Strawberry: painted into Roshu's hug-strawberry pose. Its pixels are the red flesh plus the
+dark seeds inside it; Roshu's grey body and white arm lines are dropped. Small notches where
+the arm crossed the tip are filled with the flesh red so the outline is clean. The cut is
+turned tip-down and trimmed.
+
+Coffee bean (Kain's): drawn on its own canvas as two layers, the dark side under the face
+(kain/items/coffee-bean/side.png, face.png). They are stacked and trimmed.
+
+Both are written for the app at about @3x, the longer side APP_SIZE px.
 
     python design/assets/characters/cut_gift_item.py
 
-Writes roshu/items/strawberry.png and SugarCap/Resources/Assets.xcassets/gift-item-strawberry.imageset.
+Writes roshu/items/strawberry.png, kain/items/coffee-bean.png and the
+gift-item-strawberry / gift-item-coffee-bean imagesets in SugarCap/Resources/Assets.xcassets.
 """
 
 from __future__ import annotations
@@ -23,17 +29,15 @@ from scipy.spatial import ConvexHull
 ROOT = Path(__file__).resolve().parent
 SOURCE = ROOT / "roshu" / "poses" / "hug-strawberry.png"
 OUT = ROOT / "roshu" / "items" / "strawberry.png"
-CATALOG = (
-    ROOT.parents[2]
-    / "SugarCap"
-    / "Resources"
-    / "Assets.xcassets"
-    / "gift-item-strawberry.imageset"
-)
+BEAN_LAYERS = [
+    ROOT / "kain" / "items" / "coffee-bean" / name for name in ("side.png", "face.png")
+]
+BEAN_OUT = ROOT / "kain" / "items" / "coffee-bean.png"
+ASSETS = ROOT.parents[2] / "SugarCap" / "Resources" / "Assets.xcassets"
 # Turn so the tip points straight down (counterclockwise degrees).
 TURN = -28.0
-# Drawn at about 110 pt on the phone.
-APP_WIDTH = 330
+# Drawn at about 110 pt on the phone (the strawberry is wider than tall, so this is its width).
+APP_SIZE = 330
 
 
 def flesh_mask(rgba: np.ndarray) -> np.ndarray:
@@ -57,7 +61,32 @@ def flesh_mask(rgba: np.ndarray) -> np.ndarray:
     return np.asarray(canvas) > 0
 
 
-def main() -> None:
+def trimmed(cut: Image.Image) -> Image.Image:
+    box = cut.getchannel("A").point(lambda v: 255 if v > 20 else 0).getbbox()
+    if box is None:
+        raise SystemExit("empty cut")
+    return cut.crop(box)
+
+
+def write_item(cut: Image.Image, out: Path, asset: str, filename: str) -> None:
+    out.parent.mkdir(parents=True, exist_ok=True)
+    cut.save(out, optimize=True)
+    scale = APP_SIZE / max(cut.width, cut.height)
+    size = (round(cut.width * scale), round(cut.height * scale))
+    catalog = ASSETS / f"{asset}.imageset"
+    catalog.mkdir(parents=True, exist_ok=True)
+    cut.resize(size, Image.Resampling.LANCZOS).save(catalog / filename, optimize=True)
+    contents = {
+        "images": [{"filename": filename, "idiom": "universal", "scale": "3x"}],
+        "info": {"author": "xcode", "version": 1},
+    }
+    (catalog / "Contents.json").write_text(
+        json.dumps(contents, indent=2) + "\n", encoding="utf-8"
+    )
+    print(f"{out} {cut.size}, app {size[0]}x{size[1]}")
+
+
+def cut_strawberry() -> None:
     with Image.open(SOURCE) as image:
         rgba = np.asarray(image.convert("RGBA")).copy()
     mask = flesh_mask(rgba)
@@ -78,26 +107,27 @@ def main() -> None:
     cut = Image.fromarray(out, "RGBA").rotate(
         TURN, resample=Image.Resampling.BICUBIC, expand=True
     )
-    box = cut.getchannel("A").point(lambda v: 255 if v > 20 else 0).getbbox()
-    if box is None:
-        raise SystemExit("empty cut")
-    cut = cut.crop(box)
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    cut.save(OUT, optimize=True)
+    write_item(trimmed(cut), OUT, "gift-item-strawberry", "strawberry.png")
 
-    height = round(cut.height * APP_WIDTH / cut.width)
-    CATALOG.mkdir(parents=True, exist_ok=True)
-    cut.resize((APP_WIDTH, height), Image.Resampling.LANCZOS).save(
-        CATALOG / "strawberry.png", optimize=True
-    )
-    contents = {
-        "images": [{"filename": "strawberry.png", "idiom": "universal", "scale": "3x"}],
-        "info": {"author": "xcode", "version": 1},
-    }
-    (CATALOG / "Contents.json").write_text(
-        json.dumps(contents, indent=2) + "\n", encoding="utf-8"
-    )
-    print(f"{OUT} {cut.size}, app {APP_WIDTH}x{height}")
+
+def cut_coffee_bean() -> None:
+    layers = []
+    for path in BEAN_LAYERS:
+        with Image.open(path) as image:
+            layers.append(image.convert("RGBA"))
+    stack = Image.new("RGBA", layers[0].size, (0, 0, 0, 0))
+    for layer in layers:
+        if layer.size != stack.size:
+            raise SystemExit(
+                f"{layer.size} != {stack.size}: coffee bean layers differ in size"
+            )
+        stack.alpha_composite(layer)
+    write_item(trimmed(stack), BEAN_OUT, "gift-item-coffee-bean", "coffee-bean.png")
+
+
+def main() -> None:
+    cut_strawberry()
+    cut_coffee_bean()
 
 
 if __name__ == "__main__":

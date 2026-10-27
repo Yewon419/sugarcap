@@ -5394,6 +5394,22 @@
         }
       }
     },
+    "커피콩" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coffee bean"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "咖啡豆"
+          }
+        }
+      }
+    },
     "컵을 눌러 마신 음료 적기" : {
       "localizations" : {
         "en" : {

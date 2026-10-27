@@ -108,6 +108,8 @@ struct GiftRevealItem {
             self.init(name: String(localized: "병뚜껑"), asset: nil, symbol: "seal.fill", tint: tint)
         } else if payload == GiftContent.item("strawberry") {
             self.init(name: String(localized: "딸기"), asset: "gift-item-strawberry", symbol: "", tint: tint)
+        } else if payload == GiftContent.item("coffee-bean") {
+            self.init(name: String(localized: "커피콩"), asset: "gift-item-coffee-bean", symbol: "", tint: tint)
         } else {
             return nil
         }

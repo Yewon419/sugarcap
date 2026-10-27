@@ -63,10 +63,10 @@ enum GiftContent {
     static let cap = "cap"
     static let itemPrefix = "item:"
     /// 물건 목록(id, 주인). 물건은 주인이 들고 온다. 다 모으면 물건 몫은 병뚜껑으로 간다.
-    /// 딸기 = 로슈 `hug-strawberry`의 딸기(대표님 2026-10-11).
-    static let items: [(id: String, owner: CupSide)] = [("strawberry", .sugar)]
-    /// Pro 축하 선물의 고정 물건(주인별 하나). 기록하는 면 주인 것 중 하나를 준다. 카인 것은 대표님 그림이 오면 넣는다.
-    static let welcome: [(id: String, owner: CupSide)] = [("strawberry", .sugar)]
+    /// 딸기 = 로슈 `hug-strawberry`의 딸기(대표님 2026-10-11). 커피콩 = 카인 것(대표님 그림 2026-10-27).
+    static let items: [(id: String, owner: CupSide)] = [("strawberry", .sugar), ("coffee-bean", .caffeine)]
+    /// Pro 축하 선물의 고정 물건(주인별 하나). 기록하는 면 주인 것 중 하나를 준다(당을 끄면 카인 커피콩).
+    static let welcome: [(id: String, owner: CupSide)] = [("strawberry", .sugar), ("coffee-bean", .caffeine)]
 
     static func item(_ id: String) -> String { itemPrefix + id }
 

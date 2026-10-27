@@ -212,6 +212,7 @@ struct InventoryView: View {
     private static func info(_ id: String) -> (name: String, asset: String)? {
         switch id {
         case "strawberry": return (String(localized: "딸기"), "gift-item-strawberry")
+        case "coffee-bean": return (String(localized: "커피콩"), "gift-item-coffee-bean")
         default: return nil
         }
     }

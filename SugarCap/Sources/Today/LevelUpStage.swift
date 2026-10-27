@@ -179,7 +179,8 @@ struct LevelUpFigure {
         let scale: Double = photo.height * side.idleCast.scalePerPhotoHeight
         self.painter = painter
         r = scale / painter.scale
-        let dy: Double = side == .sugar ? 0.012 : 0.016
+        // 선물 들고 오기와 같은 발 높이(대표님 2026-10-27 잔 앞으로 .012 내림).
+        let dy: Double = side == .sugar ? 0.024 : 0.028
         base = photo.point(0.5, side.idleCast.bottom + dy)
     }
 

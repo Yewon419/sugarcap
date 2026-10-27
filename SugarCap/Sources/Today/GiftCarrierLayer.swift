@@ -148,7 +148,8 @@ struct GiftCarrierFigure {
         self.photo = photo
         r = scale / painter.scale
         // 카인은 발이 잔 앞 바닥선보다 9px(3x) 떠 보여 조금 더 내린다(대표님 2026-10-10).
-        let dy: Double = side == .sugar ? 0.012 : 0.016
+        // 잔 앞에 선 게 확실히 보이게 둘 다 사진 높이 .012 더 내렸다(대표님 2026-10-27 "공간감").
+        let dy: Double = side == .sugar ? 0.024 : 0.028
         base = photo.point(0.5, side.idleCast.bottom + dy)
         distance = Double(size.width) - Double(base.x) + painter.width * r
     }

@@ -87,8 +87,6 @@ final class IdlePoseBookTests: XCTestCase {
         XCTAssertTrue(roshu.allows("walk", step: 30, unlockedLevel: 1))
         XCTAssertFalse(roshu.allows("in-cup", step: 30, unlockedLevel: 2))
         XCTAssertTrue(roshu.allows("in-cup", step: 30, unlockedLevel: 3))
-        XCTAssertFalse(roshu.allows("hug-strawberry", step: 80, unlockedLevel: 3))
-        XCTAssertTrue(roshu.allows("hug-strawberry", step: 80, unlockedLevel: 4))
         XCTAssertFalse(roshu.allows("doze-lean", step: 80, unlockedLevel: 4))
         XCTAssertTrue(roshu.allows("doze-lean", step: 80, unlockedLevel: 5))
         XCTAssertFalse(roshu.allows("wave", step: 80, unlockedLevel: 5))
@@ -104,6 +102,20 @@ final class IdlePoseBookTests: XCTestCase {
         XCTAssertFalse(kain.allows("doze-one-leg", step: 80, unlockedLevel: 4))
         XCTAssertTrue(kain.allows("doze-one-leg", step: 80, unlockedLevel: 5))
         XCTAssertTrue(kain.allows("floor-sit", step: 0, unlockedLevel: 1))
+        // 물건 자세(대표님 2026-10-27): 단계와 별개로 그 물건을 열어 받았을 때만, 1%부터.
+        XCTAssertFalse(roshu.allows("hug-strawberry", step: 80, unlockedLevel: 10))
+        XCTAssertFalse(roshu.allows("hug-strawberry", step: 80, unlockedLevel: 10, items: ["coffee-bean"]))
+        XCTAssertTrue(roshu.allows("hug-strawberry", step: 80, unlockedLevel: 1, items: ["strawberry"]))
+        XCTAssertFalse(roshu.allows("hug-strawberry", step: 0, unlockedLevel: 1, items: ["strawberry"]))
+        XCTAssertFalse(kain.allows("bean-balance", step: 80, unlockedLevel: 10, items: ["strawberry"]))
+        XCTAssertTrue(kain.allows("bean-balance", step: 1, unlockedLevel: 1, items: ["coffee-bean"]))
+        // 물건 id는 선물 물건 목록에 있어야 한다(오타면 영영 안 풀린다).
+        let itemIDs = Set(GiftContent.items.map(\.id))
+        for cast in casts {
+            for (name, spec) in try XCTUnwrap(cast.poseSet).poses {
+                if let item = spec.item { XCTAssertTrue(itemIDs.contains(item), "\(cast.character) \(name) \(item)") }
+            }
+        }
         // Lv1이어도 1% 이상이면 뽑을 자세가 있다(빈 풀이면 0% 자세로 떨어져 엉뚱해진다).
         for cast in casts {
             let set = try XCTUnwrap(cast.poseSet)

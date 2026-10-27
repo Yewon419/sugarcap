@@ -109,6 +109,8 @@ struct TodayView: View {
     private func unlockedLevel(_ side: CupSide) -> Int {
         AffinityMath.unlockedLevel(level: affinityLevel(side), isPro: pro.isPro)
     }
+    /// 열어 받은 물건(물건 대기 자세 해금, §9.8).
+    private var ownedItems: Set<String> { GiftContent.takenItems(in: gifts.filter(\.isOpened)) }
     private func affinityLevel(_ side: CupSide) -> Int {
         let points = affinities.first { $0.character == side.characterID }?.points ?? 0
         return AffinityMath.level(points: points)
@@ -283,6 +285,7 @@ struct TodayView: View {
                         idle: carrier != nil || staged != nil ? nil : IdleCharacterLayer(
                             side: cupSide, step: step, isActive: isActive,
                             unlockedLevel: unlockedLevel(cupSide),
+                            ownedItems: ownedItems,
                             onMiss: { tapCup(at: $0, screen: proxy.frame(in: .global)) },
                             guest: trackedSides.count == 1 && hasOnlooker ? cupSide.other : nil,
                             affinityLevel: affinityLevel,

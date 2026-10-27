@@ -7,6 +7,7 @@ import SwiftUI
 /// 규칙: 앱을 열 때마다 허용된 자세 중 하나를 뽑고, 자세 사이 전환 동작은 없다. 기록으로 단계가 바뀌어
 /// 지금 자세가 허용되지 않게 되면 그때만 다시 뽑는다. 0%면 로슈는 철푸덕, 카인은 바닥에 앉기.
 /// 자세는 풀린 단계(`AffinityMath.unlockedLevel`)까지만 나온다. Pro가 끝나 지금 자세가 잠기면 다시 뽑는다.
+/// 물건 자세(딸기 안기·커피콩 얹기)는 단계와 별개로 그 물건을 열어 받았을 때 나온다. 받은 물건은 Pro가 끝나도 남는다.
 /// 동작 줄이기면 자세는 그대로 두고 움직임·깜빡임을 멈춘다.
 struct IdleCharacterLayer: View {
     let side: CupSide
@@ -16,6 +17,8 @@ struct IdleCharacterLayer: View {
     let isActive: Bool
     /// 대기 자세가 풀린 호감도 단계(§9.8).
     let unlockedLevel: Int
+    /// 열어 받은 물건 id(`GiftContent.takenItems`). 물건 자세 해금에 쓴다.
+    let ownedItems: Set<String>
     /// 캐릭터 밖을 누른 자리(전역 좌표). 오늘 화면은 이걸 컵 누르기로 받는다(2026-10-05).
     var onMiss: (CGPoint) -> Void = { _ in }
     /// 한 면만 켰을 때 컵 옆에서 구경하는 꺼진 쪽 캐릭터(`IdleOnlooker`). 같은 캔버스에 같이 그린다.
@@ -145,6 +148,10 @@ struct IdleCharacterLayer: View {
             if isAllowed(step: step, unlockedLevel: newLevel) { return }
             repick()
         }
+        .onChange(of: ownedItems) {
+            if isAllowed(step: step, unlockedLevel: unlockedLevel) { return }
+            repick()
+        }
         .onChange(of: scenePhase) { old, new in
             // 백그라운드에서 돌아오면 앱을 다시 연 것으로 보고 새로 뽑는다.
             if old == .background, new != .background { repick() }
@@ -163,7 +170,7 @@ struct IdleCharacterLayer: View {
 
     private func isAllowed(step: Int, unlockedLevel: Int) -> Bool {
         guard let pose, !avoiding.contains(pose) else { return false }
-        return side.idleCast.poseSet?.allows(pose, step: step, unlockedLevel: unlockedLevel) == true
+        return side.idleCast.poseSet?.allows(pose, step: step, unlockedLevel: unlockedLevel, items: ownedItems) == true
     }
 
     /// 구경꾼과 겹치는 자세, 지금 잔에서 안 보이는 자세(`CupSetGeometry.hiddenPoses`)는 뽑지 않는다.
@@ -175,7 +182,10 @@ struct IdleCharacterLayer: View {
     private func dodgeTarget() -> String? {
         guard let pose, let set = side.idleCast.poseSet else { return nil }
         var generator = SystemRandomNumberGenerator()
-        let next = set.pick(step: step, unlockedLevel: unlockedLevel, avoiding: avoiding.union([pose]), using: &generator)
+        let next = set.pick(
+            step: step, unlockedLevel: unlockedLevel, items: ownedItems, avoiding: avoiding.union([pose]),
+            using: &generator
+        )
         return next == pose ? nil : next
     }
 
@@ -224,7 +234,9 @@ struct IdleCharacterLayer: View {
         }
         #endif
         var generator = SystemRandomNumberGenerator()
-        pose = side.idleCast.poseSet?.pick(step: step, unlockedLevel: unlockedLevel, avoiding: avoiding, using: &generator)
+        pose = side.idleCast.poseSet?.pick(
+            step: step, unlockedLevel: unlockedLevel, items: ownedItems, avoiding: avoiding, using: &generator
+        )
     }
 }
 
@@ -275,7 +287,7 @@ struct IdleSprite {
         else { return self }
         let still = IdlePoseSpec(
             rule: IdlePoseRule(art: front, reflection: rule.reflection, shadow: rule.shadow),
-            unlock: spec.unlock, place: spec.place, pivot: .feet, motion: .channels([])
+            unlock: spec.unlock, item: spec.item, place: spec.place, pivot: .feet, motion: .channels([])
         )
         let now = frame(t)
         return IdleSprite(

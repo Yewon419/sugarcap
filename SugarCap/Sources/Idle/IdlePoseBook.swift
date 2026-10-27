@@ -8,6 +8,8 @@ struct IdlePoseSpec: Sendable {
     let rule: IdlePoseRule
     /// 이 자세가 풀리는 사이 단계(SPEC §9.8). 0%일 때 자세는 해금과 상관없이 쓴다.
     let unlock: Int
+    /// 이 물건을 선물로 받아 열어 봐야 풀리는 자세(`GiftContent.items` id). 로슈 딸기 안기·카인 커피콩 얹기(대표님 2026-10-27).
+    let item: String?
     let place: IdlePlace
     let pivot: IdlePivot
     let motion: IdleMotionSpec
@@ -141,21 +143,22 @@ struct IdlePoseSet: Sendable {
     let zero: String
     let poses: [String: IdlePoseSpec]
 
-    /// 남은 양 조건과 해금(`unlock` ≤ 풀린 단계)을 둘 다 맞아야 한다. 0%면 `zero`만, 해금과 상관없다.
-    func allows(_ pose: String, step: Int, unlockedLevel: Int) -> Bool {
+    /// 남은 양 조건과 해금(`unlock` ≤ 풀린 단계, 물건 자세는 그 물건을 가졌는지)을 다 맞아야 한다. 0%면 `zero`만, 해금과 상관없다.
+    func allows(_ pose: String, step: Int, unlockedLevel: Int, items: Set<String> = []) -> Bool {
         if step == 0 { return pose == zero }
         guard let spec = poses[pose] else { return false }
-        return spec.unlock <= unlockedLevel && spec.rule.allows(step: step)
+        let owned = spec.item.map { items.contains($0) } ?? true
+        return spec.unlock <= unlockedLevel && owned && spec.rule.allows(step: step)
     }
 
     /// 앱을 열 때마다 허용된 자세 중 하나를 뽑는다. 0%면 늘 `zero`.
     /// `avoiding`은 구경꾼과 겹치는 자세(`IdleOnlooker`). 0% 자세는 빼지 않는다.
     func pick<G: RandomNumberGenerator>(
-        step: Int, unlockedLevel: Int, avoiding: Set<String> = [], using generator: inout G
+        step: Int, unlockedLevel: Int, items: Set<String> = [], avoiding: Set<String> = [], using generator: inout G
     ) -> String {
         if step == 0 { return zero }
         let pool = poses.keys.sorted().filter {
-            !avoiding.contains($0) && allows($0, step: step, unlockedLevel: unlockedLevel)
+            !avoiding.contains($0) && allows($0, step: step, unlockedLevel: unlockedLevel, items: items)
         }
         return pool.randomElement(using: &generator) ?? zero
     }
@@ -262,6 +265,7 @@ enum IdlePoseBook {
         let art: String
         let mirror: Bool?
         let unlock: Int
+        let item: String?
         let minStep: Int?
         let maxStep: Int?
         let opacity: Double?
@@ -304,7 +308,7 @@ enum IdlePoseBook {
                 motionSpec = .channels(try (motion ?? []).map { try channel($0, pose: name) })
             }
             return IdlePoseSpec(
-                rule: rule, unlock: unlock, place: try placeSpec(name: name),
+                rule: rule, unlock: unlock, item: item, place: try placeSpec(name: name),
                 pivot: pivotSpec, motion: motionSpec
             )
         }

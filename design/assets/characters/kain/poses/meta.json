@@ -182,5 +182,30 @@
    }
   ],
   "rimLineY": null
+ },
+ "bean-balance": {
+  "file": "design/assets/characters/kain/poses/bean-balance.png",
+  "canvas": [
+   2500,
+   3600
+  ],
+  "bbox": [
+   503,
+   133,
+   1805,
+   2916
+  ],
+  "eyes": [
+   {
+    "box": [
+     828,
+     1390,
+     1115,
+     1778
+    ],
+    "lid": "#392519"
+   }
+  ],
+  "rimLineY": null
  }
 }

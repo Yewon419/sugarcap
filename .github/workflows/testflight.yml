@@ -279,6 +279,8 @@ jobs:
           shoot idle-kain-floor-sit light large -screenshotSide caffeine -idlePose floor-sit -idleStep 0 -idleAt 2.5
           shoot idle-kain-lie-left light large -screenshotSide caffeine -idlePose lie-left -idleStep 100 -idleAt 2.0
           shoot idle-kain-lie-right light large -screenshotSide caffeine -idlePose lie-right -idleStep 100 -idleAt 5.7
+          shoot idle-kain-bean-balance light large -screenshotSide caffeine -idlePose bean-balance -idleStep 100 -idleAt 0.6
+          shoot idle-kain-bean-balance-wobble light large -screenshotSide caffeine -idlePose bean-balance -idleStep 100 -idleAt 4.65
           # 초코 프라페 잔(§4.10 Phase 1). 대기 자세가 프라페 잔 치수(바닥·입구)에 서는지 본다. 잔은 Debug 인자로 켠다.
           shoot frappe-in-cup-50 light large -cupSet.sugar choco-frappe -idlePose in-cup -idleStep 50 -idleAt 2.5
           shoot frappe-in-cup-30 light large -cupSet.sugar choco-frappe -idlePose in-cup -idleStep 30 -idleAt 2.5

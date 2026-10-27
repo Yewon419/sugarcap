@@ -187,9 +187,10 @@
    },
    "hug-strawberry": {
     "label": "딸기 끌어안기",
-    "note": "Lv4. 딸기를 끌어안고 바닥 기준으로 좌우 흔들흔들, 팔은 살짝 늦게 따라 조인다. 6초마다 오른발이 한 번 까딱. 코·눈은 딸기 밑(대표님). 팔다리는 전부 몸 앞이고, 몸과 겹친 곳의 흰 띠는 그림대로 두되 딸기 위 띠는 지웠다.",
+    "note": "물건 자세: 딸기를 선물로 받아 열면 풀린다(단계와 별개, 대표님 2026-10-27, 그 전엔 Lv4). 딸기를 끌어안고 바닥 기준으로 좌우 흔들흔들, 팔은 살짝 늦게 따라 조인다. 6초마다 오른발이 한 번 까딱. 코·눈은 딸기 밑(대표님). 팔다리는 전부 몸 앞이고, 몸과 겹친 곳의 흰 띠는 그림대로 두되 딸기 위 띠는 지웠다.",
     "art": "hug-strawberry",
-    "unlock": 4,
+    "unlock": 1,
+    "item": "strawberry",
     "minStep": 1,
     "place": {
      "x": 0.8,
@@ -713,6 +714,78 @@
       "period": 9,
       "at": 5,
       "length": 1.4
+     }
+    ]
+   },
+   "bean-balance": {
+    "label": "머리에 커피콩 얹기",
+    "note": "물건 자세: 커피콩을 선물로 받아 열면 풀린다(단계와 별개, 대표님 2026-10-27). 잔 왼쪽 바닥(냅킨)에 서서 머리에 얹은 콩이 좌우로 기우뚱하고, 몸은 반대쪽으로 살짝 기울어 균형을 잡는다. 7초마다 크게 한 번 기우뚱, 6.5초마다 오른발 까딱. 콩은 몸 앞 파트라 제 축(콩 밑)으로 돈다.",
+    "art": "bean-balance",
+    "unlock": 1,
+    "item": "coffee-bean",
+    "minStep": 1,
+    "place": {
+     "xRim": -0.62,
+     "y": "bottom",
+     "dy": 0.016
+    },
+    "limbDirection": {
+     "bean": 0,
+     "leg_left": 0,
+     "leg_right": 0
+    },
+    "reflection": {
+     "toward": 0.49
+    },
+    "shadow": {
+     "w": 0.8,
+     "h": 0.14,
+     "dx": 0.0,
+     "dy": -0.03
+    },
+    "motion": [
+     {
+      "to": "sy",
+      "shape": "wave",
+      "amp": 0.01,
+      "period": 3.2
+     },
+     {
+      "to": "limb.bean",
+      "shape": "wave",
+      "amp": 6,
+      "period": 2.4
+     },
+     {
+      "to": "rot",
+      "shape": "wave",
+      "amp": -1.6,
+      "period": 2.4,
+      "phase": 0.4
+     },
+     {
+      "to": "limb.bean",
+      "shape": "bump",
+      "amp": 9,
+      "period": 7,
+      "at": 4.2,
+      "length": 0.9
+     },
+     {
+      "to": "rot",
+      "shape": "bump",
+      "amp": -2.5,
+      "period": 7,
+      "at": 4.35,
+      "length": 0.9
+     },
+     {
+      "to": "limb.leg_right",
+      "shape": "bump",
+      "amp": -7,
+      "period": 6.5,
+      "at": 2.0,
+      "length": 0.35
      }
     ]
    }

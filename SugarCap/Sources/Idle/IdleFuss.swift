@@ -33,10 +33,10 @@ enum IdleFussMath {
     }
 
     /// 정면으로 서면 어색해 멈춰 보기를 안 뽑는 자세(대표님 2026-10-12): 카인 헤엄·눕기(물속·바닥에 선 꼴),
-    /// 로슈 딸기 안기(딸기가 사라짐)·잔에 매달리기.
+    /// 로슈 딸기 안기·카인 커피콩 얹기(물건이 사라짐)·로슈 잔에 매달리기.
     static func canStare(character: String, pose: String) -> Bool {
         switch character {
-        case "kain": !["swim", "lie-left", "lie-right"].contains(pose)
+        case "kain": !["swim", "lie-left", "lie-right", "bean-balance"].contains(pose)
         case "roshu": !["hug-strawberry", "in-cup"].contains(pose)
         default: true
         }

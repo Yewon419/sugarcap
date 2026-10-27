@@ -106,61 +106,21 @@ struct WeekSummary: Equatable, Sendable {
     }
 }
 
-/// 월 방울 달력(Pro). 이번 달 1일부터 말일까지, 날마다 남긴 만큼 방울이 커진다.
-struct DropCalendar: Equatable, Sendable {
-    struct Cell: Equatable, Sendable, Identifiable {
-        let day: DayKey
-        /// 그날 마신 양. 오늘 이후는 nil.
-        let used: Double?
-        var id: String { day.rawValue }
-    }
-
-    let cells: [Cell]
-    /// 1일이 무슨 요일인지(일=0). 달력 앞 빈칸 수.
-    let leadingBlanks: Int
-    let limit: Double
-
-    func left(_ cell: Cell) -> Double? { cell.used.map { max(0, limit - $0) } }
-
-    private var elapsed: [Cell] { cells.filter { $0.used != nil } }
-    var elapsedDays: Int { elapsed.count }
-    var withinDays: Int { elapsed.filter { ($0.used ?? 0) <= limit }.count }
-    var given: Double { elapsed.reduce(0) { $0 + (left($1) ?? 0) } }
-
-    /// 방울 크기(pt). 남긴 게 없으면 0(점만 찍는다).
-    static func dropSize(left: Double, limit: Double) -> Double {
-        guard left > 0, limit > 0 else { return 0 }
-        return (12 + 26 * min(1, left / limit)).rounded()
-    }
-
-    static func make(
-        entries: [Entry], boundaryHour: Int, today: DayKey, side: CupSide, limit: Double, calendar: Calendar = .current
-    ) -> DropCalendar {
-        let first = DayKey(year: today.year, month: today.month, day: 1)
-        let nextMonth = today.month == 12
-            ? DayKey(year: today.year + 1, month: 1, day: 1)
-            : DayKey(year: today.year, month: today.month + 1, day: 1)
-        let count = first.days(until: nextMonth, calendar: calendar)
-        let daily = TrendMath.daily(entries: entries, boundaryHour: boundaryHour, today: today, days: today.day, calendar: calendar)
-        let used = Dictionary(uniqueKeysWithValues: daily.map { ($0.day, $0.value(side)) })
-        let cells = (0..<count).map { offset -> Cell in
-            let day = first.shifted(by: offset, calendar: calendar)
-            return Cell(day: day, used: day > today ? nil : (used[day] ?? 0))
-        }
-        return DropCalendar(cells: cells, leadingBlanks: first.weekday(calendar: calendar) - 1, limit: limit)
-    }
-}
-
 extension DayKey {
     /// 1 = 일요일 … 7 = 토요일(`Calendar` 규칙).
     func weekday(calendar: Calendar = .current) -> Int {
         let date = calendar.date(from: DateComponents(year: year, month: month, day: day, hour: 12)) ?? Date()
         return calendar.component(.weekday, from: date)
     }
+
+    /// 그날이 든 주의 월요일. 추이 주 보기는 월~일 주다(2026-10-27 대표님 "정확히는 그 주").
+    func weekStart(calendar: Calendar = .current) -> DayKey {
+        shifted(by: -((weekday(calendar: calendar) + 5) % 7), calendar: calendar)
+    }
 }
 
 /// 추이 "식탁 위 일주일"(2026-10-06 이식, 프로토 `design/proto/screens-trends-table.js`)의 잔 한 칸.
-/// 주 = 하루, 월 = 그 주의 하루 평균.
+/// 한 칸 = 하루.
 struct TableCup: Identifiable, Equatable, Sendable {
     /// 그 칸의 첫날. 주 보기에서는 그날이다.
     let day: DayKey
@@ -168,7 +128,7 @@ struct TableCup: Identifiable, Equatable, Sendable {
     /// 기록한 날이나 오늘이 하나라도 들었는지. 기록 없는 지난날은 "남겼다"고 셀 수 없다(안 적었을 수도 있다).
     let recorded: Bool
     let isFuture: Bool
-    /// 지금 칸(주 = 오늘, 월 = 이번 주). 캐릭터가 이 잔 뒤에 선다.
+    /// 오늘 칸. 캐릭터가 이 잔 뒤에 선다(없으면 마지막 잔).
     let isNow: Bool
 
     var id: String { day.rawValue }
@@ -183,7 +143,7 @@ struct TrendTable: Equatable, Sendable {
 
     var nowIndex: Int { cups.firstIndex(where: \.isNow) ?? max(0, cups.count - 1) }
 
-    /// 오늘로 끝나는 7일. `weeksAgo`만큼 앞 주로 옮긴다.
+    /// 오늘로 끝나는 7일. `weeksAgo`만큼 앞 주로 옮긴다. 주 지킴 축하(`WeekKeptCelebration`)가 쓴다.
     static func week(
         entries: [Entry], boundaryHour: Int, today: DayKey, side: CupSide, limit: Double, weeksAgo: Int = 0,
         calendar: Calendar = .current
@@ -202,53 +162,44 @@ struct TrendTable: Equatable, Sendable {
         return TrendTable(cups: cups, total: total, first: days.first?.day ?? end, last: end)
     }
 
-    /// 이번 주와 지난주 큰 숫자의 차이(Pro 한 줄). 지난주 기록이 없으면 비교하지 않는다.
-    static func weekChange(
-        entries: [Entry], boundaryHour: Int, today: DayKey, side: CupSide, limit: Double,
-        calendar: Calendar = .current
-    ) -> Double? {
-        let previous = week(
-            entries: entries, boundaryHour: boundaryHour, today: today, side: side, limit: limit, weeksAgo: 1,
-            calendar: calendar
-        )
-        guard previous.cups.contains(where: \.recorded) else { return nil }
-        let current = week(
-            entries: entries, boundaryHour: boundaryHour, today: today, side: side, limit: limit, calendar: calendar
-        )
-        return current.total - previous.total
-    }
-
-    /// 이번 달, 달력 한 줄(일~토)마다 한 잔. 잔 = 그 주에 센 날의 하루 평균.
-    static func month(
-        entries: [Entry], boundaryHour: Int, today: DayKey, side: CupSide, limit: Double,
+    /// `start`(월요일)부터 일요일까지 한 주. 오늘 이후 날은 비운다(기록 없음, `isFuture`).
+    static func calendarWeek(
+        entries: [Entry], boundaryHour: Int, today: DayKey, start: DayKey, side: CupSide, limit: Double,
         calendar: Calendar = .current
     ) -> TrendTable {
         let recordedDays = recordedDays(entries: entries, boundaryHour: boundaryHour, calendar: calendar)
-        let month = DropCalendar.make(
-            entries: entries, boundaryHour: boundaryHour, today: today, side: side, limit: limit, calendar: calendar
-        )
-        let counted: (DropCalendar.Cell) -> Bool = { cell in
-            cell.used != nil && (recordedDays.contains(cell.day) || cell.day == today)
-        }
-        var rows: [[DropCalendar.Cell]] = []
-        for (index, cell) in month.cells.enumerated() {
-            let row = (index + month.leadingBlanks) / 7
-            if row == rows.count { rows.append([]) }
-            rows[row].append(cell)
-        }
-        let cups = rows.compactMap { row -> TableCup? in
-            guard let start = row.first else { return nil }
-            let days = row.filter(counted)
-            let average = days.isEmpty ? 0 : days.reduce(0) { $0 + ($1.used ?? 0) } / Double(days.count)
+        let end = start.shifted(by: 6, calendar: calendar)
+        let days = TrendMath.daily(entries: entries, boundaryHour: boundaryHour, today: end, days: 7, calendar: calendar)
+        let cups = days.map { point in
+            let isFuture = point.day > today
             return TableCup(
-                day: start.day, used: average, recorded: !days.isEmpty,
-                isFuture: start.day > today, isNow: row.contains { $0.day == today }
+                day: point.day, used: isFuture ? 0 : point.value(side),
+                recorded: !isFuture && (recordedDays.contains(point.day) || point.day == today),
+                isFuture: isFuture, isNow: point.day == today
             )
         }
-        let total = month.cells.filter(counted).reduce(0) { $0 + max(0, limit - ($1.used ?? 0)) }
-        return TrendTable(
-            cups: cups, total: total, first: month.cells.first?.day ?? today, last: month.cells.last?.day ?? today
+        let total = cups.filter(\.recorded).reduce(0) { $0 + max(0, limit - $1.used) }
+        return TrendTable(cups: cups, total: total, first: start, last: end)
+    }
+
+    /// 이번 주와 지난주 **같은 요일까지** 남긴 양의 차이(Pro 한 줄). 이번 주는 아직 안 끝났으니 월 비교와 같은 규칙이다.
+    /// 지난주 그 기간에 기록이 없으면 비교하지 않는다.
+    static func calendarWeekChange(
+        entries: [Entry], boundaryHour: Int, today: DayKey, side: CupSide, limit: Double,
+        calendar: Calendar = .current
+    ) -> Double? {
+        let start = today.weekStart(calendar: calendar)
+        let elapsed = start.days(until: today, calendar: calendar) + 1
+        let previous = calendarWeek(
+            entries: entries, boundaryHour: boundaryHour, today: today, start: start.shifted(by: -7, calendar: calendar),
+            side: side, limit: limit, calendar: calendar
+        ).cups.prefix(elapsed).filter(\.recorded)
+        guard !previous.isEmpty else { return nil }
+        let current = calendarWeek(
+            entries: entries, boundaryHour: boundaryHour, today: today, start: start, side: side, limit: limit,
+            calendar: calendar
         )
+        return current.total - previous.reduce(0) { $0 + max(0, limit - $1.used) }
     }
 
     private static func recordedDays(entries: [Entry], boundaryHour: Int, calendar: Calendar) -> Set<DayKey> {

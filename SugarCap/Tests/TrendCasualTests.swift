@@ -2,7 +2,7 @@ import XCTest
 
 @testable import SugarCap
 
-/// 캐주얼 추이(주 컵 선반·월 방울 달력) 계산. 서울 달력 고정(CI 러너는 UTC).
+/// 캐주얼 추이(주 컵 선반·월~일 주) 계산. 서울 달력 고정(CI 러너는 UTC).
 final class TrendCasualTests: XCTestCase {
     private var calendar: Calendar {
         var calendar = Calendar(identifier: .gregorian)
@@ -40,32 +40,6 @@ final class TrendCasualTests: XCTestCase {
         XCTAssertEqual(week.days.last?.day, DayKey(year: 2026, month: 9, day: 19))
     }
 
-    func testDropCalendarCoversTheMonthAndStopsAtToday() {
-        let entries = [entry(26, sugar: 60), entry(25, sugar: 20)]
-        let month = DropCalendar.make(
-            entries: entries, boundaryHour: 4, today: today, side: .sugar, limit: 50, calendar: calendar
-        )
-        XCTAssertEqual(month.cells.count, 30)
-        XCTAssertEqual(month.leadingBlanks, 2, "2026년 9월 1일은 화요일")
-        XCTAssertEqual(month.elapsedDays, 26)
-        XCTAssertEqual(month.withinDays, 25)
-        XCTAssertEqual(month.given, 24 * 50 + 30, accuracy: 1e-9)
-        XCTAssertNil(month.cells.last?.used, "오늘 이후는 비운다")
-    }
-
-    func testDecemberRollsOverToNextYear() {
-        let month = DropCalendar.make(
-            entries: [], boundaryHour: 4, today: DayKey(year: 2026, month: 12, day: 3), side: .sugar, limit: 50,
-            calendar: calendar
-        )
-        XCTAssertEqual(month.cells.count, 31)
-    }
-
-    func testDropGrowsWithWhatWasLeft() {
-        XCTAssertEqual(DropCalendar.dropSize(left: 50, limit: 50), 38)
-        XCTAssertEqual(DropCalendar.dropSize(left: 25, limit: 50), 25)
-        XCTAssertEqual(DropCalendar.dropSize(left: 0, limit: 50), 0)
-    }
     // MARK: - 식탁 위 일주일(2026-10-06)
 
     func testTableWeekCountsOnlyRecordedDaysAndToday() {
@@ -81,28 +55,40 @@ final class TrendCasualTests: XCTestCase {
         XCTAssertEqual(table.last, today)
     }
 
-    func testTableWeekChangeNeedsLastWeekRecords() {
-        XCTAssertNil(TrendTable.weekChange(
-            entries: [entry(25, sugar: 20)], boundaryHour: 4, today: today, side: .sugar, limit: 50, calendar: calendar
-        ))
-        let change = TrendTable.weekChange(
-            entries: [entry(25, sugar: 20), entry(18, sugar: 10)], boundaryHour: 4, today: today, side: .sugar,
-            limit: 50, calendar: calendar
+    // MARK: - 월~일 주(2026-10-27)
+
+    func testWeekStartIsMonday() {
+        XCTAssertEqual(today.weekStart(calendar: calendar), DayKey(year: 2026, month: 9, day: 21), "9월 26일은 토요일")
+        XCTAssertEqual(
+            DayKey(year: 2026, month: 9, day: 27).weekStart(calendar: calendar), DayKey(year: 2026, month: 9, day: 21),
+            "일요일은 앞 월요일의 주"
         )
-        XCTAssertEqual(change ?? 0, (30 + 50) - 40, accuracy: 1e-9)
+        XCTAssertEqual(DayKey(year: 2026, month: 9, day: 21).weekStart(calendar: calendar), DayKey(year: 2026, month: 9, day: 21))
     }
 
-    func testTableMonthAveragesEachCalendarRow() {
-        let entries = [entry(1, sugar: 10), entry(2, sugar: 30), entry(25, sugar: 60)]
-        let table = TrendTable.month(
-            entries: entries, boundaryHour: 4, today: today, side: .sugar, limit: 50, calendar: calendar
+    func testCalendarWeekRunsMondayToSundayAndLeavesTheFutureEmpty() {
+        let entries = [entry(25, sugar: 20), entry(22, sugar: 70)]
+        let table = TrendTable.calendarWeek(
+            entries: entries, boundaryHour: 4, today: today, start: DayKey(year: 2026, month: 9, day: 21), side: .sugar,
+            limit: 50, calendar: calendar
         )
-        XCTAssertEqual(table.cups.map(\.day.day), [1, 6, 13, 20, 27], "9월 1일은 화요일, 일요일마다 새 줄")
-        XCTAssertEqual(table.cups[0].used, 20, accuracy: 1e-9, "1·2일만 센다")
-        XCTAssertEqual(table.cups.map(\.recorded), [true, false, false, true, false])
-        XCTAssertEqual(table.cups[3].used, 30, accuracy: 1e-9, "25일 60과 오늘 0의 평균")
-        XCTAssertTrue(table.cups[4].isFuture)
-        XCTAssertEqual(table.nowIndex, 3)
-        XCTAssertEqual(table.total, 40 + 20 + 0 + 50, accuracy: 1e-9)
+        XCTAssertEqual(table.cups.map(\.day.day), [21, 22, 23, 24, 25, 26, 27])
+        XCTAssertEqual(table.cups.map(\.recorded), [false, true, false, false, true, true, false])
+        XCTAssertEqual(table.cups.map(\.isFuture), [false, false, false, false, false, false, true])
+        XCTAssertEqual(table.total, 30 + 0 + 50, accuracy: 1e-9, "25일 30 + 넘긴 22일 0 + 오늘 50")
+        XCTAssertEqual(table.nowIndex, 5)
+        XCTAssertEqual(table.last, DayKey(year: 2026, month: 9, day: 27))
+    }
+
+    func testCalendarWeekChangeComparesTheSameDaysOfLastWeek() {
+        XCTAssertNil(TrendTable.calendarWeekChange(
+            entries: [entry(25, sugar: 20), entry(20, sugar: 10)], boundaryHour: 4, today: today, side: .sugar,
+            limit: 50, calendar: calendar
+        ), "지난주 일요일(20일) 기록은 이맘때 밖이라 비교 기록이 없다")
+        let change = TrendTable.calendarWeekChange(
+            entries: [entry(25, sugar: 20), entry(15, sugar: 10), entry(20, sugar: 0)], boundaryHour: 4, today: today,
+            side: .sugar, limit: 50, calendar: calendar
+        )
+        XCTAssertEqual(change ?? 0, (30 + 50) - 40, accuracy: 1e-9, "지난주 월~토 중 기록은 15일 하나")
     }
 }

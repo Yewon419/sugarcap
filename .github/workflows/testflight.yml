@@ -168,6 +168,10 @@ jobs:
           shoot trends-type-ax-xl light accessibility-extra-large -initialTab trends
           shoot trends-caffeine light large -seedDemo YES -initialTab trends -trendSide caffeine
           shoot trends-month light large -seedDemo YES -mockProOwned YES -initialTab trends -trendRange month
+          # 월 달력(2026-10-27): 카페인 면, 지난달. 주 보기는 월~일이고 ◀로 지난주.
+          shoot trends-month-caffeine light large -seedDemo YES -mockProOwned YES -initialTab trends -trendRange month -trendSide caffeine
+          shoot trends-month-prev light large -seedDemo YES -mockProOwned YES -initialTab trends -trendRange month -trendMonthsAgo 1
+          shoot trends-week-prev light large -seedDemo YES -initialTab trends -trendWeeksAgo 1
           # 가끔 나오는 등장: 로슈 늦게 걸어오기(걷는 중·멈춘 순간), 카인 끝줄 선에 거꾸로 매달리기.
           shoot trends-walk-1.7 light large -seedDemo YES -initialTab trends -trendEntrance walk -trendEntranceAt 1.7
           shoot trends-walk-2.6 light large -seedDemo YES -initialTab trends -trendEntrance walk -trendEntranceAt 2.6
@@ -448,6 +452,7 @@ jobs:
           shoot_zh onboarding-2 large -onboardingCompleted NO -onboardingPage 2
           shoot_zh onboarding-3 large -onboardingCompleted NO -onboardingPage 3
           shoot_zh trends large -seedDemo YES -initialTab trends
+          shoot_zh trends-month large -seedDemo YES -mockProOwned YES -initialTab trends -trendRange month
           shoot_zh limit-sugar large -initialTab trends -trendLimit sugar
           shoot_zh limit-caffeine large -initialTab trends -trendLimit caffeine
           shoot_zh paywall large -mockPro YES -screenshotPaywall YES

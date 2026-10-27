@@ -5,8 +5,9 @@ import WidgetKit
 
 /// 추이(SPEC §4.3). 2026-10-06 HTML 프로토타입 "식탁 위 일주일"(`design/proto/screens-trends-table.js`) 이식.
 /// 대표님 "버튼과 글자가 너무 많다, 척 보고 알아야 한다" → 화면 글자는 기간·제목·큰 숫자·잔 숫자·요일뿐이다.
-///  - 지면: 날짜 범위(주↔월 토글은 막대 오른쪽 위) → "남긴 당" → 큰 숫자(기록한 날과 오늘 남긴 양의 합) → 지난주 대비(Pro) · 하루 기준.
-///  - 장면: 오늘 탭과 같은 벽·식탁. 잔 = 하루(주) 또는 그 주 하루 평균(월, Pro). 캐릭터는 지금 잔 뒤에서 엿본다.
+///  - 지면: 날짜 범위(월~일, ◀ ▶) → "남긴 당" → 큰 숫자(기록한 날과 오늘 남긴 양의 합) → 지난주 대비(Pro) · 하루 기준.
+///  - 장면: 오늘 탭과 같은 벽·식탁. 잔 = 하루. 캐릭터는 지금 잔 뒤에서 엿본다.
+///  - 월(Pro, 2026-10-27)은 캐릭터 없는 달력 `MonthTrendsView`. 주↔월 토글은 막대 오른쪽 위.
 ///  - 당↔카페인은 옆으로 밀기 + 점 두 개.
 struct TrendsView: View {
     /// 하루 기록 시트의 줄 썸네일 색에만 쓴다.
@@ -27,6 +28,10 @@ struct TrendsView: View {
     @State private var paywall: ProFeature?
     @State private var pendingMonth = false
     @State private var dayLog: DayKey?
+    /// 주 보기에서 보는 주의 월요일. nil = 이번 주(날이 바뀌면 따라간다).
+    @State private var weekStart: DayKey?
+    /// 월 달력에서 보는 달의 1일. nil = 이번 달.
+    @State private var monthShown: DayKey?
     @State private var failureMessage: String?
     /// 하루 기준 화면으로 넘어간 쪽(2026-10-05 설정에서 옮겨 옴).
     @State private var limitSide: CupSide?
@@ -94,36 +99,16 @@ struct TrendsView: View {
     var body: some View {
         TimelineView(.everyMinute) { timeline in
             let today = DayKey(at: timeline.date, boundaryHour: boundaryHour)
-            let tables: [CupSide: TrendTable] = Dictionary(
-                uniqueKeysWithValues: trackedSides.map { ($0, makeTable(today: today, side: $0)) }
-            )
-            GeometryReader { proxy in
-                ScrollView {
-                    VStack(spacing: 0) {
-                        if let table = tables[side] {
-                            page(
-                                table: table, today: today, width: proxy.size.width, kainHangs: kainHangs(today: today),
-                                figureDigits: Self.figureDigits(tables)
-                            )
-                        }
-                        Spacer(minLength: 32)
-                        scene(tables: tables, width: proxy.size.width, kainHangs: kainHangs(today: today))
-                    }
-                    .frame(minHeight: proxy.size.height)
-                }
-                .scrollBounceBehavior(.basedOnSize)
-                .simultaneousGesture(sideDrag(width: proxy.size.width))
-                // 식탁 색이 홈 인디케이터 밑까지 이어지게 한다.
-                .background {
-                    VStack(spacing: 0) {
-                        CupView.wallColor
-                        Self.tableTop.frame(height: proxy.safeAreaInsets.bottom + 1)
-                    }
-                    .ignoresSafeArea()
+            // Group이면 onAppear가 안쪽 뷰마다 붙어 주↔월을 바꿀 때마다 다시 불린다.
+            ZStack {
+                if isMonth {
+                    monthView(today: today)
+                } else {
+                    weekView(today: today)
                 }
             }
             .onAppear {
-                applyScreenshotArguments()
+                applyScreenshotArguments(today: today)
                 startReveal()
                 pickEntrance()
             }
@@ -131,6 +116,9 @@ struct TrendsView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) { rangeToggle }
         }
+        // 월 달력은 사진이 막대 밑까지 깔린다. 카페인 사진은 어두워 막대 글자·상태 막대를 흰색으로.
+        .toolbarBackground(isMonth ? .hidden : .automatic, for: .navigationBar)
+        .toolbarColorScheme(isMonth && side == .caffeine ? .dark : nil, for: .navigationBar)
         .overlay {
             if let coachStep {
                 TrendCoachOverlay(steps: coachSteps, index: coachStep, frames: coachFrames, onNext: advanceCoach)
@@ -175,12 +163,79 @@ struct TrendsView: View {
         }
     }
 
-    private func makeTable(today: DayKey, side: CupSide) -> TrendTable {
-        let limit = side.limit(limits)
-        if isMonth {
-            return TrendTable.month(entries: entries, boundaryHour: boundaryHour, today: today, side: side, limit: limit)
+    private func weekView(today: DayKey) -> some View {
+        let tables: [CupSide: TrendTable] = Dictionary(
+            uniqueKeysWithValues: trackedSides.map { ($0, makeTable(today: today, side: $0)) }
+        )
+        return GeometryReader { proxy in
+            ScrollView {
+                VStack(spacing: 0) {
+                    if let table = tables[side] {
+                        page(
+                            table: table, today: today, width: proxy.size.width, kainHangs: kainHangs(today: today),
+                            figureDigits: Self.figureDigits(tables)
+                        )
+                    }
+                    Spacer(minLength: 32)
+                    scene(tables: tables, width: proxy.size.width, kainHangs: kainHangs(today: today))
+                }
+                .frame(minHeight: proxy.size.height)
+            }
+            .scrollBounceBehavior(.basedOnSize)
+            .simultaneousGesture(sideDrag(width: proxy.size.width))
+            // 식탁 색이 홈 인디케이터 밑까지 이어지게 한다.
+            .background {
+                VStack(spacing: 0) {
+                    CupView.wallColor
+                    Self.tableTop.frame(height: proxy.safeAreaInsets.bottom + 1)
+                }
+                .ignoresSafeArea()
+            }
         }
-        return TrendTable.week(entries: entries, boundaryHour: boundaryHour, today: today, side: side, limit: limit)
+    }
+
+    /// 월 달력(Pro, 2026-10-27). 칸을 누르면 그날이 든 월~일 주 보기로 간다.
+    private func monthView(today: DayKey) -> some View {
+        let thisMonth = DayKey(year: today.year, month: today.month, day: 1)
+        let shown = Binding<DayKey>(
+            get: { monthShown ?? thisMonth },
+            set: { monthShown = $0 == thisMonth ? nil : $0 }
+        )
+        let first = earliestDay(today: today)
+        return MonthTrendsView(
+            entries: entries, boundaryHour: boundaryHour, limits: limits, today: today, side: side,
+            trackedSides: trackedSides, shown: shown, earliest: DayKey(year: first.year, month: first.month, day: 1),
+            onPickDay: { day in
+                let start = day.weekStart()
+                weekStart = start == today.weekStart() ? nil : start
+                range = .week
+            },
+            onPickSide: { show($0) }
+        )
+    }
+
+    /// 첫 기록 날(기록이 없으면 오늘). 주·달을 그 앞으로는 못 넘긴다.
+    private func earliestDay(today: DayKey) -> DayKey {
+        min(entries.last?.dayKey(boundaryHour: boundaryHour) ?? today, today)
+    }
+
+    /// 넘기기 연출 없이 면을 바꾼다(월 달력). 주 보기로 돌아왔을 때 잔·캐릭터 층이 그 면에 있게 쪽 번호도 맞춘다.
+    private func show(_ next: CupSide) {
+        pickedSide = next
+        cupPage = pageIndex(CupSide.visible(next, in: trackedSides))
+        castPage = cupPage
+    }
+
+    /// 보는 주의 월요일. `weekStart`가 없으면 이번 주.
+    private func shownWeekStart(today: DayKey) -> DayKey {
+        weekStart ?? today.weekStart()
+    }
+
+    private func makeTable(today: DayKey, side: CupSide) -> TrendTable {
+        TrendTable.calendarWeek(
+            entries: entries, boundaryHour: boundaryHour, today: today, start: shownWeekStart(today: today), side: side,
+            limit: side.limit(limits)
+        )
     }
 
     // MARK: - 지면
@@ -212,9 +267,12 @@ struct TrendsView: View {
         .padding(.top, 8)
     }
 
-    /// 머리 줄 = 날짜 범위만. 주↔월 토글은 내비게이션 막대 오른쪽 위로 옮겼다(2026-10-27 대표님).
+    /// 머리 줄 = 날짜 범위(월~일) + 오른쪽 ◀ ▶(2026-10-27 대표님 "화살표도 넣어"). 주↔월 토글은 내비게이션 막대 오른쪽 위.
+    /// 첫 기록 주 앞, 이번 주 뒤로는 못 간다.
     private func masthead(table: TrendTable, today: DayKey) -> some View {
-        HStack(spacing: 8) {
+        let start = shownWeekStart(today: today)
+        let canGoBack = start > earliestDay(today: today).weekStart()
+        return HStack(spacing: 8) {
             Text("\(table.first.month).\(table.first.day) – \(table.last.month).\(table.last.day)")
                 .font(AppFont.pretendard(15, .bold, relativeTo: .subheadline))
                 .monospacedDigit()
@@ -222,10 +280,34 @@ struct TrendsView: View {
                 .lineLimit(1)
                 .frame(minHeight: 44)
             Spacer(minLength: 8)
+            weekStep(pointsLeft: true, enabled: canGoBack, label: "이전 주", id: "week-prev") {
+                weekStart = start.shifted(by: -7)
+            }
+            weekStep(pointsLeft: false, enabled: weekStart != nil, label: "다음 주", id: "week-next") {
+                let next = start.shifted(by: 7)
+                weekStart = next >= today.weekStart() ? nil : next
+            }
         }
         .overlay(alignment: .bottom) {
             Rectangle().fill(Color.ink).frame(height: 1)
         }
+    }
+
+    private func weekStep(
+        pointsLeft: Bool, enabled: Bool, label: LocalizedStringKey, id: String, action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            StepTriangle(pointsLeft: pointsLeft)
+                .fill(Color.ink)
+                .frame(width: 12, height: 14)
+                .frame(width: 36, height: 44)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .disabled(!enabled)
+        .opacity(enabled ? 1 : 0.3)
+        .accessibilityLabel(label)
+        .accessibilityIdentifier(id)
     }
 
     /// 주↔월 토글(내비게이션 막대 오른쪽 위). 월은 Pro라 무료가 누르면 페이월을 열고 주에 머문다
@@ -316,10 +398,10 @@ struct TrendsView: View {
         }
     }
 
-    /// 지난주 대비 남긴 양의 차이(Pro, 주 보기). 지난주 기록이 없으면 nil.
+    /// 지난주 같은 요일까지 대비 남긴 양의 차이(Pro, 이번 주를 볼 때만). 지난주 그 기간 기록이 없으면 nil.
     private func weekChange(_ cupSide: CupSide, today: DayKey) -> Double? {
-        guard pro.isPro, !isMonth else { return nil }
-        return TrendTable.weekChange(
+        guard pro.isPro, !isMonth, weekStart == nil else { return nil }
+        return TrendTable.calendarWeekChange(
             entries: entries, boundaryHour: boundaryHour, today: today, side: cupSide, limit: cupSide.limit(limits)
         )
     }
@@ -646,34 +728,28 @@ struct TrendsView: View {
 
     @ViewBuilder
     private func cupColumn(_ cup: TableCup, index: Int, side pageSide: CupSide) -> some View {
-        if isMonth {
-            cupFace(cup, label: String(localized: "\(index + 1)주"), width: 58, dimmed: !cup.recorded || cup.isFuture, side: pageSide)
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel("\(index + 1)주차 \(cupDescription(cup, average: true, side: pageSide))")
-        } else {
-            let weekday = Self.weekdays[cup.day.weekday() - 1]
-            Button {
-                dayLog = cup.day
-            } label: {
-                cupFace(cup, label: cup.isNow ? String(localized: "오늘") : weekday, width: 50, dimmed: !cup.recorded, side: pageSide)
-            }
-            .buttonStyle(PressScaleStyle())
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(Text(verbatim: "\(Self.weekdayNames[cup.day.weekday() - 1]) \(cupDescription(cup, average: false, side: pageSide))"))
-            .accessibilityAddTraits(.isButton)
-            .accessibilityIdentifier("shelf-\(cup.day.rawValue)")
+        let weekday = Self.weekdays[cup.day.weekday() - 1]
+        Button {
+            dayLog = cup.day
+        } label: {
+            cupFace(cup, label: cup.isNow ? String(localized: "오늘") : weekday, width: 50, dimmed: !cup.recorded, side: pageSide)
         }
+        .buttonStyle(PressScaleStyle())
+        // 오늘 이후 날은 아직 열 기록이 없다.
+        .disabled(cup.isFuture)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(verbatim: "\(Self.weekdayNames[cup.day.weekday() - 1]) \(cupDescription(cup, side: pageSide))"))
+        .accessibilityAddTraits(.isButton)
+        .accessibilityIdentifier("shelf-\(cup.day.rawValue)")
     }
 
-    private func cupDescription(_ cup: TableCup, average: Bool, side pageSide: CupSide) -> String {
+    private func cupDescription(_ cup: TableCup, side pageSide: CupSide) -> String {
         guard cup.recorded else { return String(localized: "기록 없음") }
         let limit = pageSide.limit(limits)
         let over = cup.used - limit
         if over > 0 { return String(localized: "기준보다 \(Amount.number(over.rounded())) \(pageSide.unit) 더 마심") }
         let left = Amount.number(max(0, limit - cup.used).rounded())
-        return average
-            ? String(localized: "하루 평균 남은 \(pageSide.label) \(left) \(pageSide.unit)")
-            : String(localized: "남은 \(pageSide.label) \(left) \(pageSide.unit)")
+        return String(localized: "남은 \(pageSide.label) \(left) \(pageSide.unit)")
     }
 
     private func cupFace(_ cup: TableCup, label: String, width: CGFloat, dimmed: Bool, side pageSide: CupSide) -> some View {
@@ -834,7 +910,7 @@ struct TrendsView: View {
     /// CI 스크린샷 전용(Debug). `-trendSide caffeine`, `-trendRange month`, `-trendLimit sugar`(하루 기준 화면을 바로 연다),
     /// `-screenshotTrendDayLog <며칠 전>`.
     /// 등장은 `pickEntrance`: `-trendEntrance walk|hang` + `-trendEntranceAt 1.7`.
-    private func applyScreenshotArguments() {
+    private func applyScreenshotArguments(today: DayKey) {
         #if DEBUG
         let defaults = UserDefaults.standard
         if defaults.string(forKey: "trendSide") == "caffeine" {
@@ -844,6 +920,14 @@ struct TrendsView: View {
             castPage = pageIndex(shown)
         }
         if defaults.string(forKey: "trendRange") == "month" { range = .month }
+        // `-trendWeeksAgo 1` = 지난주(월~일), `-trendMonthsAgo 1` = 지난달 달력.
+        if defaults.integer(forKey: "trendWeeksAgo") > 0 {
+            weekStart = today.weekStart().shifted(by: -7 * defaults.integer(forKey: "trendWeeksAgo"))
+        }
+        if defaults.integer(forKey: "trendMonthsAgo") > 0 {
+            let thisMonth = DayKey(year: today.year, month: today.month, day: 1)
+            monthShown = MonthTrendsView.shift(thisMonth, by: -defaults.integer(forKey: "trendMonthsAgo"))
+        }
         if let raw = defaults.string(forKey: "trendLimit"), let limitSide = CupSide(rawValue: raw) { self.limitSide = limitSide }
         // `-screenshotTrendDayLog 2` = 이틀 전 하루 기록 시트(지난날 "음료 추가").
         if defaults.object(forKey: "screenshotTrendDayLog") != nil {

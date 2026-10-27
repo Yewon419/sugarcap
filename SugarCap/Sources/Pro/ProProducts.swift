@@ -32,7 +32,6 @@ enum ProEntitlement {
 /// Pro로 잠그는 기능(SPEC §6). 무료가 쓸 수 있는 것은 여기에 없다.
 enum ProFeature: String, CaseIterable, Identifiable, Sendable {
     case monthlyTrends
-    case weekOverWeek
     case reductionGoal
     /// 선물 마음 카드의 "다른 것도 받고 싶으시다고요?"(§4.9).
     case gifts
@@ -42,7 +41,6 @@ enum ProFeature: String, CaseIterable, Identifiable, Sendable {
     var title: String {
         switch self {
         case .monthlyTrends: return String(localized: "추이 월 보기")
-        case .weekOverWeek: return String(localized: "지난주 대비")
         case .reductionGoal: return String(localized: "감소 목표")
         case .gifts: return String(localized: "선물")
         }

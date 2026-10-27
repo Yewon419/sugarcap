@@ -5154,38 +5154,6 @@
         }
       }
     },
-    "지난주 대비" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "vs. last week"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "和上週比較"
-          }
-        }
-      }
-    },
-    "지난주 대비는 Pro에서 열려요" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Comparing with last week comes with Pro"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "和上週比較需要 Pro"
-          }
-        }
-      }
-    },
     "지난주만큼 남겼어요" : {
       "localizations" : {
         "en" : {

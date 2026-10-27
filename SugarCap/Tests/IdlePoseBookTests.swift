@@ -88,6 +88,7 @@ final class IdlePoseBookTests: XCTestCase {
         // 로슈 해금 표(대표님 2026-10-27): Lv1 걷기·컵 안 가장자리·철푸덕, Lv2 구경, Lv3 손 흔들기,
         // Lv4 잔 뒤 삐지기, Lv5 기대 졸기, Lv6 내 밥 지키기.
         XCTAssertTrue(roshu.allows("in-cup", step: 30, unlockedLevel: 1))
+        XCTAssertTrue(roshu.allows("peek", step: 80, unlockedLevel: 1))
         XCTAssertFalse(roshu.allows("watch", step: 80, unlockedLevel: 1))
         XCTAssertTrue(roshu.allows("watch", step: 80, unlockedLevel: 2))
         XCTAssertTrue(roshu.allows("watch-right", step: 80, unlockedLevel: 2))
@@ -105,6 +106,7 @@ final class IdlePoseBookTests: XCTestCase {
         // 카인 해금 표(대표님 2026-10-27): Lv1 걷기·커피 속 앞보기·바닥에 앉기, Lv2 가장자리 뒤 앉기,
         // Lv3 잔 옆에 눕기, Lv4 가장자리에 서기, Lv5 커피 속 헤엄, Lv6 한 발로 졸기.
         XCTAssertTrue(kain.allows("swim-front", step: 80, unlockedLevel: 1))
+        XCTAssertTrue(kain.allows("peek", step: 80, unlockedLevel: 1))
         XCTAssertTrue(kain.allows("floor-sit-right", step: 100, unlockedLevel: 1))
         XCTAssertFalse(kain.allows("rim-sit", step: 80, unlockedLevel: 1))
         XCTAssertTrue(kain.allows("rim-sit", step: 80, unlockedLevel: 2))

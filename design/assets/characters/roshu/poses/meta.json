@@ -345,5 +345,39 @@
    }
   ],
   "rimLineY": null
+ },
+ "peek": {
+  "file": "design/assets/characters/roshu/poses/peek.png",
+  "canvas": [
+   2500,
+   3200
+  ],
+  "bbox": [
+   618,
+   693,
+   1279,
+   2581
+  ],
+  "eyes": [
+   {
+    "box": [
+     1051,
+     1195,
+     1136,
+     1284
+    ],
+    "lid": "#D5D7DD"
+   },
+   {
+    "box": [
+     1193,
+     1140,
+     1275,
+     1226
+    ],
+    "lid": "#D5D7DD"
+   }
+  ],
+  "rimLineY": null
  }
 }

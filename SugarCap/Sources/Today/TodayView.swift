@@ -381,8 +381,7 @@ struct TodayView: View {
     // MARK: - 단계 상승 무대(§4.9 결정 4)
 
     /// 보고 있는 면의 아직 안 본 단계 상승. 그 면에 상자가 와 있으면 상자부터 받는다("선물 다 받고 나서").
-    /// 첫 만남(Lv1)만 상자보다 먼저다: 두 면을 저절로 넘기며 바로 이어 보여 줘야 하는데, 첫 먹이기 병뚜껑 상자가
-    /// 한쪽 면에 와 있어 거기서 멈췄다(2026-10-27 CI).
+    /// 첫 만남(Lv1)만 상자보다 먼저다: 두 면을 저절로 넘기며 바로 이어 보여 줘야 해서, 같이 오는 첫 먹이기 병뚜껑 상자를 기다리지 않는다.
     private var nextLevelUp: GiftEvent? {
         let waiting = gifts.first { !$0.isOpened && $0.giftKind == .levelUp && $0.cupSide == side }
         guard let waiting else { return nil }
@@ -391,8 +390,9 @@ struct TodayView: View {
     }
 
     /// 무대를 열어도 되는 때의 단계 상승 id. 다른 연출·시트·화면이 떠 있거나 넘기는 중이면 없다.
+    /// 첫 마감 알림 질문도 기다린다. 무대 위에 떠서 무대를 못 누르게 막았다(2026-10-27 CI).
     private var levelUpCue: UUID? {
-        guard levelUp == nil, opening == nil, reveal == nil, trade == nil, feeding == nil, gate == nil, paywall == nil,
+        guard levelUp == nil, opening == nil, reveal == nil, trade == nil, feeding == nil, gate == nil, paywall == nil, !asksReminder,
               isOnScreen, !isSliding, !isSettingsPresented, !isTrendsPresented, !isRecordSheetPresented,
               !isDayLogPresented, !isManualEntryPresented, path.isEmpty
         else { return nil }

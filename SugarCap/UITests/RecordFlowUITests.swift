@@ -524,6 +524,14 @@ extension RecordFlowUITests {
         app.buttons["feeding-done"].tap()
         XCTAssertTrue(app.buttons["feeding-done"].waitForNonExistence(timeout: 5), "완료를 눌러도 먹이기 화면이 안 닫힘")
 
+        // 첫 마감 알림 질문이 먼저 뜨고, 닫아야 무대가 열린다(2026-10-27 CI, 질문이 무대를 가렸음).
+        let noReminder = app.buttons.matching(identifier: "reminder-no")
+        // 한 번만 묻는다. 시뮬레이터에서 이미 물었으면 안 뜬다.
+        if noReminder.firstMatch.waitForExistence(timeout: 5) {
+            noReminder.allElementsBoundByIndex.first { $0.isHittable }?.tap()
+            XCTAssertTrue(noReminder.firstMatch.waitForNonExistence(timeout: 5), "알림 질문이 안 닫힘")
+        }
+
         // 첫 먹이기 직후 두 면 모두 "처음 만난 사이" 무대(2026-10-27). 첫 무대가 끝나면 다른 컵으로 저절로 넘어가 이어서 뜬다.
         // 둘 다 보고 닫아 둬야 뒤 테스트·스크린샷에 무대가 안 남는다.
         let ui = Driver(app: app)
@@ -541,12 +549,7 @@ extension RecordFlowUITests {
         stage.tap()
         XCTAssertTrue(stage.waitForNonExistence(timeout: 3), "눌렀는데 두 번째 무대가 안 닫힘")
 
-        // 정리: 첫 마감 알림 질문을 닫고 당 컵으로 되돌린다. 넘어간 컵이 저장돼 뒤 테스트가 카페인 컵에서 시작했다(2026-10-27 CI).
-        let noReminder = app.buttons.matching(identifier: "reminder-no")
-        if noReminder.firstMatch.waitForExistence(timeout: 3) {
-            noReminder.allElementsBoundByIndex.first { $0.isHittable }?.tap()
-            XCTAssertTrue(noReminder.firstMatch.waitForNonExistence(timeout: 5), "알림 질문이 안 닫힘")
-        }
+        // 정리: 당 컵으로 되돌린다. 넘어간 컵이 저장돼 뒤 테스트가 카페인 컵에서 시작했다(2026-10-27 CI).
         if summary.label.hasPrefix("카페인 남은") {
             let window = app.windows.firstMatch
             let right = window.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.5))

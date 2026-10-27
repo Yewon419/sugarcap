@@ -191,8 +191,9 @@ final class IdlePoseBookTests: XCTestCase {
     /// `awayPoses`로 묶이고, 다른 대기 자세보다 작으며, 반투명 대신 벽 색을 덮는다(투명도 1 그대로).
     func testSulkBackStandsSmallBehindCup() throws {
         let set = try XCTUnwrap(IdleCast.roshu.poseSet)
-        XCTAssertEqual(set.awayPoses, ["sulk-back"])
-        XCTAssertEqual(try XCTUnwrap(IdleCast.kain.poseSet).awayPoses, [])
+        // 잔 뒤에서 빼꼼(peek, 2026-10-27)도 잔 뒤 자세라 같이 묶인다.
+        XCTAssertEqual(set.awayPoses, ["sulk-back", "peek"])
+        XCTAssertEqual(try XCTUnwrap(IdleCast.kain.poseSet).awayPoses, ["peek"])
         let spec = try XCTUnwrap(set.poses["sulk-back"])
         XCTAssertEqual(spec.rule.art, "stand")
         XCTAssertEqual(spec.rule.opacity, 1)

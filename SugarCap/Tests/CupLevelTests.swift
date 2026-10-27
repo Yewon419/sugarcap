@@ -5,12 +5,13 @@ import XCTest
 
 final class CupLevelTests: XCTestCase {
     func testFiveStepBands() {
-        // SPEC §9-10(2026-09-28): 0 초과~40% 미만 → 30, 40~65% 미만 → 50, 65~100% 미만 → 80.
+        // 2026-10-27 대표님: 더 적은 쪽 사진. 0 초과~50% 미만 → 30, 50~80% 미만 → 50, 80~100% 미만 → 80.
         XCTAssertEqual(CupLevel.steps, [0, 30, 50, 80, 100])
-        XCTAssertEqual(CupLevel.step(remainingRatio: 0.39), 30)
-        XCTAssertEqual(CupLevel.step(remainingRatio: 0.40), 50)
-        XCTAssertEqual(CupLevel.step(remainingRatio: 0.649), 50)
-        XCTAssertEqual(CupLevel.step(remainingRatio: 0.65), 80)
+        XCTAssertEqual(CupLevel.step(remaining: 23, limit: 50), 30, "50 중 23 남으면 46%라 50이 아니라 30")
+        XCTAssertEqual(CupLevel.step(remainingRatio: 0.499), 30)
+        XCTAssertEqual(CupLevel.step(remainingRatio: 0.50), 50)
+        XCTAssertEqual(CupLevel.step(remainingRatio: 0.799), 50)
+        XCTAssertEqual(CupLevel.step(remainingRatio: 0.80), 80)
         XCTAssertEqual(CupLevel.step(remainingRatio: 0.95), 80)
     }
 
@@ -35,7 +36,7 @@ final class CupLevelTests: XCTestCase {
     }
 
     func testRemainingAndLimitAreConvertedToARatio() {
-        XCTAssertEqual(CupLevel.step(remaining: 32.5, limit: 50), 80)
+        XCTAssertEqual(CupLevel.step(remaining: 32.5, limit: 50), 50)
         XCTAssertEqual(CupLevel.step(remaining: 0, limit: 400), 0)
         XCTAssertEqual(CupLevel.step(remaining: 400, limit: 400), 100)
     }

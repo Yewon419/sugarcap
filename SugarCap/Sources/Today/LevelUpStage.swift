@@ -218,14 +218,8 @@ struct LevelUpFigure {
         let ux: Double = vx / length
         let uy: Double = vy / length
         drawGlow(in: context, figure: figure, ux: ux, uy: uy, light: light)
-        // 명부·암부(대표님 2026-10-27): 빛 쪽으로 밀린 원 안이 명부, 밖이 암부. 경계는 또렷한 곡선(구처럼).
-        let litRadius: Double = height * Self.litRadius
-        let litCenter = CGPoint(
-            x: Double(center.x) + ux * height * Self.litShift, y: Double(center.y) + uy * height * Self.litShift
-        )
-        let lit = Path(ellipseIn: CGRect(
-            x: Double(litCenter.x) - litRadius, y: Double(litCenter.y) - litRadius, width: litRadius * 2, height: litRadius * 2
-        ))
+        // 역광(대표님 2026-10-27 "동그랗게 명부하면 안되고 역광인것처럼"): 몸 전체가 암부, 조명 쪽 가장자리 띠만 명부.
+        // 띠 = 실루엣에서 조명 반대쪽으로 민 실루엣을 뺀 것. 경계는 또렷하게.
         let everywhere = Path(CGRect(
             x: Double(center.x) - height * 2, y: Double(center.y) - height * 2, width: height * 4, height: height * 4
         ))
@@ -233,12 +227,17 @@ struct LevelUpFigure {
             figure(&layer)
             var shade = layer
             shade.blendMode = .sourceAtop
-            shade.clip(to: lit, options: .inverse)
             shade.fill(everywhere, with: .color(Self.shadeColor.opacity(Self.shadeOpacity * light)))
-            var warm = layer
-            warm.blendMode = .sourceAtop
-            warm.clip(to: lit)
-            warm.fill(everywhere, with: .color(Self.beam.opacity(Self.litTint * light)))
+        }
+        context.drawLayer { layer in
+            figure(&layer)
+            var tint = layer
+            tint.blendMode = .sourceIn
+            tint.fill(everywhere, with: .color(Self.beam.opacity(Self.rimOpacity * light)))
+            var cut = layer
+            cut.blendMode = .destinationOut
+            cut.translateBy(x: -ux * height * Self.rimWidth, y: -uy * height * Self.rimWidth)
+            figure(&cut)
         }
     }
 
@@ -265,11 +264,10 @@ struct LevelUpFigure {
     /// 조명 색(오버레이 원뿔과 같은 값).
     static let beam = Color(red: 1, green: 248 / 255, blue: 226 / 255)
     private static let shadeColor = Color(red: 38 / 255, green: 32 / 255, blue: 58 / 255)
-    private static let shadeOpacity = 0.42
-    private static let litTint = 0.14
-    /// 명부 원: 반지름·빛 쪽으로 민 거리(캐릭터 키 대비). 경계가 몸 가운데를 조금 넘어 암부가 약 40%.
-    private static let litRadius = 0.6
-    private static let litShift = 0.5
+    private static let shadeOpacity = 0.5
+    private static let rimOpacity = 0.9
+    /// 역광 테두리 두께(캐릭터 키 대비).
+    private static let rimWidth = 0.1
     private static let glowOpacity = 0.55
     private static let glowBlur = 0.07
     private static let glowShift = 0.035

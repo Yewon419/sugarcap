@@ -182,7 +182,12 @@ struct LevelUpFigure {
         // 선물 들고 오기와 같은 발 높이(대표님 2026-10-27 잔 앞으로 .012 내림).
         let dy: Double = side == .sugar ? 0.024 : 0.028
         base = photo.point(0.5, side.idleCast.bottom + dy)
+        // 조명 꼭짓점(오버레이: 화면 오른쪽 위 밖)을 사진 칸 좌표로 어림한다. 칸 위쪽이 화면보다 아래라 그만큼 더 위.
+        lightFrom = CGPoint(x: Double(size.width) + 30, y: -40 - Double(size.height) * 0.14)
     }
+
+    /// 조명이 오는 점(사진 칸 좌표). 명암·글로우 방향.
+    let lightFrom: CGPoint
 
     /// 캐릭터 키(pt).
     var height: Double { painter.height * r }
@@ -193,11 +198,81 @@ struct LevelUpFigure {
         var m = IdleFrame()
         RigMotion.breathe(&m, t: t, period: 3.4, amount: 0.012)
         drawShadow(in: context, rise: hop.lift)
-        var stage = context
-        stage.translateBy(x: Double(base.x), y: Double(base.y) - lift)
-        stage.scaleBy(x: r, y: r)
-        painter.draw(in: stage, base: .zero, m: m, squash: hop.squash, blink: blink)
+        let light: Double = LevelUpTimeline.light(t, calm: calm)
+        let figure: (inout GraphicsContext) -> Void = { target in
+            var stage = target
+            stage.translateBy(x: Double(base.x), y: Double(base.y) - lift)
+            stage.scaleBy(x: r, y: r)
+            painter.draw(in: stage, base: .zero, m: m, squash: hop.squash, blink: blink)
+        }
+        guard light > 0 else {
+            var plain = context
+            figure(&plain)
+            return
+        }
+        // 빛 방향: 몸 가운데에서 조명 꼭짓점 쪽 단위 벡터.
+        let center = CGPoint(x: Double(base.x), y: Double(base.y) - lift - height * 0.55)
+        let vx: Double = Double(lightFrom.x) - Double(center.x)
+        let vy: Double = Double(lightFrom.y) - Double(center.y)
+        let length: Double = max(1, (vx * vx + vy * vy).squareRoot())
+        let ux: Double = vx / length
+        let uy: Double = vy / length
+        drawGlow(in: context, figure: figure, ux: ux, uy: uy, light: light)
+        // 명부·암부(대표님 2026-10-27): 빛 쪽으로 밀린 원 안이 명부, 밖이 암부. 경계는 또렷한 곡선(구처럼).
+        let litRadius: Double = height * Self.litRadius
+        let litCenter = CGPoint(
+            x: Double(center.x) + ux * height * Self.litShift, y: Double(center.y) + uy * height * Self.litShift
+        )
+        let lit = Path(ellipseIn: CGRect(
+            x: Double(litCenter.x) - litRadius, y: Double(litCenter.y) - litRadius, width: litRadius * 2, height: litRadius * 2
+        ))
+        let everywhere = Path(CGRect(
+            x: Double(center.x) - height * 2, y: Double(center.y) - height * 2, width: height * 4, height: height * 4
+        ))
+        context.drawLayer { layer in
+            figure(&layer)
+            var shade = layer
+            shade.blendMode = .sourceAtop
+            shade.clip(to: lit, options: .inverse)
+            shade.fill(everywhere, with: .color(Self.shadeColor.opacity(Self.shadeOpacity * light)))
+            var warm = layer
+            warm.blendMode = .sourceAtop
+            warm.clip(to: lit)
+            warm.fill(everywhere, with: .color(Self.beam.opacity(Self.litTint * light)))
+        }
     }
+
+    /// 빛 받은 쪽에 희미하게 번지는 빛(대표님 2026-10-27 "빛받은 부분 희미하게 빛나는 글로우"). 캐릭터 실루엣을 조명 색으로
+    /// 칠해 흐리게 한 것을 빛 쪽으로 조금 밀어 캐릭터 뒤에 더한다. 모션 규칙의 에어브러시 금지에서 대표님이 직접 뺀 예외.
+    private func drawGlow(
+        in context: GraphicsContext, figure: (inout GraphicsContext) -> Void, ux: Double, uy: Double, light: Double
+    ) {
+        var glow = context
+        glow.blendMode = .plusLighter
+        glow.opacity = Self.glowOpacity * light
+        glow.addFilter(.blur(radius: height * Self.glowBlur))
+        glow.translateBy(x: ux * height * Self.glowShift, y: uy * height * Self.glowShift)
+        glow.drawLayer { layer in
+            figure(&layer)
+            layer.blendMode = .sourceIn
+            layer.fill(
+                Path(CGRect(x: Double(base.x) - height * 2, y: Double(base.y) - height * 3, width: height * 4, height: height * 4)),
+                with: .color(Self.beam)
+            )
+        }
+    }
+
+    /// 조명 색(오버레이 원뿔과 같은 값).
+    static let beam = Color(red: 1, green: 248 / 255, blue: 226 / 255)
+    private static let shadeColor = Color(red: 38 / 255, green: 32 / 255, blue: 58 / 255)
+    private static let shadeOpacity = 0.42
+    private static let litTint = 0.14
+    /// 명부 원: 반지름·빛 쪽으로 민 거리(캐릭터 키 대비). 경계가 몸 가운데를 조금 넘어 암부가 약 40%.
+    private static let litRadius = 0.6
+    private static let litShift = 0.5
+    private static let glowOpacity = 0.55
+    private static let glowBlur = 0.07
+    private static let glowShift = 0.035
 
     /// 접지 그늘. 뛰면 작고 옅어진다(운반 캐릭터와 같은 색·모양). `rise` = 뜬 정도 0~1.
     private func drawShadow(in context: GraphicsContext, rise: Double) {
@@ -351,7 +426,7 @@ struct LevelUpStageOverlay: View {
         }
         let light = LevelUpTimeline.light(t, calm: calm)
         if light > 0 {
-            let beam = Color(red: 1, green: 248 / 255, blue: 226 / 255)
+            let beam = LevelUpFigure.beam
             context.fill(cone, with: .color(beam.opacity(0.16 * light)))
             context.fill(pool, with: .color(beam.opacity(0.30 * light)))
         }

@@ -367,11 +367,12 @@ extension RecordFlowUITests {
         let right = window.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.5))
         let left = window.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.5))
 
+        // 느린 CI 러너에선 요소 조회 한 번이 2~5초라 기본 3초 대기 안에 한 번밖에 못 본다(2026-10-28, 넘어간 직후라 옛 값).
         right.press(forDuration: 0.1, thenDragTo: left, withVelocity: .slow, thenHoldForDuration: 0.6)
-        XCTAssertTrue(summary.waitForLabel(prefix: "카페인 남은"), "카페인 컵으로 안 넘어감: \(summary.label)")
+        XCTAssertTrue(summary.waitForLabel(prefix: "카페인 남은", timeout: 8), "카페인 컵으로 안 넘어감: \(summary.label)")
         sleep(1)
         left.press(forDuration: 0.1, thenDragTo: right, withVelocity: .slow, thenHoldForDuration: 0.6)
-        XCTAssertTrue(summary.waitForLabel(prefix: "당 남은"), "당 컵으로 안 돌아옴: \(summary.label)")
+        XCTAssertTrue(summary.waitForLabel(prefix: "당 남은", timeout: 8), "당 컵으로 안 돌아옴: \(summary.label)")
     }
 
     /// 설정 "기록할 것"에서 카페인을 끄면 오늘 화면에 당 컵 하나만 남고 넘겨도 카페인으로 안 간다(2026-10-06 대표님).
@@ -402,8 +403,11 @@ extension RecordFlowUITests {
         let toggle = app.switches["track-caffeine"]
         XCTAssertTrue(toggle.waitForExistence(timeout: 5), "설정에 카페인 기록 스위치가 없음")
         let want = isOn ? "1" : "0"
-        if toggle.value as? String != want {
+        // CI에서 시트가 다 뜬 뒤 누른 탭이 "System gesture gate timed out"으로 버려진 적이 있다(2026-10-28 녹화 확인).
+        // 안 바뀌었으면 한 번 더 누른다.
+        for _ in 0 ..< 2 where toggle.value as? String != want {
             toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
+            if toggle.waitForValue(want) { break }
         }
         XCTAssertTrue(toggle.waitForValue(want), "카페인 기록 스위치가 \(want)로 안 바뀜: \(String(describing: toggle.value))")
         app.buttons["settings-close"].tap()

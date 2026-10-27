@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>슈가캡 · 추이 월 달력 시안</title>
+<style>
+  /* 2026-10-27 대표님: 추이 월 탭 = 캐릭터 없는 한 달 달력(레퍼런스 instagram.com/reel/Dd5Zv3Ao1iP).
+     - 달마다 바뀌는 배경 사진 한 장(음료 없음) 위에, 화면 정중앙에 달력.
+     - 칸은 전부 정사각형. 앞뒤 빈 날짜 칸도 같은 격자로 쪼갠다.
+     - 기록한 날 칸 = 그날 먹은 양 사진(빈 접시 · 조금 · 반 · 많이 · 수북). 당은 각설탕, 카페인은 원두.
+     - 그 달에 받은 선물은 달력 밖 바탕에서 굴러다닌다(기울이면 쏠리고 흔들면 튄다). 벽은 격자 칸뿐, 글씨는 안 막고 선물이 글씨 위로 지나간다.
+     - 마음·병뚜껑은 달력 양옆 틈으로 빠진다. 사물(딸기·원두)은 커서 못 빠진다. 사물엔 흰 테두리 없음. */
+  @font-face { font-family: "PretendardApp"; font-weight: 400; src: url("../../SugarCap/Resources/Fonts/Pretendard-Regular.otf"); }
+  @font-face { font-family: "PretendardApp"; font-weight: 500; src: url("../../SugarCap/Resources/Fonts/Pretendard-Medium.otf"); }
+  @font-face { font-family: "PretendardApp"; font-weight: 600; src: url("../../SugarCap/Resources/Fonts/Pretendard-SemiBold.otf"); }
+  @font-face { font-family: "PretendardApp"; font-weight: 700; src: url("../../SugarCap/Resources/Fonts/Pretendard-Bold.otf"); }
+  @font-face { font-family: "PretendardApp"; font-weight: 800; src: url("../../SugarCap/Resources/Fonts/Pretendard-ExtraBold.otf"); }
+  @font-face { font-family: "PretendardThin"; font-weight: 100; src: local("Pretendard Thin"), local("Pretendard-Thin"); }
+  @font-face { font-family: "PretendardApp"; font-weight: 900; src: url("../../SugarCap/Resources/Fonts/Pretendard-Black.otf"); }
+  @font-face { font-family: "Anton"; src: url("../../SugarCap/Resources/Fonts/Anton-Regular.ttf"); }
+  :root { --ink: #18181B; --sub: rgba(24,24,27,.58); --line: rgba(255,255,255,.85); }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #E4E4E7; font-family: "PretendardApp", -apple-system, sans-serif; color: var(--ink); display: flex; gap: 40px; padding: 32px; align-items: flex-start; }
+  .phone { width: 393px; height: 852px; border-radius: 48px; background: #fff; position: relative; overflow: hidden; flex: none; }
+  .status { position: absolute; top: 18px; left: 44px; font-size: 17px; font-weight: 600; z-index: 5; }
+  .island { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 124px; height: 36px; border-radius: 18px; background: #000; z-index: 5; }
+  /* 앱 추이처럼 꽉 찬 화면: 위는 뒤로가기 · 주 추이, 아래는 이전 달 · 다음 달 세모. 사진 위라 배경 없음. */
+  .nav { position: absolute; top: 54px; left: 0; right: 0; height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; z-index: 5; color: #fff; }
+  .nav button, .steps button { font: inherit; color: inherit; background: none; border: 0; min-width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  /* 주↔월 토글 = 앱의 iOS 세그먼트 컨트롤(주 추이 화면 오른쪽 위와 같은 것). */
+  .seg { display: flex; margin-right: 8px; padding: 2px; border-radius: 9px; background: rgba(118,118,128,.24); }
+  .seg button { min-width: 0; height: 28px; width: 44px; border-radius: 7px; font-size: 13px; font-weight: 600; color: inherit; }
+  .seg button[aria-pressed="true"] { background: #fff; color: var(--ink); box-shadow: 0 2px 6px rgba(0,0,0,.12); }
+  .steps { position: absolute; left: 0; right: 0; bottom: 34px; display: flex; justify-content: space-between; padding: 0 14px; z-index: 5; color: #fff; }
+  .steps button:disabled { opacity: .3; cursor: default; }
+  .home { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; border-radius: 3px; background: #fff; z-index: 5; }
+  .phone.caffeine .status { color: #fff; }
+  .phone.sugar .nav, .phone.sugar .steps { color: var(--ink); }
+  .phone.sugar .home { background: var(--ink); }
+
+  .page { position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; background: #222 center / cover no-repeat; touch-action: none; }
+  /* 배경 사진은 살짝 흐리게(블러 2px). 가장자리가 비치지 않게 바깥으로 넉넉히 키운다. 그 위에 면별 옅은 막. */
+  .page::before { content: ""; position: absolute; inset: -16px; background: inherit; filter: blur(2px); }
+  .page::after { content: ""; position: absolute; inset: 0; background: rgba(255,255,255,.08); }
+
+  /* 화면 정중앙 덩어리: 제목 · 요일 · 격자 · 합계. */
+  .block { position: absolute; left: 30px; right: 30px; top: 50%; transform: translateY(-50%); color: #fff; z-index: 2; text-shadow: 0 1px 3px rgba(0,0,0,.28); }
+  /* 매거진 머리(대표님 스케치 2026-10-27): 큰 "10월" 옆에 "먹은 카페인". 화면 왼쪽 22px, 요일 줄 바로 위에 붙는다.
+     크기는 --F 비율(영문 배경 글자는 2026-10-27 뺌). */
+  .mast { position: relative; margin-bottom: 6px; text-shadow: none; --F: 64px; }
+  .block h1 { position: relative; left: -8px; font-family: "PretendardApp"; font-weight: 900; font-size: calc(var(--F, 60px) * 1.02); line-height: .86; letter-spacing: -.02em; white-space: nowrap; }
+  /* "먹은 당"은 "월" 바로 옆, 같은 아래선. */
+  .block h1 .sub { font-family: "PretendardApp"; font-size: .27em; font-weight: 500; letter-spacing: -.01em; margin-left: .35em; }
+  .block h1 .n { font-family: "Anton", sans-serif; font-weight: 400; font-size: 1.3em; letter-spacing: 0; }
+  .block h1 .u { font-size: .58em; margin-left: .04em; }
+  /* 면 이름은 굵게 + 캐릭터 대표색. 카인 = 진한 커피색 #3B2314 + 흰 윤곽, 로슈 = 흰색(흰 바탕이라 먹색 윤곽을 바깥에 두른다). */
+  .block h1 .sub b { font-weight: 800; }
+  .phone.caffeine .block h1 .sub b { color: #3B2314; -webkit-text-stroke: 3px #fff; paint-order: stroke fill; }
+  .phone.sugar .block h1 .sub b { color: #fff; -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; }
+  .dow { display: grid; grid-template-columns: repeat(7, 1fr); font-family: "PretendardThin"; font-size: 12px; font-weight: 100; text-align: center; opacity: .85; margin-bottom: 5px; }
+  .grid { display: grid; grid-template-columns: repeat(7, 1fr); border-left: 1px solid var(--line); border-top: 1px solid var(--line); }
+  .cell { position: relative; aspect-ratio: 1 / 1; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); overflow: hidden; }
+  .cell .ph { position: absolute; inset: 0; background: center / cover no-repeat; visibility: hidden; }
+  .cell.shown .ph { visibility: visible; }
+  .cell .d { position: absolute; top: 2px; left: 4px; font-family: "PretendardThin"; font-size: 12px; font-weight: 100; z-index: 2; color: #fff; }
+  .cell[data-fill] .d { color: var(--ink); }
+  .cell.future .d { opacity: .45; }
+  .cell.today { outline: 2px solid #fff; outline-offset: -2px; z-index: 1; }
+  .totals { display: flex; justify-content: center; gap: 22px; margin-top: 14px; font-size: 11px; font-weight: 600; }
+  .totals div { display: flex; align-items: baseline; gap: 6px; }
+  .totals b { font-family: "Anton", sans-serif; font-weight: 400; font-size: 22px; }
+  .totals b small { font-family: "PretendardApp"; font-weight: 700; font-size: 11px; margin-left: 1px; }
+  .totals span { opacity: .8; }
+
+  /* 굴러다니는 선물. 달력 글씨보다 위 층. */
+  .body { position: absolute; left: 0; top: 0; z-index: 4; will-change: transform; pointer-events: none; }
+  .body img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+  /* 당 면은 흰 배경이라 선·글자를 먹색으로 뒤집는다. */
+  .phone.sugar { --line: rgba(24,24,27,.32); }
+  .phone.sugar .block { color: var(--ink); text-shadow: none; }
+  .phone.sugar .cell:not([data-fill]) .d { color: var(--ink); }
+  .phone.sugar .page::after { background: none; }
+
+  .panel { width: 320px; font-size: 13px; line-height: 1.6; }
+  .panel h2 { font-size: 15px; margin-bottom: 8px; }
+  .panel .btns { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 14px; align-items: center; }
+  .panel button { font: inherit; padding: 4px 9px; border: 1px solid #bbb; background: #fff; border-radius: 6px; cursor: pointer; }
+  .panel button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .panel p { margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<div class="phone" id="phone">
+  <div class="status">1:24</div><div class="island"></div>
+  <div class="nav">
+    <button aria-label="뒤로"><svg width="12" height="20" viewBox="0 0 12 20"><path d="M10 2 L2 10 L10 18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <div class="seg" role="group" aria-label="기간"><button aria-pressed="false">주</button><button aria-pressed="true">월</button></div>
+  </div>
+  <div class="page" id="page">
+    <div class="block" id="block">
+      <div class="mast">
+        <h1 id="title">10월</h1>
+      </div>
+      <div class="dow"><span>SUN</span><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span></div>
+      <div class="grid" id="grid"></div>
+      <div class="totals">
+        <div><span id="l1"></span><b id="v1"></b></div>
+        <div id="cmp"><span>지난달보다</span><b id="v2"></b><span id="l2"></span></div>
+      </div>
+    </div>
+  </div>
+  <div class="steps">
+    <button id="prev" aria-label="이전 달"><svg width="14" height="16" viewBox="0 0 14 16"><path d="M1 8 L13 1 L13 15 Z" fill="currentColor"/></svg></button>
+    <button id="next" aria-label="다음 달"><svg width="14" height="16" viewBox="0 0 14 16"><path d="M13 8 L1 1 L1 15 Z" fill="currentColor"/></svg></button>
+  </div>
+  <div class="home"></div>
+</div>
+
+<div class="panel">
+  <h2>추이 월 달력 시안</h2>
+  <div>면</div>
+  <div class="btns" id="sides"></div>
+  <div>달</div>
+  <div class="btns" id="months"></div>
+  <div class="btns"><button id="shake">흔들기</button><button id="replay">칸 채우기 다시</button><button id="newyear">새해 첫 입장</button></div>
+  <div>기울이기 <span id="tiltV">0°</span></div>
+  <div class="btns"><input type="range" id="tilt" min="-45" max="45" value="0" style="width:200px"></div>
+  <p>보관함: 물건은 처음부터 받은 것 전부, 병뚜껑은 지금 가진 만큼(달 상관없음), 마음은 그해 1월부터 보는 달까지 누적. 1월에 새로 쌓이고, 해가 바뀌어 처음 들어오면 지난해 마음이 톡톡 터진다. 1월에서 ◀ 누르면 지난해로 가고 그해 마음이 다시 보인다.</p>
+  <p>배경을 끌면 흔들려. 폰에서는 기울이면 쏠리고(CoreMotion), 흔들면 튄다. 격자 칸만 벽이라 선물이 글씨 위로 지나가고, 마음·병뚜껑은 양옆 틈으로 빠진다.</p>
+  <p>배경은 면마다 달마다 한 장(당 = 흰색이 주인 · 카페인 = 검정·갈색이 주인). 칸은 그날 먹은 양 5단계 사진.</p>
+</div>
+
+<script src="vendor/planck.min.js"></script>
+<script>
+const NOW = { y: 2026, m: 10, d: 27 }, FIRST = { y: 2025, m: 1 };
+const LIMIT = { sugar: 25, caffeine: 400 }, UNIT = { sugar: 'g', caffeine: 'mg' };
+const TINT = { sugar: '#FFFFFF', caffeine: '#E3C29F' };
+// 면 주인이 받는 물건(앱 GiftContent.items와 같은 짝).
+const ITEMS = { sugar: ['strawberry', 'sugar-cube'], caffeine: ['coffee-bean', 'cinnamon-stick'] };
+// 병뚜껑은 달과 상관없이 지금 가진 개수(데모 값). 거래에 쓰면 줄어든다.
+const CAPS = { sugar: 5, caffeine: 3 };
+// 실물 환산(시안 가정값, SPEC 확정 전): 각설탕 1개 = 4g, 에스프레소 1샷 = 75mg.
+const PER = { sugar: 4, caffeine: 75 }, THING = { sugar: ['각설탕', '개'], caffeine: ['에스프레소', '샷'] };
+// 기록한 날 하루 평균. 지난달 비교는 합계가 아니라 이 평균으로 한다(이번 달은 아직 안 끝났으니까).
+// upto를 주면 그 날짜까지만 본다(이번 달은 지난달 같은 날까지와 비교 = 지난달 이맘때).
+function dailyAvg(side, y, m, upto = 31) {
+  if (m < 1) { y--; m = 12; }
+  if (y < FIRST.y) return null;
+  const v = monthData(side, y, m).used.slice(0, upto).filter(x => x !== undefined && x !== null);
+  return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+}
+const step = r => r <= 0 ? 0 : r >= 1 ? 100 : r < .4 ? 30 : r < .65 ? 50 : 80;
+const state = { side: 'sugar', y: NOW.y, m: NOW.m };
+function rand(seed) { let s = seed % 233280; return () => (s = (s * 9301 + 49297) % 233280) / 233280; }
+
+// 데모 기록: 지난날만, 가끔 안 적은 날(null).
+// gifts = 그 달에 받은 마음·물건(병뚜껑은 보유량이라 따로).
+function monthData(side, y, m) {
+  const days = new Date(y, m, 0).getDate(), r = rand((y - 2000) * 400 + m * 31 + (side === 'sugar' ? 7 : 13)), lim = LIMIT[side];
+  const before = y < NOW.y || (y === NOW.y && m < NOW.m);
+  const last = before ? days : y === NOW.y && m === NOW.m ? NOW.d : 0;
+  const used = Array.from({ length: days }, (_, i) => i < last ? (r() < .12 ? null : Math.round(lim * r() * 1.5)) : undefined);
+  const hearts = [], items = [];
+  for (let d = 1; d <= last; d++) { const x = r(); if (x < .07) hearts.push(d); else if (x < .085) items.push(ITEMS[side][d % 2]); }
+  return { days, lead: new Date(y, m - 1, 1).getDay(), used, hearts, items };
+}
+// 마음은 그해 1월부터 보고 있는 달까지 누적. 1월에 새로 쌓인다.
+const yearHearts = (side, y, m) => { let n = 0; for (let k = 1; k <= m; k++) n += monthData(side, y, k).hearts.length; return n; };
+// 물건은 처음부터 지금까지 받은 것 전부(초기화 없음). 보고 있는 달과 상관없다.
+function allItems(side) {
+  const out = [];
+  for (let y = FIRST.y; y <= NOW.y; y++) for (let m = 1; m <= (y === NOW.y ? NOW.m : 12); m++) out.push(...monthData(side, y, m).items);
+  return out;
+}
+// 보관함 구성: 물건 전부 + 지금 병뚜껑 + 그해 누적 마음.
+// key = 같은 선물을 달이 바뀌어도 같은 것으로 알아보는 이름(종류별 n번째). 달 이동 때 이 key로 더하고 뺀다.
+function inventory(side, y, m) {
+  const seen = {};
+  const items = allItems(side).map(id => ({ kind: 'item', id, key: `item:${id}:${seen[id] = (seen[id] || 0) + 1}` }));
+  return [...items, ...Array.from({ length: CAPS[side] }, (_, n) => ({ kind: 'cap', key: `cap:${n}` })), ...Array.from({ length: yearHearts(side, y, m) }, (_, n) => ({ kind: 'heart', key: `heart:${n}` }))];
+}
+
+const OL = 'stroke="#fff" stroke-width="9" stroke-linejoin="round" paint-order="stroke"';
+const heartPath = 'M50 88 C18 66 6 48 10 31 C14 14 36 10 50 28 C64 10 86 14 90 31 C94 48 82 66 50 88 Z';
+const CAP = (() => { let d = ''; const n = 21; for (let i = 0; i <= n * 2; i++) { const a = i / (n * 2) * Math.PI * 2, r = i % 2 ? 40 : 46; d += (i ? 'L' : 'M') + (50 + r * Math.cos(a)).toFixed(1) + ' ' + (50 + r * Math.sin(a)).toFixed(1); } return d + 'Z'; })();
+function giftHTML(kind, side, id) {
+  const edge = d => side === 'sugar' ? `<path d="${d}" fill="none" stroke="rgba(24,24,27,.3)" stroke-width="14" stroke-linejoin="round"/>` : '';
+  // 마음은 두 면 모두 테두리 없음. 카페인 병뚜껑도 흰 테두리 없음. 당 병뚜껑만 기존 테두리 유지.
+  if (kind === 'heart') return `<svg viewBox="0 0 100 100" width="100%" height="100%" style="overflow:visible"><path d="${heartPath}" fill="${TINT[side]}"/></svg>`;
+  if (kind === 'cap') return `<svg viewBox="0 0 100 100" width="100%" height="100%" style="overflow:visible">${edge(CAP)}<path d="${CAP}" fill="${TINT[side]}" ${side === 'sugar' ? OL : ''}/><circle cx="50" cy="50" r="27" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="3"/></svg>`;
+  return `<img src="../../SugarCap/Resources/Assets.xcassets/gift-item-${id}.imageset/${id}.png" alt="">`;
+}
+
+let timers = [];
+function render() {
+  const { side, y, m } = state, lim = LIMIT[side], md = monthData(side, y, m);
+  document.getElementById('phone').className = `phone ${side}`;
+  document.getElementById('page').style.backgroundImage = `url("month-img/bg-${side}-${String(m).padStart(2, '0')}.jpg")`;
+  document.getElementById('title').innerHTML = `<span class="n">${m}</span><span class="u">월</span><span class="sub" id="sub"></span>`;
+  document.getElementById('prev').disabled = y === FIRST.y && m <= FIRST.m;
+  document.getElementById('next').disabled = y === NOW.y && m >= NOW.m;
+  // 지난해를 볼 때만 해를 붙인다.
+  document.getElementById('sub').innerHTML = `먹은 <b>${side === 'sugar' ? '당' : '카페인'}</b>${y === NOW.y ? '' : ` · ${y}`}`;
+  const grid = document.getElementById('grid'); grid.innerHTML = '';
+  const total = Math.ceil((md.lead + md.days) / 7) * 7;
+  let eaten = 0;
+  for (let i = 0; i < total; i++) {
+    const c = document.createElement('div'); c.className = 'cell'; grid.appendChild(c);
+    const d = i - md.lead + 1;
+    if (d < 1 || d > md.days) continue;
+    c.innerHTML = `<span class="d">${d}</span>`;
+    const used = md.used[d - 1];
+    if (used === undefined) c.classList.add('future');
+    if (y === NOW.y && m === NOW.m && d === NOW.d) c.classList.add('today');
+    if (used !== undefined && used !== null) {
+      eaten += used;
+      const ph = document.createElement('div'); ph.className = 'ph';
+      ph.style.backgroundImage = `url("month-img/${side}-${step(used / lim)}.jpg")`;
+      c.appendChild(ph); c.dataset.fill = d;
+    }
+  }
+  document.getElementById('l1').textContent = THING[side][0];
+  document.getElementById('v1').innerHTML = `${Math.round(eaten / PER[side]).toLocaleString()}<small>${THING[side][1]}</small>`;
+  const live = y === NOW.y && m === NOW.m, upto = live ? NOW.d : 31;
+  const now = dailyAvg(side, y, m, upto), before = dailyAvg(side, y, m - 1, upto), cmp = document.getElementById('cmp');
+  cmp.style.display = now !== null && before ? '' : 'none';
+  if (now !== null && before) {
+    const d = Math.round((now - before) / before * 100);
+    document.getElementById('v2').innerHTML = `${Math.abs(d)}<small>%</small>`;
+    // 이번 달은 아직 진행 중이라 "~먹는 중", 지난 달은 확정이라 "~먹음".
+    document.getElementById('l2').textContent = (d < 0 ? '덜 먹' : d > 0 ? '더 먹' : '똑같이 먹') + (live ? '는 중' : '음');
+  }
+  for (const b of document.querySelectorAll('#sides button')) b.setAttribute('aria-pressed', String(b.dataset.v === side));
+  for (const b of document.querySelectorAll('#months button')) b.setAttribute('aria-pressed', String(y === NOW.y && +b.dataset.v === m));
+  fill();
+  requestAnimationFrame(() => shaker.sync(inventory(side, y, m), side));
+}
+function fill() {
+  timers.forEach(clearTimeout); timers = [];
+  // 칸은 무작위 순서로 하나씩 툭툭 찍힌다(페이드 없음).
+  const cells = [...document.querySelectorAll('.cell[data-fill]')];
+  for (let i = cells.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [cells[i], cells[j]] = [cells[j], cells[i]]; }
+  cells.forEach((c, i) => timers.push(setTimeout(() => c.classList.add('shown'), 200 + i * 45)));
+}
+
+// ---- 선물: Planck.js(Box2D 웹 이식, MIT) 강체. 앱에서는 같은 계열인 SpriteKit 물리로 옮긴다. ----
+// 마음·병뚜껑은 원, 물건은 이미지의 불투명 부분 외곽(볼록 껍질)이 몸체라 시나몬 같은 막대 옆에 빈 공간이 안 생긴다.
+// 벽: 둥근 모서리 화면 테두리 + 달력 격자 칸 덩어리(사각형). 제목·요일·합계 글씨는 막지 않는다.
+const shaker = (() => {
+  const page = document.getElementById('page'), block = document.getElementById('block');
+  const SIZE = { item: 44, heart: 26, cap: 25 }, PPM = 50, G = 1400 / PPM, VMAX = 1800 / PPM, STEP = 1 / 120;
+  const pl = planck, world = new pl.World({ gravity: { x: 0, y: G } });
+  let bodies = [], shown = null, W = 0, H = 0, frame = null, grid = null, gridKey = '', acc = 0, last = 0, drag = null, token = 0;
+
+  // 물건 이미지 → 몸체 꼭짓점(px, 상자 중심 기준). 44px 상자에 contain으로 그린 뒤 불투명 픽셀의 볼록 껍질을 8각 이하로 줄인다.
+  const hulls = {};
+  function hullOf(img, s) {
+    const k = 2, n = s * k, c = document.createElement('canvas'); c.width = c.height = n;
+    const x = c.getContext('2d'), sc = Math.min(n / img.naturalWidth, n / img.naturalHeight);
+    const w = img.naturalWidth * sc, h = img.naturalHeight * sc; x.drawImage(img, (n - w) / 2, (n - h) / 2, w, h);
+    const a = x.getImageData(0, 0, n, n).data, pts = [];
+    for (let py = 0; py < n; py++) for (let px = 0; px < n; px++) if (a[(py * n + px) * 4 + 3] > 60)
+      for (const [ox, oy] of [[0, 0], [1, 0], [0, 1], [1, 1]]) pts.push([(px + ox) / k - s / 2, (py + oy) / k - s / 2]);
+    return convex(pts);
+  }
+  // 점들의 볼록 껍질을 꼭짓점 max개 이하로(넓이 기여가 가장 작은 꼭짓점부터 지움. Box2D 다각형 한도 12, 적을수록 안정적).
+  function convex(pts, max = 8) {
+    pts = pts.slice().sort((p, q) => p[0] - q[0] || p[1] - q[1]);
+    const cross = (o, p, q) => (p[0] - o[0]) * (q[1] - o[1]) - (p[1] - o[1]) * (q[0] - o[0]);
+    const lo = [], hi = [];
+    for (const p of pts) { while (lo.length > 1 && cross(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); }
+    for (const p of pts.reverse()) { while (hi.length > 1 && cross(hi[hi.length - 2], hi[hi.length - 1], p) <= 0) hi.pop(); hi.push(p); }
+    const hull = lo.slice(0, -1).concat(hi.slice(0, -1));
+    while (hull.length > max) {
+      let mi = 0, ma = Infinity;
+      hull.forEach((p, i) => { const ar = Math.abs(cross(hull[(i - 1 + hull.length) % hull.length], p, hull[(i + 1) % hull.length])); if (ar < ma) { ma = ar; mi = i; } });
+      hull.splice(mi, 1);
+    }
+    return hull;
+  }
+  // 마음은 가운데가 오목해 볼록 다각형 하나로는 안 된다. 그림 경로(heartPath)를 세로 가운데에서 갈라 왼쪽·오른쪽 반쪽을
+  // 각각 볼록 다각형으로 만들어 한 몸에 붙인다. 반쪽은 가운데 선을 포함하므로 둘이 빈틈없이 맞물린다.
+  function bez(p0, p1, p2, p3, n = 10) { return Array.from({ length: n + 1 }, (_, i) => { const t = i / n, u = 1 - t; return [0, 1].map(k => u * u * u * p0[k] + 3 * u * u * t * p1[k] + 3 * u * t * t * p2[k] + t * t * t * p3[k]); }); }
+  const HEART_HALVES = (() => {
+    const L = [...bez([50, 88], [18, 66], [6, 48], [10, 31]), ...bez([10, 31], [14, 14], [36, 10], [50, 28])];
+    const R = [...bez([50, 28], [64, 10], [86, 14], [90, 31]), ...bez([90, 31], [94, 48], [82, 66], [50, 88])];
+    const sc = SIZE.heart / 100;
+    return [L, R].map(h => convex(h.map(([x, y]) => [(x - 50) * sc, (y - 50) * sc]), 8));
+  })();
+  // 병뚜껑 그림은 톱니 끝 반지름 46(100 기준)이라 원으로 충분하다. 반지름만 그림 크기에 맞춘다.
+  const CAP_R = SIZE.cap * .46;
+  const ready = Promise.all(Object.values(ITEMS).flat().map(id => new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => { hulls[id] = hullOf(img, SIZE.item); res(); };
+    img.onerror = () => rej(new Error(`item image failed: ${id}`));
+    img.src = `../../SugarCap/Resources/Assets.xcassets/gift-item-${id}.imageset/${id}.png`;
+  })));
+
+  // 격자 위치는 글꼴이 늦게 로드되거나 칸이 바뀌면 달라지므로 매 프레임 다시 잰다(바뀌었을 때만 벽을 다시 만든다).
+  // translateY(-50%)는 offsetTop에 안 들어가므로 높이 절반을 뺀다(화면 확대·축소와 무관한 CSS px).
+  function measure() {
+    const t = block.offsetTop - block.offsetHeight / 2, g = document.getElementById('grid');
+    const l = block.offsetLeft + g.offsetLeft, top = t + g.offsetTop, gw = g.offsetWidth, gh = g.offsetHeight;
+    W = page.clientWidth; H = page.clientHeight;
+    if (!frame) {
+      // 화면 테두리: 반지름 48 둥근 모서리를 모서리당 8조각 선으로.
+      const R = 48, v = [];
+      for (const [cx, cy, a0] of [[W - R, H - R, 0], [R, H - R, 90], [R, R, 180], [W - R, R, 270]])
+        for (let i = 0; i <= 8; i++) { const a = (a0 + i * 90 / 8) * Math.PI / 180; v.push({ x: (cx + R * Math.cos(a)) / PPM, y: (cy + R * Math.sin(a)) / PPM }); }
+      frame = world.createBody();
+      frame.createFixture(new pl.Chain(v, true), { friction: .5 });
+    }
+    const key = [l, top, gw, gh].join();
+    if (key !== gridKey) {
+      gridKey = key;
+      if (grid) world.destroyBody(grid);
+      grid = world.createBody({ position: { x: (l + gw / 2) / PPM, y: (top + gh / 2) / PPM } });
+      grid.createFixture(new pl.Box(gw / 2 / PPM, gh / 2 / PPM), { friction: .5 });
+      bodies.forEach(b => b.body.setAwake(true));
+    }
+    return { l, t: top, r: l + gw, b: top + gh };
+  }
+  async function load(gifts, side) {
+    const my = ++token;
+    await ready;
+    if (my !== token) return;
+    bodies.forEach(b => { world.destroyBody(b.body); b.el.remove(); }); bodies = [];
+    const box = measure();
+    gifts.forEach((g, i) => {
+      // 큰 사물은 양옆 틈으로 못 빠지니 처음부터 달력 아래 바탕에 둔다. 작은 것만 위·아래 번갈아.
+      const below = g.kind === 'item' || i % 2 === 1;
+      spawn(g, side, i, 20 + (i * 67) % (W - 40), below ? box.b + 20 + (i % 3) * 12 : 24 + (i % 3) * 10);
+    });
+    shown = side;
+  }
+  // 달 이동: 다 다시 떨어뜨리지 않는다. 새로 생긴 것만 하늘에서 떨어지고, 없어진 것은 그 자리에서 뿅 사라진다.
+  // 면(당·카페인)이 바뀌면 주인이 달라지니 처음부터 다시 쏟는다.
+  async function sync(gifts, side) {
+    if (side !== shown || !bodies.length) return load(gifts, side);
+    const my = ++token;
+    await ready;
+    if (my !== token) return;
+    measure();
+    const want = new Set(gifts.map(g => g.key));
+    bodies.filter(b => !want.has(b.key)).forEach(vanish);
+    const have = new Set(bodies.map(b => b.key));
+    // 화면 맨 위 테두리 바로 안쪽에서 놓는다(테두리 밖에 놓으면 벽 바깥에 갇힌다).
+    gifts.filter(g => !have.has(g.key)).forEach((g, i) => spawn(g, side, i, 24 + Math.random() * (W - 48), 16 + (i % 3) * 12 + Math.random() * 10));
+  }
+  function vanish(b) {
+    bodies = bodies.filter(x => x !== b); world.destroyBody(b.body);
+    const t = b.el.style.transform;
+    b.el.animate([{ transform: t + ' scale(1)', opacity: 1 }, { transform: t + ' scale(1.2)', opacity: 1, offset: .35 }, { transform: t + ' scale(0)', opacity: 0 }], { duration: 200, easing: 'cubic-bezier(.23,1,.32,1)', fill: 'forwards' }).onfinish = () => b.el.remove();
+  }
+  function spawn(g, side, i, x, y) {
+      const k = g.kind, s = SIZE[k], el = document.createElement('div'); el.className = 'body';
+      el.style.width = el.style.height = s + 'px'; el.innerHTML = giftHTML(k, side, g.id); page.appendChild(el);
+      el.style.transform = `translate(${x - s / 2}px, ${y - s / 2}px)`;
+      const body = world.createBody({ type: 'dynamic', position: { x: x / PPM, y: y / PPM }, angle: i * .9, linearDamping: .15, angularDamping: 1.5, bullet: k === 'item' });
+      const poly = v => new pl.Polygon(v.map(([px, py]) => ({ x: px / PPM, y: py / PPM })));
+      const shapes = k === 'item' ? [poly(hulls[g.id])] : k === 'heart' ? HEART_HALVES.map(poly) : [new pl.Circle(CAP_R / PPM)];
+      for (const sh of shapes) body.createFixture(sh, { density: 1, friction: .45, restitution: .12 });
+      body.setLinearVelocity({ x: ((i * 37) % 7 - 3) * .8, y: 0 });
+      bodies.push({ el, body, key: g.key, old: !!g.old, side, s, x, y });
+  }
+  function capSpeed(b) { const v = b.body.getLinearVelocity(), n = Math.hypot(v.x, v.y); if (n > VMAX) b.body.setLinearVelocity({ x: v.x * VMAX / n, y: v.y * VMAX / n }); }
+  function nudge(fx) { bodies.forEach(b => { const v = b.body.getLinearVelocity(), [dx, dy] = fx(); b.body.setLinearVelocity({ x: v.x + dx, y: v.y + dy }); b.body.setAwake(true); capSpeed(b); }); }
+  function kick() { nudge(() => [(Math.random() - .5) * 18, -(6 + Math.random() * 10)]); bodies.forEach(b => b.body.setAngularVelocity((Math.random() - .5) * 8)); }
+  function tick(t) {
+    const dt = Math.min(.05, (t - last) / 1000 || 0); last = t;
+    if (bodies.length) {
+      measure();
+      // 고정 간격(1/120초)으로 돌려야 프레임 속도와 상관없이 같은 결과가 난다.
+      acc += dt;
+      while (acc >= STEP) { world.step(STEP, 8, 3); acc -= STEP; }
+      for (const b of bodies) {
+        capSpeed(b);
+        const p = b.body.getPosition(); b.x = p.x * PPM; b.y = p.y * PPM;
+        b.el.style.transform = `translate(${b.x - b.s / 2}px, ${b.y - b.s / 2}px) rotate(${b.body.getAngle() * 57.2958}deg)`;
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+  function setTilt(deg) { const a = deg * Math.PI / 180; world.setGravity({ x: Math.sin(a) * G, y: Math.cos(a) * G }); bodies.forEach(b => b.body.setAwake(true)); }
+  page.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY }; page.setPointerCapture(e.pointerId); });
+  page.addEventListener('pointermove', e => { if (!drag) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y; drag = { x: e.clientX, y: e.clientY }; nudge(() => [-dx * 24 / PPM, -dy * 24 / PPM]); });
+  page.addEventListener('pointerup', () => { drag = null; });
+  window.addEventListener('deviceorientation', e => { if (e.gamma != null) setTilt(Math.max(-60, Math.min(60, e.gamma))); });
+  // 새해 첫 입장 = 빵빠레. 양쪽 아래 모서리에서 폭죽 종이가 터져 오르고, 지난해 마음(old)이 하나씩 종이 조각으로 터진다.
+  // 종이는 납작한 사각·띠(단색, 그라데이션·빛 번짐 없음)이고 뒤집히며 떨어진다. 캔버스 한 장에 그린다.
+  const fx = document.createElement('canvas'); fx.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;z-index:5;pointer-events:none';
+  page.appendChild(fx);
+  const PAPER = { sugar: ['#FFFFFF', '#18181B', '#D8333A', '#9A9AA2'], caffeine: ['#E3C29F', '#FFFFFF', '#3B2314', '#B07A4F'] };
+  let bits = [], fxOn = false, fxLast = 0;
+  function spray(x, y, n, ang, spread, sp, side) {
+    for (let i = 0; i < n; i++) {
+      const a = ang + (Math.random() - .5) * spread, v = sp * (.55 + Math.random() * .6), strip = Math.random() < .35;
+      bits.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, rot: Math.random() * 6.28, vr: (Math.random() - .5) * 14,
+        flip: Math.random() * 6.28, vf: 8 + Math.random() * 10, w: strip ? 3 : 5 + Math.random() * 3, h: strip ? 11 + Math.random() * 5 : 4 + Math.random() * 3,
+        c: PAPER[side][Math.floor(Math.random() * 4)], s: side, t: 0, life: 1.6 + Math.random() * .9 });
+    }
+    if (!fxOn) { fxOn = true; fxLast = performance.now(); requestAnimationFrame(fxTick); }
+  }
+  function fxTick(t) {
+    const dt = Math.min(.04, (t - fxLast) / 1000); fxLast = t;
+    const dpr = devicePixelRatio || 1, w = page.clientWidth, h = page.clientHeight;
+    if (fx.width !== w * dpr) { fx.width = w * dpr; fx.height = h * dpr; }
+    const g = fx.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, h);
+    bits = bits.filter(b => (b.t += dt) < b.life && b.y < h + 20);
+    for (const b of bits) {
+      // 공기 저항이 커서 금방 느려지고, 그 뒤엔 팔랑팔랑 천천히 떨어진다.
+      b.vx *= Math.pow(.18, dt); b.vy = b.vy * Math.pow(.18, dt) + 900 * dt * .6;
+      b.x += (b.vx + Math.sin(b.flip) * 18) * dt; b.y += b.vy * dt; b.rot += b.vr * dt; b.flip += b.vf * dt;
+      g.save(); g.translate(b.x, b.y); g.rotate(b.rot); g.scale(1, Math.cos(b.flip));
+      g.globalAlpha = Math.min(1, (b.life - b.t) / .35); g.fillStyle = b.c; g.fillRect(-b.w / 2, -b.h / 2, b.w, b.h);
+      if (b.s === 'sugar' && b.c === '#FFFFFF') { g.strokeStyle = 'rgba(24,24,27,.25)'; g.lineWidth = .6; g.strokeRect(-b.w / 2, -b.h / 2, b.w, b.h); }
+      g.restore();
+    }
+    if (bits.length) requestAnimationFrame(fxTick); else { fxOn = false; g.clearRect(0, 0, w, h); }
+  }
+  function popOld(gap = 55) {
+    const olds = bodies.filter(b => b.old).sort(() => Math.random() - .5);
+    if (!olds.length) return;
+    const side = olds[0].side, W0 = page.clientWidth, H0 = page.clientHeight;
+    // 빵! 양쪽 아래 모서리 폭죽.
+    spray(18, H0 - 60, 70, -Math.PI / 2 + .55, .7, 1100, side);
+    spray(W0 - 18, H0 - 60, 70, -Math.PI / 2 - .55, .7, 1100, side);
+    olds.forEach((b, i) => setTimeout(() => {
+      bodies = bodies.filter(x => x !== b); world.destroyBody(b.body);
+      b.el.animate([{ transform: b.el.style.transform + ' scale(1)', opacity: 1 }, { transform: b.el.style.transform + ' scale(1.35)', opacity: 0 }], { duration: 120, easing: 'cubic-bezier(.23,1,.32,1)', fill: 'forwards' }).onfinish = () => b.el.remove();
+      spray(b.x, b.y, 10, -Math.PI / 2, Math.PI * 1.6, 420, side);
+    }, 250 + i * gap));
+  }
+  return { load, sync, kick, setTilt, popOld };
+})();
+
+for (const [v, label] of [['sugar', '당'], ['caffeine', '카페인']]) {
+  const b = document.createElement('button'); b.dataset.v = v; b.textContent = label;
+  b.onclick = () => { state.side = v; render(); }; document.getElementById('sides').appendChild(b);
+}
+for (let m = 1; m <= 12; m++) {
+  const b = document.createElement('button'); b.dataset.v = m; b.textContent = `${m}월`;
+  b.onclick = () => { state.y = NOW.y; state.m = m; render(); }; document.getElementById('months').appendChild(b);
+}
+document.getElementById('prev').onclick = () => { if (state.y === FIRST.y && state.m <= FIRST.m) return; if (--state.m < 1) { state.m = 12; state.y--; } render(); };
+document.getElementById('next').onclick = () => { if (state.y === NOW.y && state.m >= NOW.m) return; if (++state.m > 12) { state.m = 1; state.y++; } render(); };
+// 시연용: 올해 1월에 처음 들어온 순간. 앱에서는 마지막으로 본 해를 저장해 두고 해가 바뀐 첫 입장에 한 번만.
+document.getElementById('newyear').onclick = () => {
+  state.y = NOW.y; state.m = 1; render();
+  const old = Array.from({ length: yearHearts(state.side, NOW.y - 1, 12) }, () => ({ kind: 'heart', old: true }));
+  requestAnimationFrame(() => requestAnimationFrame(() => { shaker.load([...inventory(state.side, NOW.y, 1), ...old], state.side); setTimeout(() => shaker.popOld(), 700); }));
+};
+document.getElementById('replay').onclick = () => { document.querySelectorAll('.cell.shown').forEach(c => c.classList.remove('shown')); fill(); };
+document.getElementById('shake').onclick = () => shaker.kick();
+document.getElementById('tilt').oninput = e => { document.getElementById('tiltV').textContent = e.target.value + '°'; shaker.setTilt(+e.target.value); };
+render();
+</script>
+</body>
+</html>

@@ -510,7 +510,9 @@ extension RecordFlowUITests {
     func testSkippingFeedingGoesStraightToSummary() throws {
         continueAfterFailure = false
         let app = XCUIApplication()
-        app.launchArguments += ["-screenshotFeeding", "YES"]
+        // 단계 상승 무대는 4초 뒤 저절로 닫히는데 CI에선 찾고 누르는 사이에 끝나 버린다(2026-10-28 CI, 누를 자리 없음).
+        // 한 장면에 멈춰 두면 눌러야만 닫힌다(누르면 닫히는 길은 그대로).
+        app.launchArguments += ["-screenshotFeeding", "YES", "-levelUpAt", "2.5"]
         app.launch()
         completeOnboardingIfPresented(app)
 

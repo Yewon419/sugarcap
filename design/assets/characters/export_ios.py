@@ -44,7 +44,7 @@ ART_SCALE: dict[str, float] = {"stand": 0.5}
 # kain "swim"; 2026-10-24). Factor = sqrt(reference area / art area) of the character's own pixels
 # (items filtered by color). Roshu hug-strawberry is drawn smaller and is scaled up; its area counts
 # the strawberry, which covers the body. Roshu gift-carry is mostly hidden by the box, so it takes
-# the walk factor.
+# the walk factor. Roshu sugar-cube counts Roshu alone, not the cube under him.
 ART_NORM: dict[str, dict[str, float]] = {
     "roshu": {
         "in-cup": 0.870,
@@ -54,6 +54,7 @@ ART_NORM: dict[str, dict[str, float]] = {
         "hug-strawberry": 1.140,
         "doze-lean": 0.796,
         "gift-carry": 0.891,
+        "sugar-cube": 1.224,
     },
     "kain": {
         "rim-stand": 0.989,
@@ -84,6 +85,22 @@ class Part(TypedDict):
     pivot: list[float]
 
 
+class CubeFace(TypedDict):
+    name: str
+    span: list[list[int]]
+    normal: list[int]
+
+
+class Cube(TypedDict):
+    origin: list[float]
+    ex: list[float]
+    ey: list[float]
+    ez: list[float]
+    faces: list[CubeFace]
+    stand: list[float]
+    lean: float
+
+
 class Art(TypedDict):
     canvas: list[float]
     bbox: list[float]
@@ -91,6 +108,8 @@ class Art(TypedDict):
     eyes: list[Eye]
     body: list[float]
     parts: list[Part]
+    # A prop cube the character stands on (import_layers.py / sugar_cube.py), canvas px.
+    cube: NotRequired[Cube]
 
 
 def asset_name(character: str, art: str, part: str) -> str:
@@ -165,6 +184,17 @@ def export_character(character: str, arts: list[str]) -> dict[str, Art]:
                 for p in rig["parts"]
             ],
         )
+        cube: Cube | None = rig.get("cube")
+        if cube is not None:
+            out[art]["cube"] = Cube(
+                origin=scaled(cube["origin"], k),
+                ex=scaled(cube["ex"], k),
+                ey=scaled(cube["ey"], k),
+                ez=scaled(cube["ez"], k),
+                faces=cube["faces"],
+                stand=cube["stand"],
+                lean=cube["lean"],
+            )
     return out
 
 

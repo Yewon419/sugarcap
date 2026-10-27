@@ -16,6 +16,8 @@ struct IdleFrame: Sendable, Equatable {
     var shift: [String: CGVector] = [:]
     /// 바꿔 끼우는 조각(`IdleArt.Part.isOverlay`)별 값. 0.5 이상이면 보인다.
     var show: [String: Double] = [:]
+    /// 올라선 소품 정육면체의 기울기(도, `IdleCubeMath.rotation`).
+    var cube: Double = 0
 
     func shows(_ part: String) -> Bool { (show[part] ?? 0) >= 0.5 }
 }

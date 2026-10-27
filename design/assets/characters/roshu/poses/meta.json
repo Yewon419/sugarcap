@@ -277,5 +277,39 @@
    }
   ],
   "rimLineY": null
+ },
+ "sugar-cube": {
+  "file": "design/assets/characters/roshu/poses/sugar-cube.png",
+  "canvas": [
+   2500,
+   3200
+  ],
+  "bbox": [
+   642,
+   616,
+   1830,
+   2937
+  ],
+  "eyes": [
+   {
+    "box": [
+     1228,
+     890,
+     1285,
+     946
+    ],
+    "lid": "#D5D7DD"
+   },
+   {
+    "box": [
+     1324,
+     921,
+     1379,
+     975
+    ],
+    "lid": "#D5D7DD"
+   }
+  ],
+  "rimLineY": null
  }
 }

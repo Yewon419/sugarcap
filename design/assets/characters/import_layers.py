@@ -6,12 +6,16 @@ Put full-canvas PNGs of the same size in <character>/layers/<art>/:
     <part>.png    one per limb, optional (a body-only pose has none); the file name is
                   the part name (foot_* stays on the ground layer, every other part
                   moves with the body)
-    rig.json      optional: {"pivots": {"arm": [x, y]}, "front": ["arm"], "overlays": ["eye_closed"]}
+    rig.json      optional: {"pivots": {"arm": [x, y]}, "front": ["arm"], "overlays": ["eye_closed"],
+                  "cube": {"stand": "foot_stand", "lean": 0.5}}
 
 Limbs go behind the body unless listed in "front". A limb turns around its pivot.
 An overlay (a swapped face part such as closed eyes) sits on the body above the lids,
 never turns, is left out of the composite and shows only while its "show.<name>"
 motion value is at least 0.5.
+A prop cube (rig.json "cube") is three face layers cube_top, cube_left and cube_right
+under everything else. The app tilts it by computation (sugar_cube.py measures it into
+the parts.json entry) and the character rides its top where the "stand" part touches it.
 The pivot defaults to the middle of where the limb meets the body (limb pixels within
 CONTACT px of the body); set it in rig.json when the guess is wrong. A preview with
 the pivots marked is written next to the layers.
@@ -37,6 +41,8 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 from make_pose_meta import CHARACTERS, measure
+from sugar_cube import FACE_ORDER, CubeEntry
+from sugar_cube import measure as measure_cube
 from split_limbs import EDGE_FAINT, EDGE_FILL_SIGMA, FloatImage, body_colour, crop_save
 
 ROOT = Path(__file__).resolve().parent
@@ -45,10 +51,16 @@ CONTACT = 12
 PART_NAME = re.compile(r"^[a-z][a-z0-9_]*$")
 
 
+class CubeRig(TypedDict):
+    stand: str
+    lean: float
+
+
 class RigFile(TypedDict, total=False):
     pivots: dict[str, list[int]]
     front: list[str]
     overlays: list[str]
+    cube: CubeRig
 
 
 class PartEntry(TypedDict):
@@ -58,10 +70,14 @@ class PartEntry(TypedDict):
     pivot: list[int]
 
 
-class ArtEntry(TypedDict):
+class ArtBase(TypedDict):
     canvas: list[int]
     body: list[int]
     parts: list[PartEntry]
+
+
+class ArtEntry(ArtBase, total=False):
+    cube: CubeEntry
 
 
 @dataclass(frozen=True)
@@ -158,9 +174,21 @@ def import_art(source: Path, parts_out: Path) -> tuple[ArtEntry, FloatImage]:
             raise ValueError(f"{path.name}: part names are lower_snake_case")
         limbs.append(Layer(path.stem, load_layer(path, size)))
     names = {limb.name for limb in limbs}
-    for name in [*pivots, *front, *overlays]:
+    cube_rig = rig.get("cube")
+    faces = set(FACE_ORDER) if cube_rig is not None else set()
+    for name in [*pivots, *front, *overlays, *faces]:
         if name not in names:
             raise ValueError(f"rig.json names {name!r} but there is no {name}.png")
+    if cube_rig is not None and cube_rig["stand"] not in names:
+        raise ValueError(f"rig.json cube stands on {cube_rig['stand']!r}, not a part")
+    if (front | overlays) & faces:
+        raise ValueError("cube faces cannot be front or overlay parts")
+    # Cube faces first, back to front, so they sit under the character and draw in order.
+    limbs.sort(
+        key=lambda limb: (
+            FACE_ORDER.index(limb.name) if limb.name in faces else len(FACE_ORDER)
+        )
+    )
 
     parts_out.mkdir(parents=True, exist_ok=True)
     for stale in parts_out.glob("*.png"):
@@ -175,9 +203,9 @@ def import_art(source: Path, parts_out: Path) -> tuple[ArtEntry, FloatImage]:
 
     for limb in limbs:
         frame = crop_save(limb.pixels, parts_out / f"{limb.name}.png")
-        if limb.name in overlays:
+        if limb.name in overlays or limb.name in faces:
             pivot = [frame[0] + frame[2] // 2, frame[1] + frame[3] // 2]
-            z = "overlay"
+            z = "overlay" if limb.name in overlays else "cube"
         else:
             pivot = pivots.get(limb.name) or guess_pivot(limb.pixels, body, limb.name)
             z = "front" if limb.name in front else "back"
@@ -191,6 +219,8 @@ def import_art(source: Path, parts_out: Path) -> tuple[ArtEntry, FloatImage]:
         )
     body_box = crop_save(body, parts_out / "body.png")
     entry = ArtEntry(canvas=[size[0], size[1]], body=body_box, parts=parts)
+    if cube_rig is not None:
+        entry["cube"] = measure_cube(source, cube_rig["stand"], cube_rig["lean"])
     return entry, composite
 
 

@@ -115,6 +115,9 @@ final class IdlePoseBookTests: XCTestCase {
         XCTAssertFalse(roshu.allows("hug-strawberry", step: 0, unlockedLevel: 1, items: ["strawberry"]))
         XCTAssertFalse(kain.allows("bean-balance-left", step: 80, unlockedLevel: 10, items: ["strawberry"]))
         XCTAssertTrue(kain.allows("bean-balance-right", step: 1, unlockedLevel: 1, items: ["coffee-bean"]))
+        XCTAssertFalse(roshu.allows("sugar-cube-left", step: 80, unlockedLevel: 10, items: ["strawberry"]))
+        XCTAssertTrue(roshu.allows("sugar-cube-left", step: 1, unlockedLevel: 1, items: ["sugar-cube"]))
+        XCTAssertTrue(roshu.allows("sugar-cube-right", step: 100, unlockedLevel: 1, items: ["sugar-cube"]))
         // 물건 id는 선물 물건 목록에 있어야 한다(오타면 영영 안 풀린다).
         let itemIDs = Set(GiftContent.items.map(\.id))
         for cast in casts {
@@ -143,6 +146,69 @@ final class IdlePoseBookTests: XCTestCase {
     }
 
     /// 카인 헤엄 한 바퀴(2026-10-06): 그림 가운데를 축으로 360도 돌고, 주기 끝과 처음의 각도가 같아 이음매가 없다.
+    /// 각설탕(대표님 2026-10-27 "계산으로 보이는 면적이랑 각도 조정"): 쉴 땐 원화 그대로, 기울면 앞 아래 꼭짓점은 바닥에 남고
+    /// 딛는 모서리 쪽 옆면이 좁아지고 윗면이 넓어진다. 보이는 면은 세 장 그대로(흔들흔들 범위).
+    /// 잔 뒤에서 삐져 있기(대표님 2026-10-27): 정면 서 있는 그림을 작게, 잔 뒤 오른쪽 가장자리에. 처음 뽑을 때만 나오도록
+    /// `awayPoses`로 묶이고, 다른 대기 자세보다 작으며, 반투명 대신 벽 색을 덮는다(투명도 1 그대로).
+    func testSulkBackStandsSmallBehindCup() throws {
+        let set = try XCTUnwrap(IdleCast.roshu.poseSet)
+        XCTAssertEqual(set.awayPoses, ["sulk-back"])
+        XCTAssertEqual(try XCTUnwrap(IdleCast.kain.poseSet).awayPoses, [])
+        let spec = try XCTUnwrap(set.poses["sulk-back"])
+        XCTAssertEqual(spec.rule.art, "stand")
+        XCTAssertEqual(spec.rule.opacity, 1)
+        let away = try XCTUnwrap(spec.rule.away)
+        XCTAssertGreaterThan(away.fade, 0)
+        XCTAssertLessThan(away.fade, 1)
+        XCTAssertTrue(set.allows("sulk-back", step: 50, unlockedLevel: 1))
+        XCTAssertTrue(IdleOnlooker.hostAvoids(guest: .caffeine).contains("sulk-back"), "가장자리 카인과 겹친다")
+        let sulk = try XCTUnwrap(IdleSprite(side: .sugar, pose: "sulk-back", step: 50, size: slot))
+        let walk = try XCTUnwrap(IdleSprite(side: .sugar, pose: "walk", step: 50, size: slot))
+        let sulkHeight = Double(sulk.art.bbox.height) * sulk.scale
+        let walkHeight = Double(walk.art.bbox.height) * walk.scale
+        XCTAssertEqual(sulkHeight / walkHeight, away.scale, accuracy: 1e-6)
+        XCTAssertLessThan(Double(sulk.base.y), Double(walk.base.y), "잔 앞 바닥보다 뒤(위)에 선다")
+        // 뒤 물러난 자세를 빼고 뽑으면 절대 안 나온다(앱을 쓰는 도중 다시 뽑기).
+        var generator = SystemRandomNumberGenerator()
+        for _ in 0..<200 {
+            let pose = set.pick(
+                step: 50, unlockedLevel: 10, items: ["strawberry", "sugar-cube"], avoiding: set.awayPoses,
+                using: &generator
+            )
+            XCTAssertNotEqual(pose, "sulk-back")
+        }
+    }
+
+    func testSugarCubeTiltsByComputation() throws {
+        let art = try XCTUnwrap(IdleRig.arts["roshu"]?["sugar-cube"])
+        let cube = try XCTUnwrap(art.cube)
+        XCTAssertEqual(Set(cube.faces.map(\.name)), Set(art.parts.filter(\.isCube).map(\.name)))
+        XCTAssertFalse(art.parts.contains { $0.isCube && ($0.isBack || $0.isFoot) }, "각설탕 면은 팔다리가 아니다")
+        let rest = IdleCubeMath.pose(cube, degrees: 0, scale: 0.05)
+        XCTAssertEqual(rest.faces.count, 3)
+        for face in rest.faces {
+            XCTAssertTrue(face.transform.isIdentityish, face.face.name)
+            XCTAssertEqual(face.shade, 1, accuracy: 1e-9)
+        }
+        XCTAssertTrue(rest.rider.isIdentityish)
+        func area(_ pose: IdleCubeMath.Pose, _ name: String) throws -> Double {
+            let t = try XCTUnwrap(pose.faces.first { $0.face.name == name }).transform
+            return abs(Double(t.a * t.d - t.b * t.c))
+        }
+        for degrees in [5.0, -5.0] {
+            let tilted = IdleCubeMath.pose(cube, degrees: degrees, scale: 0.05)
+            XCTAssertEqual(tilted.faces.count, 3, "\(degrees)")
+            let corner = IdleCubeMath.project(cube, .zero, scale: 0.05)
+            let moved = corner.applying(try XCTUnwrap(tilted.faces.first { $0.face.name == "cube_right" }).transform)
+            XCTAssertEqual(moved.x, corner.x, accuracy: 1e-6, "앞 아래 꼭짓점은 바닥에 그대로")
+            XCTAssertEqual(moved.y, corner.y, accuracy: 1e-6)
+            XCTAssertGreaterThan(try area(tilted, "cube_top"), 1)
+            XCTAssertLessThan(try area(tilted, degrees > 0 ? "cube_left" : "cube_right"), 1)
+            XCTAssertEqual(try area(tilted, degrees > 0 ? "cube_right" : "cube_left"), 1, accuracy: 1e-9)
+            XCTAssertFalse(tilted.rider.isIdentityish)
+        }
+    }
+
     func testSwimSpinsFullTurnSeamlessly() throws {
         let set = try XCTUnwrap(IdleCast.kain.poseSet)
         let spec = try XCTUnwrap(set.poses["swim"])
@@ -211,7 +277,8 @@ final class IdlePoseBookTests: XCTestCase {
                 let sprite = try XCTUnwrap(IdleSprite(side: side, pose: name, step: 50, size: slot), name)
                 let m = IdleMotion.frame(sprite.spec, cast: sprite.cast, t: 0, photo: photo, walkBaseX: sprite.base.x)
                 let onBody = CGPoint(x: sprite.base.x + m.dx, y: sprite.base.y + m.dy - 4)
-                XCTAssertTrue(sprite.contains(onBody, t: 0), "\(side) \(name)")
+                // 잔 뒤 물러난 자세는 누를 수 없다(대표님 2026-10-27 "건드려지지도 않게").
+                XCTAssertEqual(sprite.contains(onBody, t: 0), sprite.rule.away == nil, "\(side) \(name)")
                 XCTAssertFalse(sprite.contains(CGPoint(x: -100, y: -100), t: 0), "\(side) \(name)")
             }
         }
@@ -225,5 +292,11 @@ final class IdlePoseBookTests: XCTestCase {
         XCTAssertThrowsError(try IdlePoseBook.decode(Data(json.utf8))) { error in
             XCTAssertEqual(error as? IdlePoseBook.BookError, .badTarget(pose: "a", target: "nose"))
         }
+    }
+}
+
+private extension CGAffineTransform {
+    var isIdentityish: Bool {
+        abs(a - 1) < 1e-9 && abs(b) < 1e-9 && abs(c) < 1e-9 && abs(d - 1) < 1e-9 && abs(tx) < 1e-6 && abs(ty) < 1e-6
     }
 }

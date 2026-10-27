@@ -8,12 +8,16 @@ turned tip-down and trimmed.
 Coffee bean (Kain's): drawn on its own canvas as two layers, the dark side under the face
 (kain/items/coffee-bean/side.png, face.png). They are stacked and trimmed.
 
-Both are written for the app at about @3x, the longer side APP_SIZE px.
+Sugar cube (Roshu's): the three face layers of Roshu's sugar-cube pose
+(roshu/layers/sugar-cube/cube_right.png, cube_left.png, cube_top.png), stacked as the pose
+draws them and trimmed.
+
+All are written for the app at about @3x, the longer side APP_SIZE px.
 
     python design/assets/characters/cut_gift_item.py
 
-Writes roshu/items/strawberry.png, kain/items/coffee-bean.png and the
-gift-item-strawberry / gift-item-coffee-bean imagesets in SugarCap/Resources/Assets.xcassets.
+Writes roshu/items/strawberry.png, kain/items/coffee-bean.png, roshu/items/sugar-cube.png and
+the gift-item-strawberry / gift-item-coffee-bean / gift-item-sugar-cube imagesets in SugarCap/Resources/Assets.xcassets.
 """
 
 from __future__ import annotations
@@ -33,6 +37,11 @@ BEAN_LAYERS = [
     ROOT / "kain" / "items" / "coffee-bean" / name for name in ("side.png", "face.png")
 ]
 BEAN_OUT = ROOT / "kain" / "items" / "coffee-bean.png"
+CUBE_LAYERS = [
+    ROOT / "roshu" / "layers" / "sugar-cube" / f"{name}.png"
+    for name in ("cube_right", "cube_left", "cube_top")
+]
+CUBE_OUT = ROOT / "roshu" / "items" / "sugar-cube.png"
 ASSETS = ROOT.parents[2] / "SugarCap" / "Resources" / "Assets.xcassets"
 # Turn so the tip points straight down (counterclockwise degrees).
 TURN = -28.0
@@ -110,24 +119,35 @@ def cut_strawberry() -> None:
     write_item(trimmed(cut), OUT, "gift-item-strawberry", "strawberry.png")
 
 
-def cut_coffee_bean() -> None:
+def stacked(paths: list[Path], what: str) -> Image.Image:
     layers = []
-    for path in BEAN_LAYERS:
+    for path in paths:
         with Image.open(path) as image:
             layers.append(image.convert("RGBA"))
     stack = Image.new("RGBA", layers[0].size, (0, 0, 0, 0))
     for layer in layers:
         if layer.size != stack.size:
             raise SystemExit(
-                f"{layer.size} != {stack.size}: coffee bean layers differ in size"
+                f"{layer.size} != {stack.size}: {what} layers differ in size"
             )
         stack.alpha_composite(layer)
-    write_item(trimmed(stack), BEAN_OUT, "gift-item-coffee-bean", "coffee-bean.png")
+    return trimmed(stack)
+
+
+def cut_coffee_bean() -> None:
+    cut = stacked(BEAN_LAYERS, "coffee bean")
+    write_item(cut, BEAN_OUT, "gift-item-coffee-bean", "coffee-bean.png")
+
+
+def cut_sugar_cube() -> None:
+    cut = stacked(CUBE_LAYERS, "sugar cube")
+    write_item(cut, CUBE_OUT, "gift-item-sugar-cube", "sugar-cube.png")
 
 
 def main() -> None:
     cut_strawberry()
     cut_coffee_bean()
+    cut_sugar_cube()
 
 
 if __name__ == "__main__":

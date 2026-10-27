@@ -19,6 +19,8 @@ struct IdlePoseRule: Sendable {
     var shadow: IdleShadow?
     /// 숨 쉬듯 올라오는 기포(카인 헤엄). 없으면 안 나온다.
     var bubbles: IdleBubbles?
+    /// 잔 뒤 멀리 물러나 있기(`IdleAway`). 있으면 누를 수 없고, 앱을 다시 켤 때까지 다른 자세로 안 바뀐다.
+    var away: IdleAway?
 
     func allows(step: Int) -> Bool {
         if let maxStep, step > maxStep { return false }
@@ -52,6 +54,15 @@ struct IdleShadow: Sendable, Equatable {
     let dx: Double
     let dy: Double
     var feet = false
+}
+
+/// 잔 뒤 멀리 삐져 있는 자세(대표님 2026-10-27 "뒤쪽에 가서 짜져있는것", "건드려지지도 않게 앱 껐다켜야만 위치 바꾸도록").
+/// 크기는 걷기 그림 키(서 있는 키)의 `scale`배. 멀어 보이게 몸 색을 벽 색 쪽으로 `fade`만큼 덮는다. 반투명이 아니라
+/// 불투명한 색이라 테마가 바뀌어도 뒤 벽지가 비치지 않는다(대표님 2026-10-27 "반투명 말고 배경색을 씌워서").
+/// 잔 누끼로 지워 잔 뒤에 선다.
+struct IdleAway: Sendable, Equatable {
+    let scale: Double
+    let fade: Double
 }
 
 /// 숨 쉬듯 나오는 흰 기포 점(프로토타입 `bubblesAt`). `every`초마다 `count`개를 `gap`초 간격으로 내보낸다.

@@ -81,6 +81,8 @@ enum IdleWalkStyle: String, Sendable, Decodable {
 struct IdleChannel: Sendable, Equatable {
     enum Target: Sendable, Equatable {
         case dx, dy, rot, bodyDy, sx, sy
+        /// 소품 정육면체 기울기(도).
+        case cube
         case limb(String)
         /// 바꿔 끼우는 조각을 켠다(값 0.5 이상).
         case show(String)
@@ -162,6 +164,11 @@ struct IdlePoseSet: Sendable {
         }
         return pool.randomElement(using: &generator) ?? zero
     }
+
+    /// 잔 뒤 물러난 자세(`IdleAway`). 앱을 켤 때 처음 뽑을 때만 나온다.
+    var awayPoses: Set<String> {
+        Set(poses.filter { $0.value.rule.away != nil }.keys)
+    }
 }
 
 enum IdlePoseBook {
@@ -177,6 +184,7 @@ enum IdlePoseBook {
         case badPlace(pose: String)
         case badPivot(pose: String, pivot: String)
         case badBubbles(pose: String)
+        case badAway(pose: String)
     }
 
     static func load(bundle: Bundle) -> [String: IdlePoseSet] {
@@ -237,6 +245,11 @@ enum IdlePoseBook {
         let feet: Bool?
     }
 
+    private struct RawAway: Decodable {
+        let scale: Double
+        let fade: Double
+    }
+
     private struct RawBubbles: Decodable {
         let from: [Double]
         let every: Double
@@ -275,6 +288,7 @@ enum IdlePoseBook {
         let reflection: RawReflection?
         let shadow: RawShadow?
         let bubbles: RawBubbles?
+        let away: RawAway?
         let motion: [RawChannel]?
         let walk: IdleWalkStyle?
 
@@ -284,6 +298,10 @@ enum IdlePoseBook {
             rule.limbDirection = limbDirection ?? [:]
             rule.reflection = reflection.map { IdleReflection(toward: $0.toward, up: $0.up ?? 0, mirror: $0.mirror) }
             rule.shadow = shadow.map { IdleShadow(w: $0.w, h: $0.h, dx: $0.dx, dy: $0.dy, feet: $0.feet ?? false) }
+            if let away {
+                guard away.scale > 0, away.fade >= 0, away.fade < 1 else { throw BookError.badAway(pose: name) }
+                rule.away = IdleAway(scale: away.scale, fade: away.fade)
+            }
             if let bubbles {
                 guard bubbles.from.count == 2, bubbles.count > 0, bubbles.every > 0, bubbles.life > 0,
                       bubbles.gap >= 0, Double(bubbles.count - 1) * bubbles.gap < bubbles.every
@@ -336,6 +354,7 @@ enum IdlePoseBook {
             case "bodyDy": target = .bodyDy
             case "sx": target = .sx
             case "sy": target = .sy
+            case "cube": target = .cube
             default:
                 if raw.to.hasPrefix("limb."), raw.to.count > 5 {
                     target = .limb(String(raw.to.dropFirst(5)))
@@ -401,6 +420,7 @@ extension IdleMotion {
                 case .rot: f.rot += v
                 case .sx: f.sx += v
                 case .sy: f.sy += v
+                case .cube: f.cube += v
                 case .limb(let name): f.limbs[name, default: 0] += v
                 case .show(let name): f.show[name, default: 0] += v
                 }

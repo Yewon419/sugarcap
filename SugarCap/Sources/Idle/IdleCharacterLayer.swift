@@ -8,6 +8,8 @@ import SwiftUI
 /// 지금 자세가 허용되지 않게 되면 그때만 다시 뽑는다. 0%면 로슈는 철푸덕, 카인은 바닥에 앉기.
 /// 자세는 풀린 단계(`AffinityMath.unlockedLevel`)까지만 나온다. Pro가 끝나 지금 자세가 잠기면 다시 뽑는다.
 /// 물건 자세(딸기 안기·커피콩 얹기)는 단계와 별개로 그 물건을 열어 받았을 때 나온다. 받은 물건은 Pro가 끝나도 남는다.
+/// 잔 뒤 물러난 자세(`IdleAway`)는 앱을 켜고 처음 뽑을 때만 나오고, 나오면 앱을 다시 켤 때까지 그대로다(단계·잔·구경꾼이
+/// 바뀌어도, 백그라운드에서 돌아와도). 누를 수도 없다.
 /// 동작 줄이기면 자세는 그대로 두고 움직임·깜빡임을 멈춘다.
 struct IdleCharacterLayer: View {
     let side: CupSide
@@ -121,7 +123,7 @@ struct IdleCharacterLayer: View {
         .sensoryFeedback(.impact(weight: .light, intensity: 0.5), trigger: guestFlinchAt) { _, new in new != nil }
         .accessibilityHidden(true)
         .onAppear {
-            if pose == nil { repick() }
+            if pose == nil { repick(avoiding: []) }
         }
         .onChange(of: isActive, initial: true) { _, active in
             if active {
@@ -132,29 +134,29 @@ struct IdleCharacterLayer: View {
             }
         }
         .onChange(of: step) { _, newStep in
-            if isAllowed(step: newStep, unlockedLevel: unlockedLevel) { return }
+            if isAway || isAllowed(step: newStep, unlockedLevel: unlockedLevel) { return }
             repick()
         }
         .onChange(of: guest) {
-            if isAllowed(step: step, unlockedLevel: unlockedLevel) { return }
+            if isAway || isAllowed(step: step, unlockedLevel: unlockedLevel) { return }
             repick()
         }
         // 보관함·거래로 잔이 바뀌면 그 잔에서 안 되는 자세만 다시 뽑는다.
         .onChange(of: side.cupSetID) {
-            if isAllowed(step: step, unlockedLevel: unlockedLevel) { return }
+            if isAway || isAllowed(step: step, unlockedLevel: unlockedLevel) { return }
             repick()
         }
         .onChange(of: unlockedLevel) { _, newLevel in
-            if isAllowed(step: step, unlockedLevel: newLevel) { return }
+            if isAway || isAllowed(step: step, unlockedLevel: newLevel) { return }
             repick()
         }
         .onChange(of: ownedItems) {
-            if isAllowed(step: step, unlockedLevel: unlockedLevel) { return }
+            if isAway || isAllowed(step: step, unlockedLevel: unlockedLevel) { return }
             repick()
         }
         .onChange(of: scenePhase) { old, new in
             // 백그라운드에서 돌아오면 앱을 다시 연 것으로 보고 새로 뽑는다.
-            if old == .background, new != .background { repick() }
+            if old == .background, new != .background, !isAway { repick() }
         }
     }
 
@@ -166,6 +168,12 @@ struct IdleCharacterLayer: View {
         }
         #endif
         return reduceMotion ? 0 : nil
+    }
+
+    /// 지금 잔 뒤 물러난 자세인지. 그러면 앱을 다시 켤 때까지 그대로 둔다.
+    private var isAway: Bool {
+        guard let pose else { return false }
+        return side.idleCast.poseSet?.poses[pose]?.rule.away != nil
     }
 
     private func isAllowed(step: Int, unlockedLevel: Int) -> Bool {
@@ -183,8 +191,8 @@ struct IdleCharacterLayer: View {
         guard let pose, let set = side.idleCast.poseSet else { return nil }
         var generator = SystemRandomNumberGenerator()
         let next = set.pick(
-            step: step, unlockedLevel: unlockedLevel, items: ownedItems, avoiding: avoiding.union([pose]),
-            using: &generator
+            step: step, unlockedLevel: unlockedLevel, items: ownedItems,
+            avoiding: avoiding.union([pose]).union(set.awayPoses), using: &generator
         )
         return next == pose ? nil : next
     }
@@ -220,7 +228,12 @@ struct IdleCharacterLayer: View {
         return state
     }
 
+    /// 앱을 켜고 처음 뽑을 때만 잔 뒤 물러난 자세도 고른다. 그 뒤로 다시 뽑을 때는 뺀다.
     private func repick() {
+        repick(avoiding: side.idleCast.poseSet?.awayPoses ?? [])
+    }
+
+    private func repick(avoiding extra: Set<String>) {
         hostFuss = IdleFussState()
         guestFuss = IdleFussState()
         start = Date()
@@ -235,7 +248,8 @@ struct IdleCharacterLayer: View {
         #endif
         var generator = SystemRandomNumberGenerator()
         pose = side.idleCast.poseSet?.pick(
-            step: step, unlockedLevel: unlockedLevel, items: ownedItems, avoiding: avoiding, using: &generator
+            step: step, unlockedLevel: unlockedLevel, items: ownedItems, avoiding: avoiding.union(extra),
+            using: &generator
         )
     }
 }
@@ -301,9 +315,15 @@ struct IdleSprite {
     /// 정면 그림 배율. 대기 자세 그림(카인 `rim-stand`)은 캔버스가 같아 그대로 쓴다. 대기 자세가 아닌 로슈 `stand`는
     /// 캔버스 크기가 달라 그대로 그리면 작아져(빌드 227 대표님 "정면응시 사이즈 너무 작아짐") 먹이기 화면처럼 걷기 그림 높이에 맞춘다.
     private func frontScale(_ front: String, art frontArt: IdleArt) -> Double {
-        let isIdleArt = cast.poseSet?.poses.values.contains { $0.rule.art == front } == true
-        guard !isIdleArt, let walk = IdleRig.arts[cast.character]?["walk"], frontArt.bbox.height > 0 else { return scale }
-        return scale * Double(walk.bbox.height) / Double(frontArt.bbox.height)
+        let isIdleArt = cast.poseSet?.poses.values.contains { $0.rule.art == front && $0.rule.away == nil } == true
+        guard !isIdleArt else { return scale }
+        return scale * Self.standingRatio(cast.character, art: frontArt)
+    }
+
+    /// 걷기 그림 키 ÷ 이 그림 키. 캔버스가 다른 그림(로슈 `stand`)을 서 있는 키에 맞춘다. 걷기 그림이 없으면 1.
+    private static func standingRatio(_ character: String, art: IdleArt) -> Double {
+        guard let walk = IdleRig.arts[character]?["walk"], art.bbox.height > 0 else { return 1 }
+        return Double(walk.bbox.height) / Double(art.bbox.height)
     }
 
     private init(copying other: IdleSprite, spec: IdlePoseSpec, art: IdleArt, base: CGPoint, scale: Double) {
@@ -338,7 +358,10 @@ struct IdleSprite {
               let art = IdleRig.arts[cast.character]?[spec.rule.art]
         else { return nil }
         let photo = IdlePhoto(slot: size)
-        let scale = photo.height * cast.scalePerPhotoHeight
+        var scale = photo.height * cast.scalePerPhotoHeight
+        if let away = spec.rule.away {
+            scale *= Self.standingRatio(cast.character, art: art) * away.scale
+        }
         self.cast = cast
         rule = spec.rule
         self.spec = spec
@@ -368,6 +391,10 @@ struct IdleSprite {
     ) {
         var m = frame(t)
         m.dx += jitter * IdleFussMath.shiverWidth * Double(art.bbox.width) * scale
+        if let away = rule.away {
+            drawAway(away, in: context, m: m, blink: blink)
+            return
+        }
         if let halo {
             var ring = context
             ring.clip(to: halo)
@@ -403,6 +430,23 @@ struct IdleSprite {
         }
     }
 
+    /// 잔 뒤 물러난 모습: 그림자와 몸을 한 층에 그려 벽 색으로 덮고, 잔 누끼만큼 지워 잔 뒤에 세운다.
+    /// 반사·테두리는 없다.
+    private func drawAway(_ away: IdleAway, in context: GraphicsContext, m: IdleFrame, blink: Double) {
+        context.drawLayer { layer in
+            var faded = layer
+            faded.addFilter(.colorMatrix(Self.wallMatrix(keep: 1 - away.fade)))
+            faded.drawLayer { inner in
+                if let shadow = rule.shadow {
+                    drawShadow(shadow, in: inner, m: m)
+                }
+                drawParts(in: placed(inner, m: m, flinch: 0), m: m, blink: blink)
+            }
+            layer.blendMode = .destinationOut
+            layer.draw(Image(cutout), in: photo.rect)
+        }
+    }
+
     private func frame(_ t: Double) -> IdleFrame {
         var m = IdleMotion.frame(spec, cast: cast, t: t, photo: photo, walkBaseX: base.x)
         if acrossCup {
@@ -431,8 +475,10 @@ struct IdleSprite {
     private static let flinchWiden = 0.035
 
     /// 화면 위 점이 시각 t의 캐릭터 위인지. 그림 틀을 놓인 자리로 옮긴 사각형에 손가락 여유를 둔다.
+    /// 잔 뒤 물러난 자세는 누를 수 없다.
     func contains(_ point: CGPoint, t: Double) -> Bool {
-        transformed(m: frame(t)).insetBy(dx: -8, dy: -8).contains(point)
+        guard rule.away == nil else { return false }
+        return transformed(m: frame(t)).insetBy(dx: -8, dy: -8).contains(point)
     }
 
     /// 그림 틀을 놓인 자리로 옮긴 사각형.
@@ -518,6 +564,21 @@ struct IdleSprite {
         let cx: Double = Double(base.x) + m.dx
         let baseY = Double(base.y)
         let bw = Double(art.bbox.width) * scale
+        if let cube = art.cube {
+            // 각설탕: 잔 그림자처럼 앞 아래 꼭짓점에서 오른쪽으로 납작한 띠(대표님 2026-10-27). 꼭짓점은 흔들려도 바닥에 있다.
+            // 뒤집은 자세도 각설탕은 원화 방향이라 띠는 늘 오른쪽.
+            let corner: Double = cx + (Double(cube.origin.x) * scale - Double(pivot.x)) * m.flip
+            let y = baseY + bw * shadow.dy
+            drawShade(
+                Self.ambient, center: CGPoint(x: corner + bw * (shadow.dx + shadow.w / 2), y: y),
+                width: bw * shadow.w, height: bw * shadow.h, strength: 1, in: context
+            )
+            drawShade(
+                Self.contact, center: CGPoint(x: corner + bw * (shadow.dx + shadow.w / 4), y: y),
+                width: bw * shadow.w / 2, height: bw * shadow.h / 2, strength: 1, in: context
+            )
+            return
+        }
         drawShade(
             Self.ambient,
             center: CGPoint(x: cx + bw * shadow.dx, y: baseY + bw * shadow.dy),
@@ -589,6 +650,10 @@ struct IdleSprite {
     }
 
     private func drawParts(in ground: GraphicsContext, m: IdleFrame, blink: Double) {
+        var ground = ground
+        if let cube = art.cube {
+            ground = drawCube(cube, in: ground, m: m)
+        }
         for part in art.parts where part.isBack && part.isFoot {
             drawLimb(part, in: ground, m: m)
         }
@@ -618,6 +683,38 @@ struct IdleSprite {
         for part in art.parts where part.isFront {
             drawLimb(part, in: body, m: m)
         }
+    }
+
+    /// 소품 정육면체를 기울기(`m.cube`)대로 면마다 옮겨 그리고, 위에 올라선 캐릭터를 그릴 층을 돌려준다.
+    /// 뒤집은 자세도 각설탕은 원화 방향(면 무늬·밝기)대로 둔다: 앞 아래 꼭짓점 세로선을 축으로 한 번 더 뒤집는다.
+    private func drawCube(_ cube: IdleCube, in ground: GraphicsContext, m: IdleFrame) -> GraphicsContext {
+        let pose = IdleCubeMath.pose(cube, degrees: m.cube, scale: scale)
+        let axis = Double(cube.origin.x) * scale
+        let unflip = m.flip < 0 ? CGAffineTransform(a: -1, b: 0, c: 0, d: 1, tx: 2 * axis, ty: 0) : .identity
+        for draw in pose.faces {
+            guard let part = art.parts.first(where: { $0.isCube && $0.name == draw.face.name }) else { continue }
+            var face = ground
+            face.concatenate(unflip)
+            face.concatenate(draw.transform)
+            if abs(draw.shade - 1) > 0.002 {
+                face.addFilter(.colorMatrix(Self.shadeMatrix(draw.shade)))
+            }
+            drawImage(part.name, frame: part.frame, in: face)
+        }
+        var rider = ground
+        rider.concatenate(unflip)
+        rider.concatenate(pose.rider)
+        rider.concatenate(unflip)
+        return rider
+    }
+
+    /// 색에 k를 곱한다(투명도는 그대로).
+    private static func shadeMatrix(_ k: Double) -> ColorMatrix {
+        var matrix = ColorMatrix()
+        matrix.r1 = Float(k)
+        matrix.g2 = Float(k)
+        matrix.b3 = Float(k)
+        return matrix
     }
 
     /// 팔다리 하나: 이음새 한쪽 끝(pivot)을 축으로 돌고, shift만큼 옮긴다.
@@ -650,17 +747,21 @@ struct IdleSprite {
     /// 테두리 두께(pt)와 둘레를 찍는 방향 수.
     static let haloWidth = 2.5
     static let haloSteps = 12
-    /// 몸 그림의 색을 버리고 벽 색(#F3F5F8, `CupView`)으로 칠한다. 투명도는 그대로.
-    static let haloMatrix: ColorMatrix = {
+    /// 몸 그림의 색을 버리고 벽 색으로 칠한다. 투명도는 그대로.
+    static let haloMatrix = wallMatrix(keep: 0)
+
+    /// 색을 `keep`만 남기고 나머지를 벽 색(#F3F5F8, `CupView`)으로 덮는다. 투명도는 그대로.
+    static func wallMatrix(keep: Double) -> ColorMatrix {
+        let k = Float(keep)
         var matrix = ColorMatrix()
-        matrix.r1 = 0
-        matrix.g2 = 0
-        matrix.b3 = 0
-        matrix.r5 = Float(0xF3) / 255
-        matrix.g5 = Float(0xF5) / 255
-        matrix.b5 = Float(0xF8) / 255
+        matrix.r1 = k
+        matrix.g2 = k
+        matrix.b3 = k
+        matrix.r5 = Float(0xF3) / 255 * (1 - k)
+        matrix.g5 = Float(0xF5) / 255 * (1 - k)
+        matrix.b5 = Float(0xF8) / 255 * (1 - k)
         return matrix
-    }()
+    }
 
     /// "#RRGGBB". 형식은 그림 정보를 읽을 때(`IdleRig`)와 설정(`IdleCast`)에서 걸렀다.
     static func color(hex: String) -> Color {
@@ -685,10 +786,10 @@ enum IdleOnlooker {
         }
     }
 
-    /// 구경꾼과 자리가 겹치는 켜진 쪽 자세. 로슈 컵 안은 가장자리의 카인과, 카인 걷기·잔 오른쪽 바닥 자세는 오른쪽 로슈와 겹친다.
+    /// 구경꾼과 자리가 겹치는 켜진 쪽 자세. 로슈 컵 안·잔 뒤는 가장자리의 카인과, 카인 걷기·잔 오른쪽 바닥 자세는 오른쪽 로슈와 겹친다.
     static func hostAvoids(guest: CupSide) -> Set<String> {
         switch guest {
-        case .caffeine: return ["in-cup"]
+        case .caffeine: return ["in-cup", "sulk-back"]
         case .sugar: return ["walk", "lie-right", "bean-balance-right", "floor-sit-right"]
         }
     }

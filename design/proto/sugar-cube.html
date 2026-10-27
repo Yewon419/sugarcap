@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>로슈 각설탕 흔들기 시안</title>
+<style>
+  body { margin: 0; font: 14px/1.5 -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; background: #eef0f4; color: #222; }
+  main { display: flex; gap: 24px; padding: 20px; align-items: flex-start; flex-wrap: wrap; }
+  canvas { background: #f3f5f8; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+  .panel { width: 320px; background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+  h1 { font-size: 17px; margin: 0 0 12px; }
+  label { display: block; margin: 12px 0 2px; font-weight: 600; }
+  input[type=range] { width: 100%; }
+  .row { display: flex; justify-content: space-between; }
+  .val { color: #556; }
+  table { width: 100%; border-collapse: collapse; margin-top: 14px; }
+  td { padding: 3px 0; border-bottom: 1px solid #eee; }
+  td:last-child { text-align: right; }
+  .note { color: #667; font-size: 12.5px; margin-top: 14px; }
+  button { margin-top: 12px; padding: 6px 12px; border: 1px solid #ccd; background: #f7f8fa; border-radius: 6px; cursor: pointer; }
+</style>
+</head>
+<body>
+<main>
+  <canvas id="stage" width="560" height="660"></canvas>
+  <div class="panel">
+    <h1>로슈 각설탕: 계산으로 기울이기</h1>
+    <label>흔드는 방식</label>
+    <select id="mode">
+      <option value="edges">앞 모서리 번갈아 딛기 (뒤가 들림)</option>
+      <option value="roll">가운데 축으로 좌우 기우뚱</option>
+    </select>
+    <label><span class="row"><span>최대 각도</span><span class="val" id="ampV"></span></span></label>
+    <input id="amp" type="range" min="0" max="15" step="0.5" value="5">
+    <label><span class="row"><span>한 번 흔드는 주기</span><span class="val" id="perV"></span></span></label>
+    <input id="per" type="range" min="1" max="6" step="0.1" value="2.6">
+    <label><span class="row"><span>로슈 반대로 버티기</span><span class="val" id="leanV"></span></span></label>
+    <input id="lean" type="range" min="0" max="1" step="0.05" value="0.5">
+    <label><input id="light" type="checkbox" checked> 면 밝기를 기운 방향으로 계산</label>
+    <label><input id="hold" type="checkbox"> 멈추고 손으로 각도 보기</label>
+    <input id="manual" type="range" min="-15" max="15" step="0.5" value="0" disabled>
+    <table id="stats"></table>
+    <p class="note">쉬는 각도(0°)에선 대표님 원화 그대로. 기울면 면마다 아핀 변환 하나로 옮기고, 화면 쪽을 안 보는 면은 안 그린다. 면적은 쉴 때 대비.</p>
+  </div>
+</main>
+<script>
+const BASE = '../assets/characters/roshu/';
+const VIEW = 0.22;      // canvas px -> screen px
+const OFFSET = [9, -60];
+
+const load = src => new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = src; });
+
+const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const norm = a => { const l = Math.hypot(...a); return a.map(v => v / l); };
+
+function rotAxis(axis, angle) {
+  const [x, y, z] = norm(axis), c = Math.cos(angle), s = Math.sin(angle), t = 1 - c;
+  return [
+    [t * x * x + c, t * x * y - s * z, t * x * z + s * y],
+    [t * x * y + s * z, t * y * y + c, t * y * z - s * x],
+    [t * x * z - s * y, t * y * z + s * x, t * z * z + c],
+  ];
+}
+const mul = (m, p) => [dot(m[0], p), dot(m[1], p), dot(m[2], p)];
+
+async function main() {
+  const parts = (await (await fetch(BASE + 'parts/parts.json', { cache: 'no-store' })).json())['sugar-cube'];
+  const cube = { ...parts.cube, faces: {} };
+  const faces = {};
+  for (const f of parts.cube.faces) {
+    const key = f.name.replace('cube_', ''), frame = parts.parts.find(p => p.name === f.name).frame;
+    cube.faces[key] = { span: f.span, normal: f.normal, frame };
+    faces[key] = await load(BASE + `parts/sugar-cube/${f.name}.png`);
+  }
+  parts.parts = parts.parts.filter(p => !p.name.startsWith('cube_'));
+  const bodyImg = await load(BASE + 'parts/sugar-cube/body.png');
+  const limbImgs = {};
+  for (const p of parts.parts) limbImgs[p.name] = await load(BASE + `parts/sugar-cube/${p.name}.png`);
+
+  const { origin, ex, ey, ez } = cube;
+  const project = p => [origin[0] + p[0] * ex[0] + p[1] * ey[0] + p[2] * ez[0],
+                        origin[1] + p[0] * ex[1] + p[1] * ey[1] + p[2] * ez[1]];
+  // Direction toward the viewer: the 3D direction that projects to a point, signed so the top is visible.
+  let view;
+  {
+    // Solve x*ex + y*ey + z*ez = 0 with x = 1.
+    const a = [[ey[0], ez[0]], [ey[1], ez[1]]], b = [-ex[0], -ex[1]];
+    const det = a[0][0] * a[1][1] - a[0][1] * a[1][0];
+    const y = (b[0] * a[1][1] - a[0][1] * b[1]) / det, z = (a[0][0] * b[1] - b[0] * a[1][0]) / det;
+    view = norm([1, y, z]);
+    if (view[1] < 0) view = view.map(v => -v);
+  }
+  // Light from up-left-front (SPEC shadow note: light is left, front, above).
+  const screenLeft = norm([ex[0] < 0 ? 1 : -1, 0, ez[0] > 0 ? -1 : 1]);
+  const light = norm([view[0] + 0.6 * screenLeft[0], view[1] + 1.2, view[2] + 0.6 * screenLeft[2]]);
+  const shade = n => 0.62 + 0.38 * Math.max(0, dot(n, light));
+
+  // Roshu's standing point on the top face: where foot_stand meets the cube.
+  const foot = parts.parts.find(p => p.name === 'foot_stand');
+  const contact = [foot.frame[0] + foot.frame[2] * 0.5, foot.frame[1] + foot.frame[3]];
+  const top = (() => {
+    const t = [contact[0] - origin[0] - ey[0], contact[1] - origin[1] - ey[1]];
+    const det = ex[0] * ez[1] - ez[0] * ex[1];
+    return [(t[0] * ez[1] - ez[0] * t[1]) / det, 1, (ex[0] * t[1] - t[0] * ex[1]) / det];
+  })();
+
+  const $ = id => document.getElementById(id);
+  const ctx = $('stage').getContext('2d');
+  const restArea = {};
+
+  function rotation(deg) {
+    const a = deg * Math.PI / 180;
+    if ($('mode').value === 'edges') {
+      // Positive: stand on the front-left bottom edge (x axis), top leans toward the viewer's left.
+      // Negative: stand on the front-right bottom edge (z axis). Both edges pass through the origin.
+      return { pivot: [0, 0, 0], m: a >= 0 ? rotAxis([1, 0, 0], -a) : rotAxis([0, 0, 1], -a) };
+    }
+    // Roll around the bottom centre on the axis facing the viewer (no edge lifts visibly).
+    const axis = norm([view[0], 0, view[2]]);
+    return { pivot: [0.5, 0, 0.5], m: rotAxis(axis, a) };
+  }
+  const turn = (r, p) => { const q = mul(r.m, sub(p, r.pivot)); return [q[0] + r.pivot[0], q[1] + r.pivot[1], q[2] + r.pivot[2]]; };
+
+  // Affine taking the face's rest parallelogram to its turned one: M = Turned * Rest^-1.
+  function faceAffine(face, r) {
+    const [c0, cu, cv] = cube.faces[face].span;
+    const p0 = c0, pu = c0.map((v, i) => v + cu[i]), pv = c0.map((v, i) => v + cv[i]);
+    const A = [project(p0), project(pu), project(pv)];
+    const B = [project(turn(r, p0)), project(turn(r, pu)), project(turn(r, pv))];
+    const a = [A[1][0] - A[0][0], A[1][1] - A[0][1]], b = [A[2][0] - A[0][0], A[2][1] - A[0][1]];
+    const c = [B[1][0] - B[0][0], B[1][1] - B[0][1]], d = [B[2][0] - B[0][0], B[2][1] - B[0][1]];
+    const det = a[0] * b[1] - b[0] * a[1];
+    const inv = [b[1] / det, -b[0] / det, -a[1] / det, a[0] / det];
+    const m = [c[0] * inv[0] + d[0] * inv[2], c[1] * inv[0] + d[1] * inv[2],
+               c[0] * inv[1] + d[0] * inv[3], c[1] * inv[1] + d[1] * inv[3]];
+    const e = B[0][0] - (m[0] * A[0][0] + m[2] * A[0][1]);
+    const f = B[0][1] - (m[1] * A[0][0] + m[3] * A[0][1]);
+    const area = Math.abs(c[0] * d[1] - d[0] * c[1]);
+    return { m: [m[0], m[1], m[2], m[3], e, f], area };
+  }
+
+  const screen = () => { ctx.setTransform(VIEW, 0, 0, VIEW, OFFSET[0], OFFSET[1]); };
+
+  function frame(now) {
+    const t = now / 1000;
+    const amp = +$('amp').value, per = +$('per').value, lean = +$('lean').value;
+    $('ampV').textContent = amp + '°'; $('perV').textContent = per + '초'; $('leanV').textContent = Math.round(lean * 100) + '%';
+    $('manual').disabled = !$('hold').checked;
+    const deg = $('hold').checked ? +$('manual').value : amp * Math.sin(2 * Math.PI * t / per);
+    const r = rotation(deg);
+    const r0 = rotation(0);
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    // Ground shadow under the cube (stays on the floor).
+    screen();
+    const bottom = [project([0, 0, 0]), project([1, 0, 0]), project([1, 0, 1]), project([0, 0, 1])];
+    ctx.fillStyle = 'rgba(120,104,108,0.18)';
+    ctx.beginPath();
+    bottom.forEach((p, i) => i ? ctx.lineTo(p[0] + 60, p[1] + 20) : ctx.moveTo(p[0] + 60, p[1] + 20));
+    ctx.closePath(); ctx.fill();
+
+    // Faces back to front: sides first, top last (matches the art's layer order).
+    const rows = [];
+    for (const face of ['right', 'left', 'top']) {
+      const n0 = cube.faces[face].normal, n = mul(r.m, n0);
+      const facing = dot(n, view);
+      const { m, area } = faceAffine(face, r);
+      if (!(face in restArea)) restArea[face] = faceAffine(face, r0).area;
+      rows.push([face, facing > 0 ? Math.round(area / restArea[face] * 100) + '%' : '안 보임']);
+      if (facing <= 0) continue;
+      const k = $('light').checked ? shade(n) / shade(n0) : 1;
+      screen();
+      ctx.transform(...m);
+      ctx.filter = Math.abs(k - 1) > 0.002 ? `brightness(${k.toFixed(3)})` : 'none';
+      const [fx, fy, fw, fh] = cube.faces[face].frame;
+      ctx.drawImage(faces[face], fx, fy, fw, fh);
+      ctx.filter = 'none';
+    }
+
+    // Roshu rides the top face: his standing point moves with the cube, and he turns with the
+    // cube's up edge minus how much he leans back against it.
+    const p0 = project(top), p1 = project(turn(r, top));
+    const up0 = project([0, 1, 0]), base0 = project([0, 0, 0]);
+    const up1 = project(turn(r, [0, 1, 0])), base1 = project(turn(r, [0, 0, 0]));
+    const ang = Math.atan2(up1[1] - base1[1], up1[0] - base1[0]) - Math.atan2(up0[1] - base0[1], up0[0] - base0[0]);
+    const tilt = ang * (1 - lean);
+    screen();
+    ctx.translate(p1[0], p1[1]);
+    ctx.rotate(tilt);
+    ctx.translate(-p0[0], -p0[1]);
+    const flap = -ang * 180 / Math.PI * 2.2 * lean + 3 * Math.sin(2 * Math.PI * t / 0.9);
+    const limbAngle = { flipper_left: -flap, flipper_right: flap, leg_back: 0.6 * flap, foot_stand: 0 };
+    for (const p of parts.parts) {
+      ctx.save();
+      ctx.translate(p.pivot[0], p.pivot[1]);
+      ctx.rotate((limbAngle[p.name] || 0) * Math.PI / 180);
+      ctx.translate(-p.pivot[0], -p.pivot[1]);
+      ctx.drawImage(limbImgs[p.name], p.frame[0], p.frame[1], p.frame[2], p.frame[3]);
+      ctx.restore();
+    }
+    const b = parts.body;
+    ctx.drawImage(bodyImg, b[0], b[1], b[2], b[3]);
+
+    $('stats').innerHTML =
+      `<tr><td>각설탕 기울기</td><td>${deg.toFixed(1)}°</td></tr>` +
+      `<tr><td>화면 위 기운 각도</td><td>${(ang * 180 / Math.PI).toFixed(1)}°</td></tr>` +
+      `<tr><td>로슈 기울기</td><td>${(tilt * 180 / Math.PI).toFixed(1)}°</td></tr>` +
+      rows.map(([f, v]) => `<tr><td>${{ top: '윗면', left: '왼면', right: '오른면' }[f]} 면적</td><td>${v}</td></tr>`).join('');
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+main();
+</script>
+</body>
+</html>

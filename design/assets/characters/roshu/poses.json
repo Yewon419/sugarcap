@@ -109,6 +109,49 @@
     { "to": "limb.foot_right", "shape": "bump", "amp": 10, "period": 6, "at": 4.2, "length": 0.5 }
    ]
   },
+  "sulk-back": {
+   "label": "잔 뒤에서 삐져 있기",
+   "note": "대표님 2026-10-27 \"기본 서있는 자세로 뒤쪽에 가서 짜져있는것\". 정면 서 있는 그림(stand)을 걷기 그림 키의 0.45배로 줄여 잔 뒤 오른쪽 가장자리에 세운다. 멀어 보이게 반투명 대신 벽 색을 45% 덮고(테마가 바뀌어도 벽지가 비치지 않게, 대표님) 잔 누끼로 지워 잔 뒤에 선다. 누를 수 없고, 앱을 켜고 처음 뽑을 때만 나오며 앱을 다시 켤 때까지 그대로다(away). 움직임은 숨쉬기만. 반사 없음, 그림자는 작게.",
+   "art": "stand", "unlock": 1, "minStep": 1,
+   "away": { "scale": 0.45, "fade": 0.45 },
+   "place": { "x": 0.71, "y": "bottom", "dy": -0.06 },
+   "shadow": { "w": 0.8, "h": 0.1, "dx": 0.08, "dy": -0.02 },
+   "motion": [
+    { "to": "sy", "shape": "wave", "amp": 0.012, "period": 3.4 }
+   ]
+  },
+  "sugar-cube-left": {
+   "label": "잔 왼쪽 각설탕 위에서 균형",
+   "note": "물건 자세: 각설탕을 선물로 받아 열면 풀린다(대표님 2026-10-27). 각설탕 위에 한 발로 올라선 로슈. 각설탕은 대표님이 그린 면 세 장(윗면·왼면·오른면)을 정육면체 하나로 재서(sugar_cube.py) 앱이 계산으로 기울인다: 2.6초 주기로 앞 왼쪽·앞 오른쪽 아래 모서리를 번갈아 딛고 뒤가 들리며 최대 5° 흔들흔들(돌리지는 않음, 대표님). 면마다 아핀 변환 하나로 옮기고 보이는 면적·밝기도 기운 방향대로 다시 계산한다. 로슈는 딛는 발 자리가 윗면을 따라가고 기운 만큼의 절반만 같이 기울며(반은 버팀) 팔·든 발로 균형을 잡는다. 그림자는 잔처럼 앞 아래 꼭짓점에서 오른쪽으로 납작한 띠(대표님 2026-10-27). 몸 숨쉬기(sy)는 축이 각설탕 바닥이라 쓰지 않는다. 잔 왼쪽 냅킨, 그림 그대로(로슈가 오른쪽 = 잔 쪽을 본다).",
+   "art": "sugar-cube", "unlock": 1, "item": "sugar-cube", "minStep": 1,
+   "place": { "x": 0.17, "y": "bottom", "dy": 0.01 },
+   "limbDirection": { "flipper_left": 0, "flipper_right": 0, "leg_back": 0, "foot_stand": 0 },
+   "shadow": { "w": 0.9, "h": 0.06, "dx": -0.02, "dy": -0.01 },
+   "motion": [
+    { "to": "cube", "shape": "wave", "amp": 5, "period": 2.6 },
+    { "to": "limb.flipper_left", "shape": "wave", "amp": -5.5, "period": 2.6 },
+    { "to": "limb.flipper_right", "shape": "wave", "amp": 5.5, "period": 2.6 },
+    { "to": "limb.leg_back", "shape": "wave", "amp": 3.3, "period": 2.6 },
+    { "to": "limb.flipper_left", "shape": "wave", "amp": -3, "period": 0.9 },
+    { "to": "limb.flipper_right", "shape": "wave", "amp": 3, "period": 0.9 }
+   ]
+  },
+  "sugar-cube-right": {
+   "label": "잔 오른쪽 각설탕 위에서 균형",
+   "note": "물건 자세: 각설탕을 선물로 받아 열면 풀린다(대표님 2026-10-27). 각설탕 위에 한 발로 올라선 로슈. 각설탕은 대표님이 그린 면 세 장(윗면·왼면·오른면)을 정육면체 하나로 재서(sugar_cube.py) 앱이 계산으로 기울인다: 2.6초 주기로 앞 왼쪽·앞 오른쪽 아래 모서리를 번갈아 딛고 뒤가 들리며 최대 5° 흔들흔들(돌리지는 않음, 대표님). 면마다 아핀 변환 하나로 옮기고 보이는 면적·밝기도 기운 방향대로 다시 계산한다. 로슈는 딛는 발 자리가 윗면을 따라가고 기운 만큼의 절반만 같이 기울며(반은 버팀) 팔·든 발로 균형을 잡는다. 그림자는 잔처럼 앞 아래 꼭짓점에서 오른쪽으로 납작한 띠(대표님 2026-10-27). 몸 숨쉬기(sy)는 축이 각설탕 바닥이라 쓰지 않는다. 잔 오른쪽 냅킨, 좌우반전해 잔 쪽을 본다(잔 아래 자세는 좌우 다). 각설탕은 뒤집어도 원화 방향(면 무늬·밝기·그림자 오른쪽)대로 그린다.",
+   "art": "sugar-cube", "unlock": 1, "item": "sugar-cube", "minStep": 1,
+   "mirror": true, "place": { "x": 0.83, "y": "bottom", "dy": 0.01 },
+   "limbDirection": { "flipper_left": 0, "flipper_right": 0, "leg_back": 0, "foot_stand": 0 },
+   "shadow": { "w": 0.9, "h": 0.06, "dx": -0.02, "dy": -0.01 },
+   "motion": [
+    { "to": "cube", "shape": "wave", "amp": 5, "period": 2.6 },
+    { "to": "limb.flipper_left", "shape": "wave", "amp": -5.5, "period": 2.6 },
+    { "to": "limb.flipper_right", "shape": "wave", "amp": 5.5, "period": 2.6 },
+    { "to": "limb.leg_back", "shape": "wave", "amp": 3.3, "period": 2.6 },
+    { "to": "limb.flipper_left", "shape": "wave", "amp": -3, "period": 0.9 },
+    { "to": "limb.flipper_right", "shape": "wave", "amp": 3, "period": 0.9 }
+   ]
+  },
   "wave": {
    "label": "손 흔들기",
    "note": "Lv6. 사용자 쪽으로 든 왼팔을 좌우로 흔들고 몸도 살짝 따라 흔들린다. 6초마다 까치발: watch처럼 몸만 올라가고 발은 바닥에 남는다. 팔다리는 전부 몸 뒤(같은 색이라 윤곽은 같고 관절 이음매가 가려진다).",

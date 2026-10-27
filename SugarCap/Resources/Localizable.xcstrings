@@ -914,6 +914,22 @@
         }
       }
     },
+    "각설탕" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sugar cube"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "方糖"
+          }
+        }
+      }
+    },
     "각설탕 한 개는\n3~4 g 정도예요." : {
       "localizations" : {
         "en" : {

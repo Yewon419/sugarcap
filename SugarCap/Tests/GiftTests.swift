@@ -58,7 +58,7 @@ final class GiftTests: XCTestCase {
 
         let item = GiftEvent(kind: .goalReached, side: .sugar, createdAt: Date())
         GiftStore.reveal(item, isPro: true, takenItems: [], roll: 0.45)
-        XCTAssertEqual(item.payload, GiftContent.item("strawberry"), "로슈가 들고 온 옛 상자는 로슈 물건")
+        XCTAssertTrue(Self.roshuItems.contains(item.payload ?? ""), "로슈가 들고 온 옛 상자는 로슈 물건")
         let kainBox = GiftEvent(kind: .goalReached, side: .caffeine, createdAt: Date())
         GiftStore.reveal(kainBox, isPro: true, takenItems: [], roll: 0.45)
         XCTAssertEqual(kainBox.payload, GiftContent.item("coffee-bean"), "카인이 들고 온 상자엔 카인 물건만 든다")
@@ -205,7 +205,7 @@ final class GiftTests: XCTestCase {
         XCTAssertEqual(gift.payload, GiftContent.item("strawberry"))
         XCTAssertEqual(gift.cupSide, .sugar, "딸기는 로슈가 들고 온다")
         XCTAssertEqual(GiftStore.content(owners: [.sugar], isPro: true, taken: try GiftStore.takenItems(in: context), roll: 0.45).payload,
-                       GiftContent.cap, "축하 선물로 받은 딸기는 상자에서 다시 안 나온다")
+                       GiftContent.item("sugar-cube"), "축하 선물로 받은 딸기는 상자에서 다시 안 나온다")
 
         // 당을 끄고 카페인만 기록하면 카인이 커피콩을 들고 온다(대표님 2026-10-27).
         let caffeineContainer = try ModelContainer(for: GiftEvent.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
@@ -216,6 +216,8 @@ final class GiftTests: XCTestCase {
         XCTAssertEqual(bean.cupSide, .caffeine, "커피콩은 카인이 들고 온다")
     }
 
+    private static let roshuItems: Set<String> = [GiftContent.item("strawberry"), GiftContent.item("sugar-cube")]
+
     /// 물건이 나오면 그 주인이 들고 온다. 기록하지 않는 면의 물건, 이미 상자에 든 물건은 안 나온다(대표님 2026-10-11).
     @MainActor
     func testItemBoxIsCarriedByItsOwner() throws {
@@ -224,8 +226,8 @@ final class GiftTests: XCTestCase {
         let now = Date()
 
         let berry = GiftStore.content(owners: [.sugar], isPro: true, taken: [], roll: 0.45)
-        XCTAssertEqual(berry.payload, GiftContent.item("strawberry"))
-        XCTAssertEqual(berry.owner, .sugar, "딸기는 로슈가 들고 온다")
+        XCTAssertTrue(Self.roshuItems.contains(berry.payload))
+        XCTAssertEqual(berry.owner, .sugar, "딸기·각설탕은 로슈가 들고 온다")
         let bean = GiftStore.content(owners: [.caffeine], isPro: true, taken: [], roll: 0.45)
         XCTAssertEqual(bean.payload, GiftContent.item("coffee-bean"), "카페인만 기록하면 딸기는 안 나온다")
         XCTAssertEqual(bean.owner, .caffeine)
@@ -235,9 +237,12 @@ final class GiftTests: XCTestCase {
                        "카페인 목표 상자엔 카인 물건만 든다")
         try GiftStore.grantGoalReached(side: .sugar, isPro: true, now: now.addingTimeInterval(1), in: context, roll: 0.45)
         let first = try XCTUnwrap(try GiftStore.pending(in: context).last)
-        XCTAssertEqual(first.payload, GiftContent.item("strawberry"))
+        XCTAssertTrue(Self.roshuItems.contains(first.payload ?? ""))
         XCTAssertEqual(first.cupSide, .sugar)
         try GiftStore.grantGoalReached(side: .sugar, isPro: true, now: now.addingTimeInterval(2), in: context, roll: 0.45)
+        let second = try XCTUnwrap(try GiftStore.pending(in: context).last)
+        XCTAssertEqual(Set([first.payload, second.payload].compactMap { $0 }), Self.roshuItems, "로슈 물건 둘이 한 번씩")
+        try GiftStore.grantGoalReached(side: .sugar, isPro: true, now: now.addingTimeInterval(3), in: context, roll: 0.45)
         XCTAssertTrue(try XCTUnwrap(try GiftStore.pending(in: context).last).isCap, "안 연 상자에 든 물건은 다시 안 나온다")
     }
 

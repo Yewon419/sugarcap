@@ -1,3 +1,4 @@
+import SpriteKit
 import SwiftUI
 
 /// 추이 월 달력(2026-10-27 이식, 프로토 `design/proto/trends-month-dump.html`). 캐릭터 없는 한 달.

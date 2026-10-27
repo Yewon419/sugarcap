@@ -1280,6 +1280,7 @@ struct TodayView: View {
                 keptWeek = day
             }
         }
+        _ = try GiftStore.queueFirstMeeting(sides: trackedSides, now: now, in: context)
         // `close`가 행에 마감 시각을 적은 뒤라 방금 마감한 날도 센다.
         _ = try GiftStore.grantStarterCap(sides: trackedSides, now: now, in: context)
         try context.save()

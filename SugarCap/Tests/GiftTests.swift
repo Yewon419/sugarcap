@@ -291,4 +291,27 @@ final class GiftTests: XCTestCase {
         XCTAssertFalse(stage.isHeart, "단계 상승은 마음을 세지 않는다")
         XCTAssertFalse(GiftMath.isTrendsUnlocked(gifts: try GiftStore.records(in: context)))
     }
+
+    /// 첫 먹이기 직후 두 캐릭터 모두 "처음 만난 사이" 무대(2026-10-27). 다시 먹여도, 이미 단계 무대를 본 면에도 또 넣지 않는다.
+    @MainActor
+    func testFirstMeetingIsQueuedOncePerSide() throws {
+        let container = try ModelContainer(
+            for: GiftEvent.self, DaySettlement.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        let context = container.mainContext
+
+        XCTAssertEqual(try GiftStore.queueFirstMeeting(sides: [.sugar], now: Date(), in: context), 1)
+        let first = try GiftStore.pending(in: context)
+        XCTAssertEqual(first.map(\.giftKind), [.levelUp])
+        XCTAssertEqual(first.first?.level, 1)
+        XCTAssertEqual(AffinityMath.stageName(level: 1), "처음 만난 사이")
+        let stage = try XCTUnwrap(first.first)
+        GiftStore.open(stage, now: Date())
+
+        XCTAssertEqual(try GiftStore.queueFirstMeeting(sides: [.sugar], now: Date(), in: context), 0, "본 뒤에 다시 먹여도 안 온다")
+        XCTAssertEqual(try GiftStore.queueFirstMeeting(sides: CupSide.allCases, now: Date(), in: context), 1, "카페인을 나중에 켜면 그 면만")
+        XCTAssertEqual(try GiftStore.pending(in: context).map(\.cupSide), [.caffeine])
+        XCTAssertEqual(try GiftStore.queueFirstMeeting(sides: CupSide.allCases, now: Date(), in: context), 0, "아직 안 본 것도 겹쳐 넣지 않는다")
+    }
 }

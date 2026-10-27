@@ -523,6 +523,29 @@ extension RecordFlowUITests {
         XCTAssertFalse(app.buttons["feeding-skip"].exists, "요약에 건너뛰기가 남음")
         app.buttons["feeding-done"].tap()
         XCTAssertTrue(app.buttons["feeding-done"].waitForNonExistence(timeout: 5), "완료를 눌러도 먹이기 화면이 안 닫힘")
+
+        // 첫 먹이기 직후 두 면 모두 "처음 만난 사이" 무대(2026-10-27). 둘 다 보고 닫아 둬야 뒤 테스트·스크린샷에 무대가 안 남는다.
+        let ui = Driver(app: app)
+        let stage = ui.element("levelup-stage")
+        let summary = app.descendants(matching: .any)["cup-summary"]
+        let window = app.windows.firstMatch
+        let right = window.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.5))
+        let left = window.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.5))
+        for turn in 0 ..< 2 {
+            XCTAssertTrue(stage.waitForExistence(timeout: 10), "첫 먹이기 뒤 \(turn + 1)번째 무대가 안 뜸")
+            XCTAssertTrue(stage.label.contains("처음 만난 사이"), "첫 만남 문구가 아님: \(stage.label)")
+            stage.tap()
+            XCTAssertTrue(stage.waitForNonExistence(timeout: 3), "눌렀는데 무대가 안 닫힘")
+            guard turn == 0 else { break }
+            XCTAssertTrue(summary.waitForExistence(timeout: 5))
+            let onSugar = summary.label.hasPrefix("당 남은")
+            if onSugar {
+                right.press(forDuration: 0.1, thenDragTo: left)
+            } else {
+                left.press(forDuration: 0.1, thenDragTo: right)
+            }
+            XCTAssertTrue(summary.waitForLabel(prefix: onSugar ? "카페인 남은" : "당 남은"), "다른 컵으로 안 넘어감: \(summary.label)")
+        }
     }
 
     /// 편의점은 메뉴가 수천 개라 검색 우선 화면이다(2026-10-01). 검색 전에는 목록이 없고,

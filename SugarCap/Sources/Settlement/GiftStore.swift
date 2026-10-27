@@ -76,6 +76,17 @@ enum GiftStore {
         return raised.count
     }
 
+    /// 첫 먹이기 직후 "처음 만난 사이" 무대(Lv1, 2026-10-27 대표님). 단계 상승 무대를 한 번도 받은 적 없는 면에만 넣는다.
+    /// 적립은 하루 경계 뒤라 점수와 상관없이 먹인 그 자리에서 보인다. 넣은 개수.
+    static func queueFirstMeeting(sides: [CupSide], now: Date, in context: ModelContext) throws -> Int {
+        let staged = Set(try all(in: context).filter { $0.giftKind == .levelUp }.compactMap(\.cupSide))
+        let fresh = sides.filter { !staged.contains($0) }
+        for side in fresh {
+            context.insert(GiftEvent(kind: .levelUp, side: side, level: 1, createdAt: now))
+        }
+        return fresh.count
+    }
+
     /// 감소 목표를 끝까지 해냈을 때. 그 면 캐릭터가 가져오고, 물건은 그 캐릭터 것만 나온다. 내용은 이때 정한다.
     static func grantGoalReached(
         side: CupSide, isPro: Bool, now: Date, in context: ModelContext, roll: Double = Double.random(in: 0 ..< 1)

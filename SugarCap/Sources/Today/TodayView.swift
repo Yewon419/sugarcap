@@ -1438,6 +1438,8 @@ struct TodayView: View {
             default: break
             }
             snapshot.fxAt = defaults.double(forKey: "screenshotFxAt")
+            // `-screenshotFeedingTutorial YES` = 소개 직후 첫 먹이기의 튜토리얼 덮개.
+            snapshot.tutorial = defaults.bool(forKey: "screenshotFeedingTutorial")
             if defaults.object(forKey: "screenshotIntroAt") != nil {
                 snapshot.introAt = defaults.double(forKey: "screenshotIntroAt")
             }

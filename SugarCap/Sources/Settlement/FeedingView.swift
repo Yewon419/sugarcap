@@ -81,6 +81,8 @@ struct FeedingSnapshot: Equatable {
     var fx: FeedFx?
     var fxAt: Double = 0
     var introAt: Double?
+    /// 첫 먹이기 튜토리얼(덮개 + 큰 안내)을 켜 둔다.
+    var tutorial = false
 }
 
 /// 먹이기(2026-09-26 HTML 프로토타입 확정). 밤 장면, 당(로슈)·카페인(카인) 화면을 나눠 차례로 먹인다.
@@ -133,6 +135,9 @@ struct FeedingView: View {
     @State private var summaryIn = false
     /// "컵을 눌러 주세요." 안내. 컵 차례에서 2초 동안 아무것도 안 하면 뜬다(대표님 2026-10-23).
     @State private var isCupHintShown = false
+    /// 첫 먹이기 튜토리얼(대표님 2026-10-27). 소개 영상 뒤 첫 먹이기에서만 켠다. 컵·캐릭터만 남기고 어둡게 덮고
+    /// 큰 글자로 "컵을 눌러 남은 당을 로슈에게 주세요." → "방울을 로슈에게 끌어다 주세요."를 띄워 이름을 알린다. 카인 차례도 같다.
+    private let isTutorial: Bool
     /// 컵 비우기(꿀꺽꿀꺽 내려가는 수위)를 시작한 시각. 도는 동안만 있다.
 
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "feeding")
@@ -152,6 +157,7 @@ struct FeedingView: View {
         self.onFeed = onFeed
         self.onAddDrink = onAddDrink
         _isIntroPlaying = State(initialValue: opening == .companionIntro)
+        isTutorial = opening == .companionIntro || snapshot?.tutorial == true
         _isSceneVisible = State(initialValue: opening == .immediate)
         _fx = State(initialValue: opening == .dusk ? .dusk(title: request.kind == .closeToday ? String(localized: "오늘 마감") : String(localized: "어제 마감")) : nil)
     }
@@ -162,6 +168,8 @@ struct FeedingView: View {
     }
     private var side: CupSide { sides[max(stepIndex, 0)] }
     private var isLastSide: Bool { stepIndex >= sides.count - 1 }
+    /// 튜토리얼 덮개를 깔 단계. 컵 누르기 → (빈 컵 털기) → 방울 주기. 먹고 나면 걷는다.
+    private var isCoaching: Bool { isTutorial && step != .done && stage != .eaten }
 
     private var dateText: String {
         Date().formatted(.dateTime.month().day().weekday(.wide))
@@ -257,10 +265,16 @@ struct FeedingView: View {
                     .accessibilityIdentifier("feeding-cup")
                 }
 
+                // 튜토리얼 덮개: 컵(누를 차례에만)과 캐릭터만 뚫어 두고 나머지를 어둡게. 제목·방울은 덮개 위라 밝게 남는다.
+                if isCoaching {
+                    CoachDim(holes: coachHoles(proxy))
+                        .transition(.opacity)
+                }
+
                 VStack(alignment: .leading, spacing: 16) {
                     headline(left: left, over: over)
                     // 깜빡한 음료를 먹이기 전에 넣는다(2026-10-02 대표님). 아래 오른쪽은 한 손 진행 자리라 위로 올렸다(2026-10-23).
-                    if step == .side(0) && stage == .ask {
+                    if step == .side(0) && stage == .ask && !isCoaching {
                         addDrinkButton
                             .padding(.horizontal, 24)
                             .transition(.opacity)
@@ -286,6 +300,7 @@ struct FeedingView: View {
                     .accessibilityHidden(true)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .animation(.easeOut(duration: 0.3), value: isCoaching)
             .overlay(alignment: .bottom) { foot }
             // 닫기는 뺐다(2026-10-07 대표님 "건너뛰기 있으니 닫기 없애"). 요약 화면의 닫기는 그대로.
             .overlay(alignment: .topTrailing) {
@@ -302,6 +317,30 @@ struct FeedingView: View {
         .sensoryFeedback(.impact(weight: .light), trigger: shakeTrigger)
         .sensoryFeedback(.impact(weight: .light, intensity: 0.6), trigger: patTrigger)
         .sensoryFeedback(.success, trigger: bounceTrigger)
+    }
+
+    /// 튜토리얼 덮개에 뚫을 자리(화면 좌표). 컵은 누를 차례(빈 컵 털기 포함)에만, 캐릭터는 내내.
+    /// 컵은 `CupView`와 같은 사진 틀(화면 높이 84%, 바닥에서 4% 띄움)에 잔 치수(`CupSetGeometry`)를 얹어 잰다.
+    private func coachHoles(_ proxy: GeometryProxy) -> [CoachDim.Hole] {
+        let safeTop = proxy.safeAreaInsets.top
+        let screen = CGSize(width: proxy.size.width, height: proxy.size.height + safeTop + proxy.safeAreaInsets.bottom)
+        var holes: [CoachDim.Hole] = []
+        if stage == .ask || stage == .searching {
+            let slotHeight = screen.height * CupView.heightRatio
+            let slotTop = screen.height * (1 - CupView.heightRatio - CupView.liftRatio)
+            let photo = IdlePhoto(slot: CGSize(width: screen.width, height: slotHeight))
+            let cast = side.idleCast
+            let step = CupLevel.step(remaining: request.left(side), limit: side.limit(request.limits))
+            let axis = cast.glassAxis(step: step)
+            let top = photo.point(axis - 0.31, cast.rimLine(step: step).back - 0.03)
+            let bottom = photo.point(axis + 0.31, cast.bottom + 0.025)
+            let rect = CGRect(x: top.x, y: slotTop + top.y, width: bottom.x - top.x, height: bottom.y - top.y)
+            holes.append(CoachDim.Hole(rect: rect, radius: 28))
+        }
+        if characterFrame != .zero {
+            holes.append(CoachDim.Hole(rect: characterFrame.offsetBy(dx: 0, dy: safeTop).insetBy(dx: -14, dy: -14), radius: 24))
+        }
+        return holes
     }
 
     private func headline(left: Double, over: Double) -> some View {
@@ -324,6 +363,16 @@ struct FeedingView: View {
                     ? String(localized: "둘 다 먹었어요.") : String(localized: "\(side.characterNameWithIga) 다 먹었어요.")
             }
         }()
+        // 첫 먹이기 튜토리얼(2026-10-27): 할 일과 캐릭터 이름을 크게. 방울 단계는 원래 안내를 키워 쓴다.
+        let coach: String? = {
+            guard isCoaching else { return nil }
+            switch stage {
+            case .ask: return String(localized: "컵을 눌러 남은 \(side.label)을 \(side.characterName)에게 주세요.")
+            case .dropped: return caption
+            case .searching, .eaten: return nil
+            }
+        }()
+        let smallCaption = stage == .dropped && coach != nil ? nil : caption
         let kind = request.kind == .closeToday ? String(localized: "오늘 마감") : String(localized: "어제 남은 음료")
 
         return VStack(alignment: .leading, spacing: 0) {
@@ -345,8 +394,8 @@ struct FeedingView: View {
             .foregroundStyle(.white)
             .animation(.easeOut(duration: 0.5), value: stage)
             Group {
-                if let caption {
-                    Text("남은 \(side.label) · \(caption)")
+                if let smallCaption {
+                    Text("남은 \(side.label) · \(smallCaption)")
                 } else {
                     Text("남은 \(side.label)")
                 }
@@ -357,7 +406,16 @@ struct FeedingView: View {
             .foregroundStyle(.white.opacity(0.78))
             .padding(.top, 8)
             .fixedSize(horizontal: false, vertical: true)
-            if stage == .ask {
+            if let coach {
+                Text(coach)
+                    .font(AppFont.pretendard(21, .semibold, relativeTo: .title3))
+                    .lineSpacing(5)
+                    .foregroundStyle(.white)
+                    .padding(.top, 18)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .transition(.opacity)
+                    .accessibilityIdentifier("feeding-coach")
+            } else if stage == .ask {
                 // 자리는 늘 잡아 둬서 안내가 떠도 아래가 밀리지 않는다.
                 Text("컵을 눌러 주세요.")
                     .font(AppFont.pretendard(13, .regular, relativeTo: .footnote))
@@ -803,6 +861,32 @@ private struct NightScrim: View {
         )
         .ignoresSafeArea()
         .allowsHitTesting(false)
+    }
+}
+
+/// 첫 먹이기 튜토리얼 덮개(2026-10-27). 화면을 단색으로 낮추고 `holes`(화면 좌표)만 뚫는다. 가장자리는 또렷하게(에어브러시 금지).
+/// 누르기는 그대로 아래 컵·방울로 간다.
+private struct CoachDim: View {
+    struct Hole: Equatable {
+        let rect: CGRect
+        let radius: CGFloat
+    }
+
+    let holes: [Hole]
+
+    var body: some View {
+        Canvas { context, size in
+            context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(.black.opacity(0.62)))
+            context.blendMode = .destinationOut
+            for hole in holes {
+                let shape = RoundedRectangle(cornerRadius: hole.radius, style: .continuous).path(in: hole.rect)
+                context.fill(shape, with: .color(.black))
+            }
+        }
+        .compositingGroup()
+        .ignoresSafeArea()
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 }
 

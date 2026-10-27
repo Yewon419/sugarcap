@@ -5442,6 +5442,22 @@
         }
       }
     },
+    "컵을 눌러 남은 %@을 %@에게 주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap the cup and give the leftover %1$@ to %2$@."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "點一下杯子，把剩下的%1$@給%2$@。"
+          }
+        }
+      }
+    },
     "컵을 눌러 주세요." : {
       "localizations" : {
         "en" : {

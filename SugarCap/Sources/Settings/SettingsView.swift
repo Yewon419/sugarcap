@@ -254,7 +254,7 @@ private struct SettingsContent: View {
                 onClose: { showsOnboarding = false }
             )
         }
-        // 테스트: 로슈·카인 소개만 따로 본다. "먹이러 가기"는 닫기로 쓴다.
+        // 테스트: 로슈·카인 소개만 따로 본다. 영상이 끝나거나 건너뛰면 닫힌다.
         .fullScreenCover(isPresented: $showsIntro) {
             CompanionIntroView(onFinish: { showsIntro = false })
         }

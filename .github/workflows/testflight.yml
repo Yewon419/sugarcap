@@ -252,9 +252,15 @@ jobs:
           shoot tracks-onlooker-roshu-empty light large -screenshotTracks caffeine -screenshotOnlooker YES -idleStep 0 -idleAt 1.0
           shoot tracks-trends-sugar light large -seedDemo YES -screenshotTracks sugar -initialTab trends -trendSide caffeine -trendEntrance hang -trendEntranceAt 0
           shoot tracks-trends-caffeine light large -seedDemo YES -screenshotTracks caffeine -initialTab trends -trendEntrance hang -trendEntranceAt 0
-          for at in 1.5 4.8 7.4 8.8 12.4 13.6; do
+          for at in 0.4 2.2 3.6 5.2 6.6 8.0; do
             shoot "intro-$at" light large -screenshotFeeding YES -screenshotIntroAt "$at"
           done
+          # 소개 직후 첫 먹이기 튜토리얼: 컵 누르기, 방울 주기, 카인 차례, 빈 컵 털기, 큰 글자.
+          shoot feeding-tutorial light large -screenshotFeeding YES -screenshotFeedingTutorial YES
+          shoot feeding-tutorial-dropped light large -screenshotFeeding YES -screenshotFeedingTutorial YES -screenshotFeedingStage dropped
+          shoot feeding-tutorial-caffeine light large -screenshotFeeding YES -screenshotFeedingTutorial YES -screenshotFeedingStage caffeine
+          shoot feeding-tutorial-empty light large -screenshotFeeding YES -screenshotFeedingTutorial YES -screenshotFeedingEmpty YES
+          shoot feeding-tutorial-type-ax-xl light accessibility-extra-large -screenshotFeeding YES -screenshotFeedingTutorial YES
           # 대기 자세(design/proto/characters.html과 대조). 자세·단계·시각을 고정해 찍는다.
           shoot idle-roshu-in-cup light large -idlePose in-cup -idleStep 50 -idleAt 2.5
           shoot idle-roshu-watch light large -idlePose watch -idleStep 100 -idleAt 2.5
@@ -413,7 +419,9 @@ jobs:
           shoot_en feeding-summary large -screenshotFeeding YES -screenshotFeedingStage summary
           shoot_en feeding-empty-patting large -screenshotFeeding YES -screenshotFeedingEmpty YES -screenshotFeedingStage patting
           shoot_en fx-dusk large -screenshotFeeding YES -screenshotFx dusk -screenshotFxAt 0.8
-          for at in 1.5 4.8 7.4 8.8 12.4 13.6; do
+          shoot_en feeding-tutorial large -screenshotFeeding YES -screenshotFeedingTutorial YES
+          shoot_en feeding-tutorial-dropped large -screenshotFeeding YES -screenshotFeedingTutorial YES -screenshotFeedingStage dropped
+          for at in 0.4 2.2 3.6 5.2 6.6 8.0; do
             shoot_en "intro-$at" large -screenshotFeeding YES -screenshotIntroAt "$at"
           done
           # 대만판(SPEC §9.9 ④). 번체 문장 넘침과 대만 메뉴(카페인 구간 표기)를 본다.

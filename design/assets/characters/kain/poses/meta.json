@@ -207,5 +207,39 @@
    }
   ],
   "rimLineY": null
+ },
+ "swim-front": {
+  "file": "design/assets/characters/kain/poses/swim-front.png",
+  "canvas": [
+   2500,
+   2800
+  ],
+  "bbox": [
+   751,
+   452,
+   1758,
+   2351
+  ],
+  "eyes": [
+   {
+    "box": [
+     835,
+     737,
+     1019,
+     1067
+    ],
+    "lid": "#372316"
+   },
+   {
+    "box": [
+     1479,
+     737,
+     1664,
+     1067
+    ],
+    "lid": "#372316"
+   }
+  ],
+  "rimLineY": null
  }
 }

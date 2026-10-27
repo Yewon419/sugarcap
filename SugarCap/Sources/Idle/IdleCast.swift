@@ -107,9 +107,9 @@ struct CupSetGeometry: Sendable {
         }
     }
 
-    /// 이 잔에서 뽑지 않는 대기 자세. 음료가 불투명하면 음료 속 헤엄(`swim`)이 안 비쳐 뺀다(대표님 2026-10-25, 카페라떼).
+    /// 이 잔에서 뽑지 않는 대기 자세. 음료가 불투명하면 음료 속 헤엄(`swim`·앞모습 `swim-front`)이 안 비쳐 뺀다(대표님 2026-10-25, 카페라떼).
     static func hiddenPoses(_ setID: String) -> Set<String> {
-        setID == "cafe-latte" ? ["swim"] : []
+        setID == "cafe-latte" ? ["swim", "swim-front"] : []
     }
 }
 

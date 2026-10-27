@@ -63,6 +63,7 @@ ART_NORM: dict[str, dict[str, float]] = {
         "lie": 0.937,
         "gift-carry": 0.977,
         "bean-balance": 0.997,
+        "swim-front": 0.991,
     },
 }
 

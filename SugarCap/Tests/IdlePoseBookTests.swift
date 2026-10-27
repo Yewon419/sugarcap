@@ -178,7 +178,7 @@ final class IdlePoseBookTests: XCTestCase {
                 }
                 seen += a.count
             }
-            XCTAssertEqual(seen > 0, name == "swim", name)
+            XCTAssertEqual(seen > 0, ["swim", "swim-front"].contains(name), name)
         }
     }
 

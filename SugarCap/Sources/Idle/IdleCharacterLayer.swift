@@ -280,14 +280,16 @@ struct IdleSprite {
     }
 
     /// 멈춰 보기(`IdleFuss.stare`) 동안의 정면 그림. 움직임 없이 지금 자리(걷던 곳 포함)에 발끝을 맞춰 선다.
+    /// 그림 가운데가 축인 헤엄은 앞모습도 가운데를 맞춰 떠 있고, 반투명도 이어받는다.
     /// 그림자·반사는 원래 자세 것을 그대로 쓴다. 바꿀 정면 그림이 없으면 그대로.
     func facingFront(at t: Double) -> IdleSprite {
         guard let front = IdleFussMath.frontArt(character: cast.character, art: spec.rule.art),
               let frontArt = IdleRig.arts[cast.character]?[front]
         else { return self }
         let still = IdlePoseSpec(
-            rule: IdlePoseRule(art: front, reflection: rule.reflection, shadow: rule.shadow),
-            unlock: spec.unlock, item: spec.item, place: spec.place, pivot: .feet, motion: .channels([])
+            rule: IdlePoseRule(art: front, opacity: rule.opacity, reflection: rule.reflection, shadow: rule.shadow),
+            unlock: spec.unlock, item: spec.item, place: spec.place, pivot: spec.pivot == .center ? .center : .feet,
+            motion: .channels([])
         )
         let now = frame(t)
         return IdleSprite(
@@ -316,8 +318,18 @@ struct IdleSprite {
         self.scale = scale
         acrossCup = other.acrossCup
         self.base = base
-        pivot = CGPoint(x: Double(art.bbox.midX) * scale, y: Double(art.bbox.maxY) * scale)
+        pivot = Self.pivotPoint(spec.pivot, art: art, scale: scale)
         footY = Double(art.bbox.maxY) * scale
+    }
+
+    private static func pivotPoint(_ kind: IdlePivot, art: IdleArt, scale: Double) -> CGPoint {
+        let y: Double =
+            switch kind {
+            case .feet: Double(art.bbox.maxY)
+            case .rimLine: art.rimLineY ?? Double(art.bbox.maxY)
+            case .center: Double(art.bbox.midY)
+            }
+        return CGPoint(x: Double(art.bbox.midX) * scale, y: y * scale)
     }
 
     init?(cast: IdleCast, cupSetID: String, pose: String, step: Int, size: CGSize, acrossCup: Bool) {
@@ -344,13 +356,7 @@ struct IdleSprite {
         } else {
             base = placed
         }
-        let pivotY: Double =
-            switch spec.pivot {
-            case .feet: Double(art.bbox.maxY)
-            case .rimLine: art.rimLineY ?? Double(art.bbox.maxY)
-            case .center: Double(art.bbox.midY)
-            }
-        pivot = CGPoint(x: Double(art.bbox.midX) * scale, y: pivotY * scale)
+        pivot = Self.pivotPoint(spec.pivot, art: art, scale: scale)
         footY = Double(art.bbox.maxY) * scale
     }
 

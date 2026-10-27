@@ -1,0 +1,4 @@
+{
+ "pivots": {"flipper_side": [1575, 1385]},
+ "front": ["flipper_side"]
+}

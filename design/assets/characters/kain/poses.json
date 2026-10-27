@@ -41,6 +41,21 @@
     { "to": "limb.leg_far", "shape": "wave", "amp": -10, "period": 0.9 }
    ]
   },
+  "swim-front": {
+   "label": "커피 속 앞보기",
+   "note": "헤엄(swim)의 앞모습(대표님 원화 레이어 2026-10-27). 같은 자리·같은 반투명으로 제자리에 떠서 이쪽을 보고 천천히 오르내리며 두 발로 번갈아 발차기. 회전은 아주 작은 기울기뿐이고 한 바퀴는 없다. 3.2초마다 부리 위에서 흰 기포 점 3개가 올라온다.",
+   "art": "swim-front", "unlock": 8, "minStep": 50, "opacity": 0.6,
+   "pivot": "center",
+   "place": { "xRim": -0.05, "y": "liquid", "floor": 0.852, "depth": 0.5 },
+   "limbDirection": { "leg_left": 0, "leg_right": 0 },
+   "bubbles": { "from": [1250, 960], "every": 3.2, "count": 3, "gap": 0.2, "life": 1.6, "rise": 30, "size": 1.4 },
+   "motion": [
+    { "to": "dy", "shape": "wave", "amp": 2.2, "period": 3.1 },
+    { "to": "rot", "shape": "wave", "amp": 1.5, "period": 3.1, "phase": 1.2 },
+    { "to": "limb.leg_left", "shape": "wave", "amp": 10, "period": 0.9 },
+    { "to": "limb.leg_right", "shape": "wave", "amp": -10, "period": 0.9 }
+   ]
+  },
   "walk": {
    "label": "컵 밑 걷기",
    "note": "뒤뚱 걷기(waddle). 반사는 뒤집지 않는다(대표님: 뒤집으면 반대로 걷는 것처럼 보임). 반사를 위로 올리면 눌린 반사가 머리 위로 삐져나온다.",

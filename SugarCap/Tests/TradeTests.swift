@@ -63,7 +63,7 @@ final class TradeTests: XCTestCase {
         XCTAssertEqual(CupSide.caffeine.cupSetID, "cafe-latte")
         XCTAssertEqual(CupSide.caffeine.dropAsset, "drop-cafe-latte")
         XCTAssertEqual(CupSide.caffeine.idleCast.bottom, CupSetGeometry.icedAmericano.bottom, "아메리카노와 같은 잔")
-        XCTAssertEqual(CupSetGeometry.hiddenPoses("cafe-latte"), ["swim"], "불투명한 라떼 속에선 헤엄 안 함")
+        XCTAssertEqual(CupSetGeometry.hiddenPoses("cafe-latte"), ["swim", "swim-front"], "불투명한 라떼 속에선 헤엄 안 함")
         XCTAssertEqual(CupSetGeometry.hiddenPoses("iced-americano"), [])
 
         CupSetChoice.dropUnowned(owned: [])

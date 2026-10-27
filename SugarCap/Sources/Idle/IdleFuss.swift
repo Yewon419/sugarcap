@@ -22,21 +22,27 @@ enum IdleFussMath {
     /// 부르르 떠는 폭(그림 폭 대비).
     static let shiverWidth = 0.05
 
-    /// 멈춰 보기 동안 바꿔 끼울 정면 그림(대표님 2026-10-12). 카인은 옆모습이라 늘 `rim-stand`,
-    /// 로슈는 잔을 들여다보는 뒷모습 `watch`와 반측면 `walk`만 `stand`. 이미 앞을 보는 그림이면 nil.
+    /// 멈춰 보기 동안 바꿔 끼울 정면 그림(대표님 2026-10-12). 카인은 옆모습이라 `rim-stand`, 헤엄만 물속 앞모습
+    /// `swim-front`(대표님 2026-10-27). 로슈는 잔을 들여다보는 뒷모습 `watch`와 반측면 `walk`만 `stand`.
+    /// 이미 앞을 보는 그림이면 nil.
     static func frontArt(character: String, art: String) -> String? {
         switch character {
-        case "kain": art == "rim-stand" ? nil : "rim-stand"
+        case "kain":
+            switch art {
+            case "rim-stand", "swim-front": nil
+            case "swim": "swim-front"
+            default: "rim-stand"
+            }
         case "roshu": ["watch", "walk"].contains(art) ? "stand" : nil
         default: nil
         }
     }
 
-    /// 정면으로 서면 어색해 멈춰 보기를 안 뽑는 자세(대표님 2026-10-12): 카인 헤엄·눕기(물속·바닥에 선 꼴),
-    /// 로슈 딸기 안기·카인 커피콩 얹기(물건이 사라짐)·로슈 잔에 매달리기.
+    /// 정면으로 서면 어색해 멈춰 보기를 안 뽑는 자세(대표님 2026-10-12): 카인 눕기(바닥에 선 꼴),
+    /// 로슈 딸기 안기·카인 커피콩 얹기(물건이 사라짐)·로슈 잔에 매달리기. 카인 헤엄은 앞모습이 생겨 뽑는다(2026-10-27).
     static func canStare(character: String, pose: String) -> Bool {
         switch character {
-        case "kain": !["swim", "lie-left", "lie-right", "bean-balance-left", "bean-balance-right"].contains(pose)
+        case "kain": !["lie-left", "lie-right", "bean-balance-left", "bean-balance-right"].contains(pose)
         case "roshu": !["hug-strawberry", "hug-strawberry-left", "in-cup"].contains(pose)
         default: true
         }

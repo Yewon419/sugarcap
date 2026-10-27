@@ -427,18 +427,22 @@ Entry는 기록 시점 값을 스냅샷한다. 카탈로그 갱신으로 과거 
 - **단계 보상 = 대기 자세 1개씩**(표정 해금 대체). 무료는 Lv3까지, Lv4~10은 Pro. 0%일 때 자세(로슈 slump·카인 floorSit)는 상황 자세라 해금과 상관없이 늘 쓴다.
 - **연타 반응(대표님 2026-10-12):** 오늘 화면에서 캐릭터를 0.6초 안에 이어 5번 누르면(호감도 화면 `PokeMath` 연타와 같은 값) 넷 중 하나가 무작위로 나온다: 부르르(0.5초 좌우 떨기), 자리 피하기(부르르 뒤 다른 대기 자세로, 옮길 자세가 없으면 안 뽑음, 구경꾼은 안 함), 멈춰 보기(1.8초 숨·깜빡임까지 멈췄다 이어 감), 하트(선물 마음과 같은 기호 + 하얀 윤곽이 머리 위로 떠오름). 하트는 호감도 Lv3부터 먼저 확률로 본다: Lv3 5%, 한 단계마다 5%p씩 올라 Lv10 40%(대표님 2026-10-12). 하트가 아니면 나머지가 같은 몫. 켜진 쪽·구경꾼 따로 센다. 낱개 누름은 지금처럼 움찔. 얼굴이 앞을 안 보는 그림은 멈춰 보기 동안 정면 그림으로 바뀌어 움직임 없이 그 자리에 선다: 카인은 `rim-stand`(헤엄 `swim`만 물속 앞모습 `swim-front`, 같은 자리·반투명으로 그림 가운데를 맞춰 뜬다, 대표님 2026-10-27), 로슈는 뒷모습 `watch`·반측면 `walk`만 `stand`. 멈춰 보기를 안 뽑는 자세: 카인 눕기(`lie-left`·`lie-right`, 바닥에 선 꼴), 로슈 딸기 안기(`hug-strawberry`·`hug-strawberry-left`, 딸기가 사라짐)·잔에 매달리기(`in-cup`)(대표님 2026-10-12), 카인 커피콩 얹기(`bean-balance-left`·`bean-balance-right`, 콩이 사라짐, 2026-10-27)·시나몬 스틱(`cinnamon-stick-left`·`cinnamon-stick-right`, 스틱이 사라짐). `IdleFuss`·`IdleFussState`, Debug `-pokeFuss shiver|stare|heart` `-pokeFussAt <초>`.
 
+**2026-10-27 대표님 "지금 있는것들로 일단 호감도 레벨 채우자"(앞에서부터 당겨 채우기 선택):** 만든 자세만 한 단계에 한 종씩 앞에서부터 둔다. 좌우 짝은 같은 단계에 같이 풀린다. 뒤 단계는 새 그림이 올 때까지 비운다. 원래 기획(아래 접은 표)의 rim-lie·wiggle·stare-reflection·hang-upside·dance·rim-stroll은 아직 그림이 없다.
+
 | 단계 | 로슈 | 카인 |
 |---|---|---|
-| Lv1 (기본) | walk, watch | walk, rim-sit |
-| Lv2 | (미정) | rim-stand |
+| Lv1 (기본) | walk, watch(·right) | walk, rim-sit |
+| Lv2 | sulk-back 잔 뒤에서 삐져 있기 | rim-stand |
 | Lv3 (무료 끝) | in-cup(음료 50% 이하 조건 유지) | swim(50% 이상, 2026-10-07 얼음 밑 공간 기준으로 30%→50%) |
-| Lv4 (Pro) | (빔, hug-strawberry는 물건 자세로 옮김) | lie 잔 옆에 눕기(lie-left·lie-right, 2026-10-09) |
-| Lv5 | doze-lean 컵에 기대 졸기 | doze-one-leg 한 발로 졸기 |
-| Lv6 | wave 손 흔들기 | stare-reflection 유리에 비친 나랑 눈싸움 |
-| Lv7 | rim-lie 가장자리에 엎드려 턱 괴기 | hang-upside 거꾸로 매달리기 |
-| Lv8 | wiggle 몸 비비 꼬기 | swim-front 커피 속 앞보기(50% 이상, 2026-10-27) |
-| Lv9 | guard-cup 내 밥 지키기 | dance 혼자 춤추기 |
-| Lv10 | (미정) | rim-stroll 가장자리 산책 |
+| Lv4 (Pro) | doze-lean 컵에 기대 졸기(·right) | lie 잔 옆에 눕기(lie-left·lie-right, 2026-10-09) |
+| Lv5 | wave 손 흔들기 | doze-one-leg 한 발로 졸기 |
+| Lv6 | guard-cup 내 밥 지키기(·left) | floor-sit-right 바닥에 앉기(오른쪽) |
+| Lv7 | (빔) | swim-front 커피 속 앞보기(50% 이상, 2026-10-27) |
+| Lv8~10 | (빔) | (빔) |
+
+0% 자세(로슈 slump·slump-right, 카인 floor-sit)는 Lv1 그대로다. 물건 자세는 단계와 별개(아래).
+
+원래 기획 표(2026-10-27 전): Lv1 로슈 walk·watch / 카인 walk·rim-sit, Lv2 (미정) / rim-stand, Lv3 in-cup / swim, Lv4 (빔) / lie, Lv5 doze-lean / doze-one-leg, Lv6 wave / stare-reflection, Lv7 rim-lie / hang-upside, Lv8 wiggle / swim-front, Lv9 guard-cup / dance, Lv10 (미정) / rim-stroll. 그때 sulk-back·floor-sit-right는 Lv1이었다.
 
 - **물건 자세(대표님 2026-10-27 "선물 얻으면 해금되는 대기자세").** 단계 표와 별개로, 그 물건을 선물로 받아 열면 풀린다: 로슈 `hug-strawberry`(딸기, 그 전엔 Lv4), 카인 `bean-balance-left`·`bean-balance-right`(커피콩), 로슈 `sugar-cube-left`·`sugar-cube-right`(각설탕), 카인 `cinnamon-stick-left`·`cinnamon-stick-right`(시나몬 스틱). `poses.json`의 `"item": "<물건 id>"`(`GiftContent.items` id, 테스트가 목록과 대조) + `"unlock": 1`. 열어 본 물건(`GiftContent.takenItems`)을 오늘 화면이 `IdleCharacterLayer`에 넘긴다. 받은 물건은 Pro가 끝나도 남으니 자세도 남는다. 1% 이상에서 나오고 0%는 늘 0% 자세.
 - **카인 bean-balance 구현(2026-10-27).** 원화 레이어 = 몸·다리 2(몸 뒤)·커피콩(몸 앞, 따로 그린 콩을 시안 합성 자리에 맞춰 같은 캔버스에 둠, 위 400px 패딩). 다리 기준점은 자동 추정이 겹친 다리 중간에 잡혀 몸 밑 다리 출구로 `rig.json`에 적었고, 콩 기준점은 콩 밑(머리 위). 배율 `ART_NORM` 0.997(콩 뺀 몸 면적). 움직임 = 숨쉬기(세로 ±1%/3.2초) + 콩 ±6°/2.4초 기우뚱, 몸은 반대로 ±1.6° 살짝 늦게(균형) + 7초마다 크게 한 번 기우뚱 + 6.5초마다 오른발 까딱. 자리 = 같은 그림으로 자세 2개, 둘 다 잔 쪽을 본다(lie와 같은 규칙, 대표님 2026-10-27 "왼쪽 오른쪽 다"): `bean-balance-left`(좌우반전, 잔 왼쪽 냅킨 xRim -0.62·dy .016)·`bean-balance-right`(그림 그대로, 잔 오른쪽 냅킨 xRim 0.6·dy .012, 오른쪽 냅킨 앞 모서리가 올라가 있어 덜 내림).

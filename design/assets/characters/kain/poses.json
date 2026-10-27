@@ -44,7 +44,7 @@
   "swim-front": {
    "label": "커피 속 앞보기",
    "note": "헤엄(swim)의 앞모습(대표님 원화 레이어 2026-10-27). 같은 자리·같은 반투명으로 제자리에 떠서 이쪽을 보고 천천히 오르내리며 두 발로 번갈아 발차기. 회전은 아주 작은 기울기뿐이고 한 바퀴는 없다. 3.2초마다 부리 위에서 흰 기포 점 3개가 올라온다.",
-   "art": "swim-front", "unlock": 8, "minStep": 50, "opacity": 0.6,
+   "art": "swim-front", "unlock": 7, "minStep": 50, "opacity": 0.6,
    "pivot": "center",
    "place": { "xRim": -0.05, "y": "liquid", "floor": 0.852, "depth": 0.5 },
    "limbDirection": { "leg_left": 0, "leg_right": 0 },
@@ -81,7 +81,7 @@
   "floor-sit-right": {
    "label": "바닥에 앉기(오른쪽)",
    "note": "floor-sit을 뒤집지 않은 그림으로 잔 오른쪽 냅킨 위에 둔다. 둘 다 잔 쪽을 본다(대표님 2026-10-27 잔 아래 자세는 좌우 다, 냅킨 위). 0% 자세는 floor-sit 하나라 이 짝은 1% 이상에서만. 오른쪽 냅킨 앞 모서리가 올라가 있어 xRim을 조금 줄였다.",
-   "art": "sit", "unlock": 1, "minStep": 1,
+   "art": "sit", "unlock": 6, "minStep": 1,
    "place": { "xRim": 0.58, "y": "bottom", "dy": -0.03 },
    "reflection": { "toward": 0.49 },
    "shadow": { "w": 0.92, "h": 0.12, "dx": -0.04, "dy": -0.03 },

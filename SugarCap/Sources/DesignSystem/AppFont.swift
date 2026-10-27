@@ -5,10 +5,12 @@ import SwiftUI
 /// 등록은 Info.plist `UIAppFonts`(project.yml). 이름은 PostScript 이름이다.
 enum AppFont {
     enum Weight: Sendable {
-        case regular, medium, semibold, bold, extraBold, black
+        /// `thin`은 월 추이 달력의 요일·날짜 숫자 전용(2026-10-27 대표님 "엄청 얇은 폰트").
+        case thin, regular, medium, semibold, bold, extraBold, black
 
         var postScriptName: String {
             switch self {
+            case .thin: return "Pretendard-Thin"
             case .regular: return "Pretendard-Regular"
             case .medium: return "Pretendard-Medium"
             case .semibold: return "Pretendard-SemiBold"

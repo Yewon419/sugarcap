@@ -61,6 +61,7 @@ targets:
         UIUserInterfaceStyle: Light
         # 번들 글꼴(AppFont). 파일은 Resources/Fonts, 경로 없이 파일 이름만 적는다.
         UIAppFonts:
+          - Pretendard-Thin.otf
           - Pretendard-Regular.otf
           - Pretendard-Medium.otf
           - Pretendard-SemiBold.otf

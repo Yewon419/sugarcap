@@ -1,0 +1,13 @@
+{
+  "images": [
+    {
+      "filename": "bg-sugar-09.jpg",
+      "idiom": "universal",
+      "scale": "2x"
+    }
+  ],
+  "info": {
+    "author": "xcode",
+    "version": 1
+  }
+}

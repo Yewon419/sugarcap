@@ -37,15 +37,17 @@ final class AffinityMathTests: XCTestCase {
     }
 
     func testLevelThresholds() {
-        let expected = [0, 30, 90, 180, 300, 450, 630, 840, 1080, 1350]
+        let expected = [0, 20, 40, 110, 180, 250, 320, 390, 460, 530]
         XCTAssertEqual((1...10).map { AffinityMath.threshold(level: $0) }, expected)
 
         XCTAssertEqual(AffinityMath.level(points: 0), 1)
-        XCTAssertEqual(AffinityMath.level(points: 29), 1)
-        XCTAssertEqual(AffinityMath.level(points: 30), 2)
-        XCTAssertEqual(AffinityMath.level(points: 89), 2)
-        XCTAssertEqual(AffinityMath.level(points: 90), 3)
-        XCTAssertEqual(AffinityMath.level(points: 1350), 10)
+        XCTAssertEqual(AffinityMath.level(points: 19), 1)
+        XCTAssertEqual(AffinityMath.level(points: 20), 2)
+        XCTAssertEqual(AffinityMath.level(points: 39), 2)
+        XCTAssertEqual(AffinityMath.level(points: 40), 3)
+        XCTAssertEqual(AffinityMath.level(points: 109), 3)
+        XCTAssertEqual(AffinityMath.level(points: 110), 4)
+        XCTAssertEqual(AffinityMath.level(points: 530), 10)
         XCTAssertEqual(AffinityMath.level(points: 99_999), 10, "10단계가 끝")
     }
 
@@ -60,10 +62,10 @@ final class AffinityMathTests: XCTestCase {
 
     func testProgressToNextStaysInsideTheCurrentStage() {
         XCTAssertEqual(AffinityMath.progressToNext(points: 0), 0)
-        XCTAssertEqual(AffinityMath.progressToNext(points: 15), 0.5, accuracy: 0.0001)
-        XCTAssertEqual(AffinityMath.progressToNext(points: 30), 0, "단계가 오르면 다시 0부터")
-        XCTAssertEqual(AffinityMath.progressToNext(points: 60), 0.5, accuracy: 0.0001)
-        XCTAssertEqual(AffinityMath.progressToNext(points: 1350), 1, "마지막 단계는 가득")
+        XCTAssertEqual(AffinityMath.progressToNext(points: 10), 0.5, accuracy: 0.0001)
+        XCTAssertEqual(AffinityMath.progressToNext(points: 20), 0, "단계가 오르면 다시 0부터")
+        XCTAssertEqual(AffinityMath.progressToNext(points: 30), 0.5, accuracy: 0.0001)
+        XCTAssertEqual(AffinityMath.progressToNext(points: 530), 1, "마지막 단계는 가득")
     }
 }
 
@@ -305,20 +307,20 @@ final class SettlementScenarioTests: XCTestCase {
 
     func testLevelUpIsReported() throws {
         let h = try Harness()
-        // 3일 연속 가득 → 30점 → Lv2.
+        // 2일 연속 가득 → 20점 → Lv2.
         var last: [FeedResult] = []
-        for offset in 0..<3 {
+        for offset in 0..<2 {
             last = try h.feedPastDay(DayKey(year: 2026, month: 9, day: 10 + offset), entries: [], now: Date())
         }
-        XCTAssertEqual(try h.points(.sugar), 30)
+        XCTAssertEqual(try h.points(.sugar), 20)
         XCTAssertEqual(last.first { $0.side == .sugar }?.leveledUp, true)
         XCTAssertEqual(last.first { $0.side == .sugar }?.levelAfter, 2)
     }
 
-    /// 무료는 3단계(90점)에 닿으면 더 오르지 않는다. 이미 그 위면 그 자리에서 멈추고, Pro면 다시 쌓인다(2026-10-11).
+    /// 무료는 3단계(40점)에 닿으면 더 오르지 않는다. 이미 그 위면 그 자리에서 멈추고, Pro면 다시 쌓인다(2026-10-11).
     func testFreeAffinityStopsAtTheFreeLevelCap() throws {
-        XCTAssertEqual(AffinityMath.credited(points: 10, current: 85, isPro: false), 5, "90점에서 멈춘다")
-        XCTAssertEqual(AffinityMath.credited(points: 10, current: 90, isPro: false), 0)
+        XCTAssertEqual(AffinityMath.credited(points: 10, current: 35, isPro: false), 5, "40점에서 멈춘다")
+        XCTAssertEqual(AffinityMath.credited(points: 10, current: 40, isPro: false), 0)
         XCTAssertEqual(AffinityMath.credited(points: 10, current: 400, isPro: false), 0, "이미 위인 기존 사용자는 그대로")
         XCTAssertEqual(AffinityMath.credited(points: 10, current: 400, isPro: true), 10)
 
@@ -336,7 +338,7 @@ final class SettlementScenarioTests: XCTestCase {
             DayKey(year: 2026, month: 9, day: 20), entries: [], limits: h.limits,
             boundaryHour: h.boundaryHour, sides: [.sugar], isPro: true, now: Date(), in: h.context
         )
-        XCTAssertEqual(try h.points(.sugar), 100)
+        XCTAssertEqual(try h.points(.sugar), 50)
         XCTAssertEqual(pro.first?.leveledUp, false)
     }
 }

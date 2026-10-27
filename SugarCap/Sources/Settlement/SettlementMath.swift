@@ -26,9 +26,15 @@ enum AffinityMath {
         return max(0, min(earned, threshold(level: freeLevelCap) - current))
     }
 
-    /// Lv n에 필요한 누적 points = 15·n·(n−1). Lv1 0, Lv2 30, Lv3 90 … Lv10 1350.
+    /// Lv n에 필요한 누적 points(2026-10-27 대표님). Lv2 20, Lv3 40은 하루 3점으로도 일주일에 한 단계
+    /// ("3렙까지는 레벨업 엄청 빨리"). 그 뒤는 단계마다 70점, 하루 4~5점이면 2~2.5주("이후 레벨은 2-3주에 한번"):
+    /// Lv4 110 … Lv10 530.
     static func threshold(level: Int) -> Int {
-        15 * level * (level - 1)
+        switch level {
+        case ...1: 0
+        case 2: 20
+        default: 40 + 70 * (level - 3)
+        }
     }
 
     /// 화면에 단계 숫자 대신 보이는 이름(2026-09-26, §4.8). 모두 "사이"로 끝나 "~가 됐어요"로 붙는다.

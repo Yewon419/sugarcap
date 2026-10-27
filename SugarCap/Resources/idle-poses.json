@@ -486,7 +486,7 @@
     "place": {
      "x": 0.17,
      "y": "bottom",
-     "dy": 0.01
+     "dy": -0.02
     },
     "limbDirection": {
      "flipper_left": 0,
@@ -550,7 +550,7 @@
     "place": {
      "x": 0.83,
      "y": "bottom",
-     "dy": 0.01
+     "dy": -0.02
     },
     "limbDirection": {
      "flipper_left": 0,

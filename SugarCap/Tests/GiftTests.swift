@@ -61,9 +61,9 @@ final class GiftTests: XCTestCase {
         XCTAssertTrue(Self.roshuItems.contains(item.payload ?? ""), "로슈가 들고 온 옛 상자는 로슈 물건")
         let kainBox = GiftEvent(kind: .goalReached, side: .caffeine, createdAt: Date())
         GiftStore.reveal(kainBox, isPro: true, takenItems: [], roll: 0.45)
-        XCTAssertEqual(kainBox.payload, GiftContent.item("coffee-bean"), "카인이 들고 온 상자엔 카인 물건만 든다")
+        XCTAssertTrue(Self.kainItems.contains(kainBox.payload ?? ""), "카인이 들고 온 상자엔 카인 물건만 든다")
         let kainLast = GiftEvent(kind: .goalReached, side: .caffeine, createdAt: Date())
-        GiftStore.reveal(kainLast, isPro: true, takenItems: ["coffee-bean"], roll: 0.45)
+        GiftStore.reveal(kainLast, isPro: true, takenItems: ["coffee-bean", "cinnamon-stick"], roll: 0.45)
         XCTAssertTrue(kainLast.isCap, "카인 물건을 다 모으면 로슈 물건 대신 병뚜껑")
 
         let stage = GiftEvent(kind: .levelUp, side: .sugar, level: 4, createdAt: Date())
@@ -217,6 +217,7 @@ final class GiftTests: XCTestCase {
     }
 
     private static let roshuItems: Set<String> = [GiftContent.item("strawberry"), GiftContent.item("sugar-cube")]
+    private static let kainItems: Set<String> = [GiftContent.item("coffee-bean"), GiftContent.item("cinnamon-stick")]
 
     /// 물건이 나오면 그 주인이 들고 온다. 기록하지 않는 면의 물건, 이미 상자에 든 물건은 안 나온다(대표님 2026-10-11).
     @MainActor
@@ -229,12 +230,12 @@ final class GiftTests: XCTestCase {
         XCTAssertTrue(Self.roshuItems.contains(berry.payload))
         XCTAssertEqual(berry.owner, .sugar, "딸기·각설탕은 로슈가 들고 온다")
         let bean = GiftStore.content(owners: [.caffeine], isPro: true, taken: [], roll: 0.45)
-        XCTAssertEqual(bean.payload, GiftContent.item("coffee-bean"), "카페인만 기록하면 딸기는 안 나온다")
+        XCTAssertTrue(Self.kainItems.contains(bean.payload), "카페인만 기록하면 로슈 물건은 안 나온다")
         XCTAssertEqual(bean.owner, .caffeine)
 
         try GiftStore.grantGoalReached(side: .caffeine, isPro: true, now: now, in: context, roll: 0.45)
-        XCTAssertEqual(try XCTUnwrap(try GiftStore.pending(in: context).last).payload, GiftContent.item("coffee-bean"),
-                       "카페인 목표 상자엔 카인 물건만 든다")
+        XCTAssertTrue(Self.kainItems.contains(try XCTUnwrap(try GiftStore.pending(in: context).last).payload ?? ""),
+                      "카페인 목표 상자엔 카인 물건만 든다")
         try GiftStore.grantGoalReached(side: .sugar, isPro: true, now: now.addingTimeInterval(1), in: context, roll: 0.45)
         let first = try XCTUnwrap(try GiftStore.pending(in: context).last)
         XCTAssertTrue(Self.roshuItems.contains(first.payload ?? ""))

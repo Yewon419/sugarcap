@@ -118,6 +118,9 @@ final class IdlePoseBookTests: XCTestCase {
         XCTAssertFalse(roshu.allows("sugar-cube-left", step: 80, unlockedLevel: 10, items: ["strawberry"]))
         XCTAssertTrue(roshu.allows("sugar-cube-left", step: 1, unlockedLevel: 1, items: ["sugar-cube"]))
         XCTAssertTrue(roshu.allows("sugar-cube-right", step: 100, unlockedLevel: 1, items: ["sugar-cube"]))
+        XCTAssertFalse(kain.allows("cinnamon-stick-left", step: 80, unlockedLevel: 10, items: ["coffee-bean"]))
+        XCTAssertTrue(kain.allows("cinnamon-stick-left", step: 1, unlockedLevel: 1, items: ["cinnamon-stick"]))
+        XCTAssertTrue(kain.allows("cinnamon-stick-right", step: 100, unlockedLevel: 1, items: ["cinnamon-stick"]))
         // 물건 id는 선물 물건 목록에 있어야 한다(오타면 영영 안 풀린다).
         let itemIDs = Set(GiftContent.items.map(\.id))
         for cast in casts {

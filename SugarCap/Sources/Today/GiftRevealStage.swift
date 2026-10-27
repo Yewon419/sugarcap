@@ -114,6 +114,8 @@ struct GiftRevealItem {
             self.init(name: String(localized: "커피콩"), asset: "gift-item-coffee-bean", symbol: "", tint: tint)
         } else if payload == GiftContent.item("sugar-cube") {
             self.init(name: String(localized: "각설탕"), asset: "gift-item-sugar-cube", symbol: "", tint: tint)
+        } else if payload == GiftContent.item("cinnamon-stick") {
+            self.init(name: String(localized: "시나몬 스틱"), asset: "gift-item-cinnamon-stick", symbol: "", tint: tint)
         } else {
             return nil
         }
@@ -225,10 +227,8 @@ struct GiftRevealOverlay: View {
     private func symbolView(_ item: GiftRevealItem, width: Double) -> some View {
         let outline: Double = width * 0.035
         let symbol = Image(systemName: item.symbol).resizable().scaledToFit()
-        return ZStack {
-            ForEach(0 ..< 16, id: \.self) { step in
         let edge: Double = outline * 1.6
-                let angle: Double = Double(step) / 16 * 2 * Double.pi
+        return ZStack {
             if item.edged {
                 // 로슈 흰 기호: 흰 윤곽 바깥에 옅은 먹색 한 겹. 겹친 조각이 진해지지 않게 한 덩어리로 묶어 옅게 한다.
                 ZStack {
@@ -242,6 +242,8 @@ struct GiftRevealOverlay: View {
                 .compositingGroup()
                 .opacity(0.3)
             }
+            ForEach(0 ..< 16, id: \.self) { step in
+                let angle: Double = Double(step) / 16 * 2 * Double.pi
                 symbol
                     .foregroundStyle(.white)
                     .offset(x: outline * cos(angle), y: outline * sin(angle))

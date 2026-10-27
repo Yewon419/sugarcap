@@ -406,7 +406,7 @@
    },
    "sulk-back": {
     "label": "잔 뒤에서 삐져 있기",
-    "note": "대표님 2026-10-27 \"기본 서있는 자세로 뒤쪽에 가서 짜져있는것\". 정면 서 있는 그림(stand)을 걷기 그림 키의 0.45배로 줄여 잔 뒤 오른쪽 가장자리에 세운다. 멀어 보이게 반투명 대신 벽 색을 45% 덮고(테마가 바뀌어도 벽지가 비치지 않게, 대표님) 잔 누끼로 지워 잔 뒤에 선다. 누를 수 없고, 앱을 켜고 처음 뽑을 때만 나오며 앱을 다시 켤 때까지 그대로다(away). 움직임은 숨쉬기만. 반사 없음, 그림자는 작게.",
+    "note": "대표님 2026-10-27 \"기본 서있는 자세로 뒤쪽에 가서 짜져있는것\". 정면 서 있는 그림(stand)을 걷기 그림 키의 0.45배로 줄여 잔 뒤 오른쪽 가장자리에 세운다. x .71은 잔 누끼에 거의 다 지워져 흰 조각만 보여(CI 2026-10-27) .8로 옮겨 잔 밖으로 반쯤 나오게 했다. 멀어 보이게 반투명 대신 벽 색을 45% 덮고(테마가 바뀌어도 벽지가 비치지 않게, 대표님) 잔 누끼로 지워 잔 뒤에 선다. 누를 수 없고, 앱을 켜고 처음 뽑을 때만 나오며 앱을 다시 켤 때까지 그대로다(away). 움직임은 숨쉬기만. 반사 없음, 그림자는 작게.",
     "art": "stand",
     "unlock": 1,
     "minStep": 1,
@@ -415,7 +415,7 @@
      "fade": 0.45
     },
     "place": {
-     "x": 0.71,
+     "x": 0.8,
      "y": "bottom",
      "dy": -0.06
     },
@@ -1344,6 +1344,399 @@
       "period": 6.5,
       "at": 2.0,
       "length": 0.35
+     }
+    ]
+   },
+   "cinnamon-stick-left": {
+    "label": "잔 왼쪽에서 시나몬 스틱 들고 날기 실패",
+    "note": "물건 자세: 시나몬 스틱(상자 보상)을 선물로 받아 열면 풀린다(단계와 별개, 대표님 2026-10-27). 시나몬 스틱 두 개를 발로 움켜쥐고 날아오르려다 실패한다(대표님 \"들고 날려다 실패하는느낌\"). 8초마다: 웅크렸다가(2.5초) 날개를 여섯 번 빠르게 퍼덕이며 스틱째 8pt쯤 들렸다가 내려앉아 철퍼덕 눌리고, 날개가 잠깐 축 처진다. 스틱은 땅 층(foot_)이라 숨쉬기·웅크림에 안 눌리고 들릴 때만 같이 뜬다. 그림자는 바닥에 그대로 있다. 오른쪽 다리(진한색)가 앞(대표님). 잔 왼쪽 바닥(냅킨)에 잔 쪽을 보고 선다(그림은 왼쪽을 보므로 좌우반전, bean-balance-left와 같은 규칙). 스틱이 길어 잔에서 조금 더 뗐다.",
+    "art": "cinnamon-stick",
+    "mirror": true,
+    "unlock": 1,
+    "item": "cinnamon-stick",
+    "minStep": 1,
+    "place": {
+     "xRim": -0.66,
+     "y": "bottom",
+     "dy": 0.016
+    },
+    "limbDirection": {
+     "wing_front": 0,
+     "wing_back": 0,
+     "leg_near": 0,
+     "leg_far": 0
+    },
+    "reflection": {
+     "toward": 0.49
+    },
+    "shadow": {
+     "w": 0.75,
+     "h": 0.06,
+     "dx": 0.0,
+     "dy": -0.01
+    },
+    "motion": [
+     {
+      "to": "sy",
+      "shape": "wave",
+      "amp": 0.01,
+      "period": 3.2
+     },
+     {
+      "to": "sy",
+      "shape": "arch",
+      "amp": -0.05,
+      "period": 8,
+      "at": 2.5,
+      "length": 0.55
+     },
+     {
+      "to": "sx",
+      "shape": "arch",
+      "amp": 0.03,
+      "period": 8,
+      "at": 2.5,
+      "length": 0.55
+     },
+     {
+      "to": "dy",
+      "shape": "arch",
+      "amp": -8,
+      "period": 8,
+      "at": 3.0,
+      "length": 1.4
+     },
+     {
+      "to": "rot",
+      "shape": "arch",
+      "amp": 3,
+      "period": 8,
+      "at": 3.1,
+      "length": 1.2
+     },
+     {
+      "to": "limb.wing_front",
+      "shape": "bump",
+      "amp": -40,
+      "period": 8,
+      "at": 2.95,
+      "length": 0.24
+     },
+     {
+      "to": "limb.wing_back",
+      "shape": "bump",
+      "amp": 32,
+      "period": 8,
+      "at": 2.95,
+      "length": 0.24
+     },
+     {
+      "to": "limb.wing_front",
+      "shape": "bump",
+      "amp": -40,
+      "period": 8,
+      "at": 3.19,
+      "length": 0.24
+     },
+     {
+      "to": "limb.wing_back",
+      "shape": "bump",
+      "amp": 32,
+      "period": 8,
+      "at": 3.19,
+      "length": 0.24
+     },
+     {
+      "to": "limb.wing_front",
+      "shape": "bump",
+      "amp": -40,
+      "period": 8,
+      "at": 3.43,
+      "length": 0.24
+     },
+     {
+      "to": "limb.wing_back",
+      "shape": "bump",
+      "amp": 32,
+      "period": 8,
+      "at": 3.43,
+      "length": 0.24
+     },
+     {
+      "to": "limb.wing_front",
+      "shape": "bump",
+      "amp": -40,
+      "period": 8,
+      "at": 3.67,
+      "length": 0.24
+     },
+     {
+      "to": "limb.wing_back",
+      "shape": "bump",
+      "amp": 32,
+      "period": 8,
+      "at": 3.67,
+      "length": 0.24
+     },
+     {
+      "to": "limb.wing_front",
+      "shape": "bump",
+      "amp": -40,
+      "period": 8,
+      "at": 3.91,
+      "length": 0.24
+     },
+     {
+      "to": "limb.wing_back",
+      "shape": "bump",
+      "amp": 32,
+      "period": 8,
+      "at": 3.91,
+      "length": 0.24
+     },
+     {
+      "to": "limb.wing_front",
+      "shape": "bump",
+      "amp": -40,
+      "period": 8,
+      "at": 4.15,
+      "length": 0.24
+     },
+     {
+      "to": "limb.wing_back",
+      "shape": "bump",
+      "amp": 32,
+      "period": 8,
+      "at": 4.15,
+      "length": 0.24
+     },
+     {
+      "to": "sy",
+      "shape": "arch",
+      "amp": -0.045,
+      "period": 8,
+      "at": 4.4,
+      "length": 0.4
+     },
+     {
+      "to": "sx",
+      "shape": "arch",
+      "amp": 0.025,
+      "period": 8,
+      "at": 4.4,
+      "length": 0.4
+     },
+     {
+      "to": "limb.wing_front",
+      "shape": "arch",
+      "amp": 12,
+      "period": 8,
+      "at": 4.5,
+      "length": 1.6
+     },
+     {
+      "to": "limb.wing_back",
+      "shape": "arch",
+      "amp": -10,
+      "period": 8,
+      "at": 4.5,
+      "length": 1.6
+     }
+    ]
+   },
+   "cinnamon-stick-right": {
+    "label": "잔 오른쪽에서 시나몬 스틱 들고 날기 실패",
+    "note": "물건 자세: 시나몬 스틱(상자 보상)을 선물로 받아 열면 풀린다(단계와 별개, 대표님 2026-10-27). 시나몬 스틱 두 개를 발로 움켜쥐고 날아오르려다 실패한다(대표님 \"들고 날려다 실패하는느낌\"). 8초마다: 웅크렸다가(2.5초) 날개를 여섯 번 빠르게 퍼덕이며 스틱째 8pt쯤 들렸다가 내려앉아 철퍼덕 눌리고, 날개가 잠깐 축 처진다. 스틱은 땅 층(foot_)이라 숨쉬기·웅크림에 안 눌리고 들릴 때만 같이 뜬다. 그림자는 바닥에 그대로 있다. 오른쪽 다리(진한색)가 앞(대표님). 잔 오른쪽 냅킨 위에 잔 쪽을 보고 선다(그림 그대로, dy는 bean-balance-right와 같은 .012).",
+    "art": "cinnamon-stick",
+    "unlock": 1,
+    "item": "cinnamon-stick",
+    "minStep": 1,
+    "place": {
+     "xRim": 0.64,
+     "y": "bottom",
+     "dy": 0.012
+    },
+    "limbDirection": {
+     "wing_front": 0,
+     "wing_back": 0,
+     "leg_near": 0,
+     "leg_far": 0
+    },
+    "reflection": {
+     "toward": 0.49
+    },
+    "shadow": {
+     "w": 0.75,
+     "h": 0.06,
+     "dx": 0.0,
+     "dy": -0.01
+    },
+    "motion": [
+     {
+      "to": "sy",
+      "shape": "wave",
+      "amp": 0.01,
+      "period": 3.2
+     },
+     {
+      "to": "sy",
+      "shape": "arch",
+      "amp": -0.05,
+      "period": 8,
+      "at": 2.5,
+      "length": 0.55
+     },
+     {
+      "to": "sx",
+      "shape": "arch",
+      "amp": 0.03,
+      "period": 8,
+      "at": 2.5,
+      "length": 0.55
+     },
+     {
+      "to": "dy",
+      "shape": "arch",
+      "amp": -8,
+      "period": 8,
+      "at": 3.0,
+      "length": 1.4
+     },
+     {
+      "to": "rot",
+      "shape": "arch",
+      "amp": 3,
+      "period": 8,
+      "at": 3.1,
+      "length": 1.2
+     },
+     {
+      "to": "limb.wing_front",
+      "shape": "bump",
+      "amp": -40,
+      "period": 8,
+      "at": 2.95,
+      "length": 0.24
+     },
+     {
+      "to": "limb.wing_back",
+      "shape": "bump",
+      "amp": 32,
+      "period": 8,
+      "at": 2.95,
+      "length": 0.24
+     },
+     {
+      "to": "limb.wing_front",
+      "shape": "bump",
+      "amp": -40,
+      "period": 8,
+      "at": 3.19,
+      "length": 0.24
+     },
+     {
+      "to": "limb.wing_back",
+      "shape": "bump",
+      "amp": 32,
+      "period": 8,
+      "at": 3.19,
+      "length": 0.24
+     },
+     {
+      "to": "limb.wing_front",
+      "shape": "bump",
+      "amp": -40,
+      "period": 8,
+      "at": 3.43,
+      "length": 0.24
+     },
+     {
+      "to": "limb.wing_back",
+      "shape": "bump",
+      "amp": 32,
+      "period": 8,
+      "at": 3.43,
+      "length": 0.24
+     },
+     {
+      "to": "limb.wing_front",
+      "shape": "bump",
+      "amp": -40,
+      "period": 8,
+      "at": 3.67,
+      "length": 0.24
+     },
+     {
+      "to": "limb.wing_back",
+      "shape": "bump",
+      "amp": 32,
+      "period": 8,
+      "at": 3.67,
+      "length": 0.24
+     },
+     {
+      "to": "limb.wing_front",
+      "shape": "bump",
+      "amp": -40,
+      "period": 8,
+      "at": 3.91,
+      "length": 0.24
+     },
+     {
+      "to": "limb.wing_back",
+      "shape": "bump",
+      "amp": 32,
+      "period": 8,
+      "at": 3.91,
+      "length": 0.24
+     },
+     {
+      "to": "limb.wing_front",
+      "shape": "bump",
+      "amp": -40,
+      "period": 8,
+      "at": 4.15,
+      "length": 0.24
+     },
+     {
+      "to": "limb.wing_back",
+      "shape": "bump",
+      "amp": 32,
+      "period": 8,
+      "at": 4.15,
+      "length": 0.24
+     },
+     {
+      "to": "sy",
+      "shape": "arch",
+      "amp": -0.045,
+      "period": 8,
+      "at": 4.4,
+      "length": 0.4
+     },
+     {
+      "to": "sx",
+      "shape": "arch",
+      "amp": 0.025,
+      "period": 8,
+      "at": 4.4,
+      "length": 0.4
+     },
+     {
+      "to": "limb.wing_front",
+      "shape": "arch",
+      "amp": 12,
+      "period": 8,
+      "at": 4.5,
+      "length": 1.6
+     },
+     {
+      "to": "limb.wing_back",
+      "shape": "arch",
+      "amp": -10,
+      "period": 8,
+      "at": 4.5,
+      "length": 1.6
      }
     ]
    }

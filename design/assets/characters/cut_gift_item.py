@@ -12,12 +12,16 @@ Sugar cube (Roshu's): the three face layers of Roshu's sugar-cube pose
 (roshu/layers/sugar-cube/cube_right.png, cube_left.png, cube_top.png), stacked as the pose
 draws them and trimmed.
 
+Cinnamon stick (Kain's, a box reward): the two stick layers of Kain's cinnamon-stick pose
+(kain/layers/cinnamon-stick/foot_stick_back.png, foot_stick_front.png), stacked and trimmed.
+
 All are written for the app at about @3x, the longer side APP_SIZE px.
 
     python design/assets/characters/cut_gift_item.py
 
-Writes roshu/items/strawberry.png, kain/items/coffee-bean.png, roshu/items/sugar-cube.png and
-the gift-item-strawberry / gift-item-coffee-bean / gift-item-sugar-cube imagesets in SugarCap/Resources/Assets.xcassets.
+Writes roshu/items/strawberry.png, kain/items/coffee-bean.png, roshu/items/sugar-cube.png,
+kain/items/cinnamon-stick.png and the gift-item-strawberry / gift-item-coffee-bean /
+gift-item-sugar-cube / gift-item-cinnamon-stick imagesets in SugarCap/Resources/Assets.xcassets.
 """
 
 from __future__ import annotations
@@ -42,6 +46,11 @@ CUBE_LAYERS = [
     for name in ("cube_right", "cube_left", "cube_top")
 ]
 CUBE_OUT = ROOT / "roshu" / "items" / "sugar-cube.png"
+CINNAMON_LAYERS = [
+    ROOT / "kain" / "layers" / "cinnamon-stick" / f"{name}.png"
+    for name in ("foot_stick_back", "foot_stick_front")
+]
+CINNAMON_OUT = ROOT / "kain" / "items" / "cinnamon-stick.png"
 ASSETS = ROOT.parents[2] / "SugarCap" / "Resources" / "Assets.xcassets"
 # Turn so the tip points straight down (counterclockwise degrees).
 TURN = -28.0
@@ -144,10 +153,16 @@ def cut_sugar_cube() -> None:
     write_item(cut, CUBE_OUT, "gift-item-sugar-cube", "sugar-cube.png")
 
 
+def cut_cinnamon_stick() -> None:
+    cut = stacked(CINNAMON_LAYERS, "cinnamon stick")
+    write_item(cut, CINNAMON_OUT, "gift-item-cinnamon-stick", "cinnamon-stick.png")
+
+
 def main() -> None:
     cut_strawberry()
     cut_coffee_bean()
     cut_sugar_cube()
+    cut_cinnamon_stick()
 
 
 if __name__ == "__main__":

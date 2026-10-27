@@ -213,6 +213,7 @@ struct InventoryView: View {
         switch id {
         case "strawberry": return (String(localized: "딸기"), "gift-item-strawberry")
         case "coffee-bean": return (String(localized: "커피콩"), "gift-item-coffee-bean")
+        case "cinnamon-stick": return (String(localized: "시나몬 스틱"), "gift-item-cinnamon-stick")
         case "sugar-cube": return (String(localized: "각설탕"), "gift-item-sugar-cube")
         default: return nil
         }

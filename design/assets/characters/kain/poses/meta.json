@@ -241,5 +241,30 @@
    }
   ],
   "rimLineY": null
+ },
+ "cinnamon-stick": {
+  "file": "design/assets/characters/kain/poses/cinnamon-stick.png",
+  "canvas": [
+   2500,
+   2800
+  ],
+  "bbox": [
+   292,
+   572,
+   2081,
+   1898
+  ],
+  "eyes": [
+   {
+    "box": [
+     954,
+     757,
+     1130,
+     1002
+    ],
+    "lid": "#392418"
+   }
+  ],
+  "rimLineY": null
  }
 }

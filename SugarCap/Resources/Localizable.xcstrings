@@ -3266,6 +3266,22 @@
         }
       }
     },
+    "시나몬 스틱" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cinnamon stick"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "肉桂棒"
+          }
+        }
+      }
+    },
     "시작" : {
       "localizations" : {
         "en" : {
@@ -5426,22 +5442,6 @@
         }
       }
     },
-    "컵을 눌러 마신 음료 적기" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tap the cup to log a drink"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "點一下杯子，記下喝了什麼"
-          }
-        }
-      }
-    },
     "컵을 눌러 남은 %@을 %@에게 주세요." : {
       "localizations" : {
         "en" : {
@@ -5454,6 +5454,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "點一下杯子，把剩下的%1$@給%2$@。"
+          }
+        }
+      }
+    },
+    "컵을 눌러 마신 음료 적기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap the cup to log a drink"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "點一下杯子，記下喝了什麼"
           }
         }
       }

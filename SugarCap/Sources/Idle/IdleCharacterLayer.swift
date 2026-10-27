@@ -804,7 +804,7 @@ enum IdleOnlooker {
     static func hostAvoids(guest: CupSide) -> Set<String> {
         switch guest {
         case .caffeine: return ["in-cup", "sulk-back"]
-        case .sugar: return ["walk", "lie-right", "bean-balance-right", "floor-sit-right"]
+        case .sugar: return ["walk", "lie-right", "bean-balance-right", "cinnamon-stick-right", "floor-sit-right"]
         }
     }
 }

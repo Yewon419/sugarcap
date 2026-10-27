@@ -272,11 +272,13 @@ jobs:
           shoot idle-kain-rim-sit light large -screenshotSide caffeine -idlePose rim-sit -idleStep 100 -idleAt 2.5
           shoot idle-kain-swim light large -screenshotSide caffeine -idlePose swim -idleStep 100 -idleAt 3.7
           shoot idle-kain-swim-spin light large -screenshotSide caffeine -idlePose swim -idleStep 50 -idleAt 5.75
+          shoot idle-kain-swim-front light large -screenshotSide caffeine -idlePose swim-front -idleStep 100 -idleAt 1.0
           shoot idle-kain-walk light large -screenshotSide caffeine -idlePose walk -idleStep 100 -idleAt 3.2
           shoot idle-fuss-heart-roshu light large -idlePose watch -idleStep 100 -idleAt 2.5 -pokeFuss heart -pokeFussAt 0.45
           shoot idle-fuss-heart-kain light large -screenshotSide caffeine -idlePose rim-stand -idleStep 100 -idleAt 2.5 -pokeFuss heart -pokeFussAt 0.45
           shoot idle-fuss-shiver light large -idlePose watch -idleStep 100 -idleAt 2.5 -pokeFuss shiver -pokeFussAt 0.02
           shoot idle-fuss-stare-kain light large -screenshotSide caffeine -idlePose rim-sit -idleStep 100 -idleAt 2.5 -pokeFuss stare -pokeFussAt 0.5
+          shoot idle-fuss-stare-kain-swim light large -screenshotSide caffeine -idlePose swim -idleStep 100 -idleAt 3.7 -pokeFuss stare -pokeFussAt 0.5
           shoot idle-fuss-stare-kain-walk light large -screenshotSide caffeine -idlePose walk -idleStep 100 -idleAt 3.2 -pokeFuss stare -pokeFussAt 0.5
           shoot idle-fuss-stare-roshu-watch light large -idlePose watch -idleStep 100 -idleAt 2.5 -pokeFuss stare -pokeFussAt 0.5
           shoot idle-fuss-stare-roshu-walk light large -idlePose walk -idleStep 100 -idleAt 3.2 -pokeFuss stare -pokeFussAt 0.5

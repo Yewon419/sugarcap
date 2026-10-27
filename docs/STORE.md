@@ -61,7 +61,7 @@
 일주일 동안 날마다 얼마나 남겼는지 잔으로 봅니다.
 
 ■ 슈가캡 Pro
-- 추이 월 보기와 지난주 대비
+- 추이 월 보기
 - 감소 목표: 하루 기준을 몇 주에 걸쳐 조금씩 낮춥니다. 한 주에 5일 이상 지키면 다음 주 기준이 내려가고, 못 지킨 주는 기준을 그대로 둡니다.
 - 위젯
 
@@ -203,7 +203,7 @@ Change them in Trends, and move the time your day starts in Settings, for exampl
 See how much you left each day of the week, cup by cup.
 
 ■ SugarCap Pro
-- Monthly trends and comparison with last week
+- Monthly trends
 - Cut-back goal: lowers your daily limit a little at a time over several weeks. Keep to it 5 or more days in a week and next week's limit goes down. Weeks you miss keep the same limit.
 - Widget
 
@@ -282,7 +282,7 @@ cama café 公開的是全糖時的最高值；咖啡因只以區間（≤100、
 一杯一杯地看這週每天剩下多少。
 
 ■ SugarCap Pro
-- 每月趨勢，以及與上週比較
+- 每月趨勢
 - 減量目標：花幾週時間一點一點降低每日上限。一週內守住 5 天以上，下週的上限就會降低；沒守住的週維持原上限。
 - 小工具
 

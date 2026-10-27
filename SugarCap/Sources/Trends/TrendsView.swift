@@ -5,7 +5,7 @@ import WidgetKit
 
 /// 추이(SPEC §4.3). 2026-10-06 HTML 프로토타입 "식탁 위 일주일"(`design/proto/screens-trends-table.js`) 이식.
 /// 대표님 "버튼과 글자가 너무 많다, 척 보고 알아야 한다" → 화면 글자는 기간·제목·큰 숫자·잔 숫자·요일뿐이다.
-///  - 지면: 날짜 범위(월~일, ◀ ▶) → "남긴 당" → 큰 숫자(기록한 날과 오늘 남긴 양의 합) → 지난주 대비(Pro) · 하루 기준.
+///  - 지면: 날짜 범위(월~일, ◀ ▶) → "남긴 당" → 큰 숫자(기록한 날과 오늘 남긴 양의 합) → 지난주 대비 · 하루 기준. 주 보기는 전부 무료.
 ///  - 장면: 오늘 탭과 같은 벽·식탁. 잔 = 하루. 캐릭터는 지금 잔 뒤에서 엿본다.
 ///  - 월(Pro, 2026-10-27)은 캐릭터 없는 달력 `MonthTrendsView`. 주↔월 토글은 막대 오른쪽 위.
 ///  - 당↔카페인은 옆으로 밀기 + 점 두 개.
@@ -398,9 +398,9 @@ struct TrendsView: View {
         }
     }
 
-    /// 지난주 같은 요일까지 대비 남긴 양의 차이(Pro, 이번 주를 볼 때만). 지난주 그 기간 기록이 없으면 nil.
+    /// 지난주 같은 요일까지 대비 남긴 양의 차이(이번 주를 볼 때만, 2026-10-27 무료로 풂). 지난주 그 기간 기록이 없으면 nil.
     private func weekChange(_ cupSide: CupSide, today: DayKey) -> Double? {
-        guard pro.isPro, !isMonth, weekStart == nil else { return nil }
+        guard !isMonth, weekStart == nil else { return nil }
         return TrendTable.calendarWeekChange(
             entries: entries, boundaryHour: boundaryHour, today: today, side: cupSide, limit: cupSide.limit(limits)
         )

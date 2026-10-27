@@ -182,7 +182,7 @@ struct TrendTable: Equatable, Sendable {
         return TrendTable(cups: cups, total: total, first: start, last: end)
     }
 
-    /// 이번 주와 지난주 **같은 요일까지** 남긴 양의 차이(Pro 한 줄). 이번 주는 아직 안 끝났으니 월 비교와 같은 규칙이다.
+    /// 이번 주와 지난주 **같은 요일까지** 남긴 양의 차이(끝줄 한 줄). 이번 주는 아직 안 끝났으니 월 비교와 같은 규칙이다.
     /// 지난주 그 기간에 기록이 없으면 비교하지 않는다.
     static func calendarWeekChange(
         entries: [Entry], boundaryHour: Int, today: DayKey, side: CupSide, limit: Double,

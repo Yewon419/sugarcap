@@ -260,6 +260,8 @@ struct PaywallView: View {
             }
             Text(verbatim: amount)
                 .font(flat ? Font.custom(CupHero.fontName, size: 40, relativeTo: .largeTitle) : Font.custom(CupHero.fontName, fixedSize: 40))
+                // 시안 line-height 1.08. Anton 기본 줄 높이(약 1.5)면 칸이 17pt 길어져 하단 버튼에 가린다.
+                .frame(height: flat ? nil : 43)
         }
         .monospacedDigit()
         .lineLimit(1)
@@ -520,10 +522,13 @@ private struct StoryRow: View {
         .padding(.trailing, photoLeading ? 0 : 58)
     }
 
+    /// 칸 크기를 먼저 정하고 그림은 overlay로 얹는다. 세로로 긴 사진(scaledToFill)이 칸 높이를 밀어내면
+    /// 기사 줄 전체가 위아래로 넘친다(베타 피드백 빌드 342 "사진이 칸을 뚫고나와").
     private var photo: some View {
-        StoryVisual(visual: story.visual)
+        Color.clear
             .frame(width: 150)
             .frame(maxHeight: .infinity)
+            .overlay { StoryVisual(visual: story.visual) }
             .clipped()
             .accessibilityHidden(true)
     }
@@ -583,6 +588,8 @@ private struct TexturedWord: View {
                 texture
                     .mask { label }
             }
+            // 시안 line-height 1. 기본 줄 높이면 단어가 11pt 길어져 아래 본문이 지면 끝에서 잘린다(빌드 342).
+            .frame(height: 54)
             .accessibilityLabel(Text(word))
     }
 

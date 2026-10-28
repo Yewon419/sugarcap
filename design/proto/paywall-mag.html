@@ -31,44 +31,60 @@
   /* 기운 지면. 칸은 반듯하고 안쪽 판만 돌린다. 아래 가장자리도 같은 기울기로 자른다. */
   .spread { position: relative; height: 326px; overflow: hidden; clip-path: polygon(0 0, 100% 0, 100% 83%, 0 100%); }
   .page { position: absolute; left: -44px; top: -32px; width: 480px; transform: rotate(var(--tilt)); transform-origin: 50% 50%; }
+  /* 2026-10-28 대표님: 띠의 네 기능을 탭으로, 누르면 그 기능의 기사 두 개로 지면이 바뀐다.
+     a = 띠 위(사진 왼쪽), b = 띠 아래(사진 오른쪽). 색조(t-sugar/t-caffeine)는 자리와 따로 정한다. */
   .story { position: relative; display: flex; height: 160px; }
-  .photo { width: 150px; flex: none; position: relative; background-size: cover; overflow: hidden; }
-  .story.sugar { padding-left: 52px; }
-  .story.sugar .photo { background-image: url("paywall-img/latte.jpg"); background-position: 50% 62%; }
-  .story.caffeine { justify-content: flex-end; padding-right: 58px; margin-top: 6px; height: 150px; }
-  .story.caffeine .photo { background-image: url("paywall-img/americano.jpg"); background-position: 40% 64%; }
+  .photo { width: 150px; flex: none; position: relative; background-size: cover; background-position: 50% 62%; overflow: hidden; }
+  .story.a { padding-left: 52px; }
+  .story.b { justify-content: flex-end; padding-right: 58px; margin-top: 6px; height: 150px; }
   .copy { flex: 1; padding: 40px 12px 0; position: relative; }
-  .story.caffeine .copy { text-align: right; padding-top: 14px; }
+  .story.b .copy { text-align: right; padding-top: 14px; }
   .copy .lab { display: block; }
-  .story.sugar .copy .lab { color: var(--sugar); }
-  .story.caffeine .copy .lab { color: var(--caffeine); }
-  .word { font-family: "PretendardApp", sans-serif; font-weight: 900; font-size: 54px; line-height: 1; letter-spacing: -0.02em; margin: 3px 0 5px -2px; background-size: 260px auto; background-position: 40% 40%; -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .story.sugar .word { background-image: url("paywall-img/sugar.jpg"), linear-gradient(var(--sugar), var(--sugar)); background-blend-mode: multiply; }
-  .story.caffeine .word { background-image: url("paywall-img/beans.jpg"), linear-gradient(var(--caffeine), var(--caffeine)); margin-right: -2px; }
+  .t-sugar .copy .lab { color: var(--sugar); }
+  .t-caffeine .copy .lab { color: var(--caffeine); }
+  .word { font-family: "PretendardApp", sans-serif; font-weight: 900; font-size: 54px; line-height: 1; letter-spacing: -0.02em; margin: 3px 0 5px -2px; background-size: 260px auto; background-position: 40% 40%; -webkit-background-clip: text; background-clip: text; color: transparent; white-space: nowrap; }
+  .t-sugar .word { background-image: url("paywall-img/sugar.jpg"), linear-gradient(var(--sugar), var(--sugar)); background-blend-mode: multiply; }
+  .t-caffeine .word { background-image: url("paywall-img/beans.jpg"), linear-gradient(var(--caffeine), var(--caffeine)); }
+  .story.b .word { margin-right: -2px; }
   .copy p { font-size: 12.5px; line-height: 1.4; color: var(--sub); }
   .copy p b { color: var(--ink); font-weight: 700; }
 
+  /* 사진 칸 안 그림들. 벽 색은 오늘 화면과 같은 #F3F5F8. */
+  .v-plain { position: absolute; inset: 0; background: #F3F5F8; }
+  .v-month { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 2px; background: var(--paper); }
+  .v-month span { background-size: cover; background-position: center; }
+  .v-wall { position: absolute; inset: 0; background: url("month-img/bg-sugar-01.jpg") center / cover; display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; }
+  .wg { width: 112px; height: 112px; border-radius: 26px; background: var(--paper); display: grid; grid-template-columns: 1fr 1fr; padding: 10px 6px 9px; box-shadow: 0 2px 8px rgba(24,24,27,.18); }
+  .wg div { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+  .wg img { height: 54px; }
+  .wg b { font-family: "Anton", sans-serif; font-weight: 400; font-size: 21px; line-height: 1; margin-top: 3px; }
+  .wg b small { font: 700 9px "PretendardApp", sans-serif; margin-left: 1px; }
+  .wg em { font-style: normal; font-size: 8.5px; font-weight: 600; color: var(--sub); }
+  .floor { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: flex-end; justify-content: center; }
+  .floor img { display: block; }
+  .roshu-line { filter: drop-shadow(0 0 .6px rgba(24,24,27,.55)) drop-shadow(0 0 .6px rgba(24,24,27,.35)); }
+
   .ticker { margin: 8px -40px 0; background: var(--ink); color: #fff; height: 32px; display: flex; align-items: center; gap: 14px; padding-left: 100px; white-space: nowrap; }
   .ticker .lab { font-size: 10px; letter-spacing: .2em; }
-  .ticker .tk { font-size: 12.5px; font-weight: 700; color: rgba(255,255,255,.72); }
-  .ticker .tk.on { color: #fff; box-shadow: inset 0 -2px 0 #fff; }
+  .ticker .tk { font: 700 12.5px "PretendardApp", sans-serif; color: rgba(255,255,255,.72); background: none; border: 0; padding: 8px 0; cursor: pointer; }
+  .ticker .tk.on { color: #fff; box-shadow: inset 0 -2px 0 #fff; padding-bottom: 6px; }
   .ticker i { width: 4px; height: 4px; background: #fff; flex: none; }
 
   .body { padding: 0 20px 8px; margin-top: -10px; position: relative; }
   h1 { font-size: 28px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 900; }
-  .deck { margin-top: 6px; font-size: 14px; line-height: 1.45; }
+  .deck { margin-top: 6px; font-size: 14px; line-height: 1.45; text-wrap: pretty; word-break: keep-all; }
   .deck span { color: var(--sub); }
 
   .ko { font-size: 11px; font-weight: 700; letter-spacing: .02em; }
 
   /* 요금 두 칸도 지면처럼 사선으로 엇갈린다(대표님 2026-10-27): 연간 왼쪽 위, 평생 오른쪽 아래, 같은 기울기.
      로슈·카인은 사진에서 빼고 평생 칸 위에 앉혀 평생을 민다. 추천·처음 선택도 평생(대표님 같은 날). */
-  .plans { margin-top: 0; position: relative; height: 140px; }
+  .plans { margin-top: 18px; position: relative; height: 140px; }
   .plan { position: absolute; width: 196px; padding: 8px 10px 9px; text-align: left; background: var(--paper); border: 0; border-top: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); font: inherit; color: inherit; cursor: pointer; transform: rotate(var(--tilt)); }
   .plan[data-p="yearly"] { left: 0; top: 14px; }
   .plan[data-p="lifetime"] { right: 0; top: 66px; text-align: right; z-index: 1; }
   .plan .ko { color: var(--sub); }
-  .plan .num { font-family: "Anton", sans-serif; font-size: 40px; line-height: 1.08; margin-top: 2px; color: var(--faint); }
+  .plan .num { font-family: "Anton", sans-serif; font-size: 40px; line-height: 1.08; margin-top: 2px; color: var(--sub); }
   .plan .num small { font-size: 20px; margin-right: 1px; }
   .plan .note { font-size: 11px; color: var(--sub); margin-top: 1px; }
   .plan.on .num, .plan.on .ko { color: var(--ink); }
@@ -76,8 +92,25 @@
   .plan .best { color: var(--sugar); }
   .plan .duo { position: absolute; top: -50px; left: 14px; display: flex; align-items: flex-end; gap: 0; pointer-events: none; }
   .plan .duo img:last-child { margin-left: -22px; }
-  .plan .duo img:first-child { height: 54px; }
+  .plan .duo img:first-child { height: 54px; filter: drop-shadow(0 0 .6px rgba(24,24,27,.55)) drop-shadow(0 0 .6px rgba(24,24,27,.35)); }
   .plan .duo img:last-child { height: 49px; }
+  /* 대기 동작(대표님 2026-10-28): 로슈는 손 흔들듯 좌우로 까딱, 카인은 통통 뛰다 갸웃. 카인 한 바퀴 회전 금지(리포 규칙). */
+  .plan .duo img { transform-origin: 50% 100%; }
+  .plan .duo img:first-child { animation: roshu-sway 2.4s cubic-bezier(.45, 0, .55, 1) infinite; }
+  .plan .duo img:last-child { animation: kain-hop 3.2s cubic-bezier(.23, 1, .32, 1) infinite .6s; }
+  @keyframes roshu-sway {
+    0%, 100% { transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+  }
+  @keyframes kain-hop {
+    0%, 30%, 100% { transform: translateY(0) rotate(0); }
+    8% { transform: translateY(-9px) rotate(0); }
+    16% { transform: translateY(0) scaleY(.94); }
+    22% { transform: translateY(-5px) rotate(0); }
+    60% { transform: translateY(0) rotate(12deg); }
+    80% { transform: translateY(0) rotate(12deg); }
+  }
+  @media (prefers-reduced-motion: reduce) { .plan .duo img { animation: none !important; } }
 
   .foot { padding: 8px 20px 26px; background: var(--paper); }
   .cta { width: 100%; height: 52px; border: 0; border-radius: 3px; background: var(--ink); color: #fff; font: 600 17px "PretendardApp", sans-serif; cursor: pointer; }
@@ -101,23 +134,9 @@
 
       <div class="spread">
         <div class="page">
-          <div class="story sugar">
-            <div class="photo"></div>
-            <div class="copy">
-              <span class="lab">Monthly · 월 추이</span>
-              <div class="word">한 달</div>
-              <p><b>한 달 동안 남긴 양</b>이<br>점 하나씩 쌓여요.</p>
-            </div>
-          </div>
-          <div class="ticker"><span class="lab">Pro</span><i></i><span class="tk" data-f="monthlyTrends">월 추이</span><i></i><span class="tk" data-f="reductionGoal">조금씩 줄이기</span><i></i><span class="tk" data-f="widget">위젯</span><i></i><span class="tk" data-f="gifts">선물</span></div>
-          <div class="story caffeine">
-            <div class="copy">
-              <span class="lab">Step Down · 조금씩 줄이기</span>
-              <div class="word">조금씩</div>
-              <p><b>주마다 기준</b>을<br>조금씩 낮춰 가요.</p>
-            </div>
-            <div class="photo"></div>
-          </div>
+          <div class="story a" id="storyA"></div>
+          <div class="ticker"><span class="lab">Pro</span><i></i><button class="tk" data-f="monthlyTrends">월 추이</button><i></i><button class="tk" data-f="reductionGoal">조금씩 줄이기</button><i></i><button class="tk" data-f="widget">위젯</button><i></i><button class="tk" data-f="gifts">선물</button></div>
+          <div class="story b" id="storyB"></div>
         </div>
       </div>
 
@@ -142,28 +161,66 @@
   <h2>페이월 · 매거진 시안 v3</h2>
   <div>누르다 온 기능</div>
   <div class="btns" id="features"></div>
-  <div>기울기</div>
-  <div class="btns" id="tilts"></div>
-  <p>요금 칸을 누르면 선택이 바뀐다. 이전 판은 paywall-mag-v2.html.</p>
+  <p>검은 띠의 기능을 누르면 기사 두 개가 그 기능으로 바뀐다. 처음 열린 탭은 누르다 온 기능(설정에서 오면 월 추이). 요금 칸을 누르면 선택이 바뀐다. 기울기는 -8°로 확정(2026-10-28). 이전 판은 paywall-mag-v2.html.</p>
 </div>
 
 <script>
 const FEATURES = {
-  monthlyTrends: ['월 추이는 Pro에서 열려요.', '한 달 동안 남긴 양이 점 하나씩 쌓여요.'],
-  reductionGoal: ['조금씩 줄이기는 Pro에서 열려요.', '주마다 기준을 조금씩 낮춰 가요.'],
-  gifts: ['마음 말고 다른 선물은 Pro에서 와요.', '로슈와 카인이 물건을 들고 와요.'],
-  none: ['한 번 결제로 아래 기능이 모두 열려요.', ''],
+  monthlyTrends: ['월 추이는 Pro에서 열려요.', '조금씩 줄이기·위젯·선물도 함께요.'],
+  reductionGoal: ['조금씩 줄이기는 Pro에서 열려요.', '월 추이·위젯·선물도 함께요.'],
+  gifts: ['마음 말고 다른 선물은 Pro에서 와요.', '월 추이·조금씩 줄이기·위젯도 함께요.'],
+  none: ['한 번 결제로 Pro 기능이 모두 열려요.', ''],
 };
-const state = { f: 'monthlyTrends', plan: 'lifetime', tilt: -8 };
+
+const VIS = {
+  month: () => `<div class="v-month">${['sugar-30', 'sugar-80', 'caffeine-30', 'sugar-0', 'caffeine-50', 'sugar-50', 'caffeine-80', 'sugar-100', 'sugar-30']
+    .map(k => `<span style="background-image:url('month-img/${k}.jpg')"></span>`).join('')}</div>`,
+  widget: () => `<div class="v-wall"><div class="wg">
+      <div><img src="../../SugarCap/Resources/Assets.xcassets/cutout-strawberry-latte-50.imageset/50.png" alt=""><b>18<small>g</small></b><em>남은 당</em></div>
+      <div><img src="../../SugarCap/Resources/Assets.xcassets/cutout-iced-americano-50.imageset/50.png" alt=""><b>95<small>mg</small></b><em>남은 카페인</em></div>
+    </div></div>`,
+  duo: () => `<div class="v-plain"></div><div class="floor" style="gap:6px;bottom:26px;justify-content:flex-start;padding-left:14px"><img class="roshu-line" src="paywall-img/roshu-watch.png" style="height:70px" alt=""><img src="paywall-img/kain-sit.png" style="height:64px" alt=""></div>`,
+  carry: () => `<div class="v-plain"></div><div class="floor" style="gap:0;bottom:22px;justify-content:flex-end;padding-right:8px"><img class="roshu-line" src="paywall-img/roshu-gift.png" style="height:72px;margin-right:-4px" alt=""><img src="paywall-img/kain-gift.png" style="height:60px" alt=""></div>`,
+};
+const img = src => () => `<div class="v-plain" style="background:url('${src}') 50% 62% / cover"></div>`;
+
+const STORIES = {
+  monthlyTrends: [
+    { tone: 'sugar', lab: 'Monthly · 월 추이', word: '한 달', p: '<b>그날 먹은 양</b>이<br>접시 사진으로 찍혀요.', vis: VIS.month },
+    { tone: 'sugar', lab: 'Stats · 다양한 통계', word: '통계', p: '각설탕 환산, 지난달 대비까지<br><b>다양한 통계</b>를 보여 줘요.', vis: img('month-img/sugar-100.jpg') },
+  ],
+  reductionGoal: [
+    { tone: 'sugar', lab: 'Step down · 조금씩 줄이기', word: '조금씩', p: '<b>주마다 기준</b>을<br>조금씩 낮춰 가요.', vis: img('paywall-img/latte.jpg') },
+    { tone: 'caffeine', lab: 'Progress · 진행', word: '지킨 주', p: '<b>몇 주를 지켰는지</b><br>막대로 차올라요.', vis: img('paywall-img/americano.jpg') },
+  ],
+  widget: [
+    { tone: 'sugar', lab: 'Widget · 위젯', word: '홈 화면', p: '앱을 안 열어도<br><b>남은 양</b>이 보여요.', vis: VIS.widget },
+    { tone: 'caffeine', lab: 'Together · 같이', word: '같이', p: '<b>로슈와 카인</b>도<br>홈 화면에서 기다려요.', vis: VIS.duo },
+  ],
+  gifts: [
+    { tone: 'sugar', lab: 'Gifts · 선물', word: '선물', p: '로슈와 카인과<br><b>더 친해질 수 있어요.</b>', vis: VIS.carry },
+    { tone: 'caffeine', lab: 'Items · 물건', word: '물건', p: '<b>다양한 선물</b>을<br>받을 수 있어요.', vis: img('paywall-img/items.jpg') },
+  ],
+};
+const story = (s, side) => {
+  const copy = `<div class="copy"><span class="lab">${s.lab}</span><div class="word">${s.word}</div><p>${s.p}</p></div>`;
+  const photo = `<div class="photo">${s.vis()}</div>`;
+  return { cls: `story ${side} t-${s.tone}`, html: side === 'a' ? photo + copy : copy + photo };
+};
+
+const state = { f: 'monthlyTrends', tab: 'monthlyTrends', plan: 'lifetime' };
 function render() {
   const [lead, more] = FEATURES[state.f];
   document.getElementById('deck').innerHTML = `${lead}${more ? ` <span>${more}</span>` : ''}`;
-  for (const r of document.querySelectorAll('.tk')) r.classList.toggle('on', r.dataset.f === state.f);
+  const [sa, sb] = STORIES[state.tab];
+  for (const [id, s, side] of [['storyA', sa, 'a'], ['storyB', sb, 'b']]) {
+    const el = document.getElementById(id), r = story(s, side);
+    el.className = r.cls; el.innerHTML = r.html;
+  }
+  for (const r of document.querySelectorAll('.tk')) r.classList.toggle('on', r.dataset.f === state.tab);
   for (const p of document.querySelectorAll('.plan')) p.classList.toggle('on', p.dataset.p === state.plan);
   document.getElementById('cta').textContent = state.plan === 'yearly' ? '연간으로 시작' : '평생으로 시작';
-  document.documentElement.style.setProperty('--tilt', `${state.tilt}deg`);
   for (const b of document.querySelectorAll('#features button')) b.setAttribute('aria-pressed', String(b.dataset.v === state.f));
-  for (const b of document.querySelectorAll('#tilts button')) b.setAttribute('aria-pressed', String(Number(b.dataset.v) === state.tilt));
 }
 const add = (id, items, set) => {
   const row = document.getElementById(id);
@@ -173,11 +230,12 @@ const add = (id, items, set) => {
     row.appendChild(b);
   }
 };
-add('features', [['monthlyTrends', '월 추이'], ['reductionGoal', '조금씩 줄이기'], ['gifts', '선물'], ['none', '설정에서']], v => { state.f = v; });
-add('tilts', [[-5, '-5°'], [-8, '-8°'], [-11, '-11°']], v => { state.tilt = Number(v); });
+const openTab = f => (STORIES[f] ? f : 'monthlyTrends');
+add('features', [['monthlyTrends', '월 추이'], ['reductionGoal', '조금씩 줄이기'], ['gifts', '선물'], ['none', '설정에서']], v => { state.f = v; state.tab = openTab(v); });
 for (const p of document.querySelectorAll('.plan')) p.onclick = () => { state.plan = p.dataset.p; render(); };
+for (const t of document.querySelectorAll('.tk')) t.onclick = () => { state.tab = t.dataset.f; render(); };
 const q = new URLSearchParams(location.search);
-if (q.get('f') && FEATURES[q.get('f')]) state.f = q.get('f');
+if (q.get('f') && FEATURES[q.get('f')]) { state.f = q.get('f'); state.tab = openTab(state.f); }
 render();
 </script>
 </body>

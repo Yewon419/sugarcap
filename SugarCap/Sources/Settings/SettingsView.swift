@@ -297,7 +297,7 @@ private struct SettingsContent: View {
         }
     }
 
-    /// 테스트 카드(2026-10-05 프로토 v4). 먹이기·정산은 저장 없이 열고, Pro 흉내는 앱을 다시 켜면 꺼진다.
+    /// 테스트 카드(2026-10-05 프로토 v4). 먹이기·정산·레벨업은 저장 없이 열고, Pro 스위치·대기 자세는 앱을 다시 켜면 원래대로 돌아간다.
     private var testSection: some View {
         Section {
             Button("먹이기 바로 보기") { onTestAction(.feeding) }
@@ -312,11 +312,23 @@ private struct SettingsContent: View {
             Button("캐릭터 소개 바로 보기") { onTestAction(.companionIntro) }
                 .font(AppFont.pretendard(16, .regular, relativeTo: .body))
                 .accessibilityIdentifier("test-intro")
-            Toggle("Pro 켠 것처럼", isOn: Binding(get: { pro.isProSimulated }, set: { pro.simulatePro($0) }))
+            Button("레벨업 무대 바로 보기") { onTestAction(.levelUp) }
+                .font(AppFont.pretendard(16, .regular, relativeTo: .body))
+                .accessibilityIdentifier("test-level-up")
+            Button("페이월 바로 보기") { showsPaywall = true }
+                .font(AppFont.pretendard(16, .regular, relativeTo: .body))
+                .accessibilityIdentifier("test-paywall")
+            Button("마감 알림 10초 뒤 보내기") { sendTestReminder() }
+                .font(AppFont.pretendard(16, .regular, relativeTo: .body))
+                .accessibilityIdentifier("test-reminder")
+            // 산 것과 상관없이 켜고 끈다(대표님 2026-10-28). 앱을 다시 켜면 실제 구매 상태로 돌아간다.
+            Toggle("Pro 사용", isOn: Binding(get: { pro.isPro }, set: { pro.overridePro($0) }))
                 .rowText()
                 .accessibilityIdentifier("test-pro")
             affinityStepper(.sugar)
             affinityStepper(.caffeine)
+            idlePosePicker(.sugar)
+            idlePosePicker(.caffeine)
             Button("첫 실행으로 되돌리기", role: .destructive) { confirmsFirstRun = true }
                 .font(AppFont.pretendard(16, .regular, relativeTo: .body))
                 .accessibilityIdentifier("test-first-run")
@@ -324,6 +336,34 @@ private struct SettingsContent: View {
             Text("테스트 · TestFlight에서만 보여요")
         } footer: {
             Text("여기서 연 먹이기와 정산은 기록에 남지 않아요.")
+        }
+    }
+
+    /// 대기 자세를 바로 고른다(`IdleTestPose`). 해금·컵 단계와 상관없이 그 자세로 선다. 앱을 다시 켜면 자동으로 돌아간다.
+    private func idlePosePicker(_ side: CupSide) -> some View {
+        let character = side.idleCast.character
+        let names = side.idleCast.poseSet?.poses.keys.sorted() ?? []
+        let selection = Binding(
+            get: { IdleTestPose.shared.pose(for: character) ?? "" },
+            set: { IdleTestPose.shared.set($0.isEmpty ? nil : $0, for: character) }
+        )
+        return Picker(selection: selection) {
+            Text("자동").tag("")
+            ForEach(names, id: \.self) { name in
+                Text(verbatim: name).tag(name)
+            }
+        } label: {
+            Text("\(side.characterName) 대기 자세")
+        }
+        .rowText()
+        .accessibilityIdentifier("test-pose-\(side.rawValue)")
+    }
+
+    private func sendTestReminder() {
+        Task {
+            if !(await CloseReminder.sendTest()) {
+                alertMessage = String(localized: "iOS 설정 > 슈가캡 > 알림에서 알림을 허용해 주세요.")
+            }
         }
     }
 

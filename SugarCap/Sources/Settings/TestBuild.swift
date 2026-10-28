@@ -1,3 +1,4 @@
+import Observation
 import OSLog
 import StoreKit
 
@@ -38,4 +39,24 @@ enum SettingsTestAction {
     case weekKept
     /// 앱 소개·로슈 카인 소개를 처음부터. 기록은 그대로 둔다.
     case firstRun
+    /// 보고 있는 면의 다음 호감도 단계 레벨업 무대를 저장 없이 연다.
+    case levelUp
+}
+
+/// 테스트 카드에서 고른 대기 자세(TestFlight·Debug). 캐릭터 id("roshu", "kain") → 자세 이름.
+/// 해금·컵 단계와 상관없이 그 자세로 세운다(지금 잔에서 안 보이는 자세는 빼고). 저장하지 않아 앱을 다시 켜면 자동으로 돌아간다.
+@MainActor
+@Observable
+final class IdleTestPose {
+    static let shared = IdleTestPose()
+
+    private var poses: [String: String] = [:]
+
+    func pose(for character: String) -> String? {
+        poses[character]
+    }
+
+    func set(_ pose: String?, for character: String) {
+        poses[character] = pose
+    }
 }

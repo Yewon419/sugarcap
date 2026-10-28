@@ -1436,6 +1436,11 @@ struct TodayView: View {
                 context.rollback()
                 failureMessage = String(localized: "기록을 저장하지 못했어요. 다시 시도해 주세요.")
             }
+        case .levelUp:
+            // 저장소에 넣지 않은 선물이라 끝나도 연 것으로 저장하지 않는다(`finishLevelUp`). 최고 단계면 그 단계를 다시 보여 준다.
+            let level = min(max(affinityLevel(side) + 1, 2), AffinityMath.maxLevel)
+            let gift = GiftEvent(kind: .levelUp, side: side, level: level, createdAt: now)
+            levelUp = LevelUpStage(gift: gift, side: side, level: level, startedAt: now)
         case .firstRun:
             // 루트가 완료 플래그를 지켜보다 온보딩으로 바꾼다. 기록·정산·호감도는 그대로다.
             UserDefaults.standard.removeObject(forKey: CompanionIntro.seenKey)

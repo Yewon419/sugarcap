@@ -155,6 +155,8 @@ struct IdleCharacterLayer: View {
             if isAway || isAllowed(step: step, unlockedLevel: unlockedLevel) { return }
             repick()
         }
+        // 설정 테스트 카드에서 자세를 고르면 바로 바꾼다(자동으로 돌리면 새로 뽑는다).
+        .onChange(of: IdleTestPose.shared.pose(for: side.idleCast.character)) { repick() }
         .onChange(of: scenePhase) { old, new in
             // 백그라운드에서 돌아오면 앱을 다시 연 것으로 보고 새로 뽑는다.
             if old == .background, new != .background, !isAway { repick() }
@@ -239,6 +241,11 @@ struct IdleCharacterLayer: View {
         guestFuss = IdleFussState()
         start = Date()
         if pausedAt != nil { pausedAt = start }
+        if let forced = IdleTestPose.shared.pose(for: side.idleCast.character),
+           side.idleCast.poseSet?.poses[forced] != nil, !CupSetGeometry.hiddenPoses(side.cupSetID).contains(forced) {
+            pose = forced
+            return
+        }
         #if DEBUG
         // CI 스크린샷 전용: `-idlePose swim`. 이 캐릭터에 없는 자세·지금 잔에서 안 보이는 자세면 무시한다. 해금과 상관없이 보인다.
         if let forced = UserDefaults.standard.string(forKey: "idlePose"),

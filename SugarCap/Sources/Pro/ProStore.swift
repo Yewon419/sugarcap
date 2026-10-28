@@ -12,10 +12,11 @@ final class ProStore {
     private(set) var isLoadingPlans = false
     private(set) var purchasingID: String?
     private(set) var failure: String?
-    /// 설정 테스트 카드의 "Pro 켠 것처럼"(TestFlight·Debug). 저장하지 않아 앱을 다시 켜면 꺼진다.
-    private(set) var isProSimulated = false
+    /// 설정 테스트 카드의 Pro 스위치(TestFlight·Debug). 산 것과 상관없이 켜고 끈다(대표님 2026-10-28). nil이면 실제 구매 상태.
+    /// 저장하지 않아 앱을 다시 켜면 실제 상태로 돌아간다.
+    private(set) var proOverride: Bool?
 
-    /// 실제 구매 여부. `isPro`는 이 값에 `isProSimulated`를 더한 것이다.
+    /// 실제 구매 여부. `isPro`는 테스트 스위치(`proOverride`)가 있으면 그 값, 없으면 이 값이다.
     private var ownsPro = false
     /// 실제로 산 상태(흉내·스크린샷 목 제외). Pro 축하 선물(§4.9)은 이것만 본다.
     var ownsRealPro: Bool { ownsPro && !isPreview }
@@ -36,9 +37,9 @@ final class ProStore {
         self.isPreview = true
     }
 
-    func simulatePro(_ on: Bool) {
-        isProSimulated = on
-        isPro = ownsPro || on
+    func overridePro(_ on: Bool) {
+        proOverride = on
+        isPro = on
     }
 
     /// CI 스크린샷·UI 테스트 전용(Debug 빌드만). 실행 인자로 구매 상태를 흉내 낸다.
@@ -99,7 +100,7 @@ final class ProStore {
             }
         }
         ownsPro = ProEntitlement.isPro(productIDs: owned)
-        isPro = ownsPro || isProSimulated
+        isPro = proOverride ?? ownsPro
         // 위젯은 StoreKit을 다시 묻지 않고 이 값을 읽는다(§4.6). 흉내 낸 Pro는 저장되는 값에 넣지 않는다.
         if SharedDefaults.isPro != ownsPro {
             SharedDefaults.isPro = ownsPro

@@ -48,18 +48,39 @@ enum CloseReminder {
         await schedule(closeFromHour: closeFromHour)
     }
 
-    private static func schedule(closeFromHour: Int) async {
+    /// 설정 테스트 카드(TestFlight·Debug): 같은 문구의 알림을 10초 뒤 한 번 보낸다. 마감 알림 스위치와 따로다.
+    /// 권한이 없으면 묻는다. 거절됐거나 예약에 실패하면 거짓.
+    static func sendTest() async -> Bool {
+        let center = UNUserNotificationCenter.current()
+        do {
+            guard try await center.requestAuthorization(options: [.alert, .sound]) else { return false }
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 10, repeats: false)
+            try await center.add(UNNotificationRequest(identifier: testRequestID, content: content(), trigger: trigger))
+            return true
+        } catch {
+            logger.error("테스트 알림 예약 실패: \(String(describing: error), privacy: .public)")
+            return false
+        }
+    }
+
+    private static let testRequestID = "close-reminder-test"
+
+    private static func content() -> UNMutableNotificationContent {
         let content = UNMutableNotificationContent()
         content.title = String(localized: "오늘 마감할 시간이에요")
         content.body = String(localized: "남은 당과 카페인을 \(CupSide.sugar.characterNameWithGwa) \(CupSide.caffeine.characterName)에게 먹여 줘요.")
         content.sound = .default
+        return content
+    }
+
+    private static func schedule(closeFromHour: Int) async {
         let trigger = UNCalendarNotificationTrigger(
             dateMatching: DateComponents(hour: closeFromHour, minute: 0), repeats: true
         )
         let center = UNUserNotificationCenter.current()
         center.removePendingNotificationRequests(withIdentifiers: [requestID])
         do {
-            try await center.add(UNNotificationRequest(identifier: requestID, content: content, trigger: trigger))
+            try await center.add(UNNotificationRequest(identifier: requestID, content: content(), trigger: trigger))
         } catch {
             logger.error("마감 알림 예약 실패(\(closeFromHour)시): \(String(describing: error), privacy: .public)")
         }

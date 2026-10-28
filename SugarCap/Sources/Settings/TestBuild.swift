@@ -30,6 +30,8 @@ enum TestBuild {
 enum SettingsTestAction {
     /// 오늘 마감 먹이기를 저장 없이 연다.
     case feeding
+    /// 첫 마감 한 묶음을 저장 없이: 로슈·카인 소개 → 튜토리얼 먹이기 → 두 면 "처음 만난 사이" 무대(2026-10-28 대표님).
+    case companionIntro
     /// 어젯밤 정산 화면을 저장 없이 연다.
     case yesterdayGate
     /// 기준 지킨 주 축하 화면을 이번 주로 열고, 끝나면 캐릭터가 실제 선물 상자를 들고 있다(주 칸은 비워 진짜 주 선물과 안 겹친다).

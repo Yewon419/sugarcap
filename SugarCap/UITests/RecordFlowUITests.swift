@@ -285,6 +285,60 @@ extension RecordFlowUITests {
         XCTAssertFalse(app.staticTexts["마감함"].exists, "테스트 먹이기가 오늘을 마감해 버림")
     }
 
+    /// 테스트 카드 "캐릭터 소개 바로 보기"는 첫 마감 한 묶음이다(2026-10-28 대표님): 소개 → 먹이기 → 두 면 "처음 만난 사이" 무대.
+    /// 아무것도 저장하지 않는다(오늘 마감 안 됨, 무대도 다시 안 뜸).
+    @MainActor
+    func testSettingsTestCardIntroRunsThroughFirstMeeting() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        // 무대는 4초 뒤 저절로 닫혀 느린 CI가 놓친다. 한 장면에 멈춰 두고 눌러서 닫는다(testSkipping…과 같은 이유).
+        app.launchArguments += ["-levelUpAt", "2.5"]
+        app.launch()
+        completeOnboardingIfPresented(app)
+
+        let summary = app.descendants(matching: .any)["cup-summary"]
+        XCTAssertTrue(summary.waitForExistence(timeout: 15))
+        app.buttons["open-settings"].tap()
+        Driver(app: app).tap(app.buttons["test-intro"])
+
+        let introSkip = app.buttons["intro-skip"]
+        XCTAssertTrue(introSkip.waitForExistence(timeout: 10), "캐릭터 소개가 안 뜸")
+        introSkip.tap()
+        let skip = app.buttons["feeding-skip"]
+        XCTAssertTrue(skip.waitForExistence(timeout: 15), "소개 뒤 먹이기로 안 이어짐")
+        skip.tap()
+        let done = app.buttons["feeding-done"]
+        XCTAssertTrue(done.waitForExistence(timeout: 5), "건너뛰기 뒤 요약이 안 뜸")
+        done.tap()
+        XCTAssertTrue(done.waitForNonExistence(timeout: 5), "완료를 눌러도 먹이기 화면이 안 닫힘")
+
+        let stage = Driver(app: app).element("levelup-stage")
+        XCTAssertTrue(summary.waitForExistence(timeout: 5))
+        let firstOnSugar = summary.label.hasPrefix("당 남은")
+        XCTAssertTrue(stage.waitForExistence(timeout: 10), "먹이기 뒤 첫 만남 무대가 안 뜸")
+        XCTAssertTrue(stage.label.contains("처음 만난 사이"), "첫 만남 문구가 아님: \(stage.label)")
+        stage.tap()
+        XCTAssertTrue(
+            summary.waitForLabel(prefix: firstOnSugar ? "카페인 남은" : "당 남은", timeout: 8),
+            "다른 컵으로 저절로 안 넘어감: \(summary.label)"
+        )
+        XCTAssertTrue(stage.waitForExistence(timeout: 10), "넘어간 컵에 두 번째 무대가 안 뜸")
+        XCTAssertTrue(stage.label.contains("처음 만난 사이"), "두 번째 무대가 첫 만남이 아님: \(stage.label)")
+        stage.tap()
+        XCTAssertTrue(stage.waitForNonExistence(timeout: 5), "눌렀는데 두 번째 무대가 안 닫힘")
+        XCTAssertFalse(stage.waitForExistence(timeout: 3), "리허설 무대가 또 뜸")
+        XCTAssertFalse(app.staticTexts["마감함"].exists, "리허설이 오늘을 마감해 버림")
+
+        // 정리: 당 컵으로 되돌린다. 넘어간 컵이 저장돼 뒤 테스트가 카페인 컵에서 시작한다.
+        if summary.label.hasPrefix("카페인 남은") {
+            let window = app.windows.firstMatch
+            let right = window.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.5))
+            let left = window.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.5))
+            left.press(forDuration: 0.1, thenDragTo: right, withVelocity: .slow, thenHoldForDuration: 0.6)
+        }
+        XCTAssertTrue(summary.waitForLabel(prefix: "당 남은", timeout: 8), "당 컵으로 안 돌아옴: \(summary.label)")
+    }
+
     /// 하단 탭은 없다. 추이는 오늘 위로 밀어 넣고, 뒤로 가면 오늘로 돌아온다(2026-10-05).
     @MainActor
     func testTrendsPushesFromCornerAndGoesBack() throws {

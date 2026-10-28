@@ -80,6 +80,10 @@ struct TodayView: View {
     /// 단계 상승 무대 연출 중이면 채운다(SPEC §4.9 결정 4). 끝나거나 누르면 연 것으로 저장하고 비운다.
     @State private var levelUp: LevelUpStage?
     @State private var levelUpFrames: [CupSide: CGRect] = [:]
+    /// 테스트 카드 "캐릭터 소개 바로 보기"가 먹이기 리허설을 열었으면 켠다. 닫히면 첫 만남 무대를 이어 띄운다.
+    @State private var rehearsesFirstMeeting = false
+    /// 저장하지 않은 첫 만남(Lv1) 무대들. 실제 첫 만남과 같은 길(`nextLevelUp`)로 한 면씩 뜨고, 닫으면 빠진다.
+    @State private var rehearsalMeetings: [GiftEvent] = []
     /// 방금 먹이기로 기준 지킨 주 선물이 생겼으면 채운다. 먹이기 화면이 닫히면 축하 화면으로 넘긴다(§4.9 2026-10-12).
     @State private var pendingWeekKept: WeekKeptCelebration?
     @State private var weekKept: WeekKeptCelebration?
@@ -383,6 +387,7 @@ struct TodayView: View {
     /// 보고 있는 면의 아직 안 본 단계 상승. 그 면에 상자가 와 있으면 상자부터 받는다("선물 다 받고 나서").
     /// 첫 만남(Lv1)만 상자보다 먼저다: 두 면을 저절로 넘기며 바로 이어 보여 줘야 해서, 같이 오는 첫 먹이기 병뚜껑 상자를 기다리지 않는다.
     private var nextLevelUp: GiftEvent? {
+        if let rehearsed = rehearsalMeetings.first(where: { $0.cupSide == side }) { return rehearsed }
         let waiting = gifts.first { !$0.isOpened && $0.giftKind == .levelUp && $0.cupSide == side }
         guard let waiting else { return nil }
         if waiting.level == 1 { return waiting }
@@ -412,13 +417,14 @@ struct TodayView: View {
     private func finishLevelUp(_ stage: LevelUpStage) {
         guard levelUp?.id == stage.id else { return }
         if stage.gift.modelContext != nil { saveOpened(stage.gift) }
+        rehearsalMeetings.removeAll { $0.id == stage.gift.id }
         levelUp = nil
         // 첫 만남(Lv1)은 둘이 같이 받는 거라 다른 컵으로 저절로 넘겨 이어 보여 준다(2026-10-27 대표님).
         guard stage.level == 1 else { return }
         let partner: CupSide? = trackedSides.first { other in
-            other != stage.side && gifts.contains { gift in
+            other != stage.side && (gifts.contains { gift in
                 !gift.isOpened && gift.giftKind == .levelUp && gift.level == 1 && gift.cupSide == other
-            }
+            } || rehearsalMeetings.contains { $0.cupSide == other })
         }
         if let partner { switchSide(to: partner) }
     }
@@ -1311,6 +1317,11 @@ struct TodayView: View {
 
     /// 먹이기(오늘·어젯밤) 화면이 닫힌 뒤. 기준 지킨 주를 방금 채웠으면 축하부터, 아니면 첫 마감 알림 질문.
     private func afterFeedingClosed() {
+        if rehearsesFirstMeeting {
+            rehearsesFirstMeeting = false
+            rehearsalMeetings = trackedSides.map { GiftEvent(kind: .levelUp, side: $0, level: 1, createdAt: Date()) }
+            return
+        }
         if let pending = pendingWeekKept {
             pendingWeekKept = nil
             weekKept = pending
@@ -1387,6 +1398,18 @@ struct TodayView: View {
             transaction.disablesAnimations = true
             withTransaction(transaction) {
                 feeding = FeedingPresentation(request: request, opening: opening, snapshot: nil, isRehearsal: true)
+            }
+        case .companionIntro:
+            let todayTotals = todayTotals(now: now)
+            let request = FeedingRequest(
+                kind: .closeToday, sugarLeftG: todayTotals.leftSugarG, caffeineLeftMg: todayTotals.leftCaffeineMg,
+                limits: limits, sugarOverG: todayTotals.overSugarG, caffeineOverMg: todayTotals.overCaffeineMg
+            )
+            rehearsesFirstMeeting = true
+            var transaction = Transaction()
+            transaction.disablesAnimations = true
+            withTransaction(transaction) {
+                feeding = FeedingPresentation(request: request, opening: .companionIntro, snapshot: nil, isRehearsal: true)
             }
         case .yesterdayGate:
             let yesterday = DayKey(at: now, boundaryHour: boundaryHour).shifted(by: -1)

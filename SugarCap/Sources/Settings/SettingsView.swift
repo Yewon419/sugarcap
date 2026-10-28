@@ -55,7 +55,6 @@ private struct SettingsContent: View {
 
     @State private var showsPaywall = false
     @State private var showsOnboarding = false
-    @State private var showsIntro = false
     @State private var isRestoring = false
     @State private var alertMessage: String?
     @State private var isTestBuild = false
@@ -254,10 +253,6 @@ private struct SettingsContent: View {
                 onClose: { showsOnboarding = false }
             )
         }
-        // 테스트: 로슈·카인 소개만 따로 본다. 영상이 끝나거나 건너뛰면 닫힌다.
-        .fullScreenCover(isPresented: $showsIntro) {
-            CompanionIntroView(onFinish: { showsIntro = false })
-        }
     }
 
     private func setTracks(_ isOn: Bool, _ side: CupSide) {
@@ -314,7 +309,7 @@ private struct SettingsContent: View {
             Button("주 목표 축하 바로 보기") { onTestAction(.weekKept) }
                 .font(AppFont.pretendard(16, .regular, relativeTo: .body))
                 .accessibilityIdentifier("test-week-kept")
-            Button("캐릭터 소개 바로 보기") { showsIntro = true }
+            Button("캐릭터 소개 바로 보기") { onTestAction(.companionIntro) }
                 .font(AppFont.pretendard(16, .regular, relativeTo: .body))
                 .accessibilityIdentifier("test-intro")
             Toggle("Pro 켠 것처럼", isOn: Binding(get: { pro.isProSimulated }, set: { pro.simulatePro($0) }))

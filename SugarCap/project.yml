@@ -70,6 +70,7 @@ targets:
           - Pretendard-Black.otf
           - ArchivoBlack-Regular.ttf
           - Anton-Regular.ttf
+          - SugarCapMasthead-Black.ttf
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         ITSAppUsesNonExemptEncryption: false

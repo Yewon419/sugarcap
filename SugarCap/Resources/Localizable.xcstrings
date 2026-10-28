@@ -6385,6 +6385,502 @@
           }
         }
       }
+    },
+    "월 추이는 Pro에서 열려요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly trends come with Pro."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每月趨勢需要 Pro。"
+          }
+        }
+      }
+    },
+    "조금씩 줄이기는 Pro에서 열려요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cutting back gradually comes with Pro."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "慢慢減少需要 Pro。"
+          }
+        }
+      }
+    },
+    "마음 말고 다른 선물은 Pro에서 와요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gifts other than hearts come with Pro."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "心意以外的禮物要 Pro 才會來。"
+          }
+        }
+      }
+    },
+    "한 번 결제로 Pro 기능이 모두 열려요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One payment unlocks every Pro feature."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "付費一次，就能使用所有 Pro 功能。"
+          }
+        }
+      }
+    },
+    "조금씩 줄이기·위젯·선물도 함께요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gradual cutbacks, widgets and gifts too."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "慢慢減少、小工具和禮物也一起。"
+          }
+        }
+      }
+    },
+    "월 추이·위젯·선물도 함께요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly trends, widgets and gifts too."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每月趨勢、小工具和禮物也一起。"
+          }
+        }
+      }
+    },
+    "월 추이·조금씩 줄이기·위젯도 함께요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly trends, gradual cutbacks and widgets too."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每月趨勢、慢慢減少和小工具也一起。"
+          }
+        }
+      }
+    },
+    "Monthly · 월 추이" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly · 每月趨勢"
+          }
+        }
+      }
+    },
+    "한 달" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Month"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一個月"
+          }
+        }
+      }
+    },
+    "**그날 먹은 양**이\n접시 사진으로 찍혀요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**What you had each day**\nbecomes a plate photo."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**每天喝下的量**\n會變成一張餐盤照片。"
+          }
+        }
+      }
+    },
+    "Stats · 다양한 통계" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stats"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stats · 多種統計"
+          }
+        }
+      }
+    },
+    "통계" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stats"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "統計"
+          }
+        }
+      }
+    },
+    "각설탕 환산, 지난달 대비까지\n**다양한 통계**를 보여 줘요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sugar cubes, last month compared,\nand **lots more stats**."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "換算成方糖、和上個月比較，\n**各種統計**一目了然。"
+          }
+        }
+      }
+    },
+    "Step down · 조금씩 줄이기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Step down"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Step down · 慢慢減少"
+          }
+        }
+      }
+    },
+    "조금씩" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gently"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "慢慢來"
+          }
+        }
+      }
+    },
+    "**주마다 기준**을\n조금씩 낮춰 가요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**Lower your limit**\na little each week."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**每週的標準**\n一點一點往下調。"
+          }
+        }
+      }
+    },
+    "Progress · 진행" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progress"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progress · 進度"
+          }
+        }
+      }
+    },
+    "지킨 주" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weeks"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "達標週"
+          }
+        }
+      }
+    },
+    "**몇 주를 지켰는지**\n막대로 차올라요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**The weeks you kept**\nfill up as bars."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**守住了幾週**\n會用長條填滿。"
+          }
+        }
+      }
+    },
+    "Widget · 위젯" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widget"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widget · 小工具"
+          }
+        }
+      }
+    },
+    "홈 화면" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Home"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主畫面"
+          }
+        }
+      }
+    },
+    "앱을 안 열어도\n**남은 양**이 보여요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "See **what's left**\nwithout opening the app."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不用打開 App，\n也能看到**剩下的量**。"
+          }
+        }
+      }
+    },
+    "Together · 같이" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Together"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Together · 一起"
+          }
+        }
+      }
+    },
+    "같이" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Together"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一起"
+          }
+        }
+      }
+    },
+    "**로슈와 카인**도\n홈 화면에서 기다려요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**Roshu and Kain**\nwait on your home screen."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**羅秀和卡因**\n也在主畫面等你。"
+          }
+        }
+      }
+    },
+    "Gifts · 선물" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gifts"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gifts · 禮物"
+          }
+        }
+      }
+    },
+    "로슈와 카인과\n**더 친해질 수 있어요.**" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grow closer to\n**Roshu and Kain.**"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "和羅秀、卡因\n**變得更親近。**"
+          }
+        }
+      }
+    },
+    "Items · 물건" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items · 物品"
+          }
+        }
+      }
+    },
+    "**다양한 선물**을\n받을 수 있어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Receive\n**all kinds of gifts.**"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可以收到\n**各式各樣的禮物**。"
+          }
+        }
+      }
+    },
+    "남은 당" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sugar left"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "剩下的糖"
+          }
+        }
+      }
+    },
+    "남은 카페인" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Caffeine left"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "剩下的咖啡因"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

@@ -17,68 +17,85 @@ enum DemoData {
         UserDefaults.standard.bool(forKey: "seedDemo")
     }
 
-    /// 이미 기록이 있으면 아무것도 하지 않는다.
+    /// 지난날 기록이 이미 있으면 아무것도 하지 않는다. 오늘 기록만 있으면(CI는 UI 테스트가 남긴 오늘 기록 위에서 찍는다)
+    /// 오늘은 그대로 두고 지난날만 채운다(2026-10-28, 전에는 기록이 하나라도 있으면 통째로 건너뛰어 CI 추이가 비었다).
     /// 메뉴 국가에 맞는 음료로 채운다. 미국 값은 `catalog-us.json`의 Starbucks Tall, 대만은 `catalog-tw.json`의 cama café M 그대로다.
     static func seed(into context: ModelContext, boundaryHour: Int, country: MenuCountry, now: Date = Date()) {
         do {
-            guard try context.fetch(FetchDescriptor<Entry>()).isEmpty else { return }
-
             let calendar = Calendar.current
             let today = DayKey(at: now, boundaryHour: boundaryHour)
+            let existing = try context.fetch(FetchDescriptor<Entry>())
+            let days = existing.map { $0.dayKey(boundaryHour: boundaryHour) }
+            guard !days.contains(where: { $0 < today }) else { return }
+            if days.isEmpty { seedToday(into: context, country: country, now: now) }
+            try seedPast(into: context, today: today, country: country, calendar: calendar)
 
-            // 오늘: 두 잔. 당 30 g(미국 27 g) / 카페인 245 mg이 빠져 컵이 반쯤 줄어 보인다.
-            //
-            // **지금 시각에서 뒤로 잡는다.** 달력 시각(9시·14시)으로 박으면 CI가 도는 새벽에는
-            // 하루 경계(4시) 기준으로 그 시각이 아직 오지 않아 오늘 합계에 안 잡힌다.
-            switch country {
-            case .kr:
-                insert(context, "아메리카노", "스타벅스", "Tall", sugar: 0, caffeine: 150, at: now.addingTimeInterval(-5400))
-                insert(context, "카페모카", "투썸플레이스", "레귤러", sugar: 30, caffeine: 95, at: now.addingTimeInterval(-1800))
-            case .us:
-                insert(context, "Caffè Americano", "Starbucks", "Tall", sugar: 0, caffeine: 150, at: now.addingTimeInterval(-5400))
-                insert(context, "Caffè Mocha", "Starbucks", "Tall", sugar: 27, caffeine: 95, at: now.addingTimeInterval(-1800))
-            case .tw:
-                // `catalog-tw.json`의 cama café M 그대로(美式 熱, 輕拿鐵 冰).
-                insert(context, "微韻輕美式", "cama café", "M", sugar: 0.2, caffeine: 103.9, at: now.addingTimeInterval(-5400))
-                insert(context, "CAMA金獎拿鐵", "cama café", "M", sugar: 10.2, caffeine: 207.8, at: now.addingTimeInterval(-1800))
+            // 호감도: 로슈 Lv3, 카인 Lv2 언저리. 테스트가 이미 올려 둔 값은 덮지 않는다.
+            let affinities = Set(try context.fetch(FetchDescriptor<Affinity>()).map(\.character))
+            if !affinities.contains(CupSide.sugar.characterID) {
+                context.insert(Affinity(character: CupSide.sugar.characterID, points: 96))
             }
-            let pastName = switch country {
-            case .kr: "그날의 음료"
-            case .us: "Drink of the day"
-            case .tw: "當日飲品"
+            if !affinities.contains(CupSide.caffeine.characterID) {
+                context.insert(Affinity(character: CupSide.caffeine.characterID, points: 41))
             }
-
-            // 지난 12일. 배열의 0번이 **어제**다. 최근으로 올수록 적게 마신 값이어야
-            // 추이 막대와 "지난주 대비"가 줄어드는 그림이 된다.
-            let sugarByDay: [Double] = [30, 28, 33, 35, 38, 40, 44, 51, 48, 55, 58, 62]
-            let caffeineByDay: [Double] = [200, 195, 210, 225, 240, 250, 265, 290, 300, 330, 355, 390]
-            for offset in 0..<sugarByDay.count {
-                let day = today.shifted(by: -(offset + 1), calendar: calendar)
-                guard let date = calendar.date(
-                    from: DateComponents(year: day.year, month: day.month, day: day.day, hour: 13)
-                ) else { continue }
-                insert(
-                    context, pastName, String(localized: "직접 입력"), "",
-                    sugar: sugarByDay[offset], caffeine: caffeineByDay[offset], at: date
-                )
-
-                // 앱을 매일 열고 마감한 것으로 둔다(다음 날 배너가 뜨지 않게).
-                let row = try SettlementStore.row(for: day, in: context)
-                row.closedAt = date
-                row.sugarLeftAtCloseG = max(0, 50 - sugarByDay[offset])
-                row.caffeineLeftAtCloseMg = max(0, country.caffeineAdviceMg - caffeineByDay[offset])
-                row.finalSugarLeftG = row.sugarLeftAtCloseG
-                row.finalCaffeineLeftMg = row.caffeineLeftAtCloseMg
-                row.finalizedAt = date
-            }
-
-            // 호감도: 로슈 Lv3, 카인 Lv2 언저리.
-            context.insert(Affinity(character: CupSide.sugar.characterID, points: 96))
-            context.insert(Affinity(character: CupSide.caffeine.characterID, points: 41))
 
             try context.save()
         } catch {
             logger.error("데모 데이터 주입 실패: \(String(describing: error), privacy: .public)")
+        }
+    }
+
+    private static func seedToday(into context: ModelContext, country: MenuCountry, now: Date) {
+        // 오늘: 두 잔. 당 30 g(미국 27 g) / 카페인 245 mg이 빠져 컵이 반쯤 줄어 보인다.
+        //
+        // **지금 시각에서 뒤로 잡는다.** 달력 시각(9시·14시)으로 박으면 CI가 도는 새벽에는
+        // 하루 경계(4시) 기준으로 그 시각이 아직 오지 않아 오늘 합계에 안 잡힌다.
+        switch country {
+        case .kr:
+            insert(context, "아메리카노", "스타벅스", "Tall", sugar: 0, caffeine: 150, at: now.addingTimeInterval(-5400))
+            insert(context, "카페모카", "투썸플레이스", "레귤러", sugar: 30, caffeine: 95, at: now.addingTimeInterval(-1800))
+        case .us:
+            insert(context, "Caffè Americano", "Starbucks", "Tall", sugar: 0, caffeine: 150, at: now.addingTimeInterval(-5400))
+            insert(context, "Caffè Mocha", "Starbucks", "Tall", sugar: 27, caffeine: 95, at: now.addingTimeInterval(-1800))
+        case .tw:
+            // `catalog-tw.json`의 cama café M 그대로(美式 熱, 輕拿鐵 冰).
+            insert(context, "微韻輕美式", "cama café", "M", sugar: 0.2, caffeine: 103.9, at: now.addingTimeInterval(-5400))
+            insert(context, "CAMA金獎拿鐵", "cama café", "M", sugar: 10.2, caffeine: 207.8, at: now.addingTimeInterval(-1800))
+        }
+    }
+
+    /// 지난 70일(이번 달과 지난달 전체가 차게). 0번이 **어제**다.
+    /// 최근 12일은 손으로 정한 값으로, 최근으로 올수록 적게 마셔 추이 잔과 "지난주 대비"가 줄어드는 그림이 된다.
+    /// 그 앞은 더 많이 마신 날들(월 달력 지난달 대비가 "덜 먹는 중"), 아흐레에 하루는 기록 없는 빈칸이다.
+    private static func seedPast(
+        into context: ModelContext, today: DayKey, country: MenuCountry, calendar: Calendar
+    ) throws {
+        let pastName = switch country {
+        case .kr: "그날의 음료"
+        case .us: "Drink of the day"
+        case .tw: "當日飲品"
+        }
+        let recentSugar: [Double] = [30, 28, 33, 35, 38, 40, 44, 51, 48, 55, 58, 62]
+        let recentCaffeine: [Double] = [200, 195, 210, 225, 240, 250, 265, 290, 300, 330, 355, 390]
+        for offset in 0..<70 {
+            let recent = offset < recentSugar.count
+            if !recent, offset % 9 == 4 { continue }
+            let sugar = recent ? recentSugar[offset] : 12 + Double((offset * 17) % 55)
+            let caffeine = recent ? recentCaffeine[offset] : 120 + Double((offset * 53) % 330)
+            let day = today.shifted(by: -(offset + 1), calendar: calendar)
+            guard let date = calendar.date(
+                from: DateComponents(year: day.year, month: day.month, day: day.day, hour: 13)
+            ) else { continue }
+            insert(context, pastName, String(localized: "직접 입력"), "", sugar: sugar, caffeine: caffeine, at: date)
+
+            // 앱을 매일 열고 마감한 것으로 둔다(다음 날 배너가 뜨지 않게).
+            let row = try SettlementStore.row(for: day, in: context)
+            row.closedAt = date
+            row.sugarLeftAtCloseG = max(0, 50 - sugar)
+            row.caffeineLeftAtCloseMg = max(0, country.caffeineAdviceMg - caffeine)
+            row.finalSugarLeftG = row.sugarLeftAtCloseG
+            row.finalCaffeineLeftMg = row.caffeineLeftAtCloseMg
+            row.finalizedAt = date
         }
     }
 

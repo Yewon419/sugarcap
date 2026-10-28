@@ -151,9 +151,17 @@ struct MonthTrendsView: View {
         let size = Self.titleSize
         let number = Text(verbatim: "\(shown.month)").font(.custom(CupHero.fontName, fixedSize: size * 1.3))
         return HStack(alignment: .lastTextBaseline, spacing: size * 0.27 * 0.35) {
-            Text("\(number)월")
-                .font(AppFont.pretendardFixed(size * 0.58, .black))
+            if Self.namesMonths {
+                // 영어는 숫자 대신 달 이름(대표님 2026-10-28 "October · Sugar eaten"). 긴 달은 이름만 줄여 한 줄에 맞춘다.
+                Text(verbatim: Self.englishMonth(shown.month))
+                    .font(.custom(CupHero.fontName, fixedSize: size * 1.3))
+                    .minimumScaleFactor(0.4)
+            } else {
+                Text("\(number)월")
+                    .font(AppFont.pretendardFixed(size * 0.58, .black))
+            }
             subtitle(size: size * 0.27)
+                .fixedSize()
         }
         .lineLimit(1)
         .offset(x: -8)
@@ -162,13 +170,26 @@ struct MonthTrendsView: View {
         .accessibilityAddTraits(.isHeader)
     }
 
+    /// 앱이 영어로 떠 있으면 머리에 달 이름을 쓴다. 한국어·중국어는 숫자 + 월/月.
+    private static var namesMonths: Bool {
+        Bundle.main.preferredLocalizations.first?.hasPrefix("en") == true
+    }
+
+    private static func englishMonth(_ month: Int) -> String {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.locale = Locale(identifier: "en_US")
+        let names = calendar.standaloneMonthSymbols
+        return names.indices.contains(month - 1) ? names[month - 1] : "\(month)"
+    }
+
     /// 프로토 `-webkit-text-stroke: 3px; paint-order: stroke fill` = 글자 바깥 1.5 pt 윤곽. 같은 줄을 8방향으로 밀어 깐다.
     private func subtitle(size: CGFloat) -> some View {
         let labelColor = isSugar ? Color.white : Self.kainBrown
         let strokeColor = isSugar ? Color.ink : Color.white
         let year = shown.year == today.year ? Text(verbatim: "") : Text(verbatim: " · \(shown.year)")
-        let face = Text("먹은 \(Text(side.label).font(AppFont.pretendardFixed(size, .extraBold)).foregroundColor(labelColor))") + year
-        let edge = Text("먹은 \(Text(side.label).font(AppFont.pretendardFixed(size, .extraBold)).foregroundColor(strokeColor))") + year
+        let lead = Self.namesMonths ? Text(verbatim: "· ") : Text(verbatim: "")
+        let face = lead + Text("먹은 \(Text(side.label).font(AppFont.pretendardFixed(size, .extraBold)).foregroundColor(labelColor))") + year
+        let edge = lead + Text("먹은 \(Text(side.label).font(AppFont.pretendardFixed(size, .extraBold)).foregroundColor(strokeColor))") + year
         return ZStack(alignment: .leading) {
             ForEach(0..<8, id: \.self) { index in
                 let angle: Double = Double(index) * Double.pi / 4

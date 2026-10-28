@@ -178,7 +178,10 @@ struct LevelUpFigure {
         let photo = IdlePhoto(slot: size)
         let scale: Double = photo.height * side.idleCast.scalePerPhotoHeight
         self.painter = painter
-        r = scale / painter.scale
+        // 로슈 정면(stand)은 캔버스가 작은 그림(키 943px, 다른 자세는 약 1550px)이라 그림 px 그대로면 60% 크기로 선다
+        // (베타 피드백 빌드 342 "너무 작음"). 무대 px를 걷기 그림 기준으로 환산해 다른 자세와 같은 키로 세운다.
+        let unit: Double = side == .sugar ? (IntroRig.roshuWalkArt?.scale ?? painter.scale) : painter.scale
+        r = scale / unit
         // 선물 들고 오기와 같은 발 높이(대표님 2026-10-27 잔 앞으로 .012 내림).
         let dy: Double = side == .sugar ? 0.024 : 0.028
         base = photo.point(0.5, side.idleCast.bottom + dy)

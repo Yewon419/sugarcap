@@ -265,7 +265,7 @@ struct FeedingView: View {
                     .accessibilityIdentifier("feeding-cup")
                 }
 
-                // 튜토리얼 덮개: 컵(누를 차례에만)과 캐릭터만 뚫어 두고 나머지를 어둡게. 제목·방울은 덮개 위라 밝게 남는다.
+                // 튜토리얼 덮개: 컵(누를 차례에만)과 캐릭터 자리만 밝게 두고 나머지를 어둡게(가장자리는 부드럽게). 제목·방울은 덮개 위라 밝게 남는다.
                 if isCoaching {
                     CoachDim(holes: coachHoles(proxy))
                         .transition(.opacity)
@@ -383,35 +383,38 @@ struct FeedingView: View {
                 .tracking(1.3)
                 .foregroundStyle(Color.nightKicker)
                 .padding(.top, 28)
-            HStack(alignment: .firstTextBaseline, spacing: 0) {
-                Text(AttributedString.heroDigits(Amount.number(stage == .eaten ? 0 : left)))
-                    .heroNumber()
-                    .contentTransition(.numericText(countsDown: true))
-                Text(side.unit)
-                    .heroUnit()
-                    .padding(.leading, 2)
-            }
-            .foregroundStyle(.white)
-            .animation(.easeOut(duration: 0.5), value: stage)
-            Group {
-                if let smallCaption {
-                    Text("남은 \(side.label) · \(smallCaption)")
-                } else {
-                    Text("남은 \(side.label)")
+            // 첫 먹이기 튜토리얼은 큰 숫자 대신 그 자리에 안내를 둔다(베타 피드백 빌드 342: 숫자 아래 안내가 컵과 겹쳐 안 읽힘).
+            if coach == nil {
+                HStack(alignment: .firstTextBaseline, spacing: 0) {
+                    Text(AttributedString.heroDigits(Amount.number(stage == .eaten ? 0 : left)))
+                        .heroNumber()
+                        .contentTransition(.numericText(countsDown: true))
+                    Text(side.unit)
+                        .heroUnit()
+                        .padding(.leading, 2)
                 }
+                .foregroundStyle(.white)
+                .animation(.easeOut(duration: 0.5), value: stage)
+                Group {
+                    if let smallCaption {
+                        Text("남은 \(side.label) · \(smallCaption)")
+                    } else {
+                        Text("남은 \(side.label)")
+                    }
+                }
+                .font(AppFont.pretendard(13, .regular, relativeTo: .footnote))
+                .tracking(0.3)
+                .lineSpacing(4)
+                .foregroundStyle(.white.opacity(0.78))
+                .padding(.top, 8)
+                .fixedSize(horizontal: false, vertical: true)
             }
-            .font(AppFont.pretendard(13, .regular, relativeTo: .footnote))
-            .tracking(0.3)
-            .lineSpacing(4)
-            .foregroundStyle(.white.opacity(0.78))
-            .padding(.top, 8)
-            .fixedSize(horizontal: false, vertical: true)
             if let coach {
                 Text(coach)
-                    .font(AppFont.pretendard(21, .semibold, relativeTo: .title3))
+                    .font(AppFont.pretendard(24, .bold, relativeTo: .title2))
                     .lineSpacing(5)
                     .foregroundStyle(.white)
-                    .padding(.top, 18)
+                    .padding(.top, 14)
                     .fixedSize(horizontal: false, vertical: true)
                     .transition(.opacity)
                     .accessibilityIdentifier("feeding-coach")
@@ -864,7 +867,9 @@ private struct NightScrim: View {
     }
 }
 
-/// 첫 먹이기 튜토리얼 덮개(2026-10-27). 화면을 단색으로 낮추고 `holes`(화면 좌표)만 뚫는다. 가장자리는 또렷하게(에어브러시 금지).
+/// 첫 먹이기 튜토리얼 덮개(2026-10-27). 화면을 낮추고 `holes`(화면 좌표)만 밝게 남긴다.
+/// 구멍 가장자리는 부드럽게 번진다(베타 피드백 빌드 342 대표님 "누끼 따지 말고 가장자리만 부드럽게 어둡게",
+/// "주변을 더 어둡게 해서 컵이랑 로슈만 밝게, 테두리 따지 마"). 에어브러시 금지 규칙보다 이 지시가 우선이다.
 /// 누르기는 그대로 아래 컵·방울로 간다.
 private struct CoachDim: View {
     struct Hole: Equatable {
@@ -874,13 +879,21 @@ private struct CoachDim: View {
 
     let holes: [Hole]
 
+    private static let dim = 0.74
+    /// 번지는 폭(pt). 번진 만큼 안쪽이 덜 밝아지지 않게 구멍을 그만큼 넓혀 뚫는다.
+    private static let feather: CGFloat = 26
+
     var body: some View {
         Canvas { context, size in
-            context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(.black.opacity(0.62)))
+            context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(.black.opacity(Self.dim)))
             context.blendMode = .destinationOut
-            for hole in holes {
-                let shape = RoundedRectangle(cornerRadius: hole.radius, style: .continuous).path(in: hole.rect)
-                context.fill(shape, with: .color(.black))
+            context.drawLayer { layer in
+                layer.addFilter(.blur(radius: Self.feather))
+                for hole in holes {
+                    let rect = hole.rect.insetBy(dx: -Self.feather * 0.5, dy: -Self.feather * 0.5)
+                    let shape = RoundedRectangle(cornerRadius: hole.radius + Self.feather * 0.5, style: .continuous).path(in: rect)
+                    layer.fill(shape, with: .color(.black))
+                }
             }
         }
         .compositingGroup()

@@ -154,8 +154,8 @@ jobs:
           shoot slide-70 light large -screenshotCupSlide 0.7
           shoot settings light large -initialTab settings
           shoot inventory light large -initialTab settings -screenshotInventory YES -screenshotCaps 12 -screenshotInventoryItems strawberry,coffee-bean,sugar-cube,cinnamon-stick
-          # 온보딩 릴(한 시각에 멈춰) + 하루 기준 두 단계(2 = 당, 3 = 카페인).
-          for at in 0.9 2.0 3.9 6.4 8.1 9.8 12.2 14.4; do
+          # 온보딩 영상(한 시각에 멈춰, 21.9 = 빼꼼) + 하루 기준 두 단계(2 = 당, 3 = 카페인).
+          for at in 1.0 4.1 6.7 9.3 11.9 14.5 17.1 18.9 21.9; do
             shoot "onboarding-reel-$at" light large -onboardingCompleted NO -onboardingReelAt "$at"
           done
           shoot onboarding-2 light large -onboardingCompleted NO -onboardingPage 2
@@ -407,7 +407,7 @@ jobs:
           shoot_en cup-hint large -screenshotCupHint YES
           shoot_en settings large -initialTab settings
           shoot_en settings-type-ax-xl accessibility-extra-large -initialTab settings
-          for at in 0.9 2.0 3.9 6.4 8.1 9.8 12.2 14.4; do
+          for at in 1.0 4.1 6.7 9.3 11.9 14.5 17.1 18.9 21.9; do
             shoot_en "onboarding-reel-$at" large -onboardingCompleted NO -onboardingReelAt "$at"
           done
           shoot_en onboarding-2 large -onboardingCompleted NO -onboardingPage 2

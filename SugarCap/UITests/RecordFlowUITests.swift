@@ -236,7 +236,7 @@ extension RecordFlowUITests {
         XCTAssertTrue(replay.waitForExistence(timeout: 5), "닫기 후 설정으로 돌아와야 한다")
 
         Driver(app: app).tap(replay)
-        // 릴 7장은 화면을 누르면 한 장씩 넘어가고(onboarding-reel-next), 그 뒤 당 단계에서 "다음"(onboarding-next).
+        // 영상 8장면은 화면을 누르면 한 장면씩 넘어가고(onboarding-reel-next), 그 뒤 당 단계에서 "다음"(onboarding-next).
         let reelNext = app.buttons["onboarding-reel-next"]
         let next = app.buttons["onboarding-next"]
         let finish = app.buttons["onboarding-start"]

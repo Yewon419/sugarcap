@@ -1810,22 +1810,6 @@
         }
       }
     },
-    "단 걸 좋아하는 당신!" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You love sweet things!"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "喜歡甜食的你！"
-          }
-        }
-      }
-    },
     "단맛은 다섯 가지 기본 맛 중 하나예요.\n나머지 넷도 맛있긴 해요." : {
       "localizations" : {
         "en" : {
@@ -2402,22 +2386,6 @@
         }
       }
     },
-    "매일매일 음료를 기록하고" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Log your drinks every day"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "每天記錄飲料"
-          }
-        }
-      }
-    },
     "먹이기 바로 보기" : {
       "localizations" : {
         "en" : {
@@ -2638,22 +2606,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "設定目標"
-          }
-        }
-      }
-    },
-    "목표한 만큼 덜 마셔 봅시다" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "and drink less, just as you planned"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "照著目標少喝一點吧"
           }
         }
       }
@@ -3198,6 +3150,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "SUGARCAP PRO"
+          }
+        }
+      }
+    },
+    "슈가캡 소개 영상. 하루 당과 카페인을 기록하고, 정한 만큼 덜 마셔 봐요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SugarCap intro video. Log your daily sugar and caffeine, and drink less, just as you planned."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SugarCap 介紹影片。記錄每天的糖和咖啡因，照自己定的量少喝一點。"
           }
         }
       }
@@ -3970,22 +3938,6 @@
         }
       }
     },
-    "오늘의 분량을 남기면 어디로 가냐고요...?" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Where does what you leave go...?"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "省下今天的份量，會去哪裡呢...？"
-          }
-        }
-      }
-    },
     "오후 늦게 마신 커피는\n잠들 때까지 꽤 남아 있어요." : {
       "localizations" : {
         "en" : {
@@ -4014,22 +3966,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "完成"
-          }
-        }
-      }
-    },
-    "우리 함께 줄여나가요" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Let's cut back together"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "我們一起慢慢減少吧"
           }
         }
       }
@@ -5522,22 +5458,6 @@
         }
       }
     },
-    "카페인 없이 못 사는 당신!" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Can't live without caffeine?"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "沒有咖啡因就活不下去的你！"
-          }
-        }
-      }
-    },
     "카페인은\n얼마까지 마실래요?" : {
       "localizations" : {
         "en" : {
@@ -6078,22 +5998,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "糖\n一天要吃到多少？"
-          }
-        }
-      }
-    },
-    "하루에 당을 얼마나 먹고 계신지 아나요?" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Do you know how much sugar you have a day?"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "你知道自己一天吃了多少糖嗎？"
           }
         }
       }

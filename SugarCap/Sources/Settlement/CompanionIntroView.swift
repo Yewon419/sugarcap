@@ -3,7 +3,7 @@ import Combine
 import OSLog
 import SwiftUI
 
-/// 로슈·카인 소개(SPEC §4.7). 첫 마감(먹이기) 직전에 한 번만 나온다. 온보딩 마지막 질문 "오늘의 분량을 남기면 어디로 가냐고요...?"의 답이다.
+/// 로슈·카인 소개(SPEC §4.7). 첫 마감(먹이기) 직전에 한 번만 나온다. 온보딩 영상 마지막 문장 "오늘의 분량을 남기면 특별한 일이 생긴다던데..."의 답이다.
 /// v3(2026-10-27 대표님 확정): 방 조명 아래 매거진 지면을 근접 촬영한 8.2초 무음 영상. 시선이 지면을 훑다가 로슈(손 흔들기)·카인(사진에서
 /// 뛰어내려 뒤뚱 세 걸음)에서 멈춘다. 원본은 HyperFrames 프로젝트(`C:\hfwork\sugarcap-mag`)의 렌더(진행 막대·Skip은 빼고 렌더).
 /// 끝나면 버튼 없이 바로 먹이기 화면으로 넘어가고, 건너뛰기도 같은 곳으로 간다. 두 캐릭터 이름은 첫 먹이기 튜토리얼이 알려 준다.
@@ -84,8 +84,8 @@ struct CompanionIntroView: View {
     }
 }
 
-/// 영상 한 장을 화면 가득(가로는 잘림) 그린다. 컨트롤 없는 `AVPlayerLayer`.
-private struct IntroVideoLayer: UIViewRepresentable {
+/// 영상 한 장을 화면 가득(가로는 잘림) 그린다. 컨트롤 없는 `AVPlayerLayer`. 온보딩 영상도 같이 쓴다.
+struct IntroVideoLayer: UIViewRepresentable {
     let player: AVPlayer
 
     func makeUIView(context: Context) -> PlayerView {

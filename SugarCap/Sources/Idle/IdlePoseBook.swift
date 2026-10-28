@@ -291,6 +291,7 @@ enum IdlePoseBook {
         let shadow: RawShadow?
         let bubbles: RawBubbles?
         let away: RawAway?
+        let behindCup: Bool?
         let motion: [RawChannel]?
         let walk: IdleWalkStyle?
 
@@ -304,6 +305,7 @@ enum IdlePoseBook {
                 guard away.scale > 0, away.fade >= 0, away.fade < 1 else { throw BookError.badAway(pose: name) }
                 rule.away = IdleAway(scale: away.scale, fade: away.fade)
             }
+            rule.behindCup = behindCup ?? false
             if let bubbles {
                 guard bubbles.from.count == 2, bubbles.count > 0, bubbles.every > 0, bubbles.life > 0,
                       bubbles.gap >= 0, Double(bubbles.count - 1) * bubbles.gap < bubbles.every

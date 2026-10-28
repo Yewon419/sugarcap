@@ -56,6 +56,7 @@ ART_NORM: dict[str, dict[str, float]] = {
         "gift-carry": 0.891,
         "sugar-cube": 1.224,
         "guard-cup": 0.853,
+        "peek": 0.875,
     },
     "kain": {
         "rim-stand": 0.989,

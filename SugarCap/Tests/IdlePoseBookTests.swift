@@ -191,9 +191,9 @@ final class IdlePoseBookTests: XCTestCase {
     /// `awayPoses`로 묶이고, 다른 대기 자세보다 작으며, 반투명 대신 벽 색을 덮는다(투명도 1 그대로).
     func testSulkBackStandsSmallBehindCup() throws {
         let set = try XCTUnwrap(IdleCast.roshu.poseSet)
-        // 잔 뒤에서 빼꼼(peek, 2026-10-27)도 잔 뒤 자세라 같이 묶인다.
-        XCTAssertEqual(set.awayPoses, ["sulk-back", "peek"])
-        XCTAssertEqual(try XCTUnwrap(IdleCast.kain.poseSet).awayPoses, ["peek"])
+        // 빼꼼(peek)은 물러난 자세가 아니라 잔 바로 뒤에 숨기라 묶이지 않는다(대표님 2026-10-28).
+        XCTAssertEqual(set.awayPoses, ["sulk-back"])
+        XCTAssertEqual(try XCTUnwrap(IdleCast.kain.poseSet).awayPoses, [])
         let spec = try XCTUnwrap(set.poses["sulk-back"])
         XCTAssertEqual(spec.rule.art, "stand")
         XCTAssertEqual(spec.rule.opacity, 1)
@@ -217,6 +217,21 @@ final class IdlePoseBookTests: XCTestCase {
             )
             XCTAssertNotEqual(pose, "sulk-back")
         }
+    }
+
+    /// 빼꼼(대표님 2026-10-28 "원래 사이즈로 가 벽에 붙어있는거랑 별도야", "컵 앞에 로슈 손도 붙여야됨"):
+    /// 물러난 자세가 아니라 원래 크기 그대로 잔 바로 뒤에 숨고(벽 색 없음), 로슈는 잔 앞에 걸친 손 조각이 있다.
+    func testPeekHidesFullSizeRightBehindCup() throws {
+        for side in CupSide.allCases {
+            let spec = try XCTUnwrap(side.idleCast.poseSet?.poses["peek"])
+            XCTAssertTrue(spec.rule.behindCup, "\(side)")
+            XCTAssertNil(spec.rule.away, "\(side)")
+            let sprite = try XCTUnwrap(IdleSprite(side: side, pose: "peek", step: 50, size: slot))
+            XCTAssertEqual(sprite.scale, photo.height * side.idleCast.scalePerPhotoHeight, accuracy: 1e-9, "\(side)")
+        }
+        let hand = try XCTUnwrap(IdleRig.arts["roshu"]?["peek"]?.parts.first { $0.name == "hand" })
+        XCTAssertTrue(hand.isOverCup)
+        XCTAssertFalse(hand.isBack)
     }
 
     func testSugarCubeTiltsByComputation() throws {
@@ -311,8 +326,9 @@ final class IdlePoseBookTests: XCTestCase {
                 let sprite = try XCTUnwrap(IdleSprite(side: side, pose: name, step: 50, size: slot), name)
                 let m = IdleMotion.frame(sprite.spec, cast: sprite.cast, t: 0, photo: photo, walkBaseX: sprite.base.x)
                 let onBody = CGPoint(x: sprite.base.x + m.dx, y: sprite.base.y + m.dy - 4)
-                // 잔 뒤 물러난 자세는 누를 수 없다(대표님 2026-10-27 "건드려지지도 않게").
-                XCTAssertEqual(sprite.contains(onBody, t: 0), sprite.rule.away == nil, "\(side) \(name)")
+                // 잔 뒤 물러난 자세(대표님 2026-10-27 "건드려지지도 않게")와 잔 뒤에 숨은 빼꼼은 누를 수 없다.
+                let pokeable = sprite.rule.away == nil && !sprite.rule.behindCup
+                XCTAssertEqual(sprite.contains(onBody, t: 0), pokeable, "\(side) \(name)")
                 XCTAssertFalse(sprite.contains(CGPoint(x: -100, y: -100), t: 0), "\(side) \(name)")
             }
         }

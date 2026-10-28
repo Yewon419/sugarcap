@@ -396,6 +396,10 @@ struct IdleSprite {
             drawAway(away, in: context, m: m, blink: blink)
             return
         }
+        if rule.behindCup {
+            drawBehindCup(in: context, m: m, blink: blink)
+            return
+        }
         if let halo {
             var ring = context
             ring.clip(to: halo)
@@ -448,6 +452,22 @@ struct IdleSprite {
         }
     }
 
+    /// 잔 바로 뒤에 숨은 모습(빼꼼): 몸을 원래 색 그대로 한 층에 그려 잔 누끼만큼 지우고, 잔 앞 조각(로슈 손)은
+    /// 지우지 않고 잔 위에 그린다. 손은 잔을 잡고 있어 몸이 옆으로 미끄러져도(dx) 제자리다.
+    private func drawBehindCup(in context: GraphicsContext, m: IdleFrame, blink: Double) {
+        context.drawLayer { layer in
+            drawParts(in: placed(layer, m: m, flinch: 0), m: m, blink: blink)
+            layer.blendMode = .destinationOut
+            layer.draw(Image(cutout), in: photo.rect)
+        }
+        var still = m
+        still.dx = 0
+        let front = placed(context, m: still, flinch: 0)
+        for part in art.parts where part.isOverCup {
+            drawLimb(part, in: front, m: still)
+        }
+    }
+
     private func frame(_ t: Double) -> IdleFrame {
         var m = IdleMotion.frame(spec, cast: cast, t: t, photo: photo, walkBaseX: base.x)
         if acrossCup {
@@ -476,9 +496,9 @@ struct IdleSprite {
     private static let flinchWiden = 0.035
 
     /// 화면 위 점이 시각 t의 캐릭터 위인지. 그림 틀을 놓인 자리로 옮긴 사각형에 손가락 여유를 둔다.
-    /// 잔 뒤 물러난 자세는 누를 수 없다.
+    /// 잔 뒤 물러난 자세와 잔 뒤에 숨은 자세(빼꼼)는 누를 수 없다.
     func contains(_ point: CGPoint, t: Double) -> Bool {
-        guard rule.away == nil else { return false }
+        guard rule.away == nil, !rule.behindCup else { return false }
         return transformed(m: frame(t)).insetBy(dx: -8, dy: -8).contains(point)
     }
 

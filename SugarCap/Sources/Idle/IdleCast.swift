@@ -21,6 +21,9 @@ struct IdlePoseRule: Sendable {
     var bubbles: IdleBubbles?
     /// 잔 뒤 멀리 물러나 있기(`IdleAway`). 있으면 누를 수 없고, 앱을 다시 켤 때까지 다른 자세로 안 바뀐다.
     var away: IdleAway?
+    /// 잔 바로 뒤에 원래 크기로 숨기(빼꼼, 대표님 2026-10-28). 몸은 잔 누끼로 지워지고 누를 수 없다.
+    /// 잔 앞 조각(z `cup`)은 지우지 않고 잔 위에 그리며, 몸의 가로 미끄러짐(dx)을 따르지 않는다.
+    var behindCup = false
 
     func allows(step: Int) -> Bool {
         if let maxStep, step > maxStep { return false }

@@ -17,14 +17,16 @@ struct IdleArt: Sendable {
         let isOverlay: Bool
         /// 계산으로 기울이는 소품 정육면체의 면(`IdleCube`). 캐릭터 밑에 따로 그린다.
         let isCube: Bool
+        /// 잔 앞에 걸친 조각(빼꼼 로슈 손). 잔 뒤 자세(`IdlePoseRule.behindCup`)에서 지우지 않고 잔 위에 따로 그린다.
+        let isOverCup: Bool
         let frame: CGRect
         let pivot: CGPoint
 
         /// 발은 바닥 층이라 몸이 숨 쉬거나 까치발을 해도 제자리다.
-        var isFoot: Bool { !isOverlay && !isCube && name.hasPrefix("foot") }
+        var isFoot: Bool { !isOverlay && !isCube && !isOverCup && name.hasPrefix("foot") }
 
         /// 몸 뒤에 그리는 팔다리.
-        var isBack: Bool { !isFront && !isOverlay && !isCube }
+        var isBack: Bool { !isFront && !isOverlay && !isCube && !isOverCup }
     }
 
     let bbox: CGRect
@@ -160,10 +162,12 @@ enum IdleRig {
                 },
                 body: try IdleRig.frame(body),
                 parts: try parts.map { part in
-                    guard ["back", "front", "overlay", "cube"].contains(part.z) else { throw RigError.badLayer(part.z) }
+                    guard ["back", "front", "overlay", "cube", "cup"].contains(part.z) else {
+                        throw RigError.badLayer(part.z)
+                    }
                     return IdleArt.Part(
                         name: part.name, isFront: part.z == "front", isOverlay: part.z == "overlay",
-                        isCube: part.z == "cube",
+                        isCube: part.z == "cube", isOverCup: part.z == "cup",
                         frame: try IdleRig.frame(part.frame), pivot: try IdleRig.point(part.pivot)
                     )
                 },

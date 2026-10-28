@@ -314,6 +314,10 @@ jobs:
           shoot idle-roshu-sugar-cube-rest light large -idlePose sugar-cube-left -idleStep 100 -idleAt 0
           shoot idle-roshu-sulk-back light large -idlePose sulk-back -idleStep 100 -idleAt 1.0
           shoot idle-roshu-sulk-back-30 light large -idlePose sulk-back -idleStep 30 -idleAt 1.0
+          shoot idle-roshu-peek light large -idlePose peek -idleStep 100 -idleAt 1.3
+          shoot idle-roshu-peek-rest light large -idlePose peek -idleStep 100 -idleAt 4.0
+          shoot idle-kain-peek light large -screenshotSide caffeine -idlePose peek -idleStep 100 -idleAt 1.3
+          shoot idle-kain-peek-rest light large -screenshotSide caffeine -idlePose peek -idleStep 100 -idleAt 4.0
           # 초코 프라페 잔(§4.10 Phase 1). 대기 자세가 프라페 잔 치수(바닥·입구)에 서는지 본다. 잔은 Debug 인자로 켠다.
           shoot frappe-in-cup-50 light large -cupSet.sugar choco-frappe -idlePose in-cup -idleStep 50 -idleAt 2.5
           shoot frappe-in-cup-30 light large -cupSet.sugar choco-frappe -idlePose in-cup -idleStep 30 -idleAt 2.5

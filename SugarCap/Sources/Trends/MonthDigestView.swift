@@ -10,6 +10,12 @@ struct MonthDigestView: View {
     /// 보는 달의 1일.
     let shown: DayKey
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    /// 시간대 1위 사진 숫자. 큰 글자를 따라 다른 칸 숫자와 같이 커진다.
+    @ScaledMetric(relativeTo: .title3) private var slotTopSize: CGFloat = 36
+    /// 순위 숫자 칸 폭.
+    @ScaledMetric(relativeTo: .title2) private var rankWidth: CGFloat = 30
+
     static func background(_ side: CupSide) -> Color {
         switch side {
         case .sugar: return .white
@@ -17,7 +23,10 @@ struct MonthDigestView: View {
         }
     }
 
-    private static let latte = Color(red: 0xE3 / 255, green: 0xC2 / 255, blue: 0x9F / 255)
+    /// 시간대 섹션 스크롤 위치(Debug `-trendMonthDigest slots`).
+    static let slotsID = "month-digest-slots"
+
+    private static let latte =Color(red: 0xE3 / 255, green: 0xC2 / 255, blue: 0x9F / 255)
     private static let appCalendar: Calendar = {
         var calendar = Calendar(identifier: .gregorian)
         calendar.locale = Locale(identifier: Bundle.main.preferredLocalizations.first ?? "ko")
@@ -39,6 +48,7 @@ struct MonthDigestView: View {
             } else {
                 section("많이 먹은 음료") { topDrinks }
                 section("시간대") { slots }
+                    .id(Self.slotsID)
                 section("요일별 하루 평균") { weekdays }
                 section("기준 안에서 끝낸 날") { kept }
                 section("최근 6개월 하루 평균") { recent }
@@ -51,7 +61,7 @@ struct MonthDigestView: View {
     private func section<Content: View>(_ title: LocalizedStringKey, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(title)
-                .font(AppFont.pretendardFixed(13, .bold))
+                .font(AppFont.pretendard(13, .bold, relativeTo: .subheadline))
                 .foregroundStyle(dim)
                 .accessibilityAddTraits(.isHeader)
             content()
@@ -64,14 +74,14 @@ struct MonthDigestView: View {
 
     private var empty: some View {
         Text("기록 없음")
-            .font(AppFont.pretendardFixed(14, .medium))
+            .font(AppFont.pretendard(14, .medium, relativeTo: .subheadline))
             .foregroundStyle(dim)
             .padding(.top, 10)
     }
 
     private func figure(_ number: String, unit: String, size: CGFloat) -> Text {
-        Text(verbatim: number).font(.custom(CupHero.fontName, fixedSize: size))
-            + Text(verbatim: unit).font(AppFont.pretendardFixed(size * 0.5, .bold))
+        Text(verbatim: number).font(.custom(CupHero.fontName, size: size, relativeTo: .title3))
+            + Text(verbatim: unit).font(AppFont.pretendard(size * 0.5, .bold, relativeTo: .caption))
     }
 
     private func percent(_ part: Double, of whole: Double) -> Int {
@@ -121,7 +131,7 @@ struct MonthDigestView: View {
                     .foregroundStyle(dim)
             }
             Text(verbatim: unit)
-                .font(AppFont.pretendardFixed(18, .extraBold))
+                .font(AppFont.pretendard(18, .extraBold, relativeTo: .headline))
         }
     }
 
@@ -131,12 +141,12 @@ struct MonthDigestView: View {
             VStack(alignment: alignment, spacing: 2) {
                 if let title {
                     Text(verbatim: title)
-                        .font(AppFont.pretendardFixed(16, .extraBold))
+                        .font(AppFont.pretendard(16, .extraBold, relativeTo: .body))
                         .lineLimit(1)
                 }
                 if let detail {
                     detail
-                        .font(AppFont.pretendardFixed(12, .regular))
+                        .font(AppFont.pretendard(12, .regular, relativeTo: .caption))
                         .foregroundStyle(dim)
                         .lineLimit(1)
                 }
@@ -174,23 +184,23 @@ struct MonthDigestView: View {
         return VStack(spacing: 8) {
             HStack(alignment: .center, spacing: 10) {
                 Text(verbatim: "\(rank)")
-                    .font(.custom(CupHero.fontName, fixedSize: 26))
+                    .font(.custom(CupHero.fontName, size: 26, relativeTo: .title2))
                     .foregroundStyle(dim)
-                    .frame(width: 30, alignment: .leading)
+                    .frame(width: rankWidth, alignment: .leading)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(verbatim: drink.name)
-                        .font(AppFont.pretendardFixed(16, .bold))
-                        .lineLimit(1)
+                        .font(AppFont.pretendard(16, .bold, relativeTo: .body))
+                        .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
                     meta
-                        .font(AppFont.pretendardFixed(12, .regular))
+                        .font(AppFont.pretendard(12, .regular, relativeTo: .caption))
                         .foregroundStyle(dim)
-                        .lineLimit(1)
+                        .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
                 }
                 Spacer(minLength: 8)
                 VStack(alignment: .trailing, spacing: 0) {
                     figure(Amount.number(drink.amount.rounded()), unit: side.unit, size: 22)
                     Text(verbatim: "\(percent(drink.amount, of: digest.total))%")
-                        .font(AppFont.pretendardFixed(12, .regular))
+                        .font(AppFont.pretendard(12, .regular, relativeTo: .caption))
                         .foregroundStyle(dim)
                 }
             }
@@ -201,7 +211,7 @@ struct MonthDigestView: View {
                 }
             }
             .frame(height: 3)
-            .padding(.leading, 40)
+            .padding(.leading, rankWidth + 10)
         }
         .padding(.vertical, 12)
         .accessibilityElement(children: .combine)
@@ -230,7 +240,12 @@ struct MonthDigestView: View {
                     hero("\(percent(digest.late, of: digest.total))", unit: "%", title: String(localized: "오후 2시 이후"))
                 }
                 // 네 칸 같은 폭. 칸마다 숫자(바닥 맞춤) · 자기 막대 · 이름이 같은 세로줄에 선다.
-                HStack(alignment: .top, spacing: 10) {
+                // 큰 글자(접근성 크기)에서는 영어 "Afternoon"이 칸을 넘으니 2×2로 쌓는다(대표님 2026-10-29).
+                let columns = Array(
+                    repeating: GridItem(.flexible(), spacing: 10, alignment: .topLeading),
+                    count: dynamicTypeSize.isAccessibilitySize ? 2 : 4
+                )
+                LazyVGrid(columns: columns, alignment: .leading, spacing: 18) {
                     ForEach(MonthDigest.Slot.allCases, id: \.rawValue) { slot in
                         let on = slot.rawValue == top
                         let share = digest.slots[slot.rawValue] / digest.total
@@ -238,12 +253,12 @@ struct MonthDigestView: View {
                         VStack(alignment: .leading, spacing: 0) {
                             Group {
                                 if on {
-                                    photoNumber(label, size: 36)
+                                    photoNumber(label, size: slotTopSize)
                                 } else {
-                                    Text(verbatim: label).font(.custom(CupHero.fontName, fixedSize: 20))
+                                    Text(verbatim: label).font(.custom(CupHero.fontName, size: 20, relativeTo: .title3))
                                 }
                             }
-                            .frame(maxWidth: .infinity, minHeight: 40, alignment: .bottomLeading)
+                            .frame(maxWidth: .infinity, minHeight: slotTopSize * 1.1, alignment: .bottomLeading)
                             GeometryReader { proxy in
                                 ZStack(alignment: .leading) {
                                     faint
@@ -257,7 +272,7 @@ struct MonthDigestView: View {
                             .padding(.top, 8)
                             .padding(.bottom, 6)
                             slotName(slot)
-                                .font(AppFont.pretendardFixed(12, on ? .bold : .regular))
+                                .font(AppFont.pretendard(12, on ? .bold : .regular, relativeTo: .caption))
                                 .foregroundStyle(on ? fg : dim)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -281,7 +296,7 @@ struct MonthDigestView: View {
                 DashedRule().stroke(fg.opacity(0.55), style: StrokeStyle(lineWidth: 1.5, dash: [4, 3]))
                     .frame(width: 16, height: 1.5)
                 Text("하루 기준 \(Amount.number(limit))\(side.unit)")
-                    .font(AppFont.pretendardFixed(11, .semibold))
+                    .font(AppFont.pretendard(11, .semibold, relativeTo: .caption2))
                     .foregroundStyle(dim)
             }
             .padding(.top, 16)
@@ -292,7 +307,7 @@ struct MonthDigestView: View {
                         Spacer(minLength: 0)
                         if let value = values[index] {
                             Text(verbatim: Amount.number(value.rounded()))
-                                .font(AppFont.pretendardFixed(11, .bold))
+                                .font(AppFont.pretendard(11, .bold, relativeTo: .caption2))
                                 .foregroundStyle(on ? fg : dim)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.7)
@@ -302,7 +317,7 @@ struct MonthDigestView: View {
                             .frame(height: peak > 0 ? height * scale * value / peak : 0)
                         } else {
                             Text(verbatim: "–")
-                                .font(AppFont.pretendardFixed(11, .bold))
+                                .font(AppFont.pretendard(11, .bold, relativeTo: .caption2))
                                 .foregroundStyle(dim)
                             DashedRule().stroke(lo, style: StrokeStyle(lineWidth: 2, dash: [3, 3]))
                                 .frame(height: 2)
@@ -330,8 +345,10 @@ struct MonthDigestView: View {
             HStack(spacing: 8) {
                 ForEach(labels.indices, id: \.self) { index in
                     Text(verbatim: labels[index])
-                        .font(AppFont.pretendardFixed(12, index == highlight ? .bold : .regular))
+                        .font(AppFont.pretendard(12, index == highlight ? .bold : .regular, relativeTo: .caption))
                         .foregroundStyle(index == highlight ? fg : dim)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
                         .frame(maxWidth: .infinity)
                 }
             }
@@ -361,7 +378,7 @@ struct MonthDigestView: View {
                     .stroke(dim, style: StrokeStyle(lineWidth: 1.4, lineJoin: .round))
                     .frame(width: 10, height: 13)
                 Text("하루 기준 \(Amount.number(limit))\(side.unit)")
-                    .font(AppFont.pretendardFixed(11, .semibold))
+                    .font(AppFont.pretendard(11, .semibold, relativeTo: .caption2))
                     .foregroundStyle(dim)
             }
             .padding(.top, 16)
@@ -371,7 +388,7 @@ struct MonthDigestView: View {
                     let value = values[index]
                     VStack(spacing: 0) {
                         Text(verbatim: value.map { Amount.number($0.rounded()) } ?? "–")
-                            .font(AppFont.pretendardFixed(11, .bold))
+                            .font(AppFont.pretendard(11, .bold, relativeTo: .caption2))
                             .foregroundStyle(on || (value ?? 0) > limit ? fg : dim)
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
@@ -379,8 +396,10 @@ struct MonthDigestView: View {
                         cup(value: value, on: on)
                             .aspectRatio(3 / 4, contentMode: .fit)
                         Text(verbatim: labels[index])
-                            .font(AppFont.pretendardFixed(12, on ? .bold : .regular))
+                            .font(AppFont.pretendard(12, on ? .bold : .regular, relativeTo: .caption))
                             .foregroundStyle(on ? fg : dim)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.6)
                             .padding(.top, 6)
                     }
                     .frame(maxWidth: .infinity)
@@ -436,7 +455,7 @@ struct MonthDigestView: View {
                 .padding(.top, 16)
                 .accessibilityHidden(true)
                 Text("하루 기준 \(Amount.number(limit))\(side.unit)")
-                    .font(AppFont.pretendardFixed(12, .regular))
+                    .font(AppFont.pretendard(12, .regular, relativeTo: .caption))
                     .foregroundStyle(dim)
                     .padding(.top, 10)
             }

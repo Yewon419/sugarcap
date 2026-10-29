@@ -356,8 +356,10 @@ struct TrendsView: View {
                     Text("\(month)월 \(side.label) 통계")
                 }
             }
-            .font(AppFont.pretendardFixed(15, .bold))
-                .accessibilityAddTraits(.isHeader)
+            .font(AppFont.pretendard(15, .bold, relativeTo: .headline))
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+            .accessibilityAddTraits(.isHeader)
         }
     }
 

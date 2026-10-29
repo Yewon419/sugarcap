@@ -421,18 +421,26 @@ struct MonthTrendsView: View {
         .accessibilityIdentifier("month-digest-more")
     }
 
-    /// Debug `-trendMonthDigest top|end` = 들어오자마자 통계 맨 위·맨 아래로 내려간 화면(CI 스크린샷).
+    /// Debug `-trendMonthDigest top|slots|end` = 들어오자마자 통계 맨 위·시간대(화면 가운데)·맨 아래로 내려간 화면(CI 스크린샷).
     private func scrollToDigestForScreenshot(_ reader: ScrollViewProxy) {
         #if DEBUG
         let target: String
+        let anchor: UnitPoint
         switch UserDefaults.standard.string(forKey: "trendMonthDigest") {
-        case "top": target = Self.digestID
-        case "end": target = Self.digestEndID
+        case "top":
+            target = Self.digestID
+            anchor = .top
+        case "slots":
+            target = MonthDigestView.slotsID
+            anchor = .center
+        case "end":
+            target = Self.digestEndID
+            anchor = .bottom
         default: return
         }
         Task { @MainActor in
             try? await Task.sleep(for: .milliseconds(300))
-            reader.scrollTo(target, anchor: target == Self.digestID ? .top : .bottom)
+            reader.scrollTo(target, anchor: anchor)
         }
         #endif
     }

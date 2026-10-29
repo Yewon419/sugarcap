@@ -358,8 +358,9 @@ struct TrendsView: View {
             }
             .font(AppFont.pretendard(15, .bold, relativeTo: .headline))
             .lineLimit(1)
-            .minimumScaleFactor(0.6)
-            // 막대 안은 접근성 크기까지 키우지 않는다. 토글과 같이 커지면 영어 제목이 잘린다(2026-10-29).
+            // 막대 안은 접근성 크기까지 키우지 않는다. 주↔월 토글 글자는 UIKit 외형 설정(최대 24pt)이라
+            // 여기서 못 줄이니, 큰 글자에서 "October · Caffeine stats"가 잘리지 않게 제목을 더 줄인다(2026-10-29).
+            .minimumScaleFactor(0.5)
             .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
             .accessibilityAddTraits(.isHeader)
         }
@@ -384,7 +385,6 @@ struct TrendsView: View {
             Text("월").tag(TrendRange.month)
         }
         .pickerStyle(.segmented)
-        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
         .fixedSize()
         .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { coachFrames[.range] = $0 }
         .accessibilityHint(pro.isPro ? "" : String(localized: "슈가캡 Pro에서 월 추이를 볼 수 있어요"))

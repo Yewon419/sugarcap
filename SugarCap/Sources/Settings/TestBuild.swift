@@ -41,6 +41,8 @@ enum SettingsTestAction {
     case firstRun
     /// 보고 있는 면의 다음 호감도 단계 레벨업 무대를 저장 없이 연다.
     case levelUp
+    /// 거래 제안을 저장 없이 보낸다. 캐릭터가 상자를 들고 오고, 바꾸면 잔만 바뀐다(병뚜껑·제안 기록은 그대로).
+    case trade
 }
 
 /// 테스트 카드에서 고른 대기 자세(TestFlight·Debug). 캐릭터 id("roshu", "kain") → 자세 이름.

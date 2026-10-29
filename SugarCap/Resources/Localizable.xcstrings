@@ -857,6 +857,38 @@
         }
       }
     },
+    "%@ 잔" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ cup"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@的杯子"
+          }
+        }
+      }
+    },
+    "거래 제안 바로 보기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show trade offer now"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "直接看交換提議"
+          }
+        }
+      }
+    },
     "%@ 대기 자세" : {
       "localizations" : {
         "en" : {

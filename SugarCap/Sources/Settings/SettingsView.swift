@@ -60,6 +60,8 @@ private struct SettingsContent: View {
     @State private var isTestBuild = false
     @State private var confirmsFirstRun = false
     @AppStorage(CloseReminder.enabledKey) private var isReminderOn = false
+    @AppStorage("cupSet.sugar") private var testSugarCupSet: String?
+    @AppStorage("cupSet.caffeine") private var testCaffeineCupSet: String?
     /// 별명(호감도 Lv7부터, §4.9 2026-10-11). 저장은 기기 설정이라 바꾸면 `renamed`로 행을 다시 그린다.
     @State private var namingSide: CupSide?
     @State private var nicknameDraft = ""
@@ -315,6 +317,9 @@ private struct SettingsContent: View {
             Button("레벨업 무대 바로 보기") { onTestAction(.levelUp) }
                 .font(AppFont.pretendard(16, .regular, relativeTo: .body))
                 .accessibilityIdentifier("test-level-up")
+            Button("거래 제안 바로 보기") { onTestAction(.trade) }
+                .font(AppFont.pretendard(16, .regular, relativeTo: .body))
+                .accessibilityIdentifier("test-trade")
             Button("페이월 바로 보기") { showsPaywall = true }
                 .font(AppFont.pretendard(16, .regular, relativeTo: .body))
                 .accessibilityIdentifier("test-paywall")
@@ -329,6 +334,8 @@ private struct SettingsContent: View {
             affinityStepper(.caffeine)
             idlePosePicker(.sugar)
             idlePosePicker(.caffeine)
+            cupSetPicker(.sugar, selection: $testSugarCupSet)
+            cupSetPicker(.caffeine, selection: $testCaffeineCupSet)
             Button("첫 실행으로 되돌리기", role: .destructive) { confirmsFirstRun = true }
                 .font(AppFont.pretendard(16, .regular, relativeTo: .body))
                 .accessibilityIdentifier("test-first-run")
@@ -357,6 +364,25 @@ private struct SettingsContent: View {
         }
         .rowText()
         .accessibilityIdentifier("test-pose-\(side.rawValue)")
+    }
+
+    /// 가진 것과 상관없이 그 면의 잔을 고른다. 안 가진 잔은 앱을 다시 켜면 기본 잔으로 돌아간다(`CupSetChoice.dropUnowned`).
+    private func cupSetPicker(_ side: CupSide, selection: Binding<String?>) -> some View {
+        let items = TradeCatalog.items.filter { $0.side == side }
+        let binding = Binding(
+            get: { selection.wrappedValue.flatMap { TradeCatalog.item($0)?.side == side ? $0 : nil } ?? "" },
+            set: { selection.wrappedValue = $0.isEmpty ? nil : $0 }
+        )
+        return Picker(selection: binding) {
+            Text(side.defaultCupSetName).tag("")
+            ForEach(items) { item in
+                Text(item.name).tag(item.id)
+            }
+        } label: {
+            Text("\(side.characterName) 잔")
+        }
+        .rowText()
+        .accessibilityIdentifier("test-cup-\(side.rawValue)")
     }
 
     private func sendTestReminder() {

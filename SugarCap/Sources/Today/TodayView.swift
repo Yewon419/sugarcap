@@ -95,7 +95,7 @@ struct TodayView: View {
     @State private var leavingOffer: UUID?
     /// 바꾸기 성공 햅틱 신호.
     @State private var tradesAccepted = 0
-    /// CI 스크린샷·UI 테스트 전용 제안(Debug `-screenshotTrade`). 저장소에 넣지 않는다.
+    /// CI 스크린샷·UI 테스트(Debug `-screenshotTrade`)와 테스트 카드 "거래 제안 바로 보기"의 제안. 저장소에 넣지 않는다.
     @State private var screenshotOffer: TradeOffer?
 
     @Environment(ProStore.self) private var pro
@@ -657,11 +657,11 @@ struct TodayView: View {
     private func carriedOffer(for cupSide: CupSide) -> TradeOffer? {
         #if DEBUG
         if UserDefaults.standard.string(forKey: "idlePose") != nil { return nil }
+        #endif
         if let screenshotOffer, screenshotOffer.cupSide == cupSide,
            screenshotOffer.accepted == nil || screenshotOffer.id == leavingOffer {
             return screenshotOffer
         }
-        #endif
         return trades.first { $0.cupSide == cupSide && ($0.accepted == nil || $0.id == leavingOffer) }
     }
 
@@ -1441,6 +1441,13 @@ struct TodayView: View {
             let level = min(max(affinityLevel(side) + 1, 2), AffinityMath.maxLevel)
             let gift = GiftEvent(kind: .levelUp, side: side, level: level, createdAt: now)
             levelUp = LevelUpStage(gift: gift, side: side, level: level, startedAt: now)
+        case .trade:
+            // 켠 면의 상품 중 지금 안 쓰는 잔을 고른다. 바꾸면 잔만 바뀌고, 안 가진 잔은 앱을 다시 켜면 기본 잔으로 돌아간다.
+            let items = TradeCatalog.items.filter { trackedSides.contains($0.side) }
+            guard let item = items.filter({ $0.side.cupSetID != $0.id }).randomElement() ?? items.randomElement()
+            else { return }
+            screenshotOffer = TradeOffer(itemID: item.id, side: item.side, price: TradeMath.firstPrice, offeredAt: now)
+            pickedSide = item.side
         case .firstRun:
             // 루트가 완료 플래그를 지켜보다 온보딩으로 바꾼다. 기록·정산·호감도는 그대로다.
             UserDefaults.standard.removeObject(forKey: CompanionIntro.seenKey)

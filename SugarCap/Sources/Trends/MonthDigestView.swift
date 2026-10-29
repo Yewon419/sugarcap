@@ -26,7 +26,7 @@ struct MonthDigestView: View {
     /// 시간대 섹션 스크롤 위치(Debug `-trendMonthDigest slots`).
     static let slotsID = "month-digest-slots"
 
-    private static let latte =Color(red: 0xE3 / 255, green: 0xC2 / 255, blue: 0x9F / 255)
+    private static let latte = Color(red: 0xE3 / 255, green: 0xC2 / 255, blue: 0x9F / 255)
     private static let appCalendar: Calendar = {
         var calendar = Calendar(identifier: .gregorian)
         calendar.locale = Locale(identifier: Bundle.main.preferredLocalizations.first ?? "ko")

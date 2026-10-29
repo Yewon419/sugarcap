@@ -2,9 +2,12 @@
 # 잔이 아메리카노 원본과 같은 자리다(ECC 정합 배율 1.005, 어긋남 수 px). 그래서 정렬 없이
 # 아메리카노와 같은 변환(transforms.json, 100%는 "80")으로 9x16·가로를 자르고,
 # 누끼 알파·유리선은 같은 단계 아메리카노 것을 그대로 쓴다. 0%는 같은 잔이라 아메리카노 빈 잔을 복사한다.
+# 같은 방식으로 만든 다른 세트(말차 라떼 등)도 이 스크립트로 자른다: python make_latte.py <세트>
+# 원본은 <세트>/candidates/<단계>_a.png.
 import json
 import os
 import shutil
+import sys
 
 import numpy as np
 from PIL import Image, ImageFilter
@@ -13,7 +16,7 @@ CUPS = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ASSETS = os.path.join(
     CUPS, "..", "..", "..", "SugarCap", "Resources", "Assets.xcassets"
 )
-SET = "cafe-latte"
+SET = sys.argv[1] if len(sys.argv) > 1 else "cafe-latte"
 BASE = "iced-americano"
 WING = 300
 CONTENTS = '{\n  "images" : [\n    {\n      "filename" : "%s",\n      "idiom" : "universal"\n    }\n  ],\n  "info" : {\n    "author" : "xcode",\n    "version" : 1\n  }\n}\n'

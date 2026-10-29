@@ -43,6 +43,10 @@ struct TradeItem: Sendable, Identifiable {
         switch id {
         case "choco-frappe": return String(localized: "초코 프라페")
         case "cafe-latte": return String(localized: "카페라떼")
+        case "matcha": return String(localized: "말차 라떼")
+        case "mango": return String(localized: "망고 스무디")
+        case "einspanner": return String(localized: "아인슈페너")
+        case "grape": return String(localized: "청포도 에이드")
         default: return id
         }
     }
@@ -51,7 +55,11 @@ struct TradeItem: Sendable, Identifiable {
 /// 상품 목록(§4.10). 상품은 여기에만 더한다.
 /// 순서 = 튜토리얼 우선순위. 첫 선물(딸기)은 로슈가 주니까 첫 거래는 카인 차례다(대표님 2026-10-24).
 enum TradeCatalog {
-    static let items = [TradeItem(id: "cafe-latte", side: .caffeine), TradeItem(id: "choco-frappe", side: .sugar)]
+    static let items = [
+        TradeItem(id: "cafe-latte", side: .caffeine), TradeItem(id: "choco-frappe", side: .sugar),
+        TradeItem(id: "matcha", side: .caffeine), TradeItem(id: "mango", side: .sugar),
+        TradeItem(id: "einspanner", side: .caffeine), TradeItem(id: "grape", side: .sugar),
+    ]
 
     static func item(_ id: String) -> TradeItem? {
         items.first { $0.id == id }

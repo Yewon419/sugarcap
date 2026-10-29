@@ -338,6 +338,21 @@ jobs:
           shoot latte-no-swim-50 light large -cupSet.caffeine cafe-latte -screenshotSide caffeine -idlePose swim -idleStep 50 -idleAt 3.7
           shoot latte-walk-30 light large -cupSet.caffeine cafe-latte -screenshotSide caffeine -idlePose walk -idleStep 30 -idleAt 3.2
           shoot latte-feeding light large -cupSet.caffeine cafe-latte -screenshotSide caffeine -screenshotFeeding YES
+          # 말차 라떼·망고 스무디·아인슈페너·청포도 에이드(2026-10-29): 아메리카노 잔에 수위만 잔 높이 기준(1/4·절반·3/4·입구 아래).
+          # 말차·아인슈페너는 불투명해 헤엄을 뽑지 않는다(-idlePose swim을 줘도 다른 자세).
+          shoot matcha-rim-stand light large -cupSet.caffeine matcha -screenshotSide caffeine -idlePose rim-stand -idleStep 100 -idleAt 2.5
+          shoot matcha-no-swim-50 light large -cupSet.caffeine matcha -screenshotSide caffeine -idlePose swim -idleStep 50 -idleAt 3.7
+          shoot matcha-walk-30 light large -cupSet.caffeine matcha -screenshotSide caffeine -idlePose walk -idleStep 30 -idleAt 3.2
+          shoot matcha-feeding light large -cupSet.caffeine matcha -screenshotSide caffeine -screenshotFeeding YES
+          shoot einspanner-rim-stand light large -cupSet.caffeine einspanner -screenshotSide caffeine -idlePose rim-stand -idleStep 100 -idleAt 2.5
+          shoot einspanner-no-swim-80 light large -cupSet.caffeine einspanner -screenshotSide caffeine -idlePose swim -idleStep 80 -idleAt 3.7
+          shoot einspanner-feeding light large -cupSet.caffeine einspanner -screenshotSide caffeine -screenshotFeeding YES
+          shoot mango-in-cup-50 light large -cupSet.sugar mango -idlePose in-cup -idleStep 50 -idleAt 2.5
+          shoot mango-walk light large -cupSet.sugar mango -idlePose walk -idleStep 80 -idleAt 3.2
+          shoot mango-feeding light large -cupSet.sugar mango -screenshotFeeding YES
+          shoot grape-in-cup-30 light large -cupSet.sugar grape -idlePose in-cup -idleStep 30 -idleAt 2.5
+          shoot grape-watch light large -cupSet.sugar grape -idlePose watch -idleStep 100 -idleAt 2.5
+          shoot grape-feeding light large -cupSet.sugar grape -screenshotFeeding YES
           # 선물(SPEC §4.9): 로슈는 상자를 들고 걸어 들어오고, 카인은 위에서 떨어져 상자 옆에 앉는다.
           # 누르면(-giftOpenAt = 누른 뒤 초) 뚜껑이 열리며 조각이 터지고, 열쇠가 추이 버튼으로 날아가 버튼만 남기고 어두워진다.
           shoot gift-walk light large -screenshotGift trends -giftAt 1.4
@@ -380,6 +395,10 @@ jobs:
           shoot trade-card-ax-xl light accessibility-extra-large -screenshotTrade card -giftRevealAt 3
           shoot trade-wait-frappe light large -screenshotTrade offer -screenshotTradeItem choco-frappe -giftAt 3
           shoot trade-card-frappe light large -screenshotTrade card -screenshotTradeItem choco-frappe -giftRevealAt 3
+          shoot trade-card-matcha light large -screenshotTrade card -screenshotTradeItem matcha -giftRevealAt 3
+          shoot trade-card-mango light large -screenshotTrade card -screenshotTradeItem mango -giftRevealAt 3
+          shoot trade-card-einspanner light large -screenshotTrade card -screenshotTradeItem einspanner -giftRevealAt 3
+          shoot trade-card-grape light large -screenshotTrade card -screenshotTradeItem grape -giftRevealAt 3
           shoot starter-cap light large -screenshotSide caffeine -screenshotGift starterCap -screenshotGiftCard YES -screenshotGiftContent cap -giftRevealAt 3
           shoot trends-caps light large -initialTab trends -screenshotCaps 3
           # 기준 지킨 주 축하(2026-10-12): -weekKeptAt = 시작 뒤 초(가속 시계). 한 면: 0.8 글자 섞이는 중, 1.3 점프·팡파레.
@@ -421,6 +440,7 @@ jobs:
           shoot_en paywall large -mockPro YES -screenshotPaywall YES
           shoot_en gift-heart-offer large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotHearts 1 -giftRevealAt 3
           shoot_en levelup large -screenshotLevelUp 5 -levelUpAt 2.2
+          shoot_en trade-card-einspanner large -screenshotTrade card -screenshotTradeItem einspanner -giftRevealAt 3
           shoot_en gift-cap large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent cap -giftRevealAt 3
           shoot_en trade-card large -screenshotTrade card -giftRevealAt 3
           shoot_en trends-caps large -initialTab trends -screenshotCaps 3

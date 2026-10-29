@@ -6418,6 +6418,70 @@
         }
       }
     },
+    "말차 라떼" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Matcha Latte"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "抹茶拿鐵"
+          }
+        }
+      }
+    },
+    "망고 스무디" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mango Smoothie"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "芒果冰沙"
+          }
+        }
+      }
+    },
+    "아인슈페너" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einspänner"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "維也納咖啡"
+          }
+        }
+      }
+    },
+    "청포도 에이드" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Green Grape Ade"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "青葡萄氣泡飲"
+          }
+        }
+      }
+    },
     "병뚜껑 %lld개랑 바꿀래?" : {
       "localizations" : {
         "en" : {

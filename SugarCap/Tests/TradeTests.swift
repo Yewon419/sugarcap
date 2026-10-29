@@ -65,6 +65,13 @@ final class TradeTests: XCTestCase {
         XCTAssertEqual(CupSide.caffeine.idleCast.bottom, CupSetGeometry.icedAmericano.bottom, "아메리카노와 같은 잔")
         XCTAssertEqual(CupSetGeometry.hiddenPoses("cafe-latte"), ["swim", "swim-front"], "불투명한 라떼 속에선 헤엄 안 함")
         XCTAssertEqual(CupSetGeometry.hiddenPoses("iced-americano"), [])
+        XCTAssertEqual(CupSetGeometry.hiddenPoses("matcha"), ["swim", "swim-front"])
+        XCTAssertEqual(CupSetGeometry.hiddenPoses("einspanner"), ["swim", "swim-front"])
+        XCTAssertEqual(CupSetGeometry.hiddenPoses("grape"), [], "투명한 에이드 속에선 헤엄")
+
+        CupSetChoice.select("matcha", for: .caffeine)
+        XCTAssertEqual(CupSide.caffeine.idleCast.bottom, CupSetGeometry.icedAmericano.bottom, "아메리카노와 같은 잔")
+        XCTAssertEqual(CupSide.caffeine.idleCast.liquidTop(step: 50), 0.49, "수위는 그 잔 사진에서 잰 값")
 
         CupSetChoice.dropUnowned(owned: [])
         XCTAssertEqual(CupSide.caffeine.cupSetID, "iced-americano")
@@ -122,7 +129,7 @@ final class TradeTests: XCTestCase {
     }
 
     /// 튜토리얼 흐름(§4.10 초반 보상 고정): 2·3번째 마감 뒤 카인이 병뚜껑 상자 → 3번째 상자를 연 다음 날 카인의 카페라떼 →
-    /// 거절하면 3~4일 뒤 남은 상품(초코 프라페)이 같은 가격으로 → 수락하면 잔액이 줄고 다음은 2~4주 뒤 5개 → 다 사면 멈춤.
+    /// 거절하면 3~4일 뒤 다른 상품(초코 프라페)이 같은 가격으로 → 수락하면 잔액이 줄고 다음은 2~4주 뒤 5개.
     @MainActor
     func testStarterCapsLeadToTheFirstOfferTheNextDay() throws {
         let context = try makeContext()
@@ -162,15 +169,19 @@ final class TradeTests: XCTestCase {
             context.insert(GiftEvent(kind: .weekKept, side: .caffeine, payload: GiftContent.cap, createdAt: after, openedAt: after))
         }
         let third = try XCTUnwrap(try offer(at: after.addingTimeInterval(86_400), in: context))
-        XCTAssertEqual(third.itemID, "cafe-latte", "남은 건 라떼뿐")
+        XCTAssertEqual(third.itemID, "matcha", "산 프라페와 마지막으로 거절한 라떼를 뺀 목록의 첫 상품")
         XCTAssertEqual(third.price, TradeMath.laterPrice, "첫 거래 뒤로는 5")
         try TradeStore.accept(third, now: after.addingTimeInterval(86_400), roll: 0, in: context)
         XCTAssertEqual(try TradeStore.balance(in: context), 0)
+    }
 
-        for _ in 0 ..< 5 {
-            context.insert(GiftEvent(kind: .weekKept, side: .sugar, payload: GiftContent.cap, createdAt: after, openedAt: after))
-        }
-        XCTAssertNil(try offer(at: after.addingTimeInterval(30 * 86_400), in: context), "다 사면 제안이 멈춘다")
+    /// 목록을 다 사면 제안이 멈춘다.
+    func testOffersStopWhenEveryItemIsOwned() {
+        let owned = TradeCatalog.items.map { Record(itemID: $0.id, price: 5, accepted: true, nextOfferAt: Self.at(0)) }
+        let item = TradeMath.offerItem(
+            trades: owned, balance: 100, sides: Self.both, capDays: [], today: Self.day(Self.at(1)), now: Self.at(1), roll: 0
+        )
+        XCTAssertNil(item)
     }
 
     /// 카페인 면을 끈 사용자는 로슈가 병뚜껑을 가져오고 첫 제안도 로슈의 초코 프라페다.

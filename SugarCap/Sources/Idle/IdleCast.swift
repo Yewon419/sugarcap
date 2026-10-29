@@ -117,13 +117,17 @@ struct CupSetGeometry: Sendable {
         // 아메리카노 사진에서 음료만 바꾼 편집본이라 잔 자리·누끼가 같다.
         case "cafe-latte": return .icedAmericano
         case "choco-frappe": return .chocoFrappe
+        case "matcha": return .matcha
+        case "mango": return .mango
+        case "einspanner": return .einspanner
+        case "grape": return .grape
         default: return nil
         }
     }
 
     /// 이 잔에서 뽑지 않는 대기 자세. 음료가 불투명하면 음료 속 헤엄(`swim`·앞모습 `swim-front`)이 안 비쳐 뺀다(대표님 2026-10-25, 카페라떼).
     static func hiddenPoses(_ setID: String) -> Set<String> {
-        setID == "cafe-latte" ? ["swim", "swim-front"] : []
+        ["cafe-latte", "matcha", "einspanner"].contains(setID) ? ["swim", "swim-front"] : []
     }
 }
 
@@ -207,6 +211,18 @@ extension CupSetGeometry {
         liquid: [0: 0.75, 30: 0.6687, 50: 0.5522, 80: 0.419, 100: 0.3577],
         axis: [0: 0.4971, 30: 0.4971, 50: 0.4926, 80: 0.4937, 100: 0.496]
     )
+
+    // 말차 라떼·망고 스무디·아인슈페너·청포도 에이드(거래 상품, 2026-10-29)는 아메리카노 사진에서 음료만 바꾼 편집본이라
+    // 바닥·가장자리·가운데는 아메리카노 값이다. 수위는 잔 높이 기준(1/4·절반·3/4·입구 아래)으로 새로 뽑아
+    // 음료 윗면을 9x16 사진 가운데 열에서 눈으로 쟀다(자동 측정은 얼음·과일 윗면을 잡았다). 아인슈페너는 크림 윗면.
+    static let matcha = americanoGlass(liquid: [0: 0.87, 30: 0.60, 50: 0.49, 80: 0.413, 100: 0.36])
+    static let mango = americanoGlass(liquid: [0: 0.87, 30: 0.64, 50: 0.52, 80: 0.37, 100: 0.336])
+    static let einspanner = americanoGlass(liquid: [0: 0.87, 30: 0.51, 50: 0.43, 80: 0.32, 100: 0.30])
+    static let grape = americanoGlass(liquid: [0: 0.87, 30: 0.69, 50: 0.567, 80: 0.475, 100: 0.355])
+
+    private static func americanoGlass(liquid: [Int: Double]) -> CupSetGeometry {
+        CupSetGeometry(bottom: icedAmericano.bottom, rim: icedAmericano.rim, liquid: liquid, axis: icedAmericano.axis)
+    }
 }
 
 extension IdleCast {

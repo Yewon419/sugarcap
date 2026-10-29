@@ -80,10 +80,12 @@ struct MonthDigestView: View {
 
     /// 사진을 씌운 Anton 숫자. 글자 모양으로 사진을 오려 낸다.
     private func photoNumber(_ number: String, size: CGFloat) -> some View {
-        let text = Text(verbatim: number).font(.custom(CupHero.fontName, fixedSize: size))
+        // 옆 글자에 밀려 숫자가 두 줄로 쪼개지지 않게 한 줄 크기로 고정한다(CI 2,095 → "2,09 / 5" 사례).
+        let text = Text(verbatim: number).font(.custom(CupHero.fontName, fixedSize: size)).lineLimit(1)
         return text
             .hidden()
             .overlay { PhotoFill(side: side).mask { text } }
+            .fixedSize()
             .accessibilityElement()
             .accessibilityLabel(Text(verbatim: number))
     }

@@ -22,6 +22,8 @@ struct MonthTrendsView: View {
     let inventory: MonthInventory
     /// 지난해 12월까지 연 마음(이 면). 해가 바뀐 뒤 처음 들어오면 이것들이 터진다.
     let lastYearHearts: Int
+    /// 아래 통계가 화면 위까지 올라왔는지. 추이가 막대를 면 색으로 칠하고 제목을 띄운다.
+    @Binding var digestShown: Bool
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// 칸 번호 → 찍히는 차례. `filledFor`가 지금 달이 아니면 아직 안 찍었다.
@@ -50,15 +52,44 @@ struct MonthTrendsView: View {
         let change = MonthStats.change(
             entries: entries, boundaryHour: boundaryHour, year: shown.year, month: shown.month, today: today, side: side
         )
-        ZStack(alignment: .bottom) {
-            block(page: page, change: change)
-                .padding(.horizontal, 30)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .overlay { shakerLayer }
-                .background { photo }
-                .coordinateSpace(.named(Self.shakerSpace))
+        let digest = MonthDigest.make(
+            entries: entries, boundaryHour: boundaryHour, year: shown.year, month: shown.month, today: today, side: side,
+            limit: side.limit(limits), earliest: earliest
+        )
+        // 달력 한 화면 아래로 그 달 통계가 이어진다(2026-10-28 대표님 "밑으로 슬라이드하면 통계").
+        GeometryReader { proxy in
+            let insets = proxy.safeAreaInsets
+            ScrollViewReader { reader in
+                ScrollView {
+                    VStack(spacing: 0) {
+                        ZStack(alignment: .bottom) {
+                            block(page: page, change: change)
+                                .padding(.horizontal, 30)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .overlay { shakerLayer }
+                                .background { photo }
+                                .coordinateSpace(.named(Self.shakerSpace))
+                            VStack(spacing: 0) {
+                                moreButton { withAnimation { reader.scrollTo(Self.digestID, anchor: .top) } }
+                                steps
+                            }
+                            .padding(.bottom, insets.bottom)
+                        }
+                        .frame(height: proxy.size.height + insets.top + insets.bottom)
+                        MonthDigestView(digest: digest, side: side, limit: side.limit(limits), shown: shown)
+                            .padding(.top, insets.top)
+                            .padding(.bottom, insets.bottom + 40)
+                            .frame(maxWidth: .infinity)
+                            .background(MonthDigestView.background(side))
+                            .id(Self.digestID)
+                            .onGeometryChange(for: Bool.self) { $0.frame(in: .global).minY < 1 } action: { digestShown = $0 }
+                        Color.clear.frame(height: 0).id(Self.digestEndID)
+                    }
+                }
+                .scrollIndicators(.hidden)
                 .ignoresSafeArea()
-            steps
+                .onAppear { scrollToDigestForScreenshot(reader) }
+            }
         }
         .contentShape(Rectangle())
         .simultaneousGesture(sideSwipe)
@@ -69,7 +100,14 @@ struct MonthTrendsView: View {
             celebrateNewYear()
             shaker?.startMotion()
         }
-        .onDisappear { shaker?.stopMotion() }
+        .onDisappear {
+            shaker?.stopMotion()
+            digestShown = false
+        }
+        .onChange(of: digestShown) {
+            // 통계를 보는 동안은 기울기를 받지 않는다.
+            if digestShown { shaker?.stopMotion() } else { shaker?.startMotion() }
+        }
         .onChange(of: inventory) { feedShaker() }
         .onChange(of: side) {
             feedShaker()
@@ -361,6 +399,43 @@ struct MonthTrendsView: View {
     }
 
     // MARK: - 아래 줄
+
+    private static let digestID = "month-digest"
+    private static let digestEndID = "month-digest-end"
+
+    /// 달력 아래 통계로 내려가는 표시. 눌러도 내려간다.
+    private func moreButton(action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 2) {
+                Text("이 달 통계")
+                    .font(AppFont.pretendardFixed(11, .semibold))
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 11, weight: .semibold))
+            }
+            .frame(minWidth: 88, minHeight: 44)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(textColor)
+        .shadow(color: isSugar ? .clear : .black.opacity(0.28), radius: 1.5, y: 1)
+        .accessibilityIdentifier("month-digest-more")
+    }
+
+    /// Debug `-trendMonthDigest top|end` = 들어오자마자 통계 맨 위·맨 아래로 내려간 화면(CI 스크린샷).
+    private func scrollToDigestForScreenshot(_ reader: ScrollViewProxy) {
+        #if DEBUG
+        let target: String
+        switch UserDefaults.standard.string(forKey: "trendMonthDigest") {
+        case "top": target = Self.digestID
+        case "end": target = Self.digestEndID
+        default: return
+        }
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(300))
+            reader.scrollTo(target, anchor: target == Self.digestID ? .top : .bottom)
+        }
+        #endif
+    }
 
     /// ◀ 이전 달 · 면 점 · 다음 달 ▶. 첫 기록 달 앞, 이번 달 뒤로는 못 간다.
     private var steps: some View {

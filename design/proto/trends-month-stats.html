@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>슈가캡 · 월 추이 통계 시안</title>
+<style>
+  /* 2026-10-28 대표님: 월 달력 밑으로 넘기면 그 달 통계. 면(당·카페인)마다 따로, Pro.
+     항목 = 많이 준 음료 TOP 3 · 시간대 · 요일별 하루 평균 · 기준 안에서 끝낸 날 · 최근 6개월.
+     달력 쪽은 trends-month-dump.html과 같은 모양(셰이커 물리는 이 시안에서 뺐다). */
+  @font-face { font-family: "PretendardApp"; font-weight: 400; src: url("../../SugarCap/Resources/Fonts/Pretendard-Regular.otf"); }
+  @font-face { font-family: "PretendardApp"; font-weight: 500; src: url("../../SugarCap/Resources/Fonts/Pretendard-Medium.otf"); }
+  @font-face { font-family: "PretendardApp"; font-weight: 600; src: url("../../SugarCap/Resources/Fonts/Pretendard-SemiBold.otf"); }
+  @font-face { font-family: "PretendardApp"; font-weight: 700; src: url("../../SugarCap/Resources/Fonts/Pretendard-Bold.otf"); }
+  @font-face { font-family: "PretendardApp"; font-weight: 800; src: url("../../SugarCap/Resources/Fonts/Pretendard-ExtraBold.otf"); }
+  @font-face { font-family: "PretendardApp"; font-weight: 900; src: url("../../SugarCap/Resources/Fonts/Pretendard-Black.otf"); }
+  @font-face { font-family: "PretendardThin"; font-weight: 100; src: local("Pretendard Thin"), local("Pretendard-Thin"); }
+  @font-face { font-family: "Anton"; src: url("../../SugarCap/Resources/Fonts/Anton-Regular.ttf"); }
+  :root { --ink: #18181B; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #E4E4E7; font-family: "PretendardApp", -apple-system, sans-serif; color: var(--ink); display: flex; gap: 40px; padding: 32px; align-items: flex-start; }
+  .phone { width: 393px; height: 852px; border-radius: 48px; position: relative; overflow: hidden; flex: none; }
+  /* 면 색: 당 = 흰 바탕 먹색 글자, 카페인 = 진한 커피색 바탕 흰 글자. 강조는 당 먹색, 카페인 카인 선물색. */
+  .phone.sugar { --bg: #FFFFFF; --fg: #18181B; --dim: rgba(24,24,27,.55); --faint: rgba(24,24,27,.12); --rule: rgba(24,24,27,.18); --hi: #18181B; --lo: rgba(24,24,27,.16); background: var(--bg); }
+  .phone.caffeine { --bg: #17110C; --fg: #FFFFFF; --dim: rgba(255,255,255,.6); --faint: rgba(255,255,255,.12); --rule: rgba(255,255,255,.2); --hi: #E3C29F; --lo: rgba(255,255,255,.18); background: var(--bg); }
+  .status { position: absolute; top: 18px; left: 44px; font-size: 17px; font-weight: 600; z-index: 6; color: var(--fg); }
+  .island { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 124px; height: 36px; border-radius: 18px; background: #000; z-index: 6; }
+  .home { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; border-radius: 3px; background: var(--fg); z-index: 6; }
+  .nav { position: absolute; top: 54px; left: 0; right: 0; height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; z-index: 6; color: var(--fg); transition: background .2s; }
+  .nav.solid { background: var(--bg); box-shadow: 0 1px 0 var(--faint); }
+  .nav button, .steps button { font: inherit; color: inherit; background: none; border: 0; min-width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .nav .ttl { position: absolute; left: 50%; transform: translateX(-50%); font-size: 15px; font-weight: 700; opacity: 0; transition: opacity .2s; }
+  .nav.solid .ttl { opacity: 1; }
+  .seg { display: flex; margin-right: 8px; padding: 2px; border-radius: 9px; background: rgba(118,118,128,.24); }
+  .seg button { min-width: 0; height: 28px; width: 44px; border-radius: 7px; font-size: 13px; font-weight: 600; color: inherit; }
+  .seg button[aria-pressed="true"] { background: #fff; color: var(--ink); box-shadow: 0 2px 6px rgba(0,0,0,.12); }
+  .status-bg { position: absolute; top: 0; left: 0; right: 0; height: 54px; z-index: 5; background: var(--bg); opacity: 0; transition: opacity .2s; }
+  .status-bg.on { opacity: 1; }
+
+  .scroll { position: absolute; inset: 0; overflow-y: auto; scrollbar-width: none; overscroll-behavior: contain; }
+  .scroll::-webkit-scrollbar { display: none; }
+
+  /* ---- 달력 한 화면(trends-month-dump.html과 같은 문법) ---- */
+  .cal { position: relative; height: 852px; overflow: hidden; background: #222 center / cover no-repeat; }
+  .cal::before { content: ""; position: absolute; inset: -16px; background: inherit; filter: blur(2px); }
+  .block { position: absolute; left: 30px; right: 30px; top: 50%; transform: translateY(-50%); color: #fff; z-index: 2; text-shadow: 0 1px 3px rgba(0,0,0,.28); }
+  .mast { margin-bottom: 6px; text-shadow: none; --F: 64px; }
+  .block h1 { position: relative; left: -8px; font-weight: 900; font-size: calc(var(--F) * 1.02); line-height: .86; letter-spacing: -.02em; white-space: nowrap; }
+  .block h1 .sub { font-size: .27em; font-weight: 500; letter-spacing: -.01em; margin-left: .35em; }
+  .block h1 .sub b { font-weight: 800; }
+  .block h1 .n { font-family: "Anton", sans-serif; font-weight: 400; font-size: 1.3em; letter-spacing: 0; }
+  .block h1 .u { font-size: .58em; margin-left: .04em; }
+  .phone.caffeine .block h1 .sub b { color: #3B2314; -webkit-text-stroke: 3px #fff; paint-order: stroke fill; }
+  .phone.sugar .block h1 .sub b { color: #fff; -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; }
+  .dow { display: grid; grid-template-columns: repeat(7, 1fr); font-family: "PretendardThin"; font-size: 12px; font-weight: 100; text-align: center; opacity: .85; margin-bottom: 5px; }
+  .grid { --line: rgba(255,255,255,.85); display: grid; grid-template-columns: repeat(7, 1fr); border-left: 1px solid var(--line); border-top: 1px solid var(--line); }
+  .cell { position: relative; aspect-ratio: 1 / 1; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); overflow: hidden; background: center / cover no-repeat; }
+  .cell .d { position: absolute; top: 2px; left: 4px; font-family: "PretendardThin"; font-size: 12px; font-weight: 100; color: #fff; }
+  .cell[data-fill] .d { color: var(--ink); }
+  .cell.future .d { opacity: .45; }
+  .cell.today { outline: 2px solid #fff; outline-offset: -2px; z-index: 1; }
+  .totals { display: flex; justify-content: center; gap: 22px; margin-top: 14px; font-size: 11px; font-weight: 600; }
+  .totals div { display: flex; align-items: baseline; gap: 6px; }
+  .totals b { font-family: "Anton", sans-serif; font-weight: 400; font-size: 22px; }
+  .totals b small { font-family: "PretendardApp"; font-weight: 700; font-size: 11px; margin-left: 1px; }
+  .totals span { opacity: .8; }
+  .phone.sugar .block { color: var(--ink); text-shadow: none; }
+  .phone.sugar .grid { --line: rgba(24,24,27,.32); }
+  .phone.sugar .cell:not([data-fill]) .d { color: var(--ink); }
+  .steps { position: absolute; left: 0; right: 0; bottom: 34px; display: flex; justify-content: space-between; align-items: center; padding: 0 14px; z-index: 3; color: #fff; }
+  .phone.sugar .steps { color: var(--ink); }
+  .steps button:disabled { opacity: .3; cursor: default; }
+  /* 아래에 통계가 있다는 표시: 글자 한 줄 + 아래 꺾쇠. 누르면 통계로 내려간다. */
+  .steps .more { min-width: 0; flex-direction: column; gap: 2px; font-size: 11px; font-weight: 600; height: auto; padding: 4px 10px; }
+
+  /* ---- 통계(달력 아래) ---- */
+  .stats { position: relative; background: var(--bg); color: var(--fg); padding: 28px 24px 64px; }
+  .stats .head { margin-bottom: 30px; }
+  .stats .kicker { font-size: 11px; font-weight: 700; letter-spacing: .08em; color: var(--dim); }
+  .stats h2 { font-size: 30px; font-weight: 900; letter-spacing: -.02em; line-height: 1.15; margin-top: 6px; }
+  .sec { padding: 26px 0 28px; border-top: 1px solid var(--rule); }
+  .sec h3 { font-size: 13px; font-weight: 700; color: var(--dim); }
+  .lead { margin-top: 8px; font-size: 19px; font-weight: 700; letter-spacing: -.01em; line-height: 1.35; }
+  .lead .big { font-family: "Anton", sans-serif; font-weight: 400; font-size: 44px; line-height: 1; letter-spacing: 0; margin-right: 4px; vertical-align: -6px; }
+  .lead .big small { font-family: "PretendardApp"; font-weight: 700; font-size: 16px; margin-left: 2px; }
+  .note { margin-top: 10px; font-size: 12px; color: var(--dim); line-height: 1.5; }
+  .empty { margin-top: 10px; font-size: 14px; color: var(--dim); }
+
+  /* TOP 3 */
+  .top { margin-top: 14px; }
+  .row { display: grid; grid-template-columns: 30px 1fr auto; align-items: center; column-gap: 10px; padding: 12px 0; }
+  .row + .row { border-top: 1px solid var(--faint); }
+  .row .rk { font-family: "Anton", sans-serif; font-size: 26px; line-height: 1; color: var(--dim); }
+  .row .nm { font-size: 16px; font-weight: 700; letter-spacing: -.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .row .meta { font-size: 12px; color: var(--dim); margin-top: 2px; }
+  .row .amt { text-align: right; }
+  .row .amt b { font-family: "Anton", sans-serif; font-weight: 400; font-size: 22px; }
+  .row .amt b small { font-family: "PretendardApp"; font-weight: 700; font-size: 11px; margin-left: 1px; }
+  .row .amt div { font-size: 12px; color: var(--dim); }
+  .row .bar { grid-column: 2 / 4; height: 3px; background: var(--faint); margin-top: 8px; }
+  .row .bar i { display: block; height: 100%; background: var(--hi); }
+
+  /* 시간대 */
+  /* 네 칸 같은 폭. 칸마다 숫자(바닥 맞춤) · 자기 막대 · 이름이 같은 세로줄에 선다. */
+  .slots { display: grid; grid-template-columns: repeat(4, 1fr); column-gap: 10px; margin-top: 14px; }
+  .slots .s { min-width: 0; font-size: 12px; color: var(--dim); }
+  .slots .s b { display: flex; align-items: flex-end; height: 40px; font-family: "Anton", sans-serif; font-weight: 400; font-size: 20px; line-height: 1; color: var(--fg); }
+  .slots .s.on b { font-size: 36px; }
+  .slots .s .t { height: 8px; background: var(--faint); margin: 8px 0 6px; }
+  .slots .s .t i { display: block; height: 100%; background: var(--lo); }
+  .slots .s.on { color: var(--fg); font-weight: 700; }
+
+  /* 요일 컵: 컵 하나 = 하루 기준. 평균만큼 찬다. 넘치면 가득 + 숫자 강조. 모양은 앱 LimitCupPicker의 SetupCup 그대로. */
+  .cups { display: grid; grid-template-columns: repeat(7, 1fr); column-gap: 6px; margin-top: 16px; align-items: end; }
+  .cup { text-align: center; }
+  .cup .v { font-size: 11px; font-weight: 700; color: var(--dim); margin-bottom: 4px; }
+  .cup.on .v, .cup.over .v { color: var(--fg); }
+  .cup .c { position: relative; aspect-ratio: 3 / 4; }
+  .cup .in { position: absolute; inset: 0; clip-path: polygon(10% 4%, 22% 92%, 28.7% 96%, 71.3% 96%, 78% 92%, 90% 4%); display: flex; align-items: flex-end; }
+  .cup .in i { display: block; width: 100%; background: var(--lo); }
+  .cup.on .in i { background: var(--hi); }
+  .cup svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .cup svg path { fill: none; stroke: var(--fg); stroke-width: 14; stroke-linejoin: round; stroke-linecap: round; opacity: .35; }
+  .cup.on svg path { opacity: .9; }
+  .cup.none svg path { stroke-dasharray: 22 18; opacity: .25; }
+  .legend .ic { width: 10px; height: 13px; overflow: visible; }
+  .legend .ic path { fill: none; stroke: currentColor; stroke-width: 30; stroke-linejoin: round; }
+  .cup .d { margin-top: 6px; font-size: 12px; color: var(--dim); }
+  .cup.on .d { color: var(--fg); font-weight: 700; }
+
+  /* 막대(요일·6개월 공용) */
+  .bars { position: relative; display: grid; height: 150px; margin-top: 22px; align-items: end; column-gap: 8px; }
+  .bars .col { position: relative; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
+  .bars .col i { display: block; width: 100%; background: var(--lo); }
+  .bars .col.on i { background: var(--hi); }
+  .bars .col .v { font-size: 11px; font-weight: 700; margin-bottom: 4px; color: var(--dim); white-space: nowrap; }
+  .bars .col.on .v { color: var(--fg); }
+  .bars .col.none i { height: 2px; background: none; border-top: 2px dashed var(--lo); }
+  .bars .limit { position: absolute; left: 0; right: 0; border-top: 1.5px dashed var(--fg); opacity: .55; pointer-events: none; }
+  .legend { display: flex; justify-content: flex-end; align-items: center; gap: 6px; margin-top: 16px; font-size: 11px; font-weight: 600; color: var(--dim); }
+  .legend i { width: 16px; border-top: 1.5px dashed var(--fg); opacity: .55; }
+  .legend + .bars { margin-top: 10px; }
+  .axis { display: grid; column-gap: 8px; margin-top: 6px; font-size: 12px; color: var(--dim); text-align: center; }
+  .axis .on { color: var(--fg); font-weight: 700; }
+
+  /* 기준 안 */
+  .ratio { height: 6px; background: var(--lo); margin-top: 16px; }
+  .ratio i { display: block; height: 100%; background: var(--hi); }
+
+  .lead .of { font-family: "Anton", sans-serif; font-weight: 400; font-size: 22px; color: var(--dim); margin-right: 4px; }
+
+  /* 사진 채움 강조: 접시 사진(각설탕·원두)을 글자·막대에 씌운다. 설탕은 잉크색을 곱해 결 있는 진회색, 카페인은 갈색을 screen으로 얹어 라떼색 원두결. */
+  .phone.sugar { --photo: url(month-img/sugar-100.jpg); --tint: #6C6C76; --blend: multiply; --pfx: contrast(1.35); }
+  .phone.caffeine { --photo: url(month-img/caffeine-100.jpg); --tint: #8A5E36; --blend: screen; --pfx: contrast(1.15) saturate(1.2); }
+  .pf { background: var(--photo) 50% 50% / 260px auto, var(--tint); filter: var(--pfx); background-blend-mode: var(--blend);
+        -webkit-background-clip: text; background-clip: text; color: transparent !important; }
+  .pfill { background: var(--photo) 50% 50% / 260px auto, var(--tint) !important; filter: var(--pfx); background-blend-mode: var(--blend); }
+  .hero { display: flex; align-items: baseline; gap: 6px; margin-top: 10px; }
+  .hero .n { font-family: "Anton", sans-serif; font-size: 112px; line-height: .92; letter-spacing: -.01em; }
+  .hero .u { font-size: 18px; font-weight: 800; }
+  .hero .of { font-family: "Anton", sans-serif; font-size: 30px; color: var(--dim); }
+  .hero .n.long { font-size: 84px; }
+  .hero .side { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right; font-size: 12px; color: var(--dim); align-self: flex-end; padding-bottom: 8px; }
+  .hero .side b { display: block; overflow: hidden; text-overflow: ellipsis; font-size: 16px; font-weight: 800; color: var(--fg); letter-spacing: -.01em; }
+  .slots div.on b { font-size: 40px; line-height: 1; }
+  .foot { margin-top: 8px; padding-top: 18px; border-top: 1px solid var(--rule); font-size: 12px; color: var(--dim); line-height: 1.6; }
+
+  .panel { width: 340px; font-size: 13px; line-height: 1.6; }
+  .panel h2 { font-size: 15px; margin-bottom: 8px; }
+  .panel .btns { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 14px; }
+  .panel button { font: inherit; padding: 4px 9px; border: 1px solid #bbb; background: #fff; border-radius: 6px; cursor: pointer; }
+  .panel button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .panel p { margin-bottom: 8px; }
+  .panel ul { padding-left: 18px; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+<div class="phone sugar" id="phone">
+  <div class="status-bg" id="statusBg"></div>
+  <div class="status">1:24</div><div class="island"></div>
+  <div class="nav" id="nav">
+    <button aria-label="뒤로"><svg width="12" height="20" viewBox="0 0 12 20"><path d="M10 2 L2 10 L10 18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <div class="ttl" id="navTitle"></div>
+    <div class="seg" role="group" aria-label="기간"><button aria-pressed="false">주</button><button aria-pressed="true">월</button></div>
+  </div>
+  <div class="scroll" id="scroll">
+    <section class="cal" id="cal">
+      <div class="block">
+        <div class="mast"><h1 id="title"></h1></div>
+        <div class="dow"><span>SUN</span><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span></div>
+        <div class="grid" id="grid"></div>
+        <div class="totals">
+          <div><span id="l1"></span><b id="v1"></b></div>
+          <div id="cmp"><span>지난달보다</span><b id="v2"></b><span id="l2"></span></div>
+        </div>
+      </div>
+      <div class="steps">
+        <button id="prev" aria-label="이전 달"><svg width="14" height="16" viewBox="0 0 14 16"><path d="M1 8 L13 1 L13 15 Z" fill="currentColor"/></svg></button>
+        <button class="more" id="more">이 달 통계<svg width="14" height="8" viewBox="0 0 14 8"><path d="M1 1 L7 7 L13 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button id="next" aria-label="다음 달"><svg width="14" height="16" viewBox="0 0 14 16"><path d="M13 8 L1 1 L1 15 Z" fill="currentColor"/></svg></button>
+      </div>
+    </section>
+    <section class="stats" id="stats"></section>
+  </div>
+  <div class="home"></div>
+</div>
+
+<div class="panel">
+  <h2>월 추이 통계 시안</h2>
+  <div>면</div>
+  <div class="btns" id="sides"></div>
+  <div>달 (데모 기록은 2026년 6월부터)</div>
+  <div class="btns" id="months"></div>
+  <div class="btns"><button id="toStats">통계로 내리기</button><button id="toCal">달력으로 올리기</button></div>
+  <p><b>구조</b>: 달력 한 화면 아래에 통계가 이어진다. 보는 달·면을 그대로 따라간다. 내리면 위 막대에 "10월 당 통계"가 뜬다.</p>
+  <p><b>계산 규칙</b></p>
+  <ul>
+    <li>TOP 3: 브랜드+음료명으로 묶고 사이즈는 합친다. 그 면 값이 0이거나 미공개인 음료는 순위에서 뺀다.</li>
+    <li>시간대: 아침 4–11시 · 점심 11–14시 · 오후 14–18시 · 저녁 18시–하루 경계. 카페인 면만 "오후 2시 이후" 한 줄.</li>
+    <li>요일: 그 달 그 요일 중 기록한 날의 하루 평균. 기록한 날이 2일 미만이면 점선(비움).</li>
+    <li>기준 안: 기록한 지난날 중 먹은 양 ≤ 하루 기준. 오늘은 안 끝났으니 뺀다. 기준은 <b>지금 기준</b>(지난 기준은 저장 안 됨, 위 달력 칸 사진과 같은 기준).</li>
+    <li>6개월: 보는 달까지 6달, 기록한 날 하루 평균(달력 "지난달보다 %"와 같은 정의). 첫 기록 전 달은 점선.</li>
+  </ul>
+  <p>숫자는 데모 기록이라 실제 메뉴 값이 아니다.</p>
+</div>
+
+<script>
+const NOW = { y: 2026, m: 10, d: 28 }, FIRST = { y: 2026, m: 6 };
+const LIMIT = { sugar: 50, caffeine: 400 }, UNIT = { sugar: 'g', caffeine: 'mg' }, LABEL = { sugar: '당', caffeine: '카페인' };
+const PER = { sugar: 4, caffeine: 75 }, THING = { sugar: ['각설탕', '개'], caffeine: ['에스프레소', '샷'] };
+const step = r => r <= 0 ? 0 : r >= 1 ? 100 : r < .4 ? 30 : r < .65 ? 50 : 80;
+const state = { side: 'sugar', y: NOW.y, m: NOW.m };
+function rand(seed) { let s = seed % 233280; return () => (s = (s * 9301 + 49297) % 233280) / 233280; }
+
+// 데모 음료(값은 시안용). c: null = 브랜드 미공개. slot = 주로 마시는 시각 범위.
+const DRINKS = [
+  { name: '아이스 아메리카노', brand: '메가MGC커피', s: 0, c: 200, w: 5, h: [8, 11] },
+  { name: '카페 라떼', brand: '스타벅스', s: 17, c: 150, w: 3, h: [8, 12] },
+  { name: '딸기 라떼', brand: '이디야커피', s: 38, c: 0, w: 3, h: [13, 18] },
+  { name: '자바 칩 프라푸치노', brand: '스타벅스', s: 47, c: 100, w: 2, h: [14, 18] },
+  { name: '바닐라 라떼', brand: '컴포즈커피', s: 28, c: 150, w: 3, h: [11, 16] },
+  { name: '복숭아 아이스티', brand: '메가MGC커피', s: 30, c: 0, w: 2, h: [12, 19] },
+  { name: '바나나맛 우유', brand: '편의점', s: 27, c: null, w: 2, h: [16, 23] },
+  { name: '콜드 브루', brand: '투썸플레이스', s: 0, c: 190, w: 2, h: [14, 21] },
+];
+const WSUM = DRINKS.reduce((a, d) => a + d.w, 0);
+// 하루 기록: 지난날만, 12%는 안 적은 날. 금·토는 한 잔 더 마시기 쉽다.
+function dayEntries(y, m, d) {
+  const r = rand(y * 1000 + m * 40 + d * 7 + 3);
+  if (r() < .12) return null;
+  const dow = new Date(y, m - 1, d).getDay();
+  const n = 1 + Math.floor(r() * 2.2) + (dow >= 5 && r() < .6 ? 1 : 0);
+  return Array.from({ length: n }, () => {
+    let x = r() * WSUM, k = 0; while ((x -= DRINKS[k].w) > 0) k++;
+    const dr = DRINKS[k], hour = dr.h[0] + Math.floor(r() * (dr.h[1] - dr.h[0] + 1));
+    return { ...dr, hour };
+  });
+}
+const daysIn = (y, m) => new Date(y, m, 0).getDate();
+const cmpYM = (a, b) => (a.y - b.y) * 12 + (a.m - b.m);
+// 그 달 기록. used[d-1] = 그날 먹은 양(기록 없으면 null, 미래는 undefined). 오늘은 기록이 없어도 0.
+function month(side, y, m) {
+  const days = daysIn(y, m), out = { days, lead: new Date(y, m - 1, 1).getDay(), used: [], entries: [] };
+  const started = cmpYM({ y, m }, FIRST) >= 0;
+  for (let d = 1; d <= days; d++) {
+    const future = cmpYM({ y, m }, NOW) > 0 || (y === NOW.y && m === NOW.m && d > NOW.d);
+    if (future) { out.used.push(undefined); continue; }
+    const today = y === NOW.y && m === NOW.m && d === NOW.d;
+    const es = started ? dayEntries(y, m, d) : null;
+    if (!es) { out.used.push(today ? 0 : null); continue; }
+    es.forEach(e => out.entries.push({ ...e, d }));
+    out.used.push(es.reduce((a, e) => a + (e[side === 'sugar' ? 's' : 'c'] ?? 0), 0));
+  }
+  return out;
+}
+function dailyAvg(side, y, m, upto = 31) {
+  if (m < 1) { y--; m = 12; }
+  const v = month(side, y, m).used.slice(0, upto).filter(x => x !== undefined && x !== null);
+  return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+}
+const fmt = n => Math.round(n).toLocaleString();
+// 이/가: 끝 음절 받침 유무(앱은 Josa 사용).
+const josa = s => { const c = s.charCodeAt(s.length - 1) - 0xAC00; return c >= 0 && c <= 11171 && c % 28 ? '이' : '가'; };
+
+function renderCal() {
+  const { side, y, m } = state, lim = LIMIT[side], md = month(side, y, m);
+  document.getElementById('cal').style.backgroundImage = `url("month-img/bg-${side}-${String(m).padStart(2, '0')}.jpg")`;
+  document.getElementById('title').innerHTML = `<span class="n">${m}</span><span class="u">월</span><span class="sub">먹은 <b>${LABEL[side]}</b>${y === NOW.y ? '' : ` · ${y}`}</span>`;
+  document.getElementById('prev').disabled = cmpYM({ y, m }, FIRST) <= 0;
+  document.getElementById('next').disabled = cmpYM({ y, m }, NOW) >= 0;
+  const grid = document.getElementById('grid'); grid.innerHTML = '';
+  const total = Math.ceil((md.lead + md.days) / 7) * 7;
+  let eaten = 0;
+  for (let i = 0; i < total; i++) {
+    const c = document.createElement('div'); c.className = 'cell'; grid.appendChild(c);
+    const d = i - md.lead + 1;
+    if (d < 1 || d > md.days) continue;
+    c.innerHTML = `<span class="d">${d}</span>`;
+    const used = md.used[d - 1];
+    if (used === undefined) c.classList.add('future');
+    if (y === NOW.y && m === NOW.m && d === NOW.d) c.classList.add('today');
+    if (used !== undefined && used !== null) {
+      eaten += used; c.dataset.fill = d;
+      c.style.backgroundImage = `url("month-img/${side}-${step(used / lim)}.jpg")`;
+    }
+  }
+  document.getElementById('l1').textContent = THING[side][0];
+  document.getElementById('v1').innerHTML = `${fmt(eaten / PER[side])}<small>${THING[side][1]}</small>`;
+  const live = y === NOW.y && m === NOW.m, upto = live ? NOW.d : 31;
+  const now = dailyAvg(side, y, m, upto), before = dailyAvg(side, y, m - 1, upto), cmp = document.getElementById('cmp');
+  cmp.style.display = now !== null && before ? '' : 'none';
+  if (now !== null && before) {
+    const d = Math.round((now - before) / before * 100);
+    document.getElementById('v2').innerHTML = `${Math.abs(d)}<small>%</small>`;
+    document.getElementById('l2').textContent = (d < 0 ? '덜 먹' : d > 0 ? '더 먹' : '똑같이 먹') + (live ? '는 중' : '음');
+  }
+}
+
+// ---- 통계 계산(앱에서는 MonthMath 옆 순수 함수로 옮긴다) ----
+const SLOTS = [['아침', 4, 11], ['점심', 11, 14], ['오후', 14, 18], ['저녁', 18, 28]];
+const slotOf = h => { const x = h < 4 ? h + 24 : h; return SLOTS.findIndex(([, a, b]) => x >= a && x < b); };
+const DOW = ['일', '월', '화', '수', '목', '금', '토'];
+
+function stats(side, y, m) {
+  const key = side === 'sugar' ? 's' : 'c', md = month(side, y, m), lim = LIMIT[side];
+  const live = y === NOW.y && m === NOW.m;
+  const total = md.entries.reduce((a, e) => a + (e[key] ?? 0), 0);
+  // TOP 3: 브랜드+이름으로 묶음. 그 면 값이 0·미공개인 음료는 뺀다.
+  const groups = {};
+  for (const e of md.entries) {
+    const v = e[key]; if (!v) continue;
+    const g = groups[e.brand + '|' + e.name] ??= { name: e.name, brand: e.brand, cups: 0, amount: 0 };
+    g.cups++; g.amount += v;
+  }
+  const top = Object.values(groups).sort((a, b) => b.amount - a.amount || b.cups - a.cups).slice(0, 3);
+  // 시간대
+  const slot = [0, 0, 0, 0]; let after2 = 0;
+  for (const e of md.entries) { const v = e[key] ?? 0; slot[slotOf(e.hour)] += v; if (e.hour >= 14 || e.hour < 4) after2 += v; }
+  // 요일: 기록한 날만, 2일 미만이면 null
+  const byDow = Array.from({ length: 7 }, () => []);
+  md.used.forEach((u, i) => { if (u !== undefined && u !== null && !(live && i + 1 === NOW.d && u === 0)) byDow[new Date(y, m - 1, i + 1).getDay()].push(u); });
+  const dow = byDow.map(a => a.length >= 2 ? a.reduce((x, z) => x + z, 0) / a.length : null);
+  // 기준 안: 오늘 제외, 기록한 지난날
+  const closed = md.used.filter((u, i) => u !== undefined && u !== null && !(live && i + 1 === NOW.d));
+  const kept = closed.filter(u => u <= lim).length;
+  // 최근 6개월(보는 달까지)
+  const six = [];
+  for (let k = 5; k >= 0; k--) {
+    let yy = y, mm = m - k; while (mm < 1) { mm += 12; yy--; }
+    six.push({ y: yy, m: mm, avg: cmpYM({ y: yy, m: mm }, FIRST) >= 0 ? dailyAvg(side, yy, mm) : null });
+  }
+  return { total, top, slot, after2, dow, kept, closedDays: closed.length, six, live };
+}
+
+function barsHTML(values, labels, onIdx, unit, lim, cols) {
+  const max = Math.max(lim * 1.15, ...values.filter(v => v !== null)) || 1;
+  const cells = values.map((v, i) => v === null
+    ? `<div class="col none"><span class="v">–</span><i></i></div>`
+    : `<div class="col${i === onIdx ? ' on' : ''}"><span class="v">${fmt(v)}</span><i class="${i === onIdx ? 'pfill' : ''}" style="height:${v / max * 100 * .82}%"></i></div>`).join('');
+  const limTop = 100 - lim / max * 100 * .82;
+  return `<div class="legend"><i></i>하루 기준 ${fmt(lim)}${unit}</div>
+    <div class="bars" style="grid-template-columns:repeat(${cols},1fr)">${cells}
+      <div class="limit" style="top:${limTop}%"></div></div>
+    <div class="axis" style="grid-template-columns:repeat(${cols},1fr)">${labels.map((l, i) => `<span class="${i === onIdx ? 'on' : ''}">${l}</span>`).join('')}</div>`;
+}
+
+const CUP = 'M22 10 L58 372 Q62 392 82 392 L218 392 Q238 392 242 372 L278 10';
+function cupsHTML(values, labels, onIdx, unit, lim) {
+  // 안쪽 높이 4%~96% 구간을 하루 기준 0~100%로 쓴다.
+  const cells = values.map((v, i) => {
+    const cls = v === null ? ' none' : (i === onIdx ? ' on' : '') + (v > lim ? ' over' : '');
+    const h = v === null ? 0 : 4 + Math.min(v / lim, 1) * 92;
+    return `<div class="cup${cls}"><div class="v">${v === null ? '–' : fmt(v)}</div>
+      <div class="c"><div class="in"><i style="height:${h}%"></i></div>
+      <svg viewBox="0 0 300 400"><path d="${CUP}"/></svg></div><div class="d">${labels[i]}</div></div>`;
+  }).join('');
+  return `<div class="legend"><svg class="ic" viewBox="0 0 300 400"><path d="${CUP}"/></svg>하루 기준 ${fmt(lim)}${unit}</div><div class="cups">${cells}</div>`;
+}
+
+function renderStats() {
+  const { side, y, m } = state, st = stats(side, y, m), unit = UNIT[side], lim = LIMIT[side], L = LABEL[side];
+  const el = document.getElementById('stats');
+  document.getElementById('navTitle').textContent = `${m}월 ${L} 통계`;
+  // 글자는 제목·숫자만(대표님 2026-10-28 "쓸데없는 말 다 빼"). 설명 문장·각주 없음.
+  const empty = `<div class="empty">기록 없음</div>`;
+  const sec = (title, body) => `<div class="sec"><h3>${title}</h3>${body}</div>`;
+  if (!st.total && !st.closedDays) { el.innerHTML = sec('많이 먹은 음료', empty); return; }
+  let html = '';
+
+  const one = st.top[0];
+  html += sec('많이 먹은 음료', !st.top.length ? empty : `<div class="hero"><span class="n pf${fmt(one.amount).length > 3 ? ' long' : ''}">${fmt(one.amount)}</span><span class="u">${unit}</span>
+      <div class="side"><b>${one.name}</b>${one.brand} · ${one.cups}잔 · ${Math.round(one.amount / st.total * 100)}%</div></div>
+    <div class="top">${st.top.slice(1).map((g, k) => {
+    const i = k + 1, p = g.amount / st.total * 100;
+    return `<div class="row"><span class="rk">${i + 1}</span>
+      <div style="min-width:0"><div class="nm">${g.name}</div><div class="meta">${g.brand} · ${g.cups}잔</div></div>
+      <div class="amt"><b>${fmt(g.amount)}<small>${unit}</small></b><div>${Math.round(p)}%</div></div>
+      <div class="bar"><i style="width:${p}%"></i></div></div>`;
+  }).join('')}</div>`);
+
+  const sTot = st.slot.reduce((a, b) => a + b, 0);
+  if (!sTot) html += sec('시간대', empty);
+  else {
+    const top = st.slot.indexOf(Math.max(...st.slot)), pct = st.slot.map(v => Math.round(v / sTot * 100));
+    html += sec('시간대', (side === 'caffeine' ? `<div class="hero"><span class="n pf">${Math.round(st.after2 / sTot * 100)}</span><span class="u">%</span><div class="side"><b>오후 2시 이후</b></div></div>` : '')
+      + `<div class="slots">${SLOTS.map(([n], i) => `<div class="s${i === top ? ' on' : ''}"><b><span class="${i === top ? 'pf' : ''}">${pct[i]}%</span></b>
+          <div class="t"><i class="${i === top ? 'pfill' : ''}" style="width:${pct[i] / pct[top] * 100}%"></i></div>${n}</div>`).join('')}</div>`);
+  }
+
+  const dv = st.dow, has = dv.filter(v => v !== null);
+  html += sec('요일별 하루 평균', !has.length ? empty : cupsHTML(dv, DOW, dv.indexOf(Math.max(...has)), unit, lim));
+
+  html += sec('기준 안에서 끝낸 날', !st.closedDays ? empty : `<div class="hero"><span class="n pf">${st.kept}</span><span class="of">/ ${st.closedDays}</span><span class="u">일</span></div>
+      <div class="ratio"><i class="pfill" style="width:${st.kept / st.closedDays * 100}%"></i></div>
+      <div class="note">하루 기준 ${fmt(lim)}${unit}</div>`);
+
+  html += sec('최근 6개월 하루 평균', barsHTML(st.six.map(s => s.avg), st.six.map(s => `${s.m}월`), 5, unit, lim, 6));
+  el.innerHTML = html;
+}
+
+function render() {
+  document.getElementById('phone').className = `phone ${state.side}`;
+  renderCal(); renderStats();
+  for (const b of document.querySelectorAll('#sides button')) b.setAttribute('aria-pressed', String(b.dataset.v === state.side));
+  for (const b of document.querySelectorAll('#months button')) b.setAttribute('aria-pressed', String(state.y === NOW.y && +b.dataset.v === state.m));
+}
+
+const scroll = document.getElementById('scroll');
+scroll.addEventListener('scroll', () => {
+  const solid = scroll.scrollTop > 852 - 100;
+  document.getElementById('nav').classList.toggle('solid', solid);
+  document.getElementById('statusBg').classList.toggle('on', solid);
+});
+const toStats = () => scroll.scrollTo({ top: 852 - 98, behavior: 'smooth' });
+document.getElementById('more').onclick = toStats;
+document.getElementById('toStats').onclick = toStats;
+document.getElementById('toCal').onclick = () => scroll.scrollTo({ top: 0, behavior: 'smooth' });
+for (const [v, label] of [['sugar', '당'], ['caffeine', '카페인']]) {
+  const b = document.createElement('button'); b.dataset.v = v; b.textContent = label;
+  b.onclick = () => { state.side = v; render(); }; document.getElementById('sides').appendChild(b);
+}
+for (let m = 1; m <= 12; m++) {
+  const b = document.createElement('button'); b.dataset.v = m; b.textContent = `${m}월`;
+  b.onclick = () => { state.y = NOW.y; state.m = m; render(); }; document.getElementById('months').appendChild(b);
+}
+document.getElementById('prev').onclick = () => { if (cmpYM(state, FIRST) <= 0) return; if (--state.m < 1) { state.m = 12; state.y--; } render(); };
+document.getElementById('next').onclick = () => { if (cmpYM(state, NOW) >= 0) return; if (++state.m > 12) { state.m = 1; state.y++; } render(); };
+render();
+</script>
+</body>
+</html>

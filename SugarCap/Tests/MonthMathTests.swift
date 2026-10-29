@@ -133,4 +133,97 @@ final class MonthMathTests: XCTestCase {
         let april = ShakerGift.list(MonthInventory(hearts: 3, caps: 1, items: ["strawberry"]))
         XCTAssertEqual(Set(april.map(\.key)).subtracting(march.map(\.key)), ["heart:2"], "달이 바뀌면 새 마음만 더해진다")
     }
+
+    // MARK: - 월 통계(MonthDigest)
+
+    private func drink(
+        _ day: Int, hour: Int = 10, name: String, brand: String = "이디야커피", quantity: Int = 1,
+        sugar: Double?, caffeine: Double? = 0
+    ) -> Entry {
+        Entry(
+            servingID: nil, quantity: quantity, loggedAt: date(2026, 10, day, hour: hour), sugarG: sugar,
+            caffeineMg: caffeine, drinkName: name, brandName: brand, sizeLabel: ""
+        )
+    }
+
+    private func digest(_ entries: [Entry], side: CupSide = .sugar, limit: Double = 50) -> MonthDigest {
+        MonthDigest.make(
+            entries: entries, boundaryHour: 4, year: 2026, month: 10, today: today, side: side, limit: limit,
+            earliest: DayKey(year: 2026, month: 7, day: 3), calendar: calendar
+        )
+    }
+
+    func testDigestTopGroupsSizesAndSkipsDrinksWithoutThatValue() {
+        let entries = [
+            drink(1, name: "딸기 라떼", quantity: 2, sugar: 60),
+            drink(2, name: "딸기 라떼", sugar: 38),
+            drink(2, name: "딸기 라떼", brand: "메가MGC커피", sugar: 40),
+            drink(3, name: "아메리카노", sugar: 0, caffeine: 200),
+            drink(3, name: "바나나맛 우유", brand: "편의점", sugar: nil, caffeine: nil),
+        ]
+        let sugar = digest(entries)
+        XCTAssertEqual(sugar.top.map(\.name), ["딸기 라떼", "딸기 라떼"], "브랜드가 다르면 다른 음료, 당 0·미공개는 순위 밖")
+        XCTAssertEqual(sugar.top.first?.brand, "이디야커피")
+        XCTAssertEqual(sugar.top.first?.cups, 3, "잔 수는 수량을 센다")
+        XCTAssertEqual(sugar.top.first?.amount, 98)
+        XCTAssertEqual(sugar.total, 138)
+        let caffeine = digest(entries, side: .caffeine)
+        XCTAssertEqual(caffeine.top.map(\.name), ["아메리카노"])
+    }
+
+    func testDigestSlotsFoldLateNightIntoEveningAndCountAfterTwo() {
+        let entries = [
+            drink(5, hour: 9, name: "a", sugar: 10),
+            drink(5, hour: 12, name: "b", sugar: 20),
+            drink(5, hour: 15, name: "c", sugar: 30),
+            drink(5, hour: 20, name: "d", sugar: 40),
+            // 10월 6일 새벽 2시 = 경계(4시) 전이라 5일 밤.
+            drink(6, hour: 2, name: "e", sugar: 5),
+        ]
+        let made = digest(entries)
+        XCTAssertEqual(made.slots, [10, 20, 30, 45])
+        XCTAssertEqual(made.late, 75, "오후 2시 이후 + 새벽")
+    }
+
+    func testDigestWeekdaysNeedTwoDaysAndLeaveTodayOut() {
+        // 2026-10-06·13·27은 화요일, 27일이 오늘. 10월 1일은 목요일.
+        let entries = [
+            drink(6, name: "a", sugar: 10),
+            drink(13, name: "a", sugar: 20),
+            drink(27, name: "a", sugar: 100),
+            drink(1, name: "a", sugar: 30),
+        ]
+        let made = digest(entries)
+        XCTAssertEqual(made.weekdays.count, 7)
+        XCTAssertEqual(made.weekdays[2], 15, "화요일 = 6·13일 평균, 오늘은 안 끝나서 뺀다")
+        XCTAssertNil(made.weekdays[4], "목요일은 하루뿐이라 비운다")
+    }
+
+    func testDigestKeptDaysCountClosedDaysWithinLimit() {
+        let entries = [
+            drink(1, name: "a", sugar: 50),
+            drink(2, name: "a", sugar: 51),
+            drink(3, name: "a", sugar: 0, caffeine: 100),
+            drink(27, name: "a", sugar: 10),
+        ]
+        let made = digest(entries)
+        XCTAssertEqual(made.closedDays, 3, "오늘은 안 끝나서 뺀다")
+        XCTAssertEqual(made.keptDays, 2, "기준과 같으면 안이다")
+    }
+
+    func testDigestRecentCoversSixMonthsAndBlanksBeforeFirstRecord() {
+        let entries = [
+            Entry(
+                servingID: nil, quantity: 1, loggedAt: date(2026, 8, 10), sugarG: 30, caffeineMg: 0,
+                drinkName: "a", brandName: "", sizeLabel: ""
+            ),
+            drink(1, name: "a", sugar: 20),
+        ]
+        let made = digest(entries)
+        XCTAssertEqual(made.recent.map(\.month.month), [5, 6, 7, 8, 9, 10])
+        XCTAssertNil(made.recent[0].average, "첫 기록 달(7월) 전")
+        XCTAssertNil(made.recent[2].average, "7월은 열렸지만 기록이 없다")
+        XCTAssertEqual(made.recent[3].average, 30)
+        XCTAssertEqual(made.recent[5].average, 10, "이번 달 = 1일 20 + 오늘 0")
+    }
 }

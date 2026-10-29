@@ -212,7 +212,7 @@ private struct SetupLiquid: View, Animatable {
     }
 }
 
-private struct SetupCupInner: Shape {
+struct SetupCupInner: Shape {
     func path(in rect: CGRect) -> Path {
         let sx = rect.width / 300
         let sy = rect.height / 400
@@ -228,7 +228,7 @@ private struct SetupCupInner: Shape {
     }
 }
 
-private struct SetupCupOutline: Shape {
+struct SetupCupOutline: Shape {
     func path(in rect: CGRect) -> Path {
         let sx = rect.width / 300
         let sy = rect.height / 400

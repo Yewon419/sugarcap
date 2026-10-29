@@ -32,6 +32,8 @@ struct TrendsView: View {
     @State private var weekStart: DayKey?
     /// 월 달력에서 보는 달의 1일. nil = 이번 달.
     @State private var monthShown: DayKey?
+    /// 월 달력 아래 통계까지 내려왔는지(`MonthTrendsView`). 막대를 면 색으로 칠하고 제목을 띄운다.
+    @State private var monthDigestShown = false
     @State private var failureMessage: String?
     /// 하루 기준 화면으로 넘어간 쪽(2026-10-05 설정에서 옮겨 옴).
     @State private var limitSide: CupSide?
@@ -114,10 +116,15 @@ struct TrendsView: View {
             }
         }
         .toolbar {
+            ToolbarItem(placement: .principal) { digestTitle }
             ToolbarItem(placement: .topBarTrailing) { rangeToggle }
         }
         // 월 달력은 사진이 막대 밑까지 깔린다. 카페인 사진은 어두워 막대 글자·상태 막대를 흰색으로.
-        .toolbarBackground(isMonth ? .hidden : .automatic, for: .navigationBar)
+        // 아래 통계까지 내려오면 막대를 통계 바탕색으로 채운다.
+        .toolbarBackground(isMonth ? (monthDigestShown ? .visible : .hidden) : .automatic, for: .navigationBar)
+        .toolbarBackground(
+            isMonth ? AnyShapeStyle(MonthDigestView.background(side)) : AnyShapeStyle(.bar), for: .navigationBar
+        )
         .toolbarColorScheme(isMonth && side == .caffeine ? .dark : nil, for: .navigationBar)
         .overlay {
             if let coachStep {
@@ -214,7 +221,8 @@ struct TrendsView: View {
             inventory: monthInventory(shown: monthShown ?? thisMonth),
             lastYearHearts: MonthInventory.make(
                 gifts: gifts, capBalance: 0, side: side, year: today.year - 1, month: 12, boundaryHour: boundaryHour
-            ).hearts
+            ).hearts,
+            digestShown: $monthDigestShown
         )
     }
 
@@ -333,6 +341,17 @@ struct TrendsView: View {
         .opacity(enabled ? 1 : 0.3)
         .accessibilityLabel(label)
         .accessibilityIdentifier(id)
+    }
+
+    /// 월 통계까지 내려왔을 때만 막대 가운데 "10월 당 통계".
+    @ViewBuilder
+    private var digestTitle: some View {
+        if isMonth, monthDigestShown {
+            let month = (monthShown ?? DayKey(at: Date(), boundaryHour: boundaryHour)).month
+            Text("\(month)월 \(side.label) 통계")
+                .font(AppFont.pretendardFixed(15, .bold))
+                .accessibilityAddTraits(.isHeader)
+        }
     }
 
     /// 주↔월 토글(내비게이션 막대 오른쪽 위). 월은 Pro라 무료가 누르면 페이월을 열고 주에 머문다

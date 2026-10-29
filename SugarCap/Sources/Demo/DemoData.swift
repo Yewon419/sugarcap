@@ -26,6 +26,11 @@ enum DemoData {
             let today = DayKey(at: now, boundaryHour: boundaryHour)
             let existing = try context.fetch(FetchDescriptor<Entry>())
             let days = existing.map { $0.dayKey(boundaryHour: boundaryHour) }
+            if UserDefaults.standard.bool(forKey: "seedDemoDrinks"), days.contains(where: { $0 < today }) {
+                splitPast(existing, today: today, boundaryHour: boundaryHour, context: context, calendar: calendar)
+                try context.save()
+                return
+            }
             guard !days.contains(where: { $0 < today }) else { return }
             if days.isEmpty { seedToday(into: context, country: country, now: now) }
             try seedPast(into: context, today: today, country: country, calendar: calendar)
@@ -112,6 +117,41 @@ enum DemoData {
         } catch {
             logger.error("데모 목표 주입 실패: \(String(describing: error), privacy: .public)")
         }
+    }
+
+    /// `-seedDemoDrinks YES`(월 통계 스크린샷): 이미 심어 둔 지난날 데모 한 잔("직접 입력")을 같은 합계의 두 잔으로 나눈다.
+    /// CI는 앞선 촬영이 심어 둔 기록 위에서 찍으므로 다시 심지 않고 그 자리에서 바꾼다. 통계 촬영은 목록 맨 끝에 둔다.
+    private static func splitPast(
+        _ existing: [Entry], today: DayKey, boundaryHour: Int, context: ModelContext, calendar: Calendar
+    ) {
+        let manual = String(localized: "직접 입력")
+        for entry in existing where entry.brandName == manual && entry.servingID == nil {
+            let day = entry.dayKey(boundaryHour: boundaryHour, calendar: calendar)
+            guard day < today else { continue }
+            let offset = day.days(until: today, calendar: calendar) - 1
+            insertVaried(
+                context, offset: offset, day: day, sugar: entry.sugarG ?? 0, caffeine: entry.caffeineMg ?? 0,
+                calendar: calendar
+            )
+            context.delete(entry)
+        }
+    }
+
+    private static func insertVaried(
+        _ context: ModelContext, offset: Int, day: DayKey, sugar: Double, caffeine: Double, calendar: Calendar
+    ) {
+        let coffees = [("아이스 아메리카노", "메가MGC커피"), ("카페 라떼", "스타벅스"), ("콜드 브루", "투썸플레이스")]
+        let sweets = [("딸기 라떼", "이디야커피"), ("바닐라 라떼", "컴포즈커피"), ("복숭아 아이스티", "메가MGC커피"), ("자바 칩 프라푸치노", "스타벅스")]
+        let coffee = coffees[offset % coffees.count]
+        let sweet = sweets[(offset * 3) % sweets.count]
+        let morning = calendar.date(from: DateComponents(year: day.year, month: day.month, day: day.day, hour: 8 + offset % 3))
+        let later = calendar.date(from: DateComponents(year: day.year, month: day.month, day: day.day, hour: 13 + (offset * 5) % 9))
+        guard let morning, let later else { return }
+        insert(context, coffee.0, coffee.1, "", sugar: (sugar * 0.2).rounded(), caffeine: (caffeine * 0.7).rounded(), at: morning)
+        insert(
+            context, sweet.0, sweet.1, "", sugar: sugar - (sugar * 0.2).rounded(), caffeine: caffeine - (caffeine * 0.7).rounded(),
+            at: later
+        )
     }
 
     private static func insert(

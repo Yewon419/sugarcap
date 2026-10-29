@@ -90,10 +90,29 @@ struct MonthDigestView: View {
             .accessibilityLabel(Text(verbatim: number))
     }
 
-    /// 섹션의 큰 강조 숫자 한 줄: 사진 숫자 + 단위, 오른쪽에 붙는 이름(있으면).
+    /// 섹션의 큰 강조 숫자: 사진 숫자 + 단위, 이름(있으면)은 오른쪽에 붙인다.
+    /// 숫자가 길어 이름이 한 줄에 다 안 들어가면 이름을 숫자 아래 줄로 내린다(영어 카페인 "10 drinks ·…" 잘림).
     private func hero(
         _ number: String, unit: String, of total: String? = nil, title: String? = nil, detail: Text? = nil
     ) -> some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .lastTextBaseline, spacing: 6) {
+                heroFigure(number, unit: unit, of: total)
+                Spacer(minLength: 8)
+                heroLabel(title: title, detail: detail, alignment: .trailing)
+                    .padding(.bottom, 8)
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                heroFigure(number, unit: unit, of: total)
+                heroLabel(title: title, detail: detail, alignment: .leading)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.top, 10)
+        .accessibilityElement(children: .combine)
+    }
+
+    private func heroFigure(_ number: String, unit: String, of total: String?) -> some View {
         HStack(alignment: .lastTextBaseline, spacing: 6) {
             photoNumber(number, size: number.count > 3 ? 84 : 112)
             if let total {
@@ -103,26 +122,26 @@ struct MonthDigestView: View {
             }
             Text(verbatim: unit)
                 .font(AppFont.pretendardFixed(18, .extraBold))
-            Spacer(minLength: 8)
-            if title != nil || detail != nil {
-                VStack(alignment: .trailing, spacing: 2) {
-                    if let title {
-                        Text(verbatim: title)
-                            .font(AppFont.pretendardFixed(16, .extraBold))
-                            .lineLimit(1)
-                    }
-                    if let detail {
-                        detail
-                            .font(AppFont.pretendardFixed(12, .regular))
-                            .foregroundStyle(dim)
-                            .lineLimit(1)
-                    }
+        }
+    }
+
+    @ViewBuilder
+    private func heroLabel(title: String?, detail: Text?, alignment: HorizontalAlignment) -> some View {
+        if title != nil || detail != nil {
+            VStack(alignment: alignment, spacing: 2) {
+                if let title {
+                    Text(verbatim: title)
+                        .font(AppFont.pretendardFixed(16, .extraBold))
+                        .lineLimit(1)
                 }
-                .padding(.bottom, 8)
+                if let detail {
+                    detail
+                        .font(AppFont.pretendardFixed(12, .regular))
+                        .foregroundStyle(dim)
+                        .lineLimit(1)
+                }
             }
         }
-        .padding(.top, 10)
-        .accessibilityElement(children: .combine)
     }
 
     // MARK: - 많이 먹은 음료

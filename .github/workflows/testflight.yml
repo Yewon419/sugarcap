@@ -487,6 +487,10 @@ jobs:
           shoot trends-month-digest-end light large -seedDemo YES -mockProOwned YES -initialTab trends -trendRange month -trendMonthDigest end
           shoot trends-month-digest-caffeine light large -seedDemo YES -mockProOwned YES -initialTab trends -trendRange month -trendSide caffeine -trendMonthDigest top
           shoot trends-month-digest-caffeine-end light large -seedDemo YES -mockProOwned YES -initialTab trends -trendRange month -trendSide caffeine -trendMonthDigest end
+          # 영어 월 통계: 위 촬영이 나눠 둔 기록 그대로(데모 음료 이름은 한국어로 남는다).
+          shoot_en trends-month-digest large -seedDemo YES -mockProOwned YES -initialTab trends -trendRange month -trendMonthDigest top
+          shoot_en trends-month-digest-end large -seedDemo YES -mockProOwned YES -initialTab trends -trendRange month -trendMonthDigest end
+          shoot_en trends-month-digest-caffeine large -seedDemo YES -mockProOwned YES -initialTab trends -trendRange month -trendSide caffeine -trendMonthDigest top
           # 감소 목표는 저장돼 남는다. 맨 끝에 찍고 앱을 지워 스토어 스크린샷(같은 기기일 수 있음)에 넘기지 않는다.
           shoot limit-caffeine-reducing light large -mockProOwned YES -seedGoal caffeine -initialTab trends -trendLimit caffeine
           xcrun simctl uninstall "$SIM_UDID" com.sugarcap.app

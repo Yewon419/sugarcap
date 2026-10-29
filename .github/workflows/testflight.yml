@@ -124,6 +124,9 @@ jobs:
           xcrun simctl launch "$SIM_UDID" com.sugarcap.app
           sleep 8
           xcrun simctl terminate "$SIM_UDID" com.sugarcap.app
+          # 실행 후 찍기까지 대기. 4초는 느린 러너에서 흰 실행 화면이 찍혔다(run 40838033717
+          # en-trends-month-digest-caffeine-slots-type-ax-xl, 2026-10-29).
+          SHOT_WAIT=6
 
           # 시뮬레이터 기본 언어가 영어라 한국어를 인자로 고정한다. 영어 화면은 shoot_en으로 따로 찍는다.
           # 네 번째 인자부터는 앱 실행 인자다. `-key value`는 UserDefaults 인자 도메인으로 들어가
@@ -134,7 +137,7 @@ jobs:
             xcrun simctl ui "$SIM_UDID" appearance "$appearance"
             xcrun simctl ui "$SIM_UDID" content_size "$size"
             xcrun simctl launch "$SIM_UDID" com.sugarcap.app -AppleLanguages "(ko)" -AppleLocale ko_KR "$@"
-            sleep 4
+            sleep "$SHOT_WAIT"
             xcrun simctl io "$SIM_UDID" screenshot "$OUT/$name.png"
             xcrun simctl terminate "$SIM_UDID" com.sugarcap.app
           }
@@ -417,7 +420,7 @@ jobs:
             shift 2
             xcrun simctl ui "$SIM_UDID" content_size "$size"
             xcrun simctl launch "$SIM_UDID" com.sugarcap.app -AppleLanguages "(en)" -AppleLocale en_US -screenshotMenuCountry us "$@"
-            sleep 4
+            sleep "$SHOT_WAIT"
             xcrun simctl io "$SIM_UDID" screenshot "$OUT/en-$name.png"
             xcrun simctl terminate "$SIM_UDID" com.sugarcap.app
           }
@@ -470,7 +473,7 @@ jobs:
             shift 2
             xcrun simctl ui "$SIM_UDID" content_size "$size"
             xcrun simctl launch "$SIM_UDID" com.sugarcap.app -AppleLanguages "(zh-Hant)" -AppleLocale zh_TW -screenshotMenuCountry tw "$@"
-            sleep 4
+            sleep "$SHOT_WAIT"
             xcrun simctl io "$SIM_UDID" screenshot "$OUT/zh-$name.png"
             xcrun simctl terminate "$SIM_UDID" com.sugarcap.app
           }

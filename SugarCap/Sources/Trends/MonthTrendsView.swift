@@ -209,11 +209,11 @@ struct MonthTrendsView: View {
     }
 
     /// 앱이 영어로 떠 있으면 머리에 달 이름을 쓴다. 한국어·중국어는 숫자 + 월/月.
-    private static var namesMonths: Bool {
+    static var namesMonths: Bool {
         Bundle.main.preferredLocalizations.first?.hasPrefix("en") == true
     }
 
-    private static func englishMonth(_ month: Int) -> String {
+    static func englishMonth(_ month: Int) -> String {
         var calendar = Calendar(identifier: .gregorian)
         calendar.locale = Locale(identifier: "en_US")
         let names = calendar.standaloneMonthSymbols

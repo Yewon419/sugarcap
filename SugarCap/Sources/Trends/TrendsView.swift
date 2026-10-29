@@ -348,8 +348,15 @@ struct TrendsView: View {
     private var digestTitle: some View {
         if isMonth, monthDigestShown {
             let month = (monthShown ?? DayKey(at: Date(), boundaryHour: boundaryHour)).month
-            Text("\(month)월 \(side.label) 통계")
-                .font(AppFont.pretendardFixed(15, .bold))
+            Group {
+                if MonthTrendsView.namesMonths {
+                    // 영어는 달 이름(달력 머리 "October · Sugar eaten"과 같은 꼴, 대표님 2026-10-29).
+                    Text(verbatim: "\(MonthTrendsView.englishMonth(month)) · \(side.label) stats")
+                } else {
+                    Text("\(month)월 \(side.label) 통계")
+                }
+            }
+            .font(AppFont.pretendardFixed(15, .bold))
                 .accessibilityAddTraits(.isHeader)
         }
     }

@@ -358,7 +358,9 @@ struct TrendsView: View {
             }
             .font(AppFont.pretendard(15, .bold, relativeTo: .headline))
             .lineLimit(1)
-            .minimumScaleFactor(0.7)
+            .minimumScaleFactor(0.6)
+            // 막대 안은 접근성 크기까지 키우지 않는다. 토글과 같이 커지면 영어 제목이 잘린다(2026-10-29).
+            .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
             .accessibilityAddTraits(.isHeader)
         }
     }
@@ -382,6 +384,7 @@ struct TrendsView: View {
             Text("월").tag(TrendRange.month)
         }
         .pickerStyle(.segmented)
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
         .fixedSize()
         .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { coachFrames[.range] = $0 }
         .accessibilityHint(pro.isPro ? "" : String(localized: "슈가캡 Pro에서 월 추이를 볼 수 있어요"))

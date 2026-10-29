@@ -343,16 +343,16 @@ jobs:
           shoot matcha-rim-stand light large -cupSet.caffeine matcha -screenshotSide caffeine -idlePose rim-stand -idleStep 100 -idleAt 2.5
           shoot matcha-no-swim-50 light large -cupSet.caffeine matcha -screenshotSide caffeine -idlePose swim -idleStep 50 -idleAt 3.7
           shoot matcha-walk-30 light large -cupSet.caffeine matcha -screenshotSide caffeine -idlePose walk -idleStep 30 -idleAt 3.2
-          shoot matcha-feeding light large -cupSet.caffeine matcha -screenshotSide caffeine -screenshotFeeding YES
+          shoot matcha-feeding light large -cupSet.caffeine matcha -screenshotTracks caffeine -screenshotFeeding YES -screenshotFeedingStage dropped
           shoot einspanner-rim-stand light large -cupSet.caffeine einspanner -screenshotSide caffeine -idlePose rim-stand -idleStep 100 -idleAt 2.5
           shoot einspanner-no-swim-80 light large -cupSet.caffeine einspanner -screenshotSide caffeine -idlePose swim -idleStep 80 -idleAt 3.7
-          shoot einspanner-feeding light large -cupSet.caffeine einspanner -screenshotSide caffeine -screenshotFeeding YES
+          shoot einspanner-feeding light large -cupSet.caffeine einspanner -screenshotTracks caffeine -screenshotFeeding YES -screenshotFeedingStage dropped
           shoot mango-in-cup-50 light large -cupSet.sugar mango -idlePose in-cup -idleStep 50 -idleAt 2.5
           shoot mango-walk light large -cupSet.sugar mango -idlePose walk -idleStep 80 -idleAt 3.2
-          shoot mango-feeding light large -cupSet.sugar mango -screenshotFeeding YES
+          shoot mango-feeding light large -cupSet.sugar mango -screenshotFeeding YES -screenshotFeedingStage dropped
           shoot grape-in-cup-30 light large -cupSet.sugar grape -idlePose in-cup -idleStep 30 -idleAt 2.5
           shoot grape-watch light large -cupSet.sugar grape -idlePose watch -idleStep 100 -idleAt 2.5
-          shoot grape-feeding light large -cupSet.sugar grape -screenshotFeeding YES
+          shoot grape-feeding light large -cupSet.sugar grape -screenshotFeeding YES -screenshotFeedingStage dropped
           # 선물(SPEC §4.9): 로슈는 상자를 들고 걸어 들어오고, 카인은 위에서 떨어져 상자 옆에 앉는다.
           # 누르면(-giftOpenAt = 누른 뒤 초) 뚜껑이 열리며 조각이 터지고, 열쇠가 추이 버튼으로 날아가 버튼만 남기고 어두워진다.
           shoot gift-walk light large -screenshotGift trends -giftAt 1.4

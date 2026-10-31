@@ -61,20 +61,52 @@ final class ProStore {
     static var mockPlans: [ProPlan] {
         let prices: (yearly: String, lifetime: String) =
             switch Locale.current.region {
-            case .unitedStates: ("$9.99", "$29.99")
-            case .taiwan: ("NT$190", "NT$590")
-            default: ("₩9,900", "₩29,000")
+            case .unitedStates: ("$19.99", "$29.99")
+            case .taiwan: ("NT$390", "NT$690")
+            default: ("₩20,000", "₩30,000")
             }
+        #if DEBUG
+        // `-mockProNoTrial YES` = 이미 체험한 Apple ID(체험 자격 없음).
+        let trialDays: Int? = UserDefaults.standard.bool(forKey: "mockProNoTrial") ? nil : 7
+        #else
+        let trialDays: Int? = 7
+        #endif
         return [
             ProPlan(
                 id: ProProduct.yearly, title: String(localized: "연간"), price: prices.yearly,
-                note: String(localized: "해지할 때까지 매년")
+                note: yearlyNote(trialDays: trialDays), trialDays: trialDays
             ),
             ProPlan(
                 id: ProProduct.lifetime, title: String(localized: "평생"), price: prices.lifetime,
-                note: String(localized: "한 번만 결제")
+                note: String(localized: "한 번만 결제"), trialDays: nil
             ),
         ]
+    }
+
+    private static func yearlyNote(trialDays: Int?) -> String {
+        guard let trialDays else { return String(localized: "해지할 때까지 매년") }
+        return String(localized: "\(trialDays)일 무료, 이후 매년")
+    }
+
+    /// 연간 구독의 무료 체험 일수. 자격은 같은 구독 그룹의 체험 이력으로 StoreKit이 판정한다.
+    private static func trialDays(of product: Product) async -> Int? {
+        guard let subscription = product.subscription, let offer = subscription.introductoryOffer else { return nil }
+        let unitDays: Int? =
+            switch offer.period.unit {
+            case .day: 1
+            case .week: 7
+            default: nil
+            }
+        if unitDays == nil {
+            Self.logger.error("체험 기간을 일로 바꾸지 못함: \(String(describing: offer.period), privacy: .public)")
+        }
+        let eligible = await subscription.isEligibleForIntroOffer
+        return ProTrial.days(
+            isFreeTrial: offer.paymentMode == .freeTrial,
+            isEligible: eligible,
+            unitDays: unitDays,
+            value: offer.period.value
+        )
     }
 
     /// 앱이 뜰 때 한 번. 권한을 읽고 갱신 스트림을 연다.
@@ -115,15 +147,20 @@ final class ProStore {
         do {
             let loaded = try await Product.products(for: ProProduct.all)
             products = Dictionary(uniqueKeysWithValues: loaded.map { ($0.id, $0) })
-            plans = ProProduct.order.compactMap { id in
-                guard let product = products[id] else { return nil }
-                return ProPlan(
+            var loadedPlans: [ProPlan] = []
+            for id in ProProduct.order {
+                guard let product = products[id] else { continue }
+                var trial: Int?
+                if id != ProProduct.lifetime { trial = await Self.trialDays(of: product) }
+                loadedPlans.append(ProPlan(
                     id: id,
                     title: product.displayName,
                     price: product.displayPrice,
-                    note: id == ProProduct.lifetime ? String(localized: "한 번만 결제") : String(localized: "해지할 때까지 매년")
-                )
+                    note: id == ProProduct.lifetime ? String(localized: "한 번만 결제") : Self.yearlyNote(trialDays: trial),
+                    trialDays: trial
+                ))
             }
+            plans = loadedPlans
             failure = plans.isEmpty ? String(localized: "상품을 불러오지 못했어요.") : nil
         } catch {
             Self.logger.error("상품 로드 실패: \(String(describing: error), privacy: .public)")

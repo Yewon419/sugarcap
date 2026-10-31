@@ -490,6 +490,54 @@
         }
       }
     },
+    "%lld일 무료, 이후 매년" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld days free, then yearly"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "免費%lld天，之後每年"
+          }
+        }
+      }
+    },
+    "%lld일 무료로 시작" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start %lld-day free trial"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開始%lld天免費試用"
+          }
+        }
+      }
+    },
+    "무료 체험 %lld일이 끝나면 매년 %@씩 결제돼요. 체험이 끝나기 24시간 전까지 해지하면 결제되지 않아요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "After the %1$lld-day free trial, you'll be charged %2$@ per year. Cancel at least 24 hours before the trial ends and you won't be charged."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld天免費試用結束後，每年收取%2$@。在試用結束前至少24小時取消即不會收費。"
+          }
+        }
+      }
+    },
     "%@은 %@ %@ 남아요" : {
       "localizations" : {
         "en" : {

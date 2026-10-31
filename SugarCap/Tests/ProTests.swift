@@ -23,6 +23,27 @@ final class ProEntitlementTests: XCTestCase {
     }
 }
 
+final class ProTrialTests: XCTestCase {
+    func testOneWeekFreeTrialIsSevenDays() {
+        XCTAssertEqual(ProTrial.days(isFreeTrial: true, isEligible: true, unitDays: 7, value: 1), 7)
+        XCTAssertEqual(ProTrial.days(isFreeTrial: true, isEligible: true, unitDays: 1, value: 7), 7)
+    }
+
+    /// 이미 체험한 Apple ID에게 "무료"를 보여 주면 결제 안내와 실제 청구가 어긋난다.
+    func testNoTrialWhenNotEligibleOrNotFree() {
+        XCTAssertNil(ProTrial.days(isFreeTrial: true, isEligible: false, unitDays: 7, value: 1))
+        XCTAssertNil(ProTrial.days(isFreeTrial: false, isEligible: true, unitDays: 7, value: 1))
+        XCTAssertNil(ProTrial.days(isFreeTrial: true, isEligible: true, unitDays: nil, value: 1))
+    }
+
+    @MainActor
+    func testMockPlansOfferTrialOnYearlyOnly() {
+        let plans = ProStore.mockPlans
+        XCTAssertEqual(plans.first { $0.id == ProProduct.yearly }?.trialDays, 7)
+        XCTAssertNil(plans.first { $0.id == ProProduct.lifetime }?.trialDays)
+    }
+}
+
 final class ProFeatureTests: XCTestCase {
     func testEveryListedFeatureIsLockedForFreeAndOpenForPro() {
         for feature in ProFeature.allCases {

@@ -1,6 +1,7 @@
 import Foundation
 
-/// Pro 상품(SPEC §6). 가격 티어는 App Store Connect에서 정한다(연간 ₩9,900·$9.99·NT$190, 평생 ₩29,000·$29.99·NT$590. 대만은 미국 가격의 자동 환산).
+/// Pro 상품(SPEC §6). 가격 티어는 App Store Connect에서 정한다(연간 ₩20,000·$19.99·NT$390, 평생 ₩30,000·$29.99·NT$690.
+/// 미국만 수동 지정, 대만은 한국 가격의 자동 환산). 연간에는 7일 무료 체험(도입 혜택)이 붙는다.
 enum ProProduct {
     static let yearly = "com.sugarcap.app.pro.yearly"
     static let lifetime = "com.sugarcap.app.pro.lifetime"
@@ -18,8 +19,19 @@ struct ProPlan: Identifiable, Equatable, Sendable {
     let title: String
     let price: String
     let note: String?
+    /// 무료 체험 일수. 체험이 없거나 이 Apple ID가 이미 체험했으면 nil.
+    let trialDays: Int?
 
     var isLifetime: Bool { id == ProProduct.lifetime }
+}
+
+/// 연간 구독의 무료 체험(App Store 도입 혜택). 자격은 Apple ID·구독 그룹당 한 번이라 StoreKit이 판정한다.
+enum ProTrial {
+    /// 체험이 무료이고 자격이 있을 때만 일수를 준다. 기간을 일로 못 바꾸면(월·년 단위) nil.
+    static func days(isFreeTrial: Bool, isEligible: Bool, unitDays: Int?, value: Int) -> Int? {
+        guard isFreeTrial, isEligible, let unitDays, value > 0 else { return nil }
+        return unitDays * value
+    }
 }
 
 /// Pro 권한 판정. 구독(연간)이든 평생이든 하나만 있으면 Pro다.

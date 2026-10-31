@@ -14,7 +14,7 @@ enum AppLinks {
 }
 
 /// 페이월(SPEC §6). 2026-10-28 매거진 시안(`design/proto/paywall-mag.html`)을 옮겼다.
-/// 머리글 → -8° 기운 지면(검은 띠 = 기능 탭, 탭마다 기사 두 개) → 제목·누르다 온 기능 → 엇갈린 요금 두 칸(평생 추천, 로슈·카인) → 시작 + 갱신 안내·약관.
+/// 머리글 → -8° 기운 지면(검은 띠 = 기능 탭, 탭마다 기사 두 개) → 제목·누르다 온 기능 → 엇갈린 요금 두 칸(연간 추천·처음 선택 + 7일 무료 체험, 평생 칸 위 로슈·카인) → 시작 + 갱신 안내·약관.
 /// 자동 갱신 구독이라 갱신·해지 안내와 약관 링크, 구매 복원을 빼면 심사에 걸린다.
 /// 큰 글자(접근성 크기)에서는 요금 칸을 기울이지 않고 세로로 쌓는다. 지면은 그림이라 크기가 고정이다.
 struct PaywallView: View {
@@ -25,7 +25,7 @@ struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var typeSize
-    @State private var selectedPlanID = ProProduct.lifetime
+    @State private var selectedPlanID = ProProduct.yearly
     @State private var tab: PaywallTab
 
     init(feature: ProFeature?) {
@@ -206,7 +206,7 @@ struct PaywallView: View {
             VStack(alignment: alignment, spacing: 1) {
                 HStack(spacing: 0) {
                     Text(plan.title)
-                    if plan.isLifetime {
+                    if !plan.isLifetime {
                         Text(verbatim: " · ")
                         Text("추천").foregroundStyle(PaywallStyle.sugar)
                     }
@@ -278,7 +278,7 @@ struct PaywallView: View {
                     if store.purchasingID != nil {
                         ProgressView().tint(.white)
                     } else {
-                        Text(selectedPlan.map { String(localized: "\($0.title)으로 시작") } ?? String(localized: "시작"))
+                        Text(purchaseTitle)
                     }
                 }
                 .ctaLabel()
@@ -299,9 +299,29 @@ struct PaywallView: View {
         .background(Color.white)
     }
 
+    private var purchaseTitle: String {
+        guard let plan = selectedPlan else { return String(localized: "시작") }
+        if let days = plan.trialDays { return String(localized: "\(days)일 무료로 시작") }
+        return String(localized: "\(plan.title)으로 시작")
+    }
+
+    /// 체험이 끝나면 얼마가 결제되는지. 심사(3.1.2)상 체험 시작 전에 보여야 한다.
+    private var trialNotice: String? {
+        guard let yearly = store.plans.first(where: { $0.trialDays != nil }), let days = yearly.trialDays else { return nil }
+        return String(localized: "무료 체험 \(days)일이 끝나면 매년 \(yearly.price)씩 결제돼요. 체험이 끝나기 24시간 전까지 해지하면 결제되지 않아요.")
+    }
+
     /// 자동 갱신 안내와 약관 링크. 심사 필수라 어느 글자 크기에서도 빠지지 않는다.
     private var legal: some View {
         VStack(spacing: 7) {
+            if let trialNotice {
+                Text(trialNotice)
+                    .font(AppFont.pretendard(10.5, .regular, relativeTo: .caption2))
+                    .lineSpacing(2)
+                    .foregroundStyle(PaywallStyle.sub)
+                    .multilineTextAlignment(.center)
+                    .accessibilityIdentifier("paywall-trial-notice")
+            }
             Text("연간 구독은 기간이 끝나기 24시간 전에 해지하지 않으면 자동으로 갱신돼요. 해지는 App Store 계정 설정에서 해요.")
                 .font(AppFont.pretendard(10.5, .regular, relativeTo: .caption2))
                 .lineSpacing(2)

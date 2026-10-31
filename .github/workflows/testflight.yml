@@ -202,6 +202,8 @@ jobs:
           shoot feeding light large -screenshotFeeding YES
           shoot paywall light large -mockPro YES -screenshotPaywall YES
           shoot paywall-type-ax-xl light accessibility-extra-large -mockPro YES -screenshotPaywall YES
+          # 이미 체험한 Apple ID: 연간 칸·버튼에 "무료"가 없어야 한다.
+          shoot paywall-no-trial light large -mockPro YES -mockProNoTrial YES -screenshotPaywall YES
           shoot record light large -seedDemo YES -screenshotRecord YES
           shoot record-type-ax-xl light accessibility-extra-large -seedDemo YES -screenshotRecord YES
           shoot daylog light large -seedDemo YES -screenshotDayLog YES

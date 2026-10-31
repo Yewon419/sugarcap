@@ -31,10 +31,10 @@ STEPS = (30, 50, 80, 100)
 # 토핑이 숫자 자리까지 올라오는 세트만. 나머지 세트는 수면이 숫자 바닥보다 아래다.
 SETS = ("choco-frappe", "mango", "einspanner")
 # 세트 → 단계 → 흰 크림 윗면(사진 높이 비율, 가운데 열). `IdleCast.swift` `liquid`와 같은 값이고, 프라페 100%는
-# 크림이 입구를 덮어 입구 뒤 가장자리(`chocoFrappe.rim[100].back`)를 쓴다.
+# 크림이 입구를 덮어 입구 뒤 가장자리(`chocoFrappe.rim[100].back`, 아메리카노 잔 값)를 쓴다.
 SURFACE: dict[str, dict[int, float]] = {
     "einspanner": {80: 0.32, 100: 0.30},
-    "choco-frappe": {100: 0.2659},
+    "choco-frappe": {100: 0.2683},
 }
 BOTTOM = 0.33  # 숫자 바닥(CupHero.baselineRatio 0.328) 바로 아래
 SATURATION = 70  # HSV S(0~255). 이보다 진하면 토핑 색
@@ -42,9 +42,6 @@ DARK = 110  # HSV V. 이보다 어두우면 토핑(초코 시럽)
 CLOSE = 7  # 토핑 덩어리 안 틈(망고 조각 사이 하이라이트 등)을 메우는 지름(px)
 SPECK = 300  # 이보다 작은 덩어리(px)는 잡티
 RISEN_MARGIN = 4  # 누끼 차이를 보는 아래끝 = 입구 타원 위끝 - 이 값(px)
-# 입구 타원을 다른 단계 유리 선에서 맞추는 경우. 프라페 100%는 유리 선에 시럽 조각이 섞여 타원이 틀어진다
-# (`IdleCast.chocoFrappe`도 100%는 80% 가장자리 값을 쓴다).
-RIM_FROM: dict[str, dict[int, int]] = {"choco-frappe": {100: 80}}
 
 
 def photo_path(cup_set: str, step: int) -> str:
@@ -66,7 +63,6 @@ def cutout_alpha(cup_set: str, step: int) -> NDArray[np.uint8]:
 def rim_ellipse(
     cup_set: str, step: int
 ) -> tuple[tuple[float, float], tuple[float, float], float]:
-    step = RIM_FROM.get(cup_set, {}).get(step, step)
     path = os.path.join(ASSETS, f"rimline-{cup_set}-{step}.imageset", f"{step}.png")
     alpha = read_image(path, cv2.IMREAD_UNCHANGED)[:, :, 3]
     return fit_rim(alpha > 128)

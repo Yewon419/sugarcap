@@ -18,7 +18,7 @@ final class CatalogTests: XCTestCase {
 
         XCTAssertTrue(CatalogStore.supportedSchemaVersions.contains(catalog.schemaVersion), "schema_version \(catalog.schemaVersion)")
         XCTAssertNotNil(catalog.builtAtDate, "built_at이 ISO 8601이 아님: \(catalog.builtAt)")
-        XCTAssertEqual(catalog.brands.count, 12)
+        XCTAssertEqual(catalog.brands.count, 14)
         XCTAssertFalse(catalog.drinks.isEmpty)
     }
 

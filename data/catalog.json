@@ -1,6 +1,6 @@
 {
  "schema_version": 2,
- "built_at": "2026-10-31T05:12:45+00:00",
+ "built_at": "2026-10-31T05:38:13+00:00",
  "brands": [
   {
    "id": "starbucks",
@@ -73,6 +73,18 @@
    "name": "배스킨라빈스",
    "serving_note": "사이즈별 1회 제공량 기준. 배스킨라빈스 공식 영양정보 게시값",
    "has_size_choice": true
+  },
+  {
+   "id": "coffeebean",
+   "name": "커피빈",
+   "serving_note": "1잔 기준(사이즈 미게시). 커피빈 공식 영양정보 게시값",
+   "has_size_choice": false
+  },
+  {
+   "id": "parisbaguette",
+   "name": "파리바게뜨",
+   "serving_note": "1잔(총 내용량) 기준. 파리바게뜨 공식 영양정보 게시값",
+   "has_size_choice": false
   }
  ],
  "drinks": [
@@ -387283,6 +387295,3786 @@
      "volume_ml": 460,
      "sugar_g": 33.0,
      "caffeine_mg": 260.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:고흥-유자-레몬-캐모마일-티:both",
+   "brand_id": "coffeebean",
+   "name": "고흥 유자 레몬 캐모마일 티",
+   "name_en": "Goheung Yuzu Lemon Chamomile Tea",
+   "category": "티",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "coffeebean:고흥-유자-레몬-캐모마일-티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 22.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:고흥유자-캐모마일-아이스-블렌디드:iced",
+   "brand_id": "coffeebean",
+   "name": "고흥유자 캐모마일 아이스 블렌디드",
+   "name_en": "GoHeung Yuzu Chamomile Ice Blended",
+   "category": "아이스 블렌디드 (Non-Coffee)",
+   "temperature": "iced",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "coffeebean:고흥유자-캐모마일-아이스-블렌디드:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 65.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:광양-매화-자스민-티:both",
+   "brand_id": "coffeebean",
+   "name": "광양 매화 자스민 티",
+   "name_en": "Plum Blossom Jasmine Tea",
+   "category": "티",
+   "temperature": "both",
+   "liquid_color": "#D9A441",
+   "servings": [
+    {
+     "id": "coffeebean:광양-매화-자스민-티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 58.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:그린밸런스:both",
+   "brand_id": "coffeebean",
+   "name": "그린밸런스",
+   "name_en": "Green Balance",
+   "category": "커피빈 주스(병음료)",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "coffeebean:그린밸런스:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:달고나-크림-ib:both",
+   "brand_id": "coffeebean",
+   "name": "달고나 크림 IB",
+   "name_en": "Dalgona Cream IB",
+   "category": "신음료",
+   "temperature": "both",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "coffeebean:달고나-크림-ib:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 76.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:달고나-크림-라떼:both",
+   "brand_id": "coffeebean",
+   "name": "달고나 크림 라떼",
+   "name_en": "dalgona cream latte",
+   "category": "신음료",
+   "temperature": "both",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "coffeebean:달고나-크림-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 59.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:더-건강한-스트로베리-주스:both",
+   "brand_id": "coffeebean",
+   "name": "더 건강한 스트로베리 주스",
+   "name_en": "Strawberry Juice",
+   "category": "커피빈 주스(병음료)",
+   "temperature": "both",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "coffeebean:더-건강한-스트로베리-주스:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 24.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:더블-브레베-라떼:both",
+   "brand_id": "coffeebean",
+   "name": "더블 브레베 라떼",
+   "name_en": "Double Breve Latte",
+   "category": "신음료",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "coffeebean:더블-브레베-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 27.0,
+     "caffeine_mg": 182.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:드립커피:both",
+   "brand_id": "coffeebean",
+   "name": "드립커피",
+   "name_en": "Drip Coffee",
+   "category": "브루드 커피",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "coffeebean:드립커피:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 148.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:레몬-민트-티:both",
+   "brand_id": "coffeebean",
+   "name": "레몬 민트 티",
+   "name_en": "Lemon Mint Tea",
+   "category": "티",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "coffeebean:레몬-민트-티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:레몬-캐모마일:both",
+   "brand_id": "coffeebean",
+   "name": "레몬 캐모마일",
+   "name_en": "Lemon Chamomile",
+   "category": "티",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "coffeebean:레몬-캐모마일:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 1.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:리치-코코넛-아이스-블렌디드:iced",
+   "brand_id": "coffeebean",
+   "name": "리치 코코넛 아이스 블렌디드",
+   "name_en": "Lychee & Coconut Ice Blended",
+   "category": "신음료",
+   "temperature": "iced",
+   "liquid_color": "#F1E6CF",
+   "servings": [
+    {
+     "id": "coffeebean:리치-코코넛-아이스-블렌디드:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 68.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:마끼아토-더블:both",
+   "brand_id": "coffeebean",
+   "name": "마끼아토 더블",
+   "name_en": "Macchiato Double",
+   "category": "에스프레소 음료",
+   "temperature": "both",
+   "liquid_color": "#2E1B12",
+   "servings": [
+    {
+     "id": "coffeebean:마끼아토-더블:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 1.0,
+     "caffeine_mg": 198.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:마끼아토-싱글:both",
+   "brand_id": "coffeebean",
+   "name": "마끼아토 싱글",
+   "name_en": "Macchiato Single",
+   "category": "에스프레소 음료",
+   "temperature": "both",
+   "liquid_color": "#2E1B12",
+   "servings": [
+    {
+     "id": "coffeebean:마끼아토-싱글:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 1.0,
+     "caffeine_mg": 91.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:마끼아토네:both",
+   "brand_id": "coffeebean",
+   "name": "마끼아토네",
+   "name_en": "Macchiatone",
+   "category": "에스프레소 음료",
+   "temperature": "both",
+   "liquid_color": "#2E1B12",
+   "servings": [
+    {
+     "id": "coffeebean:마끼아토네:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 5.0,
+     "caffeine_mg": 91.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:망고-바나나-아이스-블렌디드:iced",
+   "brand_id": "coffeebean",
+   "name": "망고 바나나 아이스 블렌디드",
+   "name_en": "Mango Banana Ice Blended",
+   "category": "아이스 블렌디드 (Non-Coffee)",
+   "temperature": "iced",
+   "liquid_color": "#F7B32B",
+   "servings": [
+    {
+     "id": "coffeebean:망고-바나나-아이스-블렌디드:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 87.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:매화-자스민-자몽-티:both",
+   "brand_id": "coffeebean",
+   "name": "매화 자스민 자몽 티",
+   "name_en": "Plum Blossom Jasmine Grapefruit Tea",
+   "category": "티",
+   "temperature": "both",
+   "liquid_color": "#F06B5B",
+   "servings": [
+    {
+     "id": "coffeebean:매화-자스민-자몽-티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 27.0,
+     "caffeine_mg": 58.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:바닐라-라떼:both",
+   "brand_id": "coffeebean",
+   "name": "바닐라 라떼",
+   "name_en": "Vanilla latte",
+   "category": "에스프레소 음료",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "coffeebean:바닐라-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 46.0,
+     "caffeine_mg": 91.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:바닐라-루이보스-티:both",
+   "brand_id": "coffeebean",
+   "name": "바닐라 루이보스 티",
+   "name_en": "Vanilla Rooibos Tea",
+   "category": "티",
+   "temperature": "both",
+   "liquid_color": "#D9A441",
+   "servings": [
+    {
+     "id": "coffeebean:바닐라-루이보스-티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:바닐라-빈-플랫화이트:both",
+   "brand_id": "coffeebean",
+   "name": "바닐라 빈 플랫화이트",
+   "name_en": "Vanilla Bean Flat White",
+   "category": "신음료",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "coffeebean:바닐라-빈-플랫화이트:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 25.0,
+     "caffeine_mg": 182.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:바닐라-아이스-블렌디드:iced",
+   "brand_id": "coffeebean",
+   "name": "바닐라 아이스 블렌디드",
+   "name_en": "Vanilla Ice Blended",
+   "category": "아이스 블렌디드 (Coffee)",
+   "temperature": "iced",
+   "liquid_color": "#F1E6CF",
+   "servings": [
+    {
+     "id": "coffeebean:바닐라-아이스-블렌디드:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 54.0,
+     "caffeine_mg": 148.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:바닐라빈-오트-블랙다이몬:both",
+   "brand_id": "coffeebean",
+   "name": "바닐라빈 오트 블랙다이몬",
+   "name_en": "Vanilla Bean Oat Black Dimon",
+   "category": "신음료",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "coffeebean:바닐라빈-오트-블랙다이몬:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 22.0,
+     "caffeine_mg": 281.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:바닐라빈-오트-콜드브루:both",
+   "brand_id": "coffeebean",
+   "name": "바닐라빈 오트 콜드브루",
+   "name_en": "vanilla Bean Oat Cold Brew",
+   "category": "브루드 커피",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "coffeebean:바닐라빈-오트-콜드브루:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 18.0,
+     "caffeine_mg": 144.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:바닐라빈-오트라떼:both",
+   "brand_id": "coffeebean",
+   "name": "바닐라빈 오트라떼",
+   "name_en": "vanilla Bean Oat Latte",
+   "category": "에스프레소 음료",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "coffeebean:바닐라빈-오트라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 23.0,
+     "caffeine_mg": 91.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:브라운-마끼아토네:both",
+   "brand_id": "coffeebean",
+   "name": "브라운 마끼아토네",
+   "name_en": "Brown Macchiatone",
+   "category": "에스프레소 음료",
+   "temperature": "both",
+   "liquid_color": "#2E1B12",
+   "servings": [
+    {
+     "id": "coffeebean:브라운-마끼아토네:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 13.0,
+     "caffeine_mg": 91.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:블랙다이몬-아메리카노:both",
+   "brand_id": "coffeebean",
+   "name": "블랙다이몬 아메리카노",
+   "name_en": "Black Dimon Americano",
+   "category": "신음료",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "coffeebean:블랙다이몬-아메리카노:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 281.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:블랙다이몬-카페라떼:both",
+   "brand_id": "coffeebean",
+   "name": "블랙다이몬 카페라떼",
+   "name_en": "Black Dimon Cafe Latte",
+   "category": "신음료",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "coffeebean:블랙다이몬-카페라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 9.0,
+     "caffeine_mg": 281.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:블랙다이몬-카페수아:both",
+   "brand_id": "coffeebean",
+   "name": "블랙다이몬 카페수아",
+   "name_en": "Black Dimon Cafe Sua",
+   "category": "신음료",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "coffeebean:블랙다이몬-카페수아:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 41.0,
+     "caffeine_mg": 281.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:살구-실론:both",
+   "brand_id": "coffeebean",
+   "name": "살구 실론",
+   "name_en": "Apricot Ceylon",
+   "category": "티",
+   "temperature": "both",
+   "liquid_color": "#F7A57A",
+   "servings": [
+    {
+     "id": "coffeebean:살구-실론:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 83.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:슈크림-라떼:both",
+   "brand_id": "coffeebean",
+   "name": "슈크림 라떼",
+   "name_en": "Choux Cream Latte",
+   "category": "신음료",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "coffeebean:슈크림-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 43.0,
+     "caffeine_mg": 91.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:슈크림-카라멜-아이스-블렌디드:iced",
+   "brand_id": "coffeebean",
+   "name": "슈크림 카라멜 아이스 블렌디드",
+   "name_en": "Choux Cream Caramel Ice Blended",
+   "category": "신음료",
+   "temperature": "iced",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "coffeebean:슈크림-카라멜-아이스-블렌디드:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 65.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:스웨디쉬-베리즈:both",
+   "brand_id": "coffeebean",
+   "name": "스웨디쉬 베리즈",
+   "name_en": "Swedish Berries",
+   "category": "티",
+   "temperature": "both",
+   "liquid_color": "#C0283E",
+   "servings": [
+    {
+     "id": "coffeebean:스웨디쉬-베리즈:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:스팀밀크:both",
+   "brand_id": "coffeebean",
+   "name": "스팀밀크",
+   "name_en": "Steam Milk",
+   "category": "기타 제조 음료",
+   "temperature": "both",
+   "liquid_color": "#F4EFE6",
+   "servings": [
+    {
+     "id": "coffeebean:스팀밀크:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 17.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:스파클링-고흥유자-레몬-캐모마일:both",
+   "brand_id": "coffeebean",
+   "name": "스파클링 고흥유자 레몬 캐모마일",
+   "name_en": "Sparkling Goheung Yuzu Lemon Chamomile Tea",
+   "category": "티",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "coffeebean:스파클링-고흥유자-레몬-캐모마일:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 22.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:스파클링-매화-자스민-자몽:both",
+   "brand_id": "coffeebean",
+   "name": "스파클링 매화 자스민 자몽",
+   "name_en": "Sparkling Plum Blossom Jasmine Grapefruit",
+   "category": "티",
+   "temperature": "both",
+   "liquid_color": "#F06B5B",
+   "servings": [
+    {
+     "id": "coffeebean:스파클링-매화-자스민-자몽:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 27.0,
+     "caffeine_mg": 29.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:스파클링-애플-스파이스:both",
+   "brand_id": "coffeebean",
+   "name": "스파클링 애플 스파이스",
+   "name_en": "Sparkling Apple Spice",
+   "category": "신음료",
+   "temperature": "both",
+   "liquid_color": "#E2B65A",
+   "servings": [
+    {
+     "id": "coffeebean:스파클링-애플-스파이스:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 44.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:스파클링-제주-레몬-스웨디쉬:both",
+   "brand_id": "coffeebean",
+   "name": "스파클링 제주 레몬 스웨디쉬",
+   "name_en": "Sparkling Jeju Lemon Swedish",
+   "category": "티",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "coffeebean:스파클링-제주-레몬-스웨디쉬:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 40.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아메리카노:both",
+   "brand_id": "coffeebean",
+   "name": "아메리카노",
+   "name_en": "Americano",
+   "category": "에스프레소 음료",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "coffeebean:아메리카노:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 182.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-광양-매화-자스민-티:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 광양 매화 자스민 티",
+   "name_en": "Iced Plum Blossom Jasmine Tea",
+   "category": "티",
+   "temperature": "iced",
+   "liquid_color": "#D9A441",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-광양-매화-자스민-티:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 58.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-더블-브레베-라떼:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 더블 브레베 라떼",
+   "name_en": "Iced Double Breve Latte",
+   "category": "신음료",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-더블-브레베-라떼:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 17.0,
+     "caffeine_mg": 182.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-더블-초콜릿:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 더블 초콜릿",
+   "name_en": "Iced Double Chocolate",
+   "category": "기타 제조 음료",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-더블-초콜릿:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 36.0,
+     "caffeine_mg": 15.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-드립커피:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 드립커피",
+   "name_en": "Iced Drip Coffee",
+   "category": "브루드 커피",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-드립커피:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 74.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-레몬-민트-티:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 레몬 민트 티",
+   "name_en": "Iced Lemon Mint Tea",
+   "category": "티",
+   "temperature": "iced",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-레몬-민트-티:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-레몬-캐모마일:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 레몬 캐모마일",
+   "name_en": "Iced Lemon Chamomile",
+   "category": "티",
+   "temperature": "iced",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-레몬-캐모마일:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 1.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-바닐라-라떼:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 바닐라 라떼",
+   "name_en": "Iced Vanilla latte",
+   "category": "에스프레소 음료",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-바닐라-라떼:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 33.0,
+     "caffeine_mg": 91.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-바닐라-루이보스-티:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 바닐라 루이보스 티",
+   "name_en": "Iced Vanilla Rooibos Tea",
+   "category": "티",
+   "temperature": "iced",
+   "liquid_color": "#D9A441",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-바닐라-루이보스-티:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-바닐라-빈-플랫화이트:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 바닐라 빈 플랫화이트",
+   "name_en": "Iced Vanilla Bean Flat White",
+   "category": "신음료",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-바닐라-빈-플랫화이트:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 19.0,
+     "caffeine_mg": 182.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-바닐라빈-오트라떼:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 바닐라빈 오트라떼",
+   "name_en": "Iced vanilla Bean Oat Latte",
+   "category": "에스프레소 음료",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-바닐라빈-오트라떼:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 19.0,
+     "caffeine_mg": 91.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-살구-실론:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 살구 실론",
+   "name_en": "Iced Apricot Ceylon",
+   "category": "티",
+   "temperature": "iced",
+   "liquid_color": "#F7A57A",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-살구-실론:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 83.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-슈크림-라떼:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 슈크림 라떼",
+   "name_en": "Iced Choux Cream Latte",
+   "category": "신음료",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-슈크림-라떼:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 50.0,
+     "caffeine_mg": 91.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-스웨디쉬-베리즈:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 스웨디쉬 베리즈",
+   "name_en": "Iced Swedish Berries",
+   "category": "티",
+   "temperature": "iced",
+   "liquid_color": "#C0283E",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-스웨디쉬-베리즈:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-아메리카노:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 아메리카노",
+   "name_en": "Iced Americano",
+   "category": "에스프레소 음료",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-아메리카노:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 91.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-애플파이-크림라떼:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 애플파이 크림라떼",
+   "name_en": "Iced Apple Pie Cream Latte",
+   "category": "신음료",
+   "temperature": "iced",
+   "liquid_color": "#E2B65A",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-애플파이-크림라떼:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 55.0,
+     "caffeine_mg": 91.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-얼-그레이:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 얼 그레이",
+   "name_en": "Iced Earl Grey",
+   "category": "티",
+   "temperature": "iced",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-얼-그레이:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 65.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-에스프레소:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 에스프레소",
+   "name_en": "Iced Espresso",
+   "category": "에스프레소 음료",
+   "temperature": "iced",
+   "liquid_color": "#2E1B12",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-에스프레소:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 273.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-잉글리쉬-브렉퍼스트:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 잉글리쉬 브렉퍼스트",
+   "name_en": "Iced English Breakfast",
+   "category": "티",
+   "temperature": "iced",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-잉글리쉬-브렉퍼스트:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 77.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-잉글리쉬-브렉퍼스트-라떼:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 잉글리쉬 브렉퍼스트 라떼",
+   "name_en": "Iced English Breakfast Latte",
+   "category": "티 라떼",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-잉글리쉬-브렉퍼스트-라떼:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 45.0,
+     "caffeine_mg": 154.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-제주-유기농-작설차:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 제주 유기농 작설차",
+   "name_en": "Iced Jeju Organic Green",
+   "category": "티",
+   "temperature": "iced",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-제주-유기농-작설차:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 33.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-제주-첫물-말차-라떼:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 제주 첫물 말차 라떼",
+   "name_en": "Jeju Matcha Latte",
+   "category": "티 라떼",
+   "temperature": "iced",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-제주-첫물-말차-라떼:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 61.0,
+     "caffeine_mg": 209.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-차이-라떼:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 차이 라떼",
+   "name_en": "Iced Chai Latte",
+   "category": "티 라떼",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-차이-라떼:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 45.0,
+     "caffeine_mg": 74.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-카페라떼:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 카페라떼",
+   "name_en": "Iced Cafe Latte",
+   "category": "에스프레소 음료",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-카페라떼:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 9.0,
+     "caffeine_mg": 91.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-카페모카:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 카페모카",
+   "name_en": "Iced Cafe Mocha",
+   "category": "에스프레소 음료",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-카페모카:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 38.0,
+     "caffeine_mg": 102.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-카페수아:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 카페수아",
+   "name_en": "Iced Cafe Sua",
+   "category": "에스프레소 음료",
+   "temperature": "iced",
+   "liquid_color": "#2E1B12",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-카페수아:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 35.0,
+     "caffeine_mg": 182.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-카푸치노:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 카푸치노",
+   "name_en": "Iced Cappuccino",
+   "category": "에스프레소 음료",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-카푸치노:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 3.0,
+     "caffeine_mg": 91.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-캐러멜-마키아또:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 캐러멜 마키아또",
+   "name_en": "Iced Caramel Macchiato",
+   "category": "에스프레소 음료",
+   "temperature": "iced",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-캐러멜-마키아또:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 34.0,
+     "caffeine_mg": 91.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-커피빈라떼:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 커피빈라떼",
+   "name_en": "Iced Coffeebean Latte",
+   "category": "에스프레소 음료",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-커피빈라떼:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 9.0,
+     "caffeine_mg": 193.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-커피빈카노:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 커피빈카노",
+   "name_en": "Iced Coffeebeancano",
+   "category": "에스프레소 음료",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-커피빈카노:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 193.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-헤이즐넛-라떼:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 헤이즐넛 라떼",
+   "name_en": "Iced Hazelnut Latte",
+   "category": "에스프레소 음료",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-헤이즐넛-라떼:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 37.0,
+     "caffeine_mg": 91.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:아이스-헤이즐넛-아메리카노:iced",
+   "brand_id": "coffeebean",
+   "name": "아이스 헤이즐넛 아메리카노",
+   "name_en": "Hazelnut Iced Americano",
+   "category": "에스프레소 음료",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "coffeebean:아이스-헤이즐넛-아메리카노:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 28.0,
+     "caffeine_mg": 91.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:애플-스파이스-티:both",
+   "brand_id": "coffeebean",
+   "name": "애플 스파이스 티",
+   "name_en": "Apple Spice Tea",
+   "category": "신음료",
+   "temperature": "both",
+   "liquid_color": "#E2B65A",
+   "servings": [
+    {
+     "id": "coffeebean:애플-스파이스-티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 54.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:애플파이-크림라떼:both",
+   "brand_id": "coffeebean",
+   "name": "애플파이 크림라떼",
+   "name_en": "Apple Pie Cream Latte",
+   "category": "신음료",
+   "temperature": "both",
+   "liquid_color": "#E2B65A",
+   "servings": [
+    {
+     "id": "coffeebean:애플파이-크림라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 74.0,
+     "caffeine_mg": 91.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:얼-그레이:both",
+   "brand_id": "coffeebean",
+   "name": "얼 그레이",
+   "name_en": "Earl Grey",
+   "category": "티",
+   "temperature": "both",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "coffeebean:얼-그레이:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 65.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:에스프레소-달고나-크림-ib:both",
+   "brand_id": "coffeebean",
+   "name": "에스프레소 달고나 크림 IB",
+   "name_en": "Espresso Dalgona Cream IB",
+   "category": "신음료",
+   "temperature": "both",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "coffeebean:에스프레소-달고나-크림-ib:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 75.0,
+     "caffeine_mg": 91.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:에스프레소-달고나-크림-라떼:both",
+   "brand_id": "coffeebean",
+   "name": "에스프레소 달고나 크림 라떼",
+   "name_en": "Espresso dalgona cream latte",
+   "category": "신음료",
+   "temperature": "both",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "coffeebean:에스프레소-달고나-크림-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 59.0,
+     "caffeine_mg": 91.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:에스프레소-더블:both",
+   "brand_id": "coffeebean",
+   "name": "에스프레소 더블",
+   "name_en": "Espresso Double",
+   "category": "에스프레소 음료",
+   "temperature": "both",
+   "liquid_color": "#2E1B12",
+   "servings": [
+    {
+     "id": "coffeebean:에스프레소-더블:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 182.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:에스프레소-싱글:both",
+   "brand_id": "coffeebean",
+   "name": "에스프레소 싱글",
+   "name_en": "Espresso Single",
+   "category": "에스프레소 음료",
+   "temperature": "both",
+   "liquid_color": "#2E1B12",
+   "servings": [
+    {
+     "id": "coffeebean:에스프레소-싱글:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 91.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:우베-바닐라-아이스-블렌디드:iced",
+   "brand_id": "coffeebean",
+   "name": "우베 바닐라 아이스 블렌디드",
+   "name_en": "UBE Vanilla Ice Blended",
+   "category": "신음료",
+   "temperature": "iced",
+   "liquid_color": "#F1E6CF",
+   "servings": [
+    {
+     "id": "coffeebean:우베-바닐라-아이스-블렌디드:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 42.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:잉글리쉬-브렉퍼스트:both",
+   "brand_id": "coffeebean",
+   "name": "잉글리쉬 브렉퍼스트",
+   "name_en": "English Breakfast",
+   "category": "티",
+   "temperature": "both",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "coffeebean:잉글리쉬-브렉퍼스트:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 77.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:잉글리쉬-브렉퍼스트-라떼:both",
+   "brand_id": "coffeebean",
+   "name": "잉글리쉬 브렉퍼스트 라떼",
+   "name_en": "English Breakfast Latte",
+   "category": "티 라떼",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "coffeebean:잉글리쉬-브렉퍼스트-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 44.0,
+     "caffeine_mg": 154.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:자몽쥬스:both",
+   "brand_id": "coffeebean",
+   "name": "자몽쥬스",
+   "name_en": "Grapefruit Juice",
+   "category": "기타 제조 음료",
+   "temperature": "both",
+   "liquid_color": "#F06B5B",
+   "servings": [
+    {
+     "id": "coffeebean:자몽쥬스:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 48.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:제주-레몬-스웨디쉬:both",
+   "brand_id": "coffeebean",
+   "name": "제주 레몬 스웨디쉬",
+   "name_en": "Jeju Lemon Swedish",
+   "category": "티",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "coffeebean:제주-레몬-스웨디쉬:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 34.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:제주-유기농-작설차:both",
+   "brand_id": "coffeebean",
+   "name": "제주 유기농 작설차",
+   "name_en": "Jeju Organic Green",
+   "category": "티",
+   "temperature": "both",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "coffeebean:제주-유기농-작설차:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 33.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:제주-첫물-말차-라떼:both",
+   "brand_id": "coffeebean",
+   "name": "제주 첫물 말차 라떼",
+   "name_en": "Jeju Matcha Latte",
+   "category": "티 라떼",
+   "temperature": "both",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "coffeebean:제주-첫물-말차-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 71.0,
+     "caffeine_mg": 209.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:제주-첫물-말차-아이스-블렌디드:iced",
+   "brand_id": "coffeebean",
+   "name": "제주 첫물 말차 아이스 블렌디드",
+   "name_en": "Jeju Matcha Ice Blended",
+   "category": "아이스 블렌디드 (Non-Coffee)",
+   "temperature": "iced",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "coffeebean:제주-첫물-말차-아이스-블렌디드:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 60.0,
+     "caffeine_mg": 148.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:제주-한라망고-스파클링:both",
+   "brand_id": "coffeebean",
+   "name": "제주 한라망고 스파클링",
+   "name_en": "Sparkling Jeju Hallabong Mango",
+   "category": "신음료",
+   "temperature": "both",
+   "liquid_color": "#F7B32B",
+   "servings": [
+    {
+     "id": "coffeebean:제주-한라망고-스파클링:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 48.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:제주-한라망고-티:both",
+   "brand_id": "coffeebean",
+   "name": "제주 한라망고 티",
+   "name_en": "Jeju Hallabong Mango Tea",
+   "category": "신음료",
+   "temperature": "both",
+   "liquid_color": "#F7B32B",
+   "servings": [
+    {
+     "id": "coffeebean:제주-한라망고-티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 48.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:쫀득-단팥-아이스-블렌디드:iced",
+   "brand_id": "coffeebean",
+   "name": "쫀득 단팥 아이스 블렌디드",
+   "name_en": "Chewy Red Bean Ice Blended",
+   "category": "신음료",
+   "temperature": "iced",
+   "liquid_color": "#EADBC8",
+   "servings": [
+    {
+     "id": "coffeebean:쫀득-단팥-아이스-블렌디드:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 110.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:쫀득-흑임자-아이스-블렌디드:iced",
+   "brand_id": "coffeebean",
+   "name": "쫀득 흑임자 아이스 블렌디드",
+   "name_en": "Chewy Black Sesame Ice Blended",
+   "category": "신음료",
+   "temperature": "iced",
+   "liquid_color": "#8C8580",
+   "servings": [
+    {
+     "id": "coffeebean:쫀득-흑임자-아이스-블렌디드:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 85.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:차이-라떼:both",
+   "brand_id": "coffeebean",
+   "name": "차이 라떼",
+   "name_en": "Chai Latte",
+   "category": "티 라떼",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "coffeebean:차이-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 44.0,
+     "caffeine_mg": 74.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:천도복숭아-요거트-아이스-블렌디드:iced",
+   "brand_id": "coffeebean",
+   "name": "천도복숭아 요거트 아이스 블렌디드",
+   "name_en": "Heavenly Peach Yogurt Ice Blended",
+   "category": "신음료",
+   "temperature": "iced",
+   "liquid_color": "#F7A57A",
+   "servings": [
+    {
+     "id": "coffeebean:천도복숭아-요거트-아이스-블렌디드:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 33.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:카페라떼:both",
+   "brand_id": "coffeebean",
+   "name": "카페라떼",
+   "name_en": "Cafe Latte",
+   "category": "에스프레소 음료",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "coffeebean:카페라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 14.0,
+     "caffeine_mg": 91.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:카페모카:both",
+   "brand_id": "coffeebean",
+   "name": "카페모카",
+   "name_en": "Cafe Mocha",
+   "category": "에스프레소 음료",
+   "temperature": "both",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "coffeebean:카페모카:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 43.0,
+     "caffeine_mg": 102.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:카페모카-아이스-블렌디드:iced",
+   "brand_id": "coffeebean",
+   "name": "카페모카 아이스 블렌디드",
+   "name_en": "Cafe Mocha Ice Blended",
+   "category": "아이스 블렌디드 (Coffee)",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "coffeebean:카페모카-아이스-블렌디드:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 51.0,
+     "caffeine_mg": 159.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:카페수아:both",
+   "brand_id": "coffeebean",
+   "name": "카페수아",
+   "name_en": "Cafe Sua",
+   "category": "에스프레소 음료",
+   "temperature": "both",
+   "liquid_color": "#2E1B12",
+   "servings": [
+    {
+     "id": "coffeebean:카페수아:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 43.0,
+     "caffeine_mg": 182.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:카푸치노:both",
+   "brand_id": "coffeebean",
+   "name": "카푸치노",
+   "name_en": "Cappuccino",
+   "category": "에스프레소 음료",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "coffeebean:카푸치노:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 9.0,
+     "caffeine_mg": 91.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:캐러멜-마키아또:both",
+   "brand_id": "coffeebean",
+   "name": "캐러멜 마키아또",
+   "name_en": "Caramel Macchiato",
+   "category": "에스프레소 음료",
+   "temperature": "both",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "coffeebean:캐러멜-마키아또:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 39.0,
+     "caffeine_mg": 91.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:캐러멜-아이스-블렌디드:iced",
+   "brand_id": "coffeebean",
+   "name": "캐러멜 아이스 블렌디드",
+   "name_en": "Caramel Ice Blended",
+   "category": "아이스 블렌디드 (Coffee)",
+   "temperature": "iced",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "coffeebean:캐러멜-아이스-블렌디드:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 70.0,
+     "caffeine_mg": 148.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:커피빈라떼:both",
+   "brand_id": "coffeebean",
+   "name": "커피빈라떼",
+   "name_en": "Coffeebean Latte",
+   "category": "에스프레소 음료",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "coffeebean:커피빈라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 14.0,
+     "caffeine_mg": 193.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:커피빈카노:both",
+   "brand_id": "coffeebean",
+   "name": "커피빈카노",
+   "name_en": "Coffeebeancano",
+   "category": "에스프레소 음료",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "coffeebean:커피빈카노:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 193.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:콜드브루:both",
+   "brand_id": "coffeebean",
+   "name": "콜드브루",
+   "name_en": "Cold Brew",
+   "category": "브루드 커피",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "coffeebean:콜드브루:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 190.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:콜드브루-라떼:both",
+   "brand_id": "coffeebean",
+   "name": "콜드브루 라떼",
+   "name_en": "Cold Brew Latte",
+   "category": "브루드 커피",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "coffeebean:콜드브루-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 5.0,
+     "caffeine_mg": 152.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:콜드브루-수아:both",
+   "brand_id": "coffeebean",
+   "name": "콜드브루 수아",
+   "name_en": "Cold Brew Sua",
+   "category": "브루드 커피",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "coffeebean:콜드브루-수아:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 23.0,
+     "caffeine_mg": 152.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:퍼플베리-요거트-아이스-블렌디드:iced",
+   "brand_id": "coffeebean",
+   "name": "퍼플베리 요거트 아이스 블렌디드",
+   "name_en": "Purpleberry Yogurt Ice Blended",
+   "category": "아이스 블렌디드 (Non-Coffee)",
+   "temperature": "iced",
+   "liquid_color": "#C0283E",
+   "servings": [
+    {
+     "id": "coffeebean:퍼플베리-요거트-아이스-블렌디드:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 57.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:퓨어-더블-초콜릿-아이스-블렌디드:iced",
+   "brand_id": "coffeebean",
+   "name": "퓨어 더블 초콜릿 아이스 블렌디드",
+   "name_en": "Pure Double Chocolate Ice Blended",
+   "category": "아이스 블렌디드 (Non-Coffee)",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "coffeebean:퓨어-더블-초콜릿-아이스-블렌디드:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 53.0,
+     "caffeine_mg": 22.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:플랫-화이트:both",
+   "brand_id": "coffeebean",
+   "name": "플랫 화이트",
+   "name_en": "Flat White",
+   "category": "에스프레소 음료",
+   "temperature": "both",
+   "liquid_color": "#2E1B12",
+   "servings": [
+    {
+     "id": "coffeebean:플랫-화이트:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 9.0,
+     "caffeine_mg": 198.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:핑크-솔트-블랙다이몬:both",
+   "brand_id": "coffeebean",
+   "name": "핑크 솔트 블랙다이몬",
+   "name_en": "Pink Salt Black Dimon",
+   "category": "신음료",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "coffeebean:핑크-솔트-블랙다이몬:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 10.0,
+     "caffeine_mg": 281.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:함안-수박-주스:both",
+   "brand_id": "coffeebean",
+   "name": "함안 수박 주스",
+   "name_en": "Haman Watermelon Juice",
+   "category": "신음료",
+   "temperature": "both",
+   "liquid_color": "#E5413A",
+   "servings": [
+    {
+     "id": "coffeebean:함안-수박-주스:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 12.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:핫-더블-초콜릿:hot",
+   "brand_id": "coffeebean",
+   "name": "핫 더블 초콜릿",
+   "name_en": "Hot Double Chocolate",
+   "category": "기타 제조 음료",
+   "temperature": "hot",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "coffeebean:핫-더블-초콜릿:hot:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 43.0,
+     "caffeine_mg": 15.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:헤이즐넛-라떼:both",
+   "brand_id": "coffeebean",
+   "name": "헤이즐넛 라떼",
+   "name_en": "Hazelnut Latte",
+   "category": "에스프레소 음료",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "coffeebean:헤이즐넛-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 42.0,
+     "caffeine_mg": 91.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:헤이즐넛-아메리카노:both",
+   "brand_id": "coffeebean",
+   "name": "헤이즐넛 아메리카노",
+   "name_en": "Hazelnut Americano",
+   "category": "에스프레소 음료",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "coffeebean:헤이즐넛-아메리카노:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 28.0,
+     "caffeine_mg": 182.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:헤이즐넛-아이스-블렌디드:iced",
+   "brand_id": "coffeebean",
+   "name": "헤이즐넛 아이스 블렌디드",
+   "name_en": "Hazelnut Ice Blended",
+   "category": "아이스 블렌디드 (Coffee)",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "coffeebean:헤이즐넛-아이스-블렌디드:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 48.0,
+     "caffeine_mg": 148.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "coffeebean:후레쉬-망고-아이스-블렌디드:iced",
+   "brand_id": "coffeebean",
+   "name": "후레쉬 망고 아이스 블렌디드",
+   "name_en": "Fresh Mango Ice Blended",
+   "category": "아이스 블렌디드 (Non-Coffee)",
+   "temperature": "iced",
+   "liquid_color": "#F7B32B",
+   "servings": [
+    {
+     "id": "coffeebean:후레쉬-망고-아이스-블렌디드:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 56.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:15곡물-프로틴-쉐이크-검은콩:both",
+   "brand_id": "parisbaguette",
+   "name": "15곡물 프로틴 쉐이크 검은콩",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#EADBC8",
+   "servings": [
+    {
+     "id": "parisbaguette:15곡물-프로틴-쉐이크-검은콩:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:15곡물-프로틴-쉐이크-미숫가루:both",
+   "brand_id": "parisbaguette",
+   "name": "15곡물 프로틴 쉐이크 미숫가루",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#EADBC8",
+   "servings": [
+    {
+     "id": "parisbaguette:15곡물-프로틴-쉐이크-미숫가루:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 6.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:데일리주스-복숭아&망고:both",
+   "brand_id": "parisbaguette",
+   "name": "데일리주스 복숭아&망고",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#F7A57A",
+   "servings": [
+    {
+     "id": "parisbaguette:데일리주스-복숭아&망고:both:기본",
+     "size_label": "기본",
+     "volume_ml": 230,
+     "sugar_g": 33.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:데일리주스포도:both",
+   "brand_id": "parisbaguette",
+   "name": "데일리주스포도",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#6A2C70",
+   "servings": [
+    {
+     "id": "parisbaguette:데일리주스포도:both:기본",
+     "size_label": "기본",
+     "volume_ml": 230,
+     "sugar_g": 31.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:디카페인-빅-아이스-아메리카노:iced",
+   "brand_id": "parisbaguette",
+   "name": "디카페인 빅 아이스 아메리카노",
+   "name_en": null,
+   "category": "카페 아다지오",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "parisbaguette:디카페인-빅-아이스-아메리카노:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:따유자:both",
+   "brand_id": "parisbaguette",
+   "name": "따유자",
+   "name_en": null,
+   "category": "에이드/TEA",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "parisbaguette:따유자:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 45.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:따자몽:both",
+   "brand_id": "parisbaguette",
+   "name": "따자몽",
+   "name_en": null,
+   "category": "에이드/TEA",
+   "temperature": "both",
+   "liquid_color": "#F06B5B",
+   "servings": [
+    {
+     "id": "parisbaguette:따자몽:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 38.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:리얼-딸기라떼:both",
+   "brand_id": "parisbaguette",
+   "name": "리얼 딸기라떼",
+   "name_en": null,
+   "category": "라떼류",
+   "temperature": "both",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "parisbaguette:리얼-딸기라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:멜론-크러시:both",
+   "brand_id": "parisbaguette",
+   "name": "멜론 크러시",
+   "name_en": null,
+   "category": "블렌디드",
+   "temperature": "both",
+   "liquid_color": "#EADBC8",
+   "servings": [
+    {
+     "id": "parisbaguette:멜론-크러시:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 58.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:문경-오미자-에이드:both",
+   "brand_id": "parisbaguette",
+   "name": "문경 오미자 에이드",
+   "name_en": null,
+   "category": "에이드/TEA",
+   "temperature": "both",
+   "liquid_color": "#C0283E",
+   "servings": [
+    {
+     "id": "parisbaguette:문경-오미자-에이드:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 31.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:문경-오미자차:both",
+   "brand_id": "parisbaguette",
+   "name": "문경 오미자차",
+   "name_en": null,
+   "category": "에이드/TEA",
+   "temperature": "both",
+   "liquid_color": "#C0283E",
+   "servings": [
+    {
+     "id": "parisbaguette:문경-오미자차:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 36.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:바닐라라떼:both",
+   "brand_id": "parisbaguette",
+   "name": "바닐라라떼",
+   "name_en": null,
+   "category": "카페 아다지오",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "parisbaguette:바닐라라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 25.0,
+     "caffeine_mg": 212.52,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:복숭아-아이스티:both",
+   "brand_id": "parisbaguette",
+   "name": "복숭아 아이스티",
+   "name_en": null,
+   "category": "에이드/TEA",
+   "temperature": "both",
+   "liquid_color": "#F7A57A",
+   "servings": [
+    {
+     "id": "parisbaguette:복숭아-아이스티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 33.0,
+     "caffeine_mg": 8.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:비다-민티-라임향:both",
+   "brand_id": "parisbaguette",
+   "name": "비다 민티 라임향",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "parisbaguette:비다-민티-라임향:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:비다-오리지날-시트러스향:both",
+   "brand_id": "parisbaguette",
+   "name": "비다 오리지날 시트러스향",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#D9C2A0",
+   "servings": [
+    {
+     "id": "parisbaguette:비다-오리지날-시트러스향:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:비타-크러시:both",
+   "brand_id": "parisbaguette",
+   "name": "비타 크러시",
+   "name_en": null,
+   "category": "블렌디드",
+   "temperature": "both",
+   "liquid_color": "#E3C93C",
+   "servings": [
+    {
+     "id": "parisbaguette:비타-크러시:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 70.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:비타톤-사과맛:both",
+   "brand_id": "parisbaguette",
+   "name": "비타톤 사과맛",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#E2B65A",
+   "servings": [
+    {
+     "id": "parisbaguette:비타톤-사과맛:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 17.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:비타톤-포도맛:both",
+   "brand_id": "parisbaguette",
+   "name": "비타톤 포도맛",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#6A2C70",
+   "servings": [
+    {
+     "id": "parisbaguette:비타톤-포도맛:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 18.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:빅-아이스-아메리카노:iced",
+   "brand_id": "parisbaguette",
+   "name": "빅 아이스 아메리카노",
+   "name_en": null,
+   "category": "카페 아다지오",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "parisbaguette:빅-아이스-아메리카노:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 315.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:생생-제주-유기농-감귤:both",
+   "brand_id": "parisbaguette",
+   "name": "생생 제주 유기농 감귤",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#F5871F",
+   "servings": [
+    {
+     "id": "parisbaguette:생생-제주-유기농-감귤:both:기본",
+     "size_label": "기본",
+     "volume_ml": 100,
+     "sugar_g": 10.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:샤인머스캣-그린티-제로:both",
+   "brand_id": "parisbaguette",
+   "name": "샤인머스캣 그린티 제로",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#B8D86B",
+   "servings": [
+    {
+     "id": "parisbaguette:샤인머스캣-그린티-제로:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:수박주스:both",
+   "brand_id": "parisbaguette",
+   "name": "수박주스",
+   "name_en": null,
+   "category": "블렌디드",
+   "temperature": "both",
+   "liquid_color": "#E5413A",
+   "servings": [
+    {
+     "id": "parisbaguette:수박주스:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 30.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:스파클링-라임:both",
+   "brand_id": "parisbaguette",
+   "name": "스파클링 라임",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "parisbaguette:스파클링-라임:both:기본",
+     "size_label": "기본",
+     "volume_ml": 350,
+     "sugar_g": 0.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:시칠리아-레몬-에이드:both",
+   "brand_id": "parisbaguette",
+   "name": "시칠리아 레몬 에이드",
+   "name_en": null,
+   "category": "에이드/TEA",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "parisbaguette:시칠리아-레몬-에이드:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 13.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:썸머-복숭아-에이드:both",
+   "brand_id": "parisbaguette",
+   "name": "썸머 복숭아 에이드",
+   "name_en": null,
+   "category": "에이드/TEA",
+   "temperature": "both",
+   "liquid_color": "#F7A57A",
+   "servings": [
+    {
+     "id": "parisbaguette:썸머-복숭아-에이드:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 44.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:쏘유-저당-렌틸콩-두유:both",
+   "brand_id": "parisbaguette",
+   "name": "쏘유 저당 렌틸콩 두유",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#E6D3B3",
+   "servings": [
+    {
+     "id": "parisbaguette:쏘유-저당-렌틸콩-두유:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 1.5,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:쏘유두유-검은콩:both",
+   "brand_id": "parisbaguette",
+   "name": "쏘유두유 검은콩",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#EADBC8",
+   "servings": [
+    {
+     "id": "parisbaguette:쏘유두유-검은콩:both:기본",
+     "size_label": "기본",
+     "volume_ml": 190,
+     "sugar_g": 10.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:쏘유두유-플레인:both",
+   "brand_id": "parisbaguette",
+   "name": "쏘유두유 플레인",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#E6D3B3",
+   "servings": [
+    {
+     "id": "parisbaguette:쏘유두유-플레인:both:기본",
+     "size_label": "기본",
+     "volume_ml": 190,
+     "sugar_g": 9.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:아메리카노:both",
+   "brand_id": "parisbaguette",
+   "name": "아메리카노",
+   "name_en": null,
+   "category": "카페 아다지오",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "parisbaguette:아메리카노:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 224.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:아이스-문경-오미자차:iced",
+   "brand_id": "parisbaguette",
+   "name": "아이스 문경 오미자차",
+   "name_en": null,
+   "category": "에이드/TEA",
+   "temperature": "iced",
+   "liquid_color": "#C0283E",
+   "servings": [
+    {
+     "id": "parisbaguette:아이스-문경-오미자차:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 31.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:아이스-바닐라라떼:iced",
+   "brand_id": "parisbaguette",
+   "name": "아이스 바닐라라떼",
+   "name_en": null,
+   "category": "카페 아다지오",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "parisbaguette:아이스-바닐라라떼:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 30.0,
+     "caffeine_mg": 212.52,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:아이스-아메리카노:iced",
+   "brand_id": "parisbaguette",
+   "name": "아이스 아메리카노",
+   "name_en": null,
+   "category": "카페 아다지오",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "parisbaguette:아이스-아메리카노:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 212.52,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:아이스-어린잎-말차-라떼:iced",
+   "brand_id": "parisbaguette",
+   "name": "아이스 어린잎 말차 라떼",
+   "name_en": null,
+   "category": "라떼류",
+   "temperature": "iced",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "parisbaguette:아이스-어린잎-말차-라떼:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 13.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:아이스-카라멜-마끼아또:iced",
+   "brand_id": "parisbaguette",
+   "name": "아이스 카라멜 마끼아또",
+   "name_en": null,
+   "category": "카페 아다지오",
+   "temperature": "iced",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "parisbaguette:아이스-카라멜-마끼아또:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 23.0,
+     "caffeine_mg": 191.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:아이스-카페라떼:iced",
+   "brand_id": "parisbaguette",
+   "name": "아이스 카페라떼",
+   "name_en": null,
+   "category": "카페 아다지오",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "parisbaguette:아이스-카페라떼:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 7.0,
+     "caffeine_mg": 212.52,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:아이스-카페모카:iced",
+   "brand_id": "parisbaguette",
+   "name": "아이스 카페모카",
+   "name_en": null,
+   "category": "카페 아다지오",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "parisbaguette:아이스-카페모카:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 25.0,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:아이스-티트라-루이보스:iced",
+   "brand_id": "parisbaguette",
+   "name": "아이스 티트라 루이보스",
+   "name_en": null,
+   "category": "에이드/TEA",
+   "temperature": "iced",
+   "liquid_color": "#D9A441",
+   "servings": [
+    {
+     "id": "parisbaguette:아이스-티트라-루이보스:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:아이스-티트라-민트-유자티:iced",
+   "brand_id": "parisbaguette",
+   "name": "아이스 티트라 민트 유자티",
+   "name_en": null,
+   "category": "에이드/TEA",
+   "temperature": "iced",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "parisbaguette:아이스-티트라-민트-유자티:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 47.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:아이스-티트라-민트티:iced",
+   "brand_id": "parisbaguette",
+   "name": "아이스 티트라 민트티",
+   "name_en": null,
+   "category": "에이드/TEA",
+   "temperature": "iced",
+   "liquid_color": "#9ED9C3",
+   "servings": [
+    {
+     "id": "parisbaguette:아이스-티트라-민트티:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:아이스-티트라-베르가못-밀크티:iced",
+   "brand_id": "parisbaguette",
+   "name": "아이스 티트라 베르가못 밀크티",
+   "name_en": null,
+   "category": "에이드/TEA",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "parisbaguette:아이스-티트라-베르가못-밀크티:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 23.0,
+     "caffeine_mg": 146.21,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:아이스-티트라-얼그레이:iced",
+   "brand_id": "parisbaguette",
+   "name": "아이스 티트라 얼그레이",
+   "name_en": null,
+   "category": "에이드/TEA",
+   "temperature": "iced",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "parisbaguette:아이스-티트라-얼그레이:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 50.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:아이스-티트라-캐모마일:iced",
+   "brand_id": "parisbaguette",
+   "name": "아이스 티트라 캐모마일",
+   "name_en": null,
+   "category": "에이드/TEA",
+   "temperature": "iced",
+   "liquid_color": "#D9A441",
+   "servings": [
+    {
+     "id": "parisbaguette:아이스-티트라-캐모마일:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:아이스-티트라-하동녹차:iced",
+   "brand_id": "parisbaguette",
+   "name": "아이스 티트라 하동녹차",
+   "name_en": null,
+   "category": "에이드/TEA",
+   "temperature": "iced",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "parisbaguette:아이스-티트라-하동녹차:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 14.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:아이스초코포레누아:iced",
+   "brand_id": "parisbaguette",
+   "name": "아이스초코포레누아",
+   "name_en": null,
+   "category": "라떼류",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "parisbaguette:아이스초코포레누아:iced:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 28.0,
+     "caffeine_mg": 18.4,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:아침엔딸기우유-200㎖:both",
+   "brand_id": "parisbaguette",
+   "name": "아침엔딸기우유 200㎖",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "parisbaguette:아침엔딸기우유-200㎖:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:아침엔바나나우유-200ml:both",
+   "brand_id": "parisbaguette",
+   "name": "아침엔바나나우유 200ml",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#F6E08A",
+   "servings": [
+    {
+     "id": "parisbaguette:아침엔바나나우유-200ml:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:아침엔초코우유-200㎖:both",
+   "brand_id": "parisbaguette",
+   "name": "아침엔초코우유 200㎖",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "parisbaguette:아침엔초코우유-200㎖:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:아침엔후레쉬우유-200㎖:both",
+   "brand_id": "parisbaguette",
+   "name": "아침엔후레쉬우유 200㎖",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#F4EFE6",
+   "servings": [
+    {
+     "id": "parisbaguette:아침엔후레쉬우유-200㎖:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:아침엔후레쉬우유-450㎖:both",
+   "brand_id": "parisbaguette",
+   "name": "아침엔후레쉬우유 450㎖",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#F4EFE6",
+   "servings": [
+    {
+     "id": "parisbaguette:아침엔후레쉬우유-450㎖:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:아침엔후레쉬우유-930㎖:both",
+   "brand_id": "parisbaguette",
+   "name": "아침엔후레쉬우유 930㎖",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#F4EFE6",
+   "servings": [
+    {
+     "id": "parisbaguette:아침엔후레쉬우유-930㎖:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:어린잎-말차-라떼:both",
+   "brand_id": "parisbaguette",
+   "name": "어린잎 말차 라떼",
+   "name_en": null,
+   "category": "라떼류",
+   "temperature": "both",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "parisbaguette:어린잎-말차-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 11.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:오-eau-생수-라벨프리:both",
+   "brand_id": "parisbaguette",
+   "name": "오(EAU)생수 라벨프리",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#DCE8EE",
+   "servings": [
+    {
+     "id": "parisbaguette:오-eau-생수-라벨프리:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:우베라떼:both",
+   "brand_id": "parisbaguette",
+   "name": "우베라떼",
+   "name_en": null,
+   "category": "라떼류",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "parisbaguette:우베라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 25.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:우베카페라떼:both",
+   "brand_id": "parisbaguette",
+   "name": "우베카페라떼",
+   "name_en": null,
+   "category": "라떼류",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "parisbaguette:우베카페라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 16.0,
+     "caffeine_mg": 213.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:우베코코넛워터:both",
+   "brand_id": "parisbaguette",
+   "name": "우베코코넛워터",
+   "name_en": null,
+   "category": "블렌디드",
+   "temperature": "both",
+   "liquid_color": "#DCE8EE",
+   "servings": [
+    {
+     "id": "parisbaguette:우베코코넛워터:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 14.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:저당-요거트-쉐이크:both",
+   "brand_id": "parisbaguette",
+   "name": "저당 요거트 쉐이크",
+   "name_en": null,
+   "category": "블렌디드",
+   "temperature": "both",
+   "liquid_color": "#F7F3EA",
+   "servings": [
+    {
+     "id": "parisbaguette:저당-요거트-쉐이크:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 12.8,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:제로-자몽허니-아이스티:both",
+   "brand_id": "parisbaguette",
+   "name": "제로 자몽허니 아이스티",
+   "name_en": null,
+   "category": "에이드/TEA",
+   "temperature": "both",
+   "liquid_color": "#F06B5B",
+   "servings": [
+    {
+     "id": "parisbaguette:제로-자몽허니-아이스티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:제주감귤주스:both",
+   "brand_id": "parisbaguette",
+   "name": "제주감귤주스",
+   "name_en": null,
+   "category": "에이드/TEA",
+   "temperature": "both",
+   "liquid_color": "#F5871F",
+   "servings": [
+    {
+     "id": "parisbaguette:제주감귤주스:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 29.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:제주감귤크러시:both",
+   "brand_id": "parisbaguette",
+   "name": "제주감귤크러시",
+   "name_en": null,
+   "category": "블렌디드",
+   "temperature": "both",
+   "liquid_color": "#F5871F",
+   "servings": [
+    {
+     "id": "parisbaguette:제주감귤크러시:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 56.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:주스레드-jus레드:both",
+   "brand_id": "parisbaguette",
+   "name": "주스레드 (JUS레드)",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#F2A541",
+   "servings": [
+    {
+     "id": "parisbaguette:주스레드-jus레드:both:기본",
+     "size_label": "기본",
+     "volume_ml": 250,
+     "sugar_g": 20.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:주스옐로우-jus옐로우:both",
+   "brand_id": "parisbaguette",
+   "name": "주스옐로우 (JUS옐로우)",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#F2A541",
+   "servings": [
+    {
+     "id": "parisbaguette:주스옐로우-jus옐로우:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:짱구는-못말려-청포도맛-pet:both",
+   "brand_id": "parisbaguette",
+   "name": "짱구는 못말려 청포도맛(PET)",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#B8D86B",
+   "servings": [
+    {
+     "id": "parisbaguette:짱구는-못말려-청포도맛-pet:both:기본",
+     "size_label": "기본",
+     "volume_ml": 220,
+     "sugar_g": 17.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:치키-피치티:both",
+   "brand_id": "parisbaguette",
+   "name": "치키 피치티",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#F7A57A",
+   "servings": [
+    {
+     "id": "parisbaguette:치키-피치티:both:기본",
+     "size_label": "기본",
+     "volume_ml": 350,
+     "sugar_g": 31.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:카라멜-마끼아또:both",
+   "brand_id": "parisbaguette",
+   "name": "카라멜 마끼아또",
+   "name_en": null,
+   "category": "카페 아다지오",
+   "temperature": "both",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "parisbaguette:카라멜-마끼아또:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 24.0,
+     "caffeine_mg": 191.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:카페-아다지오-딥쇼콜라라떼:both",
+   "brand_id": "parisbaguette",
+   "name": "카페 아다지오 딥쇼콜라라떼",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "parisbaguette:카페-아다지오-딥쇼콜라라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 24.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:카페-아다지오-크림라떼:both",
+   "brand_id": "parisbaguette",
+   "name": "카페 아다지오 크림라떼",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "parisbaguette:카페-아다지오-크림라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 23.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:카페라떼:both",
+   "brand_id": "parisbaguette",
+   "name": "카페라떼",
+   "name_en": null,
+   "category": "카페 아다지오",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "parisbaguette:카페라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 9.0,
+     "caffeine_mg": 212.52,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:카페모카:both",
+   "brand_id": "parisbaguette",
+   "name": "카페모카",
+   "name_en": null,
+   "category": "카페 아다지오",
+   "temperature": "both",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "parisbaguette:카페모카:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 25.0,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:티트라-루이보스:both",
+   "brand_id": "parisbaguette",
+   "name": "티트라 루이보스",
+   "name_en": null,
+   "category": "에이드/TEA",
+   "temperature": "both",
+   "liquid_color": "#D9A441",
+   "servings": [
+    {
+     "id": "parisbaguette:티트라-루이보스:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:티트라-민트-유자티:both",
+   "brand_id": "parisbaguette",
+   "name": "티트라 민트 유자티",
+   "name_en": null,
+   "category": "에이드/TEA",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "parisbaguette:티트라-민트-유자티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 47.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:티트라-민트티:both",
+   "brand_id": "parisbaguette",
+   "name": "티트라 민트티",
+   "name_en": null,
+   "category": "에이드/TEA",
+   "temperature": "both",
+   "liquid_color": "#9ED9C3",
+   "servings": [
+    {
+     "id": "parisbaguette:티트라-민트티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:티트라-베르가못-밀크티:both",
+   "brand_id": "parisbaguette",
+   "name": "티트라 베르가못 밀크티",
+   "name_en": null,
+   "category": "에이드/TEA",
+   "temperature": "both",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "parisbaguette:티트라-베르가못-밀크티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 21.0,
+     "caffeine_mg": 113.9,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:티트라-얼그레이:both",
+   "brand_id": "parisbaguette",
+   "name": "티트라 얼그레이",
+   "name_en": null,
+   "category": "에이드/TEA",
+   "temperature": "both",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "parisbaguette:티트라-얼그레이:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 53.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:티트라-캐모마일:both",
+   "brand_id": "parisbaguette",
+   "name": "티트라 캐모마일",
+   "name_en": null,
+   "category": "에이드/TEA",
+   "temperature": "both",
+   "liquid_color": "#D9A441",
+   "servings": [
+    {
+     "id": "parisbaguette:티트라-캐모마일:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:티트라-하동녹차:both",
+   "brand_id": "parisbaguette",
+   "name": "티트라 하동녹차",
+   "name_en": null,
+   "category": "에이드/TEA",
+   "temperature": "both",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "parisbaguette:티트라-하동녹차:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 25.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:핫초코포레누아:both",
+   "brand_id": "parisbaguette",
+   "name": "핫초코포레누아",
+   "name_en": null,
+   "category": "라떼류",
+   "temperature": "both",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "parisbaguette:핫초코포레누아:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 27.0,
+     "caffeine_mg": 23.4,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "parisbaguette:흑미보리차:both",
+   "brand_id": "parisbaguette",
+   "name": "흑미보리차",
+   "name_en": null,
+   "category": "완제음료",
+   "temperature": "both",
+   "liquid_color": "#C98B3A",
+   "servings": [
+    {
+     "id": "parisbaguette:흑미보리차:both:기본",
+     "size_label": "기본",
+     "volume_ml": 340,
+     "sugar_g": 0.0,
+     "caffeine_mg": null,
      "caffeine_variants": [],
      "caffeine_range": null
     }

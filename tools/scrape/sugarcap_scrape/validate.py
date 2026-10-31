@@ -43,6 +43,9 @@ MIN_DRINKS_PER_BRAND = {
     # 2026-10-31: 폴바셋 96 drinks (155 sizes), 배스킨라빈스 drinks 89 (105 cups).
     "paulbassett": 50,
     "baskin": 45,
+    # 2026-10-31: 커피빈 112 drinks, 파리바게뜨 77 drinks.
+    "coffeebean": 55,
+    "parisbaguette": 35,
     # K-FIND export of 2026-08-28 gave 17,845 in-scope products.
     "cvs": 9000,
     # 2026-10-07: ordering menu 169 (product, form) pairs; nutritional guide PDF 300 drinks.

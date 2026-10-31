@@ -41,6 +41,8 @@
 | 공차 (2026-10-05 추가) | L/J(일부 G 946ml) × COLD/HOT | 영양정보 탭 HTML 조각 `/brand/menu/product_nutrition` 1개(분류별 표 7개) | **당류는 당도 0% 기본 레시피 값**(스무디만 고정 당도). 메뉴명·온도는 rowspan, NEW·베스트셀러는 다른 분류와 중복. G는 이름 미게시라 용량으로 표기 |
 | 폴바셋 (2026-10-31 추가) | Standard/Grand/Venti/Original × 제품별 온도(핫·아이스 별도 제품) | 목록 `List.pb?cid1=A·B&cid2=…`(`goView('PB…')`) → 상세 `View.pb?dpid=` HTML, 사이즈별 `#pSize_*` 블록 | 디카페인 카페인은 `10mg이하`·`15mg이하`로만 게시 → `caffeine_range`(0~N, N으로 셈). 아메리카노·에스프레소 당류 `-`는 미공개(null). 사이즈 이름보다 ml가 기준(같은 Standard가 230~360ml) |
 | 배스킨라빈스 (2026-10-31 추가) | R/L/K(기본) × HOT/ICED, 용량은 g만 게시 | 목록 `list_subcategory.php?category=C`(음료)·`D`(커피) → 상세 `view_subcategory.php?seq=` HTML, 잔마다 `.subcategory-view__product` | 잔 이름이 POS 표기(`I_RD)`, `ICED 연유라떼R`, `(DECAF)`)라 이름·온도·사이즈·디카페인을 여기서 푼다. 온도 표시 없는 잔은 `both`. 당류 범위(`38~63`)는 상한, 카페인 범위는 `caffeine_range`, `*`는 고카페인 표시, `-`는 사이트 정의상 해당없음(0). 같은 음료가 사이즈마다 띄어쓰기가 달라 공백 무시로 묶음 |
+| 커피빈 (2026-10-31 추가) | 사이즈·용량 미게시, 1잔 1값. 핫·아이스는 별도 제품(이름에 `아이스`), 아이스 블렌디드 섹션은 아이스 | 목록 `menu/list.asp?category=N&page=P` HTML 자체에 영양값(`div.info > dl`), 9개씩 페이지 | 일부 음료는 당·카페인 `dl`이 아예 없어 위치가 아니라 라벨로 읽는다(없으면 null) |
+| 파리바게뜨 (2026-10-31 추가) | 1잔(총 내용량) 1값, 온도는 이름(`아이스`)으로만 | `admin-ajax.php?action=pb_get_product_list&cat1=커피-음료&cat2=…` 목록 조각 → `/product/<slug>/` 상세 HTML. 빙수는 제외 | 카페인이 영양정보·알레르기·추가정보 박스에 따로 적혀 서로 다르다(아메리카노 224 / 212.52) → 가장 큰 값. `100g당`·`제품 뒷면참조`·영양 박스 없는 제품은 null로 남긴다. 용량은 ml 표기일 때만 |
 
 수집 결과(2026-09-16 실측)는 §10 게이트 기록 표를 본다. 브랜드별 파서는
 `tools/scrape/sugarcap_scrape/brands/<id>.py`, 산출 스키마 계약은 `data/SCHEMA.md`.

@@ -18,12 +18,14 @@ def registry() -> dict[str, tuple[Brand, Scraper]]:
     """Import brand modules lazily so one broken module does not block the others at import."""
     from sugarcap_scrape.brands import (
         baskin,
+        coffeebean,
         compose,
         ediya,
         gongcha,
         hollys,
         mega,
         paik,
+        parisbaguette,
         paulbassett,
         starbucks,
         theventi,
@@ -42,6 +44,8 @@ def registry() -> dict[str, tuple[Brand, Scraper]]:
         gongcha,
         paulbassett,
         baskin,
+        coffeebean,
+        parisbaguette,
     )
     return {module.BRAND.id: (module.BRAND, module.scrape) for module in modules}
 

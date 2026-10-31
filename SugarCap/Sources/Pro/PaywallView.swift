@@ -85,6 +85,11 @@ struct PaywallView: View {
                         if typeSize.isAccessibilitySize {
                             legal
                                 .padding(.top, 28)
+                        } else if trialNotice != nil {
+                            // 체험 안내까지 하단에 쌓으면 평생 요금이 가린다. 겹치는 갱신 안내는 본문으로 내린다.
+                            renewalNotice
+                                .frame(maxWidth: .infinity)
+                                .padding(.top, 28)
                         }
                     }
                     .padding(.horizontal, 20)
@@ -290,7 +295,7 @@ struct PaywallView: View {
             .accessibilityIdentifier("paywall-purchase")
 
             if !typeSize.isAccessibilitySize {
-                legal
+                footerLegal
             }
         }
         .padding(.horizontal, 20)
@@ -314,33 +319,58 @@ struct PaywallView: View {
     /// 자동 갱신 안내와 약관 링크. 심사 필수라 어느 글자 크기에서도 빠지지 않는다.
     private var legal: some View {
         VStack(spacing: 7) {
-            if let trialNotice {
-                Text(trialNotice)
-                    .font(AppFont.pretendard(10.5, .regular, relativeTo: .caption2))
-                    .lineSpacing(2)
-                    .foregroundStyle(PaywallStyle.sub)
-                    .multilineTextAlignment(.center)
-                    .accessibilityIdentifier("paywall-trial-notice")
+            trialNoticeText
+            renewalNotice
+            legalLinks
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    /// 하단 고정 영역용. 체험이 있으면 갱신 안내 자리에 체험 안내를 둔다(갱신 안내는 본문에 있다).
+    private var footerLegal: some View {
+        VStack(spacing: 7) {
+            if trialNotice != nil {
+                trialNoticeText
+            } else {
+                renewalNotice
             }
-            Text("연간 구독은 기간이 끝나기 24시간 전에 해지하지 않으면 자동으로 갱신돼요. 해지는 App Store 계정 설정에서 해요.")
+            legalLinks
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    @ViewBuilder
+    private var trialNoticeText: some View {
+        if let trialNotice {
+            Text(trialNotice)
                 .font(AppFont.pretendard(10.5, .regular, relativeTo: .caption2))
                 .lineSpacing(2)
                 .foregroundStyle(PaywallStyle.sub)
                 .multilineTextAlignment(.center)
-
-            // 한 줄에 안 들어가면 세로로 쌓는다. 가로로 욱여넣으면 "이용약/관"처럼 단어가 깨진다.
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 6) {
-                    links(separated: true)
-                }
-                VStack(spacing: 10) {
-                    links(separated: false)
-                }
-            }
-            .font(AppFont.pretendard(12, .semibold, relativeTo: .caption))
-            .tint(Color.ink)
+                .accessibilityIdentifier("paywall-trial-notice")
         }
-        .frame(maxWidth: .infinity)
+    }
+
+    private var renewalNotice: some View {
+        Text("연간 구독은 기간이 끝나기 24시간 전에 해지하지 않으면 자동으로 갱신돼요. 해지는 App Store 계정 설정에서 해요.")
+            .font(AppFont.pretendard(10.5, .regular, relativeTo: .caption2))
+            .lineSpacing(2)
+            .foregroundStyle(PaywallStyle.sub)
+            .multilineTextAlignment(.center)
+    }
+
+    private var legalLinks: some View {
+        // 한 줄에 안 들어가면 세로로 쌓는다. 가로로 욱여넣으면 "이용약/관"처럼 단어가 깨진다.
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 6) {
+                links(separated: true)
+            }
+            VStack(spacing: 10) {
+                links(separated: false)
+            }
+        }
+        .font(AppFont.pretendard(12, .semibold, relativeTo: .caption))
+        .tint(Color.ink)
     }
 
     @ViewBuilder

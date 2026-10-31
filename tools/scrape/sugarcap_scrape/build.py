@@ -11,6 +11,8 @@ Usage:
 `--kfind` is the hand-downloaded K-FIND 가공식품 xlsx behind the `cvs` brand
 (see `brands/cvs.py`). A full Korean build requires it so the brand cannot drop out.
 
+Korean catalogs then get `estimate.py` values for the brands that publish none.
+
 `--merge` re-scrapes only the `--only` brands and swaps them into an existing catalog,
 leaving every other brand's drinks untouched. Used when an unrelated brand site broke
 and a full rebuild cannot pass. The merged catalog is validated like a full build.
@@ -26,15 +28,24 @@ from collections import defaultdict
 from datetime import UTC, datetime
 from pathlib import Path
 
-from sugarcap_scrape.brands import Scraper, cvs, registry, tw_registry, us_registry
+from sugarcap_scrape.brands import (
+    Scraper,
+    cvs,
+    estimated_likes,
+    registry,
+    tw_registry,
+    us_registry,
+)
 from sugarcap_scrape.colors import liquid_color
+from sugarcap_scrape.estimate import fill_estimates
 from sugarcap_scrape.http import make_client
 from sugarcap_scrape.ids import drink_id, serving_id, slugify
 from sugarcap_scrape.models import Brand, Catalog, Drink, RawServing, Serving
 from sugarcap_scrape.validate import validate
 
 # 2: `caffeine_range` on servings (Taiwan caffeine bands, SPEC §9.9).
-SCHEMA_VERSION = 2
+# 3: `estimated` on servings (brands that publish nothing, SPEC §2).
+SCHEMA_VERSION = 3
 log = logging.getLogger(__name__)
 
 
@@ -176,6 +187,8 @@ def main(argv: list[str]) -> int:
     if args.merge is not None:
         base = Catalog.model_validate(json.loads(args.merge.read_text(encoding="utf-8")))
         catalog = merge_catalog(base, catalog)
+    if args.country == "kr":
+        catalog = fill_estimates(catalog, estimated_likes())
     problems = validate(catalog) if only is None or args.merge is not None else []
     if problems:
         for problem in problems:

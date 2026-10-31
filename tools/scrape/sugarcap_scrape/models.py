@@ -77,8 +77,16 @@ class Brand(BaseModel):
     has_size_choice: bool
 
 
+def _is_false(value: bool) -> bool:
+    return not value
+
+
 class Serving(BaseModel):
-    """One published cup. A `None` value is a value the brand does not publish."""
+    """One published cup. A `None` value is a value the brand does not publish.
+
+    `estimated` marks values the brand never published, filled from other brands' cups
+    (`estimate.py`). The key is written only when true, so published cups stay as they were.
+    """
 
     model_config = ConfigDict(frozen=True)
 
@@ -89,6 +97,7 @@ class Serving(BaseModel):
     caffeine_mg: float | None
     caffeine_variants: tuple[CaffeineVariant, ...] = ()
     caffeine_range: CaffeineRange | None = None
+    estimated: bool = Field(default=False, exclude_if=_is_false)
 
 
 class Drink(BaseModel):

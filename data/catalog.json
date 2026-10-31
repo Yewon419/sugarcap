@@ -1,6 +1,6 @@
 {
- "schema_version": 2,
- "built_at": "2026-10-31T05:38:13+00:00",
+ "schema_version": 3,
+ "built_at": "2026-10-31T13:55:54+00:00",
  "brands": [
   {
    "id": "starbucks",
@@ -84,6 +84,18 @@
    "id": "parisbaguette",
    "name": "파리바게뜨",
    "serving_note": "1잔(총 내용량) 기준. 파리바게뜨 공식 영양정보 게시값",
+   "has_size_choice": false
+  },
+  {
+   "id": "bluebottle",
+   "name": "블루보틀",
+   "serving_note": "영양정보 비공개. 다른 카페 같은 메뉴로 낸 추정치",
+   "has_size_choice": false
+  },
+  {
+   "id": "amasvin",
+   "name": "아마스빈",
+   "serving_note": "영양정보 비공개. 다른 카페 같은 메뉴로 낸 추정치",
    "has_size_choice": false
   }
  ],
@@ -391077,6 +391089,1930 @@
      "caffeine_mg": null,
      "caffeine_variants": [],
      "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "amasvin:59%-리얼초코-버블티:both",
+   "brand_id": "amasvin",
+   "name": "59% 리얼초코 버블티",
+   "name_en": null,
+   "category": "밀크티/라떼",
+   "temperature": "both",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "amasvin:59%-리얼초코-버블티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 47.5,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:그린애플-스무디:both",
+   "brand_id": "amasvin",
+   "name": "그린애플 스무디",
+   "name_en": null,
+   "category": "쉐이크/스무디",
+   "temperature": "both",
+   "liquid_color": "#B8D86B",
+   "servings": [
+    {
+     "id": "amasvin:그린애플-스무디:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 66.2,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:딸기-버블티:both",
+   "brand_id": "amasvin",
+   "name": "딸기 버블티",
+   "name_en": null,
+   "category": "과일주스/생과일",
+   "temperature": "both",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "amasvin:딸기-버블티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 47.5,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:딸기-요거트:both",
+   "brand_id": "amasvin",
+   "name": "딸기 요거트",
+   "name_en": null,
+   "category": "요거트/하동녹차/흑당",
+   "temperature": "both",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "amasvin:딸기-요거트:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 45.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:딸기라떼:both",
+   "brand_id": "amasvin",
+   "name": "딸기라떼",
+   "name_en": null,
+   "category": "밀크티/라떼",
+   "temperature": "both",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "amasvin:딸기라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 51.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:딸기코코넛-버블티:both",
+   "brand_id": "amasvin",
+   "name": "딸기코코넛 버블티",
+   "name_en": null,
+   "category": "밀크티/라떼",
+   "temperature": "both",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "amasvin:딸기코코넛-버블티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 47.5,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:라즈베리-소다:both",
+   "brand_id": "amasvin",
+   "name": "라즈베리 소다",
+   "name_en": null,
+   "category": "에이드/소다/스페셜",
+   "temperature": "both",
+   "liquid_color": "#C0283E",
+   "servings": [
+    {
+     "id": "amasvin:라즈베리-소다:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 53.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:레자몽-버블에이드:both",
+   "brand_id": "amasvin",
+   "name": "레자몽 버블에이드",
+   "name_en": null,
+   "category": "에이드/소다/스페셜",
+   "temperature": "both",
+   "liquid_color": "#F06B5B",
+   "servings": [
+    {
+     "id": "amasvin:레자몽-버블에이드:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 45.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:루이보스-밀크티:both",
+   "brand_id": "amasvin",
+   "name": "루이보스 밀크티",
+   "name_en": null,
+   "category": "밀크티/라떼",
+   "temperature": "both",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "amasvin:루이보스-밀크티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 28.5,
+     "caffeine_mg": 77.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:리얼레몬-버블에이드:both",
+   "brand_id": "amasvin",
+   "name": "리얼레몬 버블에이드",
+   "name_en": null,
+   "category": "에이드/소다/스페셜",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "amasvin:리얼레몬-버블에이드:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 45.1,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:리얼초코-쉐이크:both",
+   "brand_id": "amasvin",
+   "name": "리얼초코 쉐이크",
+   "name_en": null,
+   "category": "쉐이크/스무디",
+   "temperature": "both",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "amasvin:리얼초코-쉐이크:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 59.0,
+     "caffeine_mg": 0.5,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:민트-밀크티:both",
+   "brand_id": "amasvin",
+   "name": "민트 밀크티",
+   "name_en": null,
+   "category": "밀크티/라떼",
+   "temperature": "both",
+   "liquid_color": "#9ED9C3",
+   "servings": [
+    {
+     "id": "amasvin:민트-밀크티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 28.5,
+     "caffeine_mg": 77.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:민트-오레오-쉐이크:both",
+   "brand_id": "amasvin",
+   "name": "민트 오레오 쉐이크",
+   "name_en": null,
+   "category": "쉐이크/스무디",
+   "temperature": "both",
+   "liquid_color": "#9ED9C3",
+   "servings": [
+    {
+     "id": "amasvin:민트-오레오-쉐이크:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 59.0,
+     "caffeine_mg": 0.5,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:민트초코-버블티:both",
+   "brand_id": "amasvin",
+   "name": "민트초코 버블티",
+   "name_en": null,
+   "category": "밀크티/라떼",
+   "temperature": "both",
+   "liquid_color": "#9ED9C3",
+   "servings": [
+    {
+     "id": "amasvin:민트초코-버블티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 47.5,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:밀크티-쉐이크:both",
+   "brand_id": "amasvin",
+   "name": "밀크티 쉐이크",
+   "name_en": null,
+   "category": "쉐이크/스무디",
+   "temperature": "both",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "amasvin:밀크티-쉐이크:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 59.0,
+     "caffeine_mg": 77.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:바나나-버블티:both",
+   "brand_id": "amasvin",
+   "name": "바나나 버블티",
+   "name_en": null,
+   "category": "과일주스/생과일",
+   "temperature": "both",
+   "liquid_color": "#F6E08A",
+   "servings": [
+    {
+     "id": "amasvin:바나나-버블티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 47.5,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:바닐라-라떼:both",
+   "brand_id": "amasvin",
+   "name": "바닐라 라떼",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "amasvin:바닐라-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 26.0,
+     "caffeine_mg": 187.9,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:바닐라-아메리카노:both",
+   "brand_id": "amasvin",
+   "name": "바닐라 아메리카노",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "amasvin:바닐라-아메리카노:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 17.9,
+     "caffeine_mg": 216.1,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:복숭아-요거트:both",
+   "brand_id": "amasvin",
+   "name": "복숭아 요거트",
+   "name_en": null,
+   "category": "요거트/하동녹차/흑당",
+   "temperature": "both",
+   "liquid_color": "#F7A57A",
+   "servings": [
+    {
+     "id": "amasvin:복숭아-요거트:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 40.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:블루베리-소다:both",
+   "brand_id": "amasvin",
+   "name": "블루베리 소다",
+   "name_en": null,
+   "category": "에이드/소다/스페셜",
+   "temperature": "both",
+   "liquid_color": "#4B3B7A",
+   "servings": [
+    {
+     "id": "amasvin:블루베리-소다:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 53.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:블루베리-스무디:both",
+   "brand_id": "amasvin",
+   "name": "블루베리 스무디",
+   "name_en": null,
+   "category": "쉐이크/스무디",
+   "temperature": "both",
+   "liquid_color": "#4B3B7A",
+   "servings": [
+    {
+     "id": "amasvin:블루베리-스무디:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 93.3,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:블루베리-요거트:both",
+   "brand_id": "amasvin",
+   "name": "블루베리 요거트",
+   "name_en": null,
+   "category": "요거트/하동녹차/흑당",
+   "temperature": "both",
+   "liquid_color": "#4B3B7A",
+   "servings": [
+    {
+     "id": "amasvin:블루베리-요거트:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 64.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:사하라:both",
+   "brand_id": "amasvin",
+   "name": "사하라",
+   "name_en": null,
+   "category": "과일주스/생과일",
+   "temperature": "both",
+   "liquid_color": "#F2A541",
+   "servings": [
+    {
+     "id": "amasvin:사하라:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "amasvin:순수우유-쉐이크:both",
+   "brand_id": "amasvin",
+   "name": "순수우유 쉐이크",
+   "name_en": null,
+   "category": "쉐이크/스무디",
+   "temperature": "both",
+   "liquid_color": "#F1E6CF",
+   "servings": [
+    {
+     "id": "amasvin:순수우유-쉐이크:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 59.0,
+     "caffeine_mg": 0.5,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:스윗-머스캣-그린티:both",
+   "brand_id": "amasvin",
+   "name": "스윗 머스캣 그린티",
+   "name_en": null,
+   "category": "에이드/소다/스페셜",
+   "temperature": "both",
+   "liquid_color": "#B8D86B",
+   "servings": [
+    {
+     "id": "amasvin:스윗-머스캣-그린티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 41.0,
+     "caffeine_mg": 95.3,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:스트로베리-스무디:both",
+   "brand_id": "amasvin",
+   "name": "스트로베리 스무디",
+   "name_en": null,
+   "category": "쉐이크/스무디",
+   "temperature": "both",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "amasvin:스트로베리-스무디:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 66.2,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:아마존:both",
+   "brand_id": "amasvin",
+   "name": "아마존",
+   "name_en": null,
+   "category": "과일주스/생과일",
+   "temperature": "both",
+   "liquid_color": "#F2A541",
+   "servings": [
+    {
+     "id": "amasvin:아마존:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "amasvin:아메리카노:both",
+   "brand_id": "amasvin",
+   "name": "아메리카노",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "amasvin:아메리카노:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 175.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:아쌈-밀크티:both",
+   "brand_id": "amasvin",
+   "name": "아쌈 밀크티",
+   "name_en": null,
+   "category": "밀크티/라떼",
+   "temperature": "both",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "amasvin:아쌈-밀크티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 20.0,
+     "caffeine_mg": 137.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:애플망고-스무디:both",
+   "brand_id": "amasvin",
+   "name": "애플망고 스무디",
+   "name_en": null,
+   "category": "쉐이크/스무디",
+   "temperature": "both",
+   "liquid_color": "#F7B32B",
+   "servings": [
+    {
+     "id": "amasvin:애플망고-스무디:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 66.2,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:얼그레이-밀크티:both",
+   "brand_id": "amasvin",
+   "name": "얼그레이 밀크티",
+   "name_en": null,
+   "category": "밀크티/라떼",
+   "temperature": "both",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "amasvin:얼그레이-밀크티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 28.5,
+     "caffeine_mg": 160.5,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:얼그레이-프렌치-블루:both",
+   "brand_id": "amasvin",
+   "name": "얼그레이 프렌치 블루",
+   "name_en": null,
+   "category": "에이드/소다/스페셜",
+   "temperature": "both",
+   "liquid_color": "#3E8EDE",
+   "servings": [
+    {
+     "id": "amasvin:얼그레이-프렌치-블루:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "amasvin:연유-라떼:both",
+   "brand_id": "amasvin",
+   "name": "연유 라떼",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "amasvin:연유-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 32.8,
+     "caffeine_mg": 165.9,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:오렌지-버블티:both",
+   "brand_id": "amasvin",
+   "name": "오렌지 버블티",
+   "name_en": null,
+   "category": "과일주스/생과일",
+   "temperature": "both",
+   "liquid_color": "#F5871F",
+   "servings": [
+    {
+     "id": "amasvin:오렌지-버블티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 47.5,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:오아시스:both",
+   "brand_id": "amasvin",
+   "name": "오아시스",
+   "name_en": null,
+   "category": "과일주스/생과일",
+   "temperature": "both",
+   "liquid_color": "#F2A541",
+   "servings": [
+    {
+     "id": "amasvin:오아시스:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "amasvin:오키베리:both",
+   "brand_id": "amasvin",
+   "name": "오키베리",
+   "name_en": null,
+   "category": "과일주스/생과일",
+   "temperature": "both",
+   "liquid_color": "#C0283E",
+   "servings": [
+    {
+     "id": "amasvin:오키베리:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "amasvin:요거스트로베리-스무디:both",
+   "brand_id": "amasvin",
+   "name": "요거스트로베리 스무디",
+   "name_en": null,
+   "category": "쉐이크/스무디",
+   "temperature": "both",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "amasvin:요거스트로베리-스무디:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 66.2,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:자몽-블랙티:both",
+   "brand_id": "amasvin",
+   "name": "자몽 블랙티",
+   "name_en": null,
+   "category": "에이드/소다/스페셜",
+   "temperature": "both",
+   "liquid_color": "#F06B5B",
+   "servings": [
+    {
+     "id": "amasvin:자몽-블랙티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 38.0,
+     "caffeine_mg": 65.8,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:자몽-소다:both",
+   "brand_id": "amasvin",
+   "name": "자몽 소다",
+   "name_en": null,
+   "category": "에이드/소다/스페셜",
+   "temperature": "both",
+   "liquid_color": "#F06B5B",
+   "servings": [
+    {
+     "id": "amasvin:자몽-소다:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 53.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:자몽-스무디:both",
+   "brand_id": "amasvin",
+   "name": "자몽 스무디",
+   "name_en": null,
+   "category": "쉐이크/스무디",
+   "temperature": "both",
+   "liquid_color": "#F06B5B",
+   "servings": [
+    {
+     "id": "amasvin:자몽-스무디:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 66.2,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:청사과-버블티:both",
+   "brand_id": "amasvin",
+   "name": "청사과 버블티",
+   "name_en": null,
+   "category": "과일주스/생과일",
+   "temperature": "both",
+   "liquid_color": "#B8D86B",
+   "servings": [
+    {
+     "id": "amasvin:청사과-버블티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 47.5,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:청사과-요거트:both",
+   "brand_id": "amasvin",
+   "name": "청사과 요거트",
+   "name_en": null,
+   "category": "요거트/하동녹차/흑당",
+   "temperature": "both",
+   "liquid_color": "#B8D86B",
+   "servings": [
+    {
+     "id": "amasvin:청사과-요거트:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 56.4,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:초코-버블티:both",
+   "brand_id": "amasvin",
+   "name": "초코 버블티",
+   "name_en": null,
+   "category": "밀크티/라떼",
+   "temperature": "both",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "amasvin:초코-버블티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 47.5,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:초코-오레오-쉐이크:both",
+   "brand_id": "amasvin",
+   "name": "초코 오레오 쉐이크",
+   "name_en": null,
+   "category": "쉐이크/스무디",
+   "temperature": "both",
+   "liquid_color": "#8C8580",
+   "servings": [
+    {
+     "id": "amasvin:초코-오레오-쉐이크:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 59.0,
+     "caffeine_mg": 0.5,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:초콜렛-밀크티:both",
+   "brand_id": "amasvin",
+   "name": "초콜렛 밀크티",
+   "name_en": null,
+   "category": "밀크티/라떼",
+   "temperature": "both",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "amasvin:초콜렛-밀크티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 28.5,
+     "caffeine_mg": 14.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:카라멜-마끼아또:both",
+   "brand_id": "amasvin",
+   "name": "카라멜 마끼아또",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "both",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "amasvin:카라멜-마끼아또:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 27.5,
+     "caffeine_mg": 200.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:카라멜-버블티:both",
+   "brand_id": "amasvin",
+   "name": "카라멜 버블티",
+   "name_en": null,
+   "category": "밀크티/라떼",
+   "temperature": "both",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "amasvin:카라멜-버블티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 47.5,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:카페-모카:both",
+   "brand_id": "amasvin",
+   "name": "카페 모카",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "both",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "amasvin:카페-모카:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 30.0,
+     "caffeine_mg": 192.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:카페-오레오-쉐이크:both",
+   "brand_id": "amasvin",
+   "name": "카페 오레오 쉐이크",
+   "name_en": null,
+   "category": "쉐이크/스무디",
+   "temperature": "both",
+   "liquid_color": "#8C8580",
+   "servings": [
+    {
+     "id": "amasvin:카페-오레오-쉐이크:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 59.0,
+     "caffeine_mg": 0.5,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:카페라떼:both",
+   "brand_id": "amasvin",
+   "name": "카페라떼",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "amasvin:카페라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 10.0,
+     "caffeine_mg": 168.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:코코넛-밀크티:both",
+   "brand_id": "amasvin",
+   "name": "코코넛 밀크티",
+   "name_en": null,
+   "category": "밀크티/라떼",
+   "temperature": "both",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "amasvin:코코넛-밀크티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 28.5,
+     "caffeine_mg": 77.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:코코넛-쉐이크:both",
+   "brand_id": "amasvin",
+   "name": "코코넛 쉐이크",
+   "name_en": null,
+   "category": "쉐이크/스무디",
+   "temperature": "both",
+   "liquid_color": "#F1E6CF",
+   "servings": [
+    {
+     "id": "amasvin:코코넛-쉐이크:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 59.0,
+     "caffeine_mg": 0.5,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:키위-버블티:both",
+   "brand_id": "amasvin",
+   "name": "키위 버블티",
+   "name_en": null,
+   "category": "과일주스/생과일",
+   "temperature": "both",
+   "liquid_color": "#9CC63B",
+   "servings": [
+    {
+     "id": "amasvin:키위-버블티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 47.5,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:타로-밀크티:both",
+   "brand_id": "amasvin",
+   "name": "타로 밀크티",
+   "name_en": null,
+   "category": "밀크티/라떼",
+   "temperature": "both",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "amasvin:타로-밀크티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 28.5,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:타로-쉐이크:both",
+   "brand_id": "amasvin",
+   "name": "타로 쉐이크",
+   "name_en": null,
+   "category": "쉐이크/스무디",
+   "temperature": "both",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "amasvin:타로-쉐이크:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 59.0,
+     "caffeine_mg": 0.5,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:티라미수-버블티:both",
+   "brand_id": "amasvin",
+   "name": "티라미수 버블티",
+   "name_en": null,
+   "category": "밀크티/라떼",
+   "temperature": "both",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "amasvin:티라미수-버블티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 47.5,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:파인애플-버블티:both",
+   "brand_id": "amasvin",
+   "name": "파인애플 버블티",
+   "name_en": null,
+   "category": "과일주스/생과일",
+   "temperature": "both",
+   "liquid_color": "#F7B32B",
+   "servings": [
+    {
+     "id": "amasvin:파인애플-버블티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 47.5,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:파인애플-소다:both",
+   "brand_id": "amasvin",
+   "name": "파인애플 소다",
+   "name_en": null,
+   "category": "에이드/소다/스페셜",
+   "temperature": "both",
+   "liquid_color": "#F7B32B",
+   "servings": [
+    {
+     "id": "amasvin:파인애플-소다:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 53.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:페퍼민트:both",
+   "brand_id": "amasvin",
+   "name": "페퍼민트",
+   "name_en": null,
+   "category": "에이드/소다/스페셜",
+   "temperature": "both",
+   "liquid_color": "#9ED9C3",
+   "servings": [
+    {
+     "id": "amasvin:페퍼민트:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:플레인-요거트:both",
+   "brand_id": "amasvin",
+   "name": "플레인 요거트",
+   "name_en": null,
+   "category": "요거트/하동녹차/흑당",
+   "temperature": "both",
+   "liquid_color": "#F7F3EA",
+   "servings": [
+    {
+     "id": "amasvin:플레인-요거트:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 65.5,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:피치-블랙티:both",
+   "brand_id": "amasvin",
+   "name": "피치 블랙티",
+   "name_en": null,
+   "category": "에이드/소다/스페셜",
+   "temperature": "both",
+   "liquid_color": "#F7A57A",
+   "servings": [
+    {
+     "id": "amasvin:피치-블랙티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 35.0,
+     "caffeine_mg": 70.5,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:하동녹차-버블티:both",
+   "brand_id": "amasvin",
+   "name": "하동녹차 버블티",
+   "name_en": null,
+   "category": "요거트/하동녹차/흑당",
+   "temperature": "both",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "amasvin:하동녹차-버블티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 47.5,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:하동녹차-쉐이크:both",
+   "brand_id": "amasvin",
+   "name": "하동녹차 쉐이크",
+   "name_en": null,
+   "category": "요거트/하동녹차/흑당",
+   "temperature": "both",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "amasvin:하동녹차-쉐이크:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 59.0,
+     "caffeine_mg": 0.5,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:하동녹차-오레오:both",
+   "brand_id": "amasvin",
+   "name": "하동녹차 오레오",
+   "name_en": null,
+   "category": "요거트/하동녹차/흑당",
+   "temperature": "both",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "amasvin:하동녹차-오레오:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "amasvin:헤이즐넛-라떼:both",
+   "brand_id": "amasvin",
+   "name": "헤이즐넛 라떼",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "amasvin:헤이즐넛-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 20.1,
+     "caffeine_mg": 194.3,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:헤이즐넛-아메리카노:both",
+   "brand_id": "amasvin",
+   "name": "헤이즐넛 아메리카노",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "amasvin:헤이즐넛-아메리카노:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 22.0,
+     "caffeine_mg": 193.3,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:화이트-오레오-쉐이크:both",
+   "brand_id": "amasvin",
+   "name": "화이트 오레오 쉐이크",
+   "name_en": null,
+   "category": "쉐이크/스무디",
+   "temperature": "both",
+   "liquid_color": "#8C8580",
+   "servings": [
+    {
+     "id": "amasvin:화이트-오레오-쉐이크:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 59.0,
+     "caffeine_mg": 0.5,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:화이트-초코-버블티:both",
+   "brand_id": "amasvin",
+   "name": "화이트 초코 버블티",
+   "name_en": null,
+   "category": "밀크티/라떼",
+   "temperature": "both",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "amasvin:화이트-초코-버블티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 47.5,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:흑당-버블티:both",
+   "brand_id": "amasvin",
+   "name": "흑당 버블티",
+   "name_en": null,
+   "category": "요거트/하동녹차/흑당",
+   "temperature": "both",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "amasvin:흑당-버블티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 47.5,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:흑당-카페라떼:both",
+   "brand_id": "amasvin",
+   "name": "흑당 카페라떼",
+   "name_en": null,
+   "category": "요거트/하동녹차/흑당",
+   "temperature": "both",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "amasvin:흑당-카페라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 43.0,
+     "caffeine_mg": 123.9,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "amasvin:흑당-티라미수:both",
+   "brand_id": "amasvin",
+   "name": "흑당 티라미수",
+   "name_en": null,
+   "category": "요거트/하동녹차/흑당",
+   "temperature": "both",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "amasvin:흑당-티라미수:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 38.5,
+     "caffeine_mg": 42.5,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "bluebottle:뉴올리언스:both",
+   "brand_id": "bluebottle",
+   "name": "뉴올리언스",
+   "name_en": "NOLA",
+   "category": "뉴올리언스",
+   "temperature": "both",
+   "liquid_color": "#D9C2A0",
+   "servings": [
+    {
+     "id": "bluebottle:뉴올리언스:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 7.5,
+     "caffeine_mg": 181.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "bluebottle:뉴올리언스-플로트:both",
+   "brand_id": "bluebottle",
+   "name": "뉴올리언스 플로트",
+   "name_en": "NOLA Float",
+   "category": "뉴올리언스",
+   "temperature": "both",
+   "liquid_color": "#D9C2A0",
+   "servings": [
+    {
+     "id": "bluebottle:뉴올리언스-플로트:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "bluebottle:레몬-유자-피즈:both",
+   "brand_id": "bluebottle",
+   "name": "레몬 유자 피즈",
+   "name_en": "Lemon Yuza Fizz",
+   "category": "티 앤 모어",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "bluebottle:레몬-유자-피즈:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 45.1,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "bluebottle:레몬티:both",
+   "brand_id": "bluebottle",
+   "name": "레몬티",
+   "name_en": "Lemon Tea",
+   "category": "티 앤 모어",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "bluebottle:레몬티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 67.1,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "bluebottle:말차-라떼:both",
+   "brand_id": "bluebottle",
+   "name": "말차 라떼",
+   "name_en": "Matcha Latte",
+   "category": "티 앤 모어",
+   "temperature": "both",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "bluebottle:말차-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 37.0,
+     "caffeine_mg": 104.4,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "bluebottle:모카:both",
+   "brand_id": "bluebottle",
+   "name": "모카",
+   "name_en": "Mocha",
+   "category": "에스프레소",
+   "temperature": "both",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "bluebottle:모카:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 30.0,
+     "caffeine_mg": 192.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "bluebottle:블렌드:both",
+   "brand_id": "bluebottle",
+   "name": "블렌드",
+   "name_en": "Blend",
+   "category": "푸어 오버",
+   "temperature": "both",
+   "liquid_color": "#D9C2A0",
+   "servings": [
+    {
+     "id": "bluebottle:블렌드:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 111.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "bluebottle:스트로베리-피즈:both",
+   "brand_id": "bluebottle",
+   "name": "스트로베리 피즈",
+   "name_en": "Strawberry Fizz",
+   "category": "티 앤 모어",
+   "temperature": "both",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "bluebottle:스트로베리-피즈:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "bluebottle:싱글-오리진:both",
+   "brand_id": "bluebottle",
+   "name": "싱글 오리진",
+   "name_en": "Single Origin",
+   "category": "푸어 오버",
+   "temperature": "both",
+   "liquid_color": "#D9C2A0",
+   "servings": [
+    {
+     "id": "bluebottle:싱글-오리진:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 111.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "bluebottle:아메리카노:both",
+   "brand_id": "bluebottle",
+   "name": "아메리카노",
+   "name_en": "Americano",
+   "category": "에스프레소",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "bluebottle:아메리카노:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 175.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "bluebottle:에스프레소:both",
+   "brand_id": "bluebottle",
+   "name": "에스프레소",
+   "name_en": "Espresso",
+   "category": "에스프레소",
+   "temperature": "both",
+   "liquid_color": "#2E1B12",
+   "servings": [
+    {
+     "id": "bluebottle:에스프레소:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 102.9,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "bluebottle:오렌지-주스:both",
+   "brand_id": "bluebottle",
+   "name": "오렌지 주스",
+   "name_en": "Orange Juice",
+   "category": "티 앤 모어",
+   "temperature": "both",
+   "liquid_color": "#F5871F",
+   "servings": [
+    {
+     "id": "bluebottle:오렌지-주스:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 35.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "bluebottle:오지:both",
+   "brand_id": "bluebottle",
+   "name": "오지",
+   "name_en": "Oji",
+   "category": "오지",
+   "temperature": "both",
+   "liquid_color": "#D9C2A0",
+   "servings": [
+    {
+     "id": "bluebottle:오지:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 181.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "bluebottle:지브롤터:both",
+   "brand_id": "bluebottle",
+   "name": "지브롤터",
+   "name_en": "Gibraltar",
+   "category": "에스프레소",
+   "temperature": "both",
+   "liquid_color": "#2E1B12",
+   "servings": [
+    {
+     "id": "bluebottle:지브롤터:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 9.0,
+     "caffeine_mg": 185.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "bluebottle:체리-블라썸-라떼:both",
+   "brand_id": "bluebottle",
+   "name": "체리 블라썸 라떼",
+   "name_en": "Cherry Blossom Latte",
+   "category": "에스프레소",
+   "temperature": "both",
+   "liquid_color": "#C0283E",
+   "servings": [
+    {
+     "id": "bluebottle:체리-블라썸-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 26.0,
+     "caffeine_mg": 187.9,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "bluebottle:체리-블라썸-말차-라떼:both",
+   "brand_id": "bluebottle",
+   "name": "체리 블라썸 말차 라떼",
+   "name_en": "Cherry Blossom Matcha Latte",
+   "category": "티 앤 모어",
+   "temperature": "both",
+   "liquid_color": "#C0283E",
+   "servings": [
+    {
+     "id": "bluebottle:체리-블라썸-말차-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 37.0,
+     "caffeine_mg": 104.4,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "bluebottle:초콜릿-밀크:both",
+   "brand_id": "bluebottle",
+   "name": "초콜릿 밀크",
+   "name_en": "Chocolate Milk",
+   "category": "티 앤 모어",
+   "temperature": "both",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "bluebottle:초콜릿-밀크:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 45.5,
+     "caffeine_mg": 15.8,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "bluebottle:카페라떼:both",
+   "brand_id": "bluebottle",
+   "name": "카페라떼",
+   "name_en": "Latte",
+   "category": "에스프레소",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "bluebottle:카페라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 10.0,
+     "caffeine_mg": 168.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "bluebottle:카푸치노:both",
+   "brand_id": "bluebottle",
+   "name": "카푸치노",
+   "name_en": "Cappuccino",
+   "category": "에스프레소",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "bluebottle:카푸치노:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 9.0,
+     "caffeine_mg": 186.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "bluebottle:콜드브루:both",
+   "brand_id": "bluebottle",
+   "name": "콜드브루",
+   "name_en": "Cold Brew",
+   "category": "콜드브루",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "bluebottle:콜드브루:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 181.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "bluebottle:호지차-라떼:both",
+   "brand_id": "bluebottle",
+   "name": "호지차 라떼",
+   "name_en": "Hojicha Latte",
+   "category": "티 앤 모어",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "bluebottle:호지차-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 25.0,
+     "caffeine_mg": 20.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
     }
    ]
   }

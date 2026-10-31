@@ -201,7 +201,8 @@ def test_the_committed_us_catalog_is_valid() -> None:
 def test_the_committed_tw_catalog_is_valid() -> None:
     catalog = Catalog.model_validate(json.loads(TW_CATALOG_PATH.read_text(encoding="utf-8")))
     assert validate(catalog) == []
-    assert catalog.schema_version == SCHEMA_VERSION
+    # caffeine_range needs schema 2; later versions only add fields.
+    assert 2 <= catalog.schema_version <= SCHEMA_VERSION
     counts = Counter(drink.brand_id for drink in catalog.drinks)
     assert set(counts) == set(tw_registry())
 

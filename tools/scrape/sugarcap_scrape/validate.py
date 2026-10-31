@@ -46,6 +46,9 @@ MIN_DRINKS_PER_BRAND = {
     # 2026-10-31: 커피빈 112 drinks, 파리바게뜨 77 drinks.
     "coffeebean": 55,
     "parisbaguette": 35,
+    # 2026-10-31: names only (values estimated). 블루보틀 21 from the menu image, 아마스빈 71.
+    "bluebottle": 21,
+    "amasvin": 35,
     # K-FIND export of 2026-08-28 gave 17,845 in-scope products.
     "cvs": 9000,
     # 2026-10-07: ordering menu 169 (product, form) pairs; nutritional guide PDF 300 drinks.

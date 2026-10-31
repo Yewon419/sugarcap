@@ -778,7 +778,8 @@ extension RecordFlowUITests {
         XCTAssertTrue(ui.element("record-add").isHittable, "무대가 닫혔는데 오늘 화면이 안 눌림")
     }
 
-    /// 거래 제안(SPEC §4.10): 로슈가 든 상자를 누르면 무대가 뜬다. "다음에"면 닫히고 상자를 들고 나간다.
+    /// 거래 제안(SPEC §4.10): 로슈가 든 상자를 누르면 무대가 뜬다. 첫 거래엔 "다음에"가 없다.
+    /// 두 번째부터(`-screenshotTradeRepeat`) "다음에"면 닫히고 상자를 들고 나간다.
     /// 다시 왔을 때 "바꾸기"면 당 면 잔이 초코 프라페로 바뀐다(보관함에서 확인하고 기본 잔으로 되돌린다).
     /// 잔액·다음 제안 시각은 저장소 테스트(`TradeTests`)가 본다. 여기 제안은 Debug `-screenshotTrade`라 저장되지 않는다.
     @MainActor
@@ -803,6 +804,17 @@ extension RecordFlowUITests {
         XCTAssertTrue(ui.element("trade-item").label.contains("초코 프라페"), "상품 이름이 없음: \(ui.element("trade-item").label)")
         XCTAssertTrue(ui.element("trade-question").label.contains("2개"), "첫 거래 가격이 2가 아님: \(ui.element("trade-question").label)")
         let refuse = app.buttons["trade-refuse"]
+        // 첫 거래(바꾼 적 없음)는 거절할 수 없다(대표님 2026-10-31).
+        XCTAssertTrue(app.buttons["trade-accept"].waitForExistence(timeout: 3), "바꾸기 버튼이 없음")
+        XCTAssertFalse(refuse.exists, "첫 거래인데 다음에 버튼이 있음")
+
+        // 그 뒤 제안은 거절할 수 있다. 바꾼 적이 있는 것처럼 다시 띄운다.
+        app.terminate()
+        app.launchArguments += ["-screenshotTradeRepeat", "YES"]
+        app.launch()
+        XCTAssertTrue(ui.element("cup-summary").waitForExistence(timeout: 15))
+        box.tap()
+        XCTAssertTrue(card.waitForExistence(timeout: 5), "두 번째 거래 상자를 눌렀는데 무대가 안 뜸")
         XCTAssertTrue(refuse.waitForExistence(timeout: 3), "다음에 버튼이 없음")
         refuse.tap()
         XCTAssertTrue(card.waitForNonExistence(timeout: 3), "다음에를 눌렀는데 무대가 남음")

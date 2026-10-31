@@ -10,8 +10,10 @@ struct TradeStage: Identifiable {
 /// 거래 제안 무대(SPEC §4.10). 선물 조명 무대(`GiftRevealOverlay`)와 같은 어둠·조명·반짝이에 상품(그 세트 100% 누끼)과
 /// 이름 꼬리표를 올리고, 아래에 "병뚜껑 N개랑 바꿀래?"와 버튼 둘("바꾸기" 강조색, "다음에" 유리 알약)을 둔다.
 /// 배경을 눌러도 닫히지 않는다(드러나기 전에 누르면 드러난 장면으로 건너뛴다). 동작 줄이기면 어둠과 카드만 켰다 끈다.
+/// 첫 거래(튜토리얼 라떼)는 "다음에" 없이 "바꾸기"만 둔다(대표님 2026-10-31).
 struct TradeOfferOverlay: View {
     let stage: TradeStage
+    let canRefuse: Bool
     let onAccept: () -> Void
     let onRefuse: () -> Void
 
@@ -108,17 +110,19 @@ struct TradeOfferOverlay: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .accessibilityIdentifier("trade-question")
             HStack(spacing: 12) {
-                Button(action: onRefuse) {
-                    Text("다음에")
-                        .font(AppFont.pretendard(17, .semibold, relativeTo: .headline))
-                        .foregroundStyle(Color.ink)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                        .frame(maxWidth: .infinity, minHeight: 34)
-                        .glassPill()
+                if canRefuse {
+                    Button(action: onRefuse) {
+                        Text("다음에")
+                            .font(AppFont.pretendard(17, .semibold, relativeTo: .headline))
+                            .foregroundStyle(Color.ink)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                            .frame(maxWidth: .infinity, minHeight: 34)
+                            .glassPill()
+                    }
+                    .buttonStyle(PressScaleStyle())
+                    .accessibilityIdentifier("trade-refuse")
                 }
-                .buttonStyle(PressScaleStyle())
-                .accessibilityIdentifier("trade-refuse")
                 Button(action: onAccept) {
                     Text("바꾸기")
                         .font(AppFont.pretendard(17, .semibold, relativeTo: .headline))

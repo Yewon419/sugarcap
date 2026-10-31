@@ -95,6 +95,8 @@ struct TodayView: View {
     @State private var leavingOffer: UUID?
     /// 바꾸기 성공 햅틱 신호.
     @State private var tradesAccepted = 0
+    /// 첫 거래를 바꿨고 체험 권유 페이월을 아직 안 띄웠다. 앱을 닫았다 열어도 남는다.
+    @AppStorage("trialPaywallPending") private var trialPaywallPending = false
     /// CI 스크린샷·UI 테스트(Debug `-screenshotTrade`)와 테스트 카드 "거래 제안 바로 보기"의 제안. 저장소에 넣지 않는다.
     @State private var screenshotOffer: TradeOffer?
 
@@ -705,11 +707,38 @@ struct TodayView: View {
         trade = TradeStage(offer: offer, startedAt: Date())
     }
 
+    /// 아직 바꾼 거래가 없으면 첫 거래(튜토리얼 라떼)다. 첫 거래는 거절할 수 없다(대표님 2026-10-31).
+    /// Debug `-screenshotTradeRepeat YES` = 이미 바꾼 적이 있는 것처럼(UI 테스트가 "다음에"를 누른다).
+    private var isFirstTrade: Bool {
+        #if DEBUG
+        if UserDefaults.standard.bool(forKey: "screenshotTradeRepeat") { return false }
+        #endif
+        return !trades.contains { $0.accepted == true }
+    }
+
+    /// 첫 거래를 바꾼 뒤 띄울 체험 권유 페이월(SPEC §6, 대표님 2026-10-31). 오늘 화면이 다른 연출·시트 없이 자리 잡았을 때만.
+    private var trialPaywallCue: Bool {
+        guard trialPaywallPending, trade == nil, leavingOffer == nil, levelUp == nil, opening == nil, reveal == nil,
+              feeding == nil, gate == nil, paywall == nil, !isProPaywallPresented, weekKept == nil
+        else { return false }
+        return isOnScreen && !isSliding && !isSettingsPresented && !isTrendsPresented && !isRecordSheetPresented
+            && !isDayLogPresented && !isManualEntryPresented && path.isEmpty
+    }
+
+    /// 새 잔이 바뀌는 걸 본 뒤에 한 번 띄운다. 그 사이 Pro가 됐으면 띄우지 않는다.
+    private func presentTrialPaywall() async {
+        try? await Task.sleep(for: .seconds(1.6))
+        guard !Task.isCancelled, trialPaywallCue else { return }
+        trialPaywallPending = false
+        if !pro.isPro { isProPaywallPresented = true }
+    }
+
     /// 바꾸기. 저장한 뒤 무대를 닫고 그 면의 잔을 새 잔으로 바꾼다(`CupView`가 크로스페이드). 캐릭터는 대기 자세로 돌아온다.
-    /// 스크린샷용 제안(저장소 밖)은 저장하지 않는다.
+    /// 스크린샷용 제안(저장소 밖)은 저장하지 않는다. 첫 거래면 체험 권유 페이월을 예약한다.
     private func acceptTrade(_ stage: TradeStage) {
         guard trade?.id == stage.id else { return }
         let offer = stage.offer
+        let wasFirstTrade = isFirstTrade
         guard let item = TradeCatalog.item(offer.itemID) else {
             Self.logger.error("모르는 거래 상품: \(offer.itemID, privacy: .public)")
             trade = nil
@@ -726,6 +755,7 @@ struct TodayView: View {
                 failureMessage = String(localized: "바꾸지 못했어요. 다시 시도해 주세요.")
                 return
             }
+            if wasFirstTrade, !pro.isPro { trialPaywallPending = true }
         } else {
             offer.accepted = true
         }
@@ -772,6 +802,7 @@ struct TodayView: View {
         if let trade {
             TradeOfferOverlay(
                 stage: trade,
+                canRefuse: !isFirstTrade,
                 onAccept: { acceptTrade(trade) },
                 onRefuse: { refuseTrade(trade) }
             )
@@ -1001,6 +1032,9 @@ struct TodayView: View {
             if let leavingOffer { await finishLeaving(leavingOffer) }
         }
         .sensoryFeedback(.success, trigger: tradesAccepted)
+        .task(id: trialPaywallCue) {
+            if trialPaywallCue { await presentTrialPaywall() }
+        }
         .task(id: levelUpCue) {
             if let levelUpCue { await startLevelUp(after: levelUpCue) }
         }

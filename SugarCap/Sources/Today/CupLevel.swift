@@ -31,6 +31,12 @@ enum CupLevel {
         "rimline-\(setID)-\(step)"
     }
 
+    /// 같은 단계의 토핑(입구 위로 솟거나 입구를 채운 과일·잎·크림). 큰 숫자를 통째로 가린다
+    /// (`design/assets/cups/make_hero_toppings.py`). 토핑이 숫자 자리에 안 닿는 단계는 에셋이 없다.
+    static func toppingName(setID: String = defaultSetID, step: Int) -> String {
+        "topping-\(setID)-\(step)"
+    }
+
     /// - Parameter remaining: 남은 양. `limit`과 같은 단위여야 한다.
     static func step(remaining: Double, limit: Double) -> Int {
         guard limit > 0 else { return 0 }

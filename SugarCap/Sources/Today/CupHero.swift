@@ -12,6 +12,8 @@ struct CupHero: View {
     /// 켜진 면 숫자 중 가장 넓은 글자. 두 면 숫자 크기를 맞춘다.
     let widest: String
     let rimLine: String
+    /// 숫자를 통째로 가리는 토핑(`topping-*`, 대표님 베타 피드백 2026-10-31 "크림이 글자 위로"). 에셋이 없으면 유리 선만.
+    var topping: String?
     /// 라벨 바로 위에 잠깐 뜨는 한 줄 안내("지난밤 먹인 음료가 반영됐어요" 등). 언제 지울지는 `TodayView`가 정한다.
     var notice: String?
     /// 날짜 머리기사(요일 · 날짜 · 상식 한 줄 · 선)의 날. nil이면 그리지 않는다.
@@ -120,7 +122,11 @@ struct CupHero: View {
             Canvas { context, size in
                 context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(.black))
                 context.blendMode = .destinationOut
-                context.draw(Image(rimLine), in: IdlePhoto(slot: size).rect)
+                let rect = IdlePhoto(slot: size).rect
+                context.draw(Image(rimLine), in: rect)
+                if let topping, UIImage(named: topping) != nil {
+                    context.draw(Image(topping), in: rect)
+                }
             }
         }
         .allowsHitTesting(false)

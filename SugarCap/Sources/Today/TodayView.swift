@@ -304,6 +304,7 @@ struct TodayView: View {
                             side: cupSide, remaining: cupSide.remaining(totals), limit: cupSide.limit(limits),
                             overflow: cupSide.overflow(totals), widest: widestNumber(totals),
                             rimLine: CupLevel.rimLineName(setID: cupSide.cupSetID, step: step),
+                            topping: CupLevel.toppingName(setID: cupSide.cupSetID, step: step),
                             notice: notice,
                             day: today,
                             topInset: Double(proxy.safeAreaInsets.top),

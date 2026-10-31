@@ -88,6 +88,7 @@ struct MonthTrendsView: View {
                 }
                 .scrollIndicators(.hidden)
                 .ignoresSafeArea()
+                .modifier(NoTopScrollEdge())
                 .onAppear { scrollToDigestForScreenshot(reader) }
             }
         }
@@ -527,5 +528,18 @@ struct StepTriangle: Shape {
         path.addLine(to: CGPoint(x: back, y: rect.maxY))
         path.closeSubpath()
         return path
+    }
+}
+
+/// 월 달력은 사진이 상단 막대 밑까지 깔린다. iOS 26+ 스크롤 위 가장자리 효과를 끈다. 실기기(iOS 27)에서는 이 효과가
+/// 불투명한 흰 띠(hard)로 그려져 사진 위에 하얀 바가 생겼다(대표님 베타 피드백 2026-10-29 빌드 356 "상단 하얀 바 제거").
+/// 통계까지 내려오면 막대 배경을 통계 바탕색으로 채우니(`TrendsView`) 효과 없이도 글자가 묻히지 않는다.
+private struct NoTopScrollEdge: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content.scrollEdgeEffectHidden(true, for: .top)
+        } else {
+            content
+        }
     }
 }

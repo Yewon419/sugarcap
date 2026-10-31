@@ -353,6 +353,7 @@ jobs:
           shoot einspanner-feeding light large -cupSet.caffeine einspanner -screenshotTracks caffeine -screenshotFeeding YES -screenshotFeedingStage dropped
           shoot mango-in-cup-50 light large -cupSet.sugar mango -idlePose in-cup -idleStep 50 -idleAt 2.5
           shoot mango-walk light large -cupSet.sugar mango -idlePose walk -idleStep 80 -idleAt 3.2
+          shoot mango-hero-100 light large -cupSet.sugar mango -idlePose watch -idleStep 100 -idleAt 2.5
           shoot mango-feeding light large -cupSet.sugar mango -screenshotFeeding YES -screenshotFeedingStage dropped
           shoot grape-in-cup-30 light large -cupSet.sugar grape -idlePose in-cup -idleStep 30 -idleAt 2.5
           shoot grape-watch light large -cupSet.sugar grape -idlePose watch -idleStep 100 -idleAt 2.5

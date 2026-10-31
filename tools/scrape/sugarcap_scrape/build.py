@@ -3,11 +3,17 @@
 Usage:
     python -m sugarcap_scrape.build --out ../../data/catalog.json --kfind .raw/<가공식품DB>.xlsx
     python -m sugarcap_scrape.build --out ... [--only starbucks,mega] [--kfind ...]
+    python -m sugarcap_scrape.build --out ../../data/catalog.json
+        --merge ../../data/catalog.json --only paulbassett,baskin
     python -m sugarcap_scrape.build --country us --out ../../data/catalog-us.json
     python -m sugarcap_scrape.build --country tw --out ../../data/catalog-tw.json
 
 `--kfind` is the hand-downloaded K-FIND 가공식품 xlsx behind the `cvs` brand
 (see `brands/cvs.py`). A full Korean build requires it so the brand cannot drop out.
+
+`--merge` re-scrapes only the `--only` brands and swaps them into an existing catalog,
+leaving every other brand's drinks untouched. Used when an unrelated brand site broke
+and a full rebuild cannot pass. The merged catalog is validated like a full build.
 """
 
 from __future__ import annotations
@@ -125,6 +131,21 @@ def build(
     )
 
 
+def merge_catalog(base: Catalog, update: Catalog) -> Catalog:
+    """`base` with every brand of `update` replaced (or appended) by `update`'s version."""
+    replaced = {brand.id for brand in update.brands}
+    fresh = {brand.id: brand for brand in update.brands}
+    brands = [fresh.pop(brand.id, brand) for brand in base.brands]
+    brands.extend(brand for brand in update.brands if brand.id in fresh)
+    kept = [drink for drink in base.drinks if drink.brand_id not in replaced]
+    return Catalog(
+        schema_version=max(base.schema_version, update.schema_version),
+        built_at=update.built_at,
+        brands=tuple(brands),
+        drinks=(*kept, *update.drinks),
+    )
+
+
 def write_catalog(catalog: Catalog, out: Path) -> None:
     out.parent.mkdir(parents=True, exist_ok=True)
     payload = catalog.model_dump(mode="json")
@@ -137,17 +158,25 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--country", choices=("kr", "us", "tw"), default="kr")
     parser.add_argument("--only", type=str, default=None, help="comma-separated brand ids")
     parser.add_argument("--kfind", type=Path, default=None, help="K-FIND 가공식품 DB xlsx")
+    parser.add_argument(
+        "--merge", type=Path, default=None, help="existing catalog to swap --only brands into"
+    )
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
     only = set(args.only.split(",")) if args.only else None
+    if args.merge is not None and only is None:
+        parser.error("--merge needs --only")
     if args.country == "kr" and only is None and args.kfind is None:
         parser.error(f"a full build needs --kfind for the {cvs.BRAND.id} brand")
     if args.country != "kr" and args.kfind is not None:
         parser.error("--kfind is the Korean convenience-store source")
     scrapers = {"kr": registry, "us": us_registry, "tw": tw_registry}[args.country]()
     catalog = build(scrapers, only, args.kfind)
-    problems = validate(catalog) if only is None else []
+    if args.merge is not None:
+        base = Catalog.model_validate(json.loads(args.merge.read_text(encoding="utf-8")))
+        catalog = merge_catalog(base, catalog)
+    problems = validate(catalog) if only is None or args.merge is not None else []
     if problems:
         for problem in problems:
             print(f"INVALID {problem}", file=sys.stderr)

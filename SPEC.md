@@ -39,6 +39,8 @@
 | 할리스 | Regular 354ml, HOT/ICED | 정적 HTML `/menu/espresso.do` 등 | |
 | 더벤티 | 기준 사이즈(대개 라지 600ml) | 목록(`all.html?mode=N`)→상세 HTML | **카페인 원두별 2값(시그니처/다크)**, 사이즈 표기 미디엄/미디움 혼용 |
 | 공차 (2026-10-05 추가) | L/J(일부 G 946ml) × COLD/HOT | 영양정보 탭 HTML 조각 `/brand/menu/product_nutrition` 1개(분류별 표 7개) | **당류는 당도 0% 기본 레시피 값**(스무디만 고정 당도). 메뉴명·온도는 rowspan, NEW·베스트셀러는 다른 분류와 중복. G는 이름 미게시라 용량으로 표기 |
+| 폴바셋 (2026-10-31 추가) | Standard/Grand/Venti/Original × 제품별 온도(핫·아이스 별도 제품) | 목록 `List.pb?cid1=A·B&cid2=…`(`goView('PB…')`) → 상세 `View.pb?dpid=` HTML, 사이즈별 `#pSize_*` 블록 | 디카페인 카페인은 `10mg이하`·`15mg이하`로만 게시 → `caffeine_range`(0~N, N으로 셈). 아메리카노·에스프레소 당류 `-`는 미공개(null). 사이즈 이름보다 ml가 기준(같은 Standard가 230~360ml) |
+| 배스킨라빈스 (2026-10-31 추가) | R/L/K(기본) × HOT/ICED, 용량은 g만 게시 | 목록 `list_subcategory.php?category=C`(음료)·`D`(커피) → 상세 `view_subcategory.php?seq=` HTML, 잔마다 `.subcategory-view__product` | 잔 이름이 POS 표기(`I_RD)`, `ICED 연유라떼R`, `(DECAF)`)라 이름·온도·사이즈·디카페인을 여기서 푼다. 온도 표시 없는 잔은 `both`. 당류 범위(`38~63`)는 상한, 카페인 범위는 `caffeine_range`, `*`는 고카페인 표시, `-`는 사이트 정의상 해당없음(0). 같은 음료가 사이즈마다 띄어쓰기가 달라 공백 무시로 묶음 |
 
 수집 결과(2026-09-16 실측)는 §10 게이트 기록 표를 본다. 브랜드별 파서는
 `tools/scrape/sugarcap_scrape/brands/<id>.py`, 산출 스키마 계약은 `data/SCHEMA.md`.

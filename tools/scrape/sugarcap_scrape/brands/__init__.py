@@ -17,18 +17,32 @@ Scraper = Callable[[httpx.Client], list[RawServing]]
 def registry() -> dict[str, tuple[Brand, Scraper]]:
     """Import brand modules lazily so one broken module does not block the others at import."""
     from sugarcap_scrape.brands import (
+        baskin,
         compose,
         ediya,
         gongcha,
         hollys,
         mega,
         paik,
+        paulbassett,
         starbucks,
         theventi,
         twosome,
     )
 
-    modules = (starbucks, mega, compose, ediya, paik, twosome, hollys, theventi, gongcha)
+    modules = (
+        starbucks,
+        mega,
+        compose,
+        ediya,
+        paik,
+        twosome,
+        hollys,
+        theventi,
+        gongcha,
+        paulbassett,
+        baskin,
+    )
     return {module.BRAND.id: (module.BRAND, module.scrape) for module in modules}
 
 

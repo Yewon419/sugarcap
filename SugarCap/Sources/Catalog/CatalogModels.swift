@@ -58,6 +58,11 @@ struct Serving: Decodable, Identifiable, Hashable {
     /// 브랜드가 숫자 대신 구간으로 게시한 카페인(대만, schema 2). 있으면 `caffeineMg`는 구간의 위 끝,
     /// 위가 열린 구간("201mg 이상")이면 아래 끝이다. schema 1 파일엔 키가 없어 nil이다.
     let caffeineRange: CaffeineRange?
+    /// 참이면 당·카페인은 브랜드 게시값이 아니라 다른 카페 같은 메뉴로 낸 추정치다(schema 3, SPEC §2 예외).
+    /// 게시값이면 키가 없어 nil이다.
+    let estimated: Bool?
+
+    var isEstimated: Bool { estimated == true }
 }
 
 struct CaffeineRange: Decodable, Hashable {

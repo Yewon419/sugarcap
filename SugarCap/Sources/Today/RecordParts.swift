@@ -99,13 +99,17 @@ struct DrinkFigure: View {
     let caffeineMg: Double?
     /// 카탈로그가 카페인을 구간으로 준 메뉴(대만). 값 대신 구간을 적는다. 기록(`Entry`)에는 없다.
     var caffeineRange: CaffeineRange? = nil
+    /// 비공개 브랜드의 추정치. 큰 숫자 앞에 "추정"을 붙인다.
+    var estimated = false
     var alignment: HorizontalAlignment = .trailing
 
     @Environment(\.recordCup) private var recordCup
     @Environment(\.trackedSides) private var trackedSides
 
     func aligned(_ value: HorizontalAlignment) -> DrinkFigure {
-        DrinkFigure(name: name, sugarG: sugarG, caffeineMg: caffeineMg, caffeineRange: caffeineRange, alignment: value)
+        DrinkFigure(
+            name: name, sugarG: sugarG, caffeineMg: caffeineMg, caffeineRange: caffeineRange, estimated: estimated, alignment: value
+        )
     }
 
     private func amount(_ side: CupSide) -> Double? {
@@ -132,6 +136,12 @@ struct DrinkFigure: View {
         VStack(alignment: alignment, spacing: 2) {
             if let value = amount(primary) {
                 HStack(alignment: .firstTextBaseline, spacing: 1) {
+                    if estimated {
+                        Text("추정")
+                            .font(AppFont.pretendard(12, .medium, relativeTo: .caption))
+                            .foregroundStyle(.secondary)
+                            .padding(.trailing, 3)
+                    }
                     Text(number(primary, value))
                         .font(AppFont.pretendard(22, .bold, relativeTo: .title2))
                         .tracking(-0.6)

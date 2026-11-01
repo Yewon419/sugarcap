@@ -57,6 +57,7 @@ struct ServingSelection: Equatable {
             loggedAt: date,
             sugarG: sugarG,
             caffeineMg: caffeineMg,
+            estimated: serving.isEstimated,
             drinkName: drink.name,
             brandName: brandName,
             sizeLabel: serving.sizeLabel

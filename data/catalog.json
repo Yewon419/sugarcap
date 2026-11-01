@@ -1,6 +1,6 @@
 {
  "schema_version": 3,
- "built_at": "2026-10-31T13:55:54+00:00",
+ "built_at": "2026-11-01T00:28:33+00:00",
  "brands": [
   {
    "id": "starbucks",
@@ -89,13 +89,13 @@
   {
    "id": "bluebottle",
    "name": "블루보틀",
-   "serving_note": "영양정보 비공개. 다른 카페 같은 메뉴로 낸 추정치",
+   "serving_note": "영양정보 비공개, 값은 추정치",
    "has_size_choice": false
   },
   {
    "id": "amasvin",
    "name": "아마스빈",
-   "serving_note": "영양정보 비공개. 다른 카페 같은 메뉴로 낸 추정치",
+   "serving_note": "영양정보 비공개, 값은 추정치",
    "has_size_choice": false
   }
  ],

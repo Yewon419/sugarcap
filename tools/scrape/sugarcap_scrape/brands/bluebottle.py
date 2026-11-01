@@ -20,7 +20,7 @@ from sugarcap_scrape.parse import ParseError
 BRAND = Brand(
     id="bluebottle",
     name="블루보틀",
-    serving_note="영양정보 비공개. 다른 카페 같은 메뉴로 낸 추정치",
+    serving_note="영양정보 비공개, 값은 추정치",
     has_size_choice=False,
 )
 

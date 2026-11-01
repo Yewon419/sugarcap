@@ -134,7 +134,8 @@ struct BrandMenuView: View {
                             name: drink.name,
                             sugarG: drink.servings.first?.sugarG,
                             caffeineMg: drink.servings.first.flatMap { $0.caffeineVariants.first?.caffeineMg ?? $0.caffeineMg },
-                            caffeineRange: drink.servings.first?.caffeineRange
+                            caffeineRange: drink.servings.first?.caffeineRange,
+                            estimated: drink.servings.first?.isEstimated ?? false
                         ),
                         liquid: drink.liquid
                     )

@@ -232,6 +232,11 @@ jobs:
           shoot tracks-record-caffeine light large -seedDemo YES -screenshotTracks caffeine -screenshotRecord YES
           shoot tracks-daylog-caffeine light large -seedDemo YES -screenshotTracks caffeine -screenshotDayLog YES
           shoot brand-type-ax-xl light accessibility-extra-large -seedDemo YES -screenshotBrand starbucks
+          # 영양정보 비공개 브랜드는 추정치에 "추정"을 붙인다(2026-11-01, SPEC §2 예외).
+          shoot brand-estimated light large -seedDemo YES -screenshotBrand bluebottle
+          shoot brand-estimated-dark dark large -seedDemo YES -screenshotBrand bluebottle
+          shoot brand-estimated-panel light large -seedDemo YES -screenshotBrand bluebottle -screenshotBrandQuery "라떼" -screenshotBrandPanel YES
+          shoot brand-estimated-type-ax-xl light accessibility-extra-large -seedDemo YES -screenshotBrand amasvin -screenshotBrandQuery "밀크티"
           shoot gate-feed light large -seedDemo YES -screenshotGate feed
           shoot gate-ask light large -screenshotGate ask
           shoot gate-feed-type-ax-xl light accessibility-extra-large -seedDemo YES -screenshotGate feed

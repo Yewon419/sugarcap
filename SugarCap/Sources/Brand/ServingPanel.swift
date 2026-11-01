@@ -128,7 +128,9 @@ struct ServingPanel: View {
             guard let amount else { return String(localized: "\(side.label) 미공개 메뉴라 컵은 그대로예요") }
             return afterOver > 0
                 ? String(localized: "하루 기준을 \(Amount.number(afterOver)) \(side.unit) 넘겨요")
-                : String(localized: "이 잔은 \(side.label) \(Amount.number(amount)) \(side.unit)")
+                : selection.serving.isEstimated
+                    ? String(localized: "이 잔은 \(side.label) 추정 \(Amount.number(amount)) \(side.unit)")
+                    : String(localized: "이 잔은 \(side.label) \(Amount.number(amount)) \(side.unit)")
         }()
 
         return HStack(spacing: 12) {

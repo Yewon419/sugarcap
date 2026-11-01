@@ -18,6 +18,8 @@ final class Entry {
     /// nil은 0이 아니라 "브랜드 미공개"다.
     var sugarG: Double?
     var caffeineMg: Double?
+    /// 비공개 브랜드의 추정치로 기록했는지(`Serving.isEstimated`). 기본값이 있어 옛 저장소도 그대로 열린다.
+    var estimated: Bool = false
 
     /// 표시용 스냅샷. 카탈로그를 다시 조회하지 않고도 기록 리스트를 그릴 수 있어야 한다.
     var drinkName: String
@@ -32,6 +34,7 @@ final class Entry {
         loggedAt: Date,
         sugarG: Double?,
         caffeineMg: Double?,
+        estimated: Bool = false,
         drinkName: String,
         brandName: String,
         sizeLabel: String
@@ -43,6 +46,7 @@ final class Entry {
         self.loggedAt = loggedAt
         self.sugarG = sugarG
         self.caffeineMg = caffeineMg
+        self.estimated = estimated
         self.drinkName = drinkName
         self.brandName = brandName
         self.sizeLabel = sizeLabel

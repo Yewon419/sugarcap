@@ -18,7 +18,7 @@ final class CatalogTests: XCTestCase {
 
         XCTAssertTrue(CatalogStore.supportedSchemaVersions.contains(catalog.schemaVersion), "schema_version \(catalog.schemaVersion)")
         XCTAssertNotNil(catalog.builtAtDate, "built_at이 ISO 8601이 아님: \(catalog.builtAt)")
-        XCTAssertEqual(catalog.brands.count, 14)
+        XCTAssertEqual(catalog.brands.count, 16)
         XCTAssertFalse(catalog.drinks.isEmpty)
     }
 
@@ -69,6 +69,20 @@ final class CatalogTests: XCTestCase {
                 "\(drink.id)는 사이즈 선택이 없는 브랜드인데 serving이 \(drink.servings.count)개"
             )
         }
+    }
+
+    /// 추정치는 영양정보를 아예 공개하지 않는 브랜드에만 있다(SPEC §2 예외). 게시값 브랜드에 섞이면 파이프라인 버그다.
+    func testEstimatesStayInBrandsThatPublishNothing() throws {
+        let catalog = try loadCatalog()
+        let estimatedBrands = Set(
+            catalog.drinks.filter { $0.servings.contains(where: \.isEstimated) }.map(\.brandId)
+        )
+        XCTAssertEqual(estimatedBrands, ["bluebottle", "amasvin"])
+
+        let latte = try XCTUnwrap(catalog.drinks.first { $0.brandId == "bluebottle" && $0.name == "카페라떼" })
+        let cup = try XCTUnwrap(latte.servings.first)
+        XCTAssertTrue(cup.isEstimated)
+        XCTAssertNotNil(cup.sugarG)
     }
 
     func testEveryDrinkHasAtLeastOneServing() throws {
@@ -138,7 +152,7 @@ final class CatalogTests: XCTestCase {
 
     func testUnsupportedSchemaVersionIsRejected() throws {
         let payload = Data(
-            #"{"schema_version": 3, "built_at": "2026-09-16T04:06:26+00:00", "brands": [], "drinks": []}"#
+            #"{"schema_version": 4, "built_at": "2026-09-16T04:06:26+00:00", "brands": [], "drinks": []}"#
                 .utf8
         )
 
@@ -146,8 +160,8 @@ final class CatalogTests: XCTestCase {
             guard case CatalogError.unsupportedSchemaVersion(let found, let supported) = error else {
                 return XCTFail("예상과 다른 에러: \(error)")
             }
-            XCTAssertEqual(found, 3)
-            XCTAssertEqual(supported, 2)
+            XCTAssertEqual(found, 4)
+            XCTAssertEqual(supported, 3)
         }
     }
 

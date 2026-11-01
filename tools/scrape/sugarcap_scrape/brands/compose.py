@@ -1,7 +1,9 @@
 """컴포즈커피: XE gallery list pages -> one detail page per item with a nutrition grid.
 
-Every drink is published at a single cup size, so `size_label` is always "기본"
-and `volume_ml` is the detail page's "컵용량". Temperature comes from the
+Each detail page is one cup; `volume_ml` is its "컵용량". Almost every drink has one page,
+labelled "기본". Since 2026-10-31 a few drinks (딥라떼, 클라우드 라떼 iced) have one page per
+size under the same title; those cups are labelled by their published volume ("414ml",
+"591ml") so single-size drinks keep their "기본" ids (`label_sizes`). Temperature comes from the
 "I-"/"H-" name prefix; items without a prefix (프라페, 에이드, 에스프레소...) are
 recorded as `Temperature.BOTH` because the brand does not state it.
 Items whose nutrition grid has "무게" instead of "컵용량" are food and skipped.
@@ -11,6 +13,7 @@ from __future__ import annotations
 
 import re
 import time
+from collections import defaultdict
 from typing import NamedTuple
 
 import httpx
@@ -23,8 +26,8 @@ from sugarcap_scrape.parse import ParseError, clean_text, first_number, optional
 BRAND = Brand(
     id="compose",
     name="컴포즈커피",
-    serving_note="컵용량 기준(사이즈 1종). 당류가 공개되지 않은 음료는 당류 없음으로 표시됩니다.",
-    has_size_choice=False,
+    serving_note="컵용량 기준. 당류가 공개되지 않은 음료는 당류 없음으로 표시됩니다.",
+    has_size_choice=True,
 )
 
 BASE_URL = "https://composecoffee.com/index.php"
@@ -158,6 +161,25 @@ def parse_item(html: str, *, category: str, source_url: str) -> list[RawServing]
     ]
 
 
+def label_sizes(rows: list[RawServing]) -> list[RawServing]:
+    """Label cups by volume when one drink (name + temperature) has several pages."""
+    groups: dict[tuple[str, Temperature], list[RawServing]] = defaultdict(list)
+    for row in rows:
+        groups[(row.drink_name, row.temperature)].append(row)
+    labelled: list[RawServing] = []
+    for row in rows:
+        group = groups[(row.drink_name, row.temperature)]
+        if len(group) == 1:
+            labelled.append(row)
+            continue
+        volumes = [cup.volume_ml for cup in group]
+        if len(set(volumes)) != len(volumes):
+            urls = " ".join(cup.source_url for cup in group)
+            raise ParseError(f"{row.drink_name}: several pages with the same 컵용량 ({urls})")
+        labelled.append(row.model_copy(update={"size_label": f"{row.volume_ml}ml"}))
+    return labelled
+
+
 def _list_category_items(client: httpx.Client, category: Category) -> list[ListItem]:
     items: list[ListItem] = []
     page = 1
@@ -188,4 +210,4 @@ def scrape(client: httpx.Client) -> list[RawServing]:
             url = item_url(category.srl, item.item_srl)
             rows.extend(parse_item(fetch_text(client, url), category=category.name, source_url=url))
             time.sleep(REQUEST_PAUSE_SECONDS)
-    return rows
+    return label_sizes(rows)

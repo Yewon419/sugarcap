@@ -7,7 +7,7 @@ import XCTest
 /// 목을 쓰지 않고 실제 `data/catalog.json`을 읽는다.
 /// 여기서 깨지면 수집 파이프라인이 계약을 어긴 것이다(`data/SCHEMA.md` 불변식).
 final class CatalogTests: XCTestCase {
-    private static let brandsWithSizeChoice: Set<String> = ["ediya", "twosome", "gongcha", "paulbassett", "baskin", "cvs"]
+    private static let brandsWithSizeChoice: Set<String> = ["compose", "ediya", "twosome", "gongcha", "paulbassett", "baskin", "cvs"]
 
     private func loadCatalog() throws -> Catalog {
         try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self))

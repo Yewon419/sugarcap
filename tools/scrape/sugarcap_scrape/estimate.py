@@ -5,9 +5,10 @@ the same drink at brands that do publish, and the serving is marked `estimated` 
 prefixes "추정". Nothing here touches a brand that publishes its own values.
 
 Reference cups are the first serving of every drink from a publishing brand, except the
-convenience store (packaged goods, not cafe cups), the estimated brands themselves, and
-decaf drinks unless the target is decaf. 공차 sugar is left out: it is published for the
-0% sweetness recipe, not the cup people get by default.
+convenience store (packaged goods, not cafe cups) and the estimated brands themselves. A
+decaf target is matched against decaf drinks only, any other target against non-decaf only.
+공차 sugar is left out: it is published for the 0% sweetness recipe, not the cup people get
+by default.
 
 Sugar and caffeine are matched separately; for each, the first level with at least
 `MIN_REFERENCES` published values gives the median:
@@ -78,8 +79,8 @@ def levels(query: Sequence[str], pool: Sequence[Reference]) -> Iterator[list[Ref
     """Candidate reference sets, closest first (see the module docstring)."""
     if not query:
         return
-    if DECAF not in "".join(query):
-        pool = [ref for ref in pool if DECAF not in ref.key]
+    decaf = DECAF in "".join(query)
+    pool = [ref for ref in pool if (DECAF in ref.key) == decaf]
     yield [ref for ref in pool if ref.key == "".join(query)]
     for start in range(len(query)):
         tail = query[start:]

@@ -1,6 +1,6 @@
 {
  "schema_version": 3,
- "built_at": "2026-11-01T00:28:33+00:00",
+ "built_at": "2026-11-01T00:46:30+00:00",
  "brands": [
   {
    "id": "starbucks",
@@ -95,6 +95,12 @@
   {
    "id": "amasvin",
    "name": "아마스빈",
+   "serving_note": "영양정보 비공개, 값은 추정치",
+   "has_size_choice": false
+  },
+  {
+   "id": "oozy",
+   "name": "우지커피",
    "serving_note": "영양정보 비공개, 값은 추정치",
    "has_size_choice": false
   }
@@ -393010,6 +393016,2603 @@
      "volume_ml": null,
      "sugar_g": 25.0,
      "caffeine_mg": 20.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:고구마-라떼:both",
+   "brand_id": "oozy",
+   "name": "고구마 라떼",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#C9A07A",
+   "servings": [
+    {
+     "id": "oozy:고구마-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 46.5,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:곡물-라떼:both",
+   "brand_id": "oozy",
+   "name": "곡물 라떼",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#EADBC8",
+   "servings": [
+    {
+     "id": "oozy:곡물-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 42.1,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:구슬톡톡-라임펀치:both",
+   "brand_id": "oozy",
+   "name": "구슬톡톡 라임펀치",
+   "name_en": null,
+   "category": "에이드 & 모히또",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "oozy:구슬톡톡-라임펀치:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:구슬톡톡-자몽펀치:both",
+   "brand_id": "oozy",
+   "name": "구슬톡톡 자몽펀치",
+   "name_en": null,
+   "category": "에이드 & 모히또",
+   "temperature": "both",
+   "liquid_color": "#F06B5B",
+   "servings": [
+    {
+     "id": "oozy:구슬톡톡-자몽펀치:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 45.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:구슬톡톡파인슬러시:both",
+   "brand_id": "oozy",
+   "name": "구슬톡톡파인슬러시",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#EADBC8",
+   "servings": [
+    {
+     "id": "oozy:구슬톡톡파인슬러시:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:깻잎스무디:both",
+   "brand_id": "oozy",
+   "name": "깻잎스무디",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#EADBC8",
+   "servings": [
+    {
+     "id": "oozy:깻잎스무디:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:꿀배-비타민:both",
+   "brand_id": "oozy",
+   "name": "꿀배 비타민",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#E3C93C",
+   "servings": [
+    {
+     "id": "oozy:꿀배-비타민:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:꿀배청귤슬러시:both",
+   "brand_id": "oozy",
+   "name": "꿀배청귤슬러시",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#F5871F",
+   "servings": [
+    {
+     "id": "oozy:꿀배청귤슬러시:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:나는-요거트오렌망이야:both",
+   "brand_id": "oozy",
+   "name": "나는 요거트오렌망이야",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#F7F3EA",
+   "servings": [
+    {
+     "id": "oozy:나는-요거트오렌망이야:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 60.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:녹차-라떼:both",
+   "brand_id": "oozy",
+   "name": "녹차 라떼",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "oozy:녹차-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 38.7,
+     "caffeine_mg": 64.8,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:녹차-프라페:both",
+   "brand_id": "oozy",
+   "name": "녹차 프라페",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "oozy:녹차-프라페:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 64.0,
+     "caffeine_mg": 30.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:달달고구마식혜:both",
+   "brand_id": "oozy",
+   "name": "달달고구마식혜",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#C9A07A",
+   "servings": [
+    {
+     "id": "oozy:달달고구마식혜:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 60.6,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:더블베리-밀크쉐이크:both",
+   "brand_id": "oozy",
+   "name": "더블베리 밀크쉐이크",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#C0283E",
+   "servings": [
+    {
+     "id": "oozy:더블베리-밀크쉐이크:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 60.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:더블베리-쉐이크:both",
+   "brand_id": "oozy",
+   "name": "더블베리 쉐이크",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#C0283E",
+   "servings": [
+    {
+     "id": "oozy:더블베리-쉐이크:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 59.0,
+     "caffeine_mg": 0.5,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:더블커피칩-프라페:both",
+   "brand_id": "oozy",
+   "name": "더블커피칩 프라페",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "oozy:더블커피칩-프라페:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 64.0,
+     "caffeine_mg": 30.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:디카페인-콜드브루-커피:both",
+   "brand_id": "oozy",
+   "name": "디카페인 콜드브루 커피",
+   "name_en": null,
+   "category": "콜드브루",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "oozy:디카페인-콜드브루-커피:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 8.2,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:딥-말차베리-라떼:both",
+   "brand_id": "oozy",
+   "name": "딥 말차베리 라떼",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#C0283E",
+   "servings": [
+    {
+     "id": "oozy:딥-말차베리-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 37.0,
+     "caffeine_mg": 104.4,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:딥-밀크-쉐이크:both",
+   "brand_id": "oozy",
+   "name": "딥 밀크 쉐이크",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#F1E6CF",
+   "servings": [
+    {
+     "id": "oozy:딥-밀크-쉐이크:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 60.0,
+     "caffeine_mg": 24.5,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:딥-초코베리-라떼:both",
+   "brand_id": "oozy",
+   "name": "딥 초코베리 라떼",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#C0283E",
+   "servings": [
+    {
+     "id": "oozy:딥-초코베리-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 45.5,
+     "caffeine_mg": 15.8,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:딸기-쇼콜라-프라페:both",
+   "brand_id": "oozy",
+   "name": "딸기 쇼콜라 프라페",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "oozy:딸기-쇼콜라-프라페:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 64.0,
+     "caffeine_mg": 30.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:딸기-요거트스무디:both",
+   "brand_id": "oozy",
+   "name": "딸기 요거트스무디",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "oozy:딸기-요거트스무디:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 53.8,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:딸기-프라페:both",
+   "brand_id": "oozy",
+   "name": "딸기 프라페",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "oozy:딸기-프라페:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 66.7,
+     "caffeine_mg": 30.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:딸기빙수프라페:both",
+   "brand_id": "oozy",
+   "name": "딸기빙수프라페",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "oozy:딸기빙수프라페:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 66.7,
+     "caffeine_mg": 30.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:딸기오레오-프라페:both",
+   "brand_id": "oozy",
+   "name": "딸기오레오 프라페",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "oozy:딸기오레오-프라페:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 64.0,
+     "caffeine_mg": 30.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:딸기오렌망에이드:both",
+   "brand_id": "oozy",
+   "name": "딸기오렌망에이드",
+   "name_en": null,
+   "category": "에이드 & 모히또",
+   "temperature": "both",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "oozy:딸기오렌망에이드:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 44.2,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:딸기죠리퐁-프라페:both",
+   "brand_id": "oozy",
+   "name": "딸기죠리퐁 프라페",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "oozy:딸기죠리퐁-프라페:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 64.0,
+     "caffeine_mg": 30.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:딸기크림-카페오레:both",
+   "brand_id": "oozy",
+   "name": "딸기크림 카페오레",
+   "name_en": null,
+   "category": "콜드브루",
+   "temperature": "both",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "oozy:딸기크림-카페오레:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:딸기크림소다:both",
+   "brand_id": "oozy",
+   "name": "딸기크림소다",
+   "name_en": null,
+   "category": "에이드 & 모히또",
+   "temperature": "both",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "oozy:딸기크림소다:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:라이트-바닐라크림콜드브루:both",
+   "brand_id": "oozy",
+   "name": "라이트 바닐라크림콜드브루",
+   "name_en": null,
+   "category": "콜드브루",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "oozy:라이트-바닐라크림콜드브루:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 21.0,
+     "caffeine_mg": 107.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:라임-모히또-에이드:both",
+   "brand_id": "oozy",
+   "name": "라임 모히또 에이드",
+   "name_en": null,
+   "category": "에이드 & 모히또",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "oozy:라임-모히또-에이드:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 44.2,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:레몬-생강차:both",
+   "brand_id": "oozy",
+   "name": "레몬 생강차",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "oozy:레몬-생강차:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 39.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:레몬에이드:both",
+   "brand_id": "oozy",
+   "name": "레몬에이드",
+   "name_en": null,
+   "category": "에이드 & 모히또",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "oozy:레몬에이드:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 45.1,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:레몬차:both",
+   "brand_id": "oozy",
+   "name": "레몬차",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "oozy:레몬차:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 65.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:로열밀크티-쉐이크:both",
+   "brand_id": "oozy",
+   "name": "로열밀크티 쉐이크",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "oozy:로열밀크티-쉐이크:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 59.0,
+     "caffeine_mg": 77.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:리얼딸기-라떼:both",
+   "brand_id": "oozy",
+   "name": "리얼딸기 라떼",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "oozy:리얼딸기-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 51.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:리얼블루베리-라떼:both",
+   "brand_id": "oozy",
+   "name": "리얼블루베리 라떼",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#4B3B7A",
+   "servings": [
+    {
+     "id": "oozy:리얼블루베리-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:리얼수박주스:both",
+   "brand_id": "oozy",
+   "name": "리얼수박주스",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#E5413A",
+   "servings": [
+    {
+     "id": "oozy:리얼수박주스:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 33.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:리얼초코-라떼:both",
+   "brand_id": "oozy",
+   "name": "리얼초코 라떼",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "oozy:리얼초코-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 45.5,
+     "caffeine_mg": 15.8,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:리얼초코-밀크쉐이크:both",
+   "brand_id": "oozy",
+   "name": "리얼초코 밀크쉐이크",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "oozy:리얼초코-밀크쉐이크:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 60.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:리얼홍시주스:both",
+   "brand_id": "oozy",
+   "name": "리얼홍시주스",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#F2A541",
+   "servings": [
+    {
+     "id": "oozy:리얼홍시주스:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:마시멜로우초코-라떼:both",
+   "brand_id": "oozy",
+   "name": "마시멜로우초코 라떼",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "oozy:마시멜로우초코-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 45.5,
+     "caffeine_mg": 15.8,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:말차-콜드브루-라떼:both",
+   "brand_id": "oozy",
+   "name": "말차 콜드브루 라떼",
+   "name_en": null,
+   "category": "콜드브루",
+   "temperature": "both",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "oozy:말차-콜드브루-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 10.0,
+     "caffeine_mg": 181.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:망고-요거트스무디:both",
+   "brand_id": "oozy",
+   "name": "망고 요거트스무디",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#F7B32B",
+   "servings": [
+    {
+     "id": "oozy:망고-요거트스무디:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 56.4,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:망고오렌망:both",
+   "brand_id": "oozy",
+   "name": "망고오렌망",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#F7B32B",
+   "servings": [
+    {
+     "id": "oozy:망고오렌망:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:메리크리마스구마:both",
+   "brand_id": "oozy",
+   "name": "메리크리마스구마",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#EADBC8",
+   "servings": [
+    {
+     "id": "oozy:메리크리마스구마:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:모히또-레몬홍차:both",
+   "brand_id": "oozy",
+   "name": "모히또 레몬홍차",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "oozy:모히또-레몬홍차:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:미숫가루-쉐이크:both",
+   "brand_id": "oozy",
+   "name": "미숫가루 쉐이크",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#EADBC8",
+   "servings": [
+    {
+     "id": "oozy:미숫가루-쉐이크:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 59.0,
+     "caffeine_mg": 0.5,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:민트초코-라떼:both",
+   "brand_id": "oozy",
+   "name": "민트초코 라떼",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#9ED9C3",
+   "servings": [
+    {
+     "id": "oozy:민트초코-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 79.8,
+     "caffeine_mg": 40.4,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:민트초코-프라페:both",
+   "brand_id": "oozy",
+   "name": "민트초코 프라페",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#9ED9C3",
+   "servings": [
+    {
+     "id": "oozy:민트초코-프라페:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 64.0,
+     "caffeine_mg": 30.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:밀크샤케라또-위스키-논알콜:both",
+   "brand_id": "oozy",
+   "name": "밀크샤케라또 위스키 (논알콜)",
+   "name_en": null,
+   "category": "콜드브루",
+   "temperature": "both",
+   "liquid_color": "#F4EFE6",
+   "servings": [
+    {
+     "id": "oozy:밀크샤케라또-위스키-논알콜:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:밀크티:both",
+   "brand_id": "oozy",
+   "name": "밀크티",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "oozy:밀크티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 33.5,
+     "caffeine_mg": 138.1,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:바닐라크림-콜드브루-라떼:both",
+   "brand_id": "oozy",
+   "name": "바닐라크림 콜드브루 라떼",
+   "name_en": null,
+   "category": "콜드브루",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "oozy:바닐라크림-콜드브루-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 10.0,
+     "caffeine_mg": 181.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:복숭아-스무디:both",
+   "brand_id": "oozy",
+   "name": "복숭아 스무디",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#F7A57A",
+   "servings": [
+    {
+     "id": "oozy:복숭아-스무디:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 40.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:복숭아-아이스티:both",
+   "brand_id": "oozy",
+   "name": "복숭아 아이스티",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#F7A57A",
+   "servings": [
+    {
+     "id": "oozy:복숭아-아이스티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 59.0,
+     "caffeine_mg": 20.2,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:봄딸기라임에이드:both",
+   "brand_id": "oozy",
+   "name": "봄딸기라임에이드",
+   "name_en": null,
+   "category": "에이드 & 모히또",
+   "temperature": "both",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "oozy:봄딸기라임에이드:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 44.2,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:봄딸기밀크쉐이크:both",
+   "brand_id": "oozy",
+   "name": "봄딸기밀크쉐이크",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "oozy:봄딸기밀크쉐이크:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 67.5,
+     "caffeine_mg": 0.5,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:봄딸기쇼콜라떼:both",
+   "brand_id": "oozy",
+   "name": "봄딸기쇼콜라떼",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "oozy:봄딸기쇼콜라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 45.5,
+     "caffeine_mg": 15.8,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:브라운슈가-라떼:both",
+   "brand_id": "oozy",
+   "name": "브라운슈가 라떼",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "oozy:브라운슈가-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 46.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:브라운슈가-밀크티라떼:both",
+   "brand_id": "oozy",
+   "name": "브라운슈가 밀크티라떼",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "oozy:브라운슈가-밀크티라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 23.5,
+     "caffeine_mg": 51.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:블랙샤케라또-논알콜:both",
+   "brand_id": "oozy",
+   "name": "블랙샤케라또 (논알콜)",
+   "name_en": null,
+   "category": "콜드브루",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "oozy:블랙샤케라또-논알콜:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:블루베리요거트-스무디:both",
+   "brand_id": "oozy",
+   "name": "블루베리요거트 스무디",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#4B3B7A",
+   "servings": [
+    {
+     "id": "oozy:블루베리요거트-스무디:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 80.2,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:생강차:both",
+   "brand_id": "oozy",
+   "name": "생강차",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "oozy:생강차:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 51.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:석류-아이스티:both",
+   "brand_id": "oozy",
+   "name": "석류 아이스티",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#C0283E",
+   "servings": [
+    {
+     "id": "oozy:석류-아이스티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 42.0,
+     "caffeine_mg": 22.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:선셋위스키-논알콜:both",
+   "brand_id": "oozy",
+   "name": "선셋위스키 (논알콜)",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#F2A541",
+   "servings": [
+    {
+     "id": "oozy:선셋위스키-논알콜:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:솔티카라멜-쉐이크:both",
+   "brand_id": "oozy",
+   "name": "솔티카라멜 쉐이크",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "oozy:솔티카라멜-쉐이크:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 59.0,
+     "caffeine_mg": 0.5,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:수박화채스무디:both",
+   "brand_id": "oozy",
+   "name": "수박화채스무디",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#E5413A",
+   "servings": [
+    {
+     "id": "oozy:수박화채스무디:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 66.2,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:스윗오렌지초코라떼:both",
+   "brand_id": "oozy",
+   "name": "스윗오렌지초코라떼",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#F5871F",
+   "servings": [
+    {
+     "id": "oozy:스윗오렌지초코라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 45.5,
+     "caffeine_mg": 15.8,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:스크류딸기-스무디:both",
+   "brand_id": "oozy",
+   "name": "스크류딸기 스무디",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "oozy:스크류딸기-스무디:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 66.2,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:아망수추:both",
+   "brand_id": "oozy",
+   "name": "아망수추",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#F2A541",
+   "servings": [
+    {
+     "id": "oozy:아망수추:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:아망추:both",
+   "brand_id": "oozy",
+   "name": "아망추",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#F2A541",
+   "servings": [
+    {
+     "id": "oozy:아망추:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 57.0,
+     "caffeine_mg": 15.3,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:아수추:both",
+   "brand_id": "oozy",
+   "name": "아수추",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#F2A541",
+   "servings": [
+    {
+     "id": "oozy:아수추:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:아이리쉬커피-논알콜:both",
+   "brand_id": "oozy",
+   "name": "아이리쉬커피 (논알콜)",
+   "name_en": null,
+   "category": "콜드브루",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "oozy:아이리쉬커피-논알콜:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:애플-히비스커스:both",
+   "brand_id": "oozy",
+   "name": "애플 히비스커스",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#C0283E",
+   "servings": [
+    {
+     "id": "oozy:애플-히비스커스:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.1,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:얼그레이-레몬차:both",
+   "brand_id": "oozy",
+   "name": "얼그레이 레몬차",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "oozy:얼그레이-레몬차:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 65.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:얼그레이-티:both",
+   "brand_id": "oozy",
+   "name": "얼그레이 티",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "oozy:얼그레이-티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 108.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:얼그레이초코-라떼:both",
+   "brand_id": "oozy",
+   "name": "얼그레이초코 라떼",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "oozy:얼그레이초코-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 45.5,
+     "caffeine_mg": 15.8,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:얼그레이하이볼:both",
+   "brand_id": "oozy",
+   "name": "얼그레이하이볼",
+   "name_en": null,
+   "category": "에이드 & 모히또",
+   "temperature": "both",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "oozy:얼그레이하이볼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:연유크리미슈페너:both",
+   "brand_id": "oozy",
+   "name": "연유크리미슈페너",
+   "name_en": null,
+   "category": "콜드브루",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "oozy:연유크리미슈페너:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 17.5,
+     "caffeine_mg": 130.5,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:오곡-프로틴-드링크:both",
+   "brand_id": "oozy",
+   "name": "오곡 프로틴 드링크",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#EADBC8",
+   "servings": [
+    {
+     "id": "oozy:오곡-프로틴-드링크:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:오레오-프라페:both",
+   "brand_id": "oozy",
+   "name": "오레오 프라페",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#8C8580",
+   "servings": [
+    {
+     "id": "oozy:오레오-프라페:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 64.0,
+     "caffeine_mg": 30.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:오렌망화채스무디:both",
+   "brand_id": "oozy",
+   "name": "오렌망화채스무디",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#EADBC8",
+   "servings": [
+    {
+     "id": "oozy:오렌망화채스무디:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:오렌지크리미슈페너:both",
+   "brand_id": "oozy",
+   "name": "오렌지크리미슈페너",
+   "name_en": null,
+   "category": "콜드브루",
+   "temperature": "both",
+   "liquid_color": "#F5871F",
+   "servings": [
+    {
+     "id": "oozy:오렌지크리미슈페너:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 17.5,
+     "caffeine_mg": 130.5,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:우지-딥-말차-젤라떼:both",
+   "brand_id": "oozy",
+   "name": "우지 딥 말차 젤라떼",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "oozy:우지-딥-말차-젤라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 37.0,
+     "caffeine_mg": 104.4,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:우지-딥-말차라떼:both",
+   "brand_id": "oozy",
+   "name": "우지 딥 말차라떼",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "oozy:우지-딥-말차라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 35.0,
+     "caffeine_mg": 90.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:우지-말차-유자티:both",
+   "brand_id": "oozy",
+   "name": "우지 말차 유자티",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "oozy:우지-말차-유자티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 49.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:웰니스-딸기-스무디:both",
+   "brand_id": "oozy",
+   "name": "웰니스 딸기 스무디",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "oozy:웰니스-딸기-스무디:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 50.0,
+     "caffeine_mg": 26.5,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:유자-크러쉬-콜드브루:both",
+   "brand_id": "oozy",
+   "name": "유자 크러쉬 콜드브루",
+   "name_en": null,
+   "category": "콜드브루",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "oozy:유자-크러쉬-콜드브루:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 11.0,
+     "caffeine_mg": 181.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:유자차:both",
+   "brand_id": "oozy",
+   "name": "유자차",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "oozy:유자차:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 62.7,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:율무차:both",
+   "brand_id": "oozy",
+   "name": "율무차",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "oozy:율무차:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 35.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:율무크림콜드브루:both",
+   "brand_id": "oozy",
+   "name": "율무크림콜드브루",
+   "name_en": null,
+   "category": "콜드브루",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "oozy:율무크림콜드브루:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 31.5,
+     "caffeine_mg": 79.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:율무크림프라페:both",
+   "brand_id": "oozy",
+   "name": "율무크림프라페",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#F1E6CF",
+   "servings": [
+    {
+     "id": "oozy:율무크림프라페:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:자몽-에이드:both",
+   "brand_id": "oozy",
+   "name": "자몽 에이드",
+   "name_en": null,
+   "category": "에이드 & 모히또",
+   "temperature": "both",
+   "liquid_color": "#F06B5B",
+   "servings": [
+    {
+     "id": "oozy:자몽-에이드:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 45.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:자몽-허니-블랙티:both",
+   "brand_id": "oozy",
+   "name": "자몽 허니 블랙티",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#F06B5B",
+   "servings": [
+    {
+     "id": "oozy:자몽-허니-블랙티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 42.9,
+     "caffeine_mg": 29.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:자몽차:both",
+   "brand_id": "oozy",
+   "name": "자몽차",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#F06B5B",
+   "servings": [
+    {
+     "id": "oozy:자몽차:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 58.3,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:자바칩-프라페:both",
+   "brand_id": "oozy",
+   "name": "자바칩 프라페",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#EADBC8",
+   "servings": [
+    {
+     "id": "oozy:자바칩-프라페:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 70.8,
+     "caffeine_mg": 30.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:제로-복숭아-아이스티:both",
+   "brand_id": "oozy",
+   "name": "제로 복숭아 아이스티",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#F7A57A",
+   "servings": [
+    {
+     "id": "oozy:제로-복숭아-아이스티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.3,
+     "caffeine_mg": 7.2,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:죠리퐁-프라페:both",
+   "brand_id": "oozy",
+   "name": "죠리퐁 프라페",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#EADBC8",
+   "servings": [
+    {
+     "id": "oozy:죠리퐁-프라페:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 64.0,
+     "caffeine_mg": 30.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:청귤차:both",
+   "brand_id": "oozy",
+   "name": "청귤차",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#F5871F",
+   "servings": [
+    {
+     "id": "oozy:청귤차:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 50.9,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:청포도-에이드:both",
+   "brand_id": "oozy",
+   "name": "청포도 에이드",
+   "name_en": null,
+   "category": "에이드 & 모히또",
+   "temperature": "both",
+   "liquid_color": "#B8D86B",
+   "servings": [
+    {
+     "id": "oozy:청포도-에이드:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 54.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:체리콕:both",
+   "brand_id": "oozy",
+   "name": "체리콕",
+   "name_en": null,
+   "category": "에이드 & 모히또",
+   "temperature": "both",
+   "liquid_color": "#C0283E",
+   "servings": [
+    {
+     "id": "oozy:체리콕:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:초코-라떼:both",
+   "brand_id": "oozy",
+   "name": "초코 라떼",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "oozy:초코-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 45.5,
+     "caffeine_mg": 15.8,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:초코빙수프라페:both",
+   "brand_id": "oozy",
+   "name": "초코빙수프라페",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "oozy:초코빙수프라페:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 70.8,
+     "caffeine_mg": 14.4,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:초코죠리퐁-프라페:both",
+   "brand_id": "oozy",
+   "name": "초코죠리퐁 프라페",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "oozy:초코죠리퐁-프라페:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 64.0,
+     "caffeine_mg": 30.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:카라멜-프라페:both",
+   "brand_id": "oozy",
+   "name": "카라멜 프라페",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "oozy:카라멜-프라페:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 64.0,
+     "caffeine_mg": 30.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:캐모마일-티:both",
+   "brand_id": "oozy",
+   "name": "캐모마일 티",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#D9A441",
+   "servings": [
+    {
+     "id": "oozy:캐모마일-티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 20.9,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:캔디소다화채스무디:both",
+   "brand_id": "oozy",
+   "name": "캔디소다화채스무디",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#DCE8EE",
+   "servings": [
+    {
+     "id": "oozy:캔디소다화채스무디:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:코크펍위스키-논알콜:both",
+   "brand_id": "oozy",
+   "name": "코크펍위스키 (논알콜)",
+   "name_en": null,
+   "category": "에이드 & 모히또",
+   "temperature": "both",
+   "liquid_color": "#3B1F14",
+   "servings": [
+    {
+     "id": "oozy:코크펍위스키-논알콜:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:콜드브루-라떼:both",
+   "brand_id": "oozy",
+   "name": "콜드브루 라떼",
+   "name_en": null,
+   "category": "콜드브루",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "oozy:콜드브루-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 7.5,
+     "caffeine_mg": 181.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:콜드브루-커피:both",
+   "brand_id": "oozy",
+   "name": "콜드브루 커피",
+   "name_en": null,
+   "category": "콜드브루",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "oozy:콜드브루-커피:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 20.0,
+     "caffeine_mg": 186.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:크리미땅콩초코라떼:both",
+   "brand_id": "oozy",
+   "name": "크리미땅콩초코라떼",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "oozy:크리미땅콩초코라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 45.5,
+     "caffeine_mg": 15.8,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:토피넛라떼:both",
+   "brand_id": "oozy",
+   "name": "토피넛라떼",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "oozy:토피넛라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 31.1,
+     "caffeine_mg": 45.2,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:파인민트-아이스티:both",
+   "brand_id": "oozy",
+   "name": "파인민트 아이스티",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#9ED9C3",
+   "servings": [
+    {
+     "id": "oozy:파인민트-아이스티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 42.0,
+     "caffeine_mg": 22.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:페퍼민트-티:both",
+   "brand_id": "oozy",
+   "name": "페퍼민트 티",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#9ED9C3",
+   "servings": [
+    {
+     "id": "oozy:페퍼민트-티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:플레인-요거트스무디:both",
+   "brand_id": "oozy",
+   "name": "플레인 요거트스무디",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#F7F3EA",
+   "servings": [
+    {
+     "id": "oozy:플레인-요거트스무디:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 72.2,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:피넛-프로틴-드링크:both",
+   "brand_id": "oozy",
+   "name": "피넛 프로틴 드링크",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#D9C2A0",
+   "servings": [
+    {
+     "id": "oozy:피넛-프로틴-드링크:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:하망추:both",
+   "brand_id": "oozy",
+   "name": "하망추",
+   "name_en": null,
+   "category": "에이드 & 모히또",
+   "temperature": "both",
+   "liquid_color": "#F2A541",
+   "servings": [
+    {
+     "id": "oozy:하망추:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:할미숫가루:both",
+   "brand_id": "oozy",
+   "name": "할미숫가루",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#EADBC8",
+   "servings": [
+    {
+     "id": "oozy:할미숫가루:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 26.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:호지넛크림라떼:both",
+   "brand_id": "oozy",
+   "name": "호지넛크림라떼",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "oozy:호지넛크림라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 25.0,
+     "caffeine_mg": 20.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:호지밀크티-라떼:both",
+   "brand_id": "oozy",
+   "name": "호지밀크티 라떼",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "oozy:호지밀크티-라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 28.5,
+     "caffeine_mg": 77.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:호지밀크티프라페:both",
+   "brand_id": "oozy",
+   "name": "호지밀크티프라페",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "oozy:호지밀크티프라페:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 64.0,
+     "caffeine_mg": 30.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:홍시-스무디:both",
+   "brand_id": "oozy",
+   "name": "홍시 스무디",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#EADBC8",
+   "servings": [
+    {
+     "id": "oozy:홍시-스무디:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 66.2,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:홍시듬뿍식혜:both",
+   "brand_id": "oozy",
+   "name": "홍시듬뿍식혜",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#E8D9B0",
+   "servings": [
+    {
+     "id": "oozy:홍시듬뿍식혜:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 60.6,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:홍시카푸치노:both",
+   "brand_id": "oozy",
+   "name": "홍시카푸치노",
+   "name_en": null,
+   "category": "베버리지",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "oozy:홍시카푸치노:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": null,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "oozy:화이트초코-프라페:both",
+   "brand_id": "oozy",
+   "name": "화이트초코 프라페",
+   "name_en": null,
+   "category": "프라페",
+   "temperature": "both",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "oozy:화이트초코-프라페:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 64.0,
+     "caffeine_mg": 30.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "oozy:히비스커스-티:both",
+   "brand_id": "oozy",
+   "name": "히비스커스 티",
+   "name_en": null,
+   "category": "티 & 주스",
+   "temperature": "both",
+   "liquid_color": "#C0283E",
+   "servings": [
+    {
+     "id": "oozy:히비스커스-티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 31.0,
+     "caffeine_mg": 0.0,
      "caffeine_variants": [],
      "caffeine_range": null,
      "estimated": true

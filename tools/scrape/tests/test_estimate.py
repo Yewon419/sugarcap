@@ -80,8 +80,12 @@ def test_decaf_cups_only_estimate_decaf() -> None:
         _ref("아메리카노", 0, 150),
         _ref("아메리카노", 0, 170),
         _ref("디카페인아메리카노", 0, 5),
+        _ref("디카페인아메리카노", 0, 9),
     ]
     assert estimate(("아메리카노",), pool).caffeine_mg == 160
+    assert estimate(("디카페인", "아메리카노"), pool).caffeine_mg == 7
+    # dropping "디카페인" must not reach the regular cups
+    assert estimate(("디카페인", "콜드브루", "아메리카노"), pool).caffeine_mg == 7
 
 
 def test_fill_only_touches_listed_brands_and_skips_cvs() -> None:

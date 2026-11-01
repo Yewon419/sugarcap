@@ -49,6 +49,8 @@ MIN_DRINKS_PER_BRAND = {
     # 2026-10-31: names only (values estimated). 블루보틀 21 from the menu image, 아마스빈 71.
     "bluebottle": 21,
     "amasvin": 35,
+    # 2026-11-01: 우지커피 names from archived official menu pages, 125 drinks.
+    "oozy": 60,
     # K-FIND export of 2026-08-28 gave 17,845 in-scope products.
     "cvs": 9000,
     # 2026-10-07: ordering menu 169 (product, form) pairs; nutritional guide PDF 300 drinks.

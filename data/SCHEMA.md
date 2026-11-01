@@ -43,7 +43,7 @@ cd tools\scrape
 
 | 필드 | 타입 | 설명 |
 |---|---|---|
-| `id` | string | `starbucks` `mega` `compose` `ediya` `paik` `twosome` `hollys` `theventi` `gongcha` `paulbassett` `baskin` `coffeebean` `parisbaguette` `bluebottle` `amasvin` `cvs`. 미국·대만은 국가 접두어: `us-starbucks` `us-dutchbros`, `tw-cama` `tw-kebuke` |
+| `id` | string | `starbucks` `mega` `compose` `ediya` `paik` `twosome` `hollys` `theventi` `gongcha` `paulbassett` `baskin` `coffeebean` `parisbaguette` `bluebottle` `amasvin` `oozy` `cvs`. 미국·대만은 국가 접두어: `us-starbucks` `us-dutchbros`, `tw-cama` `tw-kebuke` |
 | `name` | string | 그 나라 표시명(한국 = 한국어, 미국 = 영어, 대만 = 브랜드 표기) |
 | `serving_note` | string | 이 브랜드 수치가 어느 잔 기준인지 한 줄. 상세 화면에 그대로 노출 |
 | `has_size_choice` | bool | true면 사이즈 선택 UI를 켠다. 현재 `ediya`, `twosome`, `gongcha`, `cvs`와 미국·대만 브랜드가 true |
@@ -74,7 +74,7 @@ cd tools\scrape
 | `caffeine_mg` | float \| null | null = 브랜드 미공개. 변형이 있으면 첫 변형 값과 같다. `parisbaguette`는 박스마다 다른 게시값 중 최댓값. `cvs`는 항상 null(출처에 카페인 없음) |
 | `caffeine_variants` | CaffeineVariant[] | 원두 선택에 따라 카페인이 갈리는 경우만. 없으면 `[]` |
 | `caffeine_range` | CaffeineRange \| 없음 | v2. 브랜드가 카페인을 정확한 값이 아니라 구간으로만 게시한 경우(대만 표시 규정의 `≤100` `101~200` `≥201`, 폴바셋 `10mg이하`, 배스킨라빈스 `5~6`). 정확한 값이면 키가 없거나 null |
-| `estimated` | bool \| 없음 | v3. 참이면 `sugar_g`·`caffeine_mg`는 브랜드 게시값이 아니라 다른 카페 같은 메뉴의 중앙값(SPEC §2 예외, `bluebottle`·`amasvin`만). 앱은 숫자 앞에 "추정"을 붙인다. 거짓이면 키가 없다
+| `estimated` | bool \| 없음 | v3. 참이면 `sugar_g`·`caffeine_mg`는 브랜드 게시값이 아니라 다른 카페 같은 메뉴의 중앙값(SPEC §2 예외, `bluebottle`·`amasvin`·`oozy`만). 앱은 숫자 앞에 "추정"을 붙인다. 거짓이면 키가 없다
 
 ### CaffeineRange
 

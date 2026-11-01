@@ -18,7 +18,7 @@ final class CatalogTests: XCTestCase {
 
         XCTAssertTrue(CatalogStore.supportedSchemaVersions.contains(catalog.schemaVersion), "schema_version \(catalog.schemaVersion)")
         XCTAssertNotNil(catalog.builtAtDate, "built_at이 ISO 8601이 아님: \(catalog.builtAt)")
-        XCTAssertEqual(catalog.brands.count, 16)
+        XCTAssertEqual(catalog.brands.count, 17)
         XCTAssertFalse(catalog.drinks.isEmpty)
     }
 
@@ -77,7 +77,7 @@ final class CatalogTests: XCTestCase {
         let estimatedBrands = Set(
             catalog.drinks.filter { $0.servings.contains(where: \.isEstimated) }.map(\.brandId)
         )
-        XCTAssertEqual(estimatedBrands, ["bluebottle", "amasvin"])
+        XCTAssertEqual(estimatedBrands, ["bluebottle", "amasvin", "oozy"])
 
         let latte = try XCTUnwrap(catalog.drinks.first { $0.brandId == "bluebottle" && $0.name == "카페라떼" })
         let cup = try XCTUnwrap(latte.servings.first)

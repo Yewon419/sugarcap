@@ -27,6 +27,7 @@ def registry() -> dict[str, tuple[Brand, Scraper]]:
         gongcha,
         hollys,
         mega,
+        oozy,
         paik,
         parisbaguette,
         paulbassett,
@@ -51,15 +52,20 @@ def registry() -> dict[str, tuple[Brand, Scraper]]:
         parisbaguette,
         bluebottle,
         amasvin,
+        oozy,
     )
     return {module.BRAND.id: (module.BRAND, module.scrape) for module in modules}
 
 
 def estimated_likes() -> Likes:
     """Korean brands that publish no nutrition, with their comparable-drink overrides."""
-    from sugarcap_scrape.brands import amasvin, bluebottle
+    from sugarcap_scrape.brands import amasvin, bluebottle, oozy
 
-    return {bluebottle.BRAND.id: bluebottle.LIKE, amasvin.BRAND.id: amasvin.LIKE}
+    return {
+        bluebottle.BRAND.id: bluebottle.LIKE,
+        amasvin.BRAND.id: amasvin.LIKE,
+        oozy.BRAND.id: oozy.LIKE,
+    }
 
 
 def us_registry() -> dict[str, tuple[Brand, Scraper]]:

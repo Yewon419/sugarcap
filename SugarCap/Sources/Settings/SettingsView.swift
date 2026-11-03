@@ -36,12 +36,8 @@ struct SettingsView: View {
     }
 }
 
-/// 시각 선택지. 하루 경계는 새벽, 마감 가능 시각은 저녁으로만 연다.
-/// 경계를 낮으로 옮기면 "하루"의 뜻이 무너지고, 마감을 낮에 열면 이른 마감 방지(§4.7)가 무의미해진다.
+/// 시각 글자(기기 지역 형식). 하루 경계·마감 시각은 2026-11-03부터 설정에서 못 바꾼다.
 enum HourChoices {
-    static let dayBoundary = Array(0...6)
-    static let closeFrom = Array(18...23)
-
     static func label(_ hour: Int) -> String {
         let date = Calendar.current.date(bySettingHour: hour, minute: 0, second: 0, of: Date()) ?? Date()
         return date.formatted(.dateTime.hour())
@@ -133,19 +129,13 @@ private struct SettingsContent: View {
                 Text("브랜드와 메뉴가 이 나라 것으로 바뀌어요. 지난 기록은 그대로예요.")
             }
 
+            // 하루가 바뀌는 시각·마감 여는 시각은 고정이다(대표님 2026-11-03 "못 바꾸게 버튼 없애"). 저장 값은 그대로 쓴다.
             Section {
-                hourPicker(String(localized: "하루가 바뀌는 시각"), selection: $settings.dayBoundaryHour, choices: HourChoices.dayBoundary)
-                hourPicker(String(localized: "오늘 마감을 여는 시각"), selection: $settings.closeFromHour, choices: HourChoices.closeFrom)
-            } footer: {
-                Text("하루가 바뀌는 시각 전에 마신 음료는 전날 몫으로 들어가요.")
-            }
-
-            Section {
-                Toggle("마감 알림", isOn: Binding(get: { isReminderOn }, set: setReminder))
+                Toggle("알림", isOn: Binding(get: { isReminderOn }, set: setReminder))
                     .rowText()
                     .accessibilityIdentifier("close-reminder")
             } footer: {
-                Text("매일 \(HourChoices.label(settings.closeFromHour))에 오늘 마감이 열리면 알려 줘요.")
+                Text("아침 8시 30분과 오후 2시엔 기록을, 저녁 8시엔 마감을, 밤 10시엔 아직 안 먹였으면 먹이기를 알려 줘요.")
             }
 
             if !nameableSides.isEmpty {
@@ -217,11 +207,8 @@ private struct SettingsContent: View {
             #if DEBUG
             if UserDefaults.standard.bool(forKey: "screenshotInventory") { showsInventory = true }
             #endif
-            await CloseReminder.refresh(closeFromHour: settings.closeFromHour)
+            await CloseReminder.refresh()
             isTestBuild = await TestBuild.isActive()
-        }
-        .onChange(of: settings.closeFromHour) { _, hour in
-            Task { await CloseReminder.refresh(closeFromHour: hour) }
         }
         .confirmationDialog("첫 실행으로 되돌릴까요?", isPresented: $confirmsFirstRun, titleVisibility: .visible) {
             Button("되돌리기", role: .destructive) { onTestAction(.firstRun) }
@@ -240,7 +227,7 @@ private struct SettingsContent: View {
                 Nickname.save(nicknameDraft, for: side.characterID)
                 renamed += 1
                 // 알림 문구는 예약할 때 굳으니 별명을 바꾸면 다시 예약한다(꺼져 있으면 아무것도 안 함).
-                Task { await CloseReminder.refresh(closeFromHour: settings.closeFromHour) }
+                Task { await CloseReminder.refresh() }
             }
             .accessibilityIdentifier("settings-nickname-save")
             Button("취소", role: .cancel) {}
@@ -308,7 +295,7 @@ private struct SettingsContent: View {
             return
         }
         Task {
-            let granted = await CloseReminder.enable(closeFromHour: settings.closeFromHour)
+            let granted = await CloseReminder.enable()
             if !granted {
                 alertMessage = String(localized: "iOS 설정 > 슈가캡 > 알림에서 알림을 허용해 주세요.")
             }
@@ -339,7 +326,7 @@ private struct SettingsContent: View {
             Button("페이월 바로 보기") { showsPaywall = true }
                 .font(AppFont.pretendard(16, .regular, relativeTo: .body))
                 .accessibilityIdentifier("test-paywall")
-            Button("마감 알림 10초 뒤 보내기") { sendTestReminder() }
+            Button("알림 10초 뒤 보내기") { sendTestReminder() }
                 .font(AppFont.pretendard(16, .regular, relativeTo: .body))
                 .accessibilityIdentifier("test-reminder")
             // 산 것과 상관없이 켜고 끈다(대표님 2026-10-28). 앱을 다시 켜면 실제 구매 상태로 돌아간다.
@@ -465,17 +452,6 @@ private struct SettingsContent: View {
             .contentShape(Rectangle())
         }
         .accessibilityIdentifier("settings-nickname-\(side.characterID)")
-    }
-
-    /// 시각 행. 값은 메뉴 피커라 한 번에 고른다.
-    private func hourPicker(_ title: String, selection: Binding<Int>, choices: [Int]) -> some View {
-        Picker(title, selection: selection) {
-            ForEach(choices, id: \.self) { hour in
-                Text(HourChoices.label(hour)).tag(hour)
-            }
-        }
-        .pickerStyle(.menu)
-        .rowText()
     }
 
     /// 병뚜껑 잔액(보관함 줄, §4.10).

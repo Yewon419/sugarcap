@@ -256,13 +256,13 @@ struct TodayView: View {
         }
         .alert("내일도 이 시간에 알려 줄까요?", isPresented: $asksReminder) {
             Button("알려 줘요") {
-                Task { _ = await CloseReminder.enable(closeFromHour: closeFromHour) }
+                Task { _ = await CloseReminder.enable() }
             }
             .accessibilityIdentifier("reminder-yes")
             Button("괜찮아요", role: .cancel) {}
                 .accessibilityIdentifier("reminder-no")
         } message: {
-            Text("매일 \(HourChoices.label(closeFromHour))에 오늘 마감이 열리면 알려 줘요. 설정에서 언제든 끌 수 있어요.")
+            Text("저녁 8시에 마감이 열리면, 밤 10시엔 아직 안 먹였으면 알려 줘요. 커피 사기 좋은 아침 8시 30분·오후 2시에도 기록을 알려 줘요. 설정에서 언제든 끌 수 있어요.")
         }
         // 기록할 때만 햅틱 1회(§4.1). 삭제로 줄어들 때는 울리지 않는다.
         .sensoryFeedback(.success, trigger: entries.count) { old, new in new > old }
@@ -1317,6 +1317,7 @@ struct TodayView: View {
             let today = DayKey(at: now, boundaryHour: boundaryHour)
             let row = try SettlementStore.row(for: today, in: context)
             SettlementStore.close(row, totals: try storedTotals(for: today), now: now)
+            CloseReminder.markFed(today)
             results = []
             if try GiftStore.grantWeekKept(closed: today, sides: trackedSides, isPro: pro.isPro, now: now, in: context) {
                 keptWeek = today

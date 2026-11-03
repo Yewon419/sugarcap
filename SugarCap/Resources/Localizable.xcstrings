@@ -1,6 +1,486 @@
 {
   "sourceLanguage" : "ko",
   "strings" : {
+    "커피 사러 가는 길이에요?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On your way for coffee?"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在去買咖啡的路上嗎？"
+          }
+        }
+      }
+    },
+    "주문하기 전에 오늘 남은 양부터 봐요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check what's left for today before you order."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "點餐前先看看今天還剩多少。"
+          }
+        }
+      }
+    },
+    "아침 커피 한 잔 했어요?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Had your morning coffee?"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "早上的咖啡喝了嗎？"
+          }
+        }
+      }
+    },
+    "마셨으면 슈가캡에 담아 둬요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If you did, log it in SugarCap."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "喝了的話就記到 SugarCap 裡吧。"
+          }
+        }
+      }
+    },
+    "오늘 첫 잔은 뭐예요?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What's your first cup today?"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天的第一杯是什麼？"
+          }
+        }
+      }
+    },
+    "고르기 전에 남은 당과 카페인을 한 번 봐요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take a look at your sugar and caffeine left before you choose."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選之前先看一下剩下的糖和咖啡因。"
+          }
+        }
+      }
+    },
+    "출근길에 카페 들를 거예요?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stopping by a café on the way?"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上班路上要去咖啡店嗎？"
+          }
+        }
+      }
+    },
+    "샷 추가 전에 오늘 기준을 확인해요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check today's limit before an extra shot."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "加濃縮之前先確認今天的標準。"
+          }
+        }
+      }
+    },
+    "오후 카페 시간이에요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afternoon café time"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下午的咖啡時間到了"
+          }
+        }
+      }
+    },
+    "마시기 전에 남은 양부터 봐요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check what's left before you drink."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "喝之前先看看還剩多少。"
+          }
+        }
+      }
+    },
+    "점심 먹고 한 잔 할 거예요?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grabbing a drink after lunch?"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "午餐後要來一杯嗎？"
+          }
+        }
+      }
+    },
+    "달달한 음료면 당이 얼마나 남았는지 먼저 봐요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If it's something sweet, check how much sugar is left first."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如果是甜飲料，先看看還剩多少糖。"
+          }
+        }
+      }
+    },
+    "졸린 오후죠" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sleepy afternoon?"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下午想睡了吧"
+          }
+        }
+      }
+    },
+    "커피 한 잔 더 마셔도 되는지 슈가캡에서 봐요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "See in SugarCap whether one more coffee fits."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 SugarCap 看看還能不能再喝一杯咖啡。"
+          }
+        }
+      }
+    },
+    "오전에 마신 건 다 담았어요?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logged everything from this morning?"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上午喝的都記了嗎？"
+          }
+        }
+      }
+    },
+    "빠뜨린 음료가 있으면 지금 기록해요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If you missed a drink, log it now."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有漏記的飲料就現在記下來。"
+          }
+        }
+      }
+    },
+    "먹이기가 열렸어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feeding is open"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可以餵食了"
+          }
+        }
+      }
+    },
+    "오늘 남긴 당과 카페인을 먹여 줘요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feed them the sugar and caffeine you saved today."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "把今天省下的糖和咖啡因餵給他們吧。"
+          }
+        }
+      }
+    },
+    "오늘 하루 어땠어요?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How was your day?"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天過得怎麼樣？"
+          }
+        }
+      }
+    },
+    "마감하고 남은 만큼 먹여 줘요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close the day and feed them what's left."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "結算今天，把剩下的餵給他們吧。"
+          }
+        }
+      }
+    },
+    "아직 안 먹였어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not fed yet"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "還沒餵喔"
+          }
+        }
+      }
+    },
+    "자기 전에 오늘 남은 걸 먹여 줘요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feed them what's left before bed."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "睡前把今天剩下的餵給他們吧。"
+          }
+        }
+      }
+    },
+    "%@ %@ 기다려요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ and %2$@ are waiting"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@和%2$@在等你"
+          }
+        }
+      }
+    },
+    "오늘 마감을 아직 안 했어요. 남은 당과 카페인을 먹여 줘요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You haven't closed today yet. Feed them the sugar and caffeine left."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天還沒結算。把剩下的糖和咖啡因餵給他們吧。"
+          }
+        }
+      }
+    },
+    "잊은 거 없죠?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forgetting something?"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "沒忘記什麼吧？"
+          }
+        }
+      }
+    },
+    "오늘 마감이 아직 열려 있어요. 남은 양을 먹여 줘요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today's closing is still open. Feed them what's left."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天的結算還開著。把剩下的餵給他們吧。"
+          }
+        }
+      }
+    },
+    "알림" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知"
+          }
+        }
+      }
+    },
+    "아침 8시 30분과 오후 2시엔 기록을, 저녁 8시엔 마감을, 밤 10시엔 아직 안 먹였으면 먹이기를 알려 줘요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We'll remind you to log at 8:30 AM and 2 PM, to close at 8 PM, and to feed at 10 PM if you haven't yet."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "早上 8:30 和下午 2 點提醒你記錄，晚上 8 點提醒結算，晚上 10 點還沒餵的話提醒你餵食。"
+          }
+        }
+      }
+    },
+    "저녁 8시에 마감이 열리면, 밤 10시엔 아직 안 먹였으면 알려 줘요. 커피 사기 좋은 아침 8시 30분·오후 2시에도 기록을 알려 줘요. 설정에서 언제든 끌 수 있어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We'll tell you when closing opens at 8 PM, and at 10 PM if you haven't fed them yet. We'll also remind you to log at 8:30 AM and 2 PM, when coffee runs happen. You can turn this off anytime in Settings."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "晚上 8 點結算開放時、晚上 10 點還沒餵食時會通知你。早上 8:30 和下午 2 點買咖啡的時間也會提醒你記錄。可以隨時在設定中關閉。"
+          }
+        }
+      }
+    },
+    "알림 10초 뒤 보내기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send a notification in 10 seconds"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "10 秒後發送通知"
+          }
+        }
+      }
+    },
     "" : {
       "shouldTranslate" : false
     },
@@ -885,22 +1365,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "直接看付費畫面"
-          }
-        }
-      }
-    },
-    "마감 알림 10초 뒤 보내기" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Send close reminder in 10 s"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "10 秒後送出結算提醒"
           }
         }
       }
@@ -2354,22 +2818,6 @@
         }
       }
     },
-    "마감 알림" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Closing reminder"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "結算提醒"
-          }
-        }
-      }
-    },
     "마감함" : {
       "localizations" : {
         "en" : {
@@ -2510,38 +2958,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "沒有符合的飲品。"
-          }
-        }
-      }
-    },
-    "매일 %@에 오늘 마감이 열리면 알려 줘요." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Every day at %@, we'll tell you when closing opens."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "每天%@，今天的結算開放時會提醒你。"
-          }
-        }
-      }
-    },
-    "매일 %@에 오늘 마감이 열리면 알려 줘요. 설정에서 언제든 끌 수 있어요." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Every day at %@, we'll tell you when closing opens. You can turn this off anytime in Settings."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "每天%@，今天的結算開放時會提醒你。隨時可以在設定中關閉。"
           }
         }
       }
@@ -4046,22 +4462,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "今天結算"
-          }
-        }
-      }
-    },
-    "오늘 마감을 여는 시각" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "When closing opens"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "結算開放的時間"
           }
         }
       }
@@ -6174,38 +6574,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@每日平均剩下 %2$@ %3$@"
-          }
-        }
-      }
-    },
-    "하루가 바뀌는 시각" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "When your day starts"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "一天開始的時間"
-          }
-        }
-      }
-    },
-    "하루가 바뀌는 시각 전에 마신 음료는 전날 몫으로 들어가요." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Drinks before this time count toward the previous day."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在這個時間之前喝的飲料，算在前一天。"
           }
         }
       }

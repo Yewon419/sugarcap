@@ -312,7 +312,8 @@ struct TodayView: View {
                             topInset: Double(proxy.safeAreaInsets.top),
                             onFrame: { heroFrames[cupSide] = $0 }
                         ),
-                        seam: seam(of: cupSide, index: index, width: width)
+                        seam: seam(of: cupSide, index: index, width: width),
+                        isActive: isActive
                     )
                     .frame(width: width)
                 }

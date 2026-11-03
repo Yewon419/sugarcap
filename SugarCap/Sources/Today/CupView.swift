@@ -24,11 +24,14 @@ struct CupView: View {
     /// 장을 보는 중, 1 = 이 장을 보는 중)만큼 드러낸다. nil이면 사진을 칸 폭으로 자른다(대표님 베타 피드백 2026-10-23
     /// "냅킨 겹치는 게 거슬려서 원본처럼 좌우를 넓게, 그 사이는 투명도로 자연스럽게").
     let seam: Double?
+    /// 대기 물방울(`CupCondensation`)을 움직여도 되는지. 오늘 화면은 넘기는 중·옆 면이면 false를 준다.
+    let isActive: Bool
 
     init(
         step: Int, setID: String = CupLevel.defaultSetID, idle: IdleCharacterLayer? = nil, gift: GiftCarrierLayer? = nil,
-        stage: LevelUpStageLayer? = nil, hero: CupHero? = nil, seam: Double? = nil
+        stage: LevelUpStageLayer? = nil, hero: CupHero? = nil, seam: Double? = nil, isActive: Bool = true
     ) {
+        self.isActive = isActive
         self.step = step
         self.setID = setID
         self.idle = idle
@@ -129,8 +132,8 @@ struct CupView: View {
                 .resizable()
                 .frame(width: photo.width, height: photo.height)
                 .overlay {
-                    // 대기 루프(얼음, SPEC §9-10). 동작 줄이기면 정지 사진만.
-                    if !reduceMotion { CupIdleOverlay(assetName: assetName) }
+                    // 대기 루프(얼음 영상, 없으면 물방울, SPEC §9-10). 동작 줄이기면 정지 사진만.
+                    if !reduceMotion { CupIdleOverlay(setID: setID, step: step, isActive: isActive) }
                 }
                 .mask {
                     if wing > 0 {

@@ -6,12 +6,20 @@ import UIKit
 /// 번들에 `<에셋>-idle.mp4`·`<에셋>-idle.json`(캔버스 좌표 사각형)·`<에셋>-idle-mask` 이미지가 있는 단계만 돈다.
 /// 만드는 법은 `design/assets/cups/make_idle_patch.py`.
 ///
+/// 영상이 없는 단계(망고·프라페처럼 얼음이 안 보이는 잔)는 잔 겉 물방울(`CupCondensation`)이 대신 움직인다. 빈 잔(0%)은 둘 다 없다.
+///
 /// 단계 사진(`resizable().scaledToFill()`)의 overlay로 붙인다. 그 틀이 937×1666 캔버스를 그대로 비례 확대한 크기다.
 struct CupIdleOverlay: View {
     private let loop: CupIdleLoop?
+    private let setID: String
+    private let step: Int
+    private let isActive: Bool
 
-    init(assetName: String) {
-        loop = CupIdleLoop(assetName: assetName)
+    init(setID: String, step: Int, isActive: Bool) {
+        loop = CupIdleLoop(assetName: CupLevel.assetName(setID: setID, step: step))
+        self.setID = setID
+        self.step = step
+        self.isActive = isActive
     }
 
     var body: some View {
@@ -24,6 +32,8 @@ struct CupIdleOverlay: View {
                     .offset(x: loop.rect.minX * scale, y: loop.rect.minY * scale)
             }
             .allowsHitTesting(false)
+        } else if step > 0 {
+            CupCondensation(setID: setID, step: step, isActive: isActive)
         }
     }
 }

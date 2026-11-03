@@ -7,7 +7,9 @@
 #   2) 누끼: 이 단계 누끼에서 빈 잔(0%) 누끼를 뺀 곳 = 잔 밖으로 솟은 것(프라페 크림 산).
 #      망고는 누끼가 입구에서 잘려 있어 1)로 잡는다.
 #   3) 흰 크림 윗면: 벽과 색이 같아 1)·2)로 못 잡는다. `SURFACE`에 잰 크림 윗면(사진 높이 비율)부터
-#      입구 타원 안을 채운다. 크림 윗면 타원은 입구 타원을 그만큼 내린 것으로 본다.
+#      입구 타원 안을 채운다. 크림 윗면 타원은 입구 타원을 그만큼 내린 것으로 본다. 윗면 아래로는 입구 앞
+#      호 밑, 유리 너머로 보이는 크림·음료 띠도 불투명하니 빈 잔 누끼 안을 숫자 바닥까지 채운다(빌드 372
+#      "글자가 아인슈패너 뚫고나오는데", "초코프라페도 뚫고나오는데": 입구 타원 안만 채워 이 띠로 숫자가 비쳤다).
 # 숫자 바닥(사진 0.33) 아래는 숫자가 없어 자른다. 산출물 = 흰색 + 알파 PNG, 원본 캔버스 그대로.
 # 토핑이 없는 단계는 에셋을 만들지 않는다(앱은 `topping-*`이 있을 때만 그린다).
 #
@@ -30,10 +32,11 @@ ASSETS = os.path.join(REPO, "SugarCap", "Resources", "Assets.xcassets")
 STEPS = (30, 50, 80, 100)
 # 토핑이 숫자 자리까지 올라오는 세트만. 나머지 세트는 수면이 숫자 바닥보다 아래다.
 SETS = ("choco-frappe", "mango", "einspanner")
-# 세트 → 단계 → 흰 크림 윗면(사진 높이 비율, 가운데 열). `IdleCast.swift` `liquid`와 같은 값이고, 프라페 100%는
-# 크림이 입구를 덮어 입구 뒤 가장자리(`chocoFrappe.rim[100].back`, 아메리카노 잔 값)를 쓴다.
+# 세트 → 단계 → 흰 크림 윗면(사진 높이 비율, 가운데 열). 80%는 `IdleCast.swift` `liquid`와 같은 값이고, 100%는
+# 크림이 입구를 덮어 입구 뒤 가장자리(`rim_ellipse` 위끝, 아메리카노 잔 값)를 쓴다. 아인슈페너 100%에 `liquid`
+# 0.30(입구 타원 가운데)을 썼다가 거품 위쪽 절반이 비어 숫자가 비쳤다(빌드 372).
 SURFACE: dict[str, dict[int, float]] = {
-    "einspanner": {80: 0.32, 100: 0.30},
+    "einspanner": {80: 0.32, 100: 0.2691},
     "choco-frappe": {100: 0.2683},
 }
 BOTTOM = 0.33  # 숫자 바닥(CupHero.baselineRatio 0.328) 바로 아래
@@ -72,8 +75,10 @@ def surface_fill(
     shape: tuple[int, int],
     ellipse: tuple[tuple[float, float], tuple[float, float], float],
     surface: float,
+    glass: NDArray[np.bool_],
 ) -> NDArray[np.bool_]:
-    """입구 타원 안에서 크림 윗면 타원(입구 타원을 윗면까지 내린 것)의 위끝 아래를 채운다."""
+    """크림 윗면 아래: 입구 타원 안은 윗면 타원(입구 타원을 윗면까지 내린 것)의 위끝 아래, 입구 타원 밖은
+    빈 잔 누끼(`glass`) 안에서 윗면 타원 가운데 아래를 채운다."""
     height = shape[0]
     (cx, cy), (w, h), angle = ellipse
     opening = np.zeros(shape, dtype=np.uint8)
@@ -84,7 +89,7 @@ def surface_fill(
     cv2.ellipse(lowered, ((cx, cy + drop), (w, h), angle), 1, -1)
     below = np.zeros(shape, dtype=bool)
     below[int(cy + drop) :, :] = True
-    return (opening > 0) & ((lowered > 0) | below)
+    return ((opening > 0) & ((lowered > 0) | below)) | (glass & below)
 
 
 def topping(cup_set: str, step: int) -> NDArray[np.uint8]:
@@ -105,7 +110,7 @@ def topping(cup_set: str, step: int) -> NDArray[np.uint8]:
     mask = colored | risen
     surface = SURFACE.get(cup_set, {}).get(step)
     if surface is not None:
-        mask |= surface_fill((height, width), ellipse, surface)
+        mask |= surface_fill((height, width), ellipse, surface, empty > 128)
     mask[int(BOTTOM * height) :, :] = False
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (CLOSE, CLOSE))
     solid = cv2.morphologyEx(mask.astype(np.uint8), cv2.MORPH_CLOSE, kernel)

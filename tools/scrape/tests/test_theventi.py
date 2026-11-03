@@ -261,4 +261,4 @@ def test_scrape_live(client: httpx.Client) -> None:
     latte = _by_name(rows, "카페라떼")[0]
     assert latte.sugar_g == 11
     assert [v.label for v in latte.caffeine_variants] == ["시그니처", "다크"]
-    assert _by_name(rows, "콜드브루")[0].caffeine_mg == 92
+    assert _by_name(rows, "콜드브루")[0].caffeine_mg == 222  # 92 until 2026-10-31

@@ -91,18 +91,19 @@ def test_live_shell_subcategories(client: httpx.Client) -> None:
 
 @pytest.mark.live
 def test_live_scrape(client: httpx.Client) -> None:
+    # Published values as of 2026-11-03 (아메리카노 204.2 -> 236.0 mg, 헤이즐넛 9.5 -> 9.2 g).
     rows = mega.scrape(client)
     assert len(rows) >= 60
 
     americano_hot = find(rows, "아메리카노", 591)
     assert americano_hot.temperature is Temperature.HOT
     assert americano_hot.sugar_g == 0.0
-    assert americano_hot.caffeine_mg == 204.2
+    assert americano_hot.caffeine_mg == 236.0
     assert americano_hot.category == "커피"
 
     hazelnut = find(rows, "헤이즐넛아메리카노", 591)
-    assert hazelnut.sugar_g == 9.5
-    assert hazelnut.caffeine_mg == 209.8
+    assert hazelnut.sugar_g == 9.2
+    assert hazelnut.caffeine_mg == 236.0
 
     assert {"커피", "티", "음료"} <= {r.category for r in rows}
     assert all(r.brand_id == "mega" for r in rows)

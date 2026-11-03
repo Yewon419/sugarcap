@@ -5986,18 +5986,50 @@
         }
       }
     },
-    "테스트 · TestFlight에서만 보여요" : {
+    "개발자 모드를 껐어요." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Test · only visible in TestFlight"
+            "value" : "Developer mode is off."
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "測試 · 只在 TestFlight 顯示"
+            "value" : "已關閉開發者模式。"
+          }
+        }
+      }
+    },
+    "개발자 모드를 켰어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Developer mode is on."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已開啟開發者模式。"
+          }
+        }
+      }
+    },
+    "테스트 · 개발자 모드" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Test · developer mode"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "測試 · 開發者模式"
           }
         }
       }

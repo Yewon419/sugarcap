@@ -27,6 +27,12 @@ enum TestBuild {
     }
 }
 
+/// 설정 테스트 카드를 여는 개발자 모드. TestFlight·Debug에서 버전 줄을 연달아 누르면 켜고 끈다.
+enum DeveloperMode {
+    static let key = "developerMode"
+    static let tapCount = 7
+}
+
 /// 테스트 카드에서 고른 일. 설정 시트가 닫힌 뒤 오늘 화면이 실행한다(시트 위에 전체 화면을 겹쳐 띄우지 않는다).
 enum SettingsTestAction {
     /// 오늘 마감 먹이기를 저장 없이 연다.

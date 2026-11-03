@@ -5,7 +5,7 @@ import WidgetKit
 
 /// 설정(SPEC §4.4). 오늘 화면 모서리 버튼으로 여는 시트다(2026-10-05 하단 탭 제거).
 /// 2026-10-05 프로토타입 v4 확정 = 네이티브 목록 하나. 하루 기준·조금씩 줄이기는 추이 화면으로 옮겼다(대표님 "설정 탭에 안 어울리는 기능").
-/// 시간 → Pro·복원·소개·개인정보 → 테스트(TestFlight·Debug만).
+/// 시간 → Pro·복원·소개·개인정보 → 테스트(TestFlight·Debug에서 개발자 모드를 켰을 때만).
 struct SettingsView: View {
     let catalog: Catalog
     /// 테스트 카드에서 고른 일. 오늘 화면이 시트를 닫은 뒤 실행한다.
@@ -58,6 +58,9 @@ private struct SettingsContent: View {
     @State private var isRestoring = false
     @State private var alertMessage: String?
     @State private var isTestBuild = false
+    /// 테스트 카드를 여는 개발자 모드. 맨 아래 버전 줄을 7번 연달아 누르면 켜고 끈다(대표님 2026-11-03).
+    /// UI 테스트는 실행 인자 `-developerMode YES`로 켠다.
+    @AppStorage(DeveloperMode.key) private var isDeveloperMode = false
     @State private var confirmsFirstRun = false
     @AppStorage(CloseReminder.enabledKey) private var isReminderOn = false
     @AppStorage("cupSet.sugar") private var testSugarCupSet: String?
@@ -188,7 +191,7 @@ private struct SettingsContent: View {
                 Text("기록은 이 기기에만 저장돼요. 수집하는 정보는 없어요.")
             }
 
-            if isTestBuild { testSection }
+            if isTestBuild && isDeveloperMode { testSection }
 
             // 편의점 음료 출처 표기는 필수다(SPEC §2, 식약처 공공데이터). 편의점이 든 카탈로그(한국)에서만 보인다.
             Section {
@@ -202,6 +205,9 @@ private struct SettingsContent: View {
                 .font(AppFont.pretendard(11, .regular, relativeTo: .caption2))
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity)
+                .contentShape(Rectangle())
+                .onTapGesture(count: DeveloperMode.tapCount) { toggleDeveloperMode() }
+                .accessibilityIdentifier("settings-version")
             }
         }
         .scrollContentBackground(.hidden)
@@ -288,6 +294,13 @@ private struct SettingsContent: View {
         }
     }
 
+    /// App Store 빌드에서는 아무 일도 하지 않는다(테스트 카드가 없는 빌드).
+    private func toggleDeveloperMode() {
+        guard isTestBuild else { return }
+        isDeveloperMode.toggle()
+        alertMessage = isDeveloperMode ? String(localized: "개발자 모드를 켰어요.") : String(localized: "개발자 모드를 껐어요.")
+    }
+
     /// 켜면 권한부터 묻는다. 거절돼 있으면 스위치는 꺼진 채로 iOS 설정을 안내한다.
     private func setReminder(_ on: Bool) {
         guard on else {
@@ -343,7 +356,7 @@ private struct SettingsContent: View {
                 .font(AppFont.pretendard(16, .regular, relativeTo: .body))
                 .accessibilityIdentifier("test-first-run")
         } header: {
-            Text("테스트 · TestFlight에서만 보여요")
+            Text("테스트 · 개발자 모드")
         } footer: {
             Text("여기서 연 먹이기와 정산은 기록에 남지 않아요.")
         }

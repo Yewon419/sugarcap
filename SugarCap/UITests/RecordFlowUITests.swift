@@ -260,6 +260,7 @@ extension RecordFlowUITests {
     func testSettingsTestCardRehearsesFeeding() throws {
         continueAfterFailure = false
         let app = XCUIApplication()
+        app.launchArguments += ["-developerMode", "YES"]
         app.launch()
 
         completeOnboardingIfPresented(app)
@@ -292,7 +293,7 @@ extension RecordFlowUITests {
         continueAfterFailure = false
         let app = XCUIApplication()
         // 무대는 4초 뒤 저절로 닫혀 느린 CI가 놓친다. 한 장면에 멈춰 두고 눌러서 닫는다(testSkipping…과 같은 이유).
-        app.launchArguments += ["-levelUpAt", "2.5"]
+        app.launchArguments += ["-levelUpAt", "2.5", "-developerMode", "YES"]
         app.launch()
         completeOnboardingIfPresented(app)
 

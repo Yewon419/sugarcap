@@ -150,7 +150,8 @@ enum ReminderSlot: String, CaseIterable {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
-        content.sound = .default
+        // 전용 알림음(대표님 2026-11-03): 아이스 커피 잔 속 얼음이 구르는 0.7초. ElevenLabs SFX v2로 만든 `Resources/Sounds`.
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("notification-ice.caf"))
         return content
     }
 

@@ -113,6 +113,28 @@ def test_missing_values_and_non_drinks() -> None:
     assert latte.source_url == ESPRESSO_URL
 
 
+def test_hot_iced_words_leave_the_name() -> None:
+    html = _page(
+        _table(
+            "핫/아이스초코",
+            "1회 제공량 / Regular / 354ml 기준",
+            [
+                ["HOT", "300kcal", "41g", "8g", "6g", "150mg", "8mg"],
+                ["ICED", "260kcal", "36g", "7g", "5g", "130mg", "8mg"],
+            ],
+        ),
+        view=(
+            '<div class="menu_view01" id="menuView1_7"><div class="menu_detail">'
+            "<p><span>핫/아이스초코</span>\n Chocolate HOT/ICED\n </p></div></div>"
+        ),
+    )
+    rows = parse_category_page(html, ESPRESSO_URL)
+    assert [(r.drink_name, r.drink_name_en, r.temperature) for r in rows] == [
+        ("초코", "Chocolate", Temperature.HOT),
+        ("초코", "Chocolate", Temperature.ICED),
+    ]
+
+
 def test_unknown_temperature_row_raises() -> None:
     html = _page(
         _table("x", "1회 제공량 / Regular / 354ml 기준", [["WARM", "1", "2", "3", "4", "5", "6"]])

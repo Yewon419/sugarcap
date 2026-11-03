@@ -32,6 +32,10 @@ _SIZED_ONLY = re.compile(r"(Regular|Grande|Venti|Solo)\s*기준")
 _SIZED_GRAMS = re.compile(r"HOT\s*-\s*R\)|ICED\s*-\s*R\)")
 _ML_ONLY = re.compile(r"/\s*(\d+)\s*ml\s*기준")
 _INFO_ID = re.compile(r"menuView2_(\d+)")
+# "핫/아이스초코" / "Chocolate HOT/ICED": the table already splits HOT and ICED rows, so the
+# temperature words are dropped from the name (beta feedback, build 376).
+_BOTH_TEMPERATURES_KO = re.compile(r"^핫\s*/\s*아이스\s*")
+_BOTH_TEMPERATURES_EN = re.compile(r"\s*HOT\s*/\s*ICED?$", re.IGNORECASE)
 
 
 class ServingBase(NamedTuple):
@@ -97,8 +101,9 @@ def parse_category_page(html: str, source_url: str) -> list[RawServing]:
 
     rows: list[RawServing] = []
     for info in soup.select("div.menu_info02"):
-        name = clean_text(_select_one(info, "caption", source_url).get_text())
-        context = f"{name} @ {source_url}"
+        caption = clean_text(_select_one(info, "caption", source_url).get_text())
+        name = _BOTH_TEMPERATURES_KO.sub("", caption)
+        context = f"{caption} @ {source_url}"
         if NON_DRINK_MARKER in name:
             continue
         note = clean_text(_select_one(info, "span.ft16B", context).get_text())
@@ -106,7 +111,8 @@ def parse_category_page(html: str, source_url: str) -> list[RawServing]:
         headers = [clean_text(th.get_text()) for th in info.select("thead th")]
         sugar_col = _column_index(headers, "당류", context)
         caffeine_col = _column_index(headers, "카페인", context)
-        name_en = _english_name(soup, info)
+        english = _english_name(soup, info)
+        name_en = _BOTH_TEMPERATURES_EN.sub("", english) if english is not None else None
 
         body_rows = info.select("tbody tr")
         if not body_rows:

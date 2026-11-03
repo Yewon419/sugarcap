@@ -1,6 +1,6 @@
 {
  "schema_version": 3,
- "built_at": "2026-11-01T11:06:09+00:00",
+ "built_at": "2026-11-03T02:18:52+00:00",
  "brands": [
   {
    "id": "starbucks",
@@ -358263,2306 +358263,6 @@
    ]
   },
   {
-   "id": "hollys:고흥-유자차:hot",
-   "brand_id": "hollys",
-   "name": "고흥 유자차",
-   "name_en": "Goheung Yuzu Tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "hot",
-   "liquid_color": "#F3D34A",
-   "servings": [
-    {
-     "id": "hollys:고흥-유자차:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 50.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:고흥-유자차:iced",
-   "brand_id": "hollys",
-   "name": "고흥 유자차",
-   "name_en": "Goheung Yuzu Tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#F3D34A",
-   "servings": [
-    {
-     "id": "hollys:고흥-유자차:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 50.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:꿀모과차:hot",
-   "brand_id": "hollys",
-   "name": "꿀모과차",
-   "name_en": "Honey Quince Tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "hot",
-   "liquid_color": "#E2B65A",
-   "servings": [
-    {
-     "id": "hollys:꿀모과차:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 43.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:꿀모과차:iced",
-   "brand_id": "hollys",
-   "name": "꿀모과차",
-   "name_en": "Honey Quince Tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#E2B65A",
-   "servings": [
-    {
-     "id": "hollys:꿀모과차:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 43.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:꿀토마토-할리치노:iced",
-   "brand_id": "hollys",
-   "name": "꿀토마토 할리치노",
-   "name_en": "Honey Tomato Hollyccino",
-   "category": "할리치노 · 빙수",
-   "temperature": "iced",
-   "liquid_color": "#E5413A",
-   "servings": [
-    {
-     "id": "hollys:꿀토마토-할리치노:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 38.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:누룽지팝-초코크림라떼:hot",
-   "brand_id": "hollys",
-   "name": "누룽지팝 초코크림라떼",
-   "name_en": "Nurungji POP Chocolate Cream Latte",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "hot",
-   "liquid_color": "#6B3E26",
-   "servings": [
-    {
-     "id": "hollys:누룽지팝-초코크림라떼:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 39.0,
-     "caffeine_mg": 2.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:누룽지팝-초코크림라떼:iced",
-   "brand_id": "hollys",
-   "name": "누룽지팝 초코크림라떼",
-   "name_en": "Nurungji POP Chocolate Cream Latte",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#6B3E26",
-   "servings": [
-    {
-     "id": "hollys:누룽지팝-초코크림라떼:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 30.0,
-     "caffeine_mg": 2.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:누룽지팝-할리치노:iced",
-   "brand_id": "hollys",
-   "name": "누룽지팝 할리치노",
-   "name_en": "Nurungji POP Hollyccino",
-   "category": "할리치노 · 빙수",
-   "temperature": "iced",
-   "liquid_color": "#EADBC8",
-   "servings": [
-    {
-     "id": "hollys:누룽지팝-할리치노:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 38.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:눈표범-아인슈페너:iced",
-   "brand_id": "hollys",
-   "name": "눈표범 아인슈페너",
-   "name_en": "Snow Leopard Einspanner",
-   "category": "COFFEE",
-   "temperature": "iced",
-   "liquid_color": "#C49A6C",
-   "servings": [
-    {
-     "id": "hollys:눈표범-아인슈페너:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 6.0,
-     "caffeine_mg": 127.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:다크-포레스트-할리치노:iced",
-   "brand_id": "hollys",
-   "name": "다크 포레스트 할리치노",
-   "name_en": "Dark Forest Hollyccino",
-   "category": "할리치노 · 빙수",
-   "temperature": "iced",
-   "liquid_color": "#EADBC8",
-   "servings": [
-    {
-     "id": "hollys:다크-포레스트-할리치노:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 64.0,
-     "caffeine_mg": 23.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:대추-생강차:hot",
-   "brand_id": "hollys",
-   "name": "대추 생강차",
-   "name_en": "Jujube Ginger Tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "hot",
-   "liquid_color": "#F3D34A",
-   "servings": [
-    {
-     "id": "hollys:대추-생강차:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 45.0,
-     "caffeine_mg": 0.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:대추-생강차:iced",
-   "brand_id": "hollys",
-   "name": "대추 생강차",
-   "name_en": "Jujube Ginger Tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#F3D34A",
-   "servings": [
-    {
-     "id": "hollys:대추-생강차:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 45.0,
-     "caffeine_mg": 0.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:더블-초코칩-할리치노:iced",
-   "brand_id": "hollys",
-   "name": "더블 초코칩 할리치노",
-   "name_en": "Double chocochip Hollyccino",
-   "category": "할리치노 · 빙수",
-   "temperature": "iced",
-   "liquid_color": "#6B3E26",
-   "servings": [
-    {
-     "id": "hollys:더블-초코칩-할리치노:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 71.0,
-     "caffeine_mg": 21.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:돌체-라떼:hot",
-   "brand_id": "hollys",
-   "name": "돌체 라떼",
-   "name_en": "Dolce Latte",
-   "category": "COFFEE",
-   "temperature": "hot",
-   "liquid_color": "#C49A6C",
-   "servings": [
-    {
-     "id": "hollys:돌체-라떼:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 31.0,
-     "caffeine_mg": 93.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:돌체-라떼:iced",
-   "brand_id": "hollys",
-   "name": "돌체 라떼",
-   "name_en": "Dolce Latte",
-   "category": "COFFEE",
-   "temperature": "iced",
-   "liquid_color": "#C49A6C",
-   "servings": [
-    {
-     "id": "hollys:돌체-라떼:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 16.0,
-     "caffeine_mg": 93.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:디카페인-콜드브루-아샷추:iced",
-   "brand_id": "hollys",
-   "name": "디카페인 콜드브루 아샷추",
-   "name_en": "Iced Tea + Decaf Cold Brew",
-   "category": "COFFEE",
-   "temperature": "iced",
-   "liquid_color": "#4A2C1D",
-   "servings": [
-    {
-     "id": "hollys:디카페인-콜드브루-아샷추:iced:grande",
-     "size_label": "Grande",
-     "volume_ml": 472,
-     "sugar_g": 44.0,
-     "caffeine_mg": 15.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:디카페인-콜드브루바닐라-딜라이트:hot",
-   "brand_id": "hollys",
-   "name": "디카페인 콜드브루바닐라 딜라이트",
-   "name_en": "Decaf Cold Brew Vanilla Delight",
-   "category": "COFFEE",
-   "temperature": "hot",
-   "liquid_color": "#4A2C1D",
-   "servings": [
-    {
-     "id": "hollys:디카페인-콜드브루바닐라-딜라이트:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 31.0,
-     "caffeine_mg": 25.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:디카페인-콜드브루바닐라-딜라이트:iced",
-   "brand_id": "hollys",
-   "name": "디카페인 콜드브루바닐라 딜라이트",
-   "name_en": "Decaf Cold Brew Vanilla Delight",
-   "category": "COFFEE",
-   "temperature": "iced",
-   "liquid_color": "#4A2C1D",
-   "servings": [
-    {
-     "id": "hollys:디카페인-콜드브루바닐라-딜라이트:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 24.0,
-     "caffeine_mg": 25.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:디카페인콜드브루:hot",
-   "brand_id": "hollys",
-   "name": "디카페인콜드브루",
-   "name_en": "Decaf Cold Brew",
-   "category": "COFFEE",
-   "temperature": "hot",
-   "liquid_color": "#4A2C1D",
-   "servings": [
-    {
-     "id": "hollys:디카페인콜드브루:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 0.0,
-     "caffeine_mg": 6.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:디카페인콜드브루:iced",
-   "brand_id": "hollys",
-   "name": "디카페인콜드브루",
-   "name_en": "Decaf Cold Brew",
-   "category": "COFFEE",
-   "temperature": "iced",
-   "liquid_color": "#4A2C1D",
-   "servings": [
-    {
-     "id": "hollys:디카페인콜드브루:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 0.0,
-     "caffeine_mg": 6.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:디카페인콜드브루-라떼:hot",
-   "brand_id": "hollys",
-   "name": "디카페인콜드브루 라떼",
-   "name_en": "Decaf Cold Brew Latte",
-   "category": "COFFEE",
-   "temperature": "hot",
-   "liquid_color": "#C49A6C",
-   "servings": [
-    {
-     "id": "hollys:디카페인콜드브루-라떼:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 12.0,
-     "caffeine_mg": 3.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:디카페인콜드브루-라떼:iced",
-   "brand_id": "hollys",
-   "name": "디카페인콜드브루 라떼",
-   "name_en": "Decaf Cold Brew Latte",
-   "category": "COFFEE",
-   "temperature": "iced",
-   "liquid_color": "#C49A6C",
-   "servings": [
-    {
-     "id": "hollys:디카페인콜드브루-라떼:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 8.0,
-     "caffeine_mg": 3.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:딸기-라떼:iced",
-   "brand_id": "hollys",
-   "name": "딸기 라떼",
-   "name_en": "Strawberyy Latte",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#E8587A",
-   "servings": [
-    {
-     "id": "hollys:딸기-라떼:iced:grande",
-     "size_label": "Grande",
-     "volume_ml": 472,
-     "sugar_g": 60.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:딸기-스무디:iced",
-   "brand_id": "hollys",
-   "name": "딸기 스무디",
-   "name_en": "Strawberry Smoothie",
-   "category": "스무디 · 주스",
-   "temperature": "iced",
-   "liquid_color": "#E8587A",
-   "servings": [
-    {
-     "id": "hollys:딸기-스무디:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 44.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:딸기-치즈케익할리치노:iced",
-   "brand_id": "hollys",
-   "name": "딸기 치즈케익할리치노",
-   "name_en": "Strawberry Cheese Cake Hollyccino",
-   "category": "할리치노 · 빙수",
-   "temperature": "iced",
-   "liquid_color": "#E8587A",
-   "servings": [
-    {
-     "id": "hollys:딸기-치즈케익할리치노:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 59.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:레드스파클링:iced",
-   "brand_id": "hollys",
-   "name": "레드스파클링",
-   "name_en": "Red Sparkling",
-   "category": "스파클링",
-   "temperature": "iced",
-   "liquid_color": "#DCE8EE",
-   "servings": [
-    {
-     "id": "hollys:레드스파클링:iced:grande",
-     "size_label": "Grande",
-     "volume_ml": 472,
-     "sugar_g": 38.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:레드티:hot",
-   "brand_id": "hollys",
-   "name": "레드티",
-   "name_en": "Red Tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "hot",
-   "liquid_color": "#6B3E26",
-   "servings": [
-    {
-     "id": "hollys:레드티:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 50.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:레드티:iced",
-   "brand_id": "hollys",
-   "name": "레드티",
-   "name_en": "Red Tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#6B3E26",
-   "servings": [
-    {
-     "id": "hollys:레드티:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 50.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:레몬-생강차:hot",
-   "brand_id": "hollys",
-   "name": "레몬 생강차",
-   "name_en": "Lemon Ginger Tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "hot",
-   "liquid_color": "#F3D34A",
-   "servings": [
-    {
-     "id": "hollys:레몬-생강차:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 39.0,
-     "caffeine_mg": 0.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:레몬-생강차:iced",
-   "brand_id": "hollys",
-   "name": "레몬 생강차",
-   "name_en": "Lemon Ginger Tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#F3D34A",
-   "servings": [
-    {
-     "id": "hollys:레몬-생강차:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 39.0,
-     "caffeine_mg": 0.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:레몬에이드:iced",
-   "brand_id": "hollys",
-   "name": "레몬에이드",
-   "name_en": "Lemonade",
-   "category": "스파클링",
-   "temperature": "iced",
-   "liquid_color": "#F3D34A",
-   "servings": [
-    {
-     "id": "hollys:레몬에이드:iced:grande",
-     "size_label": "Grande",
-     "volume_ml": 472,
-     "sugar_g": 49.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:로얄-밀크-버블티:iced",
-   "brand_id": "hollys",
-   "name": "로얄 밀크 버블티",
-   "name_en": "Royal Milk Bubble Tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#C8A27C",
-   "servings": [
-    {
-     "id": "hollys:로얄-밀크-버블티:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 30.0,
-     "caffeine_mg": 51.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:로얄-밀크티-라떼:hot",
-   "brand_id": "hollys",
-   "name": "로얄 밀크티 라떼",
-   "name_en": "Royal Milk Tea Latte",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "hot",
-   "liquid_color": "#C8A27C",
-   "servings": [
-    {
-     "id": "hollys:로얄-밀크티-라떼:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": null,
-     "sugar_g": 29.0,
-     "caffeine_mg": 51.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:로얄-밀크티-라떼:iced",
-   "brand_id": "hollys",
-   "name": "로얄 밀크티 라떼",
-   "name_en": "Royal Milk Tea Latte",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#C8A27C",
-   "servings": [
-    {
-     "id": "hollys:로얄-밀크티-라떼:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": null,
-     "sugar_g": 25.0,
-     "caffeine_mg": 51.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:모과배차:hot",
-   "brand_id": "hollys",
-   "name": "모과배차",
-   "name_en": "Korean Quince Pear Tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "hot",
-   "liquid_color": "#E2B65A",
-   "servings": [
-    {
-     "id": "hollys:모과배차:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 42.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:모과배차:iced",
-   "brand_id": "hollys",
-   "name": "모과배차",
-   "name_en": "Korean Quince Pear Tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#E2B65A",
-   "servings": [
-    {
-     "id": "hollys:모과배차:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 42.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:몬스터-아메리카노:iced",
-   "brand_id": "hollys",
-   "name": "몬스터 아메리카노",
-   "name_en": "Monster Americano",
-   "category": "COFFEE",
-   "temperature": "iced",
-   "liquid_color": "#4A2C1D",
-   "servings": [
-    {
-     "id": "hollys:몬스터-아메리카노:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 0.0,
-     "caffeine_mg": 134.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:민트-초코칩할리치노:iced",
-   "brand_id": "hollys",
-   "name": "민트 초코칩할리치노",
-   "name_en": "Mint Chocochip Hollyccino",
-   "category": "할리치노 · 빙수",
-   "temperature": "iced",
-   "liquid_color": "#9ED9C3",
-   "servings": [
-    {
-     "id": "hollys:민트-초코칩할리치노:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 57.0,
-     "caffeine_mg": 3.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:민트초코:hot",
-   "brand_id": "hollys",
-   "name": "민트초코",
-   "name_en": "Mint Chocolate",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "hot",
-   "liquid_color": "#9ED9C3",
-   "servings": [
-    {
-     "id": "hollys:민트초코:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 55.0,
-     "caffeine_mg": 3.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:민트초코:iced",
-   "brand_id": "hollys",
-   "name": "민트초코",
-   "name_en": "Mint Chocolate",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#9ED9C3",
-   "servings": [
-    {
-     "id": "hollys:민트초코:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 48.0,
-     "caffeine_mg": 3.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:바닐라-딜라이트:hot",
-   "brand_id": "hollys",
-   "name": "바닐라 딜라이트",
-   "name_en": "Vanilla Delight",
-   "category": "COFFEE",
-   "temperature": "hot",
-   "liquid_color": "#F1E6CF",
-   "servings": [
-    {
-     "id": "hollys:바닐라-딜라이트:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 31.0,
-     "caffeine_mg": 83.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:바닐라-딜라이트:iced",
-   "brand_id": "hollys",
-   "name": "바닐라 딜라이트",
-   "name_en": "Vanilla Delight",
-   "category": "COFFEE",
-   "temperature": "iced",
-   "liquid_color": "#F1E6CF",
-   "servings": [
-    {
-     "id": "hollys:바닐라-딜라이트:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 25.0,
-     "caffeine_mg": 83.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:바닐라-딜라이트-아인슈페너:iced",
-   "brand_id": "hollys",
-   "name": "바닐라 딜라이트 아인슈페너",
-   "name_en": "Vanilla Delight Einspanner",
-   "category": "COFFEE",
-   "temperature": "iced",
-   "liquid_color": "#C49A6C",
-   "servings": [
-    {
-     "id": "hollys:바닐라-딜라이트-아인슈페너:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 11.0,
-     "caffeine_mg": 138.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:복숭아-얼그레이:hot",
-   "brand_id": "hollys",
-   "name": "복숭아 얼그레이",
-   "name_en": "Peach Earl Grey",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "hot",
-   "liquid_color": "#F7A57A",
-   "servings": [
-    {
-     "id": "hollys:복숭아-얼그레이:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 26.0,
-     "caffeine_mg": 33.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:복숭아-얼그레이:iced",
-   "brand_id": "hollys",
-   "name": "복숭아 얼그레이",
-   "name_en": "Peach Earl Grey",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#F7A57A",
-   "servings": [
-    {
-     "id": "hollys:복숭아-얼그레이:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 26.0,
-     "caffeine_mg": 33.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:복숭아-자두스파클링:iced",
-   "brand_id": "hollys",
-   "name": "복숭아 자두스파클링",
-   "name_en": "Peach Plum Sparkling",
-   "category": "스파클링",
-   "temperature": "iced",
-   "liquid_color": "#F7A57A",
-   "servings": [
-    {
-     "id": "hollys:복숭아-자두스파클링:iced:grande",
-     "size_label": "Grande",
-     "volume_ml": 472,
-     "sugar_g": 43.0,
-     "caffeine_mg": 0.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:블랙아리아딥라떼:hot",
-   "brand_id": "hollys",
-   "name": "블랙아리아딥라떼",
-   "name_en": "Black Aria Deep Latte",
-   "category": "COFFEE",
-   "temperature": "hot",
-   "liquid_color": "#C49A6C",
-   "servings": [
-    {
-     "id": "hollys:블랙아리아딥라떼:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 12.0,
-     "caffeine_mg": 153.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:블랙아리아딥라떼:iced",
-   "brand_id": "hollys",
-   "name": "블랙아리아딥라떼",
-   "name_en": "Black Aria Deep Latte",
-   "category": "COFFEE",
-   "temperature": "iced",
-   "liquid_color": "#C49A6C",
-   "servings": [
-    {
-     "id": "hollys:블랙아리아딥라떼:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 7.0,
-     "caffeine_mg": 153.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:블랙아리아아메리카노:hot",
-   "brand_id": "hollys",
-   "name": "블랙아리아아메리카노",
-   "name_en": "Black Aria Americano",
-   "category": "COFFEE",
-   "temperature": "hot",
-   "liquid_color": "#4A2C1D",
-   "servings": [
-    {
-     "id": "hollys:블랙아리아아메리카노:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 0.0,
-     "caffeine_mg": 153.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:블랙아리아아메리카노:iced",
-   "brand_id": "hollys",
-   "name": "블랙아리아아메리카노",
-   "name_en": "Black Aria Americano",
-   "category": "COFFEE",
-   "temperature": "iced",
-   "liquid_color": "#4A2C1D",
-   "servings": [
-    {
-     "id": "hollys:블랙아리아아메리카노:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 0.0,
-     "caffeine_mg": 153.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:블루베리-요거트-할리치노:iced",
-   "brand_id": "hollys",
-   "name": "블루베리 요거트 할리치노",
-   "name_en": "Blueberry Yogurt Hollyccino",
-   "category": "할리치노 · 빙수",
-   "temperature": "iced",
-   "liquid_color": "#4B3B7A",
-   "servings": [
-    {
-     "id": "hollys:블루베리-요거트-할리치노:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 65.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:사과-비트착즙-주스:iced",
-   "brand_id": "hollys",
-   "name": "사과 비트착즙 주스",
-   "name_en": "Apple Beet Juice",
-   "category": "스무디 · 주스",
-   "temperature": "iced",
-   "liquid_color": "#9C2A6B",
-   "servings": [
-    {
-     "id": "hollys:사과-비트착즙-주스:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 25.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:아메리카노:hot",
-   "brand_id": "hollys",
-   "name": "아메리카노",
-   "name_en": "Caffe Americano",
-   "category": "COFFEE",
-   "temperature": "hot",
-   "liquid_color": "#4A2C1D",
-   "servings": [
-    {
-     "id": "hollys:아메리카노:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 0.0,
-     "caffeine_mg": 114.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:아메리카노:iced",
-   "brand_id": "hollys",
-   "name": "아메리카노",
-   "name_en": "Caffe Americano",
-   "category": "COFFEE",
-   "temperature": "iced",
-   "liquid_color": "#4A2C1D",
-   "servings": [
-    {
-     "id": "hollys:아메리카노:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 0.0,
-     "caffeine_mg": 114.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:아샷추:iced",
-   "brand_id": "hollys",
-   "name": "아샷추",
-   "name_en": "Iced Tea with an Espresso Shot",
-   "category": "COFFEE",
-   "temperature": "iced",
-   "liquid_color": "#4A2C1D",
-   "servings": [
-    {
-     "id": "hollys:아샷추:iced:grande",
-     "size_label": "Grande",
-     "volume_ml": 472,
-     "sugar_g": 44.0,
-     "caffeine_mg": 74.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:아이스티:iced",
-   "brand_id": "hollys",
-   "name": "아이스티",
-   "name_en": "Iced Tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#6B3E26",
-   "servings": [
-    {
-     "id": "hollys:아이스티:iced:grande",
-     "size_label": "Grande",
-     "volume_ml": 472,
-     "sugar_g": 44.0,
-     "caffeine_mg": 11.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:아포가토:iced",
-   "brand_id": "hollys",
-   "name": "아포가토",
-   "name_en": "Affogato",
-   "category": "COFFEE",
-   "temperature": "iced",
-   "liquid_color": "#4A2C1D",
-   "servings": [
-    {
-     "id": "hollys:아포가토:iced:150ml",
-     "size_label": "150ml",
-     "volume_ml": 150,
-     "sugar_g": 15.0,
-     "caffeine_mg": 93.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:애플망고-스무디:iced",
-   "brand_id": "hollys",
-   "name": "애플망고 스무디",
-   "name_en": "Apple Mango Smoothie",
-   "category": "스무디 · 주스",
-   "temperature": "iced",
-   "liquid_color": "#F7B32B",
-   "servings": [
-    {
-     "id": "hollys:애플망고-스무디:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 49.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:애플망고-요거트-라떼:iced",
-   "brand_id": "hollys",
-   "name": "애플망고 요거트 라떼",
-   "name_en": "Apple Mango Yogurt Latte",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#F7B32B",
-   "servings": [
-    {
-     "id": "hollys:애플망고-요거트-라떼:iced:grande",
-     "size_label": "Grande",
-     "volume_ml": 472,
-     "sugar_g": 55.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:애플망고-할리치노:iced",
-   "brand_id": "hollys",
-   "name": "애플망고 할리치노",
-   "name_en": "Apple Mango Hollyccino",
-   "category": "할리치노 · 빙수",
-   "temperature": "iced",
-   "liquid_color": "#F7B32B",
-   "servings": [
-    {
-     "id": "hollys:애플망고-할리치노:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 54.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:얼그레이:hot",
-   "brand_id": "hollys",
-   "name": "얼그레이",
-   "name_en": "Earl Grey",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "hot",
-   "liquid_color": "#B5651D",
-   "servings": [
-    {
-     "id": "hollys:얼그레이:hot:grande",
-     "size_label": "Grande",
-     "volume_ml": 472,
-     "sugar_g": 0.0,
-     "caffeine_mg": 17.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:얼그레이:iced",
-   "brand_id": "hollys",
-   "name": "얼그레이",
-   "name_en": "Earl Grey",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#B5651D",
-   "servings": [
-    {
-     "id": "hollys:얼그레이:iced:grande",
-     "size_label": "Grande",
-     "volume_ml": 472,
-     "sugar_g": 0.0,
-     "caffeine_mg": 17.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:에스프레소:hot",
-   "brand_id": "hollys",
-   "name": "에스프레소",
-   "name_en": "Espresso",
-   "category": "COFFEE",
-   "temperature": "hot",
-   "liquid_color": "#2E1B12",
-   "servings": [
-    {
-     "id": "hollys:에스프레소:hot:solo",
-     "size_label": "Solo",
-     "volume_ml": 25,
-     "sugar_g": 0.0,
-     "caffeine_mg": 61.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:오렌지-당근착즙-주스:iced",
-   "brand_id": "hollys",
-   "name": "오렌지 당근착즙 주스",
-   "name_en": "Orange Carrot Juice",
-   "category": "스무디 · 주스",
-   "temperature": "iced",
-   "liquid_color": "#F5871F",
-   "servings": [
-    {
-     "id": "hollys:오렌지-당근착즙-주스:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 23.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:오렌지-자몽-생과일-주스:iced",
-   "brand_id": "hollys",
-   "name": "오렌지 자몽 생과일 주스",
-   "name_en": "Orange Grapefruit Juice",
-   "category": "스무디 · 주스",
-   "temperature": "iced",
-   "liquid_color": "#F06B5B",
-   "servings": [
-    {
-     "id": "hollys:오렌지-자몽-생과일-주스:iced:grande",
-     "size_label": "Grande",
-     "volume_ml": 472,
-     "sugar_g": 39.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:유자-캐모마일:hot",
-   "brand_id": "hollys",
-   "name": "유자 캐모마일",
-   "name_en": "Yuzu Chamomile",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "hot",
-   "liquid_color": "#F3D34A",
-   "servings": [
-    {
-     "id": "hollys:유자-캐모마일:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 34.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:유자-캐모마일:iced",
-   "brand_id": "hollys",
-   "name": "유자 캐모마일",
-   "name_en": "Yuzu Chamomile",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#F3D34A",
-   "servings": [
-    {
-     "id": "hollys:유자-캐모마일:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 34.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:유자몽-스파클링:iced",
-   "brand_id": "hollys",
-   "name": "유자몽 스파클링",
-   "name_en": "Yuzu Grapefruit Sparkling",
-   "category": "스파클링",
-   "temperature": "iced",
-   "liquid_color": "#F06B5B",
-   "servings": [
-    {
-     "id": "hollys:유자몽-스파클링:iced:grande",
-     "size_label": "Grande",
-     "volume_ml": 472,
-     "sugar_g": 47.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:저당-바닐라-딜라이트:hot",
-   "brand_id": "hollys",
-   "name": "저당 바닐라 딜라이트",
-   "name_en": "Low Sugar Vanilla Delight",
-   "category": "COFFEE",
-   "temperature": "hot",
-   "liquid_color": "#F1E6CF",
-   "servings": [
-    {
-     "id": "hollys:저당-바닐라-딜라이트:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": null,
-     "sugar_g": 12.0,
-     "caffeine_mg": 79.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:저당-바닐라-딜라이트:iced",
-   "brand_id": "hollys",
-   "name": "저당 바닐라 딜라이트",
-   "name_en": "Low Sugar Vanilla Delight",
-   "category": "COFFEE",
-   "temperature": "iced",
-   "liquid_color": "#F1E6CF",
-   "servings": [
-    {
-     "id": "hollys:저당-바닐라-딜라이트:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": null,
-     "sugar_g": 7.0,
-     "caffeine_mg": 79.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:제주-레몬-애플티:hot",
-   "brand_id": "hollys",
-   "name": "제주 레몬 애플티",
-   "name_en": "Jeju Lemon Apple Tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "hot",
-   "liquid_color": "#F3D34A",
-   "servings": [
-    {
-     "id": "hollys:제주-레몬-애플티:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 54.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:제주-레몬-애플티:iced",
-   "brand_id": "hollys",
-   "name": "제주 레몬 애플티",
-   "name_en": "Jeju Lemon Apple Tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#F3D34A",
-   "servings": [
-    {
-     "id": "hollys:제주-레몬-애플티:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 54.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:제주-말차-라떼:hot",
-   "brand_id": "hollys",
-   "name": "제주 말차 라떼",
-   "name_en": "Jeju Matcha Latte",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "hot",
-   "liquid_color": "#8DB255",
-   "servings": [
-    {
-     "id": "hollys:제주-말차-라떼:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 44.0,
-     "caffeine_mg": 129.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:제주-말차-라떼:iced",
-   "brand_id": "hollys",
-   "name": "제주 말차 라떼",
-   "name_en": "Jeju Matcha Latte",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#8DB255",
-   "servings": [
-    {
-     "id": "hollys:제주-말차-라떼:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 36.0,
-     "caffeine_mg": 129.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:제주-말차할리치노:iced",
-   "brand_id": "hollys",
-   "name": "제주 말차할리치노",
-   "name_en": "Jeju Matcha Hollyccino",
-   "category": "할리치노 · 빙수",
-   "temperature": "iced",
-   "liquid_color": "#8DB255",
-   "servings": [
-    {
-     "id": "hollys:제주-말차할리치노:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 61.0,
-     "caffeine_mg": 194.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:제주-한라봉감귤차:hot",
-   "brand_id": "hollys",
-   "name": "제주 한라봉감귤차",
-   "name_en": "jeju Hanrabong tangerine tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "hot",
-   "liquid_color": "#F5871F",
-   "servings": [
-    {
-     "id": "hollys:제주-한라봉감귤차:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 48.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:제주-한라봉감귤차:iced",
-   "brand_id": "hollys",
-   "name": "제주 한라봉감귤차",
-   "name_en": "jeju Hanrabong tangerine tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#F5871F",
-   "servings": [
-    {
-     "id": "hollys:제주-한라봉감귤차:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 48.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:청포도-스파클링:iced",
-   "brand_id": "hollys",
-   "name": "청포도 스파클링",
-   "name_en": "Green Grape Sparkling",
-   "category": "스파클링",
-   "temperature": "iced",
-   "liquid_color": "#B8D86B",
-   "servings": [
-    {
-     "id": "hollys:청포도-스파클링:iced:grande",
-     "size_label": "Grande",
-     "volume_ml": 472,
-     "sugar_g": 46.0,
-     "caffeine_mg": 0.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:청포도-케일착즙-주스:iced",
-   "brand_id": "hollys",
-   "name": "청포도 케일착즙 주스",
-   "name_en": "Green Grape Kale Juice",
-   "category": "스무디 · 주스",
-   "temperature": "iced",
-   "liquid_color": "#B8D86B",
-   "servings": [
-    {
-     "id": "hollys:청포도-케일착즙-주스:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 27.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:카라멜-마키아또:hot",
-   "brand_id": "hollys",
-   "name": "카라멜 마키아또",
-   "name_en": "Caramel Macchiato",
-   "category": "COFFEE",
-   "temperature": "hot",
-   "liquid_color": "#B07A3B",
-   "servings": [
-    {
-     "id": "hollys:카라멜-마키아또:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 23.0,
-     "caffeine_mg": 127.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:카라멜-마키아또:iced",
-   "brand_id": "hollys",
-   "name": "카라멜 마키아또",
-   "name_en": "Caramel Macchiato",
-   "category": "COFFEE",
-   "temperature": "iced",
-   "liquid_color": "#B07A3B",
-   "servings": [
-    {
-     "id": "hollys:카라멜-마키아또:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 18.0,
-     "caffeine_mg": 127.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:카페-라떼:hot",
-   "brand_id": "hollys",
-   "name": "카페 라떼",
-   "name_en": "Caffe Latte",
-   "category": "COFFEE",
-   "temperature": "hot",
-   "liquid_color": "#C49A6C",
-   "servings": [
-    {
-     "id": "hollys:카페-라떼:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 12.0,
-     "caffeine_mg": 127.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:카페-라떼:iced",
-   "brand_id": "hollys",
-   "name": "카페 라떼",
-   "name_en": "Caffe Latte",
-   "category": "COFFEE",
-   "temperature": "iced",
-   "liquid_color": "#C49A6C",
-   "servings": [
-    {
-     "id": "hollys:카페-라떼:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 6.0,
-     "caffeine_mg": 127.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:카페-모카:hot",
-   "brand_id": "hollys",
-   "name": "카페 모카",
-   "name_en": "Caffe Mocha",
-   "category": "COFFEE",
-   "temperature": "hot",
-   "liquid_color": "#6B3E26",
-   "servings": [
-    {
-     "id": "hollys:카페-모카:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 30.0,
-     "caffeine_mg": 132.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:카페-모카:iced",
-   "brand_id": "hollys",
-   "name": "카페 모카",
-   "name_en": "Caffe Mocha",
-   "category": "COFFEE",
-   "temperature": "iced",
-   "liquid_color": "#6B3E26",
-   "servings": [
-    {
-     "id": "hollys:카페-모카:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 25.0,
-     "caffeine_mg": 132.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:카푸치노:hot",
-   "brand_id": "hollys",
-   "name": "카푸치노",
-   "name_en": "Cappuccino",
-   "category": "COFFEE",
-   "temperature": "hot",
-   "liquid_color": "#C49A6C",
-   "servings": [
-    {
-     "id": "hollys:카푸치노:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 10.0,
-     "caffeine_mg": 127.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:카푸치노:iced",
-   "brand_id": "hollys",
-   "name": "카푸치노",
-   "name_en": "Cappuccino",
-   "category": "COFFEE",
-   "temperature": "iced",
-   "liquid_color": "#C49A6C",
-   "servings": [
-    {
-     "id": "hollys:카푸치노:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 7.0,
-     "caffeine_mg": 127.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:캐모마일:hot",
-   "brand_id": "hollys",
-   "name": "캐모마일",
-   "name_en": "Chamomile",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "hot",
-   "liquid_color": "#D9A441",
-   "servings": [
-    {
-     "id": "hollys:캐모마일:hot:grande",
-     "size_label": "Grande",
-     "volume_ml": 472,
-     "sugar_g": 0.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:캐모마일:iced",
-   "brand_id": "hollys",
-   "name": "캐모마일",
-   "name_en": "Chamomile",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#D9A441",
-   "servings": [
-    {
-     "id": "hollys:캐모마일:iced:grande",
-     "size_label": "Grande",
-     "volume_ml": 472,
-     "sugar_g": 0.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:콜드브루:iced",
-   "brand_id": "hollys",
-   "name": "콜드브루",
-   "name_en": "Cold Brew",
-   "category": "COFFEE",
-   "temperature": "iced",
-   "liquid_color": "#4A2C1D",
-   "servings": [
-    {
-     "id": "hollys:콜드브루:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 0.0,
-     "caffeine_mg": 195.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:콜드브루-딜라이트:iced",
-   "brand_id": "hollys",
-   "name": "콜드브루 딜라이트",
-   "name_en": "Cold Brew Delight",
-   "category": "COFFEE",
-   "temperature": "iced",
-   "liquid_color": "#4A2C1D",
-   "servings": [
-    {
-     "id": "hollys:콜드브루-딜라이트:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 23.0,
-     "caffeine_mg": 195.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:콜드브루-라떼:iced",
-   "brand_id": "hollys",
-   "name": "콜드브루 라떼",
-   "name_en": "Cold Brew Latte",
-   "category": "COFFEE",
-   "temperature": "iced",
-   "liquid_color": "#C49A6C",
-   "servings": [
-    {
-     "id": "hollys:콜드브루-라떼:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 8.0,
-     "caffeine_mg": 195.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:콜드브루할리치노:iced",
-   "brand_id": "hollys",
-   "name": "콜드브루할리치노",
-   "name_en": "Coldbrew Hollyccino",
-   "category": "할리치노 · 빙수",
-   "temperature": "iced",
-   "liquid_color": "#4A2C1D",
-   "servings": [
-    {
-     "id": "hollys:콜드브루할리치노:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 35.0,
-     "caffeine_mg": 91.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:토마토-생과일-주스:iced",
-   "brand_id": "hollys",
-   "name": "토마토 생과일 주스",
-   "name_en": "Tomato Juice",
-   "category": "스무디 · 주스",
-   "temperature": "iced",
-   "liquid_color": "#E5413A",
-   "servings": [
-    {
-     "id": "hollys:토마토-생과일-주스:iced:grande",
-     "size_label": "Grande",
-     "volume_ml": 472,
-     "sugar_g": 28.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:페퍼민트:hot",
-   "brand_id": "hollys",
-   "name": "페퍼민트",
-   "name_en": "Peppermint Tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "hot",
-   "liquid_color": "#9ED9C3",
-   "servings": [
-    {
-     "id": "hollys:페퍼민트:hot:grande",
-     "size_label": "Grande",
-     "volume_ml": 472,
-     "sugar_g": 0.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:페퍼민트:iced",
-   "brand_id": "hollys",
-   "name": "페퍼민트",
-   "name_en": "Peppermint Tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#9ED9C3",
-   "servings": [
-    {
-     "id": "hollys:페퍼민트:iced:grande",
-     "size_label": "Grande",
-     "volume_ml": 472,
-     "sugar_g": 0.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:플레인-요거트할리치노:iced",
-   "brand_id": "hollys",
-   "name": "플레인 요거트할리치노",
-   "name_en": "Plain Yogurt Hollyccino",
-   "category": "할리치노 · 빙수",
-   "temperature": "iced",
-   "liquid_color": "#F7F3EA",
-   "servings": [
-    {
-     "id": "hollys:플레인-요거트할리치노:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 58.0,
-     "caffeine_mg": 0.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:피치-딸기-스무디:iced",
-   "brand_id": "hollys",
-   "name": "피치 딸기 스무디",
-   "name_en": "Peach Strawberry Smoothie",
-   "category": "스무디 · 주스",
-   "temperature": "iced",
-   "liquid_color": "#E8587A",
-   "servings": [
-    {
-     "id": "hollys:피치-딸기-스무디:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 47.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:핑크-파인캐모마일티:iced",
-   "brand_id": "hollys",
-   "name": "핑크 파인캐모마일티",
-   "name_en": "Pink Pineapple Chamomile Tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#D9A441",
-   "servings": [
-    {
-     "id": "hollys:핑크-파인캐모마일티:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 40.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:할리스-데일리-커피:iced",
-   "brand_id": "hollys",
-   "name": "할리스 데일리 커피",
-   "name_en": "HOLLYS Daily Coffee",
-   "category": "COFFEE",
-   "temperature": "iced",
-   "liquid_color": "#4A2C1D",
-   "servings": [
-    {
-     "id": "hollys:할리스-데일리-커피:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 0.0,
-     "caffeine_mg": 195.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:할리스-데일리-커피-디카페인:hot",
-   "brand_id": "hollys",
-   "name": "할리스 데일리 커피 디카페인",
-   "name_en": "HOLLYS Daily Coffee (Decaf)",
-   "category": "COFFEE",
-   "temperature": "hot",
-   "liquid_color": "#4A2C1D",
-   "servings": [
-    {
-     "id": "hollys:할리스-데일리-커피-디카페인:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 0.0,
-     "caffeine_mg": 6.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:할리스-데일리-커피-디카페인:iced",
-   "brand_id": "hollys",
-   "name": "할리스 데일리 커피 디카페인",
-   "name_en": "HOLLYS Daily Coffee (Decaf)",
-   "category": "COFFEE",
-   "temperature": "iced",
-   "liquid_color": "#4A2C1D",
-   "servings": [
-    {
-     "id": "hollys:할리스-데일리-커피-디카페인:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 0.0,
-     "caffeine_mg": 6.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:핫-아이스초코:hot",
-   "brand_id": "hollys",
-   "name": "핫/아이스초코",
-   "name_en": "Chocolate HOT/ICED",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "hot",
-   "liquid_color": "#6B3E26",
-   "servings": [
-    {
-     "id": "hollys:핫-아이스초코:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 41.0,
-     "caffeine_mg": 8.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:핫-아이스초코:iced",
-   "brand_id": "hollys",
-   "name": "핫/아이스초코",
-   "name_en": "Chocolate HOT/ICED",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#6B3E26",
-   "servings": [
-    {
-     "id": "hollys:핫-아이스초코:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 36.0,
-     "caffeine_mg": 8.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:해남-녹차:hot",
-   "brand_id": "hollys",
-   "name": "해남 녹차",
-   "name_en": "Green Tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "hot",
-   "liquid_color": "#8DB255",
-   "servings": [
-    {
-     "id": "hollys:해남-녹차:hot:grande",
-     "size_label": "Grande",
-     "volume_ml": 472,
-     "sugar_g": 0.0,
-     "caffeine_mg": 25.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:해남-녹차:iced",
-   "brand_id": "hollys",
-   "name": "해남 녹차",
-   "name_en": "Green Tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#8DB255",
-   "servings": [
-    {
-     "id": "hollys:해남-녹차:iced:grande",
-     "size_label": "Grande",
-     "volume_ml": 472,
-     "sugar_g": 0.0,
-     "caffeine_mg": 25.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:호감-스무디:iced",
-   "brand_id": "hollys",
-   "name": "호감 스무디",
-   "name_en": "Persimmon Smoothie",
-   "category": "스무디 · 주스",
-   "temperature": "iced",
-   "liquid_color": "#F2A541",
-   "servings": [
-    {
-     "id": "hollys:호감-스무디:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 87.0,
-     "caffeine_mg": 2.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:홍자몽차:hot",
-   "brand_id": "hollys",
-   "name": "홍자몽차",
-   "name_en": "Red Grapefruit Tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "hot",
-   "liquid_color": "#F06B5B",
-   "servings": [
-    {
-     "id": "hollys:홍자몽차:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 32.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:홍자몽차:iced",
-   "brand_id": "hollys",
-   "name": "홍자몽차",
-   "name_en": "Red Grapefruit Tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#F06B5B",
-   "servings": [
-    {
-     "id": "hollys:홍자몽차:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 32.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:화이트초코:hot",
-   "brand_id": "hollys",
-   "name": "화이트초코",
-   "name_en": "White Chocolate",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "hot",
-   "liquid_color": "#6B3E26",
-   "servings": [
-    {
-     "id": "hollys:화이트초코:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 42.0,
-     "caffeine_mg": 23.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:화이트초코:iced",
-   "brand_id": "hollys",
-   "name": "화이트초코",
-   "name_en": "White Chocolate",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#6B3E26",
-   "servings": [
-    {
-     "id": "hollys:화이트초코:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 37.0,
-     "caffeine_mg": 23.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:흑당-버블티:iced",
-   "brand_id": "hollys",
-   "name": "흑당 버블티",
-   "name_en": "Black Sugar Bubble Tea",
-   "category": "라떼 · 초콜릿 · 티",
-   "temperature": "iced",
-   "liquid_color": "#B07A3B",
-   "servings": [
-    {
-     "id": "hollys:흑당-버블티:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 34.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:흑임자-라이스-할리치노:iced",
-   "brand_id": "hollys",
-   "name": "흑임자 라이스 할리치노",
-   "name_en": "Black Sesame Rice Hollyccino",
-   "category": "할리치노 · 빙수",
-   "temperature": "iced",
-   "liquid_color": "#8C8580",
-   "servings": [
-    {
-     "id": "hollys:흑임자-라이스-할리치노:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 38.0,
-     "caffeine_mg": null,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:흑임자-버터크림-라떼:hot",
-   "brand_id": "hollys",
-   "name": "흑임자 버터크림 라떼",
-   "name_en": "Black Sesame Buttercream Latte",
-   "category": "COFFEE",
-   "temperature": "hot",
-   "liquid_color": "#8C8580",
-   "servings": [
-    {
-     "id": "hollys:흑임자-버터크림-라떼:hot:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 32.0,
-     "caffeine_mg": 93.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
-   "id": "hollys:흑임자-버터크림-라떼:iced",
-   "brand_id": "hollys",
-   "name": "흑임자 버터크림 라떼",
-   "name_en": "Black Sesame Buttercream Latte",
-   "category": "COFFEE",
-   "temperature": "iced",
-   "liquid_color": "#8C8580",
-   "servings": [
-    {
-     "id": "hollys:흑임자-버터크림-라떼:iced:regular",
-     "size_label": "Regular",
-     "volume_ml": 354,
-     "sugar_g": 28.0,
-     "caffeine_mg": 93.0,
-     "caffeine_variants": [],
-     "caffeine_range": null
-    }
-   ]
-  },
-  {
    "id": "mega:arih-듀얼바이오틱-소다레드-루비-갈로어:both",
    "brand_id": "mega",
    "name": "ARIH 듀얼바이오틱 소다레드 루비 갈로어",
@@ -388827,7 +386527,7 @@
      "id": "amasvin:청사과-요거트:both:기본",
      "size_label": "기본",
      "volume_ml": null,
-     "sugar_g": 56.4,
+     "sugar_g": 56.7,
      "caffeine_mg": 0.0,
      "caffeine_variants": [],
      "caffeine_range": null,
@@ -395670,6 +393370,2226 @@
      "volume_ml": 591,
      "sugar_g": 0.05,
      "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:고흥-유자차:hot",
+   "brand_id": "hollys",
+   "name": "고흥 유자차",
+   "name_en": "Goheung Yuzu Tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "hot",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "hollys:고흥-유자차:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 50.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:고흥-유자차:iced",
+   "brand_id": "hollys",
+   "name": "고흥 유자차",
+   "name_en": "Goheung Yuzu Tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "hollys:고흥-유자차:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 50.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:꿀모과차:hot",
+   "brand_id": "hollys",
+   "name": "꿀모과차",
+   "name_en": "Honey Quince Tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "hot",
+   "liquid_color": "#E2B65A",
+   "servings": [
+    {
+     "id": "hollys:꿀모과차:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 43.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:꿀모과차:iced",
+   "brand_id": "hollys",
+   "name": "꿀모과차",
+   "name_en": "Honey Quince Tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#E2B65A",
+   "servings": [
+    {
+     "id": "hollys:꿀모과차:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 43.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:누룽지팝-초코크림라떼:hot",
+   "brand_id": "hollys",
+   "name": "누룽지팝 초코크림라떼",
+   "name_en": "Nurungji POP Chocolate Cream Latte",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "hot",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "hollys:누룽지팝-초코크림라떼:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 39.0,
+     "caffeine_mg": 2.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:누룽지팝-초코크림라떼:iced",
+   "brand_id": "hollys",
+   "name": "누룽지팝 초코크림라떼",
+   "name_en": "Nurungji POP Chocolate Cream Latte",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "hollys:누룽지팝-초코크림라떼:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 30.0,
+     "caffeine_mg": 2.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:누룽지팝-할리치노:iced",
+   "brand_id": "hollys",
+   "name": "누룽지팝 할리치노",
+   "name_en": "Nurungji POP Hollyccino",
+   "category": "할리치노 · 빙수",
+   "temperature": "iced",
+   "liquid_color": "#EADBC8",
+   "servings": [
+    {
+     "id": "hollys:누룽지팝-할리치노:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 38.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:눈표범-아인슈페너:iced",
+   "brand_id": "hollys",
+   "name": "눈표범 아인슈페너",
+   "name_en": "Snow Leopard Einspanner",
+   "category": "COFFEE",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "hollys:눈표범-아인슈페너:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 6.0,
+     "caffeine_mg": 127.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:다크-포레스트-할리치노:iced",
+   "brand_id": "hollys",
+   "name": "다크 포레스트 할리치노",
+   "name_en": "Dark Forest Hollyccino",
+   "category": "할리치노 · 빙수",
+   "temperature": "iced",
+   "liquid_color": "#EADBC8",
+   "servings": [
+    {
+     "id": "hollys:다크-포레스트-할리치노:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 64.0,
+     "caffeine_mg": 23.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:대추-생강차:hot",
+   "brand_id": "hollys",
+   "name": "대추 생강차",
+   "name_en": "Jujube Ginger Tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "hot",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "hollys:대추-생강차:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 45.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:대추-생강차:iced",
+   "brand_id": "hollys",
+   "name": "대추 생강차",
+   "name_en": "Jujube Ginger Tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "hollys:대추-생강차:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 45.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:더블-초코칩-할리치노:iced",
+   "brand_id": "hollys",
+   "name": "더블 초코칩 할리치노",
+   "name_en": "Double chocochip Hollyccino",
+   "category": "할리치노 · 빙수",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "hollys:더블-초코칩-할리치노:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 71.0,
+     "caffeine_mg": 21.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:돌체-라떼:hot",
+   "brand_id": "hollys",
+   "name": "돌체 라떼",
+   "name_en": "Dolce Latte",
+   "category": "COFFEE",
+   "temperature": "hot",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "hollys:돌체-라떼:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 31.0,
+     "caffeine_mg": 93.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:돌체-라떼:iced",
+   "brand_id": "hollys",
+   "name": "돌체 라떼",
+   "name_en": "Dolce Latte",
+   "category": "COFFEE",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "hollys:돌체-라떼:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 16.0,
+     "caffeine_mg": 93.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:디카페인-콜드브루-아샷추:iced",
+   "brand_id": "hollys",
+   "name": "디카페인 콜드브루 아샷추",
+   "name_en": "Iced Tea + Decaf Cold Brew",
+   "category": "COFFEE",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "hollys:디카페인-콜드브루-아샷추:iced:grande",
+     "size_label": "Grande",
+     "volume_ml": 472,
+     "sugar_g": 44.0,
+     "caffeine_mg": 15.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:디카페인-콜드브루바닐라-딜라이트:hot",
+   "brand_id": "hollys",
+   "name": "디카페인 콜드브루바닐라 딜라이트",
+   "name_en": "Decaf Cold Brew Vanilla Delight",
+   "category": "COFFEE",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "hollys:디카페인-콜드브루바닐라-딜라이트:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 31.0,
+     "caffeine_mg": 25.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:디카페인-콜드브루바닐라-딜라이트:iced",
+   "brand_id": "hollys",
+   "name": "디카페인 콜드브루바닐라 딜라이트",
+   "name_en": "Decaf Cold Brew Vanilla Delight",
+   "category": "COFFEE",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "hollys:디카페인-콜드브루바닐라-딜라이트:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 24.0,
+     "caffeine_mg": 25.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:디카페인콜드브루:hot",
+   "brand_id": "hollys",
+   "name": "디카페인콜드브루",
+   "name_en": "Decaf Cold Brew",
+   "category": "COFFEE",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "hollys:디카페인콜드브루:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 0.0,
+     "caffeine_mg": 6.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:디카페인콜드브루:iced",
+   "brand_id": "hollys",
+   "name": "디카페인콜드브루",
+   "name_en": "Decaf Cold Brew",
+   "category": "COFFEE",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "hollys:디카페인콜드브루:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 0.0,
+     "caffeine_mg": 6.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:디카페인콜드브루-라떼:hot",
+   "brand_id": "hollys",
+   "name": "디카페인콜드브루 라떼",
+   "name_en": "Decaf Cold Brew Latte",
+   "category": "COFFEE",
+   "temperature": "hot",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "hollys:디카페인콜드브루-라떼:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 12.0,
+     "caffeine_mg": 3.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:디카페인콜드브루-라떼:iced",
+   "brand_id": "hollys",
+   "name": "디카페인콜드브루 라떼",
+   "name_en": "Decaf Cold Brew Latte",
+   "category": "COFFEE",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "hollys:디카페인콜드브루-라떼:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 8.0,
+     "caffeine_mg": 3.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:딸기-라떼:iced",
+   "brand_id": "hollys",
+   "name": "딸기 라떼",
+   "name_en": "Strawberyy Latte",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "hollys:딸기-라떼:iced:grande",
+     "size_label": "Grande",
+     "volume_ml": 472,
+     "sugar_g": 60.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:딸기-스무디:iced",
+   "brand_id": "hollys",
+   "name": "딸기 스무디",
+   "name_en": "Strawberry Smoothie",
+   "category": "스무디 · 주스",
+   "temperature": "iced",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "hollys:딸기-스무디:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 44.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:딸기-치즈케익할리치노:iced",
+   "brand_id": "hollys",
+   "name": "딸기 치즈케익할리치노",
+   "name_en": "Strawberry Cheese Cake Hollyccino",
+   "category": "할리치노 · 빙수",
+   "temperature": "iced",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "hollys:딸기-치즈케익할리치노:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 59.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:레드스파클링:iced",
+   "brand_id": "hollys",
+   "name": "레드스파클링",
+   "name_en": "Red Sparkling",
+   "category": "스파클링",
+   "temperature": "iced",
+   "liquid_color": "#DCE8EE",
+   "servings": [
+    {
+     "id": "hollys:레드스파클링:iced:grande",
+     "size_label": "Grande",
+     "volume_ml": 472,
+     "sugar_g": 38.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:레드티:hot",
+   "brand_id": "hollys",
+   "name": "레드티",
+   "name_en": "Red Tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "hot",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "hollys:레드티:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 50.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:레드티:iced",
+   "brand_id": "hollys",
+   "name": "레드티",
+   "name_en": "Red Tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "hollys:레드티:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 50.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:레몬-생강차:hot",
+   "brand_id": "hollys",
+   "name": "레몬 생강차",
+   "name_en": "Lemon Ginger Tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "hot",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "hollys:레몬-생강차:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 39.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:레몬-생강차:iced",
+   "brand_id": "hollys",
+   "name": "레몬 생강차",
+   "name_en": "Lemon Ginger Tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "hollys:레몬-생강차:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 39.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:레몬에이드:iced",
+   "brand_id": "hollys",
+   "name": "레몬에이드",
+   "name_en": "Lemonade",
+   "category": "스파클링",
+   "temperature": "iced",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "hollys:레몬에이드:iced:grande",
+     "size_label": "Grande",
+     "volume_ml": 472,
+     "sugar_g": 49.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:로얄-밀크-버블티:iced",
+   "brand_id": "hollys",
+   "name": "로얄 밀크 버블티",
+   "name_en": "Royal Milk Bubble Tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "hollys:로얄-밀크-버블티:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 30.0,
+     "caffeine_mg": 51.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:로얄-밀크티-라떼:hot",
+   "brand_id": "hollys",
+   "name": "로얄 밀크티 라떼",
+   "name_en": "Royal Milk Tea Latte",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "hot",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "hollys:로얄-밀크티-라떼:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": null,
+     "sugar_g": 29.0,
+     "caffeine_mg": 51.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:로얄-밀크티-라떼:iced",
+   "brand_id": "hollys",
+   "name": "로얄 밀크티 라떼",
+   "name_en": "Royal Milk Tea Latte",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "hollys:로얄-밀크티-라떼:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": null,
+     "sugar_g": 25.0,
+     "caffeine_mg": 51.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:모과배차:hot",
+   "brand_id": "hollys",
+   "name": "모과배차",
+   "name_en": "Korean Quince Pear Tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "hot",
+   "liquid_color": "#E2B65A",
+   "servings": [
+    {
+     "id": "hollys:모과배차:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 42.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:모과배차:iced",
+   "brand_id": "hollys",
+   "name": "모과배차",
+   "name_en": "Korean Quince Pear Tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#E2B65A",
+   "servings": [
+    {
+     "id": "hollys:모과배차:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 42.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:몬스터-아메리카노:iced",
+   "brand_id": "hollys",
+   "name": "몬스터 아메리카노",
+   "name_en": "Monster Americano",
+   "category": "COFFEE",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "hollys:몬스터-아메리카노:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 0.0,
+     "caffeine_mg": 134.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:바닐라-딜라이트:hot",
+   "brand_id": "hollys",
+   "name": "바닐라 딜라이트",
+   "name_en": "Vanilla Delight",
+   "category": "COFFEE",
+   "temperature": "hot",
+   "liquid_color": "#F1E6CF",
+   "servings": [
+    {
+     "id": "hollys:바닐라-딜라이트:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 31.0,
+     "caffeine_mg": 83.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:바닐라-딜라이트:iced",
+   "brand_id": "hollys",
+   "name": "바닐라 딜라이트",
+   "name_en": "Vanilla Delight",
+   "category": "COFFEE",
+   "temperature": "iced",
+   "liquid_color": "#F1E6CF",
+   "servings": [
+    {
+     "id": "hollys:바닐라-딜라이트:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 25.0,
+     "caffeine_mg": 83.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:바닐라-딜라이트-아인슈페너:iced",
+   "brand_id": "hollys",
+   "name": "바닐라 딜라이트 아인슈페너",
+   "name_en": "Vanilla Delight Einspanner",
+   "category": "COFFEE",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "hollys:바닐라-딜라이트-아인슈페너:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 11.0,
+     "caffeine_mg": 138.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:복숭아-얼그레이:hot",
+   "brand_id": "hollys",
+   "name": "복숭아 얼그레이",
+   "name_en": "Peach Earl Grey",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "hot",
+   "liquid_color": "#F7A57A",
+   "servings": [
+    {
+     "id": "hollys:복숭아-얼그레이:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 26.0,
+     "caffeine_mg": 33.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:복숭아-얼그레이:iced",
+   "brand_id": "hollys",
+   "name": "복숭아 얼그레이",
+   "name_en": "Peach Earl Grey",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#F7A57A",
+   "servings": [
+    {
+     "id": "hollys:복숭아-얼그레이:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 26.0,
+     "caffeine_mg": 33.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:복숭아-자두스파클링:iced",
+   "brand_id": "hollys",
+   "name": "복숭아 자두스파클링",
+   "name_en": "Peach Plum Sparkling",
+   "category": "스파클링",
+   "temperature": "iced",
+   "liquid_color": "#F7A57A",
+   "servings": [
+    {
+     "id": "hollys:복숭아-자두스파클링:iced:grande",
+     "size_label": "Grande",
+     "volume_ml": 472,
+     "sugar_g": 43.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:블랙아리아딥라떼:hot",
+   "brand_id": "hollys",
+   "name": "블랙아리아딥라떼",
+   "name_en": "Black Aria Deep Latte",
+   "category": "COFFEE",
+   "temperature": "hot",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "hollys:블랙아리아딥라떼:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 12.0,
+     "caffeine_mg": 153.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:블랙아리아딥라떼:iced",
+   "brand_id": "hollys",
+   "name": "블랙아리아딥라떼",
+   "name_en": "Black Aria Deep Latte",
+   "category": "COFFEE",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "hollys:블랙아리아딥라떼:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 7.0,
+     "caffeine_mg": 153.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:블랙아리아아메리카노:hot",
+   "brand_id": "hollys",
+   "name": "블랙아리아아메리카노",
+   "name_en": "Black Aria Americano",
+   "category": "COFFEE",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "hollys:블랙아리아아메리카노:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 0.0,
+     "caffeine_mg": 153.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:블랙아리아아메리카노:iced",
+   "brand_id": "hollys",
+   "name": "블랙아리아아메리카노",
+   "name_en": "Black Aria Americano",
+   "category": "COFFEE",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "hollys:블랙아리아아메리카노:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 0.0,
+     "caffeine_mg": 153.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:블루베리-요거트-할리치노:iced",
+   "brand_id": "hollys",
+   "name": "블루베리 요거트 할리치노",
+   "name_en": "Blueberry Yogurt Hollyccino",
+   "category": "할리치노 · 빙수",
+   "temperature": "iced",
+   "liquid_color": "#4B3B7A",
+   "servings": [
+    {
+     "id": "hollys:블루베리-요거트-할리치노:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 65.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:사과-비트착즙-주스:iced",
+   "brand_id": "hollys",
+   "name": "사과 비트착즙 주스",
+   "name_en": "Apple Beet Juice",
+   "category": "스무디 · 주스",
+   "temperature": "iced",
+   "liquid_color": "#9C2A6B",
+   "servings": [
+    {
+     "id": "hollys:사과-비트착즙-주스:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 25.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:아메리카노:hot",
+   "brand_id": "hollys",
+   "name": "아메리카노",
+   "name_en": "Caffe Americano",
+   "category": "COFFEE",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "hollys:아메리카노:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 0.0,
+     "caffeine_mg": 114.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:아메리카노:iced",
+   "brand_id": "hollys",
+   "name": "아메리카노",
+   "name_en": "Caffe Americano",
+   "category": "COFFEE",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "hollys:아메리카노:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 0.0,
+     "caffeine_mg": 114.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:아샷추:iced",
+   "brand_id": "hollys",
+   "name": "아샷추",
+   "name_en": "Iced Tea with an Espresso Shot",
+   "category": "COFFEE",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "hollys:아샷추:iced:grande",
+     "size_label": "Grande",
+     "volume_ml": 472,
+     "sugar_g": 44.0,
+     "caffeine_mg": 74.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:아이스티:iced",
+   "brand_id": "hollys",
+   "name": "아이스티",
+   "name_en": "Iced Tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "hollys:아이스티:iced:grande",
+     "size_label": "Grande",
+     "volume_ml": 472,
+     "sugar_g": 44.0,
+     "caffeine_mg": 11.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:아포가토:iced",
+   "brand_id": "hollys",
+   "name": "아포가토",
+   "name_en": "Affogato",
+   "category": "COFFEE",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "hollys:아포가토:iced:150ml",
+     "size_label": "150ml",
+     "volume_ml": 150,
+     "sugar_g": 15.0,
+     "caffeine_mg": 93.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:애사비:iced",
+   "brand_id": "hollys",
+   "name": "애사비",
+   "name_en": "Apple Cider Vinegar",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "hollys:애사비:iced:grande",
+     "size_label": "Grande",
+     "volume_ml": 472,
+     "sugar_g": 1.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:애플망고-스무디:iced",
+   "brand_id": "hollys",
+   "name": "애플망고 스무디",
+   "name_en": "Apple Mango Smoothie",
+   "category": "스무디 · 주스",
+   "temperature": "iced",
+   "liquid_color": "#F7B32B",
+   "servings": [
+    {
+     "id": "hollys:애플망고-스무디:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 49.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:애플망고-할리치노:iced",
+   "brand_id": "hollys",
+   "name": "애플망고 할리치노",
+   "name_en": "Apple Mango Hollyccino",
+   "category": "할리치노 · 빙수",
+   "temperature": "iced",
+   "liquid_color": "#F7B32B",
+   "servings": [
+    {
+     "id": "hollys:애플망고-할리치노:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 54.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:얼그레이:hot",
+   "brand_id": "hollys",
+   "name": "얼그레이",
+   "name_en": "Earl Grey",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "hot",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "hollys:얼그레이:hot:grande",
+     "size_label": "Grande",
+     "volume_ml": 472,
+     "sugar_g": 0.0,
+     "caffeine_mg": 17.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:얼그레이:iced",
+   "brand_id": "hollys",
+   "name": "얼그레이",
+   "name_en": "Earl Grey",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "hollys:얼그레이:iced:grande",
+     "size_label": "Grande",
+     "volume_ml": 472,
+     "sugar_g": 0.0,
+     "caffeine_mg": 17.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:에스프레소:hot",
+   "brand_id": "hollys",
+   "name": "에스프레소",
+   "name_en": "Espresso",
+   "category": "COFFEE",
+   "temperature": "hot",
+   "liquid_color": "#2E1B12",
+   "servings": [
+    {
+     "id": "hollys:에스프레소:hot:solo",
+     "size_label": "Solo",
+     "volume_ml": 25,
+     "sugar_g": 0.0,
+     "caffeine_mg": 61.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:오렌지-당근착즙-주스:iced",
+   "brand_id": "hollys",
+   "name": "오렌지 당근착즙 주스",
+   "name_en": "Orange Carrot Juice",
+   "category": "스무디 · 주스",
+   "temperature": "iced",
+   "liquid_color": "#F5871F",
+   "servings": [
+    {
+     "id": "hollys:오렌지-당근착즙-주스:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 23.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:오렌지-자몽-생과일-주스:iced",
+   "brand_id": "hollys",
+   "name": "오렌지 자몽 생과일 주스",
+   "name_en": "Orange Grapefruit Juice",
+   "category": "스무디 · 주스",
+   "temperature": "iced",
+   "liquid_color": "#F06B5B",
+   "servings": [
+    {
+     "id": "hollys:오렌지-자몽-생과일-주스:iced:grande",
+     "size_label": "Grande",
+     "volume_ml": 472,
+     "sugar_g": 39.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:유자-캐모마일:hot",
+   "brand_id": "hollys",
+   "name": "유자 캐모마일",
+   "name_en": "Yuzu Chamomile",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "hot",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "hollys:유자-캐모마일:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 34.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:유자-캐모마일:iced",
+   "brand_id": "hollys",
+   "name": "유자 캐모마일",
+   "name_en": "Yuzu Chamomile",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "hollys:유자-캐모마일:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 34.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:유자몽-스파클링:iced",
+   "brand_id": "hollys",
+   "name": "유자몽 스파클링",
+   "name_en": "Yuzu Grapefruit Sparkling",
+   "category": "스파클링",
+   "temperature": "iced",
+   "liquid_color": "#F06B5B",
+   "servings": [
+    {
+     "id": "hollys:유자몽-스파클링:iced:grande",
+     "size_label": "Grande",
+     "volume_ml": 472,
+     "sugar_g": 47.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:저당-바닐라-딜라이트:hot",
+   "brand_id": "hollys",
+   "name": "저당 바닐라 딜라이트",
+   "name_en": "Low Sugar Vanilla Delight",
+   "category": "COFFEE",
+   "temperature": "hot",
+   "liquid_color": "#F1E6CF",
+   "servings": [
+    {
+     "id": "hollys:저당-바닐라-딜라이트:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": null,
+     "sugar_g": 12.0,
+     "caffeine_mg": 79.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:저당-바닐라-딜라이트:iced",
+   "brand_id": "hollys",
+   "name": "저당 바닐라 딜라이트",
+   "name_en": "Low Sugar Vanilla Delight",
+   "category": "COFFEE",
+   "temperature": "iced",
+   "liquid_color": "#F1E6CF",
+   "servings": [
+    {
+     "id": "hollys:저당-바닐라-딜라이트:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": null,
+     "sugar_g": 7.0,
+     "caffeine_mg": 79.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:제주-레몬-애플티:hot",
+   "brand_id": "hollys",
+   "name": "제주 레몬 애플티",
+   "name_en": "Jeju Lemon Apple Tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "hot",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "hollys:제주-레몬-애플티:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 54.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:제주-레몬-애플티:iced",
+   "brand_id": "hollys",
+   "name": "제주 레몬 애플티",
+   "name_en": "Jeju Lemon Apple Tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "hollys:제주-레몬-애플티:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 54.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:제주-말차-라떼:hot",
+   "brand_id": "hollys",
+   "name": "제주 말차 라떼",
+   "name_en": "Jeju Matcha Latte",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "hot",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "hollys:제주-말차-라떼:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 44.0,
+     "caffeine_mg": 129.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:제주-말차-라떼:iced",
+   "brand_id": "hollys",
+   "name": "제주 말차 라떼",
+   "name_en": "Jeju Matcha Latte",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "hollys:제주-말차-라떼:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 36.0,
+     "caffeine_mg": 129.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:제주-말차할리치노:iced",
+   "brand_id": "hollys",
+   "name": "제주 말차할리치노",
+   "name_en": "Jeju Matcha Hollyccino",
+   "category": "할리치노 · 빙수",
+   "temperature": "iced",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "hollys:제주-말차할리치노:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 61.0,
+     "caffeine_mg": 194.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:제주-한라봉감귤차:hot",
+   "brand_id": "hollys",
+   "name": "제주 한라봉감귤차",
+   "name_en": "jeju Hanrabong tangerine tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "hot",
+   "liquid_color": "#F5871F",
+   "servings": [
+    {
+     "id": "hollys:제주-한라봉감귤차:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 48.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:제주-한라봉감귤차:iced",
+   "brand_id": "hollys",
+   "name": "제주 한라봉감귤차",
+   "name_en": "jeju Hanrabong tangerine tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#F5871F",
+   "servings": [
+    {
+     "id": "hollys:제주-한라봉감귤차:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 48.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:청포도-스파클링:iced",
+   "brand_id": "hollys",
+   "name": "청포도 스파클링",
+   "name_en": "Green Grape Sparkling",
+   "category": "스파클링",
+   "temperature": "iced",
+   "liquid_color": "#B8D86B",
+   "servings": [
+    {
+     "id": "hollys:청포도-스파클링:iced:grande",
+     "size_label": "Grande",
+     "volume_ml": 472,
+     "sugar_g": 46.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:청포도-케일착즙-주스:iced",
+   "brand_id": "hollys",
+   "name": "청포도 케일착즙 주스",
+   "name_en": "Green Grape Kale Juice",
+   "category": "스무디 · 주스",
+   "temperature": "iced",
+   "liquid_color": "#B8D86B",
+   "servings": [
+    {
+     "id": "hollys:청포도-케일착즙-주스:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 27.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:초코:hot",
+   "brand_id": "hollys",
+   "name": "초코",
+   "name_en": "Chocolate",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "hot",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "hollys:초코:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 41.0,
+     "caffeine_mg": 8.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:초코:iced",
+   "brand_id": "hollys",
+   "name": "초코",
+   "name_en": "Chocolate",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "hollys:초코:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 36.0,
+     "caffeine_mg": 8.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:카라멜-마키아또:hot",
+   "brand_id": "hollys",
+   "name": "카라멜 마키아또",
+   "name_en": "Caramel Macchiato",
+   "category": "COFFEE",
+   "temperature": "hot",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "hollys:카라멜-마키아또:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 23.0,
+     "caffeine_mg": 127.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:카라멜-마키아또:iced",
+   "brand_id": "hollys",
+   "name": "카라멜 마키아또",
+   "name_en": "Caramel Macchiato",
+   "category": "COFFEE",
+   "temperature": "iced",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "hollys:카라멜-마키아또:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 18.0,
+     "caffeine_mg": 127.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:카페-라떼:hot",
+   "brand_id": "hollys",
+   "name": "카페 라떼",
+   "name_en": "Caffe Latte",
+   "category": "COFFEE",
+   "temperature": "hot",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "hollys:카페-라떼:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 12.0,
+     "caffeine_mg": 127.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:카페-라떼:iced",
+   "brand_id": "hollys",
+   "name": "카페 라떼",
+   "name_en": "Caffe Latte",
+   "category": "COFFEE",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "hollys:카페-라떼:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 6.0,
+     "caffeine_mg": 127.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:카페-모카:hot",
+   "brand_id": "hollys",
+   "name": "카페 모카",
+   "name_en": "Caffe Mocha",
+   "category": "COFFEE",
+   "temperature": "hot",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "hollys:카페-모카:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 30.0,
+     "caffeine_mg": 132.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:카페-모카:iced",
+   "brand_id": "hollys",
+   "name": "카페 모카",
+   "name_en": "Caffe Mocha",
+   "category": "COFFEE",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "hollys:카페-모카:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 25.0,
+     "caffeine_mg": 132.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:카푸치노:hot",
+   "brand_id": "hollys",
+   "name": "카푸치노",
+   "name_en": "Cappuccino",
+   "category": "COFFEE",
+   "temperature": "hot",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "hollys:카푸치노:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 10.0,
+     "caffeine_mg": 127.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:카푸치노:iced",
+   "brand_id": "hollys",
+   "name": "카푸치노",
+   "name_en": "Cappuccino",
+   "category": "COFFEE",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "hollys:카푸치노:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 7.0,
+     "caffeine_mg": 127.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:캐모마일:hot",
+   "brand_id": "hollys",
+   "name": "캐모마일",
+   "name_en": "Chamomile",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "hot",
+   "liquid_color": "#D9A441",
+   "servings": [
+    {
+     "id": "hollys:캐모마일:hot:grande",
+     "size_label": "Grande",
+     "volume_ml": 472,
+     "sugar_g": 0.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:캐모마일:iced",
+   "brand_id": "hollys",
+   "name": "캐모마일",
+   "name_en": "Chamomile",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#D9A441",
+   "servings": [
+    {
+     "id": "hollys:캐모마일:iced:grande",
+     "size_label": "Grande",
+     "volume_ml": 472,
+     "sugar_g": 0.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:콜드브루:iced",
+   "brand_id": "hollys",
+   "name": "콜드브루",
+   "name_en": "Cold Brew",
+   "category": "COFFEE",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "hollys:콜드브루:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 0.0,
+     "caffeine_mg": 195.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:콜드브루-딜라이트:iced",
+   "brand_id": "hollys",
+   "name": "콜드브루 딜라이트",
+   "name_en": "Cold Brew Delight",
+   "category": "COFFEE",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "hollys:콜드브루-딜라이트:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 23.0,
+     "caffeine_mg": 195.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:콜드브루-라떼:iced",
+   "brand_id": "hollys",
+   "name": "콜드브루 라떼",
+   "name_en": "Cold Brew Latte",
+   "category": "COFFEE",
+   "temperature": "iced",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "hollys:콜드브루-라떼:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 8.0,
+     "caffeine_mg": 195.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:콜드브루할리치노:iced",
+   "brand_id": "hollys",
+   "name": "콜드브루할리치노",
+   "name_en": "Coldbrew Hollyccino",
+   "category": "할리치노 · 빙수",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "hollys:콜드브루할리치노:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 35.0,
+     "caffeine_mg": 91.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:토마토-생과일-주스:iced",
+   "brand_id": "hollys",
+   "name": "토마토 생과일 주스",
+   "name_en": "Tomato Juice",
+   "category": "스무디 · 주스",
+   "temperature": "iced",
+   "liquid_color": "#E5413A",
+   "servings": [
+    {
+     "id": "hollys:토마토-생과일-주스:iced:grande",
+     "size_label": "Grande",
+     "volume_ml": 472,
+     "sugar_g": 28.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:페퍼민트:hot",
+   "brand_id": "hollys",
+   "name": "페퍼민트",
+   "name_en": "Peppermint Tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "hot",
+   "liquid_color": "#9ED9C3",
+   "servings": [
+    {
+     "id": "hollys:페퍼민트:hot:grande",
+     "size_label": "Grande",
+     "volume_ml": 472,
+     "sugar_g": 0.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:페퍼민트:iced",
+   "brand_id": "hollys",
+   "name": "페퍼민트",
+   "name_en": "Peppermint Tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#9ED9C3",
+   "servings": [
+    {
+     "id": "hollys:페퍼민트:iced:grande",
+     "size_label": "Grande",
+     "volume_ml": 472,
+     "sugar_g": 0.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:플레인-요거트할리치노:iced",
+   "brand_id": "hollys",
+   "name": "플레인 요거트할리치노",
+   "name_en": "Plain Yogurt Hollyccino",
+   "category": "할리치노 · 빙수",
+   "temperature": "iced",
+   "liquid_color": "#F7F3EA",
+   "servings": [
+    {
+     "id": "hollys:플레인-요거트할리치노:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 58.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:피치-딸기-스무디:iced",
+   "brand_id": "hollys",
+   "name": "피치 딸기 스무디",
+   "name_en": "Peach Strawberry Smoothie",
+   "category": "스무디 · 주스",
+   "temperature": "iced",
+   "liquid_color": "#E8587A",
+   "servings": [
+    {
+     "id": "hollys:피치-딸기-스무디:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 47.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:핑크-파인캐모마일티:iced",
+   "brand_id": "hollys",
+   "name": "핑크 파인캐모마일티",
+   "name_en": "Pink Pineapple Chamomile Tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#D9A441",
+   "servings": [
+    {
+     "id": "hollys:핑크-파인캐모마일티:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 40.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:할리스-데일리-커피:iced",
+   "brand_id": "hollys",
+   "name": "할리스 데일리 커피",
+   "name_en": "HOLLYS Daily Coffee",
+   "category": "COFFEE",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "hollys:할리스-데일리-커피:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 0.0,
+     "caffeine_mg": 195.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:할리스-데일리-커피-디카페인:hot",
+   "brand_id": "hollys",
+   "name": "할리스 데일리 커피 디카페인",
+   "name_en": "HOLLYS Daily Coffee (Decaf)",
+   "category": "COFFEE",
+   "temperature": "hot",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "hollys:할리스-데일리-커피-디카페인:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 0.0,
+     "caffeine_mg": 6.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:할리스-데일리-커피-디카페인:iced",
+   "brand_id": "hollys",
+   "name": "할리스 데일리 커피 디카페인",
+   "name_en": "HOLLYS Daily Coffee (Decaf)",
+   "category": "COFFEE",
+   "temperature": "iced",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "hollys:할리스-데일리-커피-디카페인:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 0.0,
+     "caffeine_mg": 6.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:해남-녹차:hot",
+   "brand_id": "hollys",
+   "name": "해남 녹차",
+   "name_en": "Green Tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "hot",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "hollys:해남-녹차:hot:grande",
+     "size_label": "Grande",
+     "volume_ml": 472,
+     "sugar_g": 0.0,
+     "caffeine_mg": 25.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:해남-녹차:iced",
+   "brand_id": "hollys",
+   "name": "해남 녹차",
+   "name_en": "Green Tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "hollys:해남-녹차:iced:grande",
+     "size_label": "Grande",
+     "volume_ml": 472,
+     "sugar_g": 0.0,
+     "caffeine_mg": 25.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:호감-스무디:iced",
+   "brand_id": "hollys",
+   "name": "호감 스무디",
+   "name_en": "Persimmon Smoothie",
+   "category": "스무디 · 주스",
+   "temperature": "iced",
+   "liquid_color": "#F2A541",
+   "servings": [
+    {
+     "id": "hollys:호감-스무디:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 87.0,
+     "caffeine_mg": 2.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:홍자몽차:hot",
+   "brand_id": "hollys",
+   "name": "홍자몽차",
+   "name_en": "Red Grapefruit Tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "hot",
+   "liquid_color": "#F06B5B",
+   "servings": [
+    {
+     "id": "hollys:홍자몽차:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 32.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:홍자몽차:iced",
+   "brand_id": "hollys",
+   "name": "홍자몽차",
+   "name_en": "Red Grapefruit Tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#F06B5B",
+   "servings": [
+    {
+     "id": "hollys:홍자몽차:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 32.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:화이트초코:hot",
+   "brand_id": "hollys",
+   "name": "화이트초코",
+   "name_en": "White Chocolate",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "hot",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "hollys:화이트초코:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 42.0,
+     "caffeine_mg": 23.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:화이트초코:iced",
+   "brand_id": "hollys",
+   "name": "화이트초코",
+   "name_en": "White Chocolate",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "hollys:화이트초코:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 37.0,
+     "caffeine_mg": 23.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:흑당-버블티:iced",
+   "brand_id": "hollys",
+   "name": "흑당 버블티",
+   "name_en": "Black Sugar Bubble Tea",
+   "category": "라떼 · 초콜릿 · 티",
+   "temperature": "iced",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "hollys:흑당-버블티:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 34.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:흑임자-라이스-할리치노:iced",
+   "brand_id": "hollys",
+   "name": "흑임자 라이스 할리치노",
+   "name_en": "Black Sesame Rice Hollyccino",
+   "category": "할리치노 · 빙수",
+   "temperature": "iced",
+   "liquid_color": "#8C8580",
+   "servings": [
+    {
+     "id": "hollys:흑임자-라이스-할리치노:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 38.0,
+     "caffeine_mg": null,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:흑임자-버터크림-라떼:hot",
+   "brand_id": "hollys",
+   "name": "흑임자 버터크림 라떼",
+   "name_en": "Black Sesame Buttercream Latte",
+   "category": "COFFEE",
+   "temperature": "hot",
+   "liquid_color": "#8C8580",
+   "servings": [
+    {
+     "id": "hollys:흑임자-버터크림-라떼:hot:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 32.0,
+     "caffeine_mg": 93.0,
+     "caffeine_variants": [],
+     "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "hollys:흑임자-버터크림-라떼:iced",
+   "brand_id": "hollys",
+   "name": "흑임자 버터크림 라떼",
+   "name_en": "Black Sesame Buttercream Latte",
+   "category": "COFFEE",
+   "temperature": "iced",
+   "liquid_color": "#8C8580",
+   "servings": [
+    {
+     "id": "hollys:흑임자-버터크림-라떼:iced:regular",
+     "size_label": "Regular",
+     "volume_ml": 354,
+     "sugar_g": 28.0,
+     "caffeine_mg": 93.0,
      "caffeine_variants": [],
      "caffeine_range": null
     }

@@ -24,7 +24,7 @@ struct CupView: View {
     /// 장을 보는 중, 1 = 이 장을 보는 중)만큼 드러낸다. nil이면 사진을 칸 폭으로 자른다(대표님 베타 피드백 2026-10-23
     /// "냅킨 겹치는 게 거슬려서 원본처럼 좌우를 넓게, 그 사이는 투명도로 자연스럽게").
     let seam: Double?
-    /// 대기 물방울(`CupCondensation`)을 움직여도 되는지. 오늘 화면은 넘기는 중·옆 면이면 false를 준다.
+    /// 대기 물방울(`CupCondensation`)이 맺히기 시작해도 되는지. 오늘 화면은 넘기는 중·옆 면이면 false를 준다.
     let isActive: Bool
 
     init(

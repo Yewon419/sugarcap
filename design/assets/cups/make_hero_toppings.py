@@ -10,6 +10,10 @@
 #      입구 타원 안을 채운다. 크림 윗면 타원은 입구 타원을 그만큼 내린 것으로 본다. 윗면 아래로는 입구 앞
 #      호 밑, 유리 너머로 보이는 크림·음료 띠도 불투명하니 빈 잔 누끼 안을 숫자 바닥까지 채운다(빌드 372
 #      "글자가 아인슈패너 뚫고나오는데", "초코프라페도 뚫고나오는데": 입구 타원 안만 채워 이 띠로 숫자가 비쳤다).
+#   4) 미색 크림 윗면(`WARM_SURFACE`): 크림이 입구 바로 아래까지 찬 단계는 크림 윗면이 입구 안쪽으로 한 겹
+#      작게 들어가 그 사이 유리 띠로 숫자가 비쳐야 한다(대표님 2026-11-03). 입구 타원을 내리는 3)으로는 이
+#      띠까지 덮어서, 크림의 따뜻한 색(빨강-파랑, 유리·벽은 무채색)으로 윗면을 잡고 그 볼록 껍질을 채운다.
+#      윗면이 가장 넓은 높이 아래는 유리 너머가 크림 몸통이라 빈 잔 누끼 안을 숫자 바닥까지 채운다.
 # 숫자 바닥(사진 0.33) 아래는 숫자가 없어 자른다. 산출물 = 흰색 + 알파 PNG, 원본 캔버스 그대로.
 # 토핑이 없는 단계는 에셋을 만들지 않는다(앱은 `topping-*`이 있을 때만 그린다).
 #
@@ -32,13 +36,16 @@ ASSETS = os.path.join(REPO, "SugarCap", "Resources", "Assets.xcassets")
 STEPS = (30, 50, 80, 100)
 # 토핑이 숫자 자리까지 올라오는 세트만. 나머지 세트는 수면이 숫자 바닥보다 아래다.
 SETS = ("choco-frappe", "mango", "einspanner")
-# 세트 → 단계 → 흰 크림 윗면(사진 높이 비율, 가운데 열). 80%는 `IdleCast.swift` `liquid`와 같은 값이고, 100%는
-# 크림이 입구를 덮어 입구 뒤 가장자리(`rim_ellipse` 위끝, 아메리카노 잔 값)를 쓴다. 아인슈페너 100%에 `liquid`
-# 0.30(입구 타원 가운데)을 썼다가 거품 위쪽 절반이 비어 숫자가 비쳤다(빌드 372).
+# 세트 → 단계 → 흰 크림 윗면(사진 높이 비율, 가운데 열). `IdleCast.swift` `liquid`와 같은 값이고, 프라페 100%는
+# 크림이 입구를 덮어 입구 뒤 가장자리(`chocoFrappe.rim[100].back`, 아메리카노 잔 값)를 쓴다.
 SURFACE: dict[str, dict[int, float]] = {
-    "einspanner": {80: 0.32, 100: 0.2691},
+    "einspanner": {80: 0.32},
     "choco-frappe": {100: 0.2683},
 }
+# 크림 윗면을 색으로 잡는 단계(4). 아인슈페너 100%는 `SURFACE` 0.30(입구 타원 가운데)이면 거품 위쪽 절반이
+# 비고(빌드 372), 입구 뒤 가장자리면 입구와 크림 사이 유리 띠까지 덮었다(2026-11-03).
+WARM_SURFACE = frozenset({("einspanner", 100)})
+WARM = 6  # 빨강 - 파랑. 이 이상이면 미색 크림(크림 6~13, 유리 띠·벽 -6~2)
 BOTTOM = 0.33  # 숫자 바닥(CupHero.baselineRatio 0.328) 바로 아래
 SATURATION = 70  # HSV S(0~255). 이보다 진하면 토핑 색
 DARK = 110  # HSV V. 이보다 어두우면 토핑(초코 시럽)
@@ -92,6 +99,32 @@ def surface_fill(
     return ((opening > 0) & ((lowered > 0) | below)) | (glass & below)
 
 
+def warm_surface(
+    photo: NDArray[np.uint8],
+    ellipse: tuple[tuple[float, float], tuple[float, float], float],
+    glass: NDArray[np.bool_],
+) -> NDArray[np.bool_]:
+    """입구 타원 안 미색 크림 윗면의 볼록 껍질 + 윗면이 가장 넓은 높이 아래 빈 잔 누끼 안."""
+    height, width = photo.shape[:2]
+    opening = np.zeros((height, width), dtype=np.uint8)
+    cv2.ellipse(opening, ellipse, 1, -1)
+    warm = photo[:, :, 2].astype(np.int16) - photo[:, :, 0].astype(np.int16) >= WARM
+    region = (warm & (opening > 0)).astype(np.uint8)
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (CLOSE, CLOSE))
+    region = cv2.morphologyEx(region, cv2.MORPH_OPEN, kernel)
+    count, labels, stats, _ = cv2.connectedComponentsWithStats(region, connectivity=8)
+    if count < 2:
+        raise RuntimeError("입구 안에 미색 크림이 없음")
+    largest = 1 + int(np.argmax(stats[1:, cv2.CC_STAT_AREA]))
+    points = np.argwhere(labels == largest)[:, ::-1].astype(np.int32)
+    hull = np.zeros((height, width), dtype=np.uint8)
+    cv2.fillConvexPoly(hull, cv2.convexHull(points), 1)
+    widest = int(np.argmax((hull > 0).sum(axis=1)))
+    below = np.zeros((height, width), dtype=bool)
+    below[widest:, :] = True
+    return (hull > 0) | (glass & below)
+
+
 def topping(cup_set: str, step: int) -> NDArray[np.uint8]:
     photo = read_image(photo_path(cup_set, step), cv2.IMREAD_COLOR)
     height, width = photo.shape[:2]
@@ -111,6 +144,8 @@ def topping(cup_set: str, step: int) -> NDArray[np.uint8]:
     surface = SURFACE.get(cup_set, {}).get(step)
     if surface is not None:
         mask |= surface_fill((height, width), ellipse, surface, empty > 128)
+    if (cup_set, step) in WARM_SURFACE:
+        mask |= warm_surface(photo, ellipse, empty > 128)
     mask[int(BOTTOM * height) :, :] = False
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (CLOSE, CLOSE))
     solid = cv2.morphologyEx(mask.astype(np.uint8), cv2.MORPH_CLOSE, kernel)

@@ -25,6 +25,7 @@ ASSETS = os.path.join(REPO, "SugarCap", "Resources", "Assets.xcassets")
 # 세트 → 단계 → 물방울이 시작하는 높이(px). 망고 100%는 입구 위로 솟은 망고 조각 아래 끝.
 TOP: dict[str, dict[int, int]] = {
     "mango": {30: 1090, 50: 940, 80: 780, 100: 640},
+    "choco-frappe": {30: 1020, 50: 690, 80: 575, 100: 560},
 }
 SIGMA = (
     30  # 색 맞춤 흐림(px). 방울(지름 5~40px)보다 커야 방울이 색 보정에 먹히지 않는다.
@@ -42,10 +43,13 @@ def aligned(
             dtype=np.float32,
         )
 
-    warp = np.eye(2, 3, dtype=np.float32)
     criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 200, 1e-6)
     score, warp = cv2.findTransformECC(
-        gray(photo), gray(edit), warp, cv2.MOTION_AFFINE, criteria, None, 5
+        gray(photo),
+        gray(edit),
+        np.eye(2, 3, dtype=np.float32),
+        cv2.MOTION_AFFINE,
+        criteria,
     )
     if score < 0.95:
         raise RuntimeError(f"편집본이 단계 사진과 안 맞음(ECC {score:.3f})")

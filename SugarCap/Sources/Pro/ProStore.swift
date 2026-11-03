@@ -7,7 +7,8 @@ import WidgetKit
 @Observable
 @MainActor
 final class ProStore {
-    private(set) var isPro = false
+    /// 출시 무료 기간(`LaunchPricing`)에는 처음부터 켜져 있고 StoreKit을 묻지 않는다.
+    private(set) var isPro = LaunchPricing.everythingFree
     private(set) var plans: [ProPlan] = []
     private(set) var isLoadingPlans = false
     private(set) var purchasingID: String?
@@ -111,7 +112,7 @@ final class ProStore {
 
     /// 앱이 뜰 때 한 번. 권한을 읽고 갱신 스트림을 연다.
     func start() {
-        guard !isPreview, updatesTask == nil else { return }
+        guard !isPreview, !LaunchPricing.everythingFree, updatesTask == nil else { return }
         updatesTask = Task { [weak self] in
             for await update in Transaction.updates {
                 guard let self else { return }
@@ -132,7 +133,7 @@ final class ProStore {
             }
         }
         ownsPro = ProEntitlement.isPro(productIDs: owned)
-        isPro = proOverride ?? ownsPro
+        isPro = proOverride ?? (ownsPro || LaunchPricing.everythingFree)
         // 위젯은 StoreKit을 다시 묻지 않고 이 값을 읽는다(§4.6). 흉내 낸 Pro는 저장되는 값에 넣지 않는다.
         if SharedDefaults.isPro != ownsPro {
             SharedDefaults.isPro = ownsPro

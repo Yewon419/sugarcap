@@ -39,9 +39,9 @@ enum SharedDefaults {
         UserDefaults(suiteName: SharedStore.appGroupID)
     }
 
-    /// 위젯은 Pro 기능이다(§6). 권한 판정은 앱이 하고 결과만 넘긴다.
+    /// 위젯은 Pro 기능이다(§6). 권한 판정은 앱이 하고 결과만 넘긴다. 출시 무료 기간(`LaunchPricing`)에는 늘 열린다.
     static var isPro: Bool {
-        get { store?.bool(forKey: isProKey) ?? false }
+        get { LaunchPricing.everythingFree || (store?.bool(forKey: isProKey) ?? false) }
         set { store?.set(newValue, forKey: isProKey) }
     }
 }

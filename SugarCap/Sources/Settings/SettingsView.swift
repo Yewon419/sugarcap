@@ -157,19 +157,22 @@ private struct SettingsContent: View {
             }
 
             Section {
-                proRow
-                Button {
-                    restore()
-                } label: {
-                    HStack {
-                        Text("구매 복원")
-                        Spacer()
-                        if isRestoring { ProgressView() }
+                // 출시 무료 기간에는 살 것이 없어 Pro 줄·구매 복원을 숨긴다(`LaunchPricing`).
+                if !LaunchPricing.everythingFree {
+                    proRow
+                    Button {
+                        restore()
+                    } label: {
+                        HStack {
+                            Text("구매 복원")
+                            Spacer()
+                            if isRestoring { ProgressView() }
+                        }
+                        .rowText()
                     }
-                    .rowText()
+                    .disabled(isRestoring)
+                    .accessibilityIdentifier("restore-purchases")
                 }
-                .disabled(isRestoring)
-                .accessibilityIdentifier("restore-purchases")
                 Button {
                     showsOnboarding = true
                 } label: {

@@ -143,6 +143,7 @@ struct TodayView: View {
                         todayTotals: todayTotals(now: Date()),
                         limits: limits,
                         onAdd: { selection in
+                            UsageReporter.shared?.logEntry(path: .brandMenu, place: .today, brandID: brand.id, now: Date())
                             record(selection.makeEntry(brandName: brand.name, at: Date()))
                         },
                         onManualEntry: { isManualEntryPresented = true }
@@ -178,7 +179,10 @@ struct TodayView: View {
         }
         .animation(.spring(response: 0.35, dampingFraction: 1), value: undoToast?.id)
         .sheet(isPresented: $isManualEntryPresented) {
-            ManualEntrySheet(onSave: record)
+            ManualEntrySheet { entry in
+                UsageReporter.shared?.logEntry(path: .manual, place: .today, brandID: nil, now: Date())
+                record(entry)
+            }
         }
         .sheet(isPresented: $isRecordSheetPresented) {
             RecordSheet(
@@ -195,10 +199,12 @@ struct TodayView: View {
                 },
                 onAdd: { selection, brand in
                     isRecordSheetPresented = false
+                    UsageReporter.shared?.logEntry(path: .search, place: .today, brandID: brand.id, now: Date())
                     record(selection.makeEntry(brandName: brand.name, at: Date()))
                 },
-                onQuickAdd: { drink in
+                onQuickAdd: { drink, entryPath in
                     isRecordSheetPresented = false
+                    UsageReporter.shared?.logEntry(path: entryPath, place: .today, brandID: drink.brand.id, now: Date())
                     let entry = drink.selection.makeEntry(brandName: drink.brand.name, at: Date())
                     record(entry)
                     undoToast = UndoToast(entryID: entry.id, text: String(localized: "\(drink.name) 기록했어요"))
@@ -749,6 +755,7 @@ struct TodayView: View {
             do {
                 try TradeStore.accept(offer, now: Date(), roll: Double.random(in: 0 ..< 1), in: context)
                 try context.save()
+                UsageReporter.shared?.log(UsageEvents.tradeOffer(itemID: offer.itemID, accepted: true))
             } catch {
                 Self.logger.error("거래 수락 실패: \(String(describing: error), privacy: .public)")
                 context.rollback()
@@ -776,6 +783,7 @@ struct TodayView: View {
             TradeStore.refuse(offer, now: Date(), roll: Double.random(in: 0 ..< 1))
             do {
                 try context.save()
+                UsageReporter.shared?.log(UsageEvents.tradeOffer(itemID: offer.itemID, accepted: false))
             } catch {
                 Self.logger.error("거래 거절 저장 실패: \(String(describing: error), privacy: .public)")
                 context.rollback()
@@ -1313,8 +1321,12 @@ struct TodayView: View {
     private func recordDayBundles(today: DayKey) {
         guard let reporter = UsageReporter.shared, let settings = settingsRows.first else { return }
         do {
+            let records = try SettlementStore.records(in: context)
+            let entries = try context.fetch(FetchDescriptor<Entry>())
+            reporter.noteInstallDay(records: records, boundaryHour: boundaryHour)
+            reporter.noteExistingEntries(count: entries.count)
             try reporter.recordDayBundles(
-                records: try SettlementStore.records(in: context), entries: try context.fetch(FetchDescriptor<Entry>()),
+                records: records, entries: entries,
                 today: today,
                 settings: DayBundle.Settings(
                     menuCountry: settings.menuCountry, sides: trackedSides, limits: limits, boundaryHour: boundaryHour),
@@ -1355,6 +1367,10 @@ struct TodayView: View {
         // `close`가 행에 마감 시각을 적은 뒤라 방금 마감한 날도 센다.
         _ = try GiftStore.grantStarterCap(sides: trackedSides, now: now, in: context)
         try context.save()
+        switch request.kind {
+        case .closeToday: UsageReporter.shared?.log(UsageEvents.dayClosed(.closeToday))
+        case .pastDay: UsageReporter.shared?.log(UsageEvents.dayClosed(.pastDay))
+        }
         didFeed = true
         if let keptWeek { pendingWeekKept = try weekKeptCelebration(closed: keptWeek) }
         return results
@@ -1425,6 +1441,7 @@ struct TodayView: View {
         do {
             try SettlementStore.dismissPastDay(day, now: Date(), in: context)
             try context.save()
+            UsageReporter.shared?.log(UsageEvents.dayClosed(.drank))
             prompt = nil
             gate = nil
         } catch {

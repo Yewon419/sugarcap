@@ -30,6 +30,8 @@ struct OnboardingView: View {
     @State private var player: AVPlayer?
     @State private var sugar: Double?
     @State private var caffeine: Double?
+    /// 영상을 "건너뛰기"로 넘겼는지(이용 기록 §9.10).
+    @State private var reelSkipped = false
 
     private static var initialScene: Stage {
         #if DEBUG
@@ -201,7 +203,10 @@ struct OnboardingView: View {
             .padding(.trailing, 12)
             .accessibilityIdentifier("onboarding-close")
         } else if scene == .reel {
-            Button(action: finishReel) {
+            Button {
+                reelSkipped = true
+                finishReel()
+            } label: {
                 Text("건너뛰기")
                     .font(AppFont.pretendard(14, .medium, relativeTo: .footnote))
                     .tapTarget()
@@ -247,6 +252,11 @@ struct OnboardingView: View {
             if let sugar, !isManaged(.sugar) { settings.sugarLimitG = sugar }
             if let caffeine, !isManaged(.caffeine) { settings.caffeineLimitMg = caffeine }
             try? context.save()
+        }
+        // 설정에서 다시 본 소개는 세지 않는다.
+        if onClose == nil {
+            let chosen = DailyLimits(sugarG: binding(.sugar).wrappedValue, caffeineMg: binding(.caffeine).wrappedValue)
+            UsageReporter.shared?.log(UsageEvents.onboardingCompleted(reelSkipped: reelSkipped, limits: chosen))
         }
         onStart()
     }

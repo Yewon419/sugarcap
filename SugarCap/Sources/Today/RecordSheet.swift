@@ -12,8 +12,8 @@ struct RecordSheet: View {
     let onManualEntry: () -> Void
     /// 검색 → 패널에서 추가.
     let onAdd: (ServingSelection, Brand) -> Void
-    /// 즐겨찾기·최근 줄의 `+`. 오늘 화면에 되돌리기 안내가 뜬다.
-    let onQuickAdd: (QuickDrink) -> Void
+    /// 즐겨찾기·최근 줄의 `+`. 오늘 화면에 되돌리기 안내가 뜬다. 어느 줄이었는지 같이 넘긴다(이용 기록 §9.10).
+    let onQuickAdd: (QuickDrink, EntryPath) -> Void
     /// 오늘 기록 잔 수. 0보다 크면 제목이 하루 기록 시트로 가는 버튼이 된다.
     let todayCount: Int
     /// 잘못 넣은 음료를 바로 고치러 간다(빌드 272 대표님 "수정할 경로가 가까워야지").
@@ -130,7 +130,7 @@ struct RecordSheet: View {
                 .padding(.leading, -6)
         } trailing: {
             Button {
-                onQuickAdd(drink)
+                onQuickAdd(drink, isStarred ? .favorite : .recent)
             } label: {
                 Image(systemName: "plus")
                     .font(.system(size: 18, weight: .semibold))

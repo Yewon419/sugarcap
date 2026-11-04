@@ -83,7 +83,7 @@ struct DayLogSheet: View {
         }
         .sheet(isPresented: $isRecordPresented) {
             // 먹이기의 "음료 추가"와 같은 시트. 지난날이면 그날 23:59로 기록된다.
-            FeedingRecordSheet(catalog: catalog, request: request(totals)) { entry in onAdd?(entry) }
+            FeedingRecordSheet(catalog: catalog, request: request(totals), place: .dayLog) { entry in onAdd?(entry) }
         }
     }
 

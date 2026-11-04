@@ -553,13 +553,13 @@ Entry는 기록 시점 값을 스냅샷한다. 카탈로그 갱신으로 과거 
 
   확정 기준만 쓰면 마감을 안 한 날이 빠져 월 통계(`MonthDigest`, 마감 여부와 상관없이 기록 있는 지난 날을 다 센다)와 어긋난다. 그래서 지난 날 전부를 보내고, 어젯밤 화면에서 음료를 더 넣을 수 있는 어제만 확정을 기다린다. 직접 입력 잔은 잔 목록에서 빼지만 하루 합계에는 들어가므로 "기준 안에서 끝냈는지"는 기기에서 계산해(그날 기록 전부의 합 ≤ 지금 기준, `MonthDigest`와 같은 규칙) 면별로 보낸다. 코드 `Sources/Usage/DayBundle.swift`. 기능이 처음 도는 날은 지난 기록을 소급하지 않는다(워터마크를 이틀 전에 놓는다).
 
-- **퍼널 이벤트 초안(이름·속성은 구현 때 확정):**
-  1. `onboarding_completed`: 릴 끝까지 봄/건너뜀, 고른 하루 기준(구간).
-  2. `first_entry_logged`: 설치 후 며칠째.
-  3. `day_closed`: 끝까지 먹임/건너뛰기, 어젯밤 게이트에서 열림 여부.
-  4. `trade_offer`: 상품 ID, 수락 여부.
+- **퍼널 이벤트(1~4·6·7 확정, 5·8은 초안). 코드 `Sources/Usage/UsageEvents.swift`:**
+  1. `onboarding_completed` {`reelSkipped`, `sugarLimitBand`, `caffeineLimitBand`}: 릴을 건너뛰었는지, 고른 하루 기준(음료 통계와 같은 구간). 설정에서 다시 본 소개는 세지 않는다.
+  2. `first_entry_logged` {`daysSinceInstall`}: 설치 후 처음 기록한 잔 한 번만. 설치일은 가장 이른 정산 행(앱을 처음 연 날). 이 기능이 들어가기 전에 이미 기록이 있던 설치는 보내지 않는다(대표님 2026-11-04).
+  3. `day_closed` {`kind`}: `closeToday`(오늘 마감에서 먹임), `pastDay`(어젯밤 화면에서 먹임), `drank`(어젯밤 화면에서 "마셨어요"로 적립 없이 닫음). 테스트 카드(리허설)는 세지 않는다.
+  4. `trade_offer` {`itemID`, `accepted`}: 저장이 끝난 뒤에만.
   5. `paywall_shown`: 연 곳(거래 직후 자동/설정/잠긴 기능), 고른 요금제, 결과(체험 시작/구매/닫음). 출시 무료 기간(`LaunchPricing.everythingFree`)에는 페이월이 안 떠 0건이지만 미리 연결한다(대표님 2026-11-04).
-  6. `entry_logged`: 입력 경로(검색/브랜드 메뉴/즐겨찾기/최근/직접 입력, 정산 화면에서 넣었는지), 브랜드 ID.
+  6. `entry_logged` {`path`, `place`, `brandID`?}: `path` = `search`·`brandMenu`·`favorite`·`recent`·`manual`, `place` = `today`·`feeding`(정산 화면, 깜빡한 음료)·`dayLog`(하루 기록 시트). `brandID`는 브랜드 메뉴에서 고를 때만.
   7. 직접 입력은 6의 경로로 센다(카탈로그 빈 곳 신호). 이름은 보내지 않는다.
   8. 감소 목표 설정·달성, 마감 알림 허용, 위젯 설치 여부.
 - **보내지 않는 것:** 직접 입력한 음료 이름 등 자유 글, 잔마다 당 g·카페인 mg(`servingID`로 카탈로그에서 다시 계산), 정확한 기록 시각, 광고 식별자(IDFA, ATT 없음). 직접 입력 잔은 음료 통계에서 뺀다.

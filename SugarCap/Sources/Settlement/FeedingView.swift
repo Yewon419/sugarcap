@@ -209,7 +209,7 @@ struct FeedingView: View {
             applySnapshot()
         }
         .sheet(isPresented: $isRecordPresented) {
-            FeedingRecordSheet(catalog: catalog, request: request, onRecord: addDrink)
+            FeedingRecordSheet(catalog: catalog, request: request, place: .feeding, onRecord: addDrink)
                 .environment(\.recordCup, side)
                 // 앱은 라이트 전용(§5)이다. 밤 장면의 다크가 시트로 번지지 않게 한다.
                 .preferredColorScheme(.light)

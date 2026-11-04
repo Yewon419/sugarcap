@@ -86,6 +86,60 @@ final class UsageReporterTests: XCTestCase {
         XCTAssertEqual(result, .sent(2))
         XCTAssertEqual(try queue.load(), [])
     }
+
+    func testFirstEntryIsLoggedOnceWithDaysSinceInstall() throws {
+        let storage = try makeStorage()
+        defer { try? storage.remove() }
+        let reporter = UsageReporter(defaults: storage.defaults, queue: storage.queue, config: nil)
+        let now = Date()
+        let today = DayKey(at: now, boundaryHour: 4)
+        reporter.noteInstallDay(
+            records: [
+                SettlementRecord(day: today.shifted(by: -1), isClosed: true, isFinalized: true),
+                SettlementRecord(day: today.shifted(by: -3), isClosed: true, isFinalized: true),
+            ],
+            boundaryHour: 4)
+
+        reporter.logEntry(path: .favorite, place: .today, brandID: nil, now: now)
+        reporter.logEntry(path: .brandMenu, place: .feeding, brandID: "starbucks", now: now)
+
+        let queued = try storage.queue.load()
+        XCTAssertEqual(queued.map(\.type), ["entry_logged", "first_entry_logged", "entry_logged"])
+        XCTAssertTrue(queued.allSatisfy { $0.scope == .install && $0.sessionID != nil })
+        XCTAssertEqual(queued[0].parameters, ["path": "favorite", "place": "today"])
+        XCTAssertEqual(queued[1].parameters, ["daysSinceInstall": "3"])
+        XCTAssertEqual(queued[2].parameters, ["path": "brandMenu", "place": "feeding", "brandID": "starbucks"])
+    }
+
+    func testInstallWithEarlierEntriesSkipsFirstEntry() throws {
+        let storage = try makeStorage()
+        defer { try? storage.remove() }
+        let reporter = UsageReporter(defaults: storage.defaults, queue: storage.queue, config: nil)
+        reporter.noteExistingEntries(count: 0)
+        reporter.noteExistingEntries(count: 12)
+
+        reporter.logEntry(path: .search, place: .today, brandID: "ediya", now: Date())
+
+        XCTAssertEqual(try storage.queue.load().map(\.type), ["entry_logged"])
+    }
+}
+
+final class UsageEventsTests: XCTestCase {
+    func testDraftsCarryOnlyListedParameters() {
+        XCTAssertEqual(
+            UsageEvents.onboardingCompleted(reelSkipped: true, limits: DailyLimits(sugarG: 50, caffeineMg: 400)),
+            UsageEventDraft(
+                type: "onboarding_completed",
+                parameters: ["reelSkipped": "true", "sugarLimitBand": "50", "caffeineLimitBand": "400"]))
+        XCTAssertEqual(
+            UsageEvents.dayClosed(.drank), UsageEventDraft(type: "day_closed", parameters: ["kind": "drank"]))
+        XCTAssertEqual(
+            UsageEvents.tradeOffer(itemID: "matcha", accepted: false),
+            UsageEventDraft(type: "trade_offer", parameters: ["itemID": "matcha", "accepted": "false"]))
+        XCTAssertEqual(
+            UsageEvents.firstEntryLogged(daysSinceInstall: 0),
+            UsageEventDraft(type: "first_entry_logged", parameters: ["daysSinceInstall": "0"]))
+    }
 }
 
 final class IngestSignalTests: XCTestCase {

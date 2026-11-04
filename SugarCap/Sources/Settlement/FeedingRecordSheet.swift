@@ -7,6 +7,8 @@ import SwiftUI
 struct FeedingRecordSheet: View {
     let catalog: CatalogIndex
     let request: FeedingRequest
+    /// 정산 화면인지 하루 기록 목록인지(이용 기록 §9.10).
+    let place: EntryPlace
     let onRecord: (Entry) -> Void
 
     @Environment(\.dismiss) private var dismiss
@@ -26,9 +28,11 @@ struct FeedingRecordSheet: View {
                 onBrand: { brandID in path = [brandID] },
                 onManualEntry: { isManualEntryPresented = true },
                 onAdd: { selection, brand in
+                    UsageReporter.shared?.logEntry(path: .search, place: place, brandID: brand.id, now: Date())
                     save(selection.makeEntry(brandName: brand.name, at: loggedAt()))
                 },
-                onQuickAdd: { drink in
+                onQuickAdd: { drink, entryPath in
+                    UsageReporter.shared?.logEntry(path: entryPath, place: place, brandID: drink.brand.id, now: Date())
                     save(drink.selection.makeEntry(brandName: drink.brand.name, at: loggedAt()))
                 },
                 todayCount: 0,
@@ -44,6 +48,7 @@ struct FeedingRecordSheet: View {
                         todayTotals: request.totals,
                         limits: request.limits,
                         onAdd: { selection in
+                            UsageReporter.shared?.logEntry(path: .brandMenu, place: place, brandID: brand.id, now: Date())
                             save(selection.makeEntry(brandName: brand.name, at: loggedAt()))
                         },
                         onManualEntry: { isManualEntryPresented = true }
@@ -65,6 +70,7 @@ struct FeedingRecordSheet: View {
         guard let entry = pendingManual else { return }
         pendingManual = nil
         entry.loggedAt = loggedAt()
+        UsageReporter.shared?.logEntry(path: .manual, place: place, brandID: nil, now: Date())
         save(entry)
     }
 

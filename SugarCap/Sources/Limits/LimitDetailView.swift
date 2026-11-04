@@ -105,7 +105,7 @@ private struct LimitDetailContent: View {
             if pro.isPro, pendingGoal { isEditingGoal = true }
             pendingGoal = false
         }) { feature in
-            PaywallView(feature: feature)
+            PaywallView(feature: feature, origin: PaywallOrigin(feature))
         }
         .sheet(isPresented: $isEditingGoal) {
             ReductionGoalSheet(side: side, currentLimit: side.limit(settings.limits)) { target, weeks in

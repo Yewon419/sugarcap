@@ -140,6 +140,19 @@ final class UsageEventsTests: XCTestCase {
             UsageEvents.firstEntryLogged(daysSinceInstall: 0),
             UsageEventDraft(type: "first_entry_logged", parameters: ["daysSinceInstall": "0"]))
     }
+
+    func testPaywallSendsPlanNameAndOriginOfLockedFeature() {
+        XCTAssertEqual(
+            UsageEvents.paywallShown(
+                origin: PaywallOrigin(.reductionGoal), planID: ProProduct.yearly, result: .trialStarted),
+            UsageEventDraft(
+                type: "paywall_shown",
+                parameters: ["origin": "reductionGoal", "plan": "yearly", "result": "trialStarted"]))
+        XCTAssertEqual(
+            UsageEvents.paywallShown(origin: .trialAfterTrade, planID: ProProduct.lifetime, result: .closed)
+                .parameters["plan"],
+            "lifetime")
+    }
 }
 
 final class IngestSignalTests: XCTestCase {

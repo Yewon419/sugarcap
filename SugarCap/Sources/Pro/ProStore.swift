@@ -169,11 +169,12 @@ final class ProStore {
         }
     }
 
-    /// 구매. 성공하면 권한을 다시 읽는다. 취소는 실패가 아니라 조용히 끝난다.
-    func purchase(_ planID: String) async {
+    /// 구매. 성공하면 권한을 다시 읽고 참을 돌려준다. 취소는 실패가 아니라 조용히 끝난다.
+    @discardableResult
+    func purchase(_ planID: String) async -> Bool {
         guard let product = products[planID] else {
             failure = String(localized: "상품을 불러오지 못했어요.")
-            return
+            return false
         }
         purchasingID = planID
         defer { purchasingID = nil }
@@ -183,9 +184,9 @@ final class ProStore {
                 if case .verified(let transaction) = verification {
                     await transaction.finish()
                     await refreshEntitlement()
-                } else {
-                    failure = String(localized: "영수증을 확인하지 못했어요.")
+                    return true
                 }
+                failure = String(localized: "영수증을 확인하지 못했어요.")
             case .pending:
                 failure = String(localized: "승인을 기다리는 중이에요.")
             case .userCancelled:
@@ -197,6 +198,7 @@ final class ProStore {
             Self.logger.error("구매 실패: \(String(describing: error), privacy: .public)")
             failure = String(localized: "구매하지 못했어요. 잠시 뒤 다시 시도해 주세요.")
         }
+        return false
     }
 
     /// 복원. 기기를 바꿨거나 앱을 지웠다 깔았을 때 쓴다.

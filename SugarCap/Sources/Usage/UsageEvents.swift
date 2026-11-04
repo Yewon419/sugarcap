@@ -30,6 +30,33 @@ enum DayCloseKind: String, Sendable {
     case drank
 }
 
+/// 페이월을 연 곳. 잠긴 기능에서 왔으면 그 기능 이름이다.
+enum PaywallOrigin: String, Sendable {
+    case trialAfterTrade
+    case proButton
+    case settings
+    case testCard
+    case monthlyTrends
+    case reductionGoal
+    case gifts
+
+    init(_ feature: ProFeature) {
+        switch feature {
+        case .monthlyTrends: self = .monthlyTrends
+        case .reductionGoal: self = .reductionGoal
+        case .gifts: self = .gifts
+        }
+    }
+}
+
+/// 페이월을 닫을 때의 결과.
+enum PaywallResult: String, Sendable {
+    case closed
+    case trialStarted
+    case purchased
+    case restored
+}
+
 enum UsageEvents {
     static func entryLogged(path: EntryPath, place: EntryPlace, brandID: String?) -> UsageEventDraft {
         var parameters = ["path": path.rawValue, "place": place.rawValue]
@@ -53,6 +80,13 @@ enum UsageEvents {
 
     static func dayClosed(_ kind: DayCloseKind) -> UsageEventDraft {
         UsageEventDraft(type: "day_closed", parameters: ["kind": kind.rawValue])
+    }
+
+    /// 페이월 한 번 = 이벤트 하나. 닫힐 때 마지막으로 고른 요금제와 결과를 같이 보낸다.
+    static func paywallShown(origin: PaywallOrigin, planID: String, result: PaywallResult) -> UsageEventDraft {
+        let plan = planID.split(separator: ".").last.map(String.init) ?? planID
+        return UsageEventDraft(
+            type: "paywall_shown", parameters: ["origin": origin.rawValue, "plan": plan, "result": result.rawValue])
     }
 
     static func tradeOffer(itemID: String, accepted: Bool) -> UsageEventDraft {

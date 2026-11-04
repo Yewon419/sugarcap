@@ -146,7 +146,7 @@ struct TrendsView: View {
             if pro.isPro, pendingMonth { range = .month }
             pendingMonth = false
         }) { feature in
-            PaywallView(feature: feature)
+            PaywallView(feature: feature, origin: PaywallOrigin(feature))
         }
         .sheet(item: $dayLog) { day in
             let today = DayKey(at: Date(), boundaryHour: boundaryHour)

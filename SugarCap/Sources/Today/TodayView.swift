@@ -56,6 +56,7 @@ struct TodayView: View {
     @State private var paywall: ProFeature?
     /// 오른쪽 위 별 버튼으로 연 결제창(기능 없이 여는 것, 설정의 Pro 줄과 같다).
     @State private var isProPaywallPresented = false
+    @State private var proPaywallOrigin = PaywallOrigin.proButton
     /// 면마다 큰 숫자(`CupHero`)의 화면 자리. 누르기·보이스오버 요소를 여기에 맞춘다.
     @State private var heroFrames: [CupSide: CGRect] = [:]
     @State private var isRecordSheetPresented = false
@@ -246,10 +247,10 @@ struct TodayView: View {
             }
         }
         .sheet(item: $paywall) { feature in
-            PaywallView(feature: feature)
+            PaywallView(feature: feature, origin: PaywallOrigin(feature))
         }
         .sheet(isPresented: $isProPaywallPresented) {
-            PaywallView(feature: nil)
+            PaywallView(feature: nil, origin: proPaywallOrigin)
         }
         .alert(
             failureMessage ?? "",
@@ -737,7 +738,10 @@ struct TodayView: View {
         try? await Task.sleep(for: .seconds(1.6))
         guard !Task.isCancelled, trialPaywallCue else { return }
         trialPaywallPending = false
-        if !pro.isPro { isProPaywallPresented = true }
+        if !pro.isPro {
+            proPaywallOrigin = .trialAfterTrade
+            isProPaywallPresented = true
+        }
     }
 
     /// 바꾸기. 저장한 뒤 무대를 닫고 그 면의 잔을 새 잔으로 바꾼다(`CupView`가 크로스페이드). 캐릭터는 대기 자세로 돌아온다.
@@ -1111,7 +1115,10 @@ struct TodayView: View {
     private var cornerButtons: some View {
         HStack(spacing: 0) {
             if !pro.isPro {
-                Button { isProPaywallPresented = true } label: { cornerCircle(NavGlyphView(glyph: .pro)) }
+                Button {
+                    proPaywallOrigin = .proButton
+                    isProPaywallPresented = true
+                } label: { cornerCircle(NavGlyphView(glyph: .pro)) }
                     .accessibilityLabel("슈가캡 Pro")
                     .accessibilityIdentifier("open-pro")
             }

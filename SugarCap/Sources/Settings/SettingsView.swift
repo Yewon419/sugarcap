@@ -50,6 +50,7 @@ private struct SettingsContent: View {
     let onTestAction: (SettingsTestAction) -> Void
 
     @State private var showsPaywall = false
+    @State private var paywallOrigin = PaywallOrigin.settings
     @State private var showsOnboarding = false
     @State private var isRestoring = false
     @State private var alertMessage: String?
@@ -235,7 +236,7 @@ private struct SettingsContent: View {
             Text("\(Nickname.maxLength)자까지예요. 비워 두면 원래 이름(\(side.defaultCharacterName))으로 돌아가요.")
         }
         .sheet(isPresented: $showsPaywall) {
-            PaywallView(feature: nil)
+            PaywallView(feature: nil, origin: paywallOrigin)
         }
         .alert(
             alertMessage ?? "",
@@ -323,7 +324,10 @@ private struct SettingsContent: View {
             Button("거래 제안 바로 보기") { onTestAction(.trade) }
                 .font(AppFont.pretendard(16, .regular, relativeTo: .body))
                 .accessibilityIdentifier("test-trade")
-            Button("페이월 바로 보기") { showsPaywall = true }
+            Button("페이월 바로 보기") {
+                paywallOrigin = .testCard
+                showsPaywall = true
+            }
                 .font(AppFont.pretendard(16, .regular, relativeTo: .body))
                 .accessibilityIdentifier("test-paywall")
             Button("알림 10초 뒤 보내기") { sendTestReminder() }
@@ -471,6 +475,7 @@ private struct SettingsContent: View {
             .accessibilityElement(children: .combine)
         } else {
             Button {
+                paywallOrigin = .settings
                 showsPaywall = true
             } label: {
                 HStack {

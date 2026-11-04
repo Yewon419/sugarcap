@@ -20,6 +20,8 @@ enum AppLinks {
 struct PaywallView: View {
     /// 어떤 기능을 누르다 왔는지. 첫 문장과 처음 열리는 탭이 그 기능이다. 설정의 "알아보기"처럼 특정 기능이 없으면 nil.
     let feature: ProFeature?
+    /// 연 곳(이용 기록 §9.10).
+    let origin: PaywallOrigin
 
     @Environment(ProStore.self) private var store
     @Environment(\.dismiss) private var dismiss
@@ -27,9 +29,11 @@ struct PaywallView: View {
     @Environment(\.dynamicTypeSize) private var typeSize
     @State private var selectedPlanID = ProProduct.yearly
     @State private var tab: PaywallTab
+    @State private var result = PaywallResult.closed
 
-    init(feature: ProFeature?) {
+    init(feature: ProFeature?, origin: PaywallOrigin) {
         self.feature = feature
+        self.origin = origin
         _tab = State(initialValue: PaywallTab(feature: feature))
     }
 
@@ -105,6 +109,9 @@ struct PaywallView: View {
         // 구매가 끝나면 원래 하려던 걸 하러 돌아간다.
         .onChange(of: store.isPro) { _, isPro in
             if isPro { dismiss() }
+        }
+        .onDisappear {
+            UsageReporter.shared?.log(UsageEvents.paywallShown(origin: origin, planID: selectedPlanID, result: result))
         }
     }
 
@@ -277,7 +284,10 @@ struct PaywallView: View {
         VStack(spacing: 8) {
             Button {
                 guard let plan = selectedPlan else { return }
-                Task { await store.purchase(plan.id) }
+                Task {
+                    guard await store.purchase(plan.id) else { return }
+                    result = plan.trialDays != nil ? .trialStarted : .purchased
+                }
             } label: {
                 Group {
                     if store.purchasingID != nil {
@@ -376,7 +386,10 @@ struct PaywallView: View {
     @ViewBuilder
     private func links(separated: Bool) -> some View {
         Button("구매 복원") {
-            Task { await store.restore() }
+            Task {
+                await store.restore()
+                if store.isPro { result = .restored }
+            }
         }
         .fixedSize()
         if let terms = AppLinks.termsOfUse {
@@ -855,6 +868,6 @@ private struct PlanDuo: View {
 }
 
 #Preview {
-    PaywallView(feature: .monthlyTrends)
+    PaywallView(feature: .monthlyTrends, origin: .monthlyTrends)
         .environment(ProStore(previewPlans: ProStore.mockPlans, isPro: false))
 }

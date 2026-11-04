@@ -74,6 +74,8 @@ targets:
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         ITSAppUsesNonExemptEncryption: false
+        # 이용 기록 전송(SPEC §9.10). CI가 시크릿을 xcodebuild 인자로 넣는다. 없으면 빈 값이라 보내지 않는다.
+        TelemetryDeckAppID: $(TELEMETRYDECK_APP_ID)
 
   SugarCapTests:
     type: bundle.unit-test

@@ -92,7 +92,7 @@ final class UsageReporter {
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "usage")
     private static let attempts = 3
 
-    private let defaults: UserDefaults
+    let defaults: UserDefaults
     private let queue: UsageQueue
     private let config: UsageConfig?
     /// 퍼널 이벤트를 실행 단위로 묶는다. 저장하지 않아 앱을 다시 켜면 바뀐다.
@@ -104,6 +104,18 @@ final class UsageReporter {
         self.queue = queue
         self.config = config
     }
+
+    /// 앱이 쓰는 하나. 대기열 위치를 못 잡으면 nil이고 그 실행에서는 아무것도 쌓지 않는다(로그는 남긴다).
+    static let shared: UsageReporter? = {
+        do {
+            return UsageReporter(
+                defaults: .standard, queue: UsageQueue(fileURL: try UsageQueue.defaultURL()),
+                config: UsageConfig.bundled(.main))
+        } catch {
+            logger.error("이용 기록 대기열을 열지 못함: \(String(describing: error), privacy: .public)")
+            return nil
+        }
+    }()
 
     var consent: UsageConsent {
         UsageConsent.load(from: defaults)

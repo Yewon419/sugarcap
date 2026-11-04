@@ -1296,6 +1296,7 @@ struct TodayView: View {
                 }
             }
             try context.save()
+            recordDayBundles(today: today)
 
             prompt = plan.prompt
             presentGateIfPending()
@@ -1305,6 +1306,21 @@ struct TodayView: View {
         } catch {
             Self.logger.error("정산 실패(\(today.rawValue, privacy: .public)): \(String(describing: error), privacy: .public)")
             failureMessage = String(localized: "지난 기록을 정리하지 못했어요. 앱을 다시 열어 주세요.")
+        }
+    }
+
+    /// 음료 통계 하루 묶음(SPEC §9.10). 동의 전에는 기기 안에만 쌓인다. 실패해도 정산 화면은 그대로 둔다.
+    private func recordDayBundles(today: DayKey) {
+        guard let reporter = UsageReporter.shared, let settings = settingsRows.first else { return }
+        do {
+            try reporter.recordDayBundles(
+                records: try SettlementStore.records(in: context), entries: try context.fetch(FetchDescriptor<Entry>()),
+                today: today,
+                settings: DayBundle.Settings(
+                    menuCountry: settings.menuCountry, sides: trackedSides, limits: limits, boundaryHour: boundaryHour),
+                calendar: .current)
+        } catch {
+            Self.logger.error("하루 묶음 기록 실패: \(String(describing: error), privacy: .public)")
         }
     }
 

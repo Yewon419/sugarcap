@@ -144,3 +144,140 @@ final class InstallIDTests: XCTestCase {
         XCTAssertEqual(try InstallID.current(), try InstallID.current())
     }
 }
+
+/// 음료 통계 하루 묶음(SPEC §9.10). 서울 달력 고정(CI 러너는 UTC).
+final class DayBundleTests: XCTestCase {
+    private var calendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "Asia/Seoul") ?? .gmt
+        return calendar
+    }
+
+    private let today = DayKey(year: 2026, month: 10, day: 27)
+    private let settings = DayBundle.Settings(
+        menuCountry: .kr, sides: [.sugar, .caffeine], limits: DailyLimits(sugarG: 50, caffeineMg: 400), boundaryHour: 4)
+
+    private func day(_ day: Int) -> DayKey {
+        DayKey(year: 2026, month: 10, day: day)
+    }
+
+    private func record(_ day: Int, finalized: Bool) -> SettlementRecord {
+        SettlementRecord(day: self.day(day), isClosed: finalized, isFinalized: finalized)
+    }
+
+    private func entry(_ day: Int, hour: Int = 10, serving: String?, quantity: Int = 1, sugar: Double, caffeine: Double = 0)
+        -> Entry
+    {
+        let date = calendar.date(from: DateComponents(year: 2026, month: 10, day: day, hour: hour)) ?? Date()
+        return Entry(
+            servingID: serving, quantity: quantity, loggedAt: date, sugarG: sugar, caffeineMg: caffeine,
+            drinkName: "테스트", brandName: "", sizeLabel: "")
+    }
+
+    func testFirstRunOnlyPlacesWatermark() {
+        let plan = DayBundle.plan(
+            records: [record(20, finalized: true), record(26, finalized: true)], today: today, watermark: nil, recent: [])
+        XCTAssertEqual(plan, DayBundle.Plan(days: [], watermark: day(25), recent: []))
+    }
+
+    func testFinalizedDaysGoAtOnceOthersWaitTwoDays() {
+        let records = [
+            record(22, finalized: false),  // 워터마크 이전: 이미 처리
+            record(24, finalized: false),  // 이틀 지남: 확정 안 돼도 보낸다
+            record(25, finalized: false),  // 이틀 지남
+            record(26, finalized: false),  // 어제, 확정 안 됨: 기다린다
+            record(27, finalized: false),  // 오늘
+        ]
+        let plan = DayBundle.plan(records: records, today: today, watermark: day(23), recent: [])
+        XCTAssertEqual(plan.days, [day(24), day(25)])
+        XCTAssertEqual(plan.watermark, day(25))
+
+        let finalizedYesterday = DayBundle.plan(
+            records: [record(26, finalized: true)], today: today, watermark: day(25), recent: [])
+        XCTAssertEqual(finalizedYesterday.days, [day(26)])
+        XCTAssertEqual(finalizedYesterday.recent, [day(26)])
+
+        // 다음 날: 26일은 이미 보냈고, 워터마크가 지나가면 기억에서 뺀다.
+        let nextDay = DayBundle.plan(
+            records: [record(26, finalized: true), record(27, finalized: true)], today: day(28), watermark: day(25),
+            recent: [day(26)])
+        XCTAssertEqual(nextDay.days, [day(27)])
+        XCTAssertEqual(nextDay.watermark, day(26))
+        XCTAssertEqual(nextDay.recent, [day(27)])
+    }
+
+    func testParametersDropManualDetailsAndBandLimits() throws {
+        let entries = [
+            entry(20, hour: 15, serving: "starbucks-latte-tall", quantity: 2, sugar: 20, caffeine: 150),
+            entry(20, hour: 9, serving: "mega-americano", sugar: 0, caffeine: 200),
+            entry(20, hour: 21, serving: nil, quantity: 3, sugar: 40),
+            entry(21, serving: "other-day", sugar: 5),
+        ]
+        let params = try DayBundle.parameters(day: day(20), entries: entries, settings: settings, calendar: calendar)
+
+        XCTAssertEqual(params["weekday"], "3")
+        XCTAssertEqual(params["menuCountry"], "kr")
+        XCTAssertEqual(params["sides"], "sugar,caffeine")
+        XCTAssertEqual(params["sugarLimitBand"], "50")
+        XCTAssertEqual(params["caffeineLimitBand"], "400")
+        XCTAssertEqual(params["keptSugar"], "false")  // 20 + 40(직접 입력) = 60 > 50
+        XCTAssertEqual(params["keptCaffeine"], "true")  // 350 ≤ 400
+        XCTAssertEqual(params["manualCups"], "3")
+        XCTAssertEqual(
+            params["cups"],
+            #"[{"hour":9,"quantity":1,"servingID":"mega-americano"},{"hour":15,"quantity":2,"servingID":"starbucks-latte-tall"}]"#
+        )
+        XCTAssertFalse(params.values.contains { $0.contains("테스트") })
+        XCTAssertEqual(DayBundle.band(37, width: 25), 25)
+        XCTAssertEqual(DayBundle.band(250, width: 100), 200)
+    }
+
+    /// 앱 월 통계의 "기준 안에서 끝낸 날"과 같은 답을 내야 한다.
+    func testKeptFlagsMatchMonthDigest() throws {
+        let entries = [
+            entry(20, serving: "a", sugar: 30),
+            entry(21, serving: "b", sugar: 60),
+            entry(22, serving: "c", sugar: 50),
+            entry(23, serving: nil, sugar: 70),
+            entry(27, serving: "today", sugar: 10),
+        ]
+        let digest = MonthDigest.make(
+            entries: entries, boundaryHour: 4, year: 2026, month: 10, today: today, side: .sugar, limit: 50,
+            earliest: day(1), calendar: calendar)
+        let bundled = try [20, 21, 22, 23].map {
+            try DayBundle.parameters(day: day($0), entries: entries, settings: settings, calendar: calendar)
+        }
+        XCTAssertEqual(bundled.filter { $0["keptSugar"] == "true" }.count, digest.keptDays)
+        XCTAssertEqual(digest.keptDays, 2)
+    }
+
+    @MainActor
+    func testReporterQueuesEachDayOnce() async throws {
+        let suiteName = "day-bundle-tests-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        let queue = UsageQueue(
+            fileURL: FileManager.default.temporaryDirectory
+                .appendingPathComponent(suiteName, isDirectory: true).appendingPathComponent("queue.json"))
+        defer {
+            defaults.removePersistentDomain(forName: suiteName)
+            try? queue.delete()
+        }
+        let reporter = UsageReporter(defaults: defaults, queue: queue, config: nil)
+        let entries = [entry(25, serving: "a", sugar: 10), entry(26, serving: "b", sugar: 20)]
+
+        try reporter.recordDayBundles(
+            records: [record(25, finalized: false)], entries: entries, today: day(27), settings: settings,
+            calendar: calendar)
+        XCTAssertEqual(try queue.load(), [])
+
+        let records = [record(25, finalized: false), record(26, finalized: false), record(27, finalized: true)]
+        for _ in 0..<2 {
+            try reporter.recordDayBundles(
+                records: records, entries: entries, today: day(28), settings: settings, calendar: calendar)
+        }
+        let queued = try queue.load()
+        XCTAssertEqual(queued.map(\.type), ["day_bundle", "day_bundle"])
+        XCTAssertTrue(queued.allSatisfy { $0.scope == .anonymous && $0.sessionID == nil })
+        XCTAssertEqual(queued.map { $0.parameters["weekday"] }, ["2", "3"])
+    }
+}

@@ -166,6 +166,14 @@ jobs:
           done
           shoot tutorial-add light large -screenshotTutorial drink -screenshotBrandPanel YES
           shoot tutorial-cup-type-ax-xl light accessibility-extra-large -screenshotTutorial cup
+          # 2주 스탬프판: 첫날 빈 판 → 중간(6칸) → 14칸 룰렛(멈춘 자리) → 잔을 다 가졌을 때 병뚜껑 3개.
+          shoot stamp-day1 light large -screenshotStamps 0
+          shoot stamp-mid light large -screenshotStamps 6
+          shoot stamp-roulette light large -screenshotStamps 14 -screenshotStampSeen 13 -screenshotStampInstant YES
+          shoot stamp-caps light large -screenshotStamps 14 -screenshotStampSeen 13 -screenshotStampFinal caps
+          shoot stamp-full light large -screenshotStamps 14
+          shoot stamp-mid-dark dark large -screenshotStamps 6
+          shoot stamp-mid-type-ax-xl light accessibility-extra-large -screenshotStamps 6
           shoot settings light large -initialTab settings
           shoot inventory light large -initialTab settings -screenshotInventory YES -screenshotCaps 12 -screenshotInventoryItems strawberry,coffee-bean,sugar-cube,cinnamon-stick
           # 온보딩 영상(한 시각에 멈춰, 21.9 = 빼꼼) + 하루 기준 두 단계(2 = 당, 3 = 카페인).
@@ -465,6 +473,8 @@ jobs:
           shoot_en trade-card-einspanner large -screenshotTrade card -screenshotTradeItem einspanner -giftRevealAt 3
           shoot_en gift-cap large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent cap -giftRevealAt 3
           shoot_en trade-card large -screenshotTrade card -giftRevealAt 3
+          shoot_en stamp-mid large -screenshotStamps 6
+          shoot_en stamp-roulette large -screenshotStamps 14 -screenshotStampSeen 13 -screenshotStampInstant YES
           shoot_en trends-caps large -initialTab trends -screenshotCaps 3
           shoot_en weekkept large -screenshotWeekKept sugar -weekKeptAt 1.75
           shoot_en paywall-type-ax-xl accessibility-extra-large -mockPro YES -screenshotPaywall YES
@@ -511,6 +521,7 @@ jobs:
           shoot_zh levelup large -screenshotLevelUp 5 -levelUpAt 2.2
           shoot_zh gift-cap large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent cap -giftRevealAt 3
           shoot_zh trade-card large -screenshotTrade card -giftRevealAt 3
+          shoot_zh stamp-mid large -screenshotStamps 6
           shoot_zh trends-caps large -initialTab trends -screenshotCaps 3
           shoot_zh paywall-type-ax-xl accessibility-extra-large -mockPro YES -screenshotPaywall YES
           shoot_zh record large -seedDemo YES -screenshotRecord YES

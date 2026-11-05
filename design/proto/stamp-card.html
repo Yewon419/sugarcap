@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>슈가캡 · 2주 스탬프판 (시안)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<style>
+  /* 첫날 안내 끝의 2주 스탬프판 시안(대표님 2026-11-05). 좌표는 폰 pt(402×874).
+     ?state=1|mid|13|14 → 시작 상태, &z=배율. 카페 쿠폰처럼 14칸, 전부 가려져 있다가 마감할 때마다 한 칸씩 찍힌다.
+     1~13일은 하트(로슈 흰색+먹선, 카인 호박색)와 병뚜껑 1~2개가 무작위, 14일은 미보유 잔 세트 룰렛.
+     에어브러시 없음: 단색 면·또렷한 선만. */
+  * { box-sizing: border-box; margin: 0; }
+  html, body { background: #E4E4E7; font-family: "Pretendard", sans-serif; color: #18181B; }
+  body { display: flex; gap: 32px; padding: 32px; align-items: flex-start; }
+  .frame { width: 402px; height: 874px; position: relative; flex: none; transform-origin: 0 0; }
+  .stage { position: absolute; inset: 0; overflow: hidden; border-radius: 44px; background: #F4F4F5; }
+  .bg { position: absolute; left: -5px; top: 70px; width: 413px; height: 734px; object-fit: cover; }
+  .hero { position: absolute; left: 24px; top: 70px; display: flex; align-items: baseline; }
+  .hero b { font-size: 96px; font-weight: 700; letter-spacing: -5.8px; font-variant-numeric: tabular-nums; line-height: 1.04; }
+  .hero span { font-size: 30px; font-weight: 500; opacity: .85; margin-left: 6px; }
+  .corner { position: absolute; top: 63px; width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.55); display: grid; place-items: center; }
+  .corner svg { width: 19px; height: 19px; }
+  #btnStamp { left: 250px; } #btnTrends { left: 287px; } #btnSettings { left: 324px; }
+
+  .dim { position: absolute; inset: 0; background: rgba(0,0,0,.5); opacity: 0; }
+  .card { position: absolute; left: 24px; right: 24px; top: 236px; background: #fff; border-radius: 16px; opacity: 0; }
+  .card .top { padding: 22px 22px 18px; display: flex; align-items: baseline; justify-content: space-between; }
+  .card h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+  .count { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; margin-right: 34px; }
+  .count small { font-size: 15px; font-weight: 500; color: #A1A1AA; }
+  .x { position: absolute; right: 14px; top: 16px; width: 30px; height: 30px; border-radius: 50%; background: #F4F4F5; display: grid; place-items: center; cursor: pointer; }
+  .x svg { width: 11px; height: 11px; }
+  /* 쿠폰 절취선: 양옆 반원 홈 + 점선 */
+  .perf { position: relative; height: 18px; }
+  .card { --py: 76px;
+    -webkit-mask: radial-gradient(circle 9px at 0 var(--py), #0000 8.5px, #000 9px), radial-gradient(circle 9px at 100% var(--py), #0000 8.5px, #000 9px);
+    -webkit-mask-composite: source-in; mask-composite: intersect; }
+  .perf i { position: absolute; left: 16px; right: 16px; top: 8.5px; border-top: 1.5px dashed #D4D4D8; }
+  .grid { padding: 14px 18px 6px; display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 14px; justify-items: center; }
+  .cell { position: relative; width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid #D4D4D8; display: grid; place-items: center; }
+  .cell > .n, .cell > svg { grid-area: 1 / 1; }
+  .cell .n { font-size: 12px; font-weight: 600; color: #A1A1AA; font-variant-numeric: tabular-nums; }
+  .cell.today { border: 2px solid #18181B; }
+  .cell.today .n { color: #18181B; }
+  .cell.done { border-color: #18181B; background: #18181B; }
+  .cell.done .n { display: none; }
+  .cell .ink { position: absolute; inset: -1.5px; border-radius: 50%; background: #18181B; opacity: 0; }
+  .cell svg.prize { position: relative; width: 24px; height: 24px; opacity: 0; }
+  .cell.done svg.prize { opacity: 1; }
+  .cell.last { border-style: dashed; border-color: #18181B; }
+  .cell.last svg.cupmark { width: 18px; height: 18px; }
+  .cell.last.ready { border-style: solid; border-width: 2px; cursor: pointer; }
+  .cell.last.done { background: #fff; border: 2px solid #18181B; }
+  .cell.last.done .won { width: 34px; height: 34px; border-radius: 50%; background-size: 26px 46px; background-position: 4px -9px; background-repeat: no-repeat; }
+  .note { padding: 14px 22px 22px; font-size: 14px; font-weight: 500; color: #71717A; text-align: center; }
+
+  /* 14일 룰렛 */
+  .roul { position: absolute; inset: 0; border-radius: 16px; background: #fff; opacity: 0; pointer-events: none; display: flex; align-items: center; gap: 22px; padding: 0 26px; }
+  .roul .side { flex: 1; }
+  .roul h3 { font-size: 22px; font-weight: 700; }
+  .window { position: relative; flex: none; width: 104px; height: 136px; overflow: hidden; border-radius: 16px; background: #F4F4F5; }
+  .reel { position: absolute; left: 0; top: 0; width: 104px; }
+  /* 누끼 937×1666 중 잔은 (199,430)~(735,1446). 잔 높이 116pt로 맞춰 가운데 둔다. */
+  .reel div { width: 104px; height: 136px; background-size: 107px 190px; background-position: -1px -39px; background-repeat: no-repeat; }
+  .caps3 { height: 136px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+  .caps3 svg { width: 34px; height: 34px; }
+  .pick { font-size: 17px; font-weight: 600; margin-top: 8px; min-height: 22px; color: #3F3F46; }
+  .take { margin-top: 18px; height: 44px; padding: 0 28px; border-radius: 24px; background: #18181B; color: #fff; font: 600 16px "Pretendard"; border: 0; opacity: 0; cursor: pointer; }
+
+  .panel { width: 260px; font-size: 13px; line-height: 1.6; color: #3F3F46; }
+  .panel h1 { font-size: 16px; margin-bottom: 10px; }
+  .panel button { display: block; width: 100%; margin: 6px 0; padding: 9px 12px; border: 1px solid #D4D4D8; background: #fff; border-radius: 8px; font: 500 13px "Pretendard"; text-align: left; cursor: pointer; }
+  .panel button.on { border-color: #18181B; font-weight: 700; }
+  .panel p { margin-top: 14px; }
+</style>
+</head>
+<body>
+<div class="frame" id="frame">
+  <div class="stage">
+    <img class="bg" src="stamp-img/bg.png" alt="">
+    <div class="hero"><b>20</b><span>g</span></div>
+    <div class="corner" id="btnStamp">
+      <svg viewBox="0 0 20 20" fill="none" stroke="#18181B" stroke-width="1.6"><rect x="2.5" y="4.5" width="15" height="11" rx="2.5"/><circle cx="7" cy="10" r="1.6"/><circle cx="13" cy="10" r="1.6"/></svg>
+    </div>
+    <div class="corner" id="btnTrends">
+      <svg viewBox="0 0 20 20" fill="none" stroke="#18181B" stroke-width="1.6" stroke-linecap="round"><path d="M4 15V10M8 15V6M12 15V9M16 15V4"/></svg>
+    </div>
+    <div class="corner" id="btnSettings">
+      <svg viewBox="0 0 20 20" fill="none" stroke="#18181B" stroke-width="1.6"><circle cx="10" cy="10" r="2.6"/><circle cx="10" cy="10" r="6.6" stroke-dasharray="3 2.2"/></svg>
+    </div>
+
+    <div class="dim" id="dim"></div>
+    <div class="card" id="card">
+      <div class="top"><h2>2주 스탬프</h2><div class="count"><span id="cnt">0</span> <small>/ 14</small></div></div>
+      <div class="x" id="x"><svg viewBox="0 0 12 12" stroke="#18181B" stroke-width="1.8" stroke-linecap="round"><path d="M1.5 1.5l9 9M10.5 1.5l-9 9"/></svg></div>
+      <div class="perf"><i></i></div>
+      <div class="grid" id="grid"></div>
+      <div class="note" id="note">밤에 돌아와서 마감 시 스탬프를 적립!</div>
+      <div class="roul" id="roul">
+        <div class="window"><div class="reel" id="reel"></div></div>
+        <div class="side">
+          <h3>14일 룰렛</h3>
+          <div class="pick" id="pick"></div>
+          <button class="take" id="take">받기</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <h1>상태</h1>
+  <button data-s="1">1일차 첫 방문 (0칸)</button>
+  <button data-s="mid">중간 (6칸)</button>
+  <button data-s="13">13일차 마감 후 (13칸)</button>
+  <button data-s="14">14일차 마감 → 룰렛</button>
+  <button data-s="14all">14일차 마감 (잔 전부 보유)</button>
+  <h1 style="margin-top:18px">동작</h1>
+  <button id="press">마감 한 번 (다음 칸 찍기)</button>
+  <button id="reopen">카드 다시 열기</button>
+  <p>바깥(어두운 곳)이나 X를 누르면 닫힌다. 칸 안 내용은 찍히기 전까지 안 보인다.<br>14번째 칸은 점선 테두리 + 잔 표시로만 특별하다는 걸 알리고, 찍히는 순간 미보유 잔 세트 중 하나를 돌린다. 잔 세트를 전부 가졌으면 룰렛 대신 병뚜껑 3개.</p>
+</div>
+
+<script>
+const q = new URLSearchParams(location.search);
+const z = parseFloat(q.get("z") || "1");
+document.getElementById("frame").style.transform = `scale(${z})`;
+if (z !== 1) { const f = document.getElementById("frame"); f.style.marginRight = `${402 * (z - 1)}px`; f.style.marginBottom = `${874 * (z - 1)}px`; }
+
+// 상품: 1~13일 무작위. 병뚜껑은 1~2개, 나머지는 하트(로슈 흰색·카인 호박색).
+function rng(seed) { return () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; }; }
+function rollPrizes(seed) {
+  const r = rng(seed);
+  const caps = r() < 0.5 ? 1 : 2;
+  const list = Array.from({ length: 13 }, (_, i) => ({ kind: i < caps ? "cap" : "heart", side: r() < 0.5 ? "roshu" : "kain" }));
+  for (let i = list.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [list[i], list[j]] = [list[j], list[i]]; }
+  return list;
+}
+const prizes = rollPrizes(20261105);
+const fill = s => s === "roshu" ? "#FFFFFF" : "#E3C29F";
+const heart = s => `<svg class="prize" viewBox="0 0 24 24"><path d="M12 20.5C6 16.3 2.6 13 2.6 8.9 2.6 6.2 4.7 4.2 7.2 4.2c1.9 0 3.6 1.1 4.8 2.8 1.2-1.7 2.9-2.8 4.8-2.8 2.5 0 4.6 2 4.6 4.7 0 4.1-3.4 7.4-9.4 11.6z" fill="${fill(s)}" stroke="${s === "roshu" ? "#52525B" : "none"}" stroke-width="1.2"/></svg>`;
+function sealPath() {
+  let d = ""; const n = 12;
+  for (let i = 0; i <= n * 2; i++) {
+    const a = Math.PI * i / n - Math.PI / 2, r = i % 2 ? 9.2 : 10.6;
+    d += (i ? "L" : "M") + (12 + r * Math.cos(a)).toFixed(2) + " " + (12 + r * Math.sin(a)).toFixed(2);
+  }
+  return d + "Z";
+}
+const cap = s => `<svg class="prize" viewBox="0 0 24 24"><path d="${sealPath()}" fill="${fill(s)}" stroke="${s === "roshu" ? "#52525B" : "none"}" stroke-width="1.1" stroke-linejoin="round"/><circle cx="12" cy="12" r="5.6" fill="none" stroke="${s === "roshu" ? "#D4D4D8" : "#C9A57E"}" stroke-width="1.2"/></svg>`;
+const cupMark = `<svg class="cupmark" viewBox="0 0 20 20" fill="none" stroke="#18181B" stroke-width="1.6" stroke-linejoin="round"><path d="M4.5 5h11l-1.4 11.2a1.5 1.5 0 0 1-1.5 1.3H7.4a1.5 1.5 0 0 1-1.5-1.3z"/><path d="M5 9.5h10"/></svg>`;
+
+const sets = [
+  { id: "cafe-latte", name: "카페라떼" }, { id: "choco-frappe", name: "초코 프라페" }, { id: "matcha", name: "말차 라떼" },
+  { id: "mango", name: "망고 스무디" }, { id: "einspanner", name: "아인슈페너" }, { id: "grape", name: "청포도 에이드" },
+];
+let stamped = 0, won = null, allOwned = false;
+
+const grid = document.getElementById("grid");
+function render() {
+  grid.innerHTML = "";
+  for (let i = 0; i < 14; i++) {
+    const c = document.createElement("div");
+    c.className = "cell";
+    if (i === 13) {
+      c.classList.add("last");
+      if (won && won.caps) { c.classList.add("done"); c.innerHTML = cap("kain").replace('class="prize"', 'class="prize" style="opacity:1"'); }
+      else if (won) { c.classList.add("done"); c.innerHTML = `<div class="won" style="background-image:url(stamp-img/${won.id}.png)"></div>`; }
+      else { c.innerHTML = cupMark; if (stamped === 13) c.classList.add("ready"); }
+    } else {
+      const p = prizes[i];
+      c.innerHTML = `<div class="ink"></div><span class="n">${i + 1}</span>` + (p.kind === "cap" ? cap(p.side) : heart(p.side));
+      if (i < stamped) c.classList.add("done");
+      if (i === stamped) c.classList.add("today");
+    }
+    grid.appendChild(c);
+  }
+  document.getElementById("cnt").textContent = won ? 14 : stamped;
+}
+
+function open() {
+  gsap.set("#roul", { opacity: 0, pointerEvents: "none" });
+  gsap.fromTo("#dim", { opacity: 0 }, { opacity: 1, duration: .25, ease: "power2.out" });
+  gsap.fromTo("#card", { opacity: 0, scale: .95 }, { opacity: 1, scale: 1, duration: .3, ease: "expo.out" });
+}
+function close() {
+  gsap.to("#card", { opacity: 0, scale: .97, duration: .18, ease: "power2.in" });
+  gsap.to("#dim", { opacity: 0, duration: .2 });
+}
+document.getElementById("x").onclick = close;
+document.getElementById("dim").onclick = close;
+
+// 찍기: 먹색 원이 크게 내려와 눌리고(살짝 기울었다 바로 섬), 그 안에서 상품이 튀어나온다.
+function press() {
+  if (won) return;
+  if (stamped === 13) { spin(); return; }
+  const i = stamped, cell = grid.children[i];
+  const ink = cell.querySelector(".ink"), prize = cell.querySelector(".prize"), n = cell.querySelector(".n");
+  const tl = gsap.timeline({ onComplete: () => { stamped++; render(); } });
+  tl.set(ink, { opacity: 0, scale: 1.7, rotation: -10 })
+    .to(n, { opacity: 0, duration: .1 }, 0)
+    .to(ink, { opacity: 1, scale: 1, rotation: 0, duration: .22, ease: "power3.in" }, .05)
+    .to(cell, { scale: .9, duration: .06, yoyo: true, repeat: 1, ease: "power1.out" }, .27)
+    .fromTo(prize, { opacity: 0, scale: .3 }, { opacity: 1, scale: 1, duration: .32, ease: "back.out(2.4)" }, .33)
+    .to("#cnt", { textContent: i + 1, duration: .01, snap: { textContent: 1 } }, .33)
+    .fromTo("#cnt", { y: -6 }, { y: 0, duration: .25, ease: "expo.out" }, .33);
+}
+
+// 룰렛: 미보유 잔 세트 사진이 세로로 돌다가 하나에 멈춘다.
+function spin() {
+  if (allOwned) { capsInstead(); return; }
+  document.querySelector("#roul h3").textContent = "14일 룰렛";
+  const pool = sets; // 시안: 미보유 = 거래 잔 세트 6종 전부라고 가정
+  const target = pool[Math.floor(Math.random() * pool.length)];
+  const loops = 4, seq = [];
+  for (let k = 0; k < loops; k++) seq.push(...pool);
+  seq.push(target);
+  const reel = document.getElementById("reel");
+  reel.innerHTML = seq.map(s => `<div style="background-image:url(stamp-img/${s.id}.png)"></div>`).join("");
+  document.getElementById("pick").textContent = "";
+  gsap.set("#take", { opacity: 0 });
+  gsap.set(reel, { y: 0 });
+  gsap.to("#roul", { opacity: 1, duration: .25, onStart: () => document.getElementById("roul").style.pointerEvents = "auto" });
+  gsap.to(reel, { y: -(seq.length - 1) * 136, duration: 3.2, ease: "power4.out", delay: .35,
+    onComplete: () => {
+      document.getElementById("pick").textContent = target.name;
+      gsap.fromTo("#pick", { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: .25 });
+      gsap.to("#take", { opacity: 1, duration: .25, delay: .1 });
+      won = target;
+    } });
+}
+// 잔 세트를 전부 가졌으면 룰렛 대신 병뚜껑 3개(대표님 2026-11-05).
+function capsInstead() {
+  document.querySelector("#roul h3").textContent = "14일 선물";
+  const reel = document.getElementById("reel");
+  gsap.set(reel, { y: 0 });
+  reel.innerHTML = `<div class="caps3">${["roshu", "kain", "roshu"].map(cap).join("")}</div>`;
+  document.getElementById("pick").textContent = "병뚜껑 3개";
+  gsap.to("#roul", { opacity: 1, duration: .25, onStart: () => document.getElementById("roul").style.pointerEvents = "auto" });
+  gsap.fromTo("#reel .prize", { opacity: 0, scale: .3 }, { opacity: 1, scale: 1, duration: .32, ease: "back.out(2.4)", stagger: .12, delay: .35 });
+  gsap.fromTo("#pick", { opacity: 0 }, { opacity: 1, duration: .25, delay: .8 });
+  gsap.fromTo("#take", { opacity: 0 }, { opacity: 1, duration: .25, delay: .9 });
+  won = { caps: true };
+}
+document.getElementById("take").onclick = () => {
+  gsap.to("#roul", { opacity: 0, duration: .2, onComplete: () => { document.getElementById("roul").style.pointerEvents = "none"; render(); } });
+};
+grid.addEventListener("click", e => { if (e.target.closest(".cell.last.ready")) spin(); });
+
+function setState(s) {
+  won = null; allOwned = s === "14all";
+  stamped = { "1": 0, mid: 6, "13": 13, "14": 13, "14all": 13 }[s] ?? 0;
+  render(); open();
+  document.querySelectorAll("[data-s]").forEach(b => b.classList.toggle("on", b.dataset.s === s));
+  if (s.startsWith("14")) setTimeout(spin, 500);
+}
+document.querySelectorAll("[data-s]").forEach(b => b.onclick = () => setState(b.dataset.s));
+document.getElementById("press").onclick = press;
+document.getElementById("reopen").onclick = open;
+setState(q.get("state") || "1");
+</script>
+</body>
+</html>

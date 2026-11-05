@@ -27,7 +27,7 @@ final class RecordFlowUITests: XCTestCase {
         start.tap()
 
         // 온보딩을 마치면 첫 기록 안내가 뜬다(DrinkTutorial). 연습 음료는 저장하지 않아 끝나면 컵이 다시 가득 찬다.
-        walkDrinkTutorial(app)
+        walkDrinkTutorial(app, firstRun: true)
 
         let summary = ui.element("cup-summary")
         XCTAssertTrue(summary.waitForExistence(timeout: 15))
@@ -275,7 +275,7 @@ extension RecordFlowUITests {
         let drinkGuide = app.buttons["guide-drink"]
         XCTAssertTrue(drinkGuide.waitForExistence(timeout: 5), "사용설명서를 펼쳐도 음료 기록법이 없음")
         ui.tap(drinkGuide)
-        walkDrinkTutorial(app)
+        walkDrinkTutorial(app, firstRun: false)
     }
 
     /// 설정 테스트 카드(Debug·TestFlight)의 "먹이기 바로 보기"는 설정을 닫고 먹이기를 끝까지 보여 주되 오늘을 마감하지 않는다.
@@ -616,6 +616,12 @@ extension RecordFlowUITests {
             XCTAssertTrue(noReminder.firstMatch.waitForNonExistence(timeout: 5), "알림 질문이 안 닫힘")
         }
 
+        // 마감하면 2주 스탬프판이 먼저 떠서 한 칸 찍고, 닫아야 무대가 열린다(2026-11-05).
+        let stampClose = app.buttons["stamp-close"]
+        XCTAssertTrue(stampClose.waitForExistence(timeout: 10), "마감 뒤 스탬프판이 안 뜸")
+        stampClose.tap()
+        XCTAssertTrue(stampClose.waitForNonExistence(timeout: 5), "X를 눌러도 스탬프판이 안 닫힘")
+
         // 첫 먹이기 직후 두 면 모두 "처음 만난 사이" 무대(2026-10-27). 첫 무대가 끝나면 다른 컵으로 저절로 넘어가 이어서 뜬다.
         // 둘 다 보고 닫아 둬야 뒤 테스트·스크린샷에 무대가 안 남는다.
         let ui = Driver(app: app)
@@ -736,13 +742,14 @@ extension RecordFlowUITests {
         let start = app.buttons["onboarding-start"]
         XCTAssertTrue(start.waitForExistence(timeout: 5), "온보딩 마지막 장이 안 열림")
         start.tap()
-        walkDrinkTutorial(app)
+        walkDrinkTutorial(app, firstRun: true)
     }
 
     /// 온보딩 직후 첫 기록 안내를 끝까지 누른다. 단계마다 그 단계 문구가 붙은 구멍 버튼(`coach-target`)이 떠야 한다.
     /// 컵 → 브랜드 → 맨 위 음료 → 추가 → (줄어든 컵) → 큰 숫자 → 편집 → 지우기 → 닫기.
+    /// 첫날 안내(`firstRun`)는 끝에 빈 2주 스탬프판이 뜨고 X로 닫는다. 설정에서 다시 본 안내는 스탬프판이 없다.
     @MainActor
-    func walkDrinkTutorial(_ app: XCUIApplication) {
+    func walkDrinkTutorial(_ app: XCUIApplication, firstRun: Bool) {
         let summary = app.descendants(matching: .any)["cup-summary"]
         XCTAssertTrue(summary.waitForExistence(timeout: 15), "오늘 화면이 안 뜸")
         // 첫 단계가 뜰 때(컵 넘겨 보이기가 끝나 당 컵에 돌아온 뒤) 읽는다.
@@ -773,6 +780,17 @@ extension RecordFlowUITests {
         XCTAssertTrue(app.buttons["coach-target"].waitForNonExistence(timeout: 5), "닫기 뒤에도 안내가 남아 있음")
         // 연습 음료는 저장하지 않는다. 지웠으니 컵은 안내 전 그대로.
         XCTAssertEqual(summary.label, before, "안내가 끝났는데 컵이 안내 전과 다름")
+
+        let stampClose = app.buttons["stamp-close"]
+        if firstRun {
+            XCTAssertTrue(stampClose.waitForExistence(timeout: 5), "첫날 안내 끝에 스탬프판이 안 뜸")
+            let count = app.descendants(matching: .any)["stamp-count"]
+            XCTAssertEqual(count.label, "0 / 14", "첫날 스탬프판이 비어 있지 않음")
+            stampClose.tap()
+            XCTAssertTrue(stampClose.waitForNonExistence(timeout: 5), "X를 눌러도 스탬프판이 안 닫힘")
+        } else {
+            XCTAssertFalse(stampClose.waitForExistence(timeout: 2), "다시 본 안내 끝에 스탬프판이 뜸")
+        }
     }
 }
 

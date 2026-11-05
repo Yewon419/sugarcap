@@ -35,7 +35,10 @@ struct SugarCapApp: App {
         // 고른 잔이 가진 잔이 아니면 기본 잔으로 그린다(§4.10). 거래 행을 못 읽으면 선택을 건드리지 않는다.
         do {
             let trades = try container.mainContext.fetch(FetchDescriptor<TradeOffer>())
-            CupSetChoice.dropUnowned(owned: TradeMath.ownedSets(trades: trades.map(\.record)))
+            let gifts = try container.mainContext.fetch(FetchDescriptor<GiftEvent>())
+            CupSetChoice.dropUnowned(
+                owned: TradeMath.ownedSets(trades: trades.map(\.record)).union(GiftContent.wonSets(in: gifts))
+            )
         } catch {
             Logger(subsystem: "com.sugarcap.app", category: "store")
                 .error("거래 기록을 읽지 못해 고른 잔을 그대로 둠: \(String(describing: error), privacy: .public)")

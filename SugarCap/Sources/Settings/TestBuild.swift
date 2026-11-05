@@ -51,6 +51,8 @@ enum SettingsTestAction {
     case trade
     /// 테스트 카드가 아니라 사용설명서 「음료 기록법」(모든 빌드). 첫 기록 안내를 연습 음료로 다시 보여 준다(`DrinkTutorial`).
     case drinkGuide
+    /// 사용설명서 「하루 마감법」(모든 빌드, 첫 마감 뒤에만 보인다). 로슈·카인 소개와 안내 먹이기를 저장 없이 다시 보여 준다.
+    case closeGuide
 }
 
 /// 테스트 카드에서 고른 대기 자세(TestFlight·Debug). 캐릭터 id("roshu", "kain") → 자세 이름.

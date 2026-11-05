@@ -9,6 +9,8 @@ enum NavGlyph {
     case settings
     /// 다섯 갈래 별 윤곽. 무료일 때만 보이는 Pro 버튼(2026-10-13 대표님).
     case pro
+    /// 쿠폰 한 장(양옆 홈)에 도장 칸 둘, 앞 칸은 찍혀 채워졌다. 2주 스탬프판(2026-11-05).
+    case stamp
 }
 
 struct NavGlyphView: View {
@@ -32,6 +34,10 @@ struct NavGlyphView: View {
                 context.fill(Path(ellipseIn: CGRect(x: 16.5, y: 8, width: 5, height: 5)), with: .foreground)
             case .pro:
                 context.stroke(Self.star, with: .foreground, style: line)
+            case .stamp:
+                context.stroke(Self.coupon, with: .foreground, style: line)
+                context.fill(Path(ellipseIn: CGRect(x: 6, y: 9.5, width: 5, height: 5)), with: .foreground)
+                context.stroke(Path(ellipseIn: CGRect(x: 13, y: 9.5, width: 5, height: 5)), with: .foreground, style: line)
             }
         }
         .frame(width: size, height: size)
@@ -66,6 +72,24 @@ struct NavGlyphView: View {
             let point = CGPoint(x: 12 + radius * cos(angle), y: 12.8 + radius * sin(angle))
             if index == 0 { path.move(to: point) } else { path.addLine(to: point) }
         }
+        path.closeSubpath()
+    }
+
+    /// 가로 20 × 세로 14 쿠폰. 양옆 가운데를 반지름 2 반원으로 파냈다.
+    private static let coupon = Path { path in
+        path.move(to: CGPoint(x: 4.5, y: 5))
+        path.addLine(to: CGPoint(x: 19.5, y: 5))
+        path.addQuadCurve(to: CGPoint(x: 22, y: 7.5), control: CGPoint(x: 22, y: 5))
+        path.addLine(to: CGPoint(x: 22, y: 10))
+        path.addCurve(to: CGPoint(x: 22, y: 14), control1: CGPoint(x: 19.33, y: 10), control2: CGPoint(x: 19.33, y: 14))
+        path.addLine(to: CGPoint(x: 22, y: 16.5))
+        path.addQuadCurve(to: CGPoint(x: 19.5, y: 19), control: CGPoint(x: 22, y: 19))
+        path.addLine(to: CGPoint(x: 4.5, y: 19))
+        path.addQuadCurve(to: CGPoint(x: 2, y: 16.5), control: CGPoint(x: 2, y: 19))
+        path.addLine(to: CGPoint(x: 2, y: 14))
+        path.addCurve(to: CGPoint(x: 2, y: 10), control1: CGPoint(x: 4.67, y: 14), control2: CGPoint(x: 4.67, y: 10))
+        path.addLine(to: CGPoint(x: 2, y: 7.5))
+        path.addQuadCurve(to: CGPoint(x: 4.5, y: 5), control: CGPoint(x: 2, y: 5))
         path.closeSubpath()
     }
 

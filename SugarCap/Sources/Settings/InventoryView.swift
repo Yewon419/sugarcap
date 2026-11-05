@@ -189,7 +189,7 @@ struct InventoryView: View {
 
     /// 산 잔. Debug에서 `-cupSet.<면>`으로 켠 잔도 가진 것으로 본다(스크린샷용).
     private var ownedSets: Set<String> {
-        var owned = TradeMath.ownedSets(trades: trades.map(\.record))
+        var owned = TradeMath.ownedSets(trades: trades.map(\.record)).union(GiftContent.wonSets(in: gifts))
         #if DEBUG
         for side in CupSide.allCases where side.cupSetID != side.defaultCupSetID {
             owned.insert(side.cupSetID)

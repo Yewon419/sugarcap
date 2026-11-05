@@ -161,9 +161,11 @@ enum TradeStore {
         if balance < 0 {
             logger.error("병뚜껑 잔액이 음수라 제안을 멈춤: caps=\(capDays.count) trades=\(records.count)")
         }
+        // 스탬프로 받은 잔은 다시 제안하지 않는다.
+        let won = GiftContent.wonSets(in: gifts)
         guard let item = TradeMath.offerItem(
             trades: records, balance: balance, sides: sides, busy: busy, capDays: capDays, today: today, now: now,
-            roll: roll
+            roll: roll, catalog: TradeCatalog.items.filter { !won.contains($0.id) }
         ) else { return nil }
         let offer = TradeOffer(itemID: item.id, side: item.side, price: TradeMath.price(trades: records), offeredAt: now)
         context.insert(offer)

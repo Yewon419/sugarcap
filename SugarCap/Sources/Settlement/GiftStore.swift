@@ -66,6 +66,37 @@ enum GiftStore {
         return true
     }
 
+    /// 마감(오늘 마감·어젯밤 먹이기)을 저장한 직후. 스탬프판 다음 칸을 연 채로 넣는다(`StampMath`).
+    /// 1~13칸은 배치대로 마음·병뚜껑을 기록하는 면 중 무작위가, 14칸은 안 가진 잔 세트 하나를 그 주인이 준다.
+    /// 잔 세트를 다 가졌으면 병뚜껑 3개. 다 찍었으면 넣지 않는다. 찍은 칸 번호.
+    static func grantStamp(
+        sides: [CupSide], seed: UInt64, now: Date, in context: ModelContext,
+        pick: ([TradeItem]) -> TradeItem? = { $0.randomElement() }
+    ) throws -> Int? {
+        let gifts = try all(in: context)
+        let stamped = StampMath.stamped(cellNumbers: gifts.filter { $0.giftKind == .stamp }.compactMap(\.level))
+        guard let cell = StampMath.nextCell(stamped: stamped), let carrier = sides.randomElement() else { return nil }
+        if cell < StampMath.cells {
+            let prize = StampMath.layout(seed: seed)[cell - 1]
+            let payload = prize == .cap ? GiftContent.cap : GiftContent.heart
+            context.insert(GiftEvent(kind: .stamp, side: carrier, level: cell, payload: payload, createdAt: now, openedAt: now))
+            return cell
+        }
+        let owned = TradeMath.ownedSets(trades: try TradeStore.offers(in: context).map(\.record))
+            .union(GiftContent.wonSets(in: gifts))
+        if let set = pick(StampMath.finalCandidates(catalog: TradeCatalog.items, sides: sides, owned: owned)) {
+            context.insert(GiftEvent(
+                kind: .stamp, side: set.side, level: cell, payload: GiftContent.set(set.id), createdAt: now, openedAt: now
+            ))
+        } else {
+            for index in 0 ..< StampMath.finalCaps {
+                let side = sides[index % sides.count]
+                context.insert(GiftEvent(kind: .stamp, side: side, level: cell, payload: GiftContent.cap, createdAt: now, openedAt: now))
+            }
+        }
+        return cell
+    }
+
     /// 적립으로 단계가 오른 캐릭터마다 단계 상승 이벤트를 넣는다(§4.9 결정 4). 상자가 아니라 오늘 화면의 무대 연출로 보이고,
     /// 다 보면 연 것으로 저장한다. 넣은 개수.
     static func queueLevelUps(credited: [FeedResult], now: Date, in context: ModelContext) -> Int {
@@ -129,7 +160,7 @@ enum GiftStore {
         switch gift.giftKind {
         case .weekKept, .goalReached:
             gift.payload = content(owners: [side], isPro: isPro, taken: takenItems, roll: roll).payload
-        case .trendsUnlock, .levelUp, .proWelcome, .starterCap, nil: break
+        case .trendsUnlock, .levelUp, .proWelcome, .starterCap, .stamp, nil: break
         }
     }
 
@@ -138,7 +169,7 @@ enum GiftStore {
         gift.openedAt = now
         switch gift.giftKind {
         case .weekKept, .goalReached: if gift.payload == nil { gift.payload = GiftContent.heart }
-        case .trendsUnlock, .levelUp, .proWelcome, .starterCap, nil: break
+        case .trendsUnlock, .levelUp, .proWelcome, .starterCap, .stamp, nil: break
         }
     }
 }

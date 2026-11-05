@@ -70,6 +70,8 @@ private struct SettingsContent: View {
     @State private var showsInventory = false
     @Query private var gifts: [GiftEvent]
     @Query private var trades: [TradeOffer]
+    /// 「하루 마감법」은 한 번이라도 마감한 뒤에 보인다.
+    @Query private var settlements: [DaySettlement]
 
     @Query private var affinities: [Affinity]
     @Environment(\.modelContext) private var context
@@ -160,6 +162,14 @@ private struct SettingsContent: View {
                         linkRow(String(localized: "음료 기록법"), trailing: "chevron.right")
                     }
                     .accessibilityIdentifier("guide-drink")
+                    if settlements.contains(where: \.isClosed) {
+                        Button {
+                            onTestAction(.closeGuide)
+                        } label: {
+                            linkRow(String(localized: "하루 마감법"), trailing: "chevron.right")
+                        }
+                        .accessibilityIdentifier("guide-close")
+                    }
                 } label: {
                     Text("사용설명서").rowText()
                 }

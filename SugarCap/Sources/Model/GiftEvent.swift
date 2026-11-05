@@ -15,6 +15,9 @@ enum GiftKind: String, Sendable, CaseIterable {
     case proWelcome
     /// 튜토리얼 상자(SPEC §4.10 초반 보상 고정). 2·3번째 마감 뒤 하나씩, 늘 병뚜껑 1개.
     case starterCap
+    /// 2주 스탬프판 한 칸(대표님 2026-11-05). 마감할 때마다 한 칸, `level` = 칸 번호(1~14). 상자 없이 연 채로 넣는다.
+    /// 1~13칸은 마음·병뚜껑, 14칸은 잔 세트(`set:<id>`) 또는 다 가졌으면 병뚜껑 3개(같은 칸 번호로 3행).
+    case stamp
 }
 
 /// 오늘 화면으로 오는 선물 1개(SPEC §4.9). 아직 안 연 것(`openedAt == nil`)이 큐다.
@@ -68,7 +71,20 @@ enum GiftContent {
     /// Pro 축하 선물의 고정 물건(주인별 하나). 기록하는 면 주인 것 중 하나를 준다(당을 끄면 카인 커피콩).
     static let welcome: [(id: String, owner: CupSide)] = [("strawberry", .sugar), ("coffee-bean", .caffeine)]
 
+    /// 스탬프 14칸에서 받은 잔 세트(`TradeItem.id`). 거래로 산 잔과 똑같이 가진 잔이다.
+    static let setPrefix = "set:"
+
     static func item(_ id: String) -> String { itemPrefix + id }
+
+    static func set(_ id: String) -> String { setPrefix + id }
+
+    /// 스탬프로 받은 잔 세트 id.
+    static func wonSets(in gifts: [GiftEvent]) -> Set<String> {
+        Set(gifts.compactMap { gift in
+            guard let payload = gift.payload, payload.hasPrefix(setPrefix) else { return nil }
+            return String(payload.dropFirst(setPrefix.count))
+        })
+    }
 
     /// 상자에 든 물건 id(열었든 안 열었든).
     static func takenItems(in gifts: [GiftEvent]) -> Set<String> {

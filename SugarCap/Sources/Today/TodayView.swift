@@ -105,6 +105,12 @@ struct TodayView: View {
     /// 안내 중 "추가"한 연습 음료. 저장소에 넣지 않고 오늘 합계·하루 기록에만 얹는다. 지우면 비운다.
     @State private var tutorialEntry: Entry?
     @AppStorage(DrinkTutorial.pendingKey) private var tutorialPending = false
+    /// 2주 스탬프판(`StampCardView`). 모서리 버튼, 첫날 안내 끝, 마감 뒤 새 칸이 생겼을 때 연다.
+    @State private var isStampCardPresented = false
+    /// CI 스크린샷(Debug `-screenshotStamps`)의 스탬프 행과 본 칸 수. 저장소에 넣지 않는다.
+    @State private var screenshotStamps: [GiftEvent]?
+    @State private var screenshotStampSeen = 0
+    @AppStorage(StampProgress.seenKey) private var stampSeen = 0
 
     @Environment(ProStore.self) private var pro
 
@@ -124,6 +130,9 @@ struct TodayView: View {
     }
     /// 열어 받은 물건(물건 대기 자세 해금, §9.8).
     private var ownedItems: Set<String> { GiftContent.takenItems(in: gifts.filter(\.isOpened)) }
+    private var stamps: [GiftEvent] { gifts.filter { $0.giftKind == .stamp } }
+    /// 찍었지만 아직 찍는 연출을 못 본 칸이 있다. 다른 연출(단계 상승·거래)보다 먼저 스탬프판을 연다.
+    private var hasUnseenStamp: Bool { StampMath.stamped(cellNumbers: stamps.compactMap(\.level)) > stampSeen }
     private func affinityLevel(_ side: CupSide) -> Int {
         let points = affinities.first { $0.character == side.characterID }?.points ?? 0
         return AffinityMath.level(points: points)
@@ -428,7 +437,7 @@ struct TodayView: View {
     /// 첫 마감 알림 질문도 기다린다. 무대 위에 떠서 무대를 못 누르게 막았다(2026-10-27 CI).
     private var levelUpCue: UUID? {
         guard levelUp == nil, opening == nil, reveal == nil, trade == nil, feeding == nil, gate == nil, paywall == nil, !asksReminder,
-              tutorial == nil,
+              tutorial == nil, !isStampCardPresented, !hasUnseenStamp,
               isOnScreen, !isSliding, !isSettingsPresented, !isTrendsPresented, !isRecordSheetPresented,
               !isDayLogPresented, !isManualEntryPresented, path.isEmpty
         else { return nil }
@@ -640,7 +649,8 @@ struct TodayView: View {
             return UserDefaults.standard.integer(forKey: "screenshotHearts")
         }
         #endif
-        return gifts.filter { $0.isHeart && $0.isOpened }.count
+        // 스탬프 마음은 세지 않는다. 상자 마음에 붙는 결제 줄 시점을 스탬프 전과 같게 둔다.
+        return gifts.filter { $0.isHeart && $0.isOpened && $0.giftKind != .stamp }.count
     }
 
     @ViewBuilder
@@ -700,7 +710,8 @@ struct TodayView: View {
     /// 켜 둔 사이에 다음 제안 시각이 지날 수 있어 10분마다 값이 바뀐다.
     private func tradeCue(now: Date) -> String? {
         guard trade == nil, leavingOffer == nil, levelUp == nil, opening == nil, reveal == nil, feeding == nil,
-              gate == nil, paywall == nil, weekKept == nil, tutorial == nil, isOnScreen, !isSliding, !isSettingsPresented,
+              gate == nil, paywall == nil, weekKept == nil, tutorial == nil, !isStampCardPresented, !hasUnseenStamp,
+              isOnScreen, !isSliding, !isSettingsPresented,
               !isTrendsPresented, !isRecordSheetPresented, !isDayLogPresented, !isManualEntryPresented, path.isEmpty,
               !trades.contains(where: { $0.accepted == nil })
         else { return nil }
@@ -747,7 +758,8 @@ struct TodayView: View {
     /// 첫 거래를 바꾼 뒤 띄울 체험 권유 페이월(SPEC §6, 대표님 2026-10-31). 오늘 화면이 다른 연출·시트 없이 자리 잡았을 때만.
     private var trialPaywallCue: Bool {
         guard trialPaywallPending, trade == nil, leavingOffer == nil, levelUp == nil, opening == nil, reveal == nil,
-              feeding == nil, gate == nil, paywall == nil, !isProPaywallPresented, weekKept == nil, tutorial == nil
+              feeding == nil, gate == nil, paywall == nil, !isProPaywallPresented, weekKept == nil, tutorial == nil,
+              !isStampCardPresented, !hasUnseenStamp
         else { return false }
         return isOnScreen && !isSliding && !isSettingsPresented && !isTrendsPresented && !isRecordSheetPresented
             && !isDayLogPresented && !isManualEntryPresented && path.isEmpty
@@ -1010,8 +1022,8 @@ struct TodayView: View {
                     .font(AppFont.pretendard(15, .semibold, relativeTo: .subheadline))
                     .foregroundStyle(.secondary)
                     .padding(.leading, 24)
-                    // 오른쪽 위 버튼 3개(별·추이·설정) 자리를 비운다. 큰 글자에서 겹치지 않고 줄을 바꾼다.
-                    .padding(.trailing, 160)
+                    // 오른쪽 위 버튼 4개(별·스탬프·추이·설정) 자리를 비운다. 큰 글자에서 겹치지 않고 줄을 바꾼다.
+                    .padding(.trailing, 196)
                     .padding(.top, 14)
                     .allowsHitTesting(false)
                     .accessibilityHidden(true)
@@ -1070,6 +1082,14 @@ struct TodayView: View {
         .animation(.easeOut(duration: 0.25), value: reveal?.id)
         .overlay { tradeOverlay() }
         .animation(.easeOut(duration: 0.25), value: trade?.id)
+        .overlay { stampCardOverlay() }
+        .animation(.easeOut(duration: 0.25), value: isStampCardPresented)
+        .task(id: stampCue) {
+            guard stampCue else { return }
+            try? await Task.sleep(for: .seconds(0.5))
+            guard !Task.isCancelled, stampCue else { return }
+            isStampCardPresented = true
+        }
         .task(id: tradeCue(now: now)) {
             if tradeCue(now: Date()) != nil { await offerTradeIfDue(today: today) }
         }
@@ -1142,8 +1162,8 @@ struct TodayView: View {
         }
     }
 
-    /// (Pro 별) · 추이 · 설정. 모두 같은 36pt 옅은 원이다. 호감도 버튼은 2026-10-06 대표님 지시로 뺐다.
-    /// 별은 무료일 때만 추이 왼쪽에 둔다. 누르면 결제창(2026-10-13 대표님).
+    /// (Pro 별) · 스탬프 · 추이 · 설정. 모두 같은 36pt 옅은 원이다. 호감도 버튼은 2026-10-06 대표님 지시로 뺐다.
+    /// 별은 무료일 때만 둔다. 누르면 결제창(2026-10-13 대표님). 스탬프는 추이 왼쪽(2026-11-05 대표님).
     private var cornerButtons: some View {
         HStack(spacing: 0) {
             if !pro.isPro {
@@ -1154,6 +1174,9 @@ struct TodayView: View {
                     .accessibilityLabel("슈가캡 Pro")
                     .accessibilityIdentifier("open-pro")
             }
+            Button { isStampCardPresented = true } label: { cornerCircle(NavGlyphView(glyph: .stamp)) }
+                .accessibilityLabel("스탬프")
+                .accessibilityIdentifier("open-stamps")
             // 첫 보상 전에는 잠겨 있다(SPEC §4.9). 버튼은 그대로 두고 누르면 한 줄만 띄운다(2026-10-09 대표님).
             Button { openTrends() } label: { cornerCircle(NavGlyphView(glyph: .trends)) }
                 .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { trendsButtonFrame = $0 }
@@ -1411,6 +1434,8 @@ struct TodayView: View {
         _ = try GiftStore.queueFirstMeeting(sides: trackedSides, now: now, in: context)
         // `close`가 행에 마감 시각을 적은 뒤라 방금 마감한 날도 센다.
         _ = try GiftStore.grantStarterCap(sides: trackedSides, now: now, in: context)
+        // 2주 스탬프판 다음 칸(대표님 2026-11-05). 오늘 화면으로 돌아오면 `stampCue`가 판을 열어 찍는다.
+        _ = try GiftStore.grantStamp(sides: trackedSides, seed: StampProgress.seed(), now: now, in: context)
         try context.save()
         switch request.kind {
         case .closeToday: UsageReporter.shared?.log(UsageEvents.dayClosed(.closeToday))
@@ -1565,6 +1590,18 @@ struct TodayView: View {
             pickedSide = item.side
         case .drinkGuide:
             startTutorial()
+        case .closeGuide:
+            // 첫 마감 때 본 그대로: 로슈·카인 소개 → 안내 먹이기. 저장하지 않고 "처음 만난 사이" 무대도 없다.
+            let todayTotals = todayTotals(now: now)
+            let request = FeedingRequest(
+                kind: .closeToday, sugarLeftG: todayTotals.leftSugarG, caffeineLeftMg: todayTotals.leftCaffeineMg,
+                limits: limits, sugarOverG: todayTotals.overSugarG, caffeineOverMg: todayTotals.overCaffeineMg
+            )
+            var transaction = Transaction()
+            transaction.disablesAnimations = true
+            withTransaction(transaction) {
+                feeding = FeedingPresentation(request: request, opening: .companionIntro, snapshot: nil, isRehearsal: true)
+            }
         case .firstRun:
             // 루트가 완료 플래그를 지켜보다 온보딩으로 바꾼다. 기록·정산·호감도는 그대로다.
             UserDefaults.standard.removeObject(forKey: CompanionIntro.seenKey)
@@ -1646,6 +1683,15 @@ struct TodayView: View {
         if defaults.bool(forKey: "screenshotDayLog") {
             isDayLogPresented = true
         }
+        // 2주 스탬프판(`-screenshotStamps <찍은 칸 수>`). 14칸은 `-screenshotStampFinal caps|<잔 id>`(기본 청포도),
+        // 찍는 연출은 `-screenshotStampSeen <본 칸 수>`(기본 = 찍은 칸 수, 연출 없음).
+        if defaults.object(forKey: "screenshotStamps") != nil {
+            let count = min(max(defaults.integer(forKey: "screenshotStamps"), 0), StampMath.cells)
+            screenshotStamps = Self.screenshotStampRows(count: count, final: defaults.string(forKey: "screenshotStampFinal") ?? "grape")
+            screenshotStampSeen = defaults.object(forKey: "screenshotStampSeen") != nil
+                ? defaults.integer(forKey: "screenshotStampSeen") : count
+            isStampCardPresented = true
+        }
         if let brandID = defaults.string(forKey: "screenshotBrand") {
             path = [brandID]
         }
@@ -1667,6 +1713,62 @@ struct TodayView: View {
             }
         }
         #endif
+    }
+
+    // MARK: - 2주 스탬프판
+
+    /// 마감 뒤 새로 찍은 칸이 있고 오늘 화면이 다른 연출·시트 없이 자리 잡았을 때. 첫 마감 알림 질문·주 축하가 먼저다.
+    private var stampCue: Bool {
+        guard hasUnseenStamp, !isStampCardPresented, feeding == nil, gate == nil, weekKept == nil, !asksReminder,
+              levelUp == nil, opening == nil, reveal == nil, trade == nil, paywall == nil, !isProPaywallPresented,
+              tutorial == nil
+        else { return false }
+        return isOnScreen && !isSliding && !isSettingsPresented && !isTrendsPresented && !isRecordSheetPresented
+            && !isDayLogPresented && !isManualEntryPresented && path.isEmpty
+    }
+
+    #if DEBUG
+    private static func screenshotStampRows(count: Int, final: String) -> [GiftEvent] {
+        let now = Date()
+        let layout = StampMath.layout(seed: 7)
+        var rows: [GiftEvent] = []
+        for cell in 1 ..< min(count + 1, StampMath.cells) {
+            let side: CupSide = cell.isMultiple(of: 2) ? .caffeine : .sugar
+            let payload = layout[cell - 1] == .cap ? GiftContent.cap : GiftContent.heart
+            rows.append(GiftEvent(kind: .stamp, side: side, level: cell, payload: payload, createdAt: now, openedAt: now))
+        }
+        guard count == StampMath.cells else { return rows }
+        if final == "caps" {
+            for index in 0 ..< StampMath.finalCaps {
+                let side: CupSide = index.isMultiple(of: 2) ? .sugar : .caffeine
+                rows.append(GiftEvent(kind: .stamp, side: side, level: count, payload: GiftContent.cap, createdAt: now, openedAt: now))
+            }
+        } else {
+            let side = TradeCatalog.item(final)?.side ?? .sugar
+            rows.append(GiftEvent(kind: .stamp, side: side, level: count, payload: GiftContent.set(final), createdAt: now, openedAt: now))
+        }
+        return rows
+    }
+    #endif
+
+    @ViewBuilder
+    private func stampCardOverlay() -> some View {
+        if isStampCardPresented {
+            let isScreenshot = screenshotStamps != nil
+            StampCardView(
+                stamps: screenshotStamps ?? stamps,
+                seen: isScreenshot ? screenshotStampSeen : stampSeen,
+                reel: TradeCatalog.items.filter { trackedSides.contains($0.side) },
+                onSeen: { if !isScreenshot { stampSeen = max(stampSeen, $0) } },
+                onClose: {
+                    // 연출 중에 닫아도 찍은 칸은 본 것으로 둔다(다시 열면 찍힌 채로 보인다).
+                    if !isScreenshot { stampSeen = max(stampSeen, StampMath.stamped(cellNumbers: stamps.compactMap(\.level))) }
+                    screenshotStamps = nil
+                    isStampCardPresented = false
+                }
+            )
+            .transition(.opacity.combined(with: .scale(scale: 0.97)))
+        }
     }
 
     // MARK: - 첫 기록 안내(DrinkTutorial)
@@ -1718,12 +1820,15 @@ struct TodayView: View {
         delete(targets)
     }
 
-    /// 하루 기록 시트가 닫히면 안내가 끝난다.
+    /// 하루 기록 시트가 닫히면 안내가 끝난다. 첫날 안내(온보딩 직후)면 이어서 빈 스탬프판을 보여 준다.
+    /// 설정 「음료 기록법」으로 다시 본 안내는 스탬프판 없이 끝난다.
     private func finishTutorial() {
         guard tutorial == .log || tutorial == .close else { return }
+        let isFirstRun = tutorialPending
         tutorial = nil
         tutorialEntry = nil
         tutorialPending = false
+        if isFirstRun { isStampCardPresented = true }
     }
 
     @ViewBuilder

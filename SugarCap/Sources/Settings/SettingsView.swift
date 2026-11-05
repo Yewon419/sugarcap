@@ -360,6 +360,15 @@ private struct SettingsContent: View {
             Button("거래 제안 바로 보기") { onTestAction(.trade) }
                 .font(AppFont.pretendard(16, .regular, relativeTo: .body))
                 .accessibilityIdentifier("test-trade")
+            Menu {
+                ForEach(StampRehearsal.allCases, id: \.self) { rehearsal in
+                    Button(rehearsal.title) { onTestAction(.stampReward(rehearsal)) }
+                }
+            } label: {
+                Text("스탬프 보상 바로 보기")
+            }
+                .font(AppFont.pretendard(16, .regular, relativeTo: .body))
+                .accessibilityIdentifier("test-stamp-reward")
             Button("페이월 바로 보기") {
                 paywallOrigin = .testCard
                 showsPaywall = true
@@ -401,6 +410,10 @@ private struct SettingsContent: View {
             Button("앱 초기화", role: .destructive) { confirmsReset = true }
                 .font(AppFont.pretendard(16, .regular, relativeTo: .body))
                 .accessibilityIdentifier("test-reset")
+            // 버전 줄 7번 누르기와 같은 스위치. 끄면 이 카드가 사라진다.
+            Button("개발자 모드 끄기") { isDeveloperMode = false }
+                .font(AppFont.pretendard(16, .regular, relativeTo: .body))
+                .accessibilityIdentifier("test-developer-off")
         } header: {
             Text("테스트 · 개발자 모드")
         } footer: {
@@ -430,7 +443,7 @@ private struct SettingsContent: View {
 
     /// 가진 것과 상관없이 그 면의 잔을 고른다. 안 가진 잔은 앱을 다시 켜면 기본 잔으로 돌아간다(`CupSetChoice.dropUnowned`).
     private func cupSetPicker(_ side: CupSide, selection: Binding<String?>) -> some View {
-        let items = TradeCatalog.items.filter { $0.side == side }
+        let items = (TradeCatalog.items + TradeCatalog.perks).filter { $0.side == side }
         let binding = Binding(
             get: { selection.wrappedValue.flatMap { TradeCatalog.item($0)?.side == side ? $0 : nil } ?? "" },
             set: { selection.wrappedValue = $0.isEmpty ? nil : $0 }

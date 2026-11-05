@@ -617,8 +617,11 @@ extension RecordFlowUITests {
         }
 
         // 마감하면 2주 스탬프판이 먼저 떠서 한 칸 찍고, 닫아야 무대가 열린다(2026-11-05).
+        // X는 찍는 연출이 끝나야 켜진다(2026-11-06).
         let stampClose = app.buttons["stamp-close"]
         XCTAssertTrue(stampClose.waitForExistence(timeout: 10), "마감 뒤 스탬프판이 안 뜸")
+        let closable = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isEnabled == true"), object: stampClose)
+        XCTAssertEqual(XCTWaiter().wait(for: [closable], timeout: 10), .completed, "찍는 연출이 끝났는데 X가 안 켜짐")
         stampClose.tap()
         XCTAssertTrue(stampClose.waitForNonExistence(timeout: 5), "X를 눌러도 스탬프판이 안 닫힘")
 

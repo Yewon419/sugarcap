@@ -7010,6 +7010,54 @@
         }
       }
     },
+    "개발자 모드 끄기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn off developer mode"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "關閉開發者模式"
+          }
+        }
+      }
+    },
+    "도장 한 칸" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One stamp"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "蓋一格章"
+          }
+        }
+      }
+    },
+    "스탬프 보상 바로 보기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show stamp reward now"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "立即查看集章獎勵"
+          }
+        }
+      }
+    },
     "병뚜껑 %lld개랑 바꿀래?" : {
       "localizations" : {
         "en" : {

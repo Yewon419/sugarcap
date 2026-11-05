@@ -109,7 +109,7 @@ struct TodayView: View {
     @AppStorage(DrinkTutorial.pendingKey) private var tutorialPending = false
     /// 2주 스탬프판(`StampCardView`). 모서리 버튼, 첫날 안내 끝, 마감 뒤 새 칸이 생겼을 때 연다.
     @State private var isStampCardPresented = false
-    /// CI 스크린샷(Debug `-screenshotStamps`)의 스탬프 행과 본 칸 수. 저장소에 넣지 않는다.
+    /// CI 스크린샷(Debug `-screenshotStamps`)·테스트 카드 보상 보기의 스탬프 행과 본 칸 수. 저장소에 넣지 않는다.
     @State private var screenshotStamps: [GiftEvent]?
     @State private var screenshotStampSeen = 0
     @AppStorage(StampProgress.seenKey) private var stampSeen = 0
@@ -327,7 +327,8 @@ struct TodayView: View {
                     let gift = staged == nil ? carriedGift(for: cupSide) : nil
                     let offer = staged == nil && gift == nil ? carriedOffer(for: cupSide) : nil
                     // 첫 기록 안내 중에는 캐릭터(대기·상자 운반)를 전부 숨긴다(대표님 2026-11-05).
-                    let hidesCharacters = tutorial != nil
+                    // 온보딩 직후 안내가 0.6초 뒤에 열리는데 그 사이 로슈가 비쳤다(빌드 407 대표님). 기다리는 동안도 숨긴다.
+                    let hidesCharacters = tutorial != nil || tutorialPending
                     let carrier = hidesCharacters ? nil : carrierLayer(
                         gift: gift, offer: offer, side: cupSide, step: step, isActive: isActive, screen: proxy.frame(in: .global)
                     )
@@ -1652,6 +1653,20 @@ struct TodayView: View {
         case .advanceDay:
             dayOffset += 1
             WidgetCenter.shared.reloadAllTimelines()
+        case .stampReward(let rehearsal):
+            // 스크린샷 판과 같은 길(`screenshotStamps`): 저장소 밖 행이라 닫아도 본 칸 수·얼리버드 기록이 안 바뀐다.
+            let count = rehearsal.count
+            let owned = TradeMath.ownedSets(trades: trades.map(\.record)).union(GiftContent.wonSets(in: gifts))
+            let final: String
+            switch rehearsal {
+            case .caps: final = "caps"
+            default:
+                let reel = TradeCatalog.items.filter { trackedSides.contains($0.side) }
+                final = (reel.filter { !owned.contains($0.id) }.randomElement() ?? reel.randomElement())?.id ?? "grape"
+            }
+            screenshotStamps = Self.rehearsalStampRows(count: count, final: final, earlyBird: rehearsal == .earlyBird)
+            screenshotStampSeen = count - 1
+            isStampCardPresented = true
         }
     }
 
@@ -1732,7 +1747,11 @@ struct TodayView: View {
         // 찍는 연출은 `-screenshotStampSeen <본 칸 수>`(기본 = 찍은 칸 수, 연출 없음).
         if defaults.object(forKey: "screenshotStamps") != nil {
             let count = min(max(defaults.integer(forKey: "screenshotStamps"), 0), StampMath.cells)
-            screenshotStamps = Self.screenshotStampRows(count: count, final: defaults.string(forKey: "screenshotStampFinal") ?? "grape")
+            screenshotStamps = Self.rehearsalStampRows(
+                count: count, final: defaults.string(forKey: "screenshotStampFinal") ?? "grape",
+                // 얼리버드(`-earlyBird YES`)면 7칸에 유리 공예 잔 두 행.
+                earlyBird: EarlyBird.known() == true
+            )
             screenshotStampSeen = defaults.object(forKey: "screenshotStampSeen") != nil
                 ? defaults.integer(forKey: "screenshotStampSeen") : count
             isStampCardPresented = true
@@ -1772,8 +1791,8 @@ struct TodayView: View {
             && !isDayLogPresented && !isManualEntryPresented && path.isEmpty
     }
 
-    #if DEBUG
-    private static func screenshotStampRows(count: Int, final: String) -> [GiftEvent] {
+    /// 저장소 밖 스탬프 행(CI 스크린샷, 테스트 카드 「스탬프 보상 바로 보기」). `earlyBird`면 7칸에 유리 공예 잔 두 행.
+    private static func rehearsalStampRows(count: Int, final: String, earlyBird: Bool) -> [GiftEvent] {
         let now = Date()
         let layout = StampMath.layout(seed: 7)
         var rows: [GiftEvent] = []
@@ -1782,8 +1801,7 @@ struct TodayView: View {
             let payload = layout[cell - 1] == .cap ? GiftContent.cap : GiftContent.heart
             rows.append(GiftEvent(kind: .stamp, side: side, level: cell, payload: payload, createdAt: now, openedAt: now))
         }
-        // 얼리버드(`-earlyBird YES`)면 7칸에 유리 공예 잔 두 행.
-        if count >= StampMath.earlyBirdCell, EarlyBird.known() == true {
+        if count >= StampMath.earlyBirdCell, earlyBird {
             for perk in TradeCatalog.perks {
                 rows.append(GiftEvent(
                     kind: .stamp, side: perk.side, level: StampMath.earlyBirdCell, payload: GiftContent.set(perk.id),
@@ -1803,7 +1821,6 @@ struct TodayView: View {
         }
         return rows
     }
-    #endif
 
     @ViewBuilder
     private func stampCardOverlay() -> some View {

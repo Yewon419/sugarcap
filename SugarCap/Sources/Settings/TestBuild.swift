@@ -59,6 +59,38 @@ enum SettingsTestAction {
     case fillData
     /// 앱 달력을 하루 앞당긴다(`AppClock`). 오늘 기록이 어제 것이 되어 어젯밤 정산이 뜬다. 앱 초기화로 0이 된다.
     case advanceDay
+    /// 스탬프판 보상 연출을 저장 없이 연다(대표님 2026-11-05).
+    case stampReward(StampRehearsal)
+}
+
+/// 테스트 카드에서 여는 스탬프판 보상. 판 행은 저장소에 넣지 않는다.
+enum StampRehearsal: CaseIterable {
+    /// 4칸째 도장이 찍힌다.
+    case stamp
+    /// 7칸 도장 뒤 얼리버드 무대.
+    case earlyBird
+    /// 14칸 잔 룰렛(안 가진 잔 중 하나에서 멈춤).
+    case roulette
+    /// 14칸 병뚜껑 3개(잔을 다 가졌을 때).
+    case caps
+
+    var title: String {
+        switch self {
+        case .stamp: return String(localized: "도장 한 칸")
+        case .earlyBird: return String(localized: "얼리버드 선물")
+        case .roulette: return String(localized: "14일 룰렛")
+        case .caps: return String(localized: "14일 선물")
+        }
+    }
+
+    /// 찍힌 칸 수.
+    var count: Int {
+        switch self {
+        case .stamp: return 4
+        case .earlyBird: return StampMath.earlyBirdCell
+        case .roulette, .caps: return StampMath.cells
+        }
+    }
 }
 
 /// 테스트 카드에서 고른 대기 자세(TestFlight·Debug). 캐릭터 id("roshu", "kain") → 자세 이름.

@@ -163,7 +163,6 @@ private struct SettingsContent: View {
                 } label: {
                     Text("사용설명서").rowText()
                 }
-                .accessibilityIdentifier("open-guide")
             }
 
             Section {

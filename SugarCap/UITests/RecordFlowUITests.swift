@@ -269,7 +269,8 @@ extension RecordFlowUITests {
         completeOnboardingIfPresented(app)
         app.buttons["open-settings"].tap()
         let ui = Driver(app: app)
-        let guide = app.buttons["open-guide"]
+        // DisclosureGroup에 식별자를 달면 펼친 안쪽 버튼까지 같은 식별자로 덮여 라벨로 찾는다.
+        let guide = app.buttons["사용설명서"]
         ui.tap(guide.waitForExistence(timeout: 5) ? guide : app.staticTexts["사용설명서"])
         let drinkGuide = app.buttons["guide-drink"]
         XCTAssertTrue(drinkGuide.waitForExistence(timeout: 5), "사용설명서를 펼쳐도 음료 기록법이 없음")

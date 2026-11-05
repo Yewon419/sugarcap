@@ -53,6 +53,10 @@ enum SettingsTestAction {
     case drinkGuide
     /// 사용설명서 「하루 마감법」(모든 빌드, 첫 마감 뒤에만 보인다). 로슈·카인 소개와 안내 먹이기를 저장 없이 다시 보여 준다.
     case closeGuide
+    /// 기록·마감·선물·설정을 전부 지우고 온보딩부터(`DevData.reset`). 개발자 모드는 켜 둔다.
+    case resetAll
+    /// 지난 두 달 기록과 매일 밤 마감을 실제 규칙대로 채운다(`DevData.fill`).
+    case fillData
 }
 
 /// 테스트 카드에서 고른 대기 자세(TestFlight·Debug). 캐릭터 id("roshu", "kain") → 자세 이름.

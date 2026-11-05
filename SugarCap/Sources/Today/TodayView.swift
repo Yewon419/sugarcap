@@ -1607,6 +1607,23 @@ struct TodayView: View {
             UserDefaults.standard.removeObject(forKey: CompanionIntro.seenKey)
             UserDefaults.standard.removeObject(forKey: CloseReminder.askedKey)
             UserDefaults.standard.set(false, forKey: OnboardingView.completedKey)
+        case .resetAll:
+            do {
+                try DevData.reset(in: context)
+            } catch {
+                Self.logger.error("앱 초기화 실패: \(String(describing: error), privacy: .public)")
+                failureMessage = "앱 초기화 실패: \(error)"
+            }
+        case .fillData:
+            do {
+                _ = try DevData.fill(
+                    days: 60, catalog: catalog.catalog, sides: trackedSides, limits: limits, boundaryHour: boundaryHour,
+                    isPro: pro.isPro, now: now, in: context
+                )
+            } catch {
+                Self.logger.error("데이터 채우기 실패: \(String(describing: error), privacy: .public)")
+                failureMessage = "데이터 채우기 실패: \(error)"
+            }
         }
     }
 

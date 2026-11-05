@@ -60,6 +60,7 @@ private struct SettingsContent: View {
     /// UI 테스트는 실행 인자 `-developerMode YES`로 켠다.
     @AppStorage(DeveloperMode.key) private var isDeveloperMode = false
     @State private var confirmsFirstRun = false
+    @State private var confirmsReset = false
     @AppStorage(CloseReminder.enabledKey) private var isReminderOn = false
     @AppStorage("cupSet.sugar") private var testSugarCupSet: String?
     @AppStorage("cupSet.caffeine") private var testCaffeineCupSet: String?
@@ -236,6 +237,12 @@ private struct SettingsContent: View {
             await CloseReminder.refresh()
             isTestBuild = await TestBuild.isActive()
         }
+        .confirmationDialog("앱을 초기화할까요?", isPresented: $confirmsReset, titleVisibility: .visible) {
+            Button("초기화", role: .destructive) { onTestAction(.resetAll) }
+                .accessibilityIdentifier("confirm-reset")
+        } message: {
+            Text("기록·마감·선물·설정을 전부 지우고 앱 소개부터 다시 시작해요.")
+        }
         .confirmationDialog("첫 실행으로 되돌릴까요?", isPresented: $confirmsFirstRun, titleVisibility: .visible) {
             Button("되돌리기", role: .destructive) { onTestAction(.firstRun) }
                 .accessibilityIdentifier("confirm-first-run")
@@ -374,6 +381,12 @@ private struct SettingsContent: View {
             Button("첫 실행으로 되돌리기", role: .destructive) { confirmsFirstRun = true }
                 .font(AppFont.pretendard(16, .regular, relativeTo: .body))
                 .accessibilityIdentifier("test-first-run")
+            Button("지난 2달 데이터 채우기") { onTestAction(.fillData) }
+                .font(AppFont.pretendard(16, .regular, relativeTo: .body))
+                .accessibilityIdentifier("test-fill-data")
+            Button("앱 초기화", role: .destructive) { confirmsReset = true }
+                .font(AppFont.pretendard(16, .regular, relativeTo: .body))
+                .accessibilityIdentifier("test-reset")
         } header: {
             Text("테스트 · 개발자 모드")
         } footer: {

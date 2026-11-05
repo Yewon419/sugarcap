@@ -153,6 +153,29 @@ final class UsageEventsTests: XCTestCase {
                 .parameters["plan"],
             "lifetime")
     }
+
+    func testGoalReminderWidgetDrafts() {
+        XCTAssertEqual(
+            UsageEvents.goalStarted(side: .caffeine, weeks: 4, startLimit: 400, target: 250),
+            UsageEventDraft(
+                type: "goal_started",
+                parameters: ["side": "caffeine", "weeks": "4", "startLimitBand": "400", "targetBand": "200"]))
+        XCTAssertEqual(
+            UsageEvents.goalStarted(side: .sugar, weeks: 3, startLimit: 50, target: 30).parameters["targetBand"], "25")
+        XCTAssertEqual(
+            UsageEvents.goalStopped(side: .sugar, achievedWeeks: 1, evaluatedWeeks: 2),
+            UsageEventDraft(
+                type: "goal_stopped", parameters: ["side": "sugar", "achievedWeeks": "1", "evaluatedWeeks": "2"]))
+        XCTAssertEqual(
+            UsageEvents.goalReached(side: .sugar, weeks: 3),
+            UsageEventDraft(type: "goal_reached", parameters: ["side": "sugar", "weeks": "3"]))
+        XCTAssertEqual(
+            UsageEvents.reminderAnswered(place: .prompt, result: .notNow),
+            UsageEventDraft(type: "reminder_answered", parameters: ["place": "prompt", "result": "notNow"]))
+        XCTAssertEqual(
+            UsageEvents.widgetState(count: 0),
+            UsageEventDraft(type: "widget_state", parameters: ["installed": "false", "count": "0"]))
+    }
 }
 
 final class IngestSignalTests: XCTestCase {

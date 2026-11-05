@@ -232,11 +232,14 @@ private struct LimitDetailContent: View {
     private func start(target: Double, weeks: Int) {
         do {
             let today = DayKey(at: Date(), boundaryHour: settings.dayBoundaryHour)
+            let startLimit = side.limit(settings.limits)
             try ReductionStore.start(
                 side: side, target: target, weeks: weeks, settings: settings, today: today,
                 in: context
             )
             try context.save()
+            UsageReporter.shared?.log(
+                UsageEvents.goalStarted(side: side, weeks: weeks, startLimit: startLimit, target: target))
         } catch {
             Self.logger.error("감소 목표 시작 실패: \(String(describing: error), privacy: .public)")
             context.rollback()
@@ -246,8 +249,12 @@ private struct LimitDetailContent: View {
 
     private func stop() {
         do {
+            let stopped = try ReductionStore.goal(for: side, in: context).map {
+                UsageEvents.goalStopped(side: side, achievedWeeks: $0.achievedWeeks, evaluatedWeeks: $0.evaluatedWeeks)
+            }
             try ReductionStore.stop(side: side, in: context)
             try context.save()
+            if let stopped { UsageReporter.shared?.log(stopped) }
         } catch {
             Self.logger.error("감소 목표 중단 실패: \(String(describing: error), privacy: .public)")
             context.rollback()

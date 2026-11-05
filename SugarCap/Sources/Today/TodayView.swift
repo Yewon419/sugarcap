@@ -263,11 +263,17 @@ struct TodayView: View {
         }
         .alert("내일도 이 시간에 알려 줄까요?", isPresented: $asksReminder) {
             Button("알려 줘요") {
-                Task { _ = await CloseReminder.enable() }
+                Task {
+                    let granted = await CloseReminder.enable()
+                    UsageReporter.shared?.log(
+                        UsageEvents.reminderAnswered(place: .prompt, result: granted ? .granted : .denied))
+                }
             }
             .accessibilityIdentifier("reminder-yes")
-            Button("괜찮아요", role: .cancel) {}
-                .accessibilityIdentifier("reminder-no")
+            Button("괜찮아요", role: .cancel) {
+                UsageReporter.shared?.log(UsageEvents.reminderAnswered(place: .prompt, result: .notNow))
+            }
+            .accessibilityIdentifier("reminder-no")
         } message: {
             Text("저녁 8시에 마감이 열리면, 밤 10시엔 아직 안 먹였으면 알려 줘요. 커피 사기 좋은 아침 8시 30분·오후 2시에도 기록을 알려 줘요. 설정에서 언제든 끌 수 있어요.")
         }
@@ -1297,20 +1303,26 @@ struct TodayView: View {
             // 첫 적립 뒤 첫 선물 = 추이 열림(SPEC §4.9).
             _ = try GiftStore.grantFirstReward(credited: credited, now: Date(), in: context)
             _ = GiftStore.queueLevelUps(credited: credited, now: Date(), in: context)
+            var reachedGoals: [UsageEventDraft] = []
             if let settings = settingsRows.first {
                 // 꺼진 면의 감소 목표는 멈춘다. 다시 켜면 그동안의 주도 저장된 기록으로 판정한다.
                 let sides = trackedSides
                 for goal in try ReductionStore.goals(in: context) {
                     guard let goalSide = goal.cupSide, sides.contains(goalSide) else { continue }
+                    let weeks = goal.weeks
                     let reached = ReductionStore.advance(
                         goal, entries: entries, boundaryHour: boundaryHour, today: today,
                         settings: settings, in: context
                     )
                     // 목표를 끝까지 해내면 그 면 캐릭터가 선물을 가져온다(§4.9).
-                    if reached { try GiftStore.grantGoalReached(side: goalSide, isPro: pro.isPro, now: Date(), in: context) }
+                    if reached {
+                        try GiftStore.grantGoalReached(side: goalSide, isPro: pro.isPro, now: Date(), in: context)
+                        reachedGoals.append(UsageEvents.goalReached(side: goalSide, weeks: weeks))
+                    }
                 }
             }
             try context.save()
+            for draft in reachedGoals { UsageReporter.shared?.log(draft) }
             recordDayBundles(today: today)
 
             prompt = plan.prompt

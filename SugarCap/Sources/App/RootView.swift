@@ -59,7 +59,10 @@ struct RootView: View {
         }
         // 하루 알림은 앞으로 며칠치만 날짜별로 예약해 두므로 앱이 앞으로 올 때마다 다시 채운다(`CloseReminder`).
         .onChange(of: scenePhase, initial: true) { _, phase in
-            if phase == .active { Task { await CloseReminder.refresh() } }
+            if phase == .active {
+                Task { await CloseReminder.refresh() }
+                Task { await UsageReporter.shared?.noteWidgets() }
+            }
         }
         // 설정에서 메뉴 국가를 바꾸면 그 나라 카탈로그로 갈아 끼운다(SPEC §9.9).
         .onChange(of: settingsRows.first?.menuCountry) { _, country in

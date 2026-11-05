@@ -293,10 +293,13 @@ private struct SettingsContent: View {
     private func setReminder(_ on: Bool) {
         guard on else {
             CloseReminder.disable()
+            UsageReporter.shared?.log(UsageEvents.reminderAnswered(place: .settings, result: .turnedOff))
             return
         }
         Task {
             let granted = await CloseReminder.enable()
+            UsageReporter.shared?.log(
+                UsageEvents.reminderAnswered(place: .settings, result: granted ? .granted : .denied))
             if !granted {
                 alertMessage = String(localized: "iOS 설정 > 슈가캡 > 알림에서 알림을 허용해 주세요.")
             }

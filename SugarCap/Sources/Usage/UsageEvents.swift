@@ -57,6 +57,19 @@ enum PaywallResult: String, Sendable {
     case restored
 }
 
+/// 마감 알림을 정한 곳과 결과. `notNow`는 앱 안 질문에서 "괜찮아요"(iOS 권한 창 없음).
+enum ReminderPlace: String, Sendable {
+    case prompt
+    case settings
+}
+
+enum ReminderResult: String, Sendable {
+    case granted
+    case denied
+    case notNow
+    case turnedOff
+}
+
 enum UsageEvents {
     static func entryLogged(path: EntryPath, place: EntryPlace, brandID: String?) -> UsageEventDraft {
         var parameters = ["path": path.rawValue, "place": place.rawValue]
@@ -87,6 +100,45 @@ enum UsageEvents {
         let plan = planID.split(separator: ".").last.map(String.init) ?? planID
         return UsageEventDraft(
             type: "paywall_shown", parameters: ["origin": origin.rawValue, "plan": plan, "result": result.rawValue])
+    }
+
+    /// 기준은 음료 통계와 같은 구간(당 25 g, 카페인 100 mg)으로만 보낸다.
+    static func goalStarted(side: CupSide, weeks: Int, startLimit: Double, target: Double) -> UsageEventDraft {
+        UsageEventDraft(
+            type: "goal_started",
+            parameters: [
+                "side": side.rawValue, "weeks": String(weeks),
+                "startLimitBand": String(DayBundle.band(startLimit, width: bandWidth(side))),
+                "targetBand": String(DayBundle.band(target, width: bandWidth(side))),
+            ])
+    }
+
+    static func goalStopped(side: CupSide, achievedWeeks: Int, evaluatedWeeks: Int) -> UsageEventDraft {
+        UsageEventDraft(
+            type: "goal_stopped",
+            parameters: [
+                "side": side.rawValue, "achievedWeeks": String(achievedWeeks),
+                "evaluatedWeeks": String(evaluatedWeeks),
+            ])
+    }
+
+    static func goalReached(side: CupSide, weeks: Int) -> UsageEventDraft {
+        UsageEventDraft(type: "goal_reached", parameters: ["side": side.rawValue, "weeks": String(weeks)])
+    }
+
+    static func reminderAnswered(place: ReminderPlace, result: ReminderResult) -> UsageEventDraft {
+        UsageEventDraft(type: "reminder_answered", parameters: ["place": place.rawValue, "result": result.rawValue])
+    }
+
+    static func widgetState(count: Int) -> UsageEventDraft {
+        UsageEventDraft(type: "widget_state", parameters: ["installed": String(count > 0), "count": String(count)])
+    }
+
+    private static func bandWidth(_ side: CupSide) -> Int {
+        switch side {
+        case .sugar: 25
+        case .caffeine: 100
+        }
     }
 
     static func tradeOffer(itemID: String, accepted: Bool) -> UsageEventDraft {

@@ -17,6 +17,7 @@ enum GiftKind: String, Sendable, CaseIterable {
     case starterCap
     /// 2주 스탬프판 한 칸(대표님 2026-11-05). 마감할 때마다 한 칸, `level` = 칸 번호(1~14). 상자 없이 연 채로 넣는다.
     /// 1~13칸은 마음·병뚜껑, 14칸은 잔 세트(`set:<id>`) 또는 다 가졌으면 병뚜껑 3개(같은 칸 번호로 3행).
+    /// 7칸은 얼리버드 대상이면 마음 행에 더해 유리 공예 잔 두 행(`set:glass-*`, `GiftStore.grantEarlyBird`).
     case stamp
 }
 

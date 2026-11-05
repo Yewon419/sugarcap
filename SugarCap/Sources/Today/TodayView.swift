@@ -599,6 +599,16 @@ struct TodayView: View {
         }
     }
 
+    /// 얼리버드 선물(2026 특전). 판정을 확인하고, 7칸을 지났는데 아직 안 받았으면 넣는다(판정이 늦게 와도 소급).
+    private func grantEarlyBirdIfDue() async {
+        guard await EarlyBird.resolve() == true else { return }
+        do {
+            if try GiftStore.grantEarlyBird(now: AppClock.now, in: context) { try context.save() }
+        } catch {
+            Self.logger.error("얼리버드 선물 저장 실패: \(String(describing: error), privacy: .public)")
+        }
+    }
+
     private func grantProWelcomeIfOwned() {
         guard pro.ownsRealPro else { return }
         do {
@@ -1122,6 +1132,7 @@ struct TodayView: View {
         // 하루가 바뀔 때마다(앱을 켠 날마다) 정산을 한 번 돈다(§4.7).
         // Pro를 처음 사면 축하 선물(§4.9 2026-10-12). 기록하는 면이 바뀌면 다시 본다(고를 물건이 생길 수 있다).
         .task(id: pro.ownsRealPro ? trackedSides : []) { grantProWelcomeIfOwned() }
+        .task(id: stamps.count) { await grantEarlyBirdIfDue() }
         .task(id: today) {
             refreshSettlement(today: today)
             presentScreenshotFeedingIfRequested(totals: totals)
@@ -1441,6 +1452,8 @@ struct TodayView: View {
         _ = try GiftStore.grantStarterCap(sides: trackedSides, now: now, in: context)
         // 2주 스탬프판 다음 칸(대표님 2026-11-05). 오늘 화면으로 돌아오면 `stampCue`가 판을 열어 찍는다.
         _ = try GiftStore.grantStamp(sides: trackedSides, seed: StampProgress.seed(), now: now, in: context)
+        // 얼리버드 선물(7칸). 판정을 아직 모르면 `grantEarlyBirdIfDue`가 나중에 넣는다.
+        if EarlyBird.known() == true { _ = try GiftStore.grantEarlyBird(now: now, in: context) }
         try context.save()
         switch request.kind {
         case .closeToday: UsageReporter.shared?.log(UsageEvents.dayClosed(.closeToday))

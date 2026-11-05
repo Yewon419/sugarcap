@@ -6,17 +6,20 @@ enum StampMath {
     static let cells = 14
     /// 잔 세트를 다 가졌을 때 14칸 대신 주는 병뚜껑 수(대표님 2026-11-05).
     static let finalCaps = 3
+    /// 얼리버드 선물 칸(`EarlyBird`). 늘 마음이고, 대상이면 유리 공예 잔 두 개를 더 받는다.
+    static let earlyBirdCell = 7
 
     enum Prize: Equatable, Sendable {
         case heart, cap
     }
 
-    /// 1~13칸 내용. 병뚜껑 1~2개, 나머지는 마음, 자리는 무작위. 기기마다 한 번 정한 `seed`라 다시 계산해도 같다.
+    /// 1~13칸 내용. 병뚜껑 1~2개, 나머지는 마음, 자리는 7칸을 뺀 곳 중 무작위. 기기마다 한 번 정한 `seed`라 다시 계산해도 같다.
     static func layout(seed: UInt64) -> [Prize] {
         var generator = SeededGenerator(state: seed)
         let caps = generator.next() % 2 == 0 ? 1 : 2
-        var prizes = (0 ..< cells - 1).map { $0 < caps ? Prize.cap : Prize.heart }
+        var prizes = (0 ..< cells - 2).map { $0 < caps ? Prize.cap : Prize.heart }
         prizes.shuffle(using: &generator)
+        prizes.insert(.heart, at: earlyBirdCell - 1)
         return prizes
     }
 

@@ -97,6 +97,25 @@ enum GiftStore {
         return cell
     }
 
+    /// 얼리버드 선물(`EarlyBird`). 판정이 참일 때만 부른다. 스탬프를 7칸 이상 찍었고 아직 안 받았으면
+    /// 유리 공예 잔 두 개를 각 주인이 7칸 행으로 연 채 넣는다. 7칸 마음은 그대로 둔다. 기록하는 면과 상관없이 둘 다.
+    /// 7칸을 찍을 때 판정을 몰랐으면 나중에 불러도 그때 넣는다. 넣었으면 참.
+    static func grantEarlyBird(now: Date, in context: ModelContext) throws -> Bool {
+        let gifts = try all(in: context)
+        let stamped = StampMath.stamped(cellNumbers: gifts.filter { $0.giftKind == .stamp }.compactMap(\.level))
+        let won = GiftContent.wonSets(in: gifts)
+        guard stamped >= StampMath.earlyBirdCell, !TradeCatalog.perks.contains(where: { won.contains($0.id) }) else {
+            return false
+        }
+        for perk in TradeCatalog.perks {
+            context.insert(GiftEvent(
+                kind: .stamp, side: perk.side, level: StampMath.earlyBirdCell, payload: GiftContent.set(perk.id),
+                createdAt: now, openedAt: now
+            ))
+        }
+        return true
+    }
+
     /// 적립으로 단계가 오른 캐릭터마다 단계 상승 이벤트를 넣는다(§4.9 결정 4). 상자가 아니라 오늘 화면의 무대 연출로 보이고,
     /// 다 보면 연 것으로 저장한다. 넣은 개수.
     static func queueLevelUps(credited: [FeedResult], now: Date, in context: ModelContext) -> Int {

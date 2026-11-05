@@ -137,7 +137,7 @@ struct CupHero: View {
     /// 큰 글자 설정에서도 자리를 넘지 않게 고정 크기 글자를 쓴다. 안내 한 줄이 뜨는 동안엔 상식을 접어 자리를 비운다.
     private func masthead(day: DayKey, showsFact: Bool) -> some View {
         let components = DateComponents(year: day.year, month: day.month, day: day.day, hour: 12)
-        let date = Calendar.current.date(from: components) ?? Date()
+        let date = Calendar.current.date(from: components) ?? AppClock.now
         let edge = Self.edge(side)
         let textAlignment: TextAlignment = side == .sugar ? .leading : .trailing
         return VStack(alignment: edge, spacing: 0) {

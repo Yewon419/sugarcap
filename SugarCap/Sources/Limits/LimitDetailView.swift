@@ -231,7 +231,7 @@ private struct LimitDetailContent: View {
 
     private func start(target: Double, weeks: Int) {
         do {
-            let today = DayKey(at: Date(), boundaryHour: settings.dayBoundaryHour)
+            let today = DayKey(at: AppClock.now, boundaryHour: settings.dayBoundaryHour)
             let startLimit = side.limit(settings.limits)
             try ReductionStore.start(
                 side: side, target: target, weeks: weeks, settings: settings, today: today,

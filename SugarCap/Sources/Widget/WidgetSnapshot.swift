@@ -25,7 +25,7 @@ struct WidgetSnapshot: Equatable, Sendable {
 enum WidgetSnapshotLoader {
     /// 오늘(하루 경계 기준) 남은 양을 읽는다. 저장소를 못 열면 기본 기준의 가득 찬 컵을 돌려준다.
     @MainActor
-    static func load(now: Date = Date(), isPro: Bool = SharedDefaults.isPro) -> WidgetSnapshot {
+    static func load(now: Date = AppClock.now, isPro: Bool = SharedDefaults.isPro) -> WidgetSnapshot {
         guard let container = try? SharedStore.makeContainer() else {
             return WidgetSnapshot(
                 leftSugarG: DailyLimits.default.sugarG,

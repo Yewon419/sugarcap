@@ -57,6 +57,8 @@ enum SettingsTestAction {
     case resetAll
     /// 지난 두 달 기록과 매일 밤 마감을 실제 규칙대로 채운다(`DevData.fill`).
     case fillData
+    /// 앱 달력을 하루 앞당긴다(`AppClock`). 오늘 기록이 어제 것이 되어 어젯밤 정산이 뜬다. 앱 초기화로 0이 된다.
+    case advanceDay
 }
 
 /// 테스트 카드에서 고른 대기 자세(TestFlight·Debug). 캐릭터 id("roshu", "kain") → 자세 이름.

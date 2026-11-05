@@ -96,7 +96,7 @@ struct ManualEntrySheet: View {
             Entry(
                 servingID: nil,
                 quantity: 1,
-                loggedAt: Date(),
+                loggedAt: AppClock.now,
                 sugarG: sugar.number,
                 caffeineMg: caffeine.number,
                 drinkName: trimmed.isEmpty ? String(localized: "직접 입력") : trimmed,

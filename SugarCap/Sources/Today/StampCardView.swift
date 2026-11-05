@@ -223,11 +223,13 @@ struct StampCardView: View {
                         }
                         .offset(y: reelOffset)
                     case .caps:
-                        VStack(spacing: 6) {
-                            ForEach(capGifts, id: \.id) { gift in
-                                PrizeGlyph(gift: gift, size: 30)
-                                    .scaleEffect(isSettled || reduceMotion ? 1 : 0.3)
-                                    .opacity(isSettled || reduceMotion ? 1 : 0)
+                        // 세 줄로 쌓으면 창(104pt)을 넘어 위아래가 잘린다. 둘·하나 삼각형으로 놓는다.
+                        VStack(spacing: 4) {
+                            HStack(spacing: 4) {
+                                ForEach(capGifts.prefix(2), id: \.id) { gift in capGlyph(gift) }
+                            }
+                            HStack(spacing: 4) {
+                                ForEach(capGifts.dropFirst(2), id: \.id) { gift in capGlyph(gift) }
                             }
                         }
                         .frame(width: Self.windowSize.width, height: Self.windowSize.height)
@@ -268,6 +270,12 @@ struct StampCardView: View {
             .background(.white, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
             .transition(.opacity)
         }
+    }
+
+    private func capGlyph(_ gift: GiftEvent) -> some View {
+        PrizeGlyph(gift: gift, size: 28)
+            .scaleEffect(isSettled || reduceMotion ? 1 : 0.3)
+            .opacity(isSettled || reduceMotion ? 1 : 0)
     }
 
     private var capGifts: [GiftEvent] {

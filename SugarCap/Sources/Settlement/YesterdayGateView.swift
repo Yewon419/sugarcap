@@ -48,7 +48,7 @@ struct YesterdayGateView: View {
 
     private var dateText: String {
         let components = DateComponents(year: gate.day.year, month: gate.day.month, day: gate.day.day, hour: 12)
-        let date = Calendar.current.date(from: components) ?? Date()
+        let date = Calendar.current.date(from: components) ?? AppClock.now
         return date.formatted(.dateTime.month().day().weekday(.wide))
     }
 

@@ -172,7 +172,7 @@ struct FeedingView: View {
     private var isCoaching: Bool { isTutorial && step != .done && stage != .eaten }
 
     private var dateText: String {
-        Date().formatted(.dateTime.month().day().weekday(.wide))
+        AppClock.now.formatted(.dateTime.month().day().weekday(.wide))
     }
 
     var body: some View {

@@ -61,6 +61,7 @@ private struct SettingsContent: View {
     @AppStorage(DeveloperMode.key) private var isDeveloperMode = false
     @State private var confirmsFirstRun = false
     @State private var confirmsReset = false
+    @AppStorage(AppClock.dayOffsetKey, store: SharedDefaults.store) private var dayOffset = 0
     @AppStorage(CloseReminder.enabledKey) private var isReminderOn = false
     @AppStorage("cupSet.sugar") private var testSugarCupSet: String?
     @AppStorage("cupSet.caffeine") private var testCaffeineCupSet: String?
@@ -384,6 +385,19 @@ private struct SettingsContent: View {
             Button("지난 2달 데이터 채우기") { onTestAction(.fillData) }
                 .font(AppFont.pretendard(16, .regular, relativeTo: .body))
                 .accessibilityIdentifier("test-fill-data")
+            Button { onTestAction(.advanceDay) } label: {
+                HStack {
+                    Text("하루 넘기기")
+                    Spacer()
+                    if dayOffset > 0 {
+                        Text("+\(dayOffset)일")
+                            .foregroundStyle(.secondary)
+                            .monospacedDigit()
+                    }
+                }
+            }
+            .font(AppFont.pretendard(16, .regular, relativeTo: .body))
+            .accessibilityIdentifier("test-advance-day")
             Button("앱 초기화", role: .destructive) { confirmsReset = true }
                 .font(AppFont.pretendard(16, .regular, relativeTo: .body))
                 .accessibilityIdentifier("test-reset")

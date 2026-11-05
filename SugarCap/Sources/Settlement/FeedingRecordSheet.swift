@@ -77,13 +77,13 @@ struct FeedingRecordSheet: View {
     private func loggedAt() -> Date {
         switch request.kind {
         case .closeToday:
-            return Date()
+            return AppClock.now
         case .pastDay(let day):
             let parts = DateComponents(year: day.year, month: day.month, day: day.day, hour: 23, minute: 59)
             guard let date = Calendar.current.date(from: parts) else {
                 // 유효한 DayKey라 일어나지 않는다. 일어나면 오늘 몫으로 들어가니 기록을 남긴다.
                 Self.logger.fault("지난 날 기록 시각을 못 만듦(\(day.rawValue, privacy: .public)), 지금 시각으로 기록")
-                return Date()
+                return AppClock.now
             }
             return date
         }

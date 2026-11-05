@@ -33,7 +33,7 @@ struct SugarCapProvider: TimelineProvider {
     @MainActor
     func getTimeline(in context: Context, completion: @escaping (Timeline<SugarCapEntry>) -> Void) {
         let now = Date()
-        let entry = SugarCapEntry(date: now, snapshot: WidgetSnapshotLoader.load(now: now))
+        let entry = SugarCapEntry(date: now, snapshot: WidgetSnapshotLoader.load(now: AppClock.now))
         // 기록은 앱에서만 늘어난다. 앱이 `WidgetCenter`로 갱신을 밀고, 그 사이에는 매시 한 번 본다.
         let next = WidgetSnapshotLoader.nextRefresh(after: now, boundaryHour: 4)
         completion(Timeline(entries: [entry], policy: .after(next)))

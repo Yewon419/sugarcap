@@ -262,7 +262,7 @@ enum Favorites {
         if let existing = favorites.first(where: { $0.key == key }) {
             context.delete(existing)
         } else {
-            context.insert(FavoriteDrink(servingID: selection.serving.id, variantLabel: selection.variant?.label, addedAt: Date()))
+            context.insert(FavoriteDrink(servingID: selection.serving.id, variantLabel: selection.variant?.label, addedAt: AppClock.now))
         }
         do {
             try context.save()

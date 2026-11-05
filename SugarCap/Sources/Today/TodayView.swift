@@ -51,6 +51,8 @@ struct TodayView: View {
     /// 보관함에서 잔을 바꾸면 컵을 다시 그린다(§4.10). 값은 `CupSide.cupSetID`가 읽는다.
     @AppStorage("cupSet.sugar") private var sugarCupSet: String?
     @AppStorage("cupSet.caffeine") private var caffeineCupSet: String?
+    /// 개발자 모드 "하루 넘기기"로 앞당긴 날 수(`AppClock`). 바뀌면 오늘이 바뀌어 정산을 다시 돈다.
+    @AppStorage(AppClock.dayOffsetKey, store: SharedDefaults.store) private var dayOffset = 0
     /// 지난 마감분이 방금 확정됐을 때만 채운다. 이번 실행 동안만 보인다.
     @State private var creditNotice: [FeedResult]?
     @State private var paywall: ProFeature?
@@ -145,7 +147,7 @@ struct TodayView: View {
         NavigationStack(path: $path) {
             // 경계 시각(기본 새벽 4시)을 넘기면 화면을 켜 둔 채로도 오늘이 바뀌어야 한다.
             TimelineView(.everyMinute) { timeline in
-                content(now: timeline.date)
+                content(now: AppClock.shifted(timeline.date, by: dayOffset))
             }
             .toolbar(.hidden, for: .navigationBar)
             // 브랜드 메뉴의 뒤로 버튼 글자("‹ 오늘"). 막대는 숨겨 두므로 제목은 보이지 않는다.
@@ -156,15 +158,15 @@ struct TodayView: View {
                     BrandMenuView(
                         brand: brand,
                         catalog: menuCatalog,
-                        todayTotals: todayTotals(now: Date()),
+                        todayTotals: todayTotals(now: AppClock.now),
                         limits: limits,
                         onAdd: { selection in
                             guard tutorial == nil else {
-                                addTutorialEntry(selection.makeEntry(brandName: brand.name, at: Date()))
+                                addTutorialEntry(selection.makeEntry(brandName: brand.name, at: AppClock.now))
                                 return
                             }
                             UsageReporter.shared?.logEntry(path: .brandMenu, place: .today, brandID: brand.id, now: Date())
-                            record(selection.makeEntry(brandName: brand.name, at: Date()))
+                            record(selection.makeEntry(brandName: brand.name, at: AppClock.now))
                         },
                         onManualEntry: { isManualEntryPresented = true }
                     )
@@ -207,7 +209,7 @@ struct TodayView: View {
         .sheet(isPresented: $isRecordSheetPresented) {
             RecordSheet(
                 catalog: tutorial == nil ? catalog : DrinkTutorial.catalog,
-                todayTotals: todayTotals(now: Date()),
+                todayTotals: todayTotals(now: AppClock.now),
                 limits: limits,
                 onBrand: { brandID in
                     isRecordSheetPresented = false
@@ -220,16 +222,16 @@ struct TodayView: View {
                 onAdd: { selection, brand in
                     isRecordSheetPresented = false
                     UsageReporter.shared?.logEntry(path: .search, place: .today, brandID: brand.id, now: Date())
-                    record(selection.makeEntry(brandName: brand.name, at: Date()))
+                    record(selection.makeEntry(brandName: brand.name, at: AppClock.now))
                 },
                 onQuickAdd: { drink, entryPath in
                     isRecordSheetPresented = false
                     UsageReporter.shared?.logEntry(path: entryPath, place: .today, brandID: drink.brand.id, now: Date())
-                    let entry = drink.selection.makeEntry(brandName: drink.brand.name, at: Date())
+                    let entry = drink.selection.makeEntry(brandName: drink.brand.name, at: AppClock.now)
                     record(entry)
                     undoToast = UndoToast(entryID: entry.id, text: String(localized: "\(drink.name) 기록했어요"))
                 },
-                todayCount: todaysEntries(now: Date()).count,
+                todayCount: todaysEntries(now: AppClock.now).count,
                 onTodayLog: {
                     isRecordSheetPresented = false
                     isDayLogPresented = true
@@ -238,7 +240,7 @@ struct TodayView: View {
             .environment(\.recordCup, side)
         }
         .sheet(isPresented: $isDayLogPresented, onDismiss: finishTutorial) {
-            let now = Date()
+            let now = AppClock.now
             DayLogSheet(
                 day: DayKey(at: now, boundaryHour: boundaryHour),
                 isToday: true,
@@ -507,7 +509,7 @@ struct TodayView: View {
         let defaults = UserDefaults.standard
         guard defaults.object(forKey: "screenshotLevelUp") != nil, levelUp == nil else { return }
         let level = min(max(defaults.integer(forKey: "screenshotLevelUp"), 2), AffinityMath.maxLevel)
-        let gift = GiftEvent(kind: .levelUp, side: side, level: level, createdAt: Date())
+        let gift = GiftEvent(kind: .levelUp, side: side, level: level, createdAt: AppClock.now)
         levelUp = LevelUpStage(gift: gift, side: side, level: level, startedAt: Date())
         #endif
     }
@@ -600,7 +602,7 @@ struct TodayView: View {
     private func grantProWelcomeIfOwned() {
         guard pro.ownsRealPro else { return }
         do {
-            if try GiftStore.grantProWelcome(sides: trackedSides, now: Date(), in: context) { try context.save() }
+            if try GiftStore.grantProWelcome(sides: trackedSides, now: AppClock.now, in: context) { try context.save() }
         } catch {
             Self.logger.error("Pro 축하 선물 저장 실패: \(String(describing: error), privacy: .public)")
         }
@@ -613,7 +615,7 @@ struct TodayView: View {
     }
 
     private func saveOpened(_ gift: GiftEvent) {
-        GiftStore.open(gift, now: Date())
+        GiftStore.open(gift, now: AppClock.now)
         do {
             try context.save()
         } catch {
@@ -634,12 +636,12 @@ struct TodayView: View {
             // 내용은 `-screenshotGiftContent heart|cap|item:strawberry`(기본 마음).
             let gift = GiftEvent(
                 kind: kind, side: side, payload: defaults.string(forKey: "screenshotGiftContent") ?? GiftContent.heart,
-                createdAt: Date()
+                createdAt: AppClock.now
             )
             context.insert(gift)
             reveal = GiftReveal(gift: gift, startedAt: Date())
         } else if pendingGift(for: side) == nil {
-            context.insert(GiftEvent(kind: kind, side: side, createdAt: Date()))
+            context.insert(GiftEvent(kind: kind, side: side, createdAt: AppClock.now))
         }
         try? context.save()
         #endif
@@ -733,7 +735,7 @@ struct TodayView: View {
         #endif
         do {
             let offered = try TradeStore.offerIfDue(
-                sides: trackedSides, today: today, boundaryHour: boundaryHour, now: Date(),
+                sides: trackedSides, today: today, boundaryHour: boundaryHour, now: AppClock.now,
                 roll: Double.random(in: 0 ..< 1), in: context
             )
             if offered != nil { try context.save() }
@@ -792,7 +794,7 @@ struct TodayView: View {
         }
         if offer.modelContext != nil {
             do {
-                try TradeStore.accept(offer, now: Date(), roll: Double.random(in: 0 ..< 1), in: context)
+                try TradeStore.accept(offer, now: AppClock.now, roll: Double.random(in: 0 ..< 1), in: context)
                 try context.save()
                 UsageReporter.shared?.log(UsageEvents.tradeOffer(itemID: offer.itemID, accepted: true))
             } catch {
@@ -819,7 +821,7 @@ struct TodayView: View {
         guard trade?.id == stage.id else { return }
         let offer = stage.offer
         if offer.modelContext != nil {
-            TradeStore.refuse(offer, now: Date(), roll: Double.random(in: 0 ..< 1))
+            TradeStore.refuse(offer, now: AppClock.now, roll: Double.random(in: 0 ..< 1))
             do {
                 try context.save()
                 UsageReporter.shared?.log(UsageEvents.tradeOffer(itemID: offer.itemID, accepted: false))
@@ -867,7 +869,7 @@ struct TodayView: View {
               let item = UserDefaults.standard.string(forKey: "screenshotTradeItem").flatMap(TradeCatalog.item)
                 ?? TradeCatalog.tutorialItem(tracked: trackedSides) ?? TradeCatalog.items.first
         else { return }
-        let offer = TradeOffer(itemID: item.id, side: item.side, price: TradeMath.firstPrice, offeredAt: Date())
+        let offer = TradeOffer(itemID: item.id, side: item.side, price: TradeMath.firstPrice, offeredAt: AppClock.now)
         screenshotOffer = offer
         pickedSide = item.side
         if raw == "card" { trade = TradeStage(offer: offer, startedAt: Date()) }
@@ -1094,7 +1096,7 @@ struct TodayView: View {
             isStampCardPresented = true
         }
         .task(id: tradeCue(now: now)) {
-            if tradeCue(now: Date()) != nil { await offerTradeIfDue(today: today) }
+            if tradeCue(now: AppClock.now) != nil { await offerTradeIfDue(today: today) }
         }
         .task(id: leavingOffer) {
             if let leavingOffer { await finishLeaving(leavingOffer) }
@@ -1343,18 +1345,18 @@ struct TodayView: View {
             let records = try SettlementStore.records(in: context)
             let plan = SettlementPlanner.plan(today: today, records: records)
             // 선물이 생기기 전부터 쓰던 기기는 추이가 잠기지 않게 먼저 소급한다(이번 적립 전 상태로 판정).
-            _ = try GiftStore.adoptExistingProgress(records: records, now: Date(), in: context)
+            _ = try GiftStore.adoptExistingProgress(records: records, now: AppClock.now, in: context)
             var credited: [FeedResult] = []
             for day in plan.finalize {
                 let row = try SettlementStore.row(for: day, in: context)
                 credited += try SettlementStore.finalize(
                     row, entries: entries, limits: limits, boundaryHour: boundaryHour, sides: trackedSides,
-                    isPro: pro.isPro, now: Date(), in: context
+                    isPro: pro.isPro, now: AppClock.now, in: context
                 )
             }
             // 첫 적립 뒤 첫 선물 = 추이 열림(SPEC §4.9).
-            _ = try GiftStore.grantFirstReward(credited: credited, now: Date(), in: context)
-            _ = GiftStore.queueLevelUps(credited: credited, now: Date(), in: context)
+            _ = try GiftStore.grantFirstReward(credited: credited, now: AppClock.now, in: context)
+            _ = GiftStore.queueLevelUps(credited: credited, now: AppClock.now, in: context)
             var reachedGoals: [UsageEventDraft] = []
             if let settings = settingsRows.first {
                 // 꺼진 면의 감소 목표는 멈춘다. 다시 켜면 그동안의 주도 저장된 기록으로 판정한다.
@@ -1368,7 +1370,7 @@ struct TodayView: View {
                     )
                     // 목표를 끝까지 해내면 그 면 캐릭터가 선물을 가져온다(§4.9).
                     if reached {
-                        try GiftStore.grantGoalReached(side: goalSide, isPro: pro.isPro, now: Date(), in: context)
+                        try GiftStore.grantGoalReached(side: goalSide, isPro: pro.isPro, now: AppClock.now, in: context)
                         reachedGoals.append(UsageEvents.goalReached(side: goalSide, weeks: weeks))
                     }
                 }
@@ -1408,7 +1410,7 @@ struct TodayView: View {
     }
 
     private func feed(_ request: FeedingRequest) throws -> [FeedResult] {
-        let now = Date()
+        let now = AppClock.now
         let results: [FeedResult]
         var keptWeek: DayKey?
         switch request.kind {
@@ -1461,7 +1463,7 @@ struct TodayView: View {
     private func afterFeedingClosed() {
         if rehearsesFirstMeeting {
             rehearsesFirstMeeting = false
-            rehearsalMeetings = trackedSides.map { GiftEvent(kind: .levelUp, side: $0, level: 1, createdAt: Date()) }
+            rehearsalMeetings = trackedSides.map { GiftEvent(kind: .levelUp, side: $0, level: 1, createdAt: AppClock.now) }
             return
         }
         if let pending = pendingWeekKept {
@@ -1488,7 +1490,7 @@ struct TodayView: View {
         try context.save()
         let day: DayKey
         switch request.kind {
-        case .closeToday: day = DayKey(at: Date(), boundaryHour: boundaryHour)
+        case .closeToday: day = DayKey(at: AppClock.now, boundaryHour: boundaryHour)
         case .pastDay(let past): day = past
         }
         let dayTotals = try storedTotals(for: day)
@@ -1512,7 +1514,7 @@ struct TodayView: View {
 
     private func dismissPastDay(_ day: DayKey) {
         do {
-            try SettlementStore.dismissPastDay(day, now: Date(), in: context)
+            try SettlementStore.dismissPastDay(day, now: AppClock.now, in: context)
             try context.save()
             UsageReporter.shared?.log(UsageEvents.dayClosed(.drank))
             prompt = nil
@@ -1528,7 +1530,7 @@ struct TodayView: View {
     private func runPendingTestAction() {
         guard let action = pendingTestAction else { return }
         pendingTestAction = nil
-        let now = Date()
+        let now = AppClock.now
         switch action {
         case .feeding:
             let todayTotals = todayTotals(now: now)
@@ -1583,7 +1585,7 @@ struct TodayView: View {
             // 저장소에 넣지 않은 선물이라 끝나도 연 것으로 저장하지 않는다(`finishLevelUp`). 최고 단계면 그 단계를 다시 보여 준다.
             let level = min(max(affinityLevel(side) + 1, 2), AffinityMath.maxLevel)
             let gift = GiftEvent(kind: .levelUp, side: side, level: level, createdAt: now)
-            levelUp = LevelUpStage(gift: gift, side: side, level: level, startedAt: now)
+            levelUp = LevelUpStage(gift: gift, side: side, level: level, startedAt: Date())
         case .trade:
             // 켠 면의 상품 중 지금 안 쓰는 잔을 고른다. 바꾸면 잔만 바뀌고, 안 가진 잔은 앱을 다시 켜면 기본 잔으로 돌아간다.
             let items = TradeCatalog.items.filter { trackedSides.contains($0.side) }
@@ -1627,6 +1629,9 @@ struct TodayView: View {
                 Self.logger.error("데이터 채우기 실패: \(String(describing: error), privacy: .public)")
                 failureMessage = "데이터 채우기 실패: \(error)"
             }
+        case .advanceDay:
+            dayOffset += 1
+            WidgetCenter.shared.reloadAllTimelines()
         }
     }
 
@@ -1689,7 +1694,7 @@ struct TodayView: View {
         }
         // 어젯밤 처리 전체 화면(`-screenshotGate feed|ask`).
         if let kind = defaults.string(forKey: "screenshotGate") {
-            let yesterday = DayKey(at: Date(), boundaryHour: boundaryHour).shifted(by: -1)
+            let yesterday = DayKey(at: AppClock.now, boundaryHour: boundaryHour).shifted(by: -1)
             gate = YesterdayGate(
                 kind: kind == "ask" ? .askNoDrink : .feed, day: yesterday,
                 sugarLeftG: kind == "ask" ? limits.sugarG : 18, caffeineLeftMg: kind == "ask" ? limits.caffeineMg : 150,
@@ -1720,7 +1725,7 @@ struct TodayView: View {
             let practice = DrinkTutorial.catalog
             if let drink = practice.catalog.drinks.first, let brand = practice.brand(id: drink.brandId),
                ["number", "edit"].contains(raw) {
-                tutorialEntry = ServingSelection(drink: drink).makeEntry(brandName: brand.name, at: Date())
+                tutorialEntry = ServingSelection(drink: drink).makeEntry(brandName: brand.name, at: AppClock.now)
             }
             pickedSide = .sugar
             switch raw {

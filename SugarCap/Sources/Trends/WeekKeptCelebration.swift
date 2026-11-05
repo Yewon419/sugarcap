@@ -336,7 +336,7 @@ struct WeekKeptCelebrationView: View {
     }
 
     private func masthead(table: TrendTable?) -> some View {
-        let thisWeek = GiftMath.weekStart(of: DayKey(at: Date(), boundaryHour: boundaryHour))
+        let thisWeek = GiftMath.weekStart(of: DayKey(at: AppClock.now, boundaryHour: boundaryHour))
             == GiftMath.weekStart(of: celebration.closed)
         return HStack(spacing: 8) {
             Text(thisWeek ? String(localized: "이번 주") : String(localized: "지난주"))
@@ -483,7 +483,7 @@ struct WeekKeptCelebrationView: View {
     }
 
     private func isToday(_ day: DayKey) -> Bool {
-        day == DayKey(at: Date(), boundaryHour: boundaryHour)
+        day == DayKey(at: AppClock.now, boundaryHour: boundaryHour)
     }
 
     /// 일요일 잔 뒤 캐릭터. 글자가 멈추는 순간 바닥에서 방방 뛰고, 발밑 양옆에서 팡파레가 터진다.

@@ -100,7 +100,7 @@ struct TrendsView: View {
 
     var body: some View {
         TimelineView(.everyMinute) { timeline in
-            let today = DayKey(at: timeline.date, boundaryHour: boundaryHour)
+            let today = DayKey(at: AppClock.shifted(timeline.date, by: AppClock.dayOffset), boundaryHour: boundaryHour)
             // Group이면 onAppear가 안쪽 뷰마다 붙어 주↔월을 바꿀 때마다 다시 불린다.
             ZStack {
                 if isMonth {
@@ -149,7 +149,7 @@ struct TrendsView: View {
             PaywallView(feature: feature, origin: PaywallOrigin(feature))
         }
         .sheet(item: $dayLog) { day in
-            let today = DayKey(at: Date(), boundaryHour: boundaryHour)
+            let today = DayKey(at: AppClock.now, boundaryHour: boundaryHour)
             // 삼항식에 메서드를 바로 넣으면 body 타입 추론이 죽는다(CI 38220722228). 타입을 적어 둔다.
             let onAdd: ((Entry) -> Void)? = day == today ? nil : { add($0) }
             DayLogSheet(
@@ -347,7 +347,7 @@ struct TrendsView: View {
     @ViewBuilder
     private var digestTitle: some View {
         if isMonth, monthDigestShown {
-            let month = (monthShown ?? DayKey(at: Date(), boundaryHour: boundaryHour)).month
+            let month = (monthShown ?? DayKey(at: AppClock.now, boundaryHour: boundaryHour)).month
             Group {
                 if MonthTrendsView.namesMonths {
                     // 영어는 달 이름(달력 머리 "October · Sugar eaten"과 같은 꼴, 대표님 2026-10-29).
@@ -988,7 +988,7 @@ struct TrendsView: View {
         // `-screenshotTrendDayLog 2` = 이틀 전 하루 기록 시트(지난날 "음료 추가").
         if defaults.object(forKey: "screenshotTrendDayLog") != nil {
             let back = defaults.integer(forKey: "screenshotTrendDayLog")
-            dayLog = DayKey(at: Date(), boundaryHour: boundaryHour).shifted(by: -back)
+            dayLog = DayKey(at: AppClock.now, boundaryHour: boundaryHour).shifted(by: -back)
         }
         #endif
     }

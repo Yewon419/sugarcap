@@ -129,12 +129,12 @@ struct InventoryView: View {
         let side: CupSide
     }
 
-    /// 면마다 기본 잔, 그 뒤에 산 잔(상품 목록 순서).
+    /// 면마다 기본 잔, 그 뒤에 산 잔(상품 목록 순서), 얼리버드로 받은 유리 공예 잔.
     private var cupTiles: [CupTile] {
         let owned = ownedSets
         return CupSide.allCases.flatMap { side in
             [CupTile(setID: side.defaultCupSetID, name: side.defaultCupSetName, side: side)]
-                + TradeCatalog.items
+                + (TradeCatalog.items + TradeCatalog.perks)
                 .filter { $0.side == side && owned.contains($0.id) }
                 .map { CupTile(setID: $0.id, name: $0.name, side: side) }
         }

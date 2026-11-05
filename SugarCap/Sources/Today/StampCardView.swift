@@ -10,7 +10,12 @@ struct StampCardView: View {
     let seen: Int
     /// 룰렛에 돌릴 잔(기록하는 면의 상품). 멈추는 잔은 14칸 행에 이미 정해져 있다.
     let reel: [TradeItem]
+    /// 얼리버드 대상(`EarlyBird.known() == true`). 7칸을 찍기 전에도 유리 방울을 옅게 보여 준다.
+    let isEarlyBird: Bool
+    /// 얼리버드 무대를 본 적 있는지(`EarlyBird.seenKey`). 7칸을 지나 소급해 받았으면 판을 열 때 한 번 보여 준다.
+    let earlyBirdSeen: Bool
     let onSeen: (Int) -> Void
+    let onEarlyBirdSeen: () -> Void
     let onClose: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -22,6 +27,14 @@ struct StampCardView: View {
     @State private var reelOffset: CGFloat = 0
     @State private var isSettled = false
     @State private var notchY: CGFloat = 76
+    /// 얼리버드 무대 단계. 0 = 없음, 1 = 판이 어두워짐, 2 = 방울이 떠오름, 3 = 빛줄기가 지나감, 4 = 이름과 받기.
+    @State private var earlyStage = 0
+    /// 빛줄기 위치(0 = 방울 왼쪽 밖, 1 = 오른쪽 밖).
+    @State private var streak: CGFloat = 0
+    /// 이 판에서 무대를 받았다(스크린샷처럼 바깥 기록이 안 바뀌어도 다시 틀지 않는다).
+    @State private var earlyBirdDone = false
+    /// 무대를 받은 뒤 남은 칸을 이어 찍으려고 `play`를 다시 돌린다.
+    @State private var playRun = 0
 
     private enum Finale: Equatable {
         /// 받은 잔 세트 id.
@@ -45,7 +58,7 @@ struct StampCardView: View {
             card
                 .padding(.horizontal, 24)
         }
-        .task { await play() }
+        .task(id: playRun) { await play() }
         .sensoryFeedback(.impact(weight: .medium), trigger: shown) { old, new in new > old && old >= seen }
         .sensoryFeedback(.success, trigger: isSettled) { _, new in new }
     }
@@ -114,6 +127,7 @@ struct StampCardView: View {
             .padding(.trailing, 7)
         }
         .overlay { finaleView }
+        .overlay { earlyBirdView }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("stamp-card")
     }
@@ -134,10 +148,12 @@ struct StampCardView: View {
         let isLast = number == StampMath.cells
         let isDone = number <= shown
         let isPressing = pressing == number
-        let gift = stamps.first { $0.level == number }
+        let gift = stampGift(at: number)
         ZStack {
             if isLast {
                 lastCell(isDone: isDone, gift: gift)
+            } else if number == StampMath.earlyBirdCell, isDone ? !perkItems.isEmpty : (isEarlyBird && !isPressing) {
+                earlyBirdCell(isDone: isDone)
             } else {
                 Circle()
                     .strokeBorder(
@@ -191,7 +207,35 @@ struct StampCardView: View {
         }
     }
 
+    /// 7칸 얼리버드 자리. 받았으면 유리 방울 두 개, 대상인데 아직이면 옅은 방울과 점선.
+    @ViewBuilder
+    private func earlyBirdCell(isDone: Bool) -> some View {
+        let isNext = shown == StampMath.earlyBirdCell - 1
+        if isDone {
+            Circle().fill(.white)
+            Circle().strokeBorder(Color.ink, lineWidth: 2)
+        } else {
+            Circle().strokeBorder(Color.ink, style: StrokeStyle(lineWidth: isNext ? 2 : 1.5, dash: isNext ? [] : [3, 2.5]))
+        }
+        HStack(spacing: -7) {
+            ForEach(isDone ? perkItems : TradeCatalog.perks) { item in
+                Image(item.dropAsset)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 19, height: 19)
+            }
+        }
+        .opacity(isDone ? 1 : 0.4)
+        .accessibilityHidden(true)
+    }
+
     private func cellLabel(_ number: Int, isDone: Bool, gift: GiftEvent?) -> String {
+        if number == StampMath.earlyBirdCell, isDone ? !perkItems.isEmpty : isEarlyBird {
+            let title = String(localized: "얼리버드 선물")
+            let place = String(localized: "\(number)번째 칸")
+            guard isDone else { return "\(place), \(title)" }
+            return "\(title): \(perkItems.map(\.name).joined(separator: ", "))"
+        }
         guard isDone, let gift else { return String(localized: "\(number)번째 칸") }
         if let set = StampCardView.setID(of: gift), let item = TradeCatalog.item(set) { return item.name }
         return gift.isCap ? String(localized: "병뚜껑") : String(localized: "마음")
@@ -200,6 +244,128 @@ struct StampCardView: View {
     private static func setID(of gift: GiftEvent) -> String? {
         guard let payload = gift.payload, payload.hasPrefix(GiftContent.setPrefix) else { return nil }
         return String(payload.dropFirst(GiftContent.setPrefix.count))
+    }
+
+    private static func isPerk(_ gift: GiftEvent) -> Bool {
+        guard let id = setID(of: gift) else { return false }
+        return TradeCatalog.perks.contains { $0.id == id }
+    }
+
+    /// 칸에 찍힌 상품. 7칸은 얼리버드 잔 행이 더 있어도 마음 행이 도장이다.
+    private func stampGift(at number: Int) -> GiftEvent? {
+        let rows = stamps.filter { $0.level == number }
+        return rows.first { !Self.isPerk($0) } ?? rows.first
+    }
+
+    /// 7칸에서 받은 유리 공예 잔(`TradeCatalog.perks` 순서).
+    private var perkItems: [TradeItem] {
+        let won = Set(stamps.filter { $0.level == StampMath.earlyBirdCell && Self.isPerk($0) }.compactMap(Self.setID(of:)))
+        return TradeCatalog.perks.filter { won.contains($0.id) }
+    }
+
+    private var needsEarlyBirdStage: Bool {
+        !perkItems.isEmpty && !earlyBirdSeen && !earlyBirdDone
+    }
+
+    // MARK: - 얼리버드 무대
+
+    /// 판을 어둡게 덮고 유리 방울 두 개가 떠오른 뒤 빛줄기가 한 번 지나간다. 단색 면·또렷한 선만(에어브러시 금지).
+    @ViewBuilder
+    private var earlyBirdView: some View {
+        if earlyStage > 0 {
+            ZStack {
+                CouponShape(notchY: notchY)
+                    .fill(Color.ink.opacity(0.9))
+                VStack(spacing: 0) {
+                    HStack(spacing: 20) {
+                        ForEach(perkItems) { item in
+                            Image(item.dropAsset)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 92, height: 92)
+                                .overlay { streakBand(item) }
+                        }
+                    }
+                    .offset(y: earlyStage >= 2 ? 0 : 36)
+                    .opacity(earlyStage >= 2 ? 1 : 0)
+                    .accessibilityHidden(true)
+
+                    Text("얼리버드 선물")
+                        .font(AppFont.pretendard(22, .bold, relativeTo: .title2))
+                        .foregroundStyle(.white)
+                        .padding(.top, 22)
+                        .opacity(earlyStage >= 4 ? 1 : 0)
+                    Text(verbatim: perkItems.map(\.name).joined(separator: " · "))
+                        .font(AppFont.pretendard(17, .semibold, relativeTo: .headline))
+                        .foregroundStyle(Color(white: 0.85))
+                        .padding(.top, 8)
+                        .opacity(earlyStage >= 4 ? 1 : 0)
+                        .accessibilityIdentifier("stamp-early-names")
+                    Button(action: takeEarlyBird) {
+                        Text("받기")
+                            .font(AppFont.pretendard(16, .semibold, relativeTo: .body))
+                            .foregroundStyle(Color.ink)
+                            .padding(.horizontal, 28)
+                            .frame(minHeight: 44)
+                            .background(.white, in: Capsule())
+                    }
+                    .opacity(earlyStage >= 4 ? 1 : 0)
+                    .disabled(earlyStage < 4)
+                    .padding(.top, 20)
+                    .accessibilityIdentifier("stamp-early-take")
+                }
+                .padding(.horizontal, 24)
+            }
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("stamp-early")
+            .transition(.opacity)
+        }
+    }
+
+    /// 방울 모양 안에서만 보이는 비스듬한 흰 띠.
+    private func streakBand(_ item: TradeItem) -> some View {
+        GeometryReader { proxy in
+            let width = proxy.size.width
+            let travel: CGFloat = width * 2
+            let x: CGFloat = -width * 0.5 + travel * streak
+            Rectangle()
+                .fill(Color.white.opacity(0.75))
+                .frame(width: 14, height: proxy.size.height * 1.6)
+                .rotationEffect(.degrees(20))
+                .position(x: x, y: proxy.size.height / 2)
+        }
+        .opacity(earlyStage == 3 ? 1 : 0)
+        .mask {
+            Image(item.dropAsset)
+                .resizable()
+                .scaledToFit()
+        }
+        .allowsHitTesting(false)
+    }
+
+    private func playEarlyBird() async {
+        streak = 0
+        withAnimation(.easeOut(duration: 0.25)) { earlyStage = 1 }
+        guard !reduceMotion, !Self.isScreenshotInstant else {
+            earlyStage = 4
+            return
+        }
+        try? await Task.sleep(for: .seconds(0.3))
+        withAnimation(.spring(response: 0.6, dampingFraction: 0.75)) { earlyStage = 2 }
+        try? await Task.sleep(for: .seconds(0.7))
+        guard !Task.isCancelled else { return }
+        earlyStage = 3
+        withAnimation(.easeInOut(duration: 0.7)) { streak = 1 }
+        try? await Task.sleep(for: .seconds(0.75))
+        guard !Task.isCancelled else { return }
+        withAnimation(.easeOut(duration: 0.3)) { earlyStage = 4 }
+    }
+
+    private func takeEarlyBird() {
+        withAnimation(.easeOut(duration: 0.2)) { earlyStage = 0 }
+        earlyBirdDone = true
+        onEarlyBirdSeen()
+        playRun += 1
     }
 
     // MARK: - 14칸
@@ -308,7 +474,14 @@ struct StampCardView: View {
     // MARK: - 순서
 
     private func play() async {
-        shown = min(seen, stamped)
+        shown = max(shown, min(seen, stamped))
+        // 판정이 늦게 와서 이미 찍은 7칸에 잔이 들어왔다. 판을 열자마자 무대부터.
+        if shown >= StampMath.earlyBirdCell, needsEarlyBirdStage {
+            try? await Task.sleep(for: .seconds(0.45))
+            guard !Task.isCancelled else { return }
+            await playEarlyBird()
+            return
+        }
         guard shown < stamped else { return }
         try? await Task.sleep(for: .seconds(0.45))
         while shown < stamped, !Task.isCancelled {
@@ -329,6 +502,12 @@ struct StampCardView: View {
                 pressing = nil
             }
             onSeen(number)
+            if number == StampMath.earlyBirdCell, needsEarlyBirdStage {
+                try? await Task.sleep(for: .seconds(0.35))
+                guard !Task.isCancelled else { return }
+                await playEarlyBird()
+                return
+            }
         }
     }
 

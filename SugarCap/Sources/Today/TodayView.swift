@@ -113,6 +113,7 @@ struct TodayView: View {
     @State private var screenshotStamps: [GiftEvent]?
     @State private var screenshotStampSeen = 0
     @AppStorage(StampProgress.seenKey) private var stampSeen = 0
+    @AppStorage(EarlyBird.seenKey) private var earlyBirdSeen = false
 
     @Environment(ProStore.self) private var pro
 
@@ -134,7 +135,13 @@ struct TodayView: View {
     private var ownedItems: Set<String> { GiftContent.takenItems(in: gifts.filter(\.isOpened)) }
     private var stamps: [GiftEvent] { gifts.filter { $0.giftKind == .stamp } }
     /// 찍었지만 아직 찍는 연출을 못 본 칸이 있다. 다른 연출(단계 상승·거래)보다 먼저 스탬프판을 연다.
-    private var hasUnseenStamp: Bool { StampMath.stamped(cellNumbers: stamps.compactMap(\.level)) > stampSeen }
+    /// 판정이 늦게 와서 소급해 받은 얼리버드 잔도 무대를 볼 때까지 안 본 칸으로 친다.
+    private var hasUnseenStamp: Bool {
+        StampMath.stamped(cellNumbers: stamps.compactMap(\.level)) > stampSeen || hasUnseenEarlyBird
+    }
+    private var hasUnseenEarlyBird: Bool {
+        !earlyBirdSeen && stamps.contains { gift in TradeCatalog.perks.contains { GiftContent.set($0.id) == gift.payload } }
+    }
     private func affinityLevel(_ side: CupSide) -> Int {
         let points = affinities.first { $0.character == side.characterID }?.points ?? 0
         return AffinityMath.level(points: points)
@@ -1775,6 +1782,15 @@ struct TodayView: View {
             let payload = layout[cell - 1] == .cap ? GiftContent.cap : GiftContent.heart
             rows.append(GiftEvent(kind: .stamp, side: side, level: cell, payload: payload, createdAt: now, openedAt: now))
         }
+        // 얼리버드(`-earlyBird YES`)면 7칸에 유리 공예 잔 두 행.
+        if count >= StampMath.earlyBirdCell, EarlyBird.known() == true {
+            for perk in TradeCatalog.perks {
+                rows.append(GiftEvent(
+                    kind: .stamp, side: perk.side, level: StampMath.earlyBirdCell, payload: GiftContent.set(perk.id),
+                    createdAt: now, openedAt: now
+                ))
+            }
+        }
         guard count == StampMath.cells else { return rows }
         if final == "caps" {
             for index in 0 ..< StampMath.finalCaps {
@@ -1797,10 +1813,17 @@ struct TodayView: View {
                 stamps: screenshotStamps ?? stamps,
                 seen: isScreenshot ? screenshotStampSeen : stampSeen,
                 reel: TradeCatalog.items.filter { trackedSides.contains($0.side) },
+                isEarlyBird: EarlyBird.known() == true,
+                // 스크린샷은 7칸을 이미 본 판이면 무대도 본 것으로 둔다.
+                earlyBirdSeen: isScreenshot ? screenshotStampSeen >= StampMath.earlyBirdCell : earlyBirdSeen,
                 onSeen: { if !isScreenshot { stampSeen = max(stampSeen, $0) } },
+                onEarlyBirdSeen: { if !isScreenshot { earlyBirdSeen = true } },
                 onClose: {
-                    // 연출 중에 닫아도 찍은 칸은 본 것으로 둔다(다시 열면 찍힌 채로 보인다).
-                    if !isScreenshot { stampSeen = max(stampSeen, StampMath.stamped(cellNumbers: stamps.compactMap(\.level))) }
+                    // 연출 중에 닫아도 찍은 칸은 본 것으로 둔다(다시 열면 찍힌 채로 보인다). 얼리버드 무대도 같다.
+                    if !isScreenshot {
+                        stampSeen = max(stampSeen, StampMath.stamped(cellNumbers: stamps.compactMap(\.level)))
+                        if hasUnseenEarlyBird { earlyBirdSeen = true }
+                    }
                     screenshotStamps = nil
                     isStampCardPresented = false
                 }

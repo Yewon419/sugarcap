@@ -6994,6 +6994,22 @@
         }
       }
     },
+    "얼리버드 선물" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Early Bird Gift"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "早鳥禮物"
+          }
+        }
+      }
+    },
     "병뚜껑 %lld개랑 바꿀래?" : {
       "localizations" : {
         "en" : {

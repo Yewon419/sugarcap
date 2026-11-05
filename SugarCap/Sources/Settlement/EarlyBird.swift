@@ -8,6 +8,8 @@ enum EarlyBird {
     static let year = 2026
     /// 판정 결과(UserDefaults Bool). 한 번 확인하면 다시 묻지 않는다. Debug·CI는 실행 인자 `-earlyBird YES|NO`로 덮는다.
     static let key = "earlyBird"
+    /// 스탬프판에서 받는 무대(`StampCardView`)를 본 적 있는지. 판정이 늦게 와 7칸을 지나서 받은 사람도 한 번은 본다.
+    static let seenKey = "earlyBirdSeen"
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "gift")
 
     /// 처음 받은 날이 한국 시각으로 2026년인지.

@@ -26,8 +26,11 @@ struct RecordSheet: View {
     @Environment(\.dynamicTypeSize) private var typeSize
     @Environment(\.recordCup) private var recordCup
     @Environment(\.trackedSides) private var trackedSides
+    @Environment(\.drinkTutorial) private var tutorial
 
     @State private var query = ""
+    /// 첫 기록 안내에서 밝힐 첫 브랜드 칸(화면 좌표).
+    @State private var firstBrandFrame: CGRect = .zero
     @State private var panelDrink: Drink?
     @State private var failureMessage: String?
 
@@ -74,6 +77,13 @@ struct RecordSheet: View {
             }
             .scrollDismissesKeyboard(.immediately)
         }
+        // 첫 기록 안내: 연습용 브랜드 칸만 밝힌다.
+        .overlay {
+            if tutorial == .record, let first = catalog.catalog.brands.first {
+                CoachMark(hole: firstBrandFrame, text: String(localized: "마신 음료의 브랜드를 탭하세요")) { onBrand(first.id) }
+            }
+        }
+        .interactiveDismissDisabled(tutorial != nil)
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(38)
@@ -162,6 +172,9 @@ struct RecordSheet: View {
                     brandCard(name: brand.name, detail: String(localized: "메뉴 \(catalog.drinks(brandID: brand.id).count.formatted())"), dashed: false)
                 }
                 .buttonStyle(PressScaleStyle())
+                .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { frame in
+                    if brand.id == catalog.catalog.brands.first?.id { firstBrandFrame = frame }
+                }
                 .accessibilityIdentifier("brand-\(brand.id)")
             }
             Button(action: onManualEntry) {

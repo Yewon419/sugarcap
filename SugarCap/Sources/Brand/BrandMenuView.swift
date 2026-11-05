@@ -16,6 +16,9 @@ struct BrandMenuView: View {
     @State private var panelDrink: Drink?
     @Environment(\.recordCup) private var recordCup
     @Environment(\.trackedSides) private var trackedSides
+    @Environment(\.drinkTutorial) private var tutorial
+    /// 첫 기록 안내에서 밝힐 맨 위 음료 줄(화면 좌표).
+    @State private var firstDrinkFrame: CGRect = .zero
 
     private static let allCategory = String(localized: "전체")
     /// 이보다 메뉴가 많으면(편의점) 전체 목록·분류 칩 대신 검색부터 보여 준다. 카페 최대는 빽다방 296개.
@@ -80,6 +83,13 @@ struct BrandMenuView: View {
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear(perform: openPanelForScreenshot)
+        // 첫 기록 안내: 맨 위 음료만 밝힌다. 뒤로 가기는 숨겨 안내 밖으로 못 나가게 한다.
+        .overlay {
+            if tutorial == .record, panelDrink == nil, let first = results().first {
+                CoachMark(hole: firstDrinkFrame, text: String(localized: "마신 음료를 탭하세요")) { panelDrink = first }
+            }
+        }
+        .navigationBarBackButtonHidden(tutorial != nil)
         .sheet(item: $panelDrink) { drink in
             ServingPanel(drink: drink, brand: brand, todayTotals: todayTotals, limits: limits) { selection in
                 // 패널을 먼저 닫고 기록한다. 기록하면 오늘 루트로 돌아간다(§4.2).
@@ -141,6 +151,9 @@ struct BrandMenuView: View {
                     )
                 }
                 .buttonStyle(RowPressStyle())
+                .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { frame in
+                    if drink.id == found.first?.id { firstDrinkFrame = frame }
+                }
                 .accessibilityIdentifier("drink-\(drink.id)")
             }
         }

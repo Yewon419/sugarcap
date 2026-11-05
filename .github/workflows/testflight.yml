@@ -160,6 +160,12 @@ jobs:
           shoot slide-30 light large -screenshotCupSlide 0.3
           shoot slide-50 light large -screenshotCupSlide 0.5
           shoot slide-70 light large -screenshotCupSlide 0.7
+          # 첫 기록 안내(DrinkTutorial) 단계별 덮개: 컵 → 브랜드 → 맨 위 음료 → 추가 → 큰 숫자 → 편집 → 닫기.
+          for step in cup brand drink number edit close; do
+            shoot "tutorial-$step" light large -screenshotTutorial "$step"
+          done
+          shoot tutorial-add light large -screenshotTutorial drink -screenshotBrandPanel YES
+          shoot tutorial-cup-type-ax-xl light accessibility-extra-large -screenshotTutorial cup
           shoot settings light large -initialTab settings
           shoot inventory light large -initialTab settings -screenshotInventory YES -screenshotCaps 12 -screenshotInventoryItems strawberry,coffee-bean,sugar-cube,cinnamon-stick
           # 온보딩 영상(한 시각에 멈춰, 21.9 = 빼꼼) + 하루 기준 두 단계(2 = 당, 3 = 카페인).

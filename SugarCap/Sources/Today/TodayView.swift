@@ -100,6 +100,11 @@ struct TodayView: View {
     @AppStorage("trialPaywallPending") private var trialPaywallPending = false
     /// CI 스크린샷·UI 테스트(Debug `-screenshotTrade`)와 테스트 카드 "거래 제안 바로 보기"의 제안. 저장소에 넣지 않는다.
     @State private var screenshotOffer: TradeOffer?
+    /// 첫 기록 안내(`DrinkTutorial`) 진행 단계. 설정 사용설명서 「음료 기록법」으로도 다시 연다.
+    @State private var tutorial: DrinkTutorial.Step?
+    /// 안내 중 "추가"한 연습 음료. 저장소에 넣지 않고 오늘 합계·하루 기록에만 얹는다. 지우면 비운다.
+    @State private var tutorialEntry: Entry?
+    @AppStorage(DrinkTutorial.pendingKey) private var tutorialPending = false
 
     @Environment(ProStore.self) private var pro
 
@@ -137,13 +142,18 @@ struct TodayView: View {
             // 브랜드 메뉴의 뒤로 버튼 글자("‹ 오늘"). 막대는 숨겨 두므로 제목은 보이지 않는다.
             .navigationTitle("오늘")
             .navigationDestination(for: String.self) { brandID in
-                if let brand = catalog.brand(id: brandID) {
+                let menuCatalog = tutorial == nil ? catalog : DrinkTutorial.catalog
+                if let brand = menuCatalog.brand(id: brandID) {
                     BrandMenuView(
                         brand: brand,
-                        catalog: catalog,
+                        catalog: menuCatalog,
                         todayTotals: todayTotals(now: Date()),
                         limits: limits,
                         onAdd: { selection in
+                            guard tutorial == nil else {
+                                addTutorialEntry(selection.makeEntry(brandName: brand.name, at: Date()))
+                                return
+                            }
                             UsageReporter.shared?.logEntry(path: .brandMenu, place: .today, brandID: brand.id, now: Date())
                             record(selection.makeEntry(brandName: brand.name, at: Date()))
                         },
@@ -187,7 +197,7 @@ struct TodayView: View {
         }
         .sheet(isPresented: $isRecordSheetPresented) {
             RecordSheet(
-                catalog: catalog,
+                catalog: tutorial == nil ? catalog : DrinkTutorial.catalog,
                 todayTotals: todayTotals(now: Date()),
                 limits: limits,
                 onBrand: { brandID in
@@ -218,7 +228,7 @@ struct TodayView: View {
             )
             .environment(\.recordCup, side)
         }
-        .sheet(isPresented: $isDayLogPresented) {
+        .sheet(isPresented: $isDayLogPresented, onDismiss: finishTutorial) {
             let now = Date()
             DayLogSheet(
                 day: DayKey(at: now, boundaryHour: boundaryHour),
@@ -226,7 +236,7 @@ struct TodayView: View {
                 entries: todaysEntries(now: now),
                 limits: limits,
                 catalog: catalog,
-                onDelete: delete
+                onDelete: deleteFromLog
             )
         }
         .fullScreenCover(item: $feeding, onDismiss: afterFeedingClosed) { presentation in
@@ -280,6 +290,9 @@ struct TodayView: View {
         // 기록할 때만 햅틱 1회(§4.1). 삭제로 줄어들 때는 울리지 않는다.
         .sensoryFeedback(.success, trigger: entries.count) { old, new in new > old }
         .sensoryFeedback(.impact(weight: .medium, intensity: 0.7), trigger: cupTaps)
+        // 연습 음료도 실제 기록처럼 한 번 울린다.
+        .sensoryFeedback(.success, trigger: tutorialEntry != nil) { _, added in added }
+        .environment(\.drinkTutorial, tutorial)
     }
 
     /// 당 · 카페인 컵 장면 두 장을 옆으로 붙여 두고 손가락을 따라 통째로 민다(2026-09-27 대표님:
@@ -415,6 +428,7 @@ struct TodayView: View {
     /// 첫 마감 알림 질문도 기다린다. 무대 위에 떠서 무대를 못 누르게 막았다(2026-10-27 CI).
     private var levelUpCue: UUID? {
         guard levelUp == nil, opening == nil, reveal == nil, trade == nil, feeding == nil, gate == nil, paywall == nil, !asksReminder,
+              tutorial == nil,
               isOnScreen, !isSliding, !isSettingsPresented, !isTrendsPresented, !isRecordSheetPresented,
               !isDayLogPresented, !isManualEntryPresented, path.isEmpty
         else { return nil }
@@ -686,7 +700,7 @@ struct TodayView: View {
     /// 켜 둔 사이에 다음 제안 시각이 지날 수 있어 10분마다 값이 바뀐다.
     private func tradeCue(now: Date) -> String? {
         guard trade == nil, leavingOffer == nil, levelUp == nil, opening == nil, reveal == nil, feeding == nil,
-              gate == nil, paywall == nil, weekKept == nil, isOnScreen, !isSliding, !isSettingsPresented,
+              gate == nil, paywall == nil, weekKept == nil, tutorial == nil, isOnScreen, !isSliding, !isSettingsPresented,
               !isTrendsPresented, !isRecordSheetPresented, !isDayLogPresented, !isManualEntryPresented, path.isEmpty,
               !trades.contains(where: { $0.accepted == nil })
         else { return nil }
@@ -733,7 +747,7 @@ struct TodayView: View {
     /// 첫 거래를 바꾼 뒤 띄울 체험 권유 페이월(SPEC §6, 대표님 2026-10-31). 오늘 화면이 다른 연출·시트 없이 자리 잡았을 때만.
     private var trialPaywallCue: Bool {
         guard trialPaywallPending, trade == nil, leavingOffer == nil, levelUp == nil, opening == nil, reveal == nil,
-              feeding == nil, gate == nil, paywall == nil, !isProPaywallPresented, weekKept == nil
+              feeding == nil, gate == nil, paywall == nil, !isProPaywallPresented, weekKept == nil, tutorial == nil
         else { return false }
         return isOnScreen && !isSliding && !isSettingsPresented && !isTrendsPresented && !isRecordSheetPresented
             && !isDayLogPresented && !isManualEntryPresented && path.isEmpty
@@ -947,9 +961,12 @@ struct TodayView: View {
         return tracked[min(max(index + step, 0), tracked.count - 1)]
     }
 
+    /// 안내 중이면 연습 음료가 맨 앞(최신)에 얹힌다.
     private func todaysEntries(now: Date) -> [Entry] {
         let today = DayKey(at: now, boundaryHour: boundaryHour)
-        return entries.filter { $0.dayKey(boundaryHour: boundaryHour) == today }
+        let saved = entries.filter { $0.dayKey(boundaryHour: boundaryHour) == today }
+        guard let tutorialEntry else { return saved }
+        return [tutorialEntry] + saved
     }
 
     private func todayTotals(now: Date) -> DayTotals {
@@ -1036,6 +1053,15 @@ struct TodayView: View {
         }
         .overlay(alignment: .bottom) { bottomControls(now: now, today: today, totals: totals) }
         .overlay(alignment: .topTrailing) { cornerButtons }
+        .overlay { tutorialOverlay(totals: totals) }
+        .animation(.easeOut(duration: 0.25), value: tutorial)
+        .task(id: tutorialPending) {
+            guard tutorialPending, tutorial == nil else { return }
+            try? await Task.sleep(for: .seconds(0.6))
+            guard !Task.isCancelled, tutorial == nil else { return }
+            startTutorial()
+        }
+        .task(id: tutorial) { await runTimedTutorialStep() }
         .overlay { giftOpeningOverlay() }
         .animation(.easeOut(duration: 0.25), value: opening?.id)
         .overlay { levelUpOverlay() }
@@ -1537,6 +1563,8 @@ struct TodayView: View {
             else { return }
             screenshotOffer = TradeOffer(itemID: item.id, side: item.side, price: TradeMath.firstPrice, offeredAt: now)
             pickedSide = item.side
+        case .drinkGuide:
+            startTutorial()
         case .firstRun:
             // 루트가 완료 플래그를 지켜보다 온보딩으로 바꾼다. 기록·정산·호감도는 그대로다.
             UserDefaults.standard.removeObject(forKey: CompanionIntro.seenKey)
@@ -1621,7 +1649,121 @@ struct TodayView: View {
         if let brandID = defaults.string(forKey: "screenshotBrand") {
             path = [brandID]
         }
+        // 첫 기록 안내 한 단계(`-screenshotTutorial cup|brand|drink|number|edit|close`). 패널은 `-screenshotBrandPanel YES`를 같이 준다.
+        if let raw = defaults.string(forKey: "screenshotTutorial") {
+            let practice = DrinkTutorial.catalog
+            if let drink = practice.catalog.drinks.first, let brand = practice.brand(id: drink.brandId),
+               ["number", "edit"].contains(raw) {
+                tutorialEntry = ServingSelection(drink: drink).makeEntry(brandName: brand.name, at: Date())
+            }
+            pickedSide = .sugar
+            switch raw {
+            case "brand": tutorial = .record; isRecordSheetPresented = true
+            case "drink": tutorial = .record; path = [DrinkTutorial.brandID]
+            case "number": tutorial = .number
+            case "edit": tutorial = .log; isDayLogPresented = true
+            case "close": tutorial = .close; isDayLogPresented = true
+            default: tutorial = .cup
+            }
+        }
         #endif
+    }
+
+    // MARK: - 첫 기록 안내(DrinkTutorial)
+
+    private func startTutorial() {
+        tutorialEntry = nil
+        path = []
+        tutorial = .slide
+    }
+
+    /// 저절로 넘어가는 단계. 컵 넘겨 보이기는 당에서 시작해 카페인을 잠깐 보이고 돌아온다(동작 줄이기면 `switchSide`가 크로스페이드).
+    private func runTimedTutorialStep() async {
+        switch tutorial {
+        case .slide:
+            if trackedSides.contains(.sugar), trackedSides.contains(.caffeine) {
+                switchSide(to: .sugar)
+                try? await Task.sleep(for: .seconds(1.0))
+                guard !Task.isCancelled else { return }
+                switchSide(to: .caffeine)
+                try? await Task.sleep(for: .seconds(1.6))
+                guard !Task.isCancelled else { return }
+                switchSide(to: .sugar)
+                try? await Task.sleep(for: .seconds(0.9))
+            }
+            guard !Task.isCancelled, tutorial == .slide else { return }
+            tutorial = .cup
+        case .drop:
+            try? await Task.sleep(for: .seconds(2.2))
+            guard !Task.isCancelled, tutorial == .drop else { return }
+            tutorial = .number
+        default:
+            return
+        }
+    }
+
+    private func addTutorialEntry(_ entry: Entry) {
+        tutorialEntry = entry
+        path = []
+        tutorial = .drop
+    }
+
+    /// 하루 기록 시트의 지우기. 연습 음료면 저장소를 건드리지 않고 비운다.
+    private func deleteFromLog(_ targets: [Entry]) {
+        if let tutorialEntry, targets.contains(where: { $0 === tutorialEntry }) {
+            self.tutorialEntry = nil
+            if tutorial == .log { tutorial = .close }
+            return
+        }
+        delete(targets)
+    }
+
+    /// 하루 기록 시트가 닫히면 안내가 끝난다.
+    private func finishTutorial() {
+        guard tutorial == .log || tutorial == .close else { return }
+        tutorial = nil
+        tutorialEntry = nil
+        tutorialPending = false
+    }
+
+    @ViewBuilder
+    private func tutorialOverlay(totals: DayTotals) -> some View {
+        switch tutorial {
+        case .slide:
+            // 넘기는 동안 누르기·끌기만 막는다.
+            Color.clear
+                .contentShape(Rectangle())
+                .onTapGesture {}
+                .ignoresSafeArea()
+                .accessibilityHidden(true)
+        case .cup, .drop:
+            GeometryReader { proxy in
+                let screen = proxy.frame(in: .global)
+                let cup = CoachDim.cupRect(screen: screen.size, side: side, step: cupStep(side, totals: totals))
+                    .offsetBy(dx: screen.minX, dy: screen.minY)
+                if tutorial == .cup {
+                    CoachMark(hole: cup, radius: 28, text: String(localized: "음료를 기록하려면 컵을 탭하세요")) {
+                        cupTaps += 1
+                        tutorial = .record
+                        isRecordSheetPresented = true
+                    }
+                } else {
+                    CoachMark(hole: cup, radius: 28, text: String(localized: "마신 만큼 컵이 줄었어요"), onTap: nil)
+                }
+            }
+            .ignoresSafeArea()
+        case .number:
+            CoachMark(
+                hole: heroFrames[side].map { $0.insetBy(dx: -12, dy: -8) } ?? .zero,
+                text: String(localized: "음료 기록을 수정하려면 여기를 탭하세요")
+            ) {
+                cupTaps += 1
+                tutorial = .log
+                isDayLogPresented = true
+            }
+        case .record, .log, .close, nil:
+            EmptyView()
+        }
     }
 
     private func record(_ entry: Entry) {

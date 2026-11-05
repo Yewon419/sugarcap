@@ -49,6 +49,8 @@ enum SettingsTestAction {
     case levelUp
     /// 거래 제안을 저장 없이 보낸다. 캐릭터가 상자를 들고 오고, 바꾸면 잔만 바뀐다(병뚜껑·제안 기록은 그대로).
     case trade
+    /// 테스트 카드가 아니라 사용설명서 「음료 기록법」(모든 빌드). 첫 기록 안내를 연습 음료로 다시 보여 준다(`DrinkTutorial`).
+    case drinkGuide
 }
 
 /// 테스트 카드에서 고른 대기 자세(TestFlight·Debug). 캐릭터 id("roshu", "kain") → 자세 이름.

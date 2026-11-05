@@ -36,6 +36,8 @@ struct RootView: View {
                     TodayView(catalog: index)
                 } else {
                     OnboardingView(brands: index.catalog.brands) {
+                        // 첫 오늘 화면에서 기록 안내를 띄운다(`DrinkTutorial`). 설정 "앱 소개 다시 보기"는 이 길을 타지 않는다.
+                        UserDefaults.standard.set(true, forKey: DrinkTutorial.pendingKey)
                         withAnimation(.easeOut(duration: 0.25)) { onboardingCompleted = true }
                     }
                 }

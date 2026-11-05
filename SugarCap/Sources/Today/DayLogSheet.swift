@@ -18,7 +18,12 @@ struct DayLogSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.trackedSides) private var trackedSides
+    @Environment(\.drinkTutorial) private var tutorial
     @State private var isEditing = false
+    /// 첫 기록 안내에서 밝힐 자리(화면 좌표): 편집 버튼 → 맨 위 줄 지우기 → 닫기.
+    @State private var editFrame: CGRect = .zero
+    @State private var deleteFrame: CGRect = .zero
+    @State private var closeFrame: CGRect = .zero
     @State private var isRecordPresented = false
 
     private var title: String {
@@ -33,10 +38,12 @@ struct DayLogSheet: View {
                 if !entries.isEmpty {
                     Button(isEditing ? String(localized: "완료") : String(localized: "편집")) { isEditing.toggle() }
                         .tapTarget()
+                        .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { editFrame = $0 }
                         .accessibilityIdentifier("daylog-edit")
                 }
                 Button("닫기") { dismiss() }
                     .tapTarget()
+                    .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { closeFrame = $0 }
                     .accessibilityIdentifier("daylog-close")
             }
 
@@ -74,6 +81,8 @@ struct DayLogSheet: View {
                 .animation(.easeOut(duration: 0.18), value: isEditing)
             }
         }
+        .overlay { coach }
+        .interactiveDismissDisabled(tutorial != nil)
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(38)
@@ -84,6 +93,23 @@ struct DayLogSheet: View {
         .sheet(isPresented: $isRecordPresented) {
             // 먹이기의 "음료 추가"와 같은 시트. 지난날이면 그날 23:59로 기록된다.
             FeedingRecordSheet(catalog: catalog, request: request(totals), place: .dayLog) { entry in onAdd?(entry) }
+        }
+    }
+
+    /// 첫 기록 안내(`DrinkTutorial`): 편집 → 맨 위 줄(방금 넣은 연습 음료) 지우기 → 닫기.
+    @ViewBuilder
+    private var coach: some View {
+        switch tutorial {
+        case .log where !isEditing:
+            CoachMark(hole: editFrame, text: String(localized: "편집을 탭하세요")) { isEditing = true }
+        case .log:
+            if let first = entries.first {
+                CoachMark(hole: deleteFrame, radius: 22, text: String(localized: "빨간 동그라미를 탭하면 지워져요")) { onDelete([first]) }
+            }
+        case .close:
+            CoachMark(hole: closeFrame, text: String(localized: "닫기를 탭하세요")) { dismiss() }
+        default:
+            EmptyView()
         }
     }
 
@@ -163,6 +189,9 @@ struct DayLogSheet: View {
                 }
                 .buttonStyle(.plain)
                 .padding(.leading, -8)
+                .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { frame in
+                    if entry.id == entries.first?.id { deleteFrame = frame }
+                }
                 .transition(.scale(scale: 0.6).combined(with: .opacity))
                 .accessibilityLabel("\(name) 삭제")
                 .accessibilityIdentifier("delete-entry")

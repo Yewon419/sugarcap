@@ -52,6 +52,7 @@ private struct SettingsContent: View {
     @State private var showsPaywall = false
     @State private var paywallOrigin = PaywallOrigin.settings
     @State private var showsOnboarding = false
+    @State private var showsManual = false
     @State private var isRestoring = false
     @State private var alertMessage: String?
     @State private var isTestBuild = false
@@ -148,6 +149,21 @@ private struct SettingsContent: View {
                     Text("별명")
                 }
                 .id(renamed)
+            }
+
+            // 사용설명서(대표님 2026-11-05). 펼치면 안내를 연습 음료로 다시 본다. 「하루 마감법」은 첫 마감 뒤에 붙는다.
+            Section {
+                DisclosureGroup(isExpanded: $showsManual) {
+                    Button {
+                        onTestAction(.drinkGuide)
+                    } label: {
+                        linkRow(String(localized: "음료 기록법"), trailing: "chevron.right")
+                    }
+                    .accessibilityIdentifier("guide-drink")
+                } label: {
+                    Text("사용설명서").rowText()
+                }
+                .accessibilityIdentifier("open-guide")
             }
 
             Section {

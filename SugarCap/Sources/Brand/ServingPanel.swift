@@ -16,7 +16,10 @@ struct ServingPanel: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.recordCup) private var recordCup
     @Environment(\.trackedSides) private var trackedSides
+    @Environment(\.drinkTutorial) private var tutorial
     @State private var failureMessage: String?
+    /// 첫 기록 안내에서 밝힐 추가 버튼(화면 좌표).
+    @State private var addFrame: CGRect = .zero
 
     init(drink: Drink, brand: Brand, todayTotals: DayTotals, limits: DailyLimits, onAdd: @escaping (ServingSelection) -> Void) {
         self.brand = brand
@@ -89,6 +92,7 @@ struct ServingPanel: View {
                             .background(Color.accentColor, in: Capsule())
                     }
                     .buttonStyle(.plain)
+                    .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { addFrame = $0 }
                     .accessibilityIdentifier("add-entry")
                 }
 
@@ -101,6 +105,12 @@ struct ServingPanel: View {
             .padding(.top, 18)
             .padding(.bottom, 24)
         }
+        .overlay {
+            if tutorial == .record {
+                CoachMark(hole: addFrame.insetBy(dx: -6, dy: -6), text: String(localized: "추가를 탭하면 기록돼요")) { onAdd(selection) }
+            }
+        }
+        .interactiveDismissDisabled(tutorial != nil)
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(28)

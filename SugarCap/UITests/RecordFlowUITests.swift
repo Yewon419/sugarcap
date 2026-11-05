@@ -26,6 +26,9 @@ final class RecordFlowUITests: XCTestCase {
         XCTAssertTrue(start.waitForExistence(timeout: 5), "카페인 하루 기준 단계가 안 열림")
         start.tap()
 
+        // 온보딩을 마치면 첫 기록 안내가 뜬다(DrinkTutorial). 연습 음료는 저장하지 않아 끝나면 컵이 다시 가득 찬다.
+        walkDrinkTutorial(app)
+
         let summary = ui.element("cup-summary")
         XCTAssertTrue(summary.waitForExistence(timeout: 15))
         XCTAssertTrue(
@@ -253,6 +256,25 @@ extension RecordFlowUITests {
         finish.tap()
         XCTAssertTrue(replay.waitForExistence(timeout: 5), "완료 후 설정으로 돌아와야 한다")
         XCTAssertTrue(app.buttons["settings-close"].exists, "다시 보기는 온보딩 완료 상태를 건드리지 않는다(설정 시트가 그대로 남는다)")
+    }
+
+    /// 설정 사용설명서 「음료 기록법」은 설정을 닫고 첫 기록 안내를 처음부터 다시 보여 준다. 기록은 늘지 않는다.
+    @MainActor
+    func testSettingsGuideReplaysDrinkTutorial() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments += ["-idleAt", "0"]
+        app.launch()
+
+        completeOnboardingIfPresented(app)
+        app.buttons["open-settings"].tap()
+        let ui = Driver(app: app)
+        let guide = app.buttons["open-guide"]
+        ui.tap(guide.waitForExistence(timeout: 5) ? guide : app.staticTexts["사용설명서"])
+        let drinkGuide = app.buttons["guide-drink"]
+        XCTAssertTrue(drinkGuide.waitForExistence(timeout: 5), "사용설명서를 펼쳐도 음료 기록법이 없음")
+        ui.tap(drinkGuide)
+        walkDrinkTutorial(app)
     }
 
     /// 설정 테스트 카드(Debug·TestFlight)의 "먹이기 바로 보기"는 설정을 닫고 먹이기를 끝까지 보여 주되 오늘을 마감하지 않는다.
@@ -713,6 +735,43 @@ extension RecordFlowUITests {
         let start = app.buttons["onboarding-start"]
         XCTAssertTrue(start.waitForExistence(timeout: 5), "온보딩 마지막 장이 안 열림")
         start.tap()
+        walkDrinkTutorial(app)
+    }
+
+    /// 온보딩 직후 첫 기록 안내를 끝까지 누른다. 단계마다 그 단계 문구가 붙은 구멍 버튼(`coach-target`)이 떠야 한다.
+    /// 컵 → 브랜드 → 맨 위 음료 → 추가 → (줄어든 컵) → 큰 숫자 → 편집 → 지우기 → 닫기.
+    @MainActor
+    func walkDrinkTutorial(_ app: XCUIApplication) {
+        let summary = app.descendants(matching: .any)["cup-summary"]
+        XCTAssertTrue(summary.waitForExistence(timeout: 15), "오늘 화면이 안 뜸")
+        // 첫 단계가 뜰 때(컵 넘겨 보이기가 끝나 당 컵에 돌아온 뒤) 읽는다.
+        var before = ""
+        let steps = [
+            "음료를 기록하려면 컵을 탭하세요",
+            "마신 음료의 브랜드를 탭하세요",
+            "마신 음료를 탭하세요",
+            "추가를 탭하면 기록돼요",
+            "음료 기록을 수정하려면 여기를 탭하세요",
+            "편집을 탭하세요",
+            "빨간 동그라미를 탭하면 지워져요",
+            "닫기를 탭하세요",
+        ]
+        for (index, text) in steps.enumerated() {
+            let target = app.buttons
+                .matching(NSPredicate(format: "identifier == %@ AND label == %@", "coach-target", text))
+                .firstMatch
+            XCTAssertTrue(target.waitForExistence(timeout: 15), "안내 \(index + 1)단계(\(text))가 안 뜸:\n\(app.debugDescription)")
+            if index == 0 { before = summary.label }
+            target.tap()
+            if index == 3 {
+                // 연습 음료(당 20 g)만큼 컵이 줄어든 채로 돌아온다.
+                let dropped = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label != %@", before), object: summary)
+                XCTAssertEqual(XCTWaiter().wait(for: [dropped], timeout: 10), .completed, "연습 음료를 넣었는데 컵이 안 줄었음: \(summary.label)")
+            }
+        }
+        XCTAssertTrue(app.buttons["coach-target"].waitForNonExistence(timeout: 5), "닫기 뒤에도 안내가 남아 있음")
+        // 연습 음료는 저장하지 않는다. 지웠으니 컵은 안내 전 그대로.
+        XCTAssertEqual(summary.label, before, "안내가 끝났는데 컵이 안내 전과 다름")
     }
 }
 

@@ -29,7 +29,7 @@ struct StampCardView: View {
         case caps
     }
 
-    private static let windowSize = CGSize(width: 104, height: 136)
+    private static let windowSize = CGSize(width: 104, height: 104)
 
     private var stamped: Int {
         StampMath.stamped(cellNumbers: stamps.compactMap(\.level))
@@ -209,7 +209,11 @@ struct StampCardView: View {
                     case .cup:
                         VStack(spacing: 0) {
                             ForEach(Array(reelSequence.enumerated()), id: \.offset) { _, item in
-                                CupCutout(setID: item.id, cupHeight: 116)
+                                // 룰렛은 잔이 아니라 그 잔의 먹이기 방울로 돈다(대표님 2026-11-05).
+                                Image(item.dropAsset)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 80, height: 80)
                                     .frame(width: Self.windowSize.width, height: Self.windowSize.height)
                             }
                         }

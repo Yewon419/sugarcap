@@ -24,6 +24,8 @@ struct DayLogSheet: View {
     @State private var editFrame: CGRect = .zero
     @State private var deleteFrame: CGRect = .zero
     @State private var closeFrame: CGRect = .zero
+    /// 기록 줄(과 음료 추가) 끝. 안내 글을 합계 숫자 대신 그 아래 빈 자리에 둔다.
+    @State private var listEndY: CGFloat = 0
     @State private var isRecordPresented = false
 
     private var title: String {
@@ -76,6 +78,7 @@ struct DayLogSheet: View {
                         addButton
                     }
                     Color.clear.frame(height: 40)
+                        .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY } action: { listEndY = $0 }
                 }
                 .animation(.easeOut(duration: 0.22), value: entries.map(\.id))
                 .animation(.easeOut(duration: 0.18), value: isEditing)
@@ -101,13 +104,13 @@ struct DayLogSheet: View {
     private var coach: some View {
         switch tutorial {
         case .log where !isEditing:
-            CoachMark(hole: editFrame, text: String(localized: "편집을 탭하세요")) { isEditing = true }
+            CoachMark(hole: editFrame, text: String(localized: "편집을 탭하세요"), textTop: listEndY + 16) { isEditing = true }
         case .log:
             if let first = entries.first {
                 CoachMark(hole: deleteFrame, radius: 22, text: String(localized: "빨간 동그라미를 탭하면 지워져요")) { onDelete([first]) }
             }
         case .close:
-            CoachMark(hole: closeFrame, text: String(localized: "닫기를 탭하세요")) { dismiss() }
+            CoachMark(hole: closeFrame, text: String(localized: "닫기를 탭하세요"), textTop: listEndY + 16) { dismiss() }
         default:
             EmptyView()
         }

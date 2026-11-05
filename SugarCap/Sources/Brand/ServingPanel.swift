@@ -20,6 +20,8 @@ struct ServingPanel: View {
     @State private var failureMessage: String?
     /// 첫 기록 안내에서 밝힐 추가 버튼(화면 좌표).
     @State private var addFrame: CGRect = .zero
+    /// 패널 맨 아래 안내(`servingNote`) 끝. 첫 기록 안내 글을 패널 내용 대신 그 아래 빈 자리에 둔다.
+    @State private var noteBottom: CGFloat = 0
 
     init(drink: Drink, brand: Brand, todayTotals: DayTotals, limits: DailyLimits, onAdd: @escaping (ServingSelection) -> Void) {
         self.brand = brand
@@ -100,6 +102,7 @@ struct ServingPanel: View {
                     .font(AppFont.pretendard(12, .regular, relativeTo: .caption))
                     .foregroundStyle(.secondary)
                     .padding(.top, 12)
+                    .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).maxY } action: { noteBottom = $0 }
             }
             .padding(.horizontal, 20)
             .padding(.top, 18)
@@ -107,7 +110,9 @@ struct ServingPanel: View {
         }
         .overlay {
             if tutorial == .record {
-                CoachMark(hole: addFrame.insetBy(dx: -6, dy: -6), text: String(localized: "추가를 탭하면 기록돼요")) { onAdd(selection) }
+                CoachMark(hole: addFrame.insetBy(dx: -6, dy: -6), text: String(localized: "추가를 탭하면 기록돼요"), textTop: noteBottom + 24) {
+                    onAdd(selection)
+                }
             }
         }
         .interactiveDismissDisabled(tutorial != nil)

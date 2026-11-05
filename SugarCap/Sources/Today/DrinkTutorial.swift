@@ -48,10 +48,12 @@ extension EnvironmentValues {
 
 /// 안내 한 단계의 덮개. `hole`(화면 좌표)만 밝게 두고 나머지는 어둡게 막는다. 구멍을 누르면 `onTap`.
 /// 구멍 위가 아니라 덮개가 누르기를 받는다(아래 버튼에 맡기면 캐릭터·끌기가 먼저 가로챈다). `onTap`이 없으면 보여 주기만 한다.
+/// 글은 기본으로 구멍 위·아래 40pt에 둔다. 그 자리에 숫자·글이 있으면 `textTop`(화면 좌표, 글 윗변)으로 빈 자리를 준다.
 struct CoachMark: View {
     let hole: CGRect
     var radius: CGFloat = 18
     let text: String
+    var textTop: CGFloat? = nil
     let onTap: (() -> Void)?
 
     var body: some View {
@@ -78,15 +80,21 @@ struct CoachMark: View {
                         .accessibilityLabel(text)
                         .accessibilityIdentifier("coach-target")
                     }
-                    Text(text)
+                    let label = Text(text)
                         .font(AppFont.pretendard(18, .semibold, relativeTo: .headline))
                         .foregroundStyle(.white)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(width: max(proxy.size.width - 48, 0))
-                        .position(x: proxy.size.width / 2, y: textBelow ? local.maxY + 40 : local.minY - 40)
                         .allowsHitTesting(false)
                         .accessibilityIdentifier("coach-text")
+                    if let textTop {
+                        label
+                            .padding(.top, max(textTop - origin.y, 0))
+                            .frame(width: proxy.size.width, alignment: .top)
+                    } else {
+                        label.position(x: proxy.size.width / 2, y: textBelow ? local.maxY + 40 : local.minY - 40)
+                    }
                 }
             }
             .frame(width: proxy.size.width, height: proxy.size.height)

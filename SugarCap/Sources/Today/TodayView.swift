@@ -317,14 +317,16 @@ struct TodayView: View {
                     let staged = levelUp.flatMap { $0.side == cupSide ? $0 : nil }
                     let gift = staged == nil ? carriedGift(for: cupSide) : nil
                     let offer = staged == nil && gift == nil ? carriedOffer(for: cupSide) : nil
-                    let carrier = carrierLayer(
+                    // 첫 기록 안내 중에는 캐릭터(대기·상자 운반)를 전부 숨긴다(대표님 2026-11-05).
+                    let hidesCharacters = tutorial != nil
+                    let carrier = hidesCharacters ? nil : carrierLayer(
                         gift: gift, offer: offer, side: cupSide, step: step, isActive: isActive, screen: proxy.frame(in: .global)
                     )
                     // 선물·거래 상자가 와 있으면 운반 캐릭터가 곧 그 캐릭터다. 열고 나면 대기 자세로 돌아온다(SPEC §4.9·4.10).
                     // 단계 상승 무대 중이면 무대에 선 캐릭터가 그 캐릭터다.
                     CupView(
                         step: step, setID: cupSide.cupSetID,
-                        idle: carrier != nil || staged != nil ? nil : IdleCharacterLayer(
+                        idle: hidesCharacters || carrier != nil || staged != nil ? nil : IdleCharacterLayer(
                             side: cupSide, step: step, isActive: isActive,
                             unlockedLevel: unlockedLevel(cupSide),
                             ownedItems: ownedItems,
@@ -337,7 +339,8 @@ struct TodayView: View {
                         stage: staged.map { stage in
                             LevelUpStageLayer(stage: stage, onFrame: { levelUpFrames[cupSide] = $0 })
                         },
-                        hero: CupHero(
+                        // 컵 누르기·줄어든 컵 안내 글이 잔 위 숫자 자리에 오므로 그 두 단계 동안 숫자를 숨긴다(대표님 2026-11-05).
+                        hero: tutorial == .cup || tutorial == .drop ? nil : CupHero(
                             side: cupSide, remaining: cupSide.remaining(totals), limit: cupSide.limit(limits),
                             overflow: cupSide.overflow(totals), widest: widestNumber(totals),
                             rimLine: CupLevel.rimLineName(setID: cupSide.cupSetID, step: step),

@@ -174,8 +174,12 @@ struct StampCardView: View {
         if isDone, let gift {
             Circle().fill(.white)
             Circle().strokeBorder(Color.ink, lineWidth: 2)
-            if let set = StampCardView.setID(of: gift) {
-                CupCutout(setID: set, cupHeight: 28)
+            if let set = StampCardView.setID(of: gift), let item = TradeCatalog.item(set) {
+                Image(item.dropAsset)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 26, height: 26)
+                    .accessibilityHidden(true)
             } else {
                 PrizeGlyph(gift: gift, size: 20)
             }
@@ -371,23 +375,6 @@ struct PrizeGlyph: View {
                 .foregroundStyle(isRoshu ? Color.roshuWhite : Color.caffeineAmber)
         }
         .accessibilityHidden(true)
-    }
-}
-
-/// 잔 누끼(937×1666) 중 잔 부분만 잘라 `cupHeight` 높이로 그린다. 잔은 (199,430)~(735,1446)에 있다.
-struct CupCutout: View {
-    let setID: String
-    let cupHeight: CGFloat
-
-    var body: some View {
-        let scale = cupHeight / 1016
-        Image(CupLevel.cutoutName(setID: setID, step: 80))
-            .resizable()
-            .frame(width: 937 * scale, height: 1666 * scale)
-            .offset(x: -199 * scale, y: -430 * scale)
-            .frame(width: 536 * scale, height: 1016 * scale, alignment: .topLeading)
-            .clipped()
-            .accessibilityHidden(true)
     }
 }
 

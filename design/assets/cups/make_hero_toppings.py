@@ -35,7 +35,10 @@ REPO = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 ASSETS = os.path.join(REPO, "SugarCap", "Resources", "Assets.xcassets")
 STEPS = (30, 50, 80, 100)
 # 토핑이 숫자 자리까지 올라오는 세트만. 나머지 세트는 수면이 숫자 바닥보다 아래다.
-SETS = ("choco-frappe", "mango", "einspanner")
+SETS = ("choco-frappe", "mango", "einspanner", "glass-soda", "glass-beans")
+# 세트 → 토핑을 보는 단계(없으면 `STEPS`). 유리 공예 잔은 편집 사진이라 입구 테두리 선이 진해 색 단서(1)에
+# 걸리는데, 숫자 자리까지 솟는 건 100%(민트·오렌지, 원두 더미)뿐이다(2026-11-05).
+SET_STEPS: dict[str, tuple[int, ...]] = {"glass-soda": (100,), "glass-beans": (100,)}
 # 세트 → 단계 → 흰 크림 윗면(사진 높이 비율, 가운데 열). `IdleCast.swift` `liquid`와 같은 값이고, 프라페 100%는
 # 크림이 입구를 덮어 입구 뒤 가장자리(`chocoFrappe.rim[100].back`, 아메리카노 잔 값)를 쓴다.
 SURFACE: dict[str, dict[int, float]] = {
@@ -111,7 +114,9 @@ def warm_surface(
     warm = photo[:, :, 2].astype(np.int16) - photo[:, :, 0].astype(np.int16) >= WARM
     region = (warm & (opening > 0)).astype(np.uint8)
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (CLOSE, CLOSE))
-    region = cv2.morphologyEx(region, cv2.MORPH_OPEN, kernel)
+    region = np.asarray(
+        cv2.morphologyEx(region, cv2.MORPH_OPEN, kernel), dtype=np.uint8
+    )
     count, labels, stats, _ = cv2.connectedComponentsWithStats(region, connectivity=8)
     if count < 2:
         raise RuntimeError("입구 안에 미색 크림이 없음")
@@ -165,7 +170,7 @@ def topping(cup_set: str, step: int) -> NDArray[np.uint8]:
 
 def main() -> None:
     for cup_set in SETS:
-        for step in STEPS:
+        for step in SET_STEPS.get(cup_set, STEPS):
             alpha = topping(cup_set, step)
             folder = os.path.join(ASSETS, f"topping-{cup_set}-{step}.imageset")
             pixels = int((alpha > 0).sum())

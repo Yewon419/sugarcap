@@ -68,6 +68,10 @@ final class TradeTests: XCTestCase {
         XCTAssertEqual(CupSetGeometry.hiddenPoses("matcha"), ["swim", "swim-front"])
         XCTAssertEqual(CupSetGeometry.hiddenPoses("einspanner"), ["swim", "swim-front"])
         XCTAssertEqual(CupSetGeometry.hiddenPoses("grape"), [], "투명한 에이드 속에선 헤엄")
+        XCTAssertEqual(CupSetGeometry.hiddenPoses("glass-soda"), [], "투명한 소다 속에선 헤엄")
+        XCTAssertEqual(CupSetGeometry.hiddenPoses("glass-beans"), ["swim", "swim-front"], "원두만 담겨 헤엄칠 곳이 없음")
+        XCTAssertNil(TradeCatalog.items.first { $0.id.hasPrefix("glass-") }, "특전 잔은 거래 제안·룰렛에 안 나옴")
+        XCTAssertEqual(TradeCatalog.item("glass-soda")?.side, .sugar)
 
         CupSetChoice.select("matcha", for: .caffeine)
         XCTAssertEqual(CupSide.caffeine.idleCast.bottom, CupSetGeometry.icedAmericano.bottom, "아메리카노와 같은 잔")

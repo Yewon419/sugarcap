@@ -383,6 +383,13 @@ jobs:
           shoot grape-in-cup-30 light large -cupSet.sugar grape -idlePose in-cup -idleStep 30 -idleAt 2.5
           shoot grape-watch light large -cupSet.sugar grape -idlePose watch -idleStep 100 -idleAt 2.5
           shoot grape-feeding light large -cupSet.sugar grape -screenshotFeeding YES -screenshotFeedingStage dropped
+          # 2026 특전 유리 공예 잔(2026-11-05). 거래 목록 밖이라 실행 인자로만 고른다. 원두 잔은 헤엄 자세를 뺀다.
+          shoot glass-soda-watch light large -cupSet.sugar glass-soda -idlePose watch -idleStep 100 -idleAt 2.5
+          shoot glass-soda-in-cup-50 light large -cupSet.sugar glass-soda -idlePose in-cup -idleStep 50 -idleAt 2.5
+          shoot glass-soda-feeding light large -cupSet.sugar glass-soda -screenshotFeeding YES -screenshotFeedingStage dropped
+          shoot glass-beans-rim-stand light large -cupSet.caffeine glass-beans -screenshotSide caffeine -idlePose rim-stand -idleStep 100 -idleAt 2.5
+          shoot glass-beans-no-swim-50 light large -cupSet.caffeine glass-beans -screenshotSide caffeine -idlePose swim -idleStep 50 -idleAt 3.7
+          shoot glass-beans-feeding light large -cupSet.caffeine glass-beans -screenshotTracks caffeine -screenshotFeeding YES -screenshotFeedingStage dropped
           # 선물(SPEC §4.9): 로슈는 상자를 들고 걸어 들어오고, 카인은 위에서 떨어져 상자 옆에 앉는다.
           # 누르면(-giftOpenAt = 누른 뒤 초) 뚜껑이 열리며 조각이 터지고, 열쇠가 추이 버튼으로 날아가 버튼만 남기고 어두워진다.
           shoot gift-walk light large -screenshotGift trends -giftAt 1.4

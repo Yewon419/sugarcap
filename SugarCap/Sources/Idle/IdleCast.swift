@@ -121,13 +121,16 @@ struct CupSetGeometry: Sendable {
         case "mango": return .mango
         case "einspanner": return .einspanner
         case "grape": return .grape
+        case "glass-soda": return .glassSoda
+        case "glass-beans": return .glassBeans
         default: return nil
         }
     }
 
     /// 이 잔에서 뽑지 않는 대기 자세. 음료가 불투명하면 음료 속 헤엄(`swim`·앞모습 `swim-front`)이 안 비쳐 뺀다(대표님 2026-10-25, 카페라떼).
     static func hiddenPoses(_ setID: String) -> Set<String> {
-        ["cafe-latte", "matcha", "einspanner"].contains(setID) ? ["swim", "swim-front"] : []
+        // 유리 원두는 음료 없이 원두만 담겨 헤엄칠 곳이 없다(2026-11-05).
+        ["cafe-latte", "matcha", "einspanner", "glass-beans"].contains(setID) ? ["swim", "swim-front"] : []
     }
 }
 
@@ -211,6 +214,11 @@ extension CupSetGeometry {
     static let mango = americanoGlass(liquid: [0: 0.87, 30: 0.64, 50: 0.52, 80: 0.37, 100: 0.336])
     static let einspanner = americanoGlass(liquid: [0: 0.87, 30: 0.51, 50: 0.43, 80: 0.32, 100: 0.30])
     static let grape = americanoGlass(liquid: [0: 0.87, 30: 0.69, 50: 0.567, 80: 0.475, 100: 0.355])
+
+    // 2026 특전 유리 공예 잔(2026-11-05)은 아메리카노 빈 잔(0%)을 참조로 뽑아 잔이 같은 자리다(`regen/make_glass_set.py`).
+    // 음료 윗면은 9x16 가운데 열에서 눈으로 쟀다. 소다는 탄산수 수면, 원두는 원두 더미 윗면.
+    static let glassSoda = americanoGlass(liquid: [0: 0.87, 30: 0.69, 50: 0.585, 80: 0.46, 100: 0.335])
+    static let glassBeans = americanoGlass(liquid: [0: 0.87, 30: 0.70, 50: 0.59, 80: 0.465, 100: 0.31])
 
     private static func americanoGlass(liquid: [Int: Double]) -> CupSetGeometry {
         CupSetGeometry(bottom: icedAmericano.bottom, rim: icedAmericano.rim, liquid: liquid, axis: icedAmericano.axis)

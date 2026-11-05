@@ -6962,6 +6962,38 @@
         }
       }
     },
+    "유리 과일 소다" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glass Fruit Soda"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "玻璃水果蘇打"
+          }
+        }
+      }
+    },
+    "유리 원두" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glass Coffee Beans"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "玻璃咖啡豆"
+          }
+        }
+      }
+    },
     "병뚜껑 %lld개랑 바꿀래?" : {
       "localizations" : {
         "en" : {

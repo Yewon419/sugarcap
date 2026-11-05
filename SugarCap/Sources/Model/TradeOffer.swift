@@ -47,6 +47,8 @@ struct TradeItem: Sendable, Identifiable {
         case "mango": return String(localized: "망고 스무디")
         case "einspanner": return String(localized: "아인슈페너")
         case "grape": return String(localized: "청포도 에이드")
+        case "glass-soda": return String(localized: "유리 과일 소다")
+        case "glass-beans": return String(localized: "유리 원두")
         default: return id
         }
     }
@@ -61,8 +63,11 @@ enum TradeCatalog {
         TradeItem(id: "einspanner", side: .caffeine), TradeItem(id: "grape", side: .sugar),
     ]
 
+    /// 2026 특전 유리 공예 잔(2026-11-05). 거래 제안·도장 룰렛에는 안 나와 `items`와 따로 둔다. 잔 조회(`item`)는 둘 다 본다.
+    static let perks = [TradeItem(id: "glass-soda", side: .sugar), TradeItem(id: "glass-beans", side: .caffeine)]
+
     static func item(_ id: String) -> TradeItem? {
-        items.first { $0.id == id }
+        (items + perks).first { $0.id == id }
     }
 
     /// 첫 거래 상품. 기록하는 면 중 목록 앞의 것. 튜토리얼 병뚜껑도 이 상품 주인이 가져온다.

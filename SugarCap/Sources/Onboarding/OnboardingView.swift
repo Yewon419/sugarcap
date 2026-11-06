@@ -202,7 +202,8 @@ struct OnboardingView: View {
             .padding(.top, 12)
             .padding(.trailing, 12)
             .accessibilityIdentifier("onboarding-close")
-        } else if scene == .reel {
+        } else if scene == .reel, FirstRunSkip.isAllowed {
+            // 첫 실행에는 건너뛰기가 없다(대표님 2026-11-06). 화면을 누르면 다음 장으로 가는 건 그대로.
             Button {
                 reelSkipped = true
                 finishReel()

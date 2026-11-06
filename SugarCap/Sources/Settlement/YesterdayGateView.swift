@@ -100,8 +100,9 @@ struct YesterdayGateView: View {
             .padding(.horizontal, 24)
         }
         // 먹이기 화면과 같은 자리의 건너뛰기(빌드 264 대표님). 먹이는 모션 없이 저장하고 요약으로 간다.
+        // 첫 먹이기(소개부터 여는 때)에는 없다(대표님 2026-11-06).
         .overlay(alignment: .topTrailing) {
-            if gate.kind == .feed {
+            if gate.kind == .feed, opening != .companionIntro || FirstRunSkip.isAllowed {
                 Button {
                     isSkipped = true
                     start(sugarLeft: gate.sugarLeftG, caffeineLeft: gate.caffeineLeftMg, sugarOver: gate.sugarOverG, caffeineOver: gate.caffeineOverMg)

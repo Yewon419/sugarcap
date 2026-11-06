@@ -6,7 +6,7 @@ import SwiftUI
 /// 로슈·카인 소개(SPEC §4.7). 첫 마감(먹이기) 직전에 한 번만 나온다. 온보딩 영상 마지막 문장 "오늘의 분량을 남기면 특별한 일이 생긴다던데..."의 답이다.
 /// v3(2026-10-27 대표님 확정): 방 조명 아래 매거진 지면을 근접 촬영한 8.2초 무음 영상. 시선이 지면을 훑다가 로슈(손 흔들기)·카인(사진에서
 /// 뛰어내려 뒤뚱 세 걸음)에서 멈춘다. 원본은 HyperFrames 프로젝트(`C:\hfwork\sugarcap-mag`)의 렌더(진행 막대·Skip은 빼고 렌더).
-/// 끝나면 버튼 없이 바로 먹이기 화면으로 넘어가고, 건너뛰기도 같은 곳으로 간다. 두 캐릭터 이름은 첫 먹이기 튜토리얼이 알려 준다.
+/// 끝나면 버튼 없이 바로 먹이기 화면으로 넘어간다. 건너뛰기는 뺐다(대표님 2026-11-06, UI 테스트만 `FirstRunSkip`). 두 캐릭터 이름은 첫 먹이기 튜토리얼이 알려 준다.
 struct CompanionIntroView: View {
     let onFinish: () -> Void
     /// 스크린샷용(Debug 인자). 이 시각의 프레임에 멈춰 둔다.
@@ -26,7 +26,9 @@ struct CompanionIntroView: View {
                 IntroVideoLayer(player: player).ignoresSafeArea()
             }
         }
-        .overlay(alignment: .topTrailing) { skipButton }
+        .overlay(alignment: .topTrailing) {
+            if FirstRunSkip.isAllowed { skipButton }
+        }
         .onAppear(perform: start)
         .onDisappear { player?.pause() }
         // 끝 알림은 재생 스레드에서 온다. 화면 상태를 바꾸니 메인에서 받는다.

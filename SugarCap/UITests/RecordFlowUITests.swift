@@ -9,7 +9,7 @@ final class RecordFlowUITests: XCTestCase {
     @MainActor
     func testRecordingFromBrandMenuAndManualEntryShrinksTheCup() throws {
         continueAfterFailure = false
-        let app = XCUIApplication()
+        let app = XCUIApplication.withTestSkips()
         // 기록은 컵을 눌러 연다(record-add = 컵 장면). 캐릭터가 누른 자리에 있으면 움찔만 하므로 자세를 멈춰 둔다.
         app.launchArguments += ["-idleAt", "0"]
         app.launch()
@@ -113,7 +113,7 @@ extension RecordFlowUITests {
     @MainActor
     func testSugarPresetChangesTodayLimit() throws {
         continueAfterFailure = false
-        let app = XCUIApplication()
+        let app = XCUIApplication.withTestSkips()
         // 추이는 첫 선물 전까지 잠긴다(§4.9). 하루 기준 화면은 추이 안에 있어 Debug 인자로 연다.
         app.launchArguments += ["-trendsUnlocked", "YES"]
         app.launch()
@@ -155,7 +155,7 @@ extension RecordFlowUITests {
     @MainActor
     func testStartAndStopSugarReductionGoal() throws {
         continueAfterFailure = false
-        let app = XCUIApplication()
+        let app = XCUIApplication.withTestSkips()
         app.launchArguments += ["-mockProOwned", "YES", "-trendsUnlocked", "YES"]
         app.launch()
 
@@ -196,7 +196,7 @@ extension RecordFlowUITests {
     @MainActor
     func testTappingProFeatureOpensPaywall() throws {
         continueAfterFailure = false
-        let app = XCUIApplication()
+        let app = XCUIApplication.withTestSkips()
         app.launchArguments += ["-mockPro", "YES", "-trendsUnlocked", "YES"]
         app.launch()
 
@@ -223,7 +223,7 @@ extension RecordFlowUITests {
     @MainActor
     func testReplayOnboardingFromSettings() throws {
         continueAfterFailure = false
-        let app = XCUIApplication()
+        let app = XCUIApplication.withTestSkips()
         app.launch()
 
         completeOnboardingIfPresented(app)
@@ -262,7 +262,7 @@ extension RecordFlowUITests {
     @MainActor
     func testSettingsGuideReplaysDrinkTutorial() throws {
         continueAfterFailure = false
-        let app = XCUIApplication()
+        let app = XCUIApplication.withTestSkips()
         app.launchArguments += ["-idleAt", "0"]
         app.launch()
 
@@ -282,7 +282,7 @@ extension RecordFlowUITests {
     @MainActor
     func testSettingsTestCardRehearsesFeeding() throws {
         continueAfterFailure = false
-        let app = XCUIApplication()
+        let app = XCUIApplication.withTestSkips()
         app.launchArguments += ["-developerMode", "YES"]
         app.launch()
 
@@ -314,7 +314,7 @@ extension RecordFlowUITests {
     @MainActor
     func testSettingsTestCardIntroRunsThroughFirstMeeting() throws {
         continueAfterFailure = false
-        let app = XCUIApplication()
+        let app = XCUIApplication.withTestSkips()
         // 무대는 4초 뒤 저절로 닫혀 느린 CI가 놓친다. 한 장면에 멈춰 두고 눌러서 닫는다(testSkipping…과 같은 이유).
         app.launchArguments += ["-levelUpAt", "2.5", "-developerMode", "YES"]
         app.launch()
@@ -367,7 +367,7 @@ extension RecordFlowUITests {
     @MainActor
     func testTrendsPushesFromCornerAndGoesBack() throws {
         continueAfterFailure = false
-        let app = XCUIApplication()
+        let app = XCUIApplication.withTestSkips()
         // 첫 보상 전엔 추이가 잠겨 있다(SPEC §4.9). 여기선 추이 자체를 보니 인자로 푼다.
         app.launchArguments += ["-trendsUnlocked", "YES"]
         app.launch()
@@ -393,7 +393,7 @@ extension RecordFlowUITests {
     @MainActor
     func testTrendsLockedUntilFirstGiftIsOpened() throws {
         continueAfterFailure = false
-        let app = XCUIApplication()
+        let app = XCUIApplication.withTestSkips()
         app.launchArguments += ["-initialTab", "today", "-screenshotGift", "trends", "-giftAt", "3"]
         app.launch()
         completeOnboardingIfPresented(app)
@@ -434,7 +434,7 @@ extension RecordFlowUITests {
     @MainActor
     func testTodayCupSlideCarriesCharacters() throws {
         continueAfterFailure = false
-        let app = XCUIApplication()
+        let app = XCUIApplication.withTestSkips()
         app.launchArguments += ["-initialTab", "today", "-idlePose", "walk", "-idleStep", "100"]
         app.launch()
         completeOnboardingIfPresented(app)
@@ -458,7 +458,7 @@ extension RecordFlowUITests {
     @MainActor
     func testTurningCaffeineOffLeavesOneCup() throws {
         continueAfterFailure = false
-        let app = XCUIApplication()
+        let app = XCUIApplication.withTestSkips()
         app.launchArguments += ["-initialTab", "today", "-idleAt", "0"]
         app.launch()
         completeOnboardingIfPresented(app)
@@ -561,7 +561,7 @@ extension RecordFlowUITests {
     @MainActor
     func testSettlementAddDrinkUpdatesLeftover() throws {
         continueAfterFailure = false
-        let app = XCUIApplication()
+        let app = XCUIApplication.withTestSkips()
         app.launchArguments += ["-screenshotFeeding", "YES"]
         app.launch()
         completeOnboardingIfPresented(app)
@@ -591,7 +591,7 @@ extension RecordFlowUITests {
     @MainActor
     func testSkippingFeedingGoesStraightToSummary() throws {
         continueAfterFailure = false
-        let app = XCUIApplication()
+        let app = XCUIApplication.withTestSkips()
         // 단계 상승 무대는 4초 뒤 저절로 닫히는데 CI에선 찾고 누르는 사이에 끝나 버린다(2026-10-28 CI, 누를 자리 없음).
         // 한 장면에 멈춰 두면 눌러야만 닫힌다(누르면 닫히는 길은 그대로).
         app.launchArguments += ["-screenshotFeeding", "YES", "-levelUpAt", "2.5"]
@@ -694,7 +694,7 @@ extension RecordFlowUITests {
     @MainActor
     func testStoreDrinkSearchIgnoresSpaces() throws {
         continueAfterFailure = false
-        let app = XCUIApplication()
+        let app = XCUIApplication.withTestSkips()
         // 기록은 컵을 눌러 연다(record-add = 컵 장면). 캐릭터가 누른 자리에 있으면 움찔만 하므로 자세를 멈춰 둔다.
         app.launchArguments += ["-idleAt", "0"]
         app.launch()
@@ -726,7 +726,7 @@ extension RecordFlowUITests {
     @MainActor
     func testSwitchingMenuCountryShowsThatCountrysBrands() throws {
         continueAfterFailure = false
-        let app = XCUIApplication()
+        let app = XCUIApplication.withTestSkips()
         app.launchArguments += ["-idleAt", "0"]
         app.launch()
         completeOnboardingIfPresented(app)
@@ -833,6 +833,15 @@ extension RecordFlowUITests {
     }
 }
 
+private extension XCUIApplication {
+    /// 첫 실행 건너뛰기(온보딩 영상·캐릭터 소개·첫 먹이기)는 앱에서 뺐다(대표님 2026-11-06). 테스트만 Debug 인자로 다시 띄운다.
+    static func withTestSkips() -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments += ["-uiTestSkip", "YES"]
+        return app
+    }
+}
+
 private extension XCUIElement {
     /// 넘김 애니메이션이 끝나 선택 표시가 바뀔 때까지 기다린다.
     func waitForSelected(timeout: TimeInterval = 3) -> Bool {
@@ -858,7 +867,7 @@ extension RecordFlowUITests {
     @MainActor
     func testSecondHeartOffersPro() throws {
         continueAfterFailure = false
-        let app = XCUIApplication()
+        let app = XCUIApplication.withTestSkips()
         app.launchArguments += [
             "-mockPro", "YES", "-trendsUnlocked", "YES", "-initialTab", "today",
             "-screenshotGift", "weekKept", "-screenshotGiftCard", "YES", "-screenshotHearts", "1",
@@ -880,7 +889,7 @@ extension RecordFlowUITests {
     @MainActor
     func testStageEventOnLevelUpCanBeSkipped() throws {
         continueAfterFailure = false
-        let app = XCUIApplication()
+        let app = XCUIApplication.withTestSkips()
         // 무대는 실행 직후 시작해 약 4초면 끝난다. 온보딩 확인(5초)을 기다리는 사이 사라지지 않게 장면을 멈춰 둔다.
         app.launchArguments += ["-trendsUnlocked", "YES", "-initialTab", "today", "-screenshotLevelUp", "5", "-levelUpAt", "2.2"]
         app.launch()
@@ -901,7 +910,7 @@ extension RecordFlowUITests {
     @MainActor
     func testStageEventOnLevelUpWaitsForTapAfterPlaying() throws {
         continueAfterFailure = false
-        let app = XCUIApplication()
+        let app = XCUIApplication.withTestSkips()
         app.launchArguments += ["-trendsUnlocked", "YES", "-initialTab", "today", "-screenshotLevelUp", "5"]
         app.launch()
         completeOnboardingIfPresented(app)
@@ -925,7 +934,7 @@ extension RecordFlowUITests {
     @MainActor
     func testTradeOfferRefuseThenAccept() throws {
         continueAfterFailure = false
-        let app = XCUIApplication()
+        let app = XCUIApplication.withTestSkips()
         // 운반 캐릭터는 들어와 선 시각(-giftAt), 무대는 버튼이 다 떠오른 시각(-giftRevealAt)에 멈춰 둔다.
         // 기본 상품은 튜토리얼 상품(카인의 카페라떼)이라 프라페로 고정한다.
         app.launchArguments += [

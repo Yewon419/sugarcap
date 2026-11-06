@@ -305,8 +305,9 @@ struct FeedingView: View {
             .animation(.easeOut(duration: 0.3), value: isCoaching)
             .overlay(alignment: .bottom) { foot }
             // 닫기는 뺐다(2026-10-07 대표님 "건너뛰기 있으니 닫기 없애"). 요약 화면의 닫기는 그대로.
+            // 첫 먹이기(튜토리얼)에는 건너뛰기가 없다(대표님 2026-11-06). 둘째 날부터는 그대로.
             .overlay(alignment: .topTrailing) {
-                skipButton.padding(.trailing, 16)
+                if !isTutorial || FirstRunSkip.isAllowed { skipButton.padding(.trailing, 16) }
             }
         }
         .coordinateSpace(.named("feed"))

@@ -7,7 +7,7 @@ struct TradeStage: Identifiable {
     let startedAt: Date
 }
 
-/// 거래 제안 무대(SPEC §4.10). 선물 조명 무대(`GiftRevealOverlay`)와 같은 어둠·조명·반짝이에 상품(그 세트 100% 누끼)과
+/// 거래 제안 무대(SPEC §4.10). 선물 조명 무대(`GiftRevealOverlay`)와 같은 어둠·조명·반짝이에 상품(그 잔의 방울, 대표님 2026-11-06)과
 /// 이름 꼬리표를 올리고, 아래에 "병뚜껑 N개랑 바꿀래?"와 버튼 둘("바꾸기" 강조색, "다음에" 유리 알약)을 둔다.
 /// 배경을 눌러도 닫히지 않는다(드러나기 전에 누르면 드러난 장면으로 건너뛴다). 동작 줄이기면 어둠과 카드만 켰다 끈다.
 /// 첫 거래(튜토리얼 라떼)는 "다음에" 없이 "바꾸기"만 둔다(대표님 2026-10-31).
@@ -39,7 +39,7 @@ struct TradeOfferOverlay: View {
                             in: context, size: canvasSize, t: t, calm: reduceMotion, centerY: Self.centerY
                         )
                     }
-                    itemView(height: Double(spot) * 1.7, t: t)
+                    itemView(side: Double(spot) * 1.4, t: t)
                         .position(x: size.width / 2, y: itemY)
                     Canvas { context, canvasSize in
                         GiftRevealTimeline.drawSparkles(
@@ -67,11 +67,13 @@ struct TradeOfferOverlay: View {
         skipped += GiftRevealTimeline.land - t
     }
 
-    private func itemView(height: Double, t: Double) -> some View {
+    private func itemView(side: Double, t: Double) -> some View {
         let light: Double = GiftRevealTimeline.itemLight(t, calm: reduceMotion)
         let dark: Double = GiftRevealTimeline.dim * GiftRevealTimeline.darkness(t, calm: reduceMotion) * (1 - light)
-        return TradeItemArt(setID: stage.offer.itemID)
-            .frame(width: height * TradeItemArt.aspect, height: height)
+        return Image(item?.dropAsset ?? "drop-sugar")
+            .resizable()
+            .scaledToFit()
+            .frame(width: side, height: side)
             .colorMultiply(Color(white: 1 - dark))
             .scaleEffect(GiftRevealTimeline.itemScale(t, calm: reduceMotion))
             .allowsHitTesting(false)
@@ -141,29 +143,5 @@ struct TradeOfferOverlay: View {
         .opacity(caption.opacity)
         .offset(y: caption.dy)
         .allowsHitTesting(caption.opacity > 0.5)
-    }
-}
-
-/// 잔 세트 100% 누끼에서 잔만 잘라 보인다. 프라페는 크림이 입구 위로 솟아 `CupCrop`(잔 영역)보다 위를 더 잡는다.
-struct TradeItemArt: View {
-    let setID: String
-
-    private static let canvas = CGSize(width: 937, height: 1666)
-    /// 세트들의 100% 누끼 알파 영역 합집합(프라페 y 215~1363, 라떼·아메리카노 y 433~1438) + 여유.
-    private static let glass = CGRect(x: 186, y: 200, width: 564, height: 1250)
-    static let aspect: Double = Double(glass.width / glass.height)
-
-    var body: some View {
-        GeometryReader { proxy in
-            let scale = min(proxy.size.width / Self.glass.width, proxy.size.height / Self.glass.height)
-            let x = (proxy.size.width - Self.glass.width * scale) / 2 - Self.glass.minX * scale
-            let y = proxy.size.height - Self.glass.maxY * scale
-            Image(CupLevel.cutoutName(setID: setID, step: 100))
-                .resizable()
-                .frame(width: Self.canvas.width * scale, height: Self.canvas.height * scale)
-                .offset(x: x, y: y)
-        }
-        .clipped()
-        .accessibilityHidden(true)
     }
 }

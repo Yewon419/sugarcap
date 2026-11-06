@@ -444,6 +444,9 @@ jobs:
           shoot trade-card-mango light large -screenshotTrade card -screenshotTradeItem mango -giftRevealAt 3
           shoot trade-card-einspanner light large -screenshotTrade card -screenshotTradeItem einspanner -giftRevealAt 3
           shoot trade-card-grape light large -screenshotTrade card -screenshotTradeItem grape -giftRevealAt 3
+          # 바꾼 뒤 적용 연출(대표님 2026-11-06): 방울이 떨어지는 중, 닿아 동심원·폭죽이 퍼지며 잔이 바뀐 순간.
+          shoot trade-apply-fall light large -screenshotTrade apply -screenshotTradeItem cafe-latte -tradeApplyAt 0.7
+          shoot trade-apply-ring light large -screenshotTrade apply -screenshotTradeItem cafe-latte -tradeApplyAt 1.05
           shoot starter-cap light large -screenshotSide caffeine -screenshotGift starterCap -screenshotGiftCard YES -screenshotGiftContent cap -giftRevealAt 3
           shoot trends-caps light large -initialTab trends -screenshotCaps 3
           # 기준 지킨 주 축하(2026-10-12): -weekKeptAt = 시작 뒤 초(가속 시계). 한 면: 0.8 글자 섞이는 중, 1.3 점프·팡파레.

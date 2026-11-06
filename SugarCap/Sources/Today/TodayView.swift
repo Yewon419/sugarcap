@@ -98,10 +98,14 @@ struct TodayView: View {
     @State private var leavingOffer: UUID?
     /// 바꾸기 성공 햅틱 신호.
     @State private var tradesAccepted = 0
+    /// 바꾼 잔을 적용하는 연출(방울이 잔에 떨어진다). 끝나면 지운다.
+    @State private var tradeApply: TradeApply?
     /// 첫 거래를 바꿨고 체험 권유 페이월을 아직 안 띄웠다. 앱을 닫았다 열어도 남는다.
     @AppStorage("trialPaywallPending") private var trialPaywallPending = false
     /// CI 스크린샷·UI 테스트(Debug `-screenshotTrade`)와 테스트 카드 "거래 제안 바로 보기"의 제안. 저장소에 넣지 않는다.
     @State private var screenshotOffer: TradeOffer?
+    /// CI 스크린샷(`-screenshotTrade apply`) 전용. 방울이 닿은 뒤 컷에서 보일 잔. 저장된 잔 세트는 바꾸지 않는다.
+    @State private var screenshotAppliedSet: TradeItem?
     /// 첫 기록 안내(`DrinkTutorial`) 진행 단계. 설정 사용설명서 「음료 기록법」으로도 다시 연다.
     @State private var tutorial: DrinkTutorial.Step?
     /// 안내 중 "추가"한 연습 음료. 저장소에 넣지 않고 오늘 합계·하루 기록에만 얹는다. 지우면 비운다.
@@ -335,7 +339,7 @@ struct TodayView: View {
                     // 선물·거래 상자가 와 있으면 운반 캐릭터가 곧 그 캐릭터다. 열고 나면 대기 자세로 돌아온다(SPEC §4.9·4.10).
                     // 단계 상승 무대 중이면 무대에 선 캐릭터가 그 캐릭터다.
                     CupView(
-                        step: step, setID: cupSide.cupSetID,
+                        step: step, setID: shownSetID(cupSide),
                         idle: hidesCharacters || carrier != nil || staged != nil ? nil : IdleCharacterLayer(
                             side: cupSide, step: step, isActive: isActive,
                             unlockedLevel: unlockedLevel(cupSide),
@@ -353,8 +357,8 @@ struct TodayView: View {
                         hero: tutorial == .cup || tutorial == .drop ? nil : CupHero(
                             side: cupSide, remaining: cupSide.remaining(totals), limit: cupSide.limit(limits),
                             overflow: cupSide.overflow(totals), widest: widestNumber(totals),
-                            rimLine: CupLevel.rimLineName(setID: cupSide.cupSetID, step: step),
-                            topping: CupLevel.toppingName(setID: cupSide.cupSetID, step: step),
+                            rimLine: CupLevel.rimLineName(setID: shownSetID(cupSide), step: step),
+                            topping: CupLevel.toppingName(setID: shownSetID(cupSide), step: step),
                             notice: notice,
                             day: today,
                             topInset: Double(proxy.safeAreaInsets.top),
@@ -406,7 +410,7 @@ struct TodayView: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("음료 추가")
         .accessibilityAddTraits(.isButton)
-        .accessibilityAction { if !locksForEvent { isRecordSheetPresented = true } }
+        .accessibilityAction { if !locksControls { isRecordSheetPresented = true } }
         .accessibilityActions {
             if let gift = pendingGift(for: side) {
                 Button("선물 열기") { beginOpening(gift, at: nil, on: side) }
@@ -451,7 +455,15 @@ struct TodayView: View {
     /// 다 막는다(대표님 2026-11-06). 안내(튜토리얼) 중에는 안내가 화면을 쥐고 있어 따지지 않는다.
     private var locksForEvent: Bool {
         guard tutorial == nil else { return false }
-        return hasUnseenStamp || levelUp != nil || levelUpSide != nil
+        return hasUnseenStamp || levelUp != nil || levelUpSide != nil || tradeApply != nil
+    }
+
+    /// 선물 상자가 와 있거나 여는 중이어도 위 버튼·마감·컵 누르기·거래 상자를 막는다(대표님 2026-11-06 "선물상자도
+    /// 우선이벤트로"). 넘기기와 상자 열기는 그대로 둔다. 상자가 있는 면으로 가서 열어야 풀린다.
+    private var locksControls: Bool {
+        guard tutorial == nil else { return false }
+        return locksForEvent || opening != nil || reveal != nil || revealLead != nil
+            || trackedSides.contains { carriedGift(for: $0) != nil }
     }
 
     /// 다음에 볼 단계 상승.
@@ -782,7 +794,7 @@ struct TodayView: View {
 
     /// 거래 상자를 눌렀을 때. 보고 있는 면만 받는다.
     private func beginTrade(_ offer: TradeOffer, on cupSide: CupSide) {
-        guard cupSide == side, trade == nil, offer.accepted == nil, !locksForEvent else { return }
+        guard cupSide == side, trade == nil, offer.accepted == nil, !locksControls else { return }
         trade = TradeStage(offer: offer, startedAt: Date())
     }
 
@@ -797,7 +809,7 @@ struct TodayView: View {
 
     /// 첫 거래를 바꾼 뒤 띄울 체험 권유 페이월(SPEC §6, 대표님 2026-10-31). 오늘 화면이 다른 연출·시트 없이 자리 잡았을 때만.
     private var trialPaywallCue: Bool {
-        guard trialPaywallPending, trade == nil, leavingOffer == nil, levelUp == nil, opening == nil, reveal == nil,
+        guard trialPaywallPending, trade == nil, tradeApply == nil, leavingOffer == nil, levelUp == nil, opening == nil, reveal == nil,
               feeding == nil, gate == nil, paywall == nil, !isProPaywallPresented, weekKept == nil, tutorial == nil,
               !isStampCardPresented, !hasUnseenStamp
         else { return false }
@@ -843,12 +855,41 @@ struct TodayView: View {
         } else {
             offer.accepted = true
         }
-        tradesAccepted += 1
         trade = nil
+        if reduceMotion {
+            tradesAccepted += 1
+            applyCupSet(item)
+        } else {
+            tradeApply = TradeApply(item: item, startedAt: Date())
+        }
+    }
+
+    private func shownSetID(_ cupSide: CupSide) -> String {
+        if let screenshotAppliedSet, screenshotAppliedSet.side == cupSide { return screenshotAppliedSet.id }
+        return cupSide.cupSetID
+    }
+
+    private func applyCupSet(_ item: TradeItem) {
         switch item.side {
         case .sugar: sugarCupSet = item.id
         case .caffeine: caffeineCupSet = item.id
         }
+    }
+
+    /// 방울이 잔에 닿는 순간 잔을 바꾸고 햅틱을 울린다. 연출이 끝나면 지운다. 작업이 취소돼도 잔은 바꾸고 지운다
+    /// (안 지우면 `locksForEvent`가 오늘 화면을 계속 막는다).
+    /// CI 스크린샷(`-tradeApplyAt`)은 그 시각에 멈춰 두고, 닿은 뒤 시각이면 잔만 바꿔 둔다(저장된 잔 세트는 건드리지 않는다).
+    private func playTradeApply(_ apply: TradeApply) async {
+        if let frozen = TradeApplyTimeline.frozenTime {
+            if frozen >= TradeApplyTimeline.contact { screenshotAppliedSet = apply.item }
+            return
+        }
+        try? await Task.sleep(for: .seconds(TradeApplyTimeline.contact))
+        guard tradeApply?.id == apply.id else { return }
+        tradesAccepted += 1
+        applyCupSet(apply.item)
+        try? await Task.sleep(for: .seconds(TradeApplyTimeline.duration - TradeApplyTimeline.contact))
+        if tradeApply?.id == apply.id { tradeApply = nil }
     }
 
     /// 다음에. 무대가 닫히고 캐릭터가 상자를 들고 들어온 쪽으로 나간다(동작 줄이기면 바로 사라진다).
@@ -908,6 +949,10 @@ struct TodayView: View {
         screenshotOffer = offer
         pickedSide = item.side
         if raw == "card" { trade = TradeStage(offer: offer, startedAt: Date()) }
+        if raw == "apply" {
+            offer.accepted = true
+            tradeApply = TradeApply(item: item, startedAt: Date())
+        }
         #endif
     }
 
@@ -966,7 +1011,7 @@ struct TodayView: View {
     /// 컵을 누르면 음료 추가(2026-10-05 대표님, 오른쪽 아래 + 버튼 대신). 위 수치·아래 조작부 자리는 빼고
     /// 잔이 있는 칸만 받는다(프로토 `.cup-tap`과 같은 칸: 양옆 32, 위 35%, 아래 170).
     private func tapCup(at point: CGPoint, screen: CGRect) {
-        guard !locksForEvent else { return }
+        guard !locksControls else { return }
         // 큰 숫자는 컵 장면 안에 그려져 캐릭터 아래에 있다. 캐릭터가 안 받은 누르기가 숫자 위면 하루 기록(2026-09-26).
         if heroFrames[side]?.contains(point) == true {
             cupTaps += 1
@@ -1123,6 +1168,12 @@ struct TodayView: View {
         .animation(.easeOut(duration: 0.25), value: reveal?.id)
         .overlay { tradeOverlay() }
         .animation(.easeOut(duration: 0.25), value: trade?.id)
+        .overlay {
+            if let tradeApply { TradeApplyOverlay(apply: tradeApply) }
+        }
+        .task(id: tradeApply?.id) {
+            if let tradeApply { await playTradeApply(tradeApply) }
+        }
         .overlay { stampCardOverlay() }
         .animation(.easeOut(duration: 0.25), value: isStampCardPresented)
         .task(id: stampCue) {
@@ -1230,7 +1281,7 @@ struct TodayView: View {
         }
         .padding(.trailing, 16)
         .padding(.top, 2)
-        .disabled(locksForEvent)
+        .disabled(locksControls)
     }
 
     /// 보이는 원은 36pt 그대로, 누르는 영역만 44pt.
@@ -1331,7 +1382,7 @@ struct TodayView: View {
                     .shadow(color: .black.opacity(0.10), radius: 8, y: 3)
             }
             .buttonStyle(.plain)
-            .disabled(locksForEvent)
+            .disabled(locksControls)
             .accessibilityIdentifier("close-today")
         }
     }

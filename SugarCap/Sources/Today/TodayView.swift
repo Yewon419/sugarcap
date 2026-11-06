@@ -378,7 +378,7 @@ struct TodayView: View {
             .gesture(
                 DragGesture(minimumDistance: 12)
                     .onChanged { value in
-                        guard abs(value.translation.width) > abs(value.translation.height) else { return }
+                        guard !locksForEvent, abs(value.translation.width) > abs(value.translation.height) else { return }
                         isSliding = true
                         let pullingPastEdge = (side == trackedSides.first && value.translation.width > 0)
                             || (side == trackedSides.last && value.translation.width < 0)
@@ -390,7 +390,7 @@ struct TodayView: View {
                     }
                     .onEnded { value in
                         let travel = value.predictedEndTranslation.width
-                        let step = travel < -width / 3 ? 1 : (travel > width / 3 ? -1 : 0)
+                        let step = locksForEvent ? 0 : (travel < -width / 3 ? 1 : (travel > width / 3 ? -1 : 0))
                         let next = Self.neighbor(of: side, step: step, in: trackedSides)
                         UserDefaults.standard.set(next.rawValue, forKey: Self.lastSideKey)
                         withAnimation(reduceMotion ? .easeInOut(duration: 0.25) : .spring(response: 0.45, dampingFraction: 0.86)) {
@@ -406,7 +406,7 @@ struct TodayView: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("음료 추가")
         .accessibilityAddTraits(.isButton)
-        .accessibilityAction { isRecordSheetPresented = true }
+        .accessibilityAction { if !locksForEvent { isRecordSheetPresented = true } }
         .accessibilityActions {
             if let gift = pendingGift(for: side) {
                 Button("선물 열기") { beginOpening(gift, at: nil, on: side) }
@@ -436,55 +436,72 @@ struct TodayView: View {
 
     // MARK: - 단계 상승 무대(§4.9 결정 4)
 
-    /// 보고 있는 면의 아직 안 본 단계 상승. 그 면에 상자가 와 있으면 상자부터 받는다("선물 다 받고 나서").
-    /// 첫 만남(Lv1)만 상자보다 먼저다: 두 면을 저절로 넘기며 바로 이어 보여 줘야 해서, 같이 오는 첫 먹이기 병뚜껑 상자를 기다리지 않는다.
+    /// 이 면의 아직 안 본 단계 상승. 상자보다 먼저다(우선순위 스탬프 → 단계 상승 → 선물, 대표님 2026-11-06).
+    private func waitingLevelUp(on cupSide: CupSide) -> GiftEvent? {
+        if let rehearsed = rehearsalMeetings.first(where: { $0.cupSide == cupSide }) { return rehearsed }
+        return gifts.first { !$0.isOpened && $0.giftKind == .levelUp && $0.cupSide == cupSide }
+    }
+
+    /// 안 본 단계 상승이 있는 첫 면. 둘 다 올랐으면 로슈(당) 먼저, 끝나면 저절로 카인 면으로 넘겨 이어 보여 준다.
+    private var levelUpSide: CupSide? {
+        CupSide.allCases.first { trackedSides.contains($0) && waitingLevelUp(on: $0) != nil }
+    }
+
+    /// 스탬프·단계 상승이 남았거나 도는 중이다. 이때는 오늘 화면의 다른 누르기·넘기기(위 버튼·마감·컵·상자)를
+    /// 다 막는다(대표님 2026-11-06). 안내(튜토리얼) 중에는 안내가 화면을 쥐고 있어 따지지 않는다.
+    private var locksForEvent: Bool {
+        guard tutorial == nil else { return false }
+        return hasUnseenStamp || levelUp != nil || levelUpSide != nil
+    }
+
+    /// 다음에 볼 단계 상승.
     private var nextLevelUp: GiftEvent? {
-        if let rehearsed = rehearsalMeetings.first(where: { $0.cupSide == side }) { return rehearsed }
-        let waiting = gifts.first { !$0.isOpened && $0.giftKind == .levelUp && $0.cupSide == side }
-        guard let waiting else { return nil }
-        if waiting.level == 1 { return waiting }
-        return pendingGift(for: side) == nil ? waiting : nil
+        levelUpSide.flatMap { waitingLevelUp(on: $0) }
     }
 
     /// 무대를 열어도 되는 때의 단계 상승 id. 다른 연출·시트·화면이 떠 있거나 넘기는 중이면 없다.
     /// 첫 마감 알림 질문도 기다린다. 무대 위에 떠서 무대를 못 누르게 막았다(2026-10-27 CI).
     private var levelUpCue: UUID? {
-        guard levelUp == nil, opening == nil, reveal == nil, trade == nil, feeding == nil, gate == nil, paywall == nil, !asksReminder,
-              tutorial == nil, !isStampCardPresented, !hasUnseenStamp,
+        guard levelUp == nil, opening == nil, reveal == nil, revealLead == nil, trade == nil, feeding == nil, gate == nil,
+              paywall == nil, !asksReminder, tutorial == nil, !isStampCardPresented, !hasUnseenStamp,
               isOnScreen, !isSliding, !isSettingsPresented, !isTrendsPresented, !isRecordSheetPresented,
               !isDayLogPresented, !isManualEntryPresented, path.isEmpty
         else { return nil }
         return nextLevelUp?.id
     }
 
-    /// 화면이 자리 잡고 잠깐 뒤에 연다(앱을 열자마자 어두워지지 않게).
+    /// 화면이 자리 잡고 잠깐 뒤에 연다(앱을 열자마자 어두워지지 않게). 다른 면 차례면 그 면으로 넘긴 뒤에 연다.
     private func startLevelUp(after cue: UUID) async {
         try? await Task.sleep(for: .seconds(0.8))
         guard !Task.isCancelled, levelUp == nil, let gift = nextLevelUp, gift.id == cue, let cupSide = gift.cupSide else {
             return
         }
-        levelUp = LevelUpStage(gift: gift, side: cupSide, level: gift.level ?? 1, startedAt: Date())
+        if cupSide != side {
+            switchSide(to: cupSide)
+            try? await Task.sleep(for: .seconds(0.6))
+            guard !Task.isCancelled, levelUp == nil, nextLevelUp?.id == cue else { return }
+        }
+        let isLast = !rehearsalMeetings.contains { $0.id != gift.id } && !gifts.contains { other in
+            other.id != gift.id && !other.isOpened && other.giftKind == .levelUp
+                && other.cupSide.map { trackedSides.contains($0) } == true
+        }
+        levelUp = LevelUpStage(gift: gift, side: cupSide, level: gift.level ?? 1, startedAt: Date(), holds: isLast)
     }
 
-    /// 끝까지 보거나 눌러서 건너뛰면 연 것으로 저장한다. 스크린샷용 무대(저장소 밖)는 저장하지 않는다.
+    /// 끝까지 돌거나(이어 볼 무대가 있을 때) 멈춘 뒤 누르면 연 것으로 저장한다. 스크린샷용 무대(저장소 밖)는 저장하지 않는다.
     private func finishLevelUp(_ stage: LevelUpStage) {
         guard levelUp?.id == stage.id else { return }
         if stage.gift.modelContext != nil { saveOpened(stage.gift) }
         rehearsalMeetings.removeAll { $0.id == stage.gift.id }
         levelUp = nil
-        // 첫 만남(Lv1)은 둘이 같이 받는 거라 다른 컵으로 저절로 넘겨 이어 보여 준다(2026-10-27 대표님).
-        guard stage.level == 1 else { return }
-        let partner: CupSide? = trackedSides.first { other in
-            other != stage.side && (gifts.contains { gift in
-                !gift.isOpened && gift.giftKind == .levelUp && gift.level == 1 && gift.cupSide == other
-            } || rehearsalMeetings.contains { $0.cupSide == other })
-        }
-        if let partner { switchSide(to: partner) }
+        // 둘이 같이 올랐으면 다른 컵으로 저절로 넘겨 이어 보여 준다(Lv1 2026-10-27, 모든 단계 2026-11-06 대표님).
+        if let next = levelUpSide { switchSide(to: next) }
     }
 
-    /// 끝까지 기다렸다 닫는다. CI 스크린샷(`-levelUpAt`)은 한 장면에 멈춰 두므로 닫지 않는다.
+    /// 이어 볼 무대가 있으면 끝까지 돌고 닫는다. 마지막 무대는 멈춰 서서 누르기를 기다린다(`LevelUpStage.holds`).
+    /// CI 스크린샷(`-levelUpAt`)은 한 장면에 멈춰 두므로 닫지 않는다.
     private func playLevelUp(_ stage: LevelUpStage) async {
-        guard LevelUpTimeline.frozenTime == nil else { return }
+        guard LevelUpTimeline.frozenTime == nil, !stage.holds else { return }
         try? await Task.sleep(for: .seconds(LevelUpTimeline.duration(calm: reduceMotion)))
         guard !Task.isCancelled else { return }
         finishLevelUp(stage)
@@ -518,7 +535,7 @@ struct TodayView: View {
         guard defaults.object(forKey: "screenshotLevelUp") != nil, levelUp == nil else { return }
         let level = min(max(defaults.integer(forKey: "screenshotLevelUp"), 2), AffinityMath.maxLevel)
         let gift = GiftEvent(kind: .levelUp, side: side, level: level, createdAt: AppClock.now)
-        levelUp = LevelUpStage(gift: gift, side: side, level: level, startedAt: Date())
+        levelUp = LevelUpStage(gift: gift, side: side, level: level, startedAt: Date(), holds: true)
         #endif
     }
 
@@ -536,7 +553,7 @@ struct TodayView: View {
 
     /// 상자를 눌렀을 때. 추이 열림 선물은 열쇠 연출로, 나머지(Phase 2·3)는 조명 무대로 연다. 보고 있는 면만 받는다.
     private func beginOpening(_ gift: GiftEvent, at time: Double?, on cupSide: CupSide) {
-        guard cupSide == side, opening == nil, reveal == nil, revealLead == nil else { return }
+        guard cupSide == side, opening == nil, reveal == nil, revealLead == nil, !locksForEvent else { return }
         if gift.giftKind == .trendsUnlock {
             opening = GiftOpening(gift: gift, side: cupSide, openedAt: time, startedAt: Date())
         } else {
@@ -765,7 +782,7 @@ struct TodayView: View {
 
     /// 거래 상자를 눌렀을 때. 보고 있는 면만 받는다.
     private func beginTrade(_ offer: TradeOffer, on cupSide: CupSide) {
-        guard cupSide == side, trade == nil, offer.accepted == nil else { return }
+        guard cupSide == side, trade == nil, offer.accepted == nil, !locksForEvent else { return }
         trade = TradeStage(offer: offer, startedAt: Date())
     }
 
@@ -949,6 +966,7 @@ struct TodayView: View {
     /// 컵을 누르면 음료 추가(2026-10-05 대표님, 오른쪽 아래 + 버튼 대신). 위 수치·아래 조작부 자리는 빼고
     /// 잔이 있는 칸만 받는다(프로토 `.cup-tap`과 같은 칸: 양옆 32, 위 35%, 아래 170).
     private func tapCup(at point: CGPoint, screen: CGRect) {
+        guard !locksForEvent else { return }
         // 큰 숫자는 컵 장면 안에 그려져 캐릭터 아래에 있다. 캐릭터가 안 받은 누르기가 숫자 위면 하루 기록(2026-09-26).
         if heroFrames[side]?.contains(point) == true {
             cupTaps += 1
@@ -1212,6 +1230,7 @@ struct TodayView: View {
         }
         .padding(.trailing, 16)
         .padding(.top, 2)
+        .disabled(locksForEvent)
     }
 
     /// 보이는 원은 36pt 그대로, 누르는 영역만 44pt.
@@ -1312,6 +1331,7 @@ struct TodayView: View {
                     .shadow(color: .black.opacity(0.10), radius: 8, y: 3)
             }
             .buttonStyle(.plain)
+            .disabled(locksForEvent)
             .accessibilityIdentifier("close-today")
         }
     }
@@ -1606,7 +1626,7 @@ struct TodayView: View {
             // 저장소에 넣지 않은 선물이라 끝나도 연 것으로 저장하지 않는다(`finishLevelUp`). 최고 단계면 그 단계를 다시 보여 준다.
             let level = min(max(affinityLevel(side) + 1, 2), AffinityMath.maxLevel)
             let gift = GiftEvent(kind: .levelUp, side: side, level: level, createdAt: now)
-            levelUp = LevelUpStage(gift: gift, side: side, level: level, startedAt: Date())
+            levelUp = LevelUpStage(gift: gift, side: side, level: level, startedAt: Date(), holds: true)
         case .trade:
             // 켠 면의 상품 중 지금 안 쓰는 잔을 고른다. 바꾸면 잔만 바뀌고, 안 가진 잔은 앱을 다시 켜면 기본 잔으로 돌아간다.
             let items = TradeCatalog.items.filter { trackedSides.contains($0.side) }

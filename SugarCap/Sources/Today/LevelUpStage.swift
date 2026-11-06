@@ -25,6 +25,9 @@ enum LevelUpTimeline {
 
     static func duration(calm: Bool) -> Double { calm ? calmEnd : end }
 
+    /// 마지막 무대가 누르기를 기다리며 멈추는 시각. 세 줄이 다 보이고 조명이 아직 켜진 때(대표님 2026-11-06 건너뛰기 불가).
+    static func holdAt(calm: Bool) -> Double { calm ? calmHold - 0.01 : lightOff - 0.15 }
+
     /// 어둠의 진하기(0~1).
     static func darkness(_ t: Double, calm: Bool) -> Double {
         if calm { return Motion.seg(t, 0, 0.3) * (1 - Motion.seg(t, calmHold, calmEnd)) }
@@ -162,6 +165,8 @@ struct LevelUpStage: Identifiable {
     let side: CupSide
     let level: Int
     let startedAt: Date
+    /// 뒤에 이어 볼 무대가 없으면 `holdAt`에서 멈추고 누르기를 기다린다. 있으면 끝까지 돌고 저절로 다음 무대로 넘어간다.
+    let holds: Bool
 }
 
 /// 무대에 선 캐릭터의 자리·배율. 잔 앞 바닥 가운데에 정면 그림(`IntroRig` stand)으로 선다. 운반 캐릭터와 같은 자리.
@@ -325,7 +330,8 @@ struct LevelUpStageLayer: View {
     }
 }
 
-/// 어둠(조명 모양 구멍) + 조명 + 팡파레 + 세 줄(SPEC §4.9 결정 4). 화면 전체를 덮고, 아무 데나 누르면 건너뛴다.
+/// 어둠(조명 모양 구멍) + 조명 + 팡파레 + 세 줄(SPEC §4.9 결정 4). 화면 전체를 덮는다. 건너뛸 수 없다:
+/// 마지막 무대만 세 줄이 다 뜬 뒤(`holdAt`) 멈춰 서고, 그때부터 아무 데나 누르면 닫힌다(대표님 2026-11-06).
 /// 캐릭터는 어둠 아래 사진 칸에 있고 조명 구멍으로 보인다.
 struct LevelUpStageOverlay: View {
     let stage: LevelUpStage
@@ -336,6 +342,8 @@ struct LevelUpStageOverlay: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// 팡파레가 터질 때 성공 햅틱 한 번.
     @State private var didBurst = false
+    /// 누르면 닫히는 때. CI 스크린샷(`-levelUpAt`)은 시간이 멈춰 있어 처음부터.
+    @State private var isClosable = false
 
     var body: some View {
         GeometryReader { proxy in
@@ -346,8 +354,9 @@ struct LevelUpStageOverlay: View {
             } ?? CGPoint(x: proxy.size.width / 2, y: proxy.size.height * 0.8)
             let height: Double = figure?.height ?? 90
             let frozen = LevelUpTimeline.frozenTime
-            TimelineView(.animation(minimumInterval: nil, paused: frozen != nil)) { timeline in
-                let t = frozen ?? timeline.date.timeIntervalSince(stage.startedAt)
+            let hold: Double = stage.holds ? LevelUpTimeline.holdAt(calm: reduceMotion) : .infinity
+            TimelineView(.animation(minimumInterval: nil, paused: frozen != nil || isClosable)) { timeline in
+                let t = frozen ?? min(timeline.date.timeIntervalSince(stage.startedAt), hold)
                 let text = LevelUpTimeline.text(t, calm: reduceMotion)
                 ZStack(alignment: .topLeading) {
                     Canvas { context, size in
@@ -361,22 +370,38 @@ struct LevelUpStageOverlay: View {
                 }
             }
             .contentShape(Rectangle())
-            .onTapGesture(perform: onSkip)
+            .onTapGesture { close() }
         }
         .ignoresSafeArea()
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Self.line(stage).replacingOccurrences(of: "\n", with: " "))
-        .accessibilityHint("눌러서 닫기")
+        .accessibilityHint(isClosable ? String(localized: "눌러서 닫기") : "")
         .accessibilityAddTraits(.isButton)
-        .accessibilityAction { onSkip() }
+        // UI 테스트도 이 값으로 닫힐 수 있는 때를 기다린다(`.disabled`는 덮개 전체 누르기까지 막아 쓰지 않는다).
+        .accessibilityValue(isClosable ? String(localized: "닫기 가능") : String(localized: "연출 중"))
+        .accessibilityAction { close() }
         .accessibilityIdentifier("levelup-stage")
         .sensoryFeedback(.success, trigger: didBurst) { _, new in new }
+        .task(id: stage.id) {
+            guard LevelUpTimeline.frozenTime == nil else {
+                isClosable = true
+                return
+            }
+            guard stage.holds else { return }
+            let wait: Double = LevelUpTimeline.holdAt(calm: reduceMotion) - Date().timeIntervalSince(stage.startedAt)
+            if wait > 0 { try? await Task.sleep(for: .seconds(wait)) }
+            if !Task.isCancelled { isClosable = true }
+        }
         .task {
             guard LevelUpTimeline.frozenTime == nil, !reduceMotion else { return }
             let wait: Double = LevelUpTimeline.burst - Date().timeIntervalSince(stage.startedAt)
             if wait > 0 { try? await Task.sleep(for: .seconds(wait)) }
             if !Task.isCancelled { didBurst = true }
         }
+    }
+
+    private func close() {
+        if isClosable { onSkip() }
     }
 
     /// 조명 밖(왼쪽)에 세 줄: 이름 / 사이 이름 / 됐어요.

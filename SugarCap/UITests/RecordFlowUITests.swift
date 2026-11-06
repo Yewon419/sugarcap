@@ -860,6 +860,28 @@ extension RecordFlowUITests {
         XCTAssertTrue(ui.element("record-add").isHittable, "무대가 닫혔는데 오늘 화면이 안 눌림")
     }
 
+    /// 단계 상승 무대는 건너뛸 수 없다(대표님 2026-11-06): 마지막 무대는 세 줄이 다 뜬 뒤 멈춰 서서 누르기를 기다린다.
+    /// 예전 무대 길이(약 4초)를 넘겨도 남아 있고, 닫힐 수 있게 된 뒤 누르면 닫힌다.
+    @MainActor
+    func testStageEventOnLevelUpWaitsForTapAfterPlaying() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments += ["-trendsUnlocked", "YES", "-initialTab", "today", "-screenshotLevelUp", "5"]
+        app.launch()
+        completeOnboardingIfPresented(app)
+        let ui = Driver(app: app)
+
+        let stage = ui.element("levelup-stage")
+        XCTAssertTrue(stage.waitForExistence(timeout: 15), "단계 상승 무대가 안 뜸")
+        let closable = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == '닫기 가능'"), object: stage)
+        XCTAssertEqual(XCTWaiter().wait(for: [closable], timeout: 10), .completed, "연출이 끝났는데 닫을 수 없음")
+        sleep(2)
+        XCTAssertTrue(stage.exists, "누르기 전에 무대가 저절로 닫힘")
+        stage.tap()
+        XCTAssertTrue(stage.waitForNonExistence(timeout: 3), "눌렀는데 무대가 안 닫힘")
+        XCTAssertTrue(ui.element("record-add").isHittable, "무대가 닫혔는데 오늘 화면이 안 눌림")
+    }
+
     /// 거래 제안(SPEC §4.10): 로슈가 든 상자를 누르면 무대가 뜬다. 첫 거래엔 "다음에"가 없다.
     /// 두 번째부터(`-screenshotTradeRepeat`) "다음에"면 닫히고 상자를 들고 나간다.
     /// 다시 왔을 때 "바꾸기"면 당 면 잔이 초코 프라페로 바뀐다(보관함에서 확인하고 기본 잔으로 되돌린다).

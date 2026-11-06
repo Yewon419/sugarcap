@@ -291,10 +291,12 @@ struct FeedingView: View {
                 }
 
                 // 한 손 진행(대표님 2026-10-23): 오른쪽 아래를 누를 때마다 다음 동작(컵 누르기 → 먹이기 → 다음).
+                // 먹인 뒤에는 화면 어디를 눌러도 다음으로 넘어간다(대표님 2026-11-06).
                 // 같은 동작은 컵·방울·오른쪽 아래 화살표에도 있어 보이스오버에서는 숨긴다.
+                let isEaten = stage == .eaten
                 Color.clear
                     .contentShape(Rectangle())
-                    .frame(width: proxy.size.width * 0.5, height: proxy.size.height * 0.3)
+                    .frame(width: proxy.size.width * (isEaten ? 1 : 0.5), height: proxy.size.height * (isEaten ? 1 : 0.3))
                     .onTapGesture(perform: advance)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                     .accessibilityHidden(true)

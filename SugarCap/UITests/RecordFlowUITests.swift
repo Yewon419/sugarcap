@@ -656,7 +656,9 @@ extension RecordFlowUITests {
         let window = app.windows.firstMatch
         let box = window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.81))
         let unlocked = app.buttons["gift-open-trends"]
-        XCTAssertFalse(app.buttons["open-settings"].isEnabled, "선물 상자가 와 있는데 설정 버튼이 안 잠김")
+        // 상자는 무대가 닫힌 뒤 조금 있다 온다. 바로 읽으면 아직 안 잠겨 있다(2026-11-06 CI).
+        let locked = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isEnabled == false"), object: app.buttons["open-settings"])
+        XCTAssertEqual(XCTWaiter().wait(for: [locked], timeout: 10), .completed, "선물 상자가 와 있는데 설정 버튼이 안 잠김")
         // 운반 캐릭터가 걸어 들어와 서야 받는다.
         for _ in 0 ..< 5 where !unlocked.exists {
             box.tap()

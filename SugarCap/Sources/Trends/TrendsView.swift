@@ -120,8 +120,8 @@ struct TrendsView: View {
         }
         .toolbar {
             ToolbarItem(placement: .principal) { digestTitle }
-            ToolbarItem(placement: .topBarTrailing) { rangeToggle }
         }
+        .modifier(RangeToggleItem(toggle: rangeToggle))
         // 월 달력은 사진이 막대 밑까지 깔린다. 카페인 사진은 어두워 막대 글자·상태 막대를 흰색으로.
         // 아래 통계까지 내려오면 막대를 통계 바탕색으로 채운다.
         .toolbarBackground(isMonth ? (monthDigestShown ? .visible : .hidden) : .automatic, for: .navigationBar)
@@ -1097,4 +1097,24 @@ private struct CastMember: View {
 private struct CastPose {
     var lean: Double = 0
     var stretch: Double = 1
+}
+
+/// 주↔월 토글을 막대 오른쪽 위에 둔다. iOS 26+는 막대 항목에 유리 배경을 씌워, 세그먼트 컨트롤 자체 바탕과 겹쳐
+/// 테두리가 두 겹이 되고 선택 알약이 바깥 캡슐과 어긋났다(빌드 407 대표님 "주 월 스위치 이거 대체 언제 고쳐줄거임").
+/// 그 공유 배경을 끈다. 배포 대상이 17이라 툴바 빌더 안에서 `#available`을 못 써 뷰 단계에서 나눈다.
+private struct RangeToggleItem<Toggle: View>: ViewModifier {
+    let toggle: Toggle
+
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content.toolbar {
+                ToolbarItem(placement: .topBarTrailing) { toggle }
+                    .sharedBackgroundVisibility(.hidden)
+            }
+        } else {
+            content.toolbar {
+                ToolbarItem(placement: .topBarTrailing) { toggle }
+            }
+        }
+    }
 }

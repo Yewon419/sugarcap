@@ -217,8 +217,9 @@ extension CupSetGeometry {
 
     // 2026 특전 유리 공예 잔(2026-11-05)은 아메리카노 빈 잔(0%)을 참조로 뽑아 잔이 같은 자리다(`regen/make_glass_set.py`).
     // 음료 윗면은 9x16 가운데 열에서 눈으로 쟀다. 소다는 탄산수 수면, 원두는 원두 더미 윗면.
-    static let glassSoda = americanoGlass(liquid: [0: 0.87, 30: 0.69, 50: 0.585, 80: 0.46, 100: 0.335])
-    static let glassBeans = americanoGlass(liquid: [0: 0.87, 30: 0.70, 50: 0.59, 80: 0.465, 100: 0.31])
+    // 2026-11-06 잔 크기를 아메리카노에 맞추며(`make_glass_set.py` FIT) 잰 값에 같은 세로 배율을 걸어 옮겼다.
+    static let glassSoda = americanoGlass(liquid: [0: 0.87, 30: 0.694, 50: 0.594, 80: 0.472, 100: 0.354])
+    static let glassBeans = americanoGlass(liquid: [0: 0.87, 30: 0.701, 50: 0.594, 80: 0.471, 100: 0.314])
 
     private static func americanoGlass(liquid: [Int: Double]) -> CupSetGeometry {
         CupSetGeometry(bottom: icedAmericano.bottom, rim: icedAmericano.rim, liquid: liquid, axis: icedAmericano.axis)

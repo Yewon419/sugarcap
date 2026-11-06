@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>첫 실행 메뉴 국가 시안 v3 물방울 (2026-11-06)</title>
+<!-- 대표님 2026-11-06: v1(카드·캐릭터) "AI 생성 느낌" → v3 레퍼런스(세로로 엇갈려 떠 있는 원 사진 열).
+     "원 안에 국기, 물방울처럼, 나라 셋뿐이어도 반복 스크롤로 쭉, 중간중간 음료 물방울도 섞어".
+     앱 문법: wall #F4F4F5, ink #18181B, Pretendard + Archivo Black, 11pt 킥커, 30pt ExtraBold 제목, 캡슐 CTA 56pt.
+     물방울은 모양 출렁임만(하이라이트는 대표님 "짜침"으로 뺌). 글로우·방사형 그라데이션 금지(CLAUDE.md 모션 규칙).
+     음료 물방울 = 먹이기 방울 design/assets/drops/*.png 그대로(대표님: 잔 사진 잘라 쓰지 말 것).
+     언어는 iOS 설정(오른쪽 위 글자 단추 → 시트). 국기를 누르면 그 나라 선택 + 카페인 기준(대만 300, 한국·미국 400).
+     열은 자동으로 천천히 위로 흐르고, 휠·끌기로도 움직인다(끝없이 이어짐). -->
+<style>
+  @font-face { font-family: P; font-weight: 400; src: url(../../SugarCap/Resources/Fonts/Pretendard-Regular.otf); }
+  @font-face { font-family: P; font-weight: 500; src: url(../../SugarCap/Resources/Fonts/Pretendard-Medium.otf); }
+  @font-face { font-family: P; font-weight: 600; src: url(../../SugarCap/Resources/Fonts/Pretendard-SemiBold.otf); }
+  @font-face { font-family: P; font-weight: 700; src: url(../../SugarCap/Resources/Fonts/Pretendard-Bold.otf); }
+  @font-face { font-family: P; font-weight: 800; src: url(../../SugarCap/Resources/Fonts/Pretendard-ExtraBold.otf); }
+  @font-face { font-family: Num; src: url(../../SugarCap/Resources/Fonts/ArchivoBlack-Regular.ttf); }
+  :root { --ink: #18181b; --sub: rgba(60,60,67,.6); --wall: #f4f4f5; }
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: P, -apple-system, sans-serif; background: #d9dbe0; padding: 32px; color: var(--ink); }
+  header h1 { font-size: 20px; margin-bottom: 6px; }
+  header p { font-size: 13px; color: #555; margin-bottom: 20px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 402px); gap: 32px; align-items: start; }
+
+  .phone { width: 402px; height: 874px; background: var(--wall); border-radius: 48px; overflow: hidden; position: relative; user-select: none; }
+  .col-drops { position: absolute; left: 150px; right: 0; top: 0; bottom: 0; cursor: grab; touch-action: none; }
+  .col-drops:active { cursor: grabbing; }
+  .track { position: absolute; left: 0; right: 0; top: 0; will-change: transform; }
+
+  .drop { position: absolute; border-radius: 50%; overflow: hidden; animation: wob var(--d, 7s) ease-in-out infinite alternate; animation-delay: var(--dl, 0s); }
+  .drop svg, .drop .photo { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .drop .photo { background-repeat: no-repeat; background-size: var(--zoom, 260%); background-position: 50% var(--py, 55%); }
+  .drop.drink { border-radius: 0; overflow: visible; animation-name: bob; }
+  @keyframes bob { from { transform: translateY(0); } to { transform: translateY(-5px); } }
+  .drop.flag { cursor: pointer; box-shadow: inset 0 0 0 1.5px rgba(24,24,27,.12); }
+  .drop.flag svg { pointer-events: none; }
+  .ring { position: absolute; border-radius: 50%; box-shadow: 0 0 0 3px var(--wall), 0 0 0 6px var(--ink); opacity: 0; transition: opacity .2s; pointer-events: none;
+          animation: wob var(--d, 7s) ease-in-out infinite alternate; animation-delay: var(--dl, 0s); }
+  .ring.on { opacity: 1; }
+  @keyframes wob {
+    0%   { border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; transform: translateY(0); }
+    35%  { border-radius: 53% 47% 49% 51% / 47% 52% 48% 53%; }
+    70%  { border-radius: 48% 52% 53% 47% / 52% 48% 51% 49%; transform: translateY(-5px); }
+    100% { border-radius: 51% 49% 47% 53% / 49% 53% 50% 47%; transform: translateY(2px); }
+  }
+
+  .left { position: absolute; left: 24px; top: 54px; width: 172px; pointer-events: none; }
+  .lang-link { position: absolute; top: 58px; left: 10px; z-index: 3; font: 500 14px P; color: rgba(24,24,27,.72); display: inline-flex; align-items: center; gap: 5px;
+               min-height: 40px; padding: 0 14px; border-radius: 20px; background: rgba(244,244,245,.86); cursor: pointer; }
+  .lang-link b { font-weight: 700; color: var(--ink); }
+  .lang-link svg { width: 7px; height: 12px; }
+  .kicker { font: 600 11px P; letter-spacing: 1.3px; margin-top: 62px; }
+  .title { font: 800 30px/1.3 P; letter-spacing: -0.02em; margin-top: 10px; white-space: pre-line; }
+  .pick { position: absolute; left: 24px; top: 430px; width: 140px; pointer-events: none; }
+  .pick .code { font: 64px/1 Num; color: transparent; -webkit-text-stroke: 2.5px var(--ink); letter-spacing: 1px; }
+  .pick .name { font: 700 17px P; margin-top: 10px; }
+  .pick .k { font: 600 11px P; letter-spacing: 1.3px; color: var(--sub); margin-top: 18px; }
+  .pick .mg { font: 26px/1 Num; margin-top: 6px; }
+  .pick .mg small { font-size: 13px; }
+  .pick .brands { font: 400 12px/1.5 P; color: var(--sub); margin-top: 12px; }
+  .bottom { position: absolute; left: 24px; width: 150px; bottom: 40px; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; gap: 18px; pointer-events: none; }
+  .next { pointer-events: auto; width: 64px; height: 64px; border-radius: 50%; background: var(--ink); color: #fff; display: grid; place-items: center; flex: none; cursor: pointer; }
+  .next svg { width: 22px; height: 22px; }
+  .foot { font: 400 12px/1.45 P; color: var(--sub); max-width: 170px; }
+
+  .scrim { position: absolute; inset: 0; background: rgba(0,0,0,.32); display: none; z-index: 5; }
+  .sheet { position: absolute; left: 8px; right: 8px; bottom: 8px; background: var(--wall); border-radius: 38px; padding: 28px 24px 20px; display: none; z-index: 6; }
+  .phone.asking .scrim, .phone.asking .sheet { display: block; }
+  .sheet .s-title { font: 800 22px/1.35 P; letter-spacing: -0.02em; white-space: pre-line; }
+  .sheet .steps { font: 400 14px/1.5 P; color: var(--sub); margin-top: 10px; }
+  .sheet .opts { display: flex; gap: 8px; margin-top: 18px; }
+  .sheet .opts div { flex: 1; min-height: 52px; border-radius: 20px; background: rgba(255,255,255,.72); box-shadow: inset 0 0 0 1.5px rgba(24,24,27,.12);
+                     display: grid; place-items: center; font: 600 14px P; }
+  .sheet .opts div.on { background: var(--ink); color: #fff; box-shadow: none; }
+  .sheet .s-cta { margin-top: 18px; height: 56px; border-radius: 28px; background: var(--ink); color: #fff; font: 600 17px P; display: grid; place-items: center; cursor: pointer; }
+  .sheet .s-cancel { margin-top: 4px; height: 44px; display: grid; place-items: center; font: 500 14px P; color: rgba(24,24,27,.72); cursor: pointer; }
+</style>
+</head>
+<body>
+<header>
+  <h1>첫 실행 메뉴 국가 시안 v3 · 물방울 열</h1>
+  <p>왼쪽부터 한국어·English·繁體中文 기기. 국기 물방울을 누르면 그 나라로, 열은 휠·끌기로도 움직인다. 오른쪽 위 언어 단추는 iOS 설정 안내.</p>
+</header>
+<div class="grid">
+  <div class="phone" data-lang="ko"></div>
+  <div class="phone" data-lang="en"></div>
+  <div class="phone" data-lang="zh"></div>
+</div>
+<script>
+const T = {
+  ko: { kicker: '메뉴 국가', title: '어디에서\n마셔요?', caffeine: '카페인 하루 기준', next: '다음', foot: '나중에 설정에서 언제든 바꿀 수 있어요.',
+        askTitle: '언어는\niOS 설정에서 바꿔요', askSteps: '설정 › 슈가캡 › 언어', open: '설정 열기', cancel: '그대로 두기',
+        names: { kr: '한국', us: '미국', tw: '대만' } },
+  en: { kicker: 'Menu country', title: 'Where do\nyou drink?', caffeine: 'Daily caffeine', next: 'Next', foot: 'You can change this anytime in Settings.',
+        askTitle: 'Change the language\nin iOS Settings', askSteps: 'Settings › SugarCap › Language', open: 'Open Settings', cancel: 'Keep this',
+        names: { kr: 'Korea', us: 'United States', tw: 'Taiwan' } },
+  zh: { kicker: '菜單國家', title: '你在哪裡\n喝飲料？', caffeine: '每日咖啡因', next: '下一步', foot: '之後隨時可以在設定更改。',
+        askTitle: '語言請到\niOS 設定更改', askSteps: '設定 › SugarCap › 語言', open: '打開設定', cancel: '維持不變',
+        names: { kr: '韓國', us: '美國', tw: '臺灣' } },
+};
+const LANG_NAME = { ko: '한국어', en: 'English', zh: '繁體中文' };
+const COUNTRIES = {
+  kr: { code: 'KR', brands: '스타벅스 · 메가MGC커피 · 컴포즈 외 13곳 · 편의점', mg: 400 },
+  us: { code: 'US', brands: 'Starbucks · Dutch Bros', mg: 400 },
+  tw: { code: 'TW', brands: 'cama café · 可不可熟成紅茶', mg: 300 },
+};
+const REGION = { ko: 'kr', en: 'us', zh: 'tw' };
+
+// ---- 국기: 위키미디어 공식 SVG(퍼블릭 도메인) 도형 그대로. viewBox만 원 안에 맞게 잘랐다 ----
+// 한국: Flag_of_South_Korea.svg. 원 안에 태극과 4괘가 다 들어오게 가운데 112×112.
+const FLAG_KR = `<svg viewBox="-56 -56 112 112" preserveAspectRatio="xMidYMid slice"><path fill="#fff" d="M-80-80v160H80v-160z"/><g stroke="#000" stroke-width="4"><path transform="rotate(33.69006752598)" d="M-50-12v24m6 0v-24m6 0v24m76 0V1m0-2v-11m6 0v11m0 2v11m6 0V1m0-2v-11"/><path transform="rotate(-33.69006752598)" d="M-50-12v24m6 0V1m0-2v-11m6 0v24m76 0V1m0-2v-11m6 0v24m6 0V1m0-2v-11"/></g><g transform="rotate(33.69006752598)"><path fill="#cd2e3a" d="M12 0a18 18 0 11-36 0 24 24 0 1148 0"/><path fill="#0047a0" d="M-24 0a24 24 0 1048 0A12 12 0 100 0a12 12 0 11-24 0"/></g></svg>`;
+// 미국: Flag_of_the_United_States.svg. 칸톤이 보이게 왼쪽 정사각.
+const FLAG_US = `<svg viewBox="0 0 3900 3900" preserveAspectRatio="xMidYMid slice"><path d="M0,0h7410v3900H0" fill="#b31942"/><path d="M0,450H7410m0,600H0m0,600H7410m0,600H0m0,600H7410m0,600H0" stroke="#FFF" stroke-width="300"/><path d="M0,0h2964v2100H0" fill="#0a3161"/><g fill="#FFF"><g id="us18"><g id="us9"><g id="us5"><g id="us4"><path id="uss" d="M247,90 317.534230,307.082039 132.873218,172.917961H361.126782L176.465770,307.082039z"/><use href="#uss" y="420"/><use href="#uss" y="840"/><use href="#uss" y="1260"/></g><use href="#uss" y="1680"/></g><use href="#us4" x="247" y="210"/></g><use href="#us9" x="494"/></g><use href="#us18" x="988"/><use href="#us9" x="1976"/><use href="#us5" x="2470"/></g></svg>`;
+// 대만: Flag_of_the_Republic_of_China.svg. 칸톤이 보이게 왼쪽 위 정사각.
+const FLAG_TW = `<svg viewBox="0 0 64 64" preserveAspectRatio="xMidYMid slice"><path fill="#fe0000" d="M0 0h120v80H0z"/><path fill="#000094" d="M0 0h60v40H0z"/><path id="twa" d="M30 5l4 15-4 15-4-15zM15 20l15 4 15-4-15-4z" fill="#fff"/><use transform="rotate(30,30,20)" href="#twa"/><use transform="rotate(60,30,20)" href="#twa"/><circle fill="#fff" stroke="#000094" cx="30" cy="20" r="8"/></svg>`;
+const FLAGS = { kr: FLAG_KR, us: FLAG_US, tw: FLAG_TW };
+
+// ---- 한 바퀴(PERIOD) 안의 배치. 오른쪽 열(폭 252) 안 x, 지름 d ----
+const DRINK = n => `../assets/drops/${n}.png`;
+const PERIOD = 780;
+// 레퍼런스처럼 같은 크기 원을 한 줄로 세운다. 국기 사이에 먹이기 방울(design/assets/drops) 하나씩.
+const ITEMS = [
+  { f: 'kr' }, { p: 'matcha' }, { f: 'us' }, { p: 'mango' }, { f: 'tw' }, { p: 'grape' },
+].map((it, i) => ({ ...it, x: 72, y: i * 130, d: 108 }));
+
+function build(phone) {
+  const lang = phone.dataset.lang, t = T[lang];
+  let country = REGION[lang];
+  const html = [];
+  for (let rep = 0; rep < 3; rep++) {
+    ITEMS.forEach((it, i) => {
+      const y = it.y + rep * PERIOD, st = `left:${it.x}px;top:${y}px;width:${it.d}px;height:${it.d}px;--d:${6 + (i % 4)}s;--dl:${-i * 1.3}s`;
+      if (it.f) html.push(`<div class="drop flag" data-country="${it.f}" style="${st}">${FLAGS[it.f]}</div><div class="ring" data-ring="${it.f}" style="${st}"></div>`);
+      else html.push(`<img class="drop drink" src="${DRINK(it.p)}" alt="" draggable="false" style="${st}">`);
+    });
+  }
+  phone.innerHTML = `
+    <div class="col-drops"><div class="track">${html.join('')}</div></div>
+    <div class="lang-link" data-ask><b>${LANG_NAME[lang]}</b><svg viewBox="0 0 7 12"><path d="M1 1l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="left"><div class="kicker">${t.kicker}</div><div class="title">${t.title}</div></div>
+    <div class="pick"></div>
+    <div class="bottom"><div class="foot">${t.foot}</div><div class="next" aria-label="${t.next}"><svg viewBox="0 0 22 22"><path d="M4 11h13M12 5l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+    <div class="scrim"></div><div class="sheet"><div class="s-title">${t.askTitle}</div><div class="steps">${t.askSteps}</div>
+      <div class="s-cta">${t.open}</div><div class="s-cancel">${t.cancel}</div></div>`;
+
+  const pick = phone.querySelector('.pick');
+  const select = id => {
+    country = id;
+    const c = COUNTRIES[id];
+    pick.innerHTML = `<div class="code">${c.code}</div><div class="name">${t.names[id]}</div>
+      <div class="k">${t.caffeine}</div><div class="mg">${c.mg}<small> mg</small></div><div class="brands">${c.brands}</div>`;
+    phone.querySelectorAll('.ring').forEach(r => r.classList.toggle('on', r.dataset.ring === id));
+  };
+  select(country);
+
+  // 끝없는 열: 세 벌 깔고 가운데 벌 근처에서 PERIOD로 감아 돌린다.
+  const track = phone.querySelector('.track'), col = phone.querySelector('.col-drops');
+  let off = PERIOD, last = performance.now(), hold = 0, drag = null, moved = 0;
+  const wrap = () => { if (off >= 2 * PERIOD) off -= PERIOD; if (off < PERIOD) off += PERIOD; };
+  const tick = now => {
+    const dt = Math.min(64, now - last); last = now;
+    if (!drag && now > hold) off += dt * 0.022;
+    wrap(); track.style.transform = `translateY(${-off}px)`;
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+  col.addEventListener('wheel', e => { e.preventDefault(); off += e.deltaY * 0.6; hold = performance.now() + 1500; }, { passive: false });
+  col.addEventListener('pointerdown', e => { drag = { y: e.clientY, off }; moved = 0; col.setPointerCapture(e.pointerId); });
+  col.addEventListener('pointermove', e => { if (!drag) return; moved = Math.max(moved, Math.abs(e.clientY - drag.y)); off = drag.off - (e.clientY - drag.y) / (parseFloat(document.body.style.zoom) || 1); });
+  col.addEventListener('pointerup', e => {
+    if (drag && moved < 6) {
+      col.releasePointerCapture(e.pointerId);
+      const el = document.elementsFromPoint(e.clientX, e.clientY).find(n => n.dataset && n.dataset.country);
+      if (el) select(el.dataset.country);
+    }
+    drag = null; hold = performance.now() + 1500;
+  });
+
+  phone.addEventListener('click', e => {
+    if (e.target.closest('[data-ask]')) { phone.classList.add('asking'); return; }
+    if (e.target.closest('.s-cta, .s-cancel, .scrim')) phone.classList.remove('asking');
+  });
+}
+document.querySelectorAll('.phone').forEach(build);
+</script>
+</body>
+</html>

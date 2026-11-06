@@ -8418,50 +8418,130 @@
         }
       }
     },
-    "시작하기 전에" : {
+    "어디에서\n마셔요?" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Before you start"
+            "value" : "Where do\nyou drink?"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "開始之前"
+            "value" : "你在哪裡\n喝飲料？"
           }
         }
       }
     },
-    "언어와 메뉴 국가를\n확인해 주세요" : {
+    "카페인 하루 기준" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Check your language\nand menu country"
+            "value" : "Daily caffeine"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "請確認語言\n與菜單國家"
+            "value" : "每日咖啡因"
           }
         }
       }
     },
-    "언어" : {
+    "나중에 설정에서 언제든 바꿀 수 있어요." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Language"
+            "value" : "You can change this anytime in Settings."
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "語言"
+            "value" : "之後隨時可以在設定更改。"
+          }
+        }
+      }
+    },
+    "언어는\niOS 설정에서 바꿔요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Change the language\nin iOS Settings"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "語言請到\niOS 設定更改"
+          }
+        }
+      }
+    },
+    "설정 › 슈가캡 › 언어" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings › SugarCap › Language"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定 › SugarCap › 語言"
+          }
+        }
+      }
+    },
+    "설정 열기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Settings"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打開設定"
+          }
+        }
+      }
+    },
+    "그대로 두기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep this"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "維持不變"
+          }
+        }
+      }
+    },
+    "%@ 외" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ and more"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 等"
           }
         }
       }

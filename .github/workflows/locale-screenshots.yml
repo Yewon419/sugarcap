@@ -1,0 +1,244 @@
+name: Locale screenshots
+
+# iOS 워크플로가 한국어로만 찍는 화면 중 글자가 든 것을 영어·대만으로 찍는다(대표님 2026-11-06 "다른 언어들은
+# 잘 못 보니까"). 매 푸시에 넣으면 iOS 워크플로가 130분 제한에 닿아 수동 실행으로 둔다.
+# 실행: gh workflow run "Locale screenshots" --ref main
+# 대기 자세·잔 세트·전환 프레임처럼 글자가 없거나 언어와 무관한 화면은 뺐다.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: locale-screenshots-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  locale-screenshots:
+    runs-on: macos-26
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Xcode 버전
+        run: xcodebuild -version
+
+      - name: XcodeGen 설치
+        run: brew install xcodegen
+
+      - name: 프로젝트 생성
+        working-directory: SugarCap
+        run: xcodegen generate
+
+      # iOS 워크플로 테스트 단계와 같은 이유로 ad-hoc 서명("-")을 한다(entitlements가 없으면 SwiftData가 죽는다).
+      - name: 빌드 (시뮬레이터)
+        working-directory: SugarCap
+        run: |
+          xcodebuild build \
+            -project SugarCap.xcodeproj \
+            -scheme SugarCap \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO
+
+      - name: 시뮬레이터 선택
+        run: |
+          UDID=$(xcrun simctl list devices available -j | /usr/bin/python3 -c '
+          import json, sys
+          for runtime, devices in sorted(json.load(sys.stdin)["devices"].items()):
+              if "iOS" not in runtime:
+                  continue
+              for device in devices:
+                  if device.get("isAvailable") and "iPhone" in device["name"]:
+                      print(device["udid"], device["name"], sep="\t")
+                      sys.exit(0)
+          sys.exit(1)')
+          echo "SIM_UDID=${UDID%%$'\t'*}" >> "$GITHUB_ENV"
+          echo "선택: ${UDID#*$'\t'}"
+
+      # UI 테스트가 남긴 데이터가 없는 새 설치라, 언어마다 다시 깔고 그 언어·나라로 데모 기록을 채운 뒤 찍는다
+      # (iOS 워크플로의 en-/zh- 스크린샷과 달리 데모 음료 이름도 그 나라 것으로 나온다).
+      # 온보딩은 저장된 값이 없으니 `-onboardingCompleted YES`를 매번 넘기고, 온보딩 화면만 NO를 직접 준다.
+      - name: 스크린샷 (영어·대만)
+        working-directory: SugarCap
+        run: |
+          APP=build/Build/Products/Debug-iphonesimulator/SugarCap.app
+          OUT="$RUNNER_TEMP/locale-screenshots"
+          SHOT_WAIT=6
+          xcrun simctl boot "$SIM_UDID" || true
+          xcrun simctl bootstatus "$SIM_UDID" -b
+          xcrun simctl ui "$SIM_UDID" appearance light
+
+          # $1 = 폴더(en·zh), $2 = 이름, $3 = 글자 크기, 나머지 = 앱 실행 인자. LOCALE_ARGS는 언어마다 정한다.
+          shot() {
+            local dir="$1" name="$2" size="$3"
+            shift 3
+            if [[ " $* " != *" -onboardingCompleted "* ]]; then
+              set -- -onboardingCompleted YES "$@"
+            fi
+            xcrun simctl ui "$SIM_UDID" content_size "$size"
+            xcrun simctl launch "$SIM_UDID" com.sugarcap.app "${LOCALE_ARGS[@]}" "$@"
+            sleep "$SHOT_WAIT"
+            xcrun simctl io "$SIM_UDID" screenshot "$OUT/$dir/$name.png"
+            xcrun simctl terminate "$SIM_UDID" com.sugarcap.app
+          }
+
+          # 새로 깔고 콜드 런치를 한 번 소모하면서 데모 기록을 채운다(-seedDemo는 빈 앱에만 넣는다).
+          fresh() {
+            xcrun simctl uninstall "$SIM_UDID" com.sugarcap.app || true
+            xcrun simctl install "$SIM_UDID" "$APP"
+            xcrun simctl launch "$SIM_UDID" com.sugarcap.app "${LOCALE_ARGS[@]}" -onboardingCompleted YES -seedDemo YES
+            sleep 8
+            xcrun simctl terminate "$SIM_UDID" com.sugarcap.app
+          }
+
+          # 한 언어 분량. $1 = 폴더, $2 = 브랜드 화면용 브랜드 id, $3 = 검색어, $4·$5 = 짧은·긴 닉네임.
+          # 순서는 iOS 워크플로 한국어 촬영을 따른다. 저장이 남는 촬영(-seedDemoDrinks, -seedGoal)은 맨 끝.
+          run_locale() {
+            local d="$1" brand="$2" query="$3" nick="$4" nick_long="$5"
+            mkdir -p "$OUT/$d"
+            fresh
+
+            shot "$d" cup-hint large -screenshotCupHint YES
+            shot "$d" cup-hint-type-ax-xl accessibility-extra-large -screenshotCupHint YES
+            shot "$d" notice-credit large -screenshotCreditNotice YES
+            shot "$d" today-caffeine large -lastCupSide caffeine
+            for step in cup brand drink number edit close; do
+              shot "$d" "tutorial-$step" large -screenshotTutorial "$step"
+            done
+            shot "$d" tutorial-add large -screenshotTutorial drink -screenshotBrandPanel YES
+            shot "$d" tutorial-cup-type-ax-xl accessibility-extra-large -screenshotTutorial cup
+
+            shot "$d" stamp-day1 large -screenshotStamps 0
+            shot "$d" stamp-mid large -screenshotStamps 6
+            shot "$d" stamp-mid-type-ax-xl accessibility-extra-large -screenshotStamps 6
+            shot "$d" stamp-roulette large -screenshotStamps 14 -screenshotStampSeen 13 -screenshotStampInstant YES
+            shot "$d" stamp-caps large -screenshotStamps 14 -screenshotStampSeen 13 -screenshotStampFinal caps
+            shot "$d" stamp-full large -screenshotStamps 14
+            shot "$d" stamp-early-before large -screenshotStamps 4 -earlyBird YES
+            shot "$d" stamp-early-stage large -screenshotStamps 7 -screenshotStampSeen 6 -earlyBird YES -screenshotStampInstant YES
+            shot "$d" stamp-early-stage-type-ax-xl accessibility-extra-large -screenshotStamps 7 -screenshotStampSeen 6 -earlyBird YES -screenshotStampInstant YES
+            shot "$d" stamp-early-after large -screenshotStamps 9 -earlyBird YES
+            shot "$d" stamp-early-not large -screenshotStamps 9 -earlyBird NO
+
+            shot "$d" inventory large -initialTab settings -screenshotInventory YES -screenshotCaps 12 -screenshotInventoryItems strawberry,coffee-bean,sugar-cube,cinnamon-stick
+            shot "$d" glass-inventory large -cupSet.sugar glass-soda -cupSet.caffeine glass-beans -initialTab settings -screenshotInventory YES -screenshotCaps 3
+
+            shot "$d" onboarding-locale-type-ax-xl accessibility-extra-large -onboardingCompleted NO
+            for at in 1.0 4.1 6.7 9.3 11.9 14.5 17.1 18.9 21.9; do
+              shot "$d" "onboarding-reel-$at" large -onboardingCompleted NO -onboardingReelAt "$at"
+            done
+            shot "$d" onboarding-2-type-ax-xl accessibility-extra-large -onboardingCompleted NO -onboardingPage 2
+            shot "$d" onboarding-3 large -onboardingCompleted NO -onboardingPage 3
+            shot "$d" onboarding-3-type-ax-xl accessibility-extra-large -onboardingCompleted NO -onboardingPage 3
+
+            shot "$d" trends-type-ax-xl accessibility-extra-large -initialTab trends
+            shot "$d" trends-caffeine large -initialTab trends -trendSide caffeine
+            shot "$d" trends-week-prev large -initialTab trends -trendWeeksAgo 1
+            shot "$d" trends-month-caffeine large -mockProOwned YES -initialTab trends -trendRange month -trendSide caffeine
+            shot "$d" trends-month-prev large -mockProOwned YES -initialTab trends -trendRange month -trendMonthsAgo 1
+            shot "$d" trends-month-shaker large -mockProOwned YES -initialTab trends -trendRange month -screenshotMonthHearts 9 -screenshotCaps 6 -screenshotInventoryItems strawberry,coffee-bean,sugar-cube,cinnamon-stick
+            shot "$d" trends-reveal-text large -initialTab trends -trendReveal sugar -trendRevealAt 3.5
+            shot "$d" trends-coach-1 large -initialTab trends -trendReveal sugar -trendRevealAt 5
+            shot "$d" trends-coach-2 large -initialTab trends -trendReveal sugar -trendRevealAt 5 -trendCoachStep 2
+            shot "$d" trends-coach-3 large -initialTab trends -trendReveal sugar -trendRevealAt 5 -trendCoachStep 3
+            shot "$d" trends-coach-ax-xl accessibility-extra-large -initialTab trends -trendReveal sugar -trendRevealAt 5
+            shot "$d" limit-sugar-type-ax-xl accessibility-extra-large -initialTab trends -trendLimit sugar
+
+            shot "$d" paywall-no-trial large -mockPro YES -mockProNoTrial YES -screenshotPaywall YES
+            shot "$d" paywall-gifts large -mockPro YES -screenshotPaywall gifts
+
+            shot "$d" record-type-ax-xl accessibility-extra-large -screenshotRecord YES
+            shot "$d" record-caffeine large -screenshotSide caffeine -screenshotRecord YES
+            shot "$d" daylog-type-ax-xl accessibility-extra-large -screenshotDayLog YES
+            shot "$d" trends-daylog-past large -initialTab trends -screenshotTrendDayLog 2
+            shot "$d" trends-daylog-empty large -initialTab trends -screenshotTrendDayLog 6
+            shot "$d" brand large -screenshotBrand "$brand"
+            shot "$d" brand-type-ax-xl accessibility-extra-large -screenshotBrand "$brand"
+            shot "$d" brand-caffeine large -screenshotSide caffeine -screenshotBrand "$brand" -screenshotBrandQuery "$query"
+            shot "$d" brand-panel-caffeine large -screenshotSide caffeine -screenshotBrand "$brand" -screenshotBrandQuery "$query" -screenshotBrandPanel YES
+
+            shot "$d" tracks-settings large -initialTab settings -screenshotTracks sugar
+            shot "$d" tracks-today-sugar large -screenshotTracks sugar -screenshotSide caffeine
+            shot "$d" tracks-today-caffeine large -screenshotTracks caffeine
+            shot "$d" tracks-record-caffeine large -screenshotTracks caffeine -screenshotRecord YES
+            shot "$d" tracks-daylog-caffeine large -screenshotTracks caffeine -screenshotDayLog YES
+            shot "$d" tracks-gate-feed large -screenshotTracks sugar -screenshotGate feed
+            shot "$d" tracks-feeding-summary large -screenshotTracks caffeine -screenshotFeeding YES -screenshotFeedingStage summary
+
+            shot "$d" gate-ask large -screenshotGate ask
+            shot "$d" gate-feed-type-ax-xl accessibility-extra-large -screenshotGate feed
+            shot "$d" gate-feed-nickname large -screenshotGate feed -nickname.roshu "$nick" -nickname.kain "$nick_long"
+
+            shot "$d" feeding-type-ax-xl accessibility-extra-large -screenshotFeeding YES
+            shot "$d" feeding-dropped large -screenshotFeeding YES -screenshotFeedingStage dropped
+            shot "$d" feeding-eaten large -screenshotFeeding YES -screenshotFeedingStage eaten
+            shot "$d" feeding-caffeine large -screenshotFeeding YES -screenshotFeedingStage caffeine
+            shot "$d" feeding-summary-type-ax-xl accessibility-extra-large -screenshotFeeding YES -screenshotFeedingStage summary
+            shot "$d" feeding-empty large -screenshotFeeding YES -screenshotFeedingEmpty YES
+            shot "$d" feeding-empty-patting large -screenshotFeeding YES -screenshotFeedingEmpty YES -screenshotFeedingStage patting
+            shot "$d" feeding-empty-dropped large -screenshotFeeding YES -screenshotFeedingEmpty YES -screenshotFeedingStage dropped
+            shot "$d" feeding-empty-caffeine large -screenshotFeeding YES -screenshotFeedingEmpty YES -screenshotFeedingStage caffeine
+            for at in 0.4 2.2 3.6 5.2 6.6 8.0; do
+              shot "$d" "intro-$at" large -screenshotFeeding YES -screenshotIntroAt "$at"
+            done
+            shot "$d" feeding-tutorial large -screenshotFeeding YES -screenshotFeedingTutorial YES
+            shot "$d" feeding-tutorial-dropped large -screenshotFeeding YES -screenshotFeedingTutorial YES -screenshotFeedingStage dropped
+            shot "$d" feeding-tutorial-caffeine large -screenshotFeeding YES -screenshotFeedingTutorial YES -screenshotFeedingStage caffeine
+            shot "$d" feeding-tutorial-empty large -screenshotFeeding YES -screenshotFeedingTutorial YES -screenshotFeedingEmpty YES
+            shot "$d" feeding-tutorial-type-ax-xl accessibility-extra-large -screenshotFeeding YES -screenshotFeedingTutorial YES
+
+            shot "$d" gift-wait large -screenshotGift trends -giftAt 3
+            shot "$d" gift-open-spotlight large -screenshotGift trends -giftOpenAt 3.2
+            shot "$d" gift-heart large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotHearts 0 -giftRevealAt 3
+            shot "$d" gift-heart-offer-kain large -mockPro YES -screenshotSide caffeine -screenshotGift weekKept -screenshotGiftCard YES -screenshotHearts 1 -giftRevealAt 3
+            shot "$d" gift-heart-offer-ax-xl accessibility-extra-large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotHearts 1 -giftRevealAt 3
+            shot "$d" gift-cap-kain large -mockPro YES -screenshotSide caffeine -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent cap -giftRevealAt 3
+            for item in strawberry sugar-cube; do
+              shot "$d" "gift-reveal-$item" large -mockPro YES -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent "item:$item" -giftRevealAt 3
+            done
+            for item in coffee-bean cinnamon-stick; do
+              shot "$d" "gift-reveal-$item" large -mockPro YES -screenshotSide caffeine -screenshotGift weekKept -screenshotGiftCard YES -screenshotGiftContent "item:$item" -giftRevealAt 3
+            done
+            shot "$d" starter-cap large -screenshotSide caffeine -screenshotGift starterCap -screenshotGiftCard YES -screenshotGiftContent cap -giftRevealAt 3
+
+            shot "$d" levelup-kain large -screenshotSide caffeine -screenshotLevelUp 7 -levelUpAt 2.2
+            shot "$d" levelup-long large -screenshotLevelUp 9 -levelUpAt 2.2
+            shot "$d" levelup-ax-xl accessibility-extra-large -screenshotLevelUp 9 -levelUpAt 2.2
+            shot "$d" levelup-nickname large -screenshotLevelUp 8 -levelUpAt 2.2 -nickname.roshu "$nick"
+
+            shot "$d" trade-wait large -screenshotTrade offer -giftAt 3
+            shot "$d" trade-card-ax-xl accessibility-extra-large -screenshotTrade card -giftRevealAt 3
+            for item in choco-frappe matcha mango einspanner grape; do
+              shot "$d" "trade-card-$item" large -screenshotTrade card -screenshotTradeItem "$item" -giftRevealAt 3
+            done
+            shot "$d" trade-apply-ring large -screenshotTrade apply -screenshotTradeItem cafe-latte -tradeApplyAt 1.05
+
+            shot "$d" weekkept large -screenshotWeekKept sugar -weekKeptAt 1.75
+            shot "$d" weekkept-slide large -screenshotWeekKept both -weekKeptAt 2.75
+            shot "$d" weekkept-kain large -screenshotWeekKept both -weekKeptAt 4.1
+            shot "$d" weekkept-ax-xl accessibility-extra-large -screenshotWeekKept sugar -weekKeptAt 2.0
+            shot "$d" settings-nickname large -initialTab settings -screenshotNicknameRows YES -nickname.roshu "$nick"
+
+            shot "$d" trends-month-fanfare large -mockProOwned YES -initialTab trends -trendRange month -screenshotMonthHearts 3 -screenshotCaps 2 -screenshotMonthFanfare 9 -screenshotMonthFanfareAt 2
+            shot "$d" trends-month-digest large -mockProOwned YES -initialTab trends -trendRange month -seedDemoDrinks YES -trendMonthDigest top
+            shot "$d" trends-month-digest-end large -mockProOwned YES -initialTab trends -trendRange month -trendMonthDigest end
+            shot "$d" trends-month-digest-caffeine large -mockProOwned YES -initialTab trends -trendRange month -trendSide caffeine -trendMonthDigest top
+            shot "$d" trends-month-digest-caffeine-end large -mockProOwned YES -initialTab trends -trendRange month -trendSide caffeine -trendMonthDigest end
+            shot "$d" limit-caffeine-reducing large -mockProOwned YES -seedGoal caffeine -initialTab trends -trendLimit caffeine
+          }
+
+          LOCALE_ARGS=(-AppleLanguages "(en)" -AppleLocale en_US -screenshotMenuCountry us)
+          run_locale en us-starbucks "Strawberry" "Mochi" "Sir Cookie Bean"
+          LOCALE_ARGS=(-AppleLanguages "(zh-Hant)" -AppleLocale zh_TW -screenshotMenuCountry tw)
+          run_locale zh tw-kebuke "熟成紅茶" "麻糬" "咖啡因小精靈餅乾"
+          xcrun simctl uninstall "$SIM_UDID" com.sugarcap.app
+          ls -la "$OUT/en" "$OUT/zh"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: locale-screenshots
+          path: ${{ runner.temp }}/locale-screenshots
+          retention-days: 14

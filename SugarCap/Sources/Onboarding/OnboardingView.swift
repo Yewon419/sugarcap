@@ -20,29 +20,37 @@ struct OnboardingView: View {
     /// 설정에서 다시 볼 때만 준다. 있으면 "건너뛰기" 자리가 "닫기"가 되고 마지막 버튼은 "완료"다.
     var onClose: (() -> Void)?
 
-    enum Stage: Equatable { case reel, sugar, caffeine }
+    /// 첫 실행은 언어·메뉴 국가 확인(`locale`)부터, 설정에서 다시 볼 때는 영상부터다.
+    enum Stage: Equatable { case locale, reel, sugar, caffeine }
 
     @Query private var settingsRows: [AppSettings]
     @Query private var goals: [ReductionGoal]
     @Environment(\.modelContext) private var context
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var scene: Stage = OnboardingView.initialScene
+    @State private var scene: Stage
     @State private var player: AVPlayer?
     @State private var sugar: Double?
     @State private var caffeine: Double?
     /// 영상을 "건너뛰기"로 넘겼는지(이용 기록 §9.10).
     @State private var reelSkipped = false
 
-    private static var initialScene: Stage {
+    init(brands: [Brand], onStart: @escaping () -> Void, onClose: (() -> Void)? = nil) {
+        self.brands = brands
+        self.onStart = onStart
+        self.onClose = onClose
+        _scene = State(initialValue: Self.initialScene(firstRun: onClose == nil))
+    }
+
+    private static func initialScene(firstRun: Bool) -> Stage {
         #if DEBUG
         switch UserDefaults.standard.integer(forKey: pageArgumentKey) {
         case 2: return .sugar
         case 3: return .caffeine
-        default: return .reel
+        default: break
         }
-        #else
-        return .reel
+        if UserDefaults.standard.object(forKey: reelAtArgumentKey) != nil { return .reel }
         #endif
+        return firstRun ? .locale : .reel
     }
 
     private var frozenReelAt: Double? {
@@ -56,6 +64,9 @@ struct OnboardingView: View {
     var body: some View {
         ZStack {
             switch scene {
+            case .locale:
+                LocaleCheck(country: shownCountry, onCountry: setCountry, onNext: finishLocale)
+                    .transition(.opacity)
             case .reel:
                 reel
                     .transition(.opacity)
@@ -79,6 +90,35 @@ struct OnboardingView: View {
         .onAppear {
             if reduceMotion, scene == .reel { scene = .sugar }
         }
+    }
+
+    // MARK: 언어·메뉴 국가
+
+    private var shownCountry: MenuCountry {
+        settingsRows.first?.menuCountry ?? MenuCountry.resolve(storedCode: nil, region: Locale.current.region)
+    }
+
+    /// 고르는 즉시 저장한다. 루트가 이 값을 보고 카탈로그를 갈아 끼우고(SPEC §9.9),
+    /// 카페인 하루 기준은 그 나라 권고량으로 맞춘다(대표님 2026-11-06, 줄이기 목표가 맡은 쪽은 그대로).
+    private func setCountry(_ country: MenuCountry) {
+        do {
+            let settings = try AppSettings.current(in: context)
+            settings.menuCountryCode = country.rawValue
+            if !isManaged(.caffeine) {
+                settings.caffeineLimitMg = country.caffeineAdviceMg
+                caffeine = nil
+            }
+            try context.save()
+        } catch {
+            Self.logger.error("메뉴 국가 저장 실패(\(country.rawValue, privacy: .public)): \(String(describing: error), privacy: .public)")
+            context.rollback()
+        }
+    }
+
+    /// 손대지 않고 넘어가도 보이던 나라로 굳힌다(설정과 같은 규칙: 한 번 고르면 기기 지역을 더 따르지 않는다).
+    private func finishLocale() {
+        setCountry(shownCountry)
+        withAnimation(.easeOut(duration: 0.3)) { scene = reduceMotion ? .sugar : .reel }
     }
 
     // MARK: 영상

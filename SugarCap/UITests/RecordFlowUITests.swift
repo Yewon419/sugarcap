@@ -15,9 +15,13 @@ final class RecordFlowUITests: XCTestCase {
         app.launch()
         let ui = Driver(app: app)
 
-        // 새 시뮬레이터라 온보딩이 떠야 한다(§4.5). 릴을 건너뛰면 하루 기준 두 단계(당 → 카페인)다.
+        // 새 시뮬레이터라 온보딩이 떠야 한다(§4.5). 언어·메뉴 국가 확인 → 릴(건너뛰기) → 하루 기준 두 단계(당 → 카페인).
+        let localeNext = app.buttons["onboarding-locale-next"]
+        XCTAssertTrue(localeNext.waitForExistence(timeout: 15), "첫 실행에 언어·메뉴 국가 확인이 없음")
+        XCTAssertTrue(app.buttons["locale-language"].exists, "언어 줄이 없음")
+        localeNext.tap()
         let skip = app.buttons["onboarding-skip"]
-        XCTAssertTrue(skip.waitForExistence(timeout: 15), "첫 실행에 온보딩이 없음")
+        XCTAssertTrue(skip.waitForExistence(timeout: 10), "확인 다음에 온보딩 영상이 안 열림")
         skip.tap()
         let sugarNext = app.buttons["onboarding-next"]
         XCTAssertTrue(sugarNext.waitForExistence(timeout: 5), "당 하루 기준 단계가 안 열림")
@@ -771,11 +775,14 @@ extension RecordFlowUITests {
 }
 
 extension RecordFlowUITests {
-    /// 단독 실행이면 온보딩부터 뜬다. 건너뛰기 → 당 "다음" → 카페인 "시작". 이미 지났으면 아무것도 안 한다.
+    /// 단독 실행이면 온보딩부터 뜬다. 언어·메뉴 국가 "다음" → 건너뛰기 → 당 "다음" → 카페인 "시작". 이미 지났으면 아무것도 안 한다.
     @MainActor
     func completeOnboardingIfPresented(_ app: XCUIApplication) {
+        let localeNext = app.buttons["onboarding-locale-next"]
+        guard localeNext.waitForExistence(timeout: 5) else { return }
+        localeNext.tap()
         let skip = app.buttons["onboarding-skip"]
-        guard skip.waitForExistence(timeout: 5) else { return }
+        XCTAssertTrue(skip.waitForExistence(timeout: 10), "확인 다음에 온보딩 영상이 안 열림")
         skip.tap()
         let next = app.buttons["onboarding-next"]
         XCTAssertTrue(next.waitForExistence(timeout: 5), "당 하루 기준 단계가 안 열림")

@@ -184,7 +184,9 @@ jobs:
           shoot glass-inventory light large -cupSet.sugar glass-soda -cupSet.caffeine glass-beans -initialTab settings -screenshotInventory YES -screenshotCaps 3
           shoot settings light large -initialTab settings
           shoot inventory light large -initialTab settings -screenshotInventory YES -screenshotCaps 12 -screenshotInventoryItems strawberry,coffee-bean,sugar-cube,cinnamon-stick
-          # 온보딩 영상(한 시각에 멈춰, 21.9 = 빼꼼) + 하루 기준 두 단계(2 = 당, 3 = 카페인).
+          # 첫 실행 언어·메뉴 국가 확인 → 온보딩 영상(한 시각에 멈춰, 21.9 = 빼꼼) + 하루 기준 두 단계(2 = 당, 3 = 카페인).
+          shoot onboarding-locale light large -onboardingCompleted NO
+          shoot onboarding-locale-type-ax-xl light accessibility-extra-large -onboardingCompleted NO
           for at in 1.0 4.1 6.7 9.3 11.9 14.5 17.1 18.9 21.9; do
             shoot "onboarding-reel-$at" light large -onboardingCompleted NO -onboardingReelAt "$at"
           done
@@ -474,6 +476,7 @@ jobs:
           shoot_en cup-hint large -screenshotCupHint YES
           shoot_en settings large -initialTab settings
           shoot_en settings-type-ax-xl accessibility-extra-large -initialTab settings
+          shoot_en onboarding-locale large -onboardingCompleted NO
           for at in 1.0 4.1 6.7 9.3 11.9 14.5 17.1 18.9 21.9; do
             shoot_en "onboarding-reel-$at" large -onboardingCompleted NO -onboardingReelAt "$at"
           done
@@ -529,6 +532,7 @@ jobs:
           shoot_zh type-ax-xl accessibility-extra-large
           shoot_zh settings large -initialTab settings
           shoot_zh settings-type-ax-xl accessibility-extra-large -initialTab settings
+          shoot_zh onboarding-locale large -onboardingCompleted NO
           shoot_zh onboarding-2 large -onboardingCompleted NO -onboardingPage 2
           shoot_zh onboarding-3 large -onboardingCompleted NO -onboardingPage 3
           shoot_zh trends large -seedDemo YES -initialTab trends

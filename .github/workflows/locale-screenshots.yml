@@ -78,7 +78,7 @@ jobs:
               set -- -onboardingCompleted YES "$@"
             fi
             xcrun simctl ui "$SIM_UDID" content_size "$size"
-            xcrun simctl launch "$SIM_UDID" com.sugarcap.app "${LOCALE_ARGS[@]}" "$@"
+            xcrun simctl launch "$SIM_UDID" com.sugarcap.app -companionIntroSeen YES "${LOCALE_ARGS[@]}" "$@"
             sleep "$SHOT_WAIT"
             xcrun simctl io "$SIM_UDID" screenshot "$OUT/$dir/$name.png"
             xcrun simctl terminate "$SIM_UDID" com.sugarcap.app

@@ -39,6 +39,9 @@ struct TrendsView: View {
     @State private var limitSide: CupSide?
     /// 당↔카페인 넘기기. 잔 층과 캐릭터 층은 쪽 번호(켜진 면 순서)를 따로 움직인다.
     @State private var dragX: CGFloat = 0
+    /// 마지막으로 옆으로 끈 시각. 잔 층이 손가락을 따라 밀려서, 넘긴 뒤 손을 떼면 손가락 밑 잔 버튼이 눌린 것으로
+    /// 잡혀 하루 기록이 열렸다(빌드 407 대표님 "카페인 쪽에서 당 쪽으로 슬라이드해서 넘어올때 기록 창이 열리는 버그").
+    @State private var sideDraggedAt: Date?
     @State private var cupPage: CGFloat = 0
     @State private var castPage: CGFloat = 0
     /// 넘길 때마다 캐릭터 젖힘을 한 번 돌린다. 방향은 화면에서 움직인 쪽(왼쪽 -1, 오른쪽 +1).
@@ -478,7 +481,7 @@ struct TrendsView: View {
     private var limitLink: some View {
         let isReducing = goals.contains { $0.side == side.rawValue }
         return Button {
-            limitSide = side
+            if !justSlid { limitSide = side }
         } label: {
             HStack(spacing: 6) {
                 Text(isReducing ? String(localized: "줄이는 중") : String(localized: "하루 기준"))
@@ -786,7 +789,7 @@ struct TrendsView: View {
     private func cupColumn(_ cup: TableCup, index: Int, side pageSide: CupSide) -> some View {
         let weekday = Self.weekdays[cup.day.weekday() - 1]
         Button {
-            dayLog = cup.day
+            if !justSlid { dayLog = cup.day }
         } label: {
             cupFace(cup, label: cup.isNow ? String(localized: "오늘") : weekday, width: 50, dimmed: !cup.recorded, side: pageSide)
         }
@@ -896,6 +899,7 @@ struct TrendsView: View {
         DragGesture(minimumDistance: 12)
             .onChanged { value in
                 guard abs(value.translation.width) > abs(value.translation.height) else { return }
+                sideDraggedAt = Date()
                 standRoshu()
                 let pullingPastEdge = (side == trackedSides.first && value.translation.width > 0)
                     || (side == trackedSides.last && value.translation.width < 0)
@@ -910,6 +914,12 @@ struct TrendsView: View {
                 let step = travel < -width / 3 ? 1 : (travel > width / 3 ? -1 : 0)
                 settle(on: neighbor(step: step))
             }
+    }
+
+    /// 방금(0.4초 안) 옆으로 끌었다. 손을 뗄 때 버튼 동작과 끌기 끝 중 어느 쪽이 먼저 오는지 정해져 있지 않아 시각으로 본다.
+    private var justSlid: Bool {
+        guard let sideDraggedAt else { return false }
+        return Date().timeIntervalSince(sideDraggedAt) < 0.4
     }
 
     /// 켜진 면 순서에서 step만큼 옆 면. 끝을 넘으면 끝 면.

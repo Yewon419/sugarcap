@@ -169,7 +169,7 @@ struct RecordSheet: View {
                 Button {
                     onBrand(brand.id)
                 } label: {
-                    brandCard(name: brand.name, detail: String(localized: "메뉴 \(catalog.drinks(brandID: brand.id).count.formatted())"), dashed: false)
+                    brandCard(name: brand.name, detail: Brand.menuCount(catalog.drinks(brandID: brand.id).count), dashed: false)
                 }
                 .buttonStyle(PressScaleStyle())
                 .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { frame in
@@ -235,7 +235,7 @@ struct RecordSheet: View {
                     let first = drink.servings.first
                     DrinkLine(
                         title: drink.name,
-                        meta: [catalog.brand(id: drink.brandId)?.name, drink.temperatureLabel, first?.sizeLabel]
+                        meta: [catalog.brand(id: drink.brandId)?.name, drink.temperatureLabel, first.map { Serving.displaySize($0.sizeLabel) }]
                             .compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · "),
                         figure: DrinkFigure(
                             name: drink.name,

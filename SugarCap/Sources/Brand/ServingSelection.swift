@@ -65,6 +65,20 @@ struct ServingSelection: Equatable {
     }
 }
 
+extension Serving {
+    /// 사이즈 선택이 없는 한국 카탈로그의 "기본"은 데이터 값이라, 화면에 찍을 때만 언어에 맞춘다.
+    static func displaySize(_ label: String) -> String {
+        label == "기본" ? String(localized: "기본") : label
+    }
+}
+
+extension Brand {
+    /// 브랜드 메뉴 수. 영어 단수("1 item")를 따로 두고, 그 밖은 천 단위 구분을 살린다.
+    static func menuCount(_ count: Int) -> String {
+        count == 1 ? String(localized: "메뉴 1") : String(localized: "메뉴 \(count.formatted())")
+    }
+}
+
 extension Drink {
     /// 목록 행의 온도 표기. `both`는 브랜드가 온도를 구분하지 않았다는 뜻이라 비워 둔다.
     var temperatureLabel: String? {

@@ -49,7 +49,7 @@ struct BrandMenuView: View {
 
     /// 브랜드 잔 기준 안내가 짧으면 소제목으로, 길면 메뉴 수로(길면 줄이 넘친다).
     private var kicker: String {
-        brand.servingNote.count <= 20 ? brand.servingNote : String(localized: "메뉴 \(drinks.count.formatted())")
+        brand.servingNote.count <= 20 ? brand.servingNote : Brand.menuCount(drinks.count)
     }
 
     var body: some View {
@@ -187,7 +187,7 @@ struct BrandMenuView: View {
 
     /// 온도 · 첫 사이즈. 목록 수치는 첫 serving 기준이다(§4.2).
     private func meta(_ drink: Drink) -> String {
-        [drink.temperatureLabel, drink.servings.first?.sizeLabel]
+        [drink.temperatureLabel, drink.servings.first.map { Serving.displaySize($0.sizeLabel) }]
             .compactMap { $0 }
             .filter { !$0.isEmpty }
             .joined(separator: " · ")

@@ -655,43 +655,10 @@ extension RecordFlowUITests {
         }
         XCTAssertTrue(summary.waitForLabel(prefix: "당 남은", timeout: 5), "당 컵으로 안 돌아옴: \(summary.label)")
 
-        // 정리: 첫 먹이기가 두 면에 남긴 선물 상자(로슈 추이 열쇠, 카인 병뚜껑)를 연다. 상자가 와 있으면 오늘 화면
-        // 버튼이 잠겨(대표님 2026-11-06) 뒤 테스트가 설정·추이를 못 연다.
-        let window = app.windows.firstMatch
-        let box = window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.81))
-        let unlocked = app.buttons["gift-open-trends"]
-        // 상자는 무대가 닫힌 뒤 조금 있다 온다. 바로 읽으면 아직 안 잠겨 있다(2026-11-06 CI).
-        let locked = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isEnabled == false"), object: app.buttons["open-settings"])
-        XCTAssertEqual(XCTWaiter().wait(for: [locked], timeout: 10), .completed, "선물 상자가 와 있는데 설정 버튼이 안 잠김")
-        // 운반 캐릭터가 걸어 들어와 서야 받는다.
-        for _ in 0 ..< 5 where !unlocked.exists {
-            box.tap()
-            _ = unlocked.waitForExistence(timeout: 4)
-        }
-        XCTAssertTrue(unlocked.exists, "로슈 상자를 눌렀는데 열쇠가 추이 버튼을 열지 않음")
-        unlocked.tap()
-        let next = app.buttons["trend-coach-next"]
-        XCTAssertTrue(next.waitForExistence(timeout: 15), "첫 추이 안내가 안 뜸")
-        while next.waitForExistence(timeout: 3) { next.tap() }
-        app.navigationBars.buttons.element(boundBy: 0).tap()
-        XCTAssertTrue(summary.waitForLabel(prefix: "당 남은", timeout: 5), "추이에서 당 컵으로 안 돌아옴: \(summary.label)")
-
-        let right = window.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.5))
-        let left = window.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.5))
-        right.press(forDuration: 0.1, thenDragTo: left, withVelocity: .slow, thenHoldForDuration: 0.6)
-        XCTAssertTrue(summary.waitForLabel(prefix: "카페인 남은", timeout: 5), "카페인 컵으로 안 넘어감: \(summary.label)")
-        let confirm = app.buttons["gift-confirm"]
-        for _ in 0 ..< 5 where !confirm.exists {
-            box.tap()
-            _ = confirm.waitForExistence(timeout: 4)
-        }
-        XCTAssertTrue(confirm.exists, "카인 상자를 눌렀는데 선물 무대가 안 뜸")
-        confirm.tap()
-        XCTAssertTrue(confirm.waitForNonExistence(timeout: 5), "확인을 눌러도 선물 무대가 안 닫힘")
-        left.press(forDuration: 0.1, thenDragTo: right, withVelocity: .slow, thenHoldForDuration: 0.6)
-        XCTAssertTrue(summary.waitForLabel(prefix: "당 남은", timeout: 5), "당 컵으로 안 돌아옴: \(summary.label)")
+        // 건너뛴 먹이기는 적립이 없어 추이 열쇠·병뚜껑 상자가 오지 않는다(첫 보상은 그날이 확정되는 다음 날 적립 뒤).
+        // 상자가 없으니 무대가 끝나면 위 버튼이 그대로 눌려야 한다(2026-11-06 CI, 녹화로 확인).
         let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isEnabled == true"), object: app.buttons["open-settings"])
-        XCTAssertEqual(XCTWaiter().wait(for: [enabled], timeout: 5), .completed, "상자를 다 열었는데 설정 버튼이 잠겨 있음")
+        XCTAssertEqual(XCTWaiter().wait(for: [enabled], timeout: 5), .completed, "무대가 끝났는데 설정 버튼이 잠겨 있음")
     }
 
     /// 편의점은 메뉴가 수천 개라 검색 우선 화면이다(2026-10-01). 검색 전에는 목록이 없고,

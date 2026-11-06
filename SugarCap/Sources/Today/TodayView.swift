@@ -77,6 +77,8 @@ struct TodayView: View {
     @State private var trendsLockToastAt: Date?
     /// 첫 선물(추이 열림) 연출 중이면 채운다(SPEC §4.9). 열린 추이 버튼을 누르면 비운다.
     @State private var opening: GiftOpening?
+    /// Debug `-screenshotGift` 상자를 이번 실행에 이미 넣었는지. 추이에 다녀와 오늘이 다시 뜰 때 또 넣지 않는다.
+    @State private var didPresentScreenshotGift = false
     /// 추이 버튼 자리(화면 좌표). 열쇠가 날아가 닿고 어둠의 구멍이 뚫리는 곳.
     @State private var trendsButtonFrame: CGRect = .zero
     @State private var giftCarrierFrames: [CupSide: CGRect] = [:]
@@ -676,7 +678,9 @@ struct TodayView: View {
     private func presentScreenshotGiftIfRequested() {
         #if DEBUG
         let defaults = UserDefaults.standard
-        guard let raw = defaults.string(forKey: "screenshotGift") else { return }
+        guard let raw = defaults.string(forKey: "screenshotGift"), !didPresentScreenshotGift else { return }
+        // `.task(id: today)`는 추이에서 돌아올 때마다 다시 돈다. 연 상자 뒤에 새 상자가 와 버튼이 다시 잠겼다(2026-11-06 CI).
+        didPresentScreenshotGift = true
         let kind: GiftKind = raw == "trends" ? .trendsUnlock : (GiftKind(rawValue: raw) ?? .trendsUnlock)
         // 무대 컷은 앞 컷이 남긴 안 연 선물과 상관없이 새로 넣어 연다(스크린샷 단계는 저장소를 이어 쓴다).
         if defaults.bool(forKey: "screenshotGiftCard"), kind != .trendsUnlock {

@@ -63,7 +63,7 @@ struct CoachMark: View {
             // 구멍이 위쪽이면 글은 아래, 아래쪽이면 위.
             let textBelow = local.midY < proxy.size.height * 0.5
             ZStack(alignment: .topLeading) {
-                CoachDim(holes: hole == .zero ? [] : [CoachDim.Hole(rect: local, radius: radius)])
+                CoachDim(holes: hole == .zero ? [] : [CoachDim.Hole(rect: local, radius: radius)], revealKey: text)
                 Color.clear
                     .contentShape(Rectangle())
                     .onTapGesture {}
@@ -88,6 +88,7 @@ struct CoachMark: View {
                         .frame(width: max(proxy.size.width - 48, 0))
                         .allowsHitTesting(false)
                         .accessibilityIdentifier("coach-text")
+                        .modifier(CoachReveal(key: text))
                     if let textTop {
                         label
                             .padding(.top, max(textTop - origin.y, 0))

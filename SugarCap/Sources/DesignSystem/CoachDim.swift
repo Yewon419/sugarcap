@@ -11,6 +11,8 @@ struct CoachDim: View {
     }
 
     let holes: [Hole]
+    /// 단계 하나 = 키 하나. 바뀔 때마다 덮개 없이 화면을 잠깐 보여 준 뒤 어두워진다(`CoachReveal`).
+    let revealKey: String
 
     private static let dim = 0.74
     /// 번지는 폭(pt). 번진 만큼 안쪽이 덜 밝아지지 않게 구멍을 그만큼 넓혀 뚫는다.
@@ -30,6 +32,7 @@ struct CoachDim: View {
             }
         }
         .compositingGroup()
+        .modifier(CoachReveal(key: revealKey))
         .ignoresSafeArea()
         .allowsHitTesting(false)
         .accessibilityHidden(true)
@@ -45,5 +48,27 @@ struct CoachDim: View {
         let top = photo.point(axis - 0.31, cast.rimLine(step: step).back - 0.03)
         let bottom = photo.point(axis + 0.31, cast.bottom + 0.025)
         return CGRect(x: top.x, y: slotTop + top.y, width: bottom.x - top.x, height: bottom.y - top.y)
+    }
+}
+
+/// 튜토리얼 단계가 바뀔 때마다(키) 덮개·안내 글을 0.6초 뒤에 띄운다. 밝은 화면을 먼저 보여 주고 어두워지며 누를 곳으로 시선을 끈다
+/// (베타 피드백 빌드 409·420 대표님 "어두움 안 준 기본 화면 잠깐 보여 주고 눌러야 될 거 강조").
+struct CoachReveal: ViewModifier {
+    let key: String
+    @State private var isShown = false
+
+    private static let pause: Duration = .milliseconds(600)
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(isShown ? 1 : 0)
+            .task(id: key) {
+                var transaction = Transaction()
+                transaction.disablesAnimations = true
+                withTransaction(transaction) { isShown = false }
+                try? await Task.sleep(for: Self.pause)
+                guard !Task.isCancelled else { return }
+                withAnimation(.easeInOut(duration: 0.35)) { isShown = true }
+            }
     }
 }

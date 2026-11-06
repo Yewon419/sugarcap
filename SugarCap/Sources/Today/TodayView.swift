@@ -113,6 +113,8 @@ struct TodayView: View {
     /// 안내 중 "추가"한 연습 음료. 저장소에 넣지 않고 오늘 합계·하루 기록에만 얹는다. 지우면 비운다.
     @State private var tutorialEntry: Entry?
     @AppStorage(DrinkTutorial.pendingKey) private var tutorialPending = false
+    /// 로슈·카인 소개(첫 마감)를 봤는지. 보기 전에는 대기 캐릭터·구경꾼을 숨긴다.
+    @AppStorage(CompanionIntro.seenKey) private var companionIntroSeen = false
     /// 2주 스탬프판(`StampCardView`). 모서리 버튼, 첫날 안내 끝, 마감 뒤 새 칸이 생겼을 때 연다.
     @State private var isStampCardPresented = false
     /// CI 스크린샷(Debug `-screenshotStamps`)·테스트 카드 보상 보기의 스탬프 행과 본 칸 수. 저장소에 넣지 않는다.
@@ -342,7 +344,9 @@ struct TodayView: View {
                     // 단계 상승 무대 중이면 무대에 선 캐릭터가 그 캐릭터다.
                     CupView(
                         step: step, setID: shownSetID(cupSide),
-                        idle: hidesCharacters || carrier != nil || staged != nil ? nil : IdleCharacterLayer(
+                        // 첫 마감에서 로슈·카인을 소개하기 전에는 대기 캐릭터·구경꾼도 안 보인다(대표님 2026-11-06 빌드 420).
+                        // 상자·무대는 먹이기 뒤에만 오니 그대로 둔다(Debug 주입 화면도 그 길).
+                        idle: hidesCharacters || !companionIntroSeen || carrier != nil || staged != nil ? nil : IdleCharacterLayer(
                             side: cupSide, step: step, isActive: isActive,
                             unlockedLevel: unlockedLevel(cupSide),
                             ownedItems: ownedItems,

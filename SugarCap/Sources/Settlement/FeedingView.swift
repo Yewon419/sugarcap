@@ -267,7 +267,7 @@ struct FeedingView: View {
 
                 // 튜토리얼 덮개: 컵(누를 차례에만)과 캐릭터 자리만 밝게 두고 나머지를 어둡게(가장자리는 부드럽게). 제목·방울은 덮개 위라 밝게 남는다.
                 if isCoaching {
-                    CoachDim(holes: coachHoles(proxy))
+                    CoachDim(holes: coachHoles(proxy), revealKey: "\(side.rawValue)-\(stage == .dropped ? "drop" : "cup")")
                         .transition(.opacity)
                 }
 

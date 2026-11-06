@@ -28,6 +28,11 @@ enum EarlyBird {
     /// 샌드박스(TestFlight)·Xcode 실행은 처음 받은 날이 늘 2013-08-01로 와서 날짜로 못 가린다. App Store 빌드가 아니면 대상으로 본다.
     static func resolve(_ defaults: UserDefaults = .standard) async -> Bool? {
         if let known = known(defaults) { return known }
+        #if DEBUG
+        // 시뮬레이터에서 앱 영수증을 읽으면 Apple 계정 로그인 창이 떠 CI 스크린샷을 덮는다(빌드 407 무렵 전 장).
+        // Debug는 CI 전용이라 `-earlyBird` 인자로만 정한다.
+        return nil
+        #else
         do {
             switch try await AppTransaction.shared {
             case .verified(let transaction):
@@ -42,5 +47,6 @@ enum EarlyBird {
             logger.error("얼리버드 판정: 앱 영수증 읽기 실패 \(String(describing: error), privacy: .public)")
             return nil
         }
+        #endif
     }
 }

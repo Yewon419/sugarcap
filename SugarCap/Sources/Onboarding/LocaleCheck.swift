@@ -159,7 +159,8 @@ struct LocaleCheck: View {
     }
 }
 
-/// 국기 방울과 먹이기 방울(`drop-*`)이 같은 크기로 한 줄에 서서 끝없이 위로 흐른다. 끌면 따라오고, 놓으면 잠깐 멈췄다 다시 흐른다.
+/// 국기 방울과 먹이기 방울(`drop-*`)이 같은 크기로 한 줄에 서서 끝없이 위로 흐른다. 끌면 따라오고,
+/// 놓으면 손가락 속도 그대로 관성으로 가다가 원래 흐르던 속도로 돌아온다(대표님 2026-11-06 "뚝 멈추면 애플 문법 아님").
 /// 칸 번호로 위치를 바로 계산해서 감아 돌릴 필요가 없다(위로든 아래로든 끝이 없다).
 private struct DropColumn: View {
     let selected: MenuCountry
@@ -170,7 +171,9 @@ private struct DropColumn: View {
     static let centerInset: CGFloat = 126
     private static let step: CGFloat = 130
     private static let speed: CGFloat = 22
-    private static let holdAfterDrag: TimeInterval = 1.5
+    /// 감속 시간상수. UIScrollView 기본 감속(1ms마다 0.998배)과 같다: −1/ln(0.998) ≈ 0.5초.
+    private static let decay: Double = 0.5
+    private static let maxFling: CGFloat = 5000
 
     private enum Item {
         case flag(MenuCountry)
@@ -181,11 +184,17 @@ private struct DropColumn: View {
 
     @State private var anchorOffset: CGFloat = 30
     @State private var anchorTime = Date()
+    /// 기준 시각의 속도(pt/s, 위로 흐르는 쪽이 +). 놓을 때 손가락 속도, 평소에는 흐르는 속도.
+    @State private var anchorVelocity: CGFloat = DropColumn.speed
     @State private var dragBase: CGFloat?
     @State private var dragOffset: CGFloat?
+    /// 동작 줄이기에서는 흐르지 않지만, 던진 관성은 스크롤처럼 끝까지 보여 준다.
+    @State private var isFlinging = false
+
+    private var drift: CGFloat { isMoving ? Self.speed : 0 }
 
     var body: some View {
-        TimelineView(.animation(paused: !isMoving)) { timeline in
+        TimelineView(.animation(paused: !isMoving && !isFlinging)) { timeline in
             let now = timeline.date
             let offset = currentOffset(at: now)
             let t = isMoving ? now.timeIntervalSinceReferenceDate : 0
@@ -210,19 +219,29 @@ private struct DropColumn: View {
                     dragBase = base
                     dragOffset = base - drag.translation.height
                 }
-                .onEnded { _ in
+                .onEnded { drag in
                     anchorOffset = dragOffset ?? anchorOffset
-                    anchorTime = Date().addingTimeInterval(Self.holdAfterDrag)
+                    anchorTime = Date()
+                    // 손가락이 위로 가면(velocity.height < 0) 열도 위로 흐르는 쪽(+)이다.
+                    anchorVelocity = min(Self.maxFling, max(-Self.maxFling, -drag.velocity.height))
                     dragBase = nil
                     dragOffset = nil
+                    isFlinging = true
                 }
         )
+        .task(id: anchorTime) {
+            guard isFlinging else { return }
+            try? await Task.sleep(for: .seconds(Self.decay * 6))
+            isFlinging = false
+        }
     }
 
+    /// 속도가 손가락 속도에서 흐르는 속도로 지수로 줄어든다: v(t) = drift + (v₀ − drift)·e^(−t/τ). 위치는 그 적분.
     private func currentOffset(at now: Date) -> CGFloat {
         if let dragOffset { return dragOffset }
-        guard isMoving else { return anchorOffset }
-        return anchorOffset + CGFloat(max(0, now.timeIntervalSince(anchorTime))) * Self.speed
+        let dt = max(0, now.timeIntervalSince(anchorTime))
+        let settle = CGFloat(Self.decay * (1 - exp(-dt / Self.decay)))
+        return anchorOffset + drift * CGFloat(dt) + (anchorVelocity - drift) * settle
     }
 
     /// 국기 방울은 모양이 살짝 출렁이고(가로세로가 엇갈려 늘었다 줄었다), 먹이기 방울은 원래 공 그림이라 위아래로만 뜬다.

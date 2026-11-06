@@ -48,6 +48,15 @@ SURFACE: dict[str, dict[int, float]] = {
 # 크림 윗면을 색으로 잡는 단계(4). 아인슈페너 100%는 `SURFACE` 0.30(입구 타원 가운데)이면 거품 위쪽 절반이
 # 비고(빌드 372), 입구 뒤 가장자리면 입구와 크림 사이 유리 띠까지 덮었다(2026-11-03).
 WARM_SURFACE = frozenset({("einspanner", 100)})
+# 색 단서(1)를 대기 영상(`CupIdle/<에셋>-idle.mp4`) 모든 프레임에서도 보는 단계. 영상 속 토핑이 사진보다 높이 떠
+# 숫자 아래 끝이 오렌지 위로 비쳤다(베타 피드백 빌드 418 대표님 "오렌지도 숫자 위에 있어야돼", 2026-11-06 CI에서
+# 사진은 오렌지 윗변 0.318, 영상은 0.313).
+VIDEO_STEPS = frozenset({("glass-soda", 100)})
+IDLE = os.path.join(REPO, "SugarCap", "Resources", "CupIdle")
+# 위 단계에서는 오렌지 껍질 안쪽 흰 속(채도 25~70, 색상 주황)도 토핑으로 본다. 유리·벽은 채도 15 아래다.
+PEEL_HUE = 25  # HSV H(0~180). 이 이하가 주황·노랑 쪽
+PEEL_SATURATION = 22
+PEEL_VALUE = 150
 WARM = 6  # 빨강 - 파랑. 이 이상이면 미색 크림(크림 6~13, 유리 띠·벽 -6~2)
 BOTTOM = 0.33  # 숫자 바닥(CupHero.baselineRatio 0.328) 바로 아래
 SATURATION = 70  # HSV S(0~255). 이보다 진하면 토핑 색
@@ -130,6 +139,55 @@ def warm_surface(
     return (hull > 0) | (glass & below)
 
 
+def colored_of(image: NDArray[np.uint8]) -> NDArray[np.bool_]:
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    return np.asarray((hsv[:, :, 1] > SATURATION) | (hsv[:, :, 2] < DARK), dtype=bool)
+
+
+def peel_of(image: NDArray[np.uint8]) -> NDArray[np.bool_]:
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    return np.asarray(
+        (hsv[:, :, 0] <= PEEL_HUE)
+        & (hsv[:, :, 1] >= PEEL_SATURATION)
+        & (hsv[:, :, 2] >= PEEL_VALUE),
+        dtype=bool,
+    )
+
+
+def video_colored(cup_set: str, step: int, shape: tuple[int, int]) -> NDArray[np.bool_]:
+    """대기 영상 모든 프레임의 색 단서(+ 오렌지 속)를 합쳐 사진 캔버스에 놓는다(영상 마스크 안만)."""
+    base = f"cup-{cup_set}-{step}-idle"
+    with open(os.path.join(IDLE, f"{base}.json"), encoding="utf-8") as f:
+        place = json.load(f)
+    x, y, w, h = (int(place[k]) for k in ("x", "y", "width", "height"))
+    mask_path = os.path.join(ASSETS, f"{base}-mask.imageset", "mask.png")
+    shown = read_image(mask_path, cv2.IMREAD_UNCHANGED)[:, :, 3] > 128
+    capture = cv2.VideoCapture(os.path.join(IDLE, f"{base}.mp4"))
+    if not capture.isOpened():
+        raise RuntimeError(f"대기 영상을 못 엶: {base}.mp4")
+    union = np.zeros((h, w), dtype=bool)
+    frames = 0
+    while True:
+        ok, frame = capture.read()
+        if not ok:
+            break
+        if frame.shape[:2] != (h, w):
+            raise RuntimeError(
+                f"영상 크기가 배치와 다름: {base} {frame.shape[:2]} != {(h, w)}"
+            )
+        image = np.asarray(frame, dtype=np.uint8)
+        union |= colored_of(image) | peel_of(image)
+        frames += 1
+    capture.release()
+    if frames == 0:
+        raise RuntimeError(f"대기 영상에 프레임이 없음: {base}.mp4")
+    if shown.shape != (h, w):
+        raise RuntimeError(f"영상 마스크 크기가 배치와 다름: {base}")
+    out = np.zeros(shape, dtype=bool)
+    out[y : y + h, x : x + w] = union & shown
+    return out
+
+
 def topping(cup_set: str, step: int) -> NDArray[np.uint8]:
     photo = read_image(photo_path(cup_set, step), cv2.IMREAD_COLOR)
     height, width = photo.shape[:2]
@@ -137,8 +195,9 @@ def topping(cup_set: str, step: int) -> NDArray[np.uint8]:
     empty = cutout_alpha(cup_set, 0)
     if cut.shape != (height, width) or empty.shape != (height, width):
         raise RuntimeError(f"누끼와 사진 크기가 다름: {cup_set} {step}")
-    hsv = cv2.cvtColor(photo, cv2.COLOR_BGR2HSV)
-    colored = (hsv[:, :, 1] > SATURATION) | (hsv[:, :, 2] < DARK)
+    colored = colored_of(photo)
+    if (cup_set, step) in VIDEO_STEPS:
+        colored |= peel_of(photo) | video_colored(cup_set, step, (height, width))
     # 누끼 차이는 입구 타원 위끝보다 위에서만 본다. 아래에서는 단계마다 잔 자리가 몇 px 어긋나
     # 유리 테두리 띠가 통째로 잡혔다(프라페 30~80, 망고·아인슈페너 50 오른쪽 끝).
     ellipse = rim_ellipse(cup_set, step)

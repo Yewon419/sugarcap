@@ -8623,6 +8623,38 @@
           }
         }
       }
+    },
+    "보일 컵" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cup to show"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "顯示的杯子"
+          }
+        }
+      }
+    },
+    "하루 기준 %@ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daily limit %1$@ %2$@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每日標準 %1$@ %2$@"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

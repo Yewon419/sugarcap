@@ -83,9 +83,9 @@ enum CupSide: String, CaseIterable, Identifiable, Sendable {
     }
 
     /// 이 면에 그리는 컵 세트(SPEC §9-10·§4.10). 보관함에서 고른 잔(`cupSetKey`)이 이 면 상품이면 그 잔, 아니면 기본 잔.
-    /// 가진 잔인지는 고를 때(보관함)와 앱 시작 때(`CupSetChoice.dropUnowned`) 본다.
+    /// 가진 잔인지는 고를 때(보관함)와 앱 시작 때(`CupSetChoice.dropUnowned`) 본다. 위젯이 같은 값을 읽는다(App Group).
     var cupSetID: String {
-        if let chosen = UserDefaults.standard.string(forKey: cupSetKey), TradeCatalog.item(chosen)?.side == self {
+        if let chosen = SharedDefaults.cupSet(forKey: cupSetKey), TradeCatalog.item(chosen)?.side == self {
             return chosen
         }
         return defaultCupSetID
@@ -107,7 +107,7 @@ enum CupSide: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
-    /// 고른 잔을 두는 기기 설정 키(Debug `-cupSet.sugar choco-frappe`).
+    /// 고른 잔을 두는 공용 설정 키(`SharedDefaults.cupSetStore`, Debug `-cupSet.sugar choco-frappe`).
     var cupSetKey: String { "cupSet.\(rawValue)" }
 
     /// 감소 목표가 하루 기준을 낮출 때 쓰는 반올림 단위(SPEC §9.5).

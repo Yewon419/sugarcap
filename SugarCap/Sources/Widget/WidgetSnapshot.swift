@@ -7,14 +7,20 @@ struct WidgetSnapshot: Equatable, Sendable {
     let leftCaffeineMg: Double
     let limits: DailyLimits
     let isPro: Bool
-    /// 설정 "기록할 것"에서 켠 면만 줄로 보인다.
+    /// 설정 "기록할 것"에서 켠 면만 잔으로 보인다.
     var tracked: [CupSide] = CupSide.allCases
+    /// 면마다 고른 잔(§4.10). 없으면 기본 잔.
+    var cupSets: [CupSide: String] = [:]
 
     func left(_ side: CupSide) -> Double {
         switch side {
         case .sugar: return leftSugarG
         case .caffeine: return leftCaffeineMg
         }
+    }
+
+    func cupSet(_ side: CupSide) -> String {
+        cupSets[side] ?? side.defaultCupSetID
     }
 
     static let placeholder = WidgetSnapshot(
@@ -31,7 +37,8 @@ enum WidgetSnapshotLoader {
                 leftSugarG: DailyLimits.default.sugarG,
                 leftCaffeineMg: DailyLimits.default.caffeineMg,
                 limits: .default,
-                isPro: isPro
+                isPro: isPro,
+                cupSets: Dictionary(uniqueKeysWithValues: CupSide.allCases.map { ($0, $0.cupSetID) })
             )
         }
         let context = ModelContext(container)
@@ -50,7 +57,8 @@ enum WidgetSnapshotLoader {
             leftCaffeineMg: totals.leftCaffeineMg,
             limits: limits,
             isPro: isPro,
-            tracked: settings?.trackedSides ?? CupSide.allCases
+            tracked: settings?.trackedSides ?? CupSide.allCases,
+            cupSets: Dictionary(uniqueKeysWithValues: CupSide.allCases.map { ($0, $0.cupSetID) })
         )
     }
 

@@ -33,6 +33,7 @@ struct SugarCapApp: App {
         _catalog = State(initialValue: LoadedCatalog(country: country))
 
         // 고른 잔이 가진 잔이 아니면 기본 잔으로 그린다(§4.10). 거래 행을 못 읽으면 선택을 건드리지 않는다.
+        CupSetChoice.moveToSharedStore(bundleID: Bundle.main.bundleIdentifier ?? "com.sugarcap.app")
         do {
             let trades = try container.mainContext.fetch(FetchDescriptor<TradeOffer>())
             let gifts = try container.mainContext.fetch(FetchDescriptor<GiftEvent>())

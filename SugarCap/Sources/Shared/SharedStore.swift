@@ -44,4 +44,18 @@ enum SharedDefaults {
         get { LaunchPricing.everythingFree || (store?.bool(forKey: isProKey) ?? false) }
         set { store?.set(newValue, forKey: isProKey) }
     }
+
+    /// 면마다 고른 잔(`cupSet.<면>`, §4.10)을 두는 곳. 위젯도 같은 잔을 그려야 해서 공용 저장소에 둔다.
+    /// App Group이 없으면(CI 시뮬레이터) 앱 기본 저장소.
+    static var cupSetStore: UserDefaults {
+        store ?? .standard
+    }
+
+    /// 고른 잔 id. Debug 실행 인자(`-cupSet.sugar choco-frappe`)는 앱 기본 저장소의 인자 도메인으로만 들어오니 먼저 본다.
+    static func cupSet(forKey key: String) -> String? {
+        if let argument = UserDefaults.standard.volatileDomain(forName: UserDefaults.argumentDomain)[key] as? String {
+            return argument
+        }
+        return cupSetStore.string(forKey: key)
+    }
 }

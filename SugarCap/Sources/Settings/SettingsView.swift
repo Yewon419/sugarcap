@@ -63,8 +63,8 @@ private struct SettingsContent: View {
     @State private var confirmsReset = false
     @AppStorage(AppClock.dayOffsetKey, store: SharedDefaults.store) private var dayOffset = 0
     @AppStorage(CloseReminder.enabledKey) private var isReminderOn = false
-    @AppStorage("cupSet.sugar") private var testSugarCupSet: String?
-    @AppStorage("cupSet.caffeine") private var testCaffeineCupSet: String?
+    @AppStorage("cupSet.sugar", store: SharedDefaults.cupSetStore) private var testSugarCupSet: String?
+    @AppStorage("cupSet.caffeine", store: SharedDefaults.cupSetStore) private var testCaffeineCupSet: String?
     /// 별명(호감도 Lv7부터, §4.9 2026-10-11). 저장은 기기 설정이라 바꾸면 `renamed`로 행을 다시 그린다.
     @State private var namingSide: CupSide?
     @State private var nicknameDraft = ""

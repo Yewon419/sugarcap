@@ -184,6 +184,14 @@ jobs:
           shoot stamp-early-stage-type-ax-xl light accessibility-extra-large -screenshotStamps 7 -screenshotStampSeen 6 -earlyBird YES -screenshotStampInstant YES
           shoot glass-inventory light large -cupSet.sugar glass-soda -cupSet.caffeine glass-beans -initialTab settings -screenshotInventory YES -screenshotCaps 3
           shoot settings light large -initialTab settings
+          # 위젯(SPEC §4.6). 홈 화면은 못 찍으니 위젯과 같은 그림을 앱이 늘어놓는다(Debug `-screenshotWidget small|medium`).
+          shoot widget-small light large -screenshotWidget small
+          shoot widget-medium light large -screenshotWidget medium
+          shoot widget-small-trade1 light large -screenshotWidget small -cupSet.sugar choco-frappe -cupSet.caffeine cafe-latte
+          shoot widget-small-trade2 light large -screenshotWidget small -cupSet.sugar mango -cupSet.caffeine matcha
+          shoot widget-small-trade3 light large -screenshotWidget small -cupSet.sugar grape -cupSet.caffeine einspanner
+          shoot widget-small-glass light large -screenshotWidget small -cupSet.sugar glass-soda -cupSet.caffeine glass-beans
+          shoot widget-medium-glass light large -screenshotWidget medium -cupSet.sugar glass-soda -cupSet.caffeine glass-beans
           shoot inventory light large -initialTab settings -screenshotInventory YES -screenshotCaps 12 -screenshotInventoryItems strawberry,coffee-bean,sugar-cube,cinnamon-stick
           # 첫 실행 언어·메뉴 국가 확인 → 온보딩 영상(한 시각에 멈춰, 21.9 = 빼꼼) + 하루 기준 두 단계(2 = 당, 3 = 카페인).
           shoot onboarding-locale light large -onboardingCompleted NO

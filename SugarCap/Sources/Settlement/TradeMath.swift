@@ -1,6 +1,7 @@
 import Foundation
 import OSLog
 import SwiftData
+import WidgetKit
 
 /// 거래 계산(SPEC §4.10). 전부 순수 함수다. 잔액은 저장하지 않고 늘 여기서 계산한다.
 enum TradeMath {
@@ -101,21 +102,37 @@ enum CapBalance {
     }
 }
 
-/// 면마다 고른 잔(UserDefaults `cupSet.<면>`). 그리는 쪽은 `CupSide.cupSetID`가 읽는다.
+/// 면마다 고른 잔(공용 설정 `cupSet.<면>`, `SharedDefaults.cupSetStore`). 그리는 쪽은 `CupSide.cupSetID`가 읽는다.
 enum CupSetChoice {
     static func select(_ setID: String, for side: CupSide) {
         if setID == side.defaultCupSetID {
-            UserDefaults.standard.removeObject(forKey: side.cupSetKey)
+            SharedDefaults.cupSetStore.removeObject(forKey: side.cupSetKey)
         } else {
-            UserDefaults.standard.set(setID, forKey: side.cupSetKey)
+            SharedDefaults.cupSetStore.set(setID, forKey: side.cupSetKey)
         }
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     /// 가진 잔이 아닌 선택을 지운다(앱 시작 때). 그 면은 기본 잔으로 돌아간다.
     static func dropUnowned(owned: Set<String>) {
         for side in CupSide.allCases {
-            guard let chosen = UserDefaults.standard.string(forKey: side.cupSetKey), !owned.contains(chosen) else {
+            guard let chosen = SharedDefaults.cupSetStore.string(forKey: side.cupSetKey), !owned.contains(chosen) else {
                 continue
+            }
+            SharedDefaults.cupSetStore.removeObject(forKey: side.cupSetKey)
+        }
+    }
+
+    /// 1.0.1까지는 앱 기본 저장소에 뒀다. 위젯이 읽도록 공용 저장소로 옮긴다(앱 시작 때, 위젯 v2 2026-11-08).
+    /// 실행 인자는 옮기지 않는다(저장된 값만 본다).
+    static func moveToSharedStore(bundleID: String) {
+        guard let shared = SharedDefaults.store,
+              let stored = UserDefaults.standard.persistentDomain(forName: bundleID)
+        else { return }
+        for side in CupSide.allCases {
+            guard let old = stored[side.cupSetKey] as? String else { continue }
+            if shared.string(forKey: side.cupSetKey) == nil {
+                shared.set(old, forKey: side.cupSetKey)
             }
             UserDefaults.standard.removeObject(forKey: side.cupSetKey)
         }

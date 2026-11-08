@@ -44,7 +44,7 @@ final class TradeTests: XCTestCase {
 
     /// 산 잔은 주인 면에만 쓴다. 다른 면 키에 넣어도 기본 잔으로 그린다.
     func testCupSetChoiceOnlyOnOwnerSide() {
-        let defaults = UserDefaults.standard
+        let defaults = SharedDefaults.cupSetStore
         let saved = CupSide.allCases.map { defaults.object(forKey: $0.cupSetKey) }
         defer {
             for (side, value) in zip(CupSide.allCases, saved) {
@@ -82,6 +82,22 @@ final class TradeTests: XCTestCase {
         XCTAssertEqual(CupSide.sugar.cupSetID, "strawberry-latte")
         XCTAssertEqual(CupSide.sugar.dropAsset, "drop-sugar")
         XCTAssertEqual(CupSide.sugar.idleCast.bottom, CupSetGeometry.strawberryLatte.bottom)
+    }
+
+    /// 1.0.1까지 앱 기본 저장소에 둔 잔은 위젯이 읽는 공용 저장소로 옮긴다(위젯 v2).
+    func testCupSetMovesToSharedStore() throws {
+        let shared = try XCTUnwrap(SharedDefaults.store, "App Group 설정 저장소")
+        let bundleID = try XCTUnwrap(Bundle.main.bundleIdentifier)
+        let key = CupSide.sugar.cupSetKey
+        let saved = shared.object(forKey: key)
+        defer { shared.set(saved, forKey: key) }
+        shared.removeObject(forKey: key)
+        UserDefaults.standard.set("mango", forKey: key)
+
+        CupSetChoice.moveToSharedStore(bundleID: bundleID)
+        XCTAssertEqual(shared.string(forKey: key), "mango")
+        XCTAssertNil(UserDefaults.standard.persistentDomain(forName: bundleID)?[key])
+        XCTAssertEqual(CupSide.sugar.cupSetID, "mango")
     }
 
     func testOfferRowsLiveInTheSharedSchema() throws {

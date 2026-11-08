@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>SugarCap widget proto</title>
+<style>
+  @font-face { font-family: Anton; src: url(widget-img/Anton-Regular.ttf); }
+  @font-face { font-family: Pretendard; font-weight: 600; src: url(widget-img/Pretendard-SemiBold.otf); }
+  @font-face { font-family: Pretendard; font-weight: 700; src: url(widget-img/Pretendard-Bold.otf); }
+  :root { --ink: #1d1d1f; }
+  body { margin: 0; font-family: Pretendard, sans-serif; background: #e9e9ec; color: var(--ink); }
+  .board { display: grid; grid-template-columns: auto; gap: 28px 40px; padding: 28px 32px; width: max-content; }
+  .board.dark { background: #1c1c1e; color: #f2f2f7; }
+  .cap { font-size: 13px; font-weight: 700; margin: 0 0 8px; }
+  .row { display: flex; gap: 22px; align-items: flex-start; }
+  .w { position: relative; overflow: hidden; border-radius: 22px; background: #f3f3f3; flex: none; }
+  .w.s { width: 158px; height: 158px; }
+  .w.m { width: 338px; height: 158px; }
+  .plane { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+  .plane img { position: absolute; display: block; }
+  .num { position: absolute; font-family: Anton; line-height: 1; white-space: nowrap; }
+  .num sup { font-size: 0.32em; vertical-align: top; position: relative; top: 0.08em; margin-left: 0.06em; }
+  .num.hang sup { position: absolute; left: 100%; top: 0.08em; }
+  .lbl { position: absolute; font-size: 10px; font-weight: 600; letter-spacing: 0.06em; color: rgba(29,29,31,0.62); white-space: nowrap; }
+  .of { position: absolute; font-size: 10px; font-weight: 600; color: rgba(29,29,31,0.5); white-space: nowrap; }
+  .half { position: absolute; top: 0; height: 100%; overflow: hidden; }
+</style>
+</head>
+<body>
+<script src="widget-img/meta.js"></script>
+<div class="board" id="light"></div>
+<script>
+// 원본 좌표계: cupwide 사진(1025x1111, 원본 1537x1666의 2/3). 좁은 사진·유리선은 가로 200(=300×2/3)에서 시작.
+const WIDE_OFF = 200;
+const PHOTO_H = 1111;
+const SUGAR = { set: 'strawberry-latte', color: '#698394', ch: 'roshu', unit: 'g', label: '남은 당', limit: 50 };
+const CAF = { set: 'iced-americano', color: '#4A3226', ch: 'kain', unit: 'mg', label: '남은 카페인', limit: 400 };
+
+// 사진 평면 하나를 칸(w×h)에 깔고 crop(원본 좌표 x,y,크기 s)을 맞춘다.
+function plane(host, side, step, crop, opts) {
+  const k = opts.w / crop.s;
+  // ext-* = 넓은 사진 양옆에 가장자리 열을 700씩 늘려 붙인 것(한 면 Medium). 좌표는 넓은 사진 기준 그대로 쓴다.
+  const ext = opts.ext ? 700 : 0;
+  const p = document.createElement('div');
+  p.className = 'plane';
+  p.style.width = (1025 + 2 * ext) + 'px'; p.style.height = PHOTO_H + 'px';
+  p.style.transform = `translate(${-(crop.x + ext) * k}px, ${-crop.y * k}px) scale(${k})`;
+  const photo = new Image(); photo.src = `widget-img/${opts.ext ? 'ext' : 'wide'}-${side.set}-${step}.jpg`;
+  Object.assign(photo.style, { left: 0, top: 0, width: (1025 + 2 * ext) + 'px', height: PHOTO_H + 'px' });
+  p.appendChild(photo);
+  const shift = (el) => { el.style.marginLeft = ext + 'px'; return el; };
+  // 캐릭터 정지 포즈: 냅킨 위, 잔 오른쪽.
+  if (opts.ch) {
+    const c = new Image(); c.src = `widget-img/${side.ch}.png`;
+    const hgt = opts.ch.h;
+    Object.assign(c.style, { left: opts.ch.x + 'px', top: (opts.ch.foot - hgt) + 'px', height: hgt + 'px' });
+    if (opts.ch.flip) c.style.transform = 'scaleX(-1)';
+    p.appendChild(shift(c));
+  }
+  // 큰 숫자: 잔 뒤에 서고 유리 선만 숫자를 끊는다(앱 CupHero와 같은 층 순서).
+  const n = document.createElement('div');
+  n.className = 'num';
+  n.style.color = side.color;
+  n.style.fontSize = (opts.num.size / k) + 'px';
+  n.style.left = opts.num.x + 'px'; n.style.top = opts.num.y + 'px';
+  n.innerHTML = `${opts.value}<sup>${side.unit}</sup>`;
+  p.appendChild(shift(n));
+  const rim = new Image(); rim.src = `widget-img/rimline-${side.set}-${step}.png`;
+  Object.assign(rim.style, { left: WIDE_OFF + 'px', top: 0, width: '625px', height: PHOTO_H + 'px' });
+  p.appendChild(shift(rim));
+  host.appendChild(p);
+  return k;
+}
+
+function text(host, cls, str, x, y) {
+  const t = document.createElement('div'); t.className = cls; t.textContent = str;
+  t.style.left = x + 'px'; t.style.top = y + 'px'; host.appendChild(t); return t;
+}
+
+// Small A: 잔 전체 + 냅킨, 숫자는 잔 입구 위에서 유리 선에 걸친다.
+function smallA(side, step, value) {
+  const w = document.createElement('div'); w.className = 'w s';
+  plane(w, side, step, { x: 12, y: 0, s: 1000 }, {
+    w: 158, value,
+    num: { size: 50, x: 95, y: 175 },
+    ch: { x: 690, foot: 975, h: 260 },
+  });
+  text(w, 'lbl', side.label, 15, 13);
+  return w;
+}
+
+// Small B: 잔을 크게 당겨 입구부터 바닥까지, 캐릭터는 입구에 걸터앉음.
+function smallB(side, step, value) {
+  const w = document.createElement('div'); w.className = 'w s';
+  plane(w, side, step, { x: 150, y: 150, s: 760 }, {
+    w: 158, value,
+    num: { size: 52, x: 205, y: 280 },
+    ch: { x: 700, foot: 392, h: 140 },
+  });
+  text(w, 'lbl', side.label, 15, 13);
+  return w;
+}
+
+// Medium A: 당·카페인 잔 나란히(한 칸 = Small A를 가로로 조금 넓힌 것).
+function mediumA(steps, values) {
+  const w = document.createElement('div'); w.className = 'w m';
+  [[SUGAR, 0], [CAF, 1]].forEach(([side, i]) => {
+    const h = document.createElement('div'); h.className = 'half';
+    h.style.left = (i * 169) + 'px'; h.style.width = '169px';
+    plane(h, side, steps[i], { x: 60, y: 10, s: 960 }, {
+      w: 169, value: values[i],
+      num: { size: 46, x: 140, y: 195 },
+      ch: { x: 680, foot: 975, h: 250 },
+    });
+    text(h, 'lbl', side.label, 14, 13);
+    w.appendChild(h);
+  });
+  return w;
+}
+
+// Medium B: 한 면만 켠 사용자. 왼쪽 글, 오른쪽 잔.
+function mediumB(side, step, value) {
+  const w = document.createElement('div'); w.className = 'w m';
+  const h = document.createElement('div'); h.className = 'half';
+  h.style.left = '0'; h.style.width = '338px';
+  // 사진 평면을 오른쪽으로 밀어 잔이 칸 오른쪽 3분의 2 지점에 오게 한다.
+  plane(h, side, step, { x: -1000, y: 0, s: 2100 }, {
+    w: 338, value, ext: true,
+    num: { size: 66, x: -920, y: 330 },
+    ch: { x: 690, foot: 975, h: 260 },
+  });
+  text(h, 'lbl', side.label, 16, 16);
+  text(h, 'of', `하루 기준 ${side.limit} ${side.unit}`, 16, 128);
+  w.appendChild(h);
+  return w;
+}
+
+function cell(board, caption, widgets) {
+  const box = document.createElement('div');
+  const c = document.createElement('p'); c.className = 'cap'; c.textContent = caption; box.appendChild(c);
+  const r = document.createElement('div'); r.className = 'row'; widgets.forEach(x => r.appendChild(x)); box.appendChild(r);
+  board.appendChild(box);
+}
+
+// 수면 높이(사진 높이 대비, 앱 `CupSetGeometry.liquid`와 같은 값).
+const LIQ = {
+  'strawberry-latte': { 0: 0.80, 30: 0.557, 50: 0.4466, 80: 0.3511, 100: 0.3397 },
+  'iced-americano': { 0: 0.87, 30: 0.782, 50: 0.668, 80: 0.568, 100: 0.537 },
+};
+// 아메리카노는 얼음이 수면 위로 사진 높이 15~20%까지 솟아 있어 수면 대신 보이는 윗면(얼음 꼭대기)에 맞춘다.
+// 잔 가운데 띠에서 배경보다 확실히 어두운 줄이 처음 나오는 높이(widget-img/wide-*에서 잼).
+const TOP = {
+  'iced-americano': { 0: 0.87, 30: 0.624, 50: 0.471, 80: 0.364, 100: 0.344 },
+};
+const AXIS_X = 200 + 0.497 * 625;
+
+// 수면이 칸 세로 `at` 지점에 오도록, 잔 가운데를 칸 가로 `cx` 지점에 두고 사진 폭 s만큼 자른다.
+function zoomCrop(side, step, s, w, h, at, cx) {
+  const k = w / s;
+  const surface = (TOP[side.set] ?? LIQ[side.set])[step] * PHOTO_H;
+  // 사진 밖(아래)까지 자르지 않는다.
+  const y = Math.min(surface - at * h / k, PHOTO_H - h / k);
+  return { x: AXIS_X - cx * w / k, y, s };
+}
+
+// 칸 좌표(px)를 사진 평면 좌표로.
+function toSrc(crop, w, px, py) {
+  const k = w / crop.s;
+  return { x: crop.x + px / k, y: crop.y + py / k, k };
+}
+
+// 숫자 아래 끝(칸 좌표). Anton 숫자는 글자 크기의 0.92배 높이로 numY에서 내려온다(첫 렌더에서 잰 값).
+// 수면은 그보다 OVERLAP만큼 위에 둬서 숫자 아래가 살짝 잠긴다.
+const OVERLAP = 6;
+function surfaceAt(o) { return (o.numY + o.numSize * 0.92 - OVERLAP) / o.h; }
+
+function zoomed(host, side, step, value, o) {
+  o.at = surfaceAt(o);
+  const crop = zoomCrop(side, step, o.s, o.w, o.h, o.at, o.cx);
+  const n = toSrc(crop, o.w, o.numX, o.numY);
+  // 캐릭터는 칸 오른쪽 가장자리에서 수면 높이로 빼꼼(몸 절반은 칸 밖).
+  const surfaceY = o.at * o.h;
+  const ch = toSrc(crop, o.w, o.w - o.chW * 0.55, surfaceY + o.chW * 0.35);
+  plane(host, side, step, crop, {
+    w: o.w, value, ext: o.ext,
+    num: { size: o.numSize, x: n.x, y: n.y },
+    ch: { x: ch.x, foot: ch.y, h: o.chW / n.k },
+  });
+}
+
+function smallZ(side, step, value, s) {
+  const w = document.createElement('div'); w.className = 'w s';
+  zoomed(w, side, step, value, { w: 158, h: 158, s, cx: 0.5, numX: 14, numY: 30, numSize: 50, chW: 46 });
+  text(w, 'lbl', side.label, 15, 13);
+  return w;
+}
+
+function mediumZ(steps, values, s) {
+  const w = document.createElement('div'); w.className = 'w m';
+  [[SUGAR, 0], [CAF, 1]].forEach(([side, i]) => {
+    const h = document.createElement('div'); h.className = 'half';
+    h.style.left = (i * 169) + 'px'; h.style.width = '169px';
+    zoomed(h, side, steps[i], values[i], { w: 169, h: 158, s, cx: 0.5, numX: 14, numY: 30, numSize: 48, chW: 44 });
+    text(h, 'lbl', side.label, 14, 13);
+    w.appendChild(h);
+  });
+  return w;
+}
+
+function mediumZB(side, step, value, s) {
+  const w = document.createElement('div'); w.className = 'w m';
+  const h = document.createElement('div'); h.className = 'half';
+  h.style.left = '0'; h.style.width = '338px';
+  zoomed(h, side, step, value, { w: 338, h: 158, s, cx: 0.66, numX: 16, numY: 40, numSize: 66, chW: 50, ext: true });
+  text(h, 'lbl', side.label, 16, 16);
+  text(h, 'of', `하루 기준 ${side.limit} ${side.unit}`, 16, 128);
+  w.appendChild(h);
+  return w;
+}
+
+// v5(대표님 2026-11-07): 잔을 바짝 당겨 입구는 위, 수면은 칸 위에서 at 지점을 단계마다 따라간다.
+// 숫자는 왼쪽 아래, 음료·유리보다 앞 레이어. 라벨 없음. 숫자 색은 잔마다 하나로 고정(widget-img/meta.js:
+// 숫자가 서는 자리의 음료 밝기로 진한 숫자·흰 숫자 중 모든 단계의 최저 대비가 높은 쪽, 흰 숫자 잔은 수면을 조금 올림).
+const SIDES = { sugar: SUGAR, caffeine: CAF };
+// v6(대표님 2026-11-07 "당도 무조건 파랑 하지 말고 음료별로"): 숫자 색은 음료에서 따온다. 밝은 음료는 그 음료의 진한 색,
+// 진한 음료는 그 음료의 밝은 색(크림·우유). zero = 빈 잔(0%)일 때 흰 배경 위 색.
+const INKS = {
+  'strawberry-latte': { ink: '#B8394A', zero: '#B8394A' },
+  'iced-americano': { ink: '#FFFFFF', zero: '#4A3226' },
+  'cafe-latte': { ink: '#5A3B26', zero: '#5A3B26' },
+  'choco-frappe': { ink: '#FFF4E8', zero: '#4B2A1D' },
+  // 말차 30%는 숫자 자리가 아래 우유 층이라 진한 초록(steps).
+  'matcha': { ink: '#FBFAF2', zero: '#2F5A2B', steps: { 30: '#1F3F1D' } },
+  'mango': { ink: '#C0561B', zero: '#C0561B' },
+  'einspanner': { ink: '#FFF6E6', zero: '#4A3226' },
+  'grape': { ink: '#3E6A1C', zero: '#3E6A1C' },
+  'glass-soda': { ink: '#FFFFFF', zero: '#2C6430' },
+  'glass-beans': { ink: '#FFF1DC', zero: '#5A3B26' },
+};
+
+function front(host, set, step, value, o) {
+  const m = window.META[set];
+  const side = { ...SIDES[m.side], set };
+  const at = m.at;
+  const k = o.w / o.s;
+  // 기준 높이: 보통은 수면, 아메리카노는 얼음 꼭대기, 아인슈페너는 크림 아래 커피 시작.
+  const surface = m.anchor[step] * PHOTO_H;
+  const crop = { x: AXIS_X - o.cx * o.w / k, y: Math.min(surface - at * o.h / k, PHOTO_H - o.h / k), s: o.s };
+  plane(host, side, step, crop, { w: o.w, value: '', num: { size: 1, x: -9999, y: 0 } });
+  const glassLeft = o.cx * o.w - 165 * k;
+  const n = document.createElement('div');
+  n.className = 'num hang';
+  n.style.color = step === 0 ? INKS[set].zero : (INKS[set].steps?.[step] ?? INKS[set].ink);
+  n.style.fontSize = o.numSize + 'px';
+  // 숫자는 잔 안에 선다: 잔 바닥이 칸 안으로 올라와 있으면 숫자 아래 끝도 바닥 위 6pt로 올린다.
+  const glassBottom = (m.bottom * PHOTO_H - crop.y) * k;
+  // 가로는 잔 축(칸 가운데) 정렬. 세로는 o.middle이면 칸 가운데, 아니면 아래(잔 바닥 위).
+  n.style.left = (o.cx * o.w) + 'px';
+  n.style.transform = 'translateX(-50%)';
+  if (o.middle) {
+    n.style.top = (o.h / 2) + 'px';
+    n.style.transform = 'translate(-50%, -50%)';
+  } else {
+    n.style.bottom = Math.max(o.numBottom, o.h - glassBottom + 6) + 'px';
+  }
+  n.innerHTML = `${value}<sup>${side.unit}</sup>`;
+  host.appendChild(n);
+}
+
+const VAL = { sugar: { 30: 12, 50: 20, 80: 38, 100: 50 }, caffeine: { 30: 80, 50: 200, 80: 310, 100: 400 } };
+const NAMES = {
+  'strawberry-latte': '딸기 라떼', 'iced-americano': '아이스 아메리카노', 'cafe-latte': '카페라떼', 'choco-frappe': '초코 프라페',
+  'matcha': '말차', 'mango': '망고', 'einspanner': '아인슈페너', 'grape': '청포도', 'glass-soda': '유리 소다', 'glass-beans': '유리 원두',
+};
+
+function smallF(set, step, middle) {
+  const w = document.createElement('div'); w.className = 'w s';
+  const v = step === 0 ? 0 : VAL[window.META[set].side][step];
+  front(w, set, step, v, { w: 158, h: 158, s: 400, cx: 0.5, numX: 13, numBottom: 4, numSize: 52, middle });
+  return w;
+}
+
+function mediumF(sets, steps) {
+  const w = document.createElement('div'); w.className = 'w m';
+  sets.forEach((set, i) => {
+    const h = document.createElement('div'); h.className = 'half';
+    h.style.left = (i * 169) + 'px'; h.style.width = '169px';
+    front(h, set, steps[i], VAL[window.META[set].side][steps[i]], { w: 169, h: 158, s: 420, cx: 0.5, numX: 13, numBottom: 4, numSize: 52 });
+    w.appendChild(h);
+  });
+  return w;
+}
+
+function mediumFB(set, step) {
+  const w = document.createElement('div'); w.className = 'w m';
+  const h = document.createElement('div'); h.className = 'half';
+  h.style.left = '0'; h.style.width = '338px';
+  const side = SIDES[window.META[set].side];
+  front(h, set, step, VAL[window.META[set].side][step], { w: 338, h: 158, s: 760, cx: 0.35, numX: 18, numBottom: 4, numSize: 60 });
+  const of = text(h, 'of', `하루 기준 ${side.limit} ${side.unit}`, 0, 0);
+  of.style.left = ''; of.style.top = ''; of.style.right = '16px'; of.style.bottom = '14px';
+  w.appendChild(h);
+  return w;
+}
+
+const L = document.getElementById('light');
+Object.keys(NAMES).forEach(set => {
+  cell(L, `${NAMES[set]} · 30 / 50 / 80 / 100%`, [30, 50, 80, 100].map(st => smallF(set, st)));
+});
+cell(L, '0%', [smallF('strawberry-latte', 0), smallF('iced-americano', 0), smallF('mango', 0), smallF('glass-beans', 0)]);
+cell(L, 'Medium · 둘 다 · 한 면', [mediumF(['strawberry-latte', 'iced-americano'], [50, 80]), mediumFB('iced-americano', 80)]);
+</script>
+</body>
+</html>

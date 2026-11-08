@@ -28,11 +28,24 @@ struct RootView: View {
 
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "root")
 
+    /// CI 위젯 스크린샷(`-screenshotWidget small|medium`, Debug만). 앱 대신 위젯 모음만 그린다.
+    private static var screenshotWidget: String? {
+        #if DEBUG
+        UserDefaults.standard.string(forKey: "screenshotWidget")
+        #else
+        nil
+        #endif
+    }
+
     var body: some View {
         Group {
             switch catalog.result {
             case .success(let index):
-                if onboardingCompleted {
+                if let mode = Self.screenshotWidget {
+                    #if DEBUG
+                    WidgetGallery(mode: mode)
+                    #endif
+                } else if onboardingCompleted {
                     TodayView(catalog: index)
                 } else {
                     OnboardingView(brands: index.catalog.brands) {

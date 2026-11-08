@@ -118,7 +118,7 @@ targets:
       path: UITests-Info.plist
       properties: {}
 
-  # Small 위젯(SPEC §4.6). 앱과 App Group 저장소를 공유한다.
+  # Small·Medium 위젯(SPEC §4.6). 앱과 App Group 저장소를 공유한다.
   SugarCapWidget:
     type: app-extension
     platform: iOS
@@ -126,6 +126,8 @@ targets:
       path: SugarCapWidget.entitlements
     sources:
       - path: Sources/Widget
+      # 위젯 그림. 앱도 Debug 위젯 스크린샷(`-screenshotWidget`)으로 같이 컴파일한다.
+      - path: Sources/WidgetUI
       - path: Sources/Shared
       - path: Sources/Model
       - path: Sources/Day
@@ -133,11 +135,16 @@ targets:
       - path: Sources/Settlement/SettlementMath.swift
       - path: Sources/Today/CupSide.swift
       - path: Sources/Today/Amount.swift
+      - path: Sources/Today/CupLevel.swift
       # CupSide·Amount가 String(localized:)로 위젯 번들에서 문구를 찾는다.
       - path: Resources/Localizable.xcstrings
       - path: Resources/InfoPlist.xcstrings
       # 캐릭터 스프라이트만 든 카탈로그. 컵 장면(2048px 9장)은 위젯에 넣지 않는다.
       - path: Resources/Shared.xcassets
+      # 위젯 칸 모양대로 미리 자른 잔 사진(`design/assets/cups/make_widget_crops.py`). 큰 사진은 위젯이 못 그린다.
+      - path: Resources/Widget.xcassets
+      - path: Resources/Fonts/Anton-Regular.ttf
+      - path: Resources/Fonts/Pretendard-SemiBold.otf
     dependencies:
       - sdk: WidgetKit.framework
       - sdk: SwiftUI.framework
@@ -156,6 +163,9 @@ targets:
         # 업로드 때 "CFBundleVersion Mismatch" 경고가 난다(1.0 (52) 업로드에서 확인).
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        UIAppFonts:
+          - Anton-Regular.ttf
+          - Pretendard-SemiBold.otf
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
 

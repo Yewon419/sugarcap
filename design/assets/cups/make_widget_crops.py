@@ -98,15 +98,20 @@ def families(meta: SetMeta) -> list[Family]:
     return [SMALL, HALF_LEFT if meta.side == "sugar" else HALF_RIGHT, WIDE]
 
 
+def crop_y(meta: SetMeta, step: int, family: Family) -> float:
+    """이 단계 잔을 혼자 그릴 때 자를 위끝(시안 단위): 기준 높이가 칸 세로 `at`에 오게, 사진 바닥은 넘지 않게."""
+    height = family.height / family.k
+    return min(meta.anchor[step] * PHOTO_H - meta.at * height, PHOTO_H - height)
+
+
 def crop_and_bottom(
     meta: SetMeta, step: int, family: Family
 ) -> tuple[tuple[float, float, float, float], float]:
     """자를 칸(시안 단위 x, y, 폭, 높이)과 숫자 줄 아래 끝 높이(pt)."""
     width = family.width / family.k
     height = family.height / family.k
-    surface = meta.anchor[step] * PHOTO_H
     x = AXIS_X - family.axis / family.k
-    y = min(surface - meta.at * height, PHOTO_H - height)
+    y = crop_y(meta, step, family)
     if x < 0 or x + width > 1025 or y < 0:
         raise ValueError(
             f"crop outside photo: family={family.name} step={step} x={x} y={y} w={width} h={height}"
@@ -117,12 +122,21 @@ def crop_and_bottom(
     return (x, y, width, height), bottom
 
 
+# Medium 두 잔은 입구 높이가 같아야 한다(대표님 2026-11-09). 두 잔을 같은 위끝으로 자르도록
+# half 사진은 모든 단계의 위끝 중 가장 높은 곳(HALF_TOP)부터 사진 바닥까지 길게 자르고,
+# 단계별 위끝(halfCropY)과 잔 바닥(glassBottom)을 표로 넘겨 Swift가 두 잔 공통 위끝으로 밀어 올린다.
+HALF_TOP = float(
+    int(min(crop_y(meta, step, HALF_LEFT) for meta in SETS.values() for step in STEPS))
+)
+
+
 def main() -> None:
     os.makedirs(OUT, exist_ok=True)
     with open(os.path.join(OUT, "Contents.json"), "w", newline="\n") as f:
         f.write(ROOT_CONTENTS)
     scale = ORIGINAL_H / PHOTO_H
     bottoms: dict[str, float] = {}
+    half_crop_y: dict[str, float] = {}
     for set_id, meta in SETS.items():
         for step in STEPS:
             source = os.path.join(
@@ -133,6 +147,9 @@ def main() -> None:
                 raise ValueError(f"unexpected cupwide size: {source} {photo.size}")
             for family in families(meta):
                 (x, y, w, h), bottom = crop_and_bottom(meta, step, family)
+                tall = family.name == "half"
+                if tall:
+                    y, h = HALF_TOP, PHOTO_H - HALF_TOP
                 box = (
                     round(x * scale),
                     round(y * scale),
@@ -141,7 +158,7 @@ def main() -> None:
                 )
                 size = (
                     round(family.width * PX_PER_PT),
-                    round(family.height * PX_PER_PT),
+                    round(h * family.k * PX_PER_PT),
                 )
                 image = photo.crop(box).resize(size, Image.Resampling.LANCZOS)
                 name = f"widget-{family.name}-{set_id}-{step}"
@@ -152,21 +169,42 @@ def main() -> None:
                     os.path.join(folder, "Contents.json"), "w", newline="\n"
                 ) as f:
                     f.write(CONTENTS % f"{name}.jpg")
-                bottoms[name] = round(bottom / family.height, 4)
+                if tall:
+                    half_crop_y[name] = round(crop_y(meta, step, family), 2)
+                else:
+                    bottoms[name] = round(bottom / family.height, 4)
     lines = [
         "// 생성 파일: design/assets/cups/make_widget_crops.py. 손으로 고치지 않는다.",
         "",
-        "/// 위젯 잔 사진(`Widget.xcassets`)마다 숫자 줄 아래 끝 높이(위젯 아래에서, 칸 높이 비율).",
-        "/// 잔 바닥이 칸 안으로 올라온 단계(주로 0%)는 바닥 위 6pt, 아니면 아래 4pt.",
         "enum WidgetCupCrops {",
+        "    /// Small·한 면 Medium 사진마다 숫자 줄 아래 끝 높이(위젯 아래에서, 칸 높이 비율).",
+        "    /// 잔 바닥이 칸 안으로 올라온 단계(주로 0%)는 바닥 위 6pt, 아니면 아래 4pt.",
         "    static let numberBottom: [String: Double] = [",
     ]
     lines += [f'        "{name}": {value},' for name, value in bottoms.items()]
+    lines += [
+        "    ]",
+        "",
+        "    /// Medium 두 잔 사진(half)은 두 잔 입구 높이를 맞추려고 길게 잘랐다(대표님 2026-11-09).",
+        "    /// 사진 단위(cupwide 2/3 축소본) 위끝 `halfTop`부터 사진 바닥 `photoHeight`까지, 1단위 = `halfPointsPerUnit`pt.",
+        f"    static let photoHeight = {PHOTO_H}",
+        f"    static let halfTop = {HALF_TOP}",
+        f"    static let halfPointsPerUnit = {HALF_LEFT.k!r}",
+        "    /// 그 단계 잔을 혼자 그릴 때 칸 위끝(사진 단위). 두 잔은 둘 중 큰 값(덜 찬 잔)을 같이 쓴다.",
+        "    static let halfCropY: [String: Double] = [",
+    ]
+    lines += [f'        "{name}": {value},' for name, value in half_crop_y.items()]
+    lines += [
+        "    ]",
+        "    /// 잔 바닥 높이(사진 단위 / photoHeight).",
+        "    static let glassBottom: [String: Double] = [",
+    ]
+    lines += [f'        "{set_id}": {meta.bottom},' for set_id, meta in SETS.items()]
     lines += ["    ]", "}", ""]
     os.makedirs(os.path.dirname(SWIFT), exist_ok=True)
     with open(SWIFT, "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(lines))
-    print(json.dumps({"images": len(bottoms)}))
+    print(json.dumps({"images": len(bottoms) + len(half_crop_y), "half_top": HALF_TOP}))
 
 
 if __name__ == "__main__":

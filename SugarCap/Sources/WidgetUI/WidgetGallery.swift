@@ -17,7 +17,8 @@ struct WidgetGallery: View {
     var body: some View {
         VStack(spacing: 16) {
             if mode == "medium" {
-                medium([.sugar: 50, .caffeine: 80])
+                // 두 잔 단계 차이가 가장 큰 조합: 입구 높이·숫자 외곽선 확인(2026-11-09).
+                medium([.sugar: 100, .caffeine: 30])
                 medium([.sugar: 0, .caffeine: 30])
                 medium([.sugar: 80])
                 HStack(spacing: 16) {

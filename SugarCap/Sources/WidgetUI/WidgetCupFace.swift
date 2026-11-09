@@ -43,6 +43,13 @@ enum WidgetCupFamily: String, Sendable {
     func imageName(setID: String, step: Int) -> String {
         "widget-\(rawValue)-\(setID)-\(step)"
     }
+
+    func hasPhoto(_ name: String) -> Bool {
+        switch self {
+        case .half: WidgetCupCrops.halfCropY[name] != nil
+        case .small, .wide: WidgetCupCrops.numberBottom[name] != nil
+        }
+    }
 }
 
 /// 잔마다 숫자 색(시안 v6 대표님 "당도 무조건 파랑 하지 말고 음료별로"). 밝은 음료는 그 음료의 진한 색,
@@ -53,8 +60,23 @@ struct WidgetCupInk: Sendable {
     var steps: [Int: UInt32] = [:]
 
     func color(step: Int) -> Color {
-        let hex = step == 0 ? zero : (steps[step] ?? ink)
-        return Color(
+        Self.color(hex(step: step))
+    }
+
+    /// 숫자 외곽선 색: 숫자 색의 반대. 밝은 숫자는 그 잔의 빈 잔 색, 진한 숫자는 흰색(대표님 2026-11-09).
+    func outline(step: Int) -> Color {
+        let hex = hex(step: step)
+        let luminance: Double = 0.2126 * Double((hex >> 16) & 0xFF) + 0.7152 * Double((hex >> 8) & 0xFF)
+            + 0.0722 * Double(hex & 0xFF)
+        return Self.color(luminance / 255 > 0.5 ? zero : 0xFFFFFF)
+    }
+
+    private func hex(step: Int) -> UInt32 {
+        step == 0 ? zero : (steps[step] ?? ink)
+    }
+
+    private static func color(_ hex: UInt32) -> Color {
+        Color(
             red: Double((hex >> 16) & 0xFF) / 255,
             green: Double((hex >> 8) & 0xFF) / 255,
             blue: Double(hex & 0xFF) / 255
@@ -93,15 +115,23 @@ struct WidgetCupModel: Equatable, Sendable {
     /// 이 잔의 위젯 사진이 없으면(위젯 사진을 아직 안 뽑은 새 잔) 기본 잔으로 그린다.
     func resolvedSetID(_ family: WidgetCupFamily) -> String {
         let name = family.imageName(setID: setID, step: step)
-        return WidgetCupCrops.numberBottom[name] == nil ? side.defaultCupSetID : setID
+        return family.hasPhoto(name) ? setID : side.defaultCupSetID
+    }
+
+    /// Medium 두 잔 칸에서 이 잔을 혼자 그릴 때 칸 위끝(사진 단위).
+    var halfCropY: Double {
+        let name = WidgetCupFamily.half.imageName(setID: resolvedSetID(.half), step: step)
+        return WidgetCupCrops.halfCropY[name] ?? WidgetCupCrops.halfTop
     }
 }
 
 /// 잔 사진 + 큰 숫자 한 칸. 기준 칸(`referenceSize`)을 `scale`배로 그린다.
+/// `.half`는 두 잔 입구 높이를 맞추려고 두 칸이 같은 위끝(`cropY`, 사진 단위)으로 자른다.
 struct WidgetCupArt: View {
     let family: WidgetCupFamily
     let cup: WidgetCupModel
     let scale: Double
+    var cropY: Double = WidgetCupCrops.halfTop
 
     /// Anton 글자 비율(unitsPerEm 2048, `CupHero`와 같은 값): 위 여백 2409, 아래 여백 674.
     private static let ascentRatio = 2409.0 / 2048
@@ -112,6 +142,8 @@ struct WidgetCupArt: View {
     /// 단위 칸 위끝이 숫자 칸 위끝보다 얼마나 아래인지(숫자 크기 비율, 시안 `sup { top: 0.08em }`을 옮긴 값).
     private static let unitDrop = 0.1975
     private static let unitGap = 0.02
+    /// 두 잔 칸 숫자 외곽선 두께(기준 칸 pt).
+    private static let outlineWidth = 1.5
 
     var body: some View {
         let setID = cup.resolvedSetID(family)
@@ -120,34 +152,67 @@ struct WidgetCupArt: View {
         let width: Double = family.referenceSize.width * scale
         let height: Double = family.referenceSize.height * scale
         let size: Double = family.numberSize * scale
-        let bottom: Double = (WidgetCupCrops.numberBottom[name] ?? 0.0253) * height
+        let photo = photoPlacement(setID: setID, name: name)
+        let bottom: Double = photo.numberBottom * scale
         let baseline: Double = height - bottom - Self.baselineLift * size
         let top: Double = baseline - Self.ascentRatio * size
-        let color = WidgetCupInk.of(setID).color(step: step)
+        let ink = WidgetCupInk.of(setID)
+        let x: Double = family.axis(cup.side) * scale - 0.5
         ZStack(alignment: .topLeading) {
             Image(name)
                 .resizable()
-                .frame(width: width, height: height)
-            Text(Amount.number(cup.remaining))
-                .font(.custom("Anton-Regular", fixedSize: size))
-                .foregroundStyle(color)
-                .contentTransition(.numericText())
-                .overlay(alignment: .topTrailing) {
-                    Text(cup.side.unit)
-                        .font(.custom("Anton-Regular", fixedSize: size * Self.unitScale))
-                        .foregroundStyle(color)
-                        .fixedSize()
-                        .alignmentGuide(.trailing) { $0[.leading] - Self.unitGap * size }
-                        .offset(y: Self.unitDrop * size)
+                .frame(width: width, height: photo.height * scale)
+                .offset(y: photo.offset * scale)
+            // 두 잔 칸은 덜 찬 잔에 맞춰 내려 자르니 숫자 뒤에 잔 바닥 건더기·우유 층이 들어온다.
+            // 숫자를 8방향으로 밀어 그린 외곽선을 뒤에 깐다(대표님 2026-11-09, 그림자를 겹치면 두께가 누적된다).
+            if family == .half {
+                ForEach(0..<8, id: \.self) { index in
+                    let angle: Double = Double(index) * Double.pi / 4
+                    let radius: Double = Self.outlineWidth * scale
+                    number(size: size, color: ink.outline(step: step))
+                        .offset(x: x + radius * cos(angle), y: top + radius * sin(angle))
                 }
-                .fixedSize()
-                // 폭 1pt 칸 가운데에 두면 글자 폭과 상관없이 숫자 가운데가 잔 축에 온다.
-                .frame(width: 1)
-                .offset(x: family.axis(cup.side) * scale - 0.5, y: top)
+            }
+            number(size: size, color: ink.color(step: step))
+                .offset(x: x, y: top)
         }
         .frame(width: width, height: height, alignment: .topLeading)
+        .clipped()
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text("남은 \(cup.side.label) \(Amount.number(cup.remaining)) \(cup.side.unit)"))
+    }
+
+    /// 숫자 + 오른쪽 위 단위. 폭 1pt 칸 가운데에 두면 글자 폭과 상관없이 숫자 가운데가 잔 축에 온다.
+    private func number(size: Double, color: Color) -> some View {
+        Text(Amount.number(cup.remaining))
+            .font(.custom("Anton-Regular", fixedSize: size))
+            .foregroundStyle(color)
+            .contentTransition(.numericText())
+            .overlay(alignment: .topTrailing) {
+                Text(cup.side.unit)
+                    .font(.custom("Anton-Regular", fixedSize: size * Self.unitScale))
+                    .foregroundStyle(color)
+                    .fixedSize()
+                    .alignmentGuide(.trailing) { $0[.leading] - Self.unitGap * size }
+                    .offset(y: Self.unitDrop * size)
+            }
+            .fixedSize()
+            .frame(width: 1)
+    }
+
+    /// 사진 높이·세로 밀기와 숫자 줄 아래 끝(전부 기준 칸 pt).
+    private func photoPlacement(setID: String, name: String) -> (height: Double, offset: Double, numberBottom: Double) {
+        let cell: Double = family.referenceSize.height
+        guard family == .half else {
+            return (cell, 0, (WidgetCupCrops.numberBottom[name] ?? 0.0253) * cell)
+        }
+        let k: Double = WidgetCupCrops.halfPointsPerUnit
+        let photoHeight: Double = WidgetCupCrops.photoHeight
+        let glass: Double = (WidgetCupCrops.glassBottom[setID] ?? 0.876) * photoHeight
+        // 숫자는 잔 안에 선다: 잔 바닥이 칸 안으로 올라오면 숫자 아래 끝을 바닥 위 6pt로, 아니면 아래 4pt.
+        let glassBottom: Double = (glass - cropY) * k
+        let numberBottom: Double = max(4, cell - glassBottom + 6)
+        return ((photoHeight - WidgetCupCrops.halfTop) * k, -(cropY - WidgetCupCrops.halfTop) * k, numberBottom)
     }
 }
 
@@ -185,10 +250,12 @@ struct WidgetMediumFace: View {
         let scale: Double = max(size.height / half.height, size.width / 2 / (half.width - WidgetCupFamily.seam))
         let width: Double = half.width * scale
         let fade: Double = 2 * WidgetCupFamily.seam * scale
+        // 두 잔 입구 높이를 맞춘다(대표님 2026-11-09): 덜 찬 잔(위끝이 더 아래)에 맞춰 같은 위끝으로 자른다.
+        let cropY: Double = max(left.halfCropY, right.halfCropY)
         return ZStack(alignment: .leading) {
-            WidgetCupArt(family: .half, cup: left, scale: scale)
+            WidgetCupArt(family: .half, cup: left, scale: scale, cropY: cropY)
             // 오른쪽 칸 왼쪽 날개를 투명 → 불투명으로 덮어 두 사진 벽 톤을 녹인다(오늘 화면 `CupView.seam`과 같은 방식).
-            WidgetCupArt(family: .half, cup: right, scale: scale)
+            WidgetCupArt(family: .half, cup: right, scale: scale, cropY: cropY)
                 .mask {
                     HStack(spacing: 0) {
                         LinearGradient(colors: [.clear, .black], startPoint: .leading, endPoint: .trailing)

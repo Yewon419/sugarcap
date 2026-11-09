@@ -486,12 +486,12 @@ extension RecordFlowUITests {
         XCTAssertTrue(toggle.waitForExistence(timeout: 5), "설정에 카페인 기록 스위치가 없음")
         let want = isOn ? "1" : "0"
         // CI에서 시트가 다 뜬 뒤 누른 탭이 "System gesture gate timed out"으로 버려진 적이 있다(2026-10-28 녹화 확인).
-        // 안 바뀌었으면 한 번 더 누른다.
+        // 안 바뀌었으면 한 번 더 누른다. 값은 탭 뒤 약 4.5초에 바뀌고 느린 러너는 조회마다 2초까지 걸려 10초 기다린다(2026-11-09).
         for _ in 0 ..< 2 where toggle.value as? String != want {
             toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
-            if toggle.waitForValue(want) { break }
+            if toggle.waitForValue(want, timeout: 10) { break }
         }
-        XCTAssertTrue(toggle.waitForValue(want), "카페인 기록 스위치가 \(want)로 안 바뀜: \(String(describing: toggle.value))")
+        XCTAssertTrue(toggle.waitForValue(want, timeout: 10),"카페인 기록 스위치가 \(want)로 안 바뀜: \(String(describing: toggle.value))")
         app.buttons["settings-close"].tap()
         XCTAssertTrue(app.buttons["open-settings"].waitForExistence(timeout: 5), "설정이 안 닫힘")
     }

@@ -15,7 +15,7 @@
   <img src="site/assets/art/kain.webp" width="120" alt="카인">
 </p>
 
-- App Store: 1.0 심사 중 (2026-11-03 제출, 한국)
+- App Store: https://apps.apple.com/kr/app/id6814832068 (2026-11-07 출시, 한국)
 - 소개 페이지: https://sugarcap.vercel.app/
 
 ## 어떻게 쓰나
@@ -42,7 +42,7 @@
 | 소개 페이지 | 정적 HTML, Vercel |
 | 캐릭터 | 직접 그린 원화와 레이어 애니메이션 (`design/assets/characters/`) |
 
-첫 출시는 한국어. 영어·중국어(번체)와 미국·대만 카탈로그는 구현해 두었고 다음 업데이트에 싣는다.
+앱은 한국어·영어·중국어(번체)를 지원한다. 판매는 한국부터 시작했고, 미국·대만 카탈로그는 구현해 두었다.
 
 ## 폴더
 

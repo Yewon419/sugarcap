@@ -67,3 +67,57 @@ final class ReactionMotionTests: XCTestCase {
         }
     }
 }
+
+final class WidgetShelfTests: XCTestCase {
+    private func drink(_ key: String) -> ShelfDrink {
+        ShelfDrink(
+            key: key, servingID: key, variantLabel: nil, name: key, brandName: "b", sizeLabel: "기본",
+            sugarG: 1, caffeineMg: nil, estimated: false, liquidHex: nil
+        )
+    }
+
+    func testFavoritesFirstThenRecentsWithoutDuplicates() {
+        let keys = WidgetShelf.candidates(favoriteKeys: ["f1", "f2"], recentKeysNewestFirst: ["r1", "f1", "r1", "r2"])
+        XCTAssertEqual(keys, ["f1", "f2", "r1", "r2"])
+    }
+
+    func testPickSkipsUnresolvedAndStopsAtFour() {
+        let picked = WidgetShelf.pick(["a", "gone", "b", "c", "d", "e"]) { $0 == "gone" ? nil : self.drink($0) }
+        XCTAssertEqual(picked.map(\.key), ["a", "b", "c", "d"])
+    }
+
+    func testSavedShelfRoundTrips() throws {
+        let suite = "WidgetShelfTests"
+        let store = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { store.removePersistentDomain(forName: suite) }
+        XCTAssertEqual(try WidgetShelf.load(from: store), [])
+        let drinks = [drink("a"), drink("b")]
+        try WidgetShelf.save(drinks, to: store)
+        XCTAssertEqual(try WidgetShelf.load(from: store), drinks)
+    }
+
+    /// 위젯 기록은 기록 시트 `+`(수량 1)와 같은 값이어야 한다. 실제 카탈로그로 본다(원두 선택 있는 더벤티 포함).
+    func testShelfEntryMatchesQuickAddEntry() throws {
+        let index = CatalogIndex(catalog: try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self)))
+        let withVariant = try XCTUnwrap(
+            index.catalog.drinks.lazy.flatMap(\.servings).first { $0.caffeineVariants.count > 1 })
+        let keys = [
+            DrinkKey.make(servingID: try XCTUnwrap(index.catalog.drinks.first?.servings.first?.id), variantLabel: nil),
+            DrinkKey.make(servingID: withVariant.id, variantLabel: withVariant.caffeineVariants[1].label),
+        ]
+        let date = Date(timeIntervalSinceReferenceDate: 0)
+        for key in keys {
+            let quick = try XCTUnwrap(QuickDrink(key: key, catalog: index))
+            let expected = quick.selection.makeEntry(brandName: quick.brand.name, at: date)
+            let actual = ShelfDrink(quick).makeEntry(at: date)
+            XCTAssertEqual(actual.drinkKey, expected.drinkKey)
+            XCTAssertEqual(actual.quantity, expected.quantity)
+            XCTAssertEqual(actual.sugarG, expected.sugarG)
+            XCTAssertEqual(actual.caffeineMg, expected.caffeineMg)
+            XCTAssertEqual(actual.estimated, expected.estimated)
+            XCTAssertEqual(actual.drinkName, expected.drinkName)
+            XCTAssertEqual(actual.brandName, expected.brandName)
+            XCTAssertEqual(actual.sizeLabel, expected.sizeLabel)
+        }
+    }
+}

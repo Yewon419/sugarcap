@@ -13,6 +13,7 @@ struct TodayView: View {
     @Query private var settlements: [DaySettlement]
     @Query private var affinities: [Affinity]
     @Query(sort: \GiftEvent.createdAt) private var gifts: [GiftEvent]
+    @Query(sort: \FavoriteDrink.addedAt) private var favorites: [FavoriteDrink]
 
     /// 마지막으로 보던 면으로 연다(2026-10-06 대표님). 손으로 넘길 때만 저장한다(스크린샷 인자는 저장하지 않는다).
     @State private var pickedSide: CupSide = UserDefaults.standard.string(forKey: TodayView.lastSideKey)
@@ -1219,6 +1220,8 @@ struct TodayView: View {
         // Pro를 처음 사면 축하 선물(§4.9 2026-10-12). 기록하는 면이 바뀌면 다시 본다(고를 물건이 생길 수 있다).
         .task(id: pro.ownsRealPro ? trackedSides : []) { grantProWelcomeIfOwned() }
         .task(id: stamps.count) { await grantEarlyBirdIfDue() }
+        // Large 위젯 선반. 앱을 열 때, 기록·삭제·별표로 후보가 바뀔 때 다시 쓴다.
+        .task(id: shelfCandidates) { writeWidgetShelf(shelfCandidates) }
         .task(id: today) {
             refreshSettlement(today: today)
             presentScreenshotFeedingIfRequested(totals: totals)
@@ -2040,6 +2043,30 @@ struct TodayView: View {
             context.delete(entry)
         }
         persist(String(localized: "기록 삭제"))
+    }
+
+    private var shelfCandidates: [String] {
+        WidgetShelf.candidates(favoriteKeys: favorites.map(\.key), recentKeysNewestFirst: entries.compactMap(\.drinkKey))
+    }
+
+    private func writeWidgetShelf(_ keys: [String]) {
+        let drinks = WidgetShelf.pick(keys) { QuickDrink(key: $0, catalog: catalog).map(ShelfDrink.init) }
+        let store = SharedDefaults.store ?? .standard
+        do {
+            // 저장된 값이 깨져 있으면 읽기 실패를 남기고 새 값으로 덮는다.
+            let current: [ShelfDrink]?
+            do {
+                current = try WidgetShelf.load(from: store)
+            } catch {
+                Self.logger.error("위젯 선반 읽기 실패: \(String(describing: error), privacy: .public)")
+                current = nil
+            }
+            guard current != drinks else { return }
+            try WidgetShelf.save(drinks, to: store)
+            WidgetCenter.shared.reloadAllTimelines()
+        } catch {
+            Self.logger.error("위젯 선반 저장 실패(\(keys.count) 키): \(String(describing: error), privacy: .public)")
+        }
     }
 
     /// 자동 저장을 기다리지 않는다. 기록 직후 앱이 종료돼도 남아야 한다.

@@ -39,6 +39,25 @@ struct QuickDrink: Identifiable, Equatable {
     }
 }
 
+extension ShelfDrink {
+    /// 기록 시트 `+`와 같은 값을 쓴다(수량 1).
+    init(_ quick: QuickDrink) {
+        let selection = quick.selection
+        self.init(
+            key: quick.key,
+            servingID: selection.serving.id,
+            variantLabel: selection.variant?.label,
+            name: selection.drink.name,
+            brandName: quick.brand.name,
+            sizeLabel: selection.serving.sizeLabel,
+            sugarG: selection.sugarG,
+            caffeineMg: selection.caffeineMg,
+            estimated: selection.serving.isEstimated,
+            liquidHex: selection.drink.liquidColor
+        )
+    }
+}
+
 extension ServingSelection {
     /// 즐겨찾기 별표가 가리키는 키. 수량은 키에 들어가지 않는다.
     var drinkKey: String {

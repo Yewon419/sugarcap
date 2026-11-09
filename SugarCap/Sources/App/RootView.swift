@@ -77,6 +77,7 @@ struct RootView: View {
             if phase == .active {
                 Task { await CloseReminder.refresh() }
                 Task { await UsageReporter.shared?.noteWidgets() }
+                UsageReporter.shared?.logWidgetEntries()
             }
         }
         // 설정에서 메뉴 국가를 바꾸면 그 나라 카탈로그로 갈아 끼운다(SPEC §9.9).

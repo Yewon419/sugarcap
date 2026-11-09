@@ -54,7 +54,8 @@ extension ShelfDrink {
             sugarG: selection.sugarG,
             caffeineMg: selection.caffeineMg,
             estimated: selection.serving.isEstimated,
-            liquidHex: selection.drink.liquidColor
+            liquidHex: selection.drink.liquidColor,
+            brandID: quick.brand.id
         )
     }
 }

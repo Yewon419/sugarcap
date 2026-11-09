@@ -14,6 +14,8 @@ enum EntryPath: String, Sendable {
     case favorite
     case recent
     case manual
+    /// Large 위젯 선반(앱을 열지 않고 기록).
+    case widget
 }
 
 /// 기록 시트를 연 화면. 정산 화면에서 넣은 잔은 깜빡한 음료다.
@@ -21,6 +23,7 @@ enum EntryPlace: String, Sendable {
     case today
     case feeding
     case dayLog
+    case widget
 }
 
 /// 하루를 닫은 방식. `drank`는 어젯밤 화면의 "마셨어요"(적립 없이 닫음).

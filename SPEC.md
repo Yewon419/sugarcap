@@ -193,8 +193,13 @@ Entry는 기록 시점 값을 스냅샷한다. 카탈로그 갱신으로 과거 
   - 위젯은 큰 사진을 못 그려서 칸 모양대로 미리 자른 사진(`Resources/Widget.xcassets`, `design/assets/cups/make_widget_crops.py`)을 쓴다. 새 잔 세트를 넣으면 이 스크립트 `SETS`에도 넣고 다시 돌린다. 위젯 사진이 없는 잔은 기본 잔으로 그린다.
   - 고른 잔(`cupSet.<면>`)은 위젯이 읽도록 App Group 설정에 둔다(1.0.1까지의 앱 기본 설정 값은 앱 시작 때 옮긴다).
   - 위젯은 영상·연속 애니메이션을 못 넣는다(WidgetKit). 움직이는 위젯 꼼수(비공개 시계 회전 API 등)는 심사 위험이 있어 정지 위젯부터 낸다(대표님 2026-11-08 "정지 위젯부터").
-  - CI 스크린샷 `widget-*`(Debug `-screenshotWidget small|medium`, 앱이 위젯과 같은 그림을 늘어놓는다).
-- Large: 빠른 추가(원탭 기록). 즐겨찾기 먼저, 빈칸은 최근 음료, 둘 다 없으면 빈 상태. 누르면 바로 기록하고 되돌리기를 보여 준다. 이용 기록(`entry_logged`)에 넣고 전송은 앱을 열 때 한다. (Phase 2, 미구현)
+  - CI 스크린샷 `widget-*`(Debug `-screenshotWidget small|medium|large|large-more`, 앱이 위젯과 같은 그림을 늘어놓는다).
+- **Large(`SugarCapLarge`) = 잔 전체 + 음료 선반**(시안 `design/proto/widget-large.html` A, 대표님 2026-11-09 확정).
+  - 위 262pt: 입구 위 여유부터 냅킨 끝까지 잔 전체(사진 단위 y 240~1080, 모든 단계 같은 위끝이라 두 잔 입구 높이가 늘 같다). 두 잔 배치·이음새·숫자 외곽선은 Medium 두 잔과 같고 숫자는 46pt. 사진 아래 28pt는 바닥색 `#EEF0F3`으로 녹인다. 한 면만 켰으면 잔 하나를 가운데에(사진 폭 전체).
+  - 아래 선반 4칸: 즐겨찾기(별표한 순) 먼저, 빈칸은 최근 음료. 칸 = 메뉴 썸네일과 같은 물결 원(`LiquidBadge`) 50pt + 이름 11pt 두 줄. 이름은 한 줄에 들어가면 한 줄, 아니면 두 줄 중 긴 쪽이 가장 짧은 띄어쓰기 자리에서 끊고, 둘째 줄이 넘치면 "…", 칸보다 긴 첫 단어는 글자 단위로 끊는다(`ShelfName`). 둘 다 없으면 "기록한 음료가 여기 떠요".
+  - 위젯은 카탈로그를 읽지 않는다. 앱이 선반 음료(값·색까지 푼 것)를 App Group 설정에 쓰고(`WidgetShelf`, 후보가 바뀔 때마다), 위젯은 그 값으로 기록한다.
+  - 칸을 누르면 1잔을 바로 기록한다(`RecordShelfDrinkIntent`, App Group SwiftData). 그 칸은 약 10초 검은 원 "되돌리기"가 되고, 누르면 그 기록을 지운다(`UndoShelfDrinkIntent`). 10초 뒤 판은 타임라인 두 번째 항목이라 iOS가 늦게 바꿀 수 있다.
+  - 이용 기록 `entry_logged`(`path`·`place` = `widget`)는 위젯이 보낼 수 없어 App Group에 쌓고 앱이 앞으로 올 때 보낸다.
 
 ### 4.7 마감·먹이기 (fullScreenCover)
 - 진입: 오늘 화면 "오늘 마감"(마감 가능 시각 ~ 하루 경계 전) 또는 다음 날 첫 실행 배너(전날 미마감).
@@ -572,7 +577,7 @@ Entry는 기록 시점 값을 스냅샷한다. 카탈로그 갱신으로 과거 
   3. `day_closed` {`kind`}: `closeToday`(오늘 마감에서 먹임), `pastDay`(어젯밤 화면에서 먹임), `drank`(어젯밤 화면에서 "마셨어요"로 적립 없이 닫음). 테스트 카드(리허설)는 세지 않는다.
   4. `trade_offer` {`itemID`, `accepted`}: 저장이 끝난 뒤에만.
   5. `paywall_shown` {`origin`, `plan`, `result`}: 페이월을 닫을 때 한 번. `origin` = `trialAfterTrade`(첫 거래 직후 자동)·`proButton`(오늘 화면 별)·`settings`·`testCard`·잠긴 기능 이름(`monthlyTrends`·`reductionGoal`·`gifts`), `plan` = 마지막으로 고른 `yearly`·`lifetime`, `result` = `closed`·`trialStarted`·`purchased`·`restored`. 출시 무료 기간(`LaunchPricing.everythingFree`)에는 페이월이 안 떠 0건이지만 미리 연결한다(대표님 2026-11-04).
-  6. `entry_logged` {`path`, `place`, `brandID`?}: `path` = `search`·`brandMenu`·`favorite`·`recent`·`manual`, `place` = `today`·`feeding`(정산 화면, 깜빡한 음료)·`dayLog`(하루 기록 시트). `brandID`는 카탈로그 음료일 때(직접 입력 제외).
+  6. `entry_logged` {`path`, `place`, `brandID`?}: `path` = `search`·`brandMenu`·`favorite`·`recent`·`manual`·`widget`(Large 위젯 선반), `place` = `today`·`feeding`(정산 화면, 깜빡한 음료)·`dayLog`(하루 기록 시트)·`widget`. `brandID`는 카탈로그 음료일 때(직접 입력 제외).
   7. 직접 입력은 6의 경로로 센다(카탈로그 빈 곳 신호). 이름은 보내지 않는다.
   8. 감소 목표·알림·위젯:
      - `goal_started` {`side`, `weeks`, `startLimitBand`, `targetBand`}, `goal_stopped` {`side`, `achievedWeeks`, `evaluatedWeeks`}, `goal_reached` {`side`, `weeks`}. 구간은 음료 통계와 같다. 데모 데이터가 만드는 목표는 세지 않는다.

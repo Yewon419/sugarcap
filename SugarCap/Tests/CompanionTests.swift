@@ -96,6 +96,18 @@ final class WidgetShelfTests: XCTestCase {
         XCTAssertEqual(try WidgetShelf.load(from: store), drinks)
     }
 
+    func testWidgetEntryEventsQueueUntilTaken() throws {
+        let suite = "WidgetShelfEventTests"
+        let store = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { store.removePersistentDomain(forName: suite) }
+        let first = WidgetEntryEvent(brandID: "starbucks", at: Date(timeIntervalSinceReferenceDate: 0))
+        let second = WidgetEntryEvent(brandID: nil, at: Date(timeIntervalSinceReferenceDate: 60))
+        try WidgetShelf.appendEvent(first, to: store)
+        try WidgetShelf.appendEvent(second, to: store)
+        XCTAssertEqual(try WidgetShelf.takeEvents(from: store), [first, second])
+        XCTAssertEqual(try WidgetShelf.takeEvents(from: store), [])
+    }
+
     func testRecordRoundTripsAndClears() throws {
         let suite = "WidgetShelfRecordTests"
         let store = try XCTUnwrap(UserDefaults(suiteName: suite))

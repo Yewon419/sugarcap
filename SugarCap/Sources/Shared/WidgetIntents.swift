@@ -75,6 +75,7 @@ enum WidgetRecorder {
         context.insert(entry)
         try context.save()
         try WidgetShelf.saveRecord(WidgetRecord(entryID: entry.id, key: key, at: now), to: store)
+        try WidgetShelf.appendEvent(WidgetEntryEvent(brandID: drink.brandID, at: now), to: store)
         WidgetCenter.shared.reloadAllTimelines()
     }
 

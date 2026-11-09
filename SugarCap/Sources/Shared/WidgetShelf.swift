@@ -16,6 +16,8 @@ struct ShelfDrink: Codable, Equatable, Identifiable {
     let estimated: Bool
     /// 액체 색 "#RRGGBB". 옛 카탈로그엔 없다.
     let liquidHex: String?
+    /// 이용 기록(`entry_logged`)의 `brandID`.
+    var brandID: String?
 
     var id: String { key }
 
@@ -36,6 +38,12 @@ struct ShelfDrink: Codable, Equatable, Identifiable {
     }
 }
 
+/// 위젯에서 기록한 잔의 이용 기록. 위젯은 이용 기록을 못 보내서 공용 저장소에 쌓고 앱이 앞으로 올 때 보낸다.
+struct WidgetEntryEvent: Codable, Equatable {
+    let brandID: String?
+    let at: Date
+}
+
 /// 위젯 선반에서 마지막으로 기록한 1잔. 기록 뒤 `WidgetShelf.undoWindow` 동안 그 칸이 되돌리기 버튼이 된다.
 struct WidgetRecord: Codable, Equatable {
     let entryID: UUID
@@ -51,6 +59,27 @@ enum WidgetShelf {
     static let undoWindow: TimeInterval = 10
     private static let storeKey = "widgetShelf"
     private static let recordKey = "widgetShelfRecord"
+    private static let eventsKey = "widgetShelfEvents"
+
+    static func appendEvent(_ event: WidgetEntryEvent, to store: UserDefaults) throws {
+        try saveEvents(try loadEvents(from: store) + [event], to: store)
+    }
+
+    /// 쌓인 이용 기록을 꺼내고 비운다.
+    static func takeEvents(from store: UserDefaults) throws -> [WidgetEntryEvent] {
+        let events = try loadEvents(from: store)
+        store.removeObject(forKey: eventsKey)
+        return events
+    }
+
+    private static func loadEvents(from store: UserDefaults) throws -> [WidgetEntryEvent] {
+        guard let data = store.data(forKey: eventsKey) else { return [] }
+        return try JSONDecoder().decode([WidgetEntryEvent].self, from: data)
+    }
+
+    private static func saveEvents(_ events: [WidgetEntryEvent], to store: UserDefaults) throws {
+        store.set(try JSONEncoder().encode(events), forKey: eventsKey)
+    }
 
     static func loadRecord(from store: UserDefaults) throws -> WidgetRecord? {
         guard let data = store.data(forKey: recordKey) else { return nil }

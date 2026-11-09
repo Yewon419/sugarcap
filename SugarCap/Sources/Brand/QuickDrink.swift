@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 /// 기록 시트의 즐겨찾기·최근 음료 한 줄(`DrinkKey`를 카탈로그로 풀어 둔 것). `+`를 누르면 1잔을 바로 기록한다.
 /// 카탈로그 갱신으로 메뉴가 사라졌으면 만들지 않는다(행을 숨긴다).
@@ -69,5 +70,12 @@ extension Entry {
     /// 카탈로그에서 고른 기록만 키가 있다. 직접 입력은 nil.
     var drinkKey: String? {
         servingID.map { DrinkKey.make(servingID: $0, variantLabel: variantLabel) }
+    }
+}
+
+/// 메뉴 썸네일 색(`LiquidBadge`). LiquidBadge는 위젯도 컴파일해서 카탈로그 타입 확장은 여기 둔다.
+extension Drink {
+    var liquid: Color {
+        liquidColor.flatMap(Color.init(liquidHex:)) ?? LiquidBadge.fallback
     }
 }

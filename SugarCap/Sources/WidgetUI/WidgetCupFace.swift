@@ -11,6 +11,10 @@ enum WidgetCupFamily: String, Sendable {
     case half
     /// Medium 한 면만 켠 사용자(잔 왼쪽, "하루 기준" 오른쪽 아래).
     case wide
+    /// Large 두 잔 중 한 칸(잔 전체, Medium 두 잔처럼 가운데 쪽으로 `seam`만큼 더 넓다).
+    case large
+    /// Large 한 면만 켠 사용자(잔 하나 가운데).
+    case largeSolo = "largesolo"
 
     /// 기준 칸(pt, 6.1인치 아이폰). `make_widget_crops.py`의 Family와 같아야 한다.
     var referenceSize: CGSize {
@@ -18,6 +22,8 @@ enum WidgetCupFamily: String, Sendable {
         case .small: CGSize(width: 158, height: 158)
         case .half: CGSize(width: 169 + Self.seam, height: 158)
         case .wide: CGSize(width: 338, height: 158)
+        case .large: CGSize(width: 169 + Self.seam, height: 262)
+        case .largeSolo: CGSize(width: 338, height: 262)
         }
     }
 
@@ -27,6 +33,8 @@ enum WidgetCupFamily: String, Sendable {
         case .small: 79
         case .half: side == .sugar ? 84.5 : Self.seam + 84.5
         case .wide: 0.35 * 338
+        case .large: side == .sugar ? 84.5 : Self.seam + 84.5
+        case .largeSolo: 338.0 / 1024 * WidgetCupCrops.axisX
         }
     }
 
@@ -34,6 +42,15 @@ enum WidgetCupFamily: String, Sendable {
         switch self {
         case .small, .half: 52
         case .wide: 60
+        case .large, .largeSolo: 46
+        }
+    }
+
+    /// 숫자 뒤에 외곽선을 까는 칸: 두 잔 칸과 잔 전체를 담는 Large(잔 바닥 건더기·우유 층이 숫자 뒤에 온다).
+    var outlinesNumber: Bool {
+        switch self {
+        case .half, .large, .largeSolo: true
+        case .small, .wide: false
         }
     }
 
@@ -47,7 +64,7 @@ enum WidgetCupFamily: String, Sendable {
     func hasPhoto(_ name: String) -> Bool {
         switch self {
         case .half: WidgetCupCrops.halfCropY[name] != nil
-        case .small, .wide: WidgetCupCrops.numberBottom[name] != nil
+        case .small, .wide, .large, .largeSolo: WidgetCupCrops.numberBottom[name] != nil
         }
     }
 }
@@ -165,7 +182,7 @@ struct WidgetCupArt: View {
                 .offset(y: photo.offset * scale)
             // 두 잔 칸은 덜 찬 잔에 맞춰 내려 자르니 숫자 뒤에 잔 바닥 건더기·우유 층이 들어온다.
             // 숫자를 8방향으로 밀어 그린 외곽선을 뒤에 깐다(대표님 2026-11-09, 그림자를 겹치면 두께가 누적된다).
-            if family == .half {
+            if family.outlinesNumber {
                 ForEach(0..<8, id: \.self) { index in
                     let angle: Double = Double(index) * Double.pi / 4
                     let radius: Double = Self.outlineWidth * scale
@@ -216,6 +233,36 @@ struct WidgetCupArt: View {
     }
 }
 
+/// 두 잔 나란히(Medium `.half`, Large `.large`). 칸마다 가운데 쪽으로 `seam`만큼 더 넓어 `width` 안에서 겹친다.
+struct WidgetCupPair: View {
+    let family: WidgetCupFamily
+    let left: WidgetCupModel
+    let right: WidgetCupModel
+    let scale: Double
+    /// 두 칸을 합친 폭.
+    let width: Double
+    var cropY: Double = WidgetCupCrops.halfTop
+
+    var body: some View {
+        let cell: Double = family.referenceSize.width * scale
+        let fade: Double = 2 * WidgetCupFamily.seam * scale
+        ZStack(alignment: .leading) {
+            WidgetCupArt(family: family, cup: left, scale: scale, cropY: cropY)
+            // 오른쪽 칸 왼쪽 날개를 투명 → 불투명으로 덮어 두 사진 벽 톤을 녹인다(오늘 화면 `CupView.seam`과 같은 방식).
+            WidgetCupArt(family: family, cup: right, scale: scale, cropY: cropY)
+                .mask {
+                    HStack(spacing: 0) {
+                        LinearGradient(colors: [.clear, .black], startPoint: .leading, endPoint: .trailing)
+                            .frame(width: fade)
+                        Color.black
+                    }
+                }
+                .offset(x: width - cell)
+        }
+        .frame(width: width, height: family.referenceSize.height * scale, alignment: .leading)
+    }
+}
+
 /// Small: 한 잔.
 struct WidgetSmallFace: View {
     let cup: WidgetCupModel
@@ -248,24 +295,10 @@ struct WidgetMediumFace: View {
     private func pair(_ left: WidgetCupModel, _ right: WidgetCupModel, size: CGSize) -> some View {
         let half = WidgetCupFamily.half.referenceSize
         let scale: Double = max(size.height / half.height, size.width / 2 / (half.width - WidgetCupFamily.seam))
-        let width: Double = half.width * scale
-        let fade: Double = 2 * WidgetCupFamily.seam * scale
         // 두 잔 입구 높이를 맞춘다(대표님 2026-11-09): 덜 찬 잔(위끝이 더 아래)에 맞춰 같은 위끝으로 자른다.
         let cropY: Double = max(left.halfCropY, right.halfCropY)
-        return ZStack(alignment: .leading) {
-            WidgetCupArt(family: .half, cup: left, scale: scale, cropY: cropY)
-            // 오른쪽 칸 왼쪽 날개를 투명 → 불투명으로 덮어 두 사진 벽 톤을 녹인다(오늘 화면 `CupView.seam`과 같은 방식).
-            WidgetCupArt(family: .half, cup: right, scale: scale, cropY: cropY)
-                .mask {
-                    HStack(spacing: 0) {
-                        LinearGradient(colors: [.clear, .black], startPoint: .leading, endPoint: .trailing)
-                            .frame(width: fade)
-                        Color.black
-                    }
-                }
-                .offset(x: size.width - width)
-        }
-        .frame(width: size.width, height: size.height, alignment: .leading)
+        return WidgetCupPair(family: .half, left: left, right: right, scale: scale, width: size.width, cropY: cropY)
+            .frame(width: size.width, height: size.height, alignment: .leading)
     }
 
     private func single(_ cup: WidgetCupModel, size: CGSize) -> some View {

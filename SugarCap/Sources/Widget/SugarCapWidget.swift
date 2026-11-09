@@ -1,8 +1,9 @@
 import AppIntents
+import OSLog
 import SwiftUI
 import WidgetKit
 
-/// 홈 화면 위젯(SPEC §4.6). Small = 고른 면 잔 하나, Medium = 켠 면 잔 전부. 그림은 `WidgetUI`(시안 v7).
+/// 홈 화면 위젯(SPEC §4.6). Small = 고른 면 잔 하나, Medium = 켠 면 잔 전부, Large = 잔 전체 + 음료 선반. 그림은 `WidgetUI`(시안 v7).
 /// 위젯은 Pro 기능이다(§6) — 무료 사용자에게는 잠금 안내를 보여 준다.
 struct SugarCapWidget: Widget {
     var body: some WidgetConfiguration {
@@ -25,6 +26,19 @@ struct SugarCapMediumWidget: Widget {
         .configurationDisplayName("남은 당·카페인")
         .description("오늘 남은 양을 보여 줍니다.")
         .supportedFamilies([.systemMedium])
+        .contentMarginsDisabled()
+    }
+}
+
+/// Large: 켠 면 잔 전체 + 기록한 음료 선반(시안 widget-large.html A).
+struct SugarCapLargeWidget: Widget {
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: "SugarCapLarge", provider: LargeCupProvider()) { entry in
+            LargeCupWidgetView(entry: entry)
+        }
+        .configurationDisplayName("남은 당·카페인")
+        .description("오늘 남은 양과 자주 마시는 음료를 보여 줍니다.")
+        .supportedFamilies([.systemLarge])
         .contentMarginsDisabled()
     }
 }
@@ -58,6 +72,12 @@ struct CupSideIntent: WidgetConfigurationIntent {
 struct SugarCapEntry: TimelineEntry {
     let date: Date
     let snapshot: WidgetSnapshot
+}
+
+struct LargeCupEntry: TimelineEntry {
+    let date: Date
+    let snapshot: WidgetSnapshot
+    let shelf: [ShelfDrink]
 }
 
 struct SmallCupEntry: TimelineEntry {
@@ -114,6 +134,39 @@ struct SugarCapProvider: TimelineProvider {
     }
 }
 
+struct LargeCupProvider: TimelineProvider {
+    private static let logger = Logger(subsystem: "com.sugarcap.app", category: "widget")
+
+    func placeholder(in context: Context) -> LargeCupEntry {
+        LargeCupEntry(date: Date(), snapshot: .placeholder, shelf: [])
+    }
+
+    @MainActor
+    func getSnapshot(in context: Context, completion: @escaping (LargeCupEntry) -> Void) {
+        completion(Self.entry(now: Date()))
+    }
+
+    @MainActor
+    func getTimeline(in context: Context, completion: @escaping (Timeline<LargeCupEntry>) -> Void) {
+        let now = Date()
+        completion(Timeline(entries: [Self.entry(now: now)], policy: .after(WidgetTimeline.next(after: now))))
+    }
+
+    /// 선반은 앱이 써 둔 값(`WidgetShelf`). 못 읽으면 남기고 빈 선반으로 그린다.
+    @MainActor
+    private static func entry(now: Date) -> LargeCupEntry {
+        var shelf: [ShelfDrink] = []
+        if let store = SharedDefaults.store {
+            do {
+                shelf = try WidgetShelf.load(from: store)
+            } catch {
+                logger.error("위젯 선반 읽기 실패: \(String(describing: error), privacy: .public)")
+            }
+        }
+        return LargeCupEntry(date: now, snapshot: WidgetSnapshotLoader.load(now: AppClock.now), shelf: shelf)
+    }
+}
+
 extension WidgetSnapshot {
     func cup(_ side: CupSide) -> WidgetCupModel {
         WidgetCupModel(side: side, setID: cupSet(side), remaining: left(side), limit: side.limit(limits))
@@ -153,6 +206,21 @@ struct MediumCupWidgetView: View {
     }
 }
 
+struct LargeCupWidgetView: View {
+    let entry: LargeCupEntry
+
+    var body: some View {
+        Group {
+            if entry.snapshot.isPro {
+                WidgetLargeFace(cups: entry.snapshot.tracked.map(entry.snapshot.cup), shelf: entry.shelf)
+            } else {
+                WidgetLockedView()
+            }
+        }
+        .containerBackground(WidgetLargeFace.floor, for: .widget)
+    }
+}
+
 struct WidgetLockedView: View {
     var body: some View {
         VStack(spacing: 8) {
@@ -174,5 +242,6 @@ struct SugarCapWidgetBundle: WidgetBundle {
     var body: some Widget {
         SugarCapWidget()
         SugarCapMediumWidget()
+        SugarCapLargeWidget()
     }
 }

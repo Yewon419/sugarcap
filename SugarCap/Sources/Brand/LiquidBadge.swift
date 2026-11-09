@@ -83,9 +83,3 @@ extension Color {
         )
     }
 }
-
-extension Drink {
-    var liquid: Color {
-        liquidColor.flatMap(Color.init(liquidHex:)) ?? LiquidBadge.fallback
-    }
-}

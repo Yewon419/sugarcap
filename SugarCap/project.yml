@@ -136,6 +136,8 @@ targets:
       - path: Sources/Today/CupSide.swift
       - path: Sources/Today/Amount.swift
       - path: Sources/Today/CupLevel.swift
+      # Large 위젯 선반의 음료 원(앱 메뉴 썸네일과 같은 그림).
+      - path: Sources/Brand/LiquidBadge.swift
       # CupSide·Amount가 String(localized:)로 위젯 번들에서 문구를 찾는다.
       - path: Resources/Localizable.xcstrings
       - path: Resources/InfoPlist.xcstrings

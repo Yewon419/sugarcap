@@ -28,7 +28,7 @@ struct RootView: View {
 
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "root")
 
-    /// CI 위젯 스크린샷(`-screenshotWidget small|medium`, Debug만). 앱 대신 위젯 모음만 그린다.
+    /// CI 위젯 스크린샷(`-screenshotWidget small|medium|large|large-more`, Debug만). 앱 대신 위젯 모음만 그린다.
     private static var screenshotWidget: String? {
         #if DEBUG
         UserDefaults.standard.string(forKey: "screenshotWidget")

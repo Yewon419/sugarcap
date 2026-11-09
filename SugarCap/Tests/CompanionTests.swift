@@ -121,3 +121,26 @@ final class WidgetShelfTests: XCTestCase {
         }
     }
 }
+
+/// 선반 이름 줄바꿈(시안 `wrapName`). 글자마다 폭 10, 칸 74 = 한 줄에 7글자.
+final class ShelfNameTests: XCTestCase {
+    private func lines(_ name: String) -> [String] {
+        ShelfName.lines(name, width: 74) { Double($0.count * 10) }
+    }
+
+    func testShortNameStaysOnOneLine() {
+        XCTAssertEqual(lines("레몬차"), ["레몬차"])
+    }
+
+    func testBreaksWhereTheLongerLineIsShortest() {
+        XCTAssertEqual(lines("자몽 허니 블랙 티"), ["자몽 허니", "블랙 티"])
+    }
+
+    func testOverflowingSecondLineEndsWithEllipsis() {
+        XCTAssertEqual(lines("가나 다라마바사아자차카타"), ["가나", "다라마바사아…"])
+    }
+
+    func testFirstWordWiderThanCellBreaksByCharacter() {
+        XCTAssertEqual(lines("가나다라마바사아자차 카"), ["가나다라마바사", "아자차 카"])
+    }
+}

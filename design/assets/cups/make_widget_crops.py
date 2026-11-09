@@ -92,10 +92,35 @@ SMALL = Family("small", 158, 158, 158 / 400, 79)
 HALF_LEFT = Family("half", 169 + SEAM, 158, 169 / 420, 84.5)
 HALF_RIGHT = Family("half", 169 + SEAM, 158, 169 / 420, SEAM + 84.5)
 WIDE = Family("wide", 338, 158, 338 / 760, 0.35 * 338)
+# Large(시안 design/proto/widget-large.html A, 대표님 2026-11-09 확정): 잔 전체(입구 위 여유 ~ 냅킨 끝)를 위 262pt에.
+# 두 잔은 Medium처럼 칸마다 181pt(가운데 24pt 겹침), 모든 단계를 같은 위끝으로 잘라 입구 높이가 늘 같다.
+LARGE_TOP = 240.0
+LARGE_UNITS = 840.0
+LARGE_LEFT = Family("large", 181, 262, 262 / LARGE_UNITS, 84.5)
+LARGE_RIGHT = Family("large", 181, 262, 262 / LARGE_UNITS, 96.5)
+# 한 면만 켠 사용자: 잔 하나를 가운데, 사진 폭 전체(1024단위)를 338pt에. 그만큼 위아래를 조금 덜 담는다.
+LARGE_SOLO = Family("largesolo", 338, 262, 338 / 1024, 338 / 1024 * AXIS_X)
+SOLO_TOP = LARGE_TOP + (LARGE_UNITS - 262 / LARGE_SOLO.k) / 2
 
 
 def families(meta: SetMeta) -> list[Family]:
-    return [SMALL, HALF_LEFT if meta.side == "sugar" else HALF_RIGHT, WIDE]
+    sugar = meta.side == "sugar"
+    return [
+        SMALL,
+        HALF_LEFT if sugar else HALF_RIGHT,
+        WIDE,
+        LARGE_LEFT if sugar else LARGE_RIGHT,
+        LARGE_SOLO,
+    ]
+
+
+def fixed_top(family: Family) -> float | None:
+    """단계와 상관없이 같은 위끝으로 자르는 칸(Large)."""
+    if family.name == "large":
+        return LARGE_TOP
+    if family.name == "largesolo":
+        return SOLO_TOP
+    return None
 
 
 def crop_y(meta: SetMeta, step: int, family: Family) -> float:
@@ -111,7 +136,8 @@ def crop_and_bottom(
     width = family.width / family.k
     height = family.height / family.k
     x = AXIS_X - family.axis / family.k
-    y = crop_y(meta, step, family)
+    top = fixed_top(family)
+    y = crop_y(meta, step, family) if top is None else top
     if x < 0 or x + width > 1025 or y < 0:
         raise ValueError(
             f"crop outside photo: family={family.name} step={step} x={x} y={y} w={width} h={height}"
@@ -177,7 +203,7 @@ def main() -> None:
         "// 생성 파일: design/assets/cups/make_widget_crops.py. 손으로 고치지 않는다.",
         "",
         "enum WidgetCupCrops {",
-        "    /// Small·한 면 Medium 사진마다 숫자 줄 아래 끝 높이(위젯 아래에서, 칸 높이 비율).",
+        "    /// Small·한 면 Medium·Large 사진마다 숫자 줄 아래 끝 높이(위젯 아래에서, 칸 높이 비율).",
         "    /// 잔 바닥이 칸 안으로 올라온 단계(주로 0%)는 바닥 위 6pt, 아니면 아래 4pt.",
         "    static let numberBottom: [String: Double] = [",
     ]
@@ -188,6 +214,8 @@ def main() -> None:
         "    /// Medium 두 잔 사진(half)은 두 잔 입구 높이를 맞추려고 길게 잘랐다(대표님 2026-11-09).",
         "    /// 사진 단위(cupwide 2/3 축소본) 위끝 `halfTop`부터 사진 바닥 `photoHeight`까지, 1단위 = `halfPointsPerUnit`pt.",
         f"    static let photoHeight = {PHOTO_H}",
+        "    /// 잔 가운데 가로 위치(사진 단위). Large 한 잔 칸은 사진 폭 전체(1024단위)를 담아 이 자리가 잔 축이다.",
+        f"    static let axisX = {AXIS_X!r}",
         f"    static let halfTop = {HALF_TOP}",
         f"    static let halfPointsPerUnit = {HALF_LEFT.k!r}",
         "    /// 그 단계 잔을 혼자 그릴 때 칸 위끝(사진 단위). 두 잔은 둘 중 큰 값(덜 찬 잔)을 같이 쓴다.",

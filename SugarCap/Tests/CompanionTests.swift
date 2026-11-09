@@ -96,6 +96,18 @@ final class WidgetShelfTests: XCTestCase {
         XCTAssertEqual(try WidgetShelf.load(from: store), drinks)
     }
 
+    func testRecordRoundTripsAndClears() throws {
+        let suite = "WidgetShelfRecordTests"
+        let store = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { store.removePersistentDomain(forName: suite) }
+        let record = WidgetRecord(entryID: UUID(), key: "a", at: Date(timeIntervalSinceReferenceDate: 0))
+        try WidgetShelf.saveRecord(record, to: store)
+        XCTAssertEqual(try WidgetShelf.loadRecord(from: store), record)
+        XCTAssertEqual(record.undoUntil, Date(timeIntervalSinceReferenceDate: WidgetShelf.undoWindow))
+        try WidgetShelf.saveRecord(nil, to: store)
+        XCTAssertNil(try WidgetShelf.loadRecord(from: store))
+    }
+
     /// 위젯 기록은 기록 시트 `+`(수량 1)와 같은 값이어야 한다. 실제 카탈로그로 본다(원두 선택 있는 더벤티 포함).
     func testShelfEntryMatchesQuickAddEntry() throws {
         let index = CatalogIndex(catalog: try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self)))

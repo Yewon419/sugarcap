@@ -22,9 +22,12 @@ struct WidgetGallery: View {
                 large([.sugar: 100, .caffeine: 30], shelf: Self.shelf)
                 large([.sugar: 80, .caffeine: 80], shelf: Self.longNames)
             } else if mode == "large-more" {
-                // 기록 없음(빈 선반), 한 면만 켠 사용자.
+                // 기록 없음(빈 선반), 한 면만 켠 사용자 + 첫 칸을 누른 직후(되돌리기).
                 large([.sugar: 50, .caffeine: 50], shelf: [])
-                large([.sugar: 30], shelf: Array(Self.shelf.prefix(3)))
+                large(
+                    [.sugar: 30], shelf: Array(Self.shelf.prefix(3)),
+                    undo: WidgetRecord(entryID: UUID(), key: Self.shelf[0].key, at: Date())
+                )
             } else if mode == "medium" {
                 // 두 잔 단계 차이가 가장 큰 조합: 입구 높이·숫자 외곽선 확인(2026-11-09).
                 medium([.sugar: 100, .caffeine: 30])
@@ -58,9 +61,9 @@ struct WidgetGallery: View {
             .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 
-    private func large(_ steps: [CupSide: Int], shelf: [ShelfDrink]) -> some View {
+    private func large(_ steps: [CupSide: Int], shelf: [ShelfDrink], undo: WidgetRecord? = nil) -> some View {
         let cups = CupSide.allCases.compactMap { side in steps[side].map { cup(side, step: $0) } }
-        return WidgetLargeFace(cups: cups, shelf: shelf)
+        return WidgetLargeFace(cups: cups, shelf: shelf, undo: undo)
             .frame(width: Self.largeSize.width, height: Self.largeSize.height)
             .background(WidgetLargeFace.floor)
             .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))

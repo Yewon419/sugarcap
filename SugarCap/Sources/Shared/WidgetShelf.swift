@@ -36,9 +36,34 @@ struct ShelfDrink: Codable, Equatable, Identifiable {
     }
 }
 
+/// 위젯 선반에서 마지막으로 기록한 1잔. 기록 뒤 `WidgetShelf.undoWindow` 동안 그 칸이 되돌리기 버튼이 된다.
+struct WidgetRecord: Codable, Equatable {
+    let entryID: UUID
+    let key: String
+    let at: Date
+
+    var undoUntil: Date { at.addingTimeInterval(WidgetShelf.undoWindow) }
+}
+
 enum WidgetShelf {
     static let limit = 4
+    /// 앱 되돌리기 안내(약 10초)와 같은 길이.
+    static let undoWindow: TimeInterval = 10
     private static let storeKey = "widgetShelf"
+    private static let recordKey = "widgetShelfRecord"
+
+    static func loadRecord(from store: UserDefaults) throws -> WidgetRecord? {
+        guard let data = store.data(forKey: recordKey) else { return nil }
+        return try JSONDecoder().decode(WidgetRecord.self, from: data)
+    }
+
+    static func saveRecord(_ record: WidgetRecord?, to store: UserDefaults) throws {
+        guard let record else {
+            store.removeObject(forKey: recordKey)
+            return
+        }
+        store.set(try JSONEncoder().encode(record), forKey: recordKey)
+    }
 
     /// 선반 후보 키: 즐겨찾기(별표한 순) → 최근 마신 음료(최신순), 겹치지 않게.
     /// 카탈로그에서 안 풀리는 키(사라진 메뉴)가 섞여도 4칸이 차게 최근은 넉넉히 둔다.

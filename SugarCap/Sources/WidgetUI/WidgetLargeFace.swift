@@ -3,10 +3,13 @@ import UIKit
 
 /// Large 위젯(SPEC §4.6, 시안 `design/proto/widget-large.html` A 대표님 2026-11-09 확정).
 /// 위 262pt = 잔 전체(Medium처럼 두 잔 입구 높이가 같다), 아래 = 기록한 음료 선반 4칸.
+/// 칸을 누르면 1잔 기록, 그 칸은 약 10초 되돌리기 버튼이 된다(`undo`, 타임라인이 시간을 정한다).
 /// 기준 칸 338×354pt(6.1인치)를 폭에 맞춰 늘린다. 위젯 확장과 앱(Debug 위젯 스크린샷)이 함께 컴파일한다.
 struct WidgetLargeFace: View {
     let cups: [WidgetCupModel]
     let shelf: [ShelfDrink]
+    /// 방금 위젯으로 기록한 칸. nil이면 되돌리기 버튼 없음.
+    var undo: WidgetRecord?
 
     static let referenceWidth = 338.0
     /// 잔 사진 아래 끝을 바닥색으로 녹이는 높이.
@@ -66,7 +69,7 @@ struct WidgetLargeFace: View {
         let column: Double = (Self.referenceWidth - 2 * Self.sideInset) / Double(Self.columns) * scale
         return HStack(spacing: 0) {
             ForEach(shelf.prefix(Self.columns)) { drink in
-                ShelfItem(drink: drink, scale: scale)
+                ShelfItem(drink: drink, undo: undo?.key == drink.key ? undo : nil, scale: scale)
                     .frame(width: column)
             }
         }
@@ -77,15 +80,43 @@ struct WidgetLargeFace: View {
 
     private struct ShelfItem: View {
         let drink: ShelfDrink
+        let undo: WidgetRecord?
         let scale: Double
 
         var body: some View {
-            let lines = ShelfName.lines(drink.name, width: ShelfName.width, measure: ShelfName.measure)
+            if let undo {
+                Button(intent: UndoShelfDrinkIntent(entryID: undo.entryID)) {
+                    item(lines: [String(localized: "되돌리기")]) {
+                        Circle()
+                            .fill(WidgetLargeFace.ink)
+                            .overlay {
+                                Image(systemName: "arrow.uturn.backward")
+                                    .font(.system(size: 18 * scale, weight: .semibold))
+                                    .foregroundStyle(.white)
+                            }
+                    }
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text("\(drink.name) 기록 되돌리기"))
+            } else {
+                Button(intent: RecordShelfDrinkIntent(key: drink.key)) {
+                    item(lines: ShelfName.lines(drink.name, width: ShelfName.width, measure: ShelfName.measure)) {
+                        LiquidBadge(
+                            color: drink.liquidHex.flatMap(Color.init(liquidHex:)) ?? LiquidBadge.fallback,
+                            size: WidgetLargeFace.badgeSize * scale
+                        )
+                    }
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text("\(drink.name) 1잔 기록"))
+            }
+        }
+
+        /// 원 50pt + 이름 두 줄 자리. 원은 `badge`가 채운다.
+        private func item(lines: [String], @ViewBuilder badge: () -> some View) -> some View {
             VStack(spacing: WidgetLargeFace.badgeGap * scale) {
-                LiquidBadge(
-                    color: drink.liquidHex.flatMap(Color.init(liquidHex:)) ?? LiquidBadge.fallback,
-                    size: WidgetLargeFace.badgeSize * scale
-                )
+                badge()
+                    .frame(width: WidgetLargeFace.badgeSize * scale, height: WidgetLargeFace.badgeSize * scale)
                 VStack(spacing: 0) {
                     ForEach(Array(lines.enumerated()), id: \.offset) { _, line in
                         Text(line)
@@ -98,8 +129,8 @@ struct WidgetLargeFace: View {
                 }
                 .frame(height: 2 * ShelfName.lineHeight * scale, alignment: .top)
             }
+            .contentShape(Rectangle())
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(Text(drink.name))
         }
     }
 }

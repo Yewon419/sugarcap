@@ -78,6 +78,7 @@ struct LargeCupEntry: TimelineEntry {
     let date: Date
     let snapshot: WidgetSnapshot
     let shelf: [ShelfDrink]
+    var undo: WidgetRecord?
 }
 
 struct SmallCupEntry: TimelineEntry {
@@ -87,7 +88,7 @@ struct SmallCupEntry: TimelineEntry {
 }
 
 enum WidgetTimeline {
-    /// 기록은 앱에서만 늘어난다. 앱이 `WidgetCenter`로 갱신을 밀고, 그 사이에는 매시 한 번 본다.
+    /// 기록은 앱과 Large 위젯 선반에서 늘어난다. 둘 다 `WidgetCenter`로 갱신을 밀고, 그 사이에는 매시 한 번 본다.
     static func next(after now: Date) -> Date {
         WidgetSnapshotLoader.nextRefresh(after: now, boundaryHour: 4)
     }
@@ -143,27 +144,36 @@ struct LargeCupProvider: TimelineProvider {
 
     @MainActor
     func getSnapshot(in context: Context, completion: @escaping (LargeCupEntry) -> Void) {
-        completion(Self.entry(now: Date()))
+        completion(Self.entries(now: Date())[0])
     }
 
     @MainActor
     func getTimeline(in context: Context, completion: @escaping (Timeline<LargeCupEntry>) -> Void) {
         let now = Date()
-        completion(Timeline(entries: [Self.entry(now: now)], policy: .after(WidgetTimeline.next(after: now))))
+        completion(Timeline(entries: Self.entries(now: now), policy: .after(WidgetTimeline.next(after: now))))
     }
 
     /// 선반은 앱이 써 둔 값(`WidgetShelf`). 못 읽으면 남기고 빈 선반으로 그린다.
+    /// 방금 위젯으로 기록했으면 되돌리기 칸이 있는 판 + 되돌리기 시간이 끝난 판, 두 장.
     @MainActor
-    private static func entry(now: Date) -> LargeCupEntry {
+    private static func entries(now: Date) -> [LargeCupEntry] {
         var shelf: [ShelfDrink] = []
+        var record: WidgetRecord?
         if let store = SharedDefaults.store {
             do {
                 shelf = try WidgetShelf.load(from: store)
+                record = try WidgetShelf.loadRecord(from: store)
             } catch {
                 logger.error("위젯 선반 읽기 실패: \(String(describing: error), privacy: .public)")
             }
         }
-        return LargeCupEntry(date: now, snapshot: WidgetSnapshotLoader.load(now: AppClock.now), shelf: shelf)
+        let snapshot = WidgetSnapshotLoader.load(now: AppClock.now)
+        let current = LargeCupEntry(date: now, snapshot: snapshot, shelf: shelf)
+        guard let record, now < record.undoUntil else { return [current] }
+        return [
+            LargeCupEntry(date: now, snapshot: snapshot, shelf: shelf, undo: record),
+            LargeCupEntry(date: record.undoUntil, snapshot: snapshot, shelf: shelf),
+        ]
     }
 }
 
@@ -212,7 +222,7 @@ struct LargeCupWidgetView: View {
     var body: some View {
         Group {
             if entry.snapshot.isPro {
-                WidgetLargeFace(cups: entry.snapshot.tracked.map(entry.snapshot.cup), shelf: entry.shelf)
+                WidgetLargeFace(cups: entry.snapshot.tracked.map(entry.snapshot.cup), shelf: entry.shelf, undo: entry.undo)
             } else {
                 WidgetLockedView()
             }

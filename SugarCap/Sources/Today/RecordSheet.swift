@@ -182,7 +182,7 @@ struct RecordSheet: View {
                 Button {
                     onBrand(BrandRoute(brandID: brand.id))
                 } label: {
-                    brandCard(name: brand.name, detail: Brand.menuCount(catalog.drinks(brandID: brand.id).count), dashed: false, isStarred: isStarred)
+                    brandCard(name: brand.name, detail: Brand.menuCount(catalog.drinks(brandID: brand.id).count), dashed: false, brand: brand, isStarred: isStarred)
                 }
                 .buttonStyle(PressScaleStyle())
                 .contextMenu {
@@ -212,30 +212,36 @@ struct RecordSheet: View {
         .padding(.horizontal, 20)
     }
 
-    private func brandCard(name: String, detail: String, dashed: Bool, isStarred: Bool = false) -> some View {
-        VStack(alignment: .leading) {
-            HStack(alignment: .top, spacing: 6) {
-                Text(name)
-                    .font(AppFont.pretendard(17, .semibold, relativeTo: .headline))
-                    .tracking(-0.3)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.8)
-                if isStarred {
-                    Spacer(minLength: 0)
-                    Image(systemName: "star.fill")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(.tint)
-                        .padding(.top, 3)
-                        .accessibilityLabel(String(localized: "즐겨찾기"))
-                }
+    /// 브랜드 카드: 왼쪽 배지(로고 대신 대표색 원, 2026-11-10) + 이름·메뉴 수. 직접 입력 칸은 배지 없이 점선.
+    private func brandCard(name: String, detail: String, dashed: Bool, brand: Brand? = nil, isStarred: Bool = false) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            if let brand {
+                BrandBadge(brand: brand)
             }
-            Spacer(minLength: 6)
-            Text(detail)
-                .font(AppFont.pretendard(11, .regular, relativeTo: .caption2))
-                .tracking(0.5)
-                .foregroundStyle(.secondary)
+            VStack(alignment: .leading) {
+                HStack(alignment: .top, spacing: 6) {
+                    Text(name)
+                        .font(AppFont.pretendard(17, .semibold, relativeTo: .headline))
+                        .tracking(-0.3)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.8)
+                    if isStarred {
+                        Spacer(minLength: 0)
+                        Image(systemName: "star.fill")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(.tint)
+                            .padding(.top, 3)
+                            .accessibilityLabel(String(localized: "즐겨찾기"))
+                    }
+                }
+                Spacer(minLength: 6)
+                Text(detail)
+                    .font(AppFont.pretendard(11, .regular, relativeTo: .caption2))
+                    .tracking(0.5)
+                    .foregroundStyle(.secondary)
+            }
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 14)
         .padding(.vertical, 14)
         .frame(maxWidth: .infinity, minHeight: 86, alignment: .leading)
         .background {
@@ -291,6 +297,7 @@ struct RecordSheet: View {
             onBrand(BrandRoute(brandID: match.brand.id, menuQuery: match.menuQuery))
         } label: {
             HStack(spacing: 12) {
+                BrandBadge(brand: match.brand)
                 VStack(alignment: .leading, spacing: 4) {
                     Text(match.brand.name)
                         .font(AppFont.pretendard(17, .semibold, relativeTo: .headline))

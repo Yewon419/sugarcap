@@ -272,4 +272,34 @@ enum Favorites {
             throw error
         }
     }
+
+    static func toggleBrand(_ brandID: String, favorites: [FavoriteBrand], in context: ModelContext) throws {
+        if let existing = favorites.first(where: { $0.brandID == brandID }) {
+            context.delete(existing)
+        } else {
+            context.insert(FavoriteBrand(brandID: brandID, addedAt: AppClock.now))
+        }
+        do {
+            try context.save()
+        } catch {
+            logger.error("브랜드 즐겨찾기 저장 실패(\(brandID, privacy: .public)): \(String(describing: error), privacy: .public)")
+            context.rollback()
+            throw error
+        }
+    }
+
+    /// 별표한 브랜드를 별표한 순서로 앞에, 나머지는 들어온 순서 그대로 뒤에.
+    static func starredFirst<T>(_ items: [T], brandID: (T) -> String, favorites: [FavoriteBrand]) -> [T] {
+        let rank = Dictionary(
+            favorites.sorted { $0.addedAt < $1.addedAt }.enumerated().map { ($1.brandID, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+        return items.enumerated()
+            .sorted { lhs, rhs in
+                let l = rank[brandID(lhs.element)] ?? Int.max
+                let r = rank[brandID(rhs.element)] ?? Int.max
+                return l != r ? l < r : lhs.offset < rhs.offset
+            }
+            .map(\.element)
+    }
 }

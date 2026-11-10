@@ -722,6 +722,51 @@ extension RecordFlowUITests {
         let menuHit = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "drink-starbucks:")).firstMatch
         XCTAssertTrue(menuHit.waitForExistence(timeout: 5), "스타벅스 메뉴 화면에 라떼 결과가 없음")
     }
+
+    /// 브랜드 카드를 길게 눌러 즐겨찾기하면 격자 맨 앞에 서고, 브랜드 메뉴 제목 옆 별로 해제하면 제자리로 간다.
+    @MainActor
+    func testStarredBrandMovesToFrontOfRecordSheet() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication.withTestSkips()
+        app.launchArguments += ["-idleAt", "0"]
+        app.launch()
+        completeOnboardingIfPresented(app)
+        let ui = Driver(app: app)
+
+        let add = app.buttons["record-add"]
+        XCTAssertTrue(add.waitForExistence(timeout: 15))
+        add.tap()
+        let paik = app.buttons["brand-paik"]
+        let starbucks = app.buttons["brand-starbucks"]
+        XCTAssertTrue(paik.waitForExistence(timeout: 5), "기록 시트에 빽다방이 없음")
+        ui.reveal(paik)
+        paik.press(forDuration: 1.0)
+        // "즐겨찾기" 글자는 최근 음료 줄의 별과 겹쳐 식별자로 찾는다.
+        let star = app.buttons["brand-favorite-menu"].firstMatch
+        XCTAssertTrue(star.waitForExistence(timeout: 5), "길게 눌러도 즐겨찾기 메뉴가 안 뜸")
+        star.tap()
+
+        XCTAssertTrue(starbucks.waitForExistence(timeout: 5))
+        let first = paik.frame
+        XCTAssertTrue(first.minY < starbucks.frame.minY || (first.minY == starbucks.frame.minY && first.minX < starbucks.frame.minX),
+                      "즐겨찾기한 빽다방이 맨 앞이 아님: \(first) vs \(starbucks.frame)")
+
+        // 정리: 브랜드 메뉴 제목 옆 별로 해제한다. 남기면 뒤 테스트와 CI 스크린샷 격자 순서가 바뀐다.
+        ui.tap(paik)
+        let header = app.buttons["brand-favorite"]
+        XCTAssertTrue(header.waitForExistence(timeout: 10), "브랜드 메뉴에 별이 없음")
+        XCTAssertTrue(header.isSelected, "즐겨찾기한 브랜드인데 별이 꺼져 있음")
+        header.tap()
+        wait(for: [expectation(for: NSPredicate(format: "isSelected == false"), evaluatedWith: header)], timeout: 5)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+
+        XCTAssertTrue(add.waitForExistence(timeout: 10))
+        add.tap()
+        XCTAssertTrue(starbucks.waitForExistence(timeout: 5))
+        let back = starbucks.frame
+        XCTAssertTrue(back.minY < paik.frame.minY || (back.minY == paik.frame.minY && back.minX < paik.frame.minX),
+                      "해제했는데 빽다방이 아직 스타벅스보다 앞: \(paik.frame) vs \(back)")
+    }
 }
 
 extension RecordFlowUITests {

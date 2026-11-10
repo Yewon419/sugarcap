@@ -92,6 +92,7 @@ struct RootView: View {
         do {
             let settings = try AppSettings.current(in: context)
             DemoData.seedGoalIfRequested(into: context, settings: settings)
+            DemoData.seedFavoriteBrandsIfRequested(into: context)
             guard DemoData.isRequested else { return }
             DemoData.seed(into: context, boundaryHour: settings.dayBoundaryHour, country: settings.menuCountry)
         } catch {
@@ -114,5 +115,5 @@ struct RootView: View {
 
 #Preview {
     RootView(catalog: LoadedCatalog(country: .kr))
-        .modelContainer(for: [Entry.self, AppSettings.self, DaySettlement.self, Affinity.self, ReductionGoal.self, FavoriteDrink.self], inMemory: true)
+        .modelContainer(for: [Entry.self, AppSettings.self, DaySettlement.self, Affinity.self, ReductionGoal.self, FavoriteDrink.self, FavoriteBrand.self], inMemory: true)
 }

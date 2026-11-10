@@ -17,6 +17,7 @@ enum DevData {
         try context.delete(model: TradeOffer.self)
         try context.delete(model: ReductionGoal.self)
         try context.delete(model: FavoriteDrink.self)
+        try context.delete(model: FavoriteBrand.self)
         try context.delete(model: AppSettings.self)
         _ = try AppSettings.current(in: context)
         try context.save()

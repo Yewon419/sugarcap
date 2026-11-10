@@ -294,11 +294,35 @@ final class CatalogIndexTests: XCTestCase {
         XCTAssertTrue(index.brandMatches(" ").isEmpty)
 
         // 브랜드 이름 뒤에 친 말은 띄어쓰기를 살려 메뉴 검색어로 넘긴다.
-        let scoped = try XCTUnwrap(index.brandMatches("스타벅스 아이스 라떼").first)
+        let scoped = try XCTUnwrap(index.brandMatches("스타벅스 카페 라떼").first)
         XCTAssertEqual(scoped.brand.id, "starbucks")
-        XCTAssertEqual(scoped.menuQuery, "아이스 라떼")
+        XCTAssertEqual(scoped.menuQuery, "카페 라떼")
         XCTAssertEqual(index.brandMatches("스타벅스라떼").first?.menuQuery, "라떼")
         XCTAssertFalse(index.drinks(brandID: "starbucks", matching: DrinkQuery(scoped.menuQuery)).isEmpty)
+    }
+
+    @MainActor
+    func testStarredBrandsLeadInStarOrderAndToggleOff() throws {
+        let container = try ModelContainer(for: SharedStore.schema, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+        let context = container.mainContext
+        let ids = ["starbucks", "mega", "compose", "ediya", "paik"]
+
+        let start = Date(timeIntervalSince1970: 1_800_000_000)
+        context.insert(FavoriteBrand(brandID: "paik", addedAt: start))
+        context.insert(FavoriteBrand(brandID: "mega", addedAt: start.addingTimeInterval(60)))
+        try context.save()
+        var stars = try context.fetch(FetchDescriptor<FavoriteBrand>())
+        XCTAssertEqual(Favorites.starredFirst(ids, brandID: { $0 }, favorites: stars), ["paik", "mega", "starbucks", "compose", "ediya"])
+
+        // 다른 나라 브랜드 별표는 이 나라 순서에 끼어들지 않는다.
+        try Favorites.toggleBrand("us-starbucks", favorites: stars, in: context)
+        stars = try context.fetch(FetchDescriptor<FavoriteBrand>())
+        XCTAssertEqual(Favorites.starredFirst(ids, brandID: { $0 }, favorites: stars).prefix(3), ["paik", "mega", "starbucks"])
+
+        try Favorites.toggleBrand("paik", favorites: stars, in: context)
+        stars = try context.fetch(FetchDescriptor<FavoriteBrand>())
+        XCTAssertFalse(stars.contains { $0.brandID == "paik" }, "별표 해제가 안 됨")
+        XCTAssertEqual(Favorites.starredFirst(ids, brandID: { $0 }, favorites: stars), ["mega", "starbucks", "compose", "ediya", "paik"])
     }
 
     func testShorterNamesBeatPrefixMatches() throws {

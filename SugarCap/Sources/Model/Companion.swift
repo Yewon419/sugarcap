@@ -19,6 +19,19 @@ final class FavoriteDrink {
     }
 }
 
+/// 즐겨찾기 브랜드(2026-11-10 대표님). 기록 시트 브랜드 격자·검색 브랜드 줄의 맨 앞에 별표한 순서로 선다.
+/// 브랜드 id는 나라마다 달라서 다른 나라 카탈로그를 고른 동안에는 걸리지 않고 숨는다.
+@Model
+final class FavoriteBrand {
+    @Attribute(.unique) var brandID: String
+    var addedAt: Date
+
+    init(brandID: String, addedAt: Date) {
+        self.brandID = brandID
+        self.addedAt = addedAt
+    }
+}
+
 /// 즐겨찾기·최근 음료를 한 줄로 가리키는 키. 기록(`Entry`)과 즐겨찾기가 같은 키를 만든다.
 enum DrinkKey {
     static func make(servingID: String, variantLabel: String?) -> String {

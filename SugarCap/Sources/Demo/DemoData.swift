@@ -119,6 +119,20 @@ enum DemoData {
         }
     }
 
+    /// `-screenshotFavoriteBrands paik,gongcha`: 그 브랜드들을 적은 순서로 즐겨찾기한 상태로 둔다. 저장돼 남으니 촬영 목록 맨 끝에 찍는다.
+    static func seedFavoriteBrandsIfRequested(into context: ModelContext, now: Date = Date()) {
+        guard let raw = UserDefaults.standard.string(forKey: "screenshotFavoriteBrands") else { return }
+        do {
+            try context.delete(model: FavoriteBrand.self)
+            for (offset, id) in raw.split(separator: ",").enumerated() {
+                context.insert(FavoriteBrand(brandID: String(id), addedAt: now.addingTimeInterval(Double(offset))))
+            }
+            try context.save()
+        } catch {
+            logger.error("브랜드 즐겨찾기 주입 실패(\(raw, privacy: .public)): \(String(describing: error), privacy: .public)")
+        }
+    }
+
     /// `-seedDemoDrinks YES`(월 통계 스크린샷): 이미 심어 둔 지난날 데모 한 잔("직접 입력")을 같은 합계의 두 잔으로 나눈다.
     /// CI는 앞선 촬영이 심어 둔 기록 위에서 찍으므로 다시 심지 않고 그 자리에서 바꾼다. 통계 촬영은 목록 맨 끝에 둔다.
     private static func splitPast(

@@ -1,3 +1,4 @@
+import SwiftData
 import SwiftUI
 
 /// 브랜드 메뉴로 가는 길. 기록 시트·먹이기 기록 시트의 내비게이션 경로 값이다.
@@ -20,6 +21,9 @@ struct BrandMenuView: View {
     @State private var query: String
     @State private var category = BrandMenuView.allCategory
     @State private var panelDrink: Drink?
+    @State private var failureMessage: String?
+    @Query private var favoriteBrands: [FavoriteBrand]
+    @Environment(\.modelContext) private var context
     @Environment(\.recordCup) private var recordCup
     @Environment(\.trackedSides) private var trackedSides
     @Environment(\.drinkTutorial) private var tutorial
@@ -62,6 +66,16 @@ struct BrandMenuView: View {
 
     private var drinks: [Drink] { catalog.drinks(brandID: brand.id) }
 
+    private var isStarred: Bool { favoriteBrands.contains { $0.brandID == brand.id } }
+
+    private func toggleFavorite() {
+        do {
+            try Favorites.toggleBrand(brand.id, favorites: favoriteBrands, in: context)
+        } catch {
+            failureMessage = String(localized: "즐겨찾기를 저장하지 못했어요. 다시 시도해 주세요.")
+        }
+    }
+
     private var isSearchFirst: Bool { drinks.count > Self.searchFirstThreshold }
 
     private func results() -> [Drink] {
@@ -82,10 +96,17 @@ struct BrandMenuView: View {
             LazyVStack(alignment: .leading, spacing: 0, pinnedViews: []) {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(kicker).kicker()
-                    Text(brand.name)
-                        .font(AppFont.pretendard(34, .bold, relativeTo: .largeTitle))
-                        .tracking(-0.7)
-                        .accessibilityAddTraits(.isHeader)
+                    HStack(alignment: .center, spacing: 4) {
+                        Text(brand.name)
+                            .font(AppFont.pretendard(34, .bold, relativeTo: .largeTitle))
+                            .tracking(-0.7)
+                            .accessibilityAddTraits(.isHeader)
+                        // 브랜드 즐겨찾기(2026-11-10 대표님). 첫 기록 안내의 연습 브랜드에는 두지 않는다.
+                        if tutorial == nil {
+                            StarButton(isOn: isStarred, action: toggleFavorite)
+                                .accessibilityIdentifier("brand-favorite")
+                        }
+                    }
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 2)
@@ -115,6 +136,9 @@ struct BrandMenuView: View {
             }
         }
         .navigationBarBackButtonHidden(tutorial != nil)
+        .alert(failureMessage ?? "", isPresented: Binding(get: { failureMessage != nil }, set: { if !$0 { failureMessage = nil } })) {
+            Button("확인", role: .cancel) {}
+        }
         .sheet(item: $panelDrink) { drink in
             ServingPanel(drink: drink, brand: brand, todayTotals: todayTotals, limits: limits) { selection in
                 // 패널을 먼저 닫고 기록한다. 기록하면 오늘 루트로 돌아간다(§4.2).

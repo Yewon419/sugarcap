@@ -20,6 +20,7 @@ struct RecordSheet: View {
     let onTodayLog: () -> Void
 
     @Query(sort: \FavoriteDrink.addedAt) private var favorites: [FavoriteDrink]
+    @Query(sort: \FavoriteBrand.addedAt) private var favoriteBrands: [FavoriteBrand]
     @Query(sort: \Entry.loggedAt, order: .reverse) private var entries: [Entry]
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
@@ -173,14 +174,30 @@ struct RecordSheet: View {
     private var brandGrid: some View {
         SectionKicker(title: String(localized: "브랜드"))
         let columns = Array(repeating: GridItem(.flexible(), spacing: 10), count: typeSize.isAccessibilitySize ? 1 : 2)
+        let starred = Set(favoriteBrands.map(\.brandID))
         LazyVGrid(columns: columns, spacing: 10) {
-            ForEach(catalog.catalog.brands) { brand in
+            // 별표한 브랜드가 맨 앞(2026-11-10 대표님). 별표는 브랜드 메뉴 제목 옆 별이나 카드를 길게 눌러서.
+            ForEach(Favorites.starredFirst(catalog.catalog.brands, brandID: \.id, favorites: favoriteBrands)) { brand in
+                let isStarred = starred.contains(brand.id)
                 Button {
                     onBrand(BrandRoute(brandID: brand.id))
                 } label: {
-                    brandCard(name: brand.name, detail: Brand.menuCount(catalog.drinks(brandID: brand.id).count), dashed: false)
+                    brandCard(name: brand.name, detail: Brand.menuCount(catalog.drinks(brandID: brand.id).count), dashed: false, isStarred: isStarred)
                 }
                 .buttonStyle(PressScaleStyle())
+                .contextMenu {
+                    if tutorial == nil {
+                        Button {
+                            toggleFavoriteBrand(brand.id)
+                        } label: {
+                            Label(
+                                isStarred ? String(localized: "즐겨찾기 해제") : String(localized: "즐겨찾기"),
+                                systemImage: isStarred ? "star.slash" : "star"
+                            )
+                        }
+                        .accessibilityIdentifier("brand-favorite-menu")
+                    }
+                }
                 .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { frame in
                     if brand.id == catalog.catalog.brands.first?.id { firstBrandFrame = frame }
                 }
@@ -195,13 +212,23 @@ struct RecordSheet: View {
         .padding(.horizontal, 20)
     }
 
-    private func brandCard(name: String, detail: String, dashed: Bool) -> some View {
+    private func brandCard(name: String, detail: String, dashed: Bool, isStarred: Bool = false) -> some View {
         VStack(alignment: .leading) {
-            Text(name)
-                .font(AppFont.pretendard(17, .semibold, relativeTo: .headline))
-                .tracking(-0.3)
-                .lineLimit(2)
-                .minimumScaleFactor(0.8)
+            HStack(alignment: .top, spacing: 6) {
+                Text(name)
+                    .font(AppFont.pretendard(17, .semibold, relativeTo: .headline))
+                    .tracking(-0.3)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.8)
+                if isStarred {
+                    Spacer(minLength: 0)
+                    Image(systemName: "star.fill")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(.tint)
+                        .padding(.top, 3)
+                        .accessibilityLabel(String(localized: "즐겨찾기"))
+                }
+            }
             Spacer(minLength: 6)
             Text(detail)
                 .font(AppFont.pretendard(11, .regular, relativeTo: .caption2))
@@ -227,7 +254,7 @@ struct RecordSheet: View {
     /// "브랜드 + 메뉴"로 치면 아래 결과도 그 브랜드 메뉴에서 찾는다(이름에 브랜드가 든 메뉴는 거의 없어 전체 검색은 비게 된다).
     @ViewBuilder
     private var searchResults: some View {
-        let brands = catalog.brandMatches(query)
+        let brands = Favorites.starredFirst(catalog.brandMatches(query), brandID: \.brand.id, favorites: favoriteBrands)
         let scoped = brands.filter { !$0.menuQuery.isEmpty }
         if !brands.isEmpty {
             SectionKicker(title: String(localized: "브랜드"), topPadding: 6)
@@ -274,6 +301,12 @@ struct RecordSheet: View {
                         .foregroundStyle(.secondary)
                 }
                 Spacer(minLength: 8)
+                if favoriteBrands.contains(where: { $0.brandID == match.brand.id }) {
+                    Image(systemName: "star.fill")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(.tint)
+                        .accessibilityLabel(String(localized: "즐겨찾기"))
+                }
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(.tertiary)
@@ -314,6 +347,14 @@ struct RecordSheet: View {
         }
         .buttonStyle(RowPressStyle())
         .accessibilityIdentifier("drink-\(drink.id)")
+    }
+
+    private func toggleFavoriteBrand(_ brandID: String) {
+        do {
+            try Favorites.toggleBrand(brandID, favorites: favoriteBrands, in: context)
+        } catch {
+            failureMessage = String(localized: "즐겨찾기를 저장하지 못했어요. 다시 시도해 주세요.")
+        }
     }
 
     private func toggleFavorite(_ selection: ServingSelection) {

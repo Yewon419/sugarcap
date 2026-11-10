@@ -246,6 +246,9 @@ jobs:
           shoot paywall-no-trial light large -mockPro YES -mockProNoTrial YES -screenshotPaywall YES
           shoot record light large -seedDemo YES -screenshotRecord YES
           shoot record-type-ax-xl light accessibility-extra-large -seedDemo YES -screenshotRecord YES
+          # 검색어가 브랜드에 걸리면 브랜드 줄이 먼저, "브랜드 + 메뉴"면 그 브랜드 안 결과(2026-11-10).
+          shoot record-search-brand light large -seedDemo YES -screenshotRecord YES -screenshotRecordQuery "커피"
+          shoot record-search-brand-menu light large -seedDemo YES -screenshotRecord YES -screenshotRecordQuery "스타벅스 라떼"
           shoot daylog light large -seedDemo YES -screenshotDayLog YES
           shoot daylog-type-ax-xl light accessibility-extra-large -seedDemo YES -screenshotDayLog YES
           shoot trends-daylog-past light large -seedDemo YES -initialTab trends -screenshotTrendDayLog 2

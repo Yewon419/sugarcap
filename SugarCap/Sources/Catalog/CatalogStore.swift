@@ -109,6 +109,14 @@ final class LoadedCatalog {
     }
 }
 
+/// 기록 시트 검색에 걸린 브랜드. `menuQuery`는 브랜드 이름 뒤에 이어 친 말이고, 브랜드 메뉴 검색 칸에 미리 넣는다.
+struct BrandMatch: Identifiable {
+    let brand: Brand
+    let menuQuery: String
+
+    var id: String { brand.id }
+}
+
 /// 화면이 쓰는 조회용 색인. 카탈로그는 불변이라 한 번만 만든다.
 struct CatalogIndex {
     let catalog: Catalog
@@ -148,6 +156,37 @@ struct CatalogIndex {
         let query = DrinkQuery(query)
         guard !query.isEmpty else { return [] }
         return Array(ranked(catalog.brands.flatMap { drinks(brandID: $0.id) }, query).prefix(limit))
+    }
+
+    /// 기록 시트 검색어에 걸린 브랜드(2026-11-10). 띄어쓰기·대소문자는 무시하고 브랜드 격자 순서다.
+    /// "스타벅" → 스타벅스, "스타벅스 라떼" → 스타벅스 + 메뉴 검색어 "라떼".
+    /// 한 글자는 이름 앞부분만 잡는다("라"가 이름 가운데에 든 브랜드까지 끌어오지 않게).
+    func brandMatches(_ text: String) -> [BrandMatch] {
+        let needle = DrinkQuery.fold(text)
+        guard !needle.isEmpty else { return [] }
+        return catalog.brands.compactMap { brand -> BrandMatch? in
+            let name = DrinkQuery.fold(brand.name)
+            if name.hasPrefix(needle) || (needle.count >= 2 && name.contains(needle)) {
+                return BrandMatch(brand: brand, menuQuery: "")
+            }
+            if needle.hasPrefix(name), let rest = Self.remainder(of: text, afterFolded: name) {
+                return BrandMatch(brand: brand, menuQuery: rest)
+            }
+            return nil
+        }
+    }
+
+    /// 원래 글에서 접은 브랜드 이름만큼 걷어 낸 나머지. 메뉴 검색어의 띄어쓰기를 그대로 둔다.
+    private static func remainder(of text: String, afterFolded name: String) -> String? {
+        var consumed = ""
+        var index = text.startIndex
+        while index < text.endIndex, consumed.count < name.count {
+            consumed += DrinkQuery.fold(String(text[index]))
+            index = text.index(after: index)
+        }
+        guard consumed == name else { return nil }
+        let rest = text[index...].trimmingCharacters(in: .whitespacesAndNewlines)
+        return rest.isEmpty ? nil : rest
     }
 
     /// 브랜드 안 검색. 빈 검색어면 브랜드 메뉴 전체. 같은 순위 안에서는 카탈로그 순서다.

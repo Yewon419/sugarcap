@@ -692,6 +692,36 @@ extension RecordFlowUITests {
         ).firstMatch
         XCTAssertTrue(banana.waitForExistence(timeout: 10), "띄어 쓴 검색어로 바나나맛우유가 안 나옴")
     }
+
+    /// 기록 시트에서 "브랜드 + 메뉴"로 치면 브랜드 줄이 뜨고, 누르면 그 브랜드 메뉴 검색 칸에 메뉴 말이 들어가 있다.
+    @MainActor
+    func testSearchingBrandNameOpensBrandMenuWithMenuQuery() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication.withTestSkips()
+        app.launchArguments += ["-idleAt", "0"]
+        app.launch()
+        completeOnboardingIfPresented(app)
+        let ui = Driver(app: app)
+
+        let add = app.buttons["record-add"]
+        XCTAssertTrue(add.waitForExistence(timeout: 15))
+        add.tap()
+        let field = app.textFields.matching(NSPredicate(format: "placeholderValue == %@", "메뉴 이름으로 찾기")).firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 10), "기록 시트에 검색 칸이 없음")
+        ui.type("스타벅스 라떼", into: field)
+
+        let brandRow = app.buttons["search-brand-starbucks"]
+        XCTAssertTrue(brandRow.waitForExistence(timeout: 10), "검색 결과에 스타벅스 줄이 없음")
+        let scopedHit = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "drink-starbucks:")).firstMatch
+        XCTAssertTrue(scopedHit.waitForExistence(timeout: 5), "스타벅스 안 라떼 결과가 없음")
+        ui.tap(brandRow)
+
+        let menuField = app.textFields.matching(NSPredicate(format: "placeholderValue == %@", "메뉴 검색")).firstMatch
+        XCTAssertTrue(menuField.waitForExistence(timeout: 10), "스타벅스 메뉴 화면이 안 열림")
+        XCTAssertEqual(menuField.value as? String, "라떼", "브랜드 메뉴 검색 칸에 메뉴 말이 안 넘어감")
+        let menuHit = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "drink-starbucks:")).firstMatch
+        XCTAssertTrue(menuHit.waitForExistence(timeout: 5), "스타벅스 메뉴 화면에 라떼 결과가 없음")
+    }
 }
 
 extension RecordFlowUITests {

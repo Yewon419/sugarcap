@@ -8,7 +8,7 @@ struct RecordSheet: View {
     let catalog: CatalogIndex
     let todayTotals: DayTotals
     let limits: DailyLimits
-    let onBrand: (String) -> Void
+    let onBrand: (BrandRoute) -> Void
     let onManualEntry: () -> Void
     /// 검색 → 패널에서 추가.
     let onAdd: (ServingSelection, Brand) -> Void
@@ -28,11 +28,20 @@ struct RecordSheet: View {
     @Environment(\.trackedSides) private var trackedSides
     @Environment(\.drinkTutorial) private var tutorial
 
-    @State private var query = ""
+    @State private var query = RecordSheet.initialQuery
     /// 첫 기록 안내에서 밝힐 첫 브랜드 칸(화면 좌표).
     @State private var firstBrandFrame: CGRect = .zero
     @State private var panelDrink: Drink?
     @State private var failureMessage: String?
+
+    /// CI 스크린샷이 검색 결과를 찍게 검색어를 미리 넣는다(`-screenshotRecordQuery 스타벅스`, Debug 빌드만).
+    private static var initialQuery: String {
+        #if DEBUG
+        UserDefaults.standard.string(forKey: "screenshotRecordQuery") ?? ""
+        #else
+        ""
+        #endif
+    }
 
     private var favoriteRows: [QuickDrink] {
         favorites.compactMap { QuickDrink(key: $0.key, catalog: catalog) }
@@ -80,7 +89,7 @@ struct RecordSheet: View {
         // 첫 기록 안내: 연습용 브랜드 칸만 밝힌다.
         .overlay {
             if tutorial == .record, let first = catalog.catalog.brands.first {
-                CoachMark(hole: firstBrandFrame, text: String(localized: "마신 음료의 브랜드를 탭하세요")) { onBrand(first.id) }
+                CoachMark(hole: firstBrandFrame, text: String(localized: "마신 음료의 브랜드를 탭하세요")) { onBrand(BrandRoute(brandID: first.id)) }
             }
         }
         .interactiveDismissDisabled(tutorial != nil)
@@ -167,7 +176,7 @@ struct RecordSheet: View {
         LazyVGrid(columns: columns, spacing: 10) {
             ForEach(catalog.catalog.brands) { brand in
                 Button {
-                    onBrand(brand.id)
+                    onBrand(BrandRoute(brandID: brand.id))
                 } label: {
                     brandCard(name: brand.name, detail: Brand.menuCount(catalog.drinks(brandID: brand.id).count), dashed: false)
                 }
@@ -214,43 +223,97 @@ struct RecordSheet: View {
 
     // MARK: - 검색
 
+    /// 검색어가 브랜드 이름에 걸리면 브랜드 줄을 먼저 띄운다(2026-11-10 대표님). 누르면 그 브랜드 메뉴로 가서 이어 찾는다.
+    /// "브랜드 + 메뉴"로 치면 아래 결과도 그 브랜드 메뉴에서 찾는다(이름에 브랜드가 든 메뉴는 거의 없어 전체 검색은 비게 된다).
     @ViewBuilder
     private var searchResults: some View {
-        let hits = catalog.search(query)
-        if hits.isEmpty {
-            CaptionNote(text: String(localized: "\"\(query)\" 메뉴가 없어요. 직접 입력으로 남길 수 있어요."))
-                .padding(.top, 10)
-            Button(action: onManualEntry) {
-                Label("직접 입력", systemImage: "plus").glassPill()
-            }
-            .buttonStyle(.plain)
-            .padding(.horizontal, 24)
-            .accessibilityIdentifier("search-manual-entry")
-        } else {
-            SectionKicker(title: String(localized: "\(catalog.catalog.brands.count)개 브랜드에서 찾은 메뉴"), topPadding: 6)
-            ForEach(hits) { drink in
-                Button {
-                    panelDrink = drink
-                } label: {
-                    let first = drink.servings.first
-                    DrinkLine(
-                        title: drink.name,
-                        meta: [catalog.brand(id: drink.brandId)?.name, drink.temperatureLabel, first.map { Serving.displaySize($0.sizeLabel) }]
-                            .compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · "),
-                        figure: DrinkFigure(
-                            name: drink.name,
-                            sugarG: first?.sugarG,
-                            caffeineMg: first.flatMap { $0.caffeineVariants.first?.caffeineMg ?? $0.caffeineMg },
-                            caffeineRange: first?.caffeineRange,
-                            estimated: first?.isEstimated ?? false
-                        ),
-                        liquid: drink.liquid
-                    )
+        let brands = catalog.brandMatches(query)
+        let scoped = brands.filter { !$0.menuQuery.isEmpty }
+        if !brands.isEmpty {
+            SectionKicker(title: String(localized: "브랜드"), topPadding: 6)
+            ForEach(brands) { brandRow($0) }
+        }
+        if scoped.isEmpty {
+            let hits = catalog.search(query)
+            if !hits.isEmpty {
+                SectionKicker(title: String(localized: "\(catalog.catalog.brands.count)개 브랜드에서 찾은 메뉴"), topPadding: brands.isEmpty ? 6 : 30)
+                ForEach(hits) { drinkRow($0) }
+            } else if brands.isEmpty {
+                CaptionNote(text: String(localized: "\"\(query)\" 메뉴가 없어요. 직접 입력으로 남길 수 있어요."))
+                    .padding(.top, 10)
+                Button(action: onManualEntry) {
+                    Label("직접 입력", systemImage: "plus").glassPill()
                 }
-                .buttonStyle(RowPressStyle())
-                .accessibilityIdentifier("drink-\(drink.id)")
+                .buttonStyle(.plain)
+                .padding(.horizontal, 24)
+                .accessibilityIdentifier("search-manual-entry")
+            }
+        } else {
+            ForEach(scoped) { match in
+                let hits = catalog.drinks(brandID: match.brand.id, matching: DrinkQuery(match.menuQuery)).prefix(60)
+                if !hits.isEmpty {
+                    SectionKicker(title: String(localized: "\(match.brand.name)에서 찾은 메뉴"))
+                    ForEach(Array(hits)) { drinkRow($0) }
+                }
             }
         }
+    }
+
+    private func brandRow(_ match: BrandMatch) -> some View {
+        Button {
+            onBrand(BrandRoute(brandID: match.brand.id, menuQuery: match.menuQuery))
+        } label: {
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(match.brand.name)
+                        .font(AppFont.pretendard(17, .semibold, relativeTo: .headline))
+                        .tracking(-0.3)
+                    Text(Brand.menuCount(catalog.drinks(brandID: match.brand.id).count))
+                        .font(AppFont.pretendard(11, .regular, relativeTo: .caption2))
+                        .tracking(0.5)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 8)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(.tertiary)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background {
+                let shape = RoundedRectangle(cornerRadius: 16, style: .continuous)
+                shape.fill(.white.opacity(0.72)).overlay(shape.strokeBorder(.white.opacity(0.95)))
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(PressScaleStyle())
+        .padding(.horizontal, 20)
+        .padding(.bottom, 8)
+        .accessibilityIdentifier("search-brand-\(match.brand.id)")
+    }
+
+    private func drinkRow(_ drink: Drink) -> some View {
+        Button {
+            panelDrink = drink
+        } label: {
+            let first = drink.servings.first
+            DrinkLine(
+                title: drink.name,
+                meta: [catalog.brand(id: drink.brandId)?.name, drink.temperatureLabel, first.map { Serving.displaySize($0.sizeLabel) }]
+                    .compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · "),
+                figure: DrinkFigure(
+                    name: drink.name,
+                    sugarG: first?.sugarG,
+                    caffeineMg: first.flatMap { $0.caffeineVariants.first?.caffeineMg ?? $0.caffeineMg },
+                    caffeineRange: first?.caffeineRange,
+                    estimated: first?.isEstimated ?? false
+                ),
+                liquid: drink.liquid
+            )
+        }
+        .buttonStyle(RowPressStyle())
+        .accessibilityIdentifier("drink-\(drink.id)")
     }
 
     private func toggleFavorite(_ selection: ServingSelection) {

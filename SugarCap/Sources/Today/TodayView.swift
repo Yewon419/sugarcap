@@ -31,7 +31,7 @@ struct TodayView: View {
     /// 첫 선물로 추이를 열 때 그 선물의 면. 추이가 첫 등장 연출을 한 번 보여 준다(§4.9). 돌아오면 지운다.
     @State private var trendsReveal: CupSide?
     @State private var isSettingsPresented = AppTab.initial == .settings
-    @State private var path: [String] = []
+    @State private var path: [BrandRoute] = []
     @State private var isManualEntryPresented = false
     /// 먹이기 요청 + 여는 방식을 한 덩어리로 둔다. 따로 두면 전체 화면이 뜨기 전 값을 붙잡아
     /// 첫 마감 소개가 안 나왔다(2026-09-27 CI 스크린샷에서 발견).
@@ -159,7 +159,7 @@ struct TodayView: View {
     private var closeFromHour: Int { settingsRows.first?.closeFromHour ?? 20 }
 
     var body: some View {
-        // path는 브랜드 id 스택이다. 기록하면 비워서 오늘 루트로 돌아온다(§4.2).
+        // path는 브랜드 메뉴 스택이다. 기록하면 비워서 오늘 루트로 돌아온다(§4.2).
         NavigationStack(path: $path) {
             // 경계 시각(기본 새벽 4시)을 넘기면 화면을 켜 둔 채로도 오늘이 바뀌어야 한다.
             TimelineView(.everyMinute) { timeline in
@@ -168,14 +168,15 @@ struct TodayView: View {
             .toolbar(.hidden, for: .navigationBar)
             // 브랜드 메뉴의 뒤로 버튼 글자("‹ 오늘"). 막대는 숨겨 두므로 제목은 보이지 않는다.
             .navigationTitle("오늘")
-            .navigationDestination(for: String.self) { brandID in
+            .navigationDestination(for: BrandRoute.self) { route in
                 let menuCatalog = tutorial == nil ? catalog : DrinkTutorial.catalog
-                if let brand = menuCatalog.brand(id: brandID) {
+                if let brand = menuCatalog.brand(id: route.brandID) {
                     BrandMenuView(
                         brand: brand,
                         catalog: menuCatalog,
                         todayTotals: todayTotals(now: AppClock.now),
                         limits: limits,
+                        menuQuery: route.menuQuery,
                         onAdd: { selection in
                             guard tutorial == nil else {
                                 addTutorialEntry(selection.makeEntry(brandName: brand.name, at: AppClock.now))
@@ -227,9 +228,9 @@ struct TodayView: View {
                 catalog: tutorial == nil ? catalog : DrinkTutorial.catalog,
                 todayTotals: todayTotals(now: AppClock.now),
                 limits: limits,
-                onBrand: { brandID in
+                onBrand: { route in
                     isRecordSheetPresented = false
-                    path = [brandID]
+                    path = [route]
                 },
                 onManualEntry: {
                     isRecordSheetPresented = false
@@ -1840,7 +1841,7 @@ struct TodayView: View {
             isStampCardPresented = true
         }
         if let brandID = defaults.string(forKey: "screenshotBrand") {
-            path = [brandID]
+            path = [BrandRoute(brandID: brandID)]
         }
         // 첫 기록 안내 한 단계(`-screenshotTutorial cup|brand|drink|number|edit|close`). 패널은 `-screenshotBrandPanel YES`를 같이 준다.
         if let raw = defaults.string(forKey: "screenshotTutorial") {
@@ -1852,7 +1853,7 @@ struct TodayView: View {
             pickedSide = .sugar
             switch raw {
             case "brand": tutorial = .record; isRecordSheetPresented = true
-            case "drink": tutorial = .record; path = [DrinkTutorial.brandID]
+            case "drink": tutorial = .record; path = [BrandRoute(brandID: DrinkTutorial.brandID)]
             case "number": tutorial = .number
             case "edit": tutorial = .log; isDayLogPresented = true
             case "close": tutorial = .close; isDayLogPresented = true

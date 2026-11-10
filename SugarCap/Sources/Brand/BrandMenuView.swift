@@ -1,5 +1,11 @@
 import SwiftUI
 
+/// 브랜드 메뉴로 가는 길. 기록 시트·먹이기 기록 시트의 내비게이션 경로 값이다.
+struct BrandRoute: Hashable {
+    let brandID: String
+    var menuQuery = ""
+}
+
 /// 브랜드 메뉴(2026-09-26 HTML 프로토타입 확정, SPEC §4.2). 오늘 스택에 푸시되고, "추가"하면 오늘 루트로 돌아간다.
 /// 소제목(잔 기준 안내) → 큰 브랜드 이름 → 검색 → 분류 칩 → 메뉴 줄. 메뉴를 누르면 영향 미리보기 패널이 뜬다.
 /// 편의점처럼 메뉴가 수천 개면 분류 칩·전체 목록 없이 검색부터 보여 준다(2026-10-01).
@@ -11,7 +17,7 @@ struct BrandMenuView: View {
     let onAdd: (ServingSelection) -> Void
     let onManualEntry: () -> Void
 
-    @State private var query = BrandMenuView.initialQuery
+    @State private var query: String
     @State private var category = BrandMenuView.allCategory
     @State private var panelDrink: Drink?
     @Environment(\.recordCup) private var recordCup
@@ -33,6 +39,25 @@ struct BrandMenuView: View {
         #else
         ""
         #endif
+    }
+
+    /// `menuQuery`는 기록 시트에서 "브랜드 + 메뉴"로 쳐서 들어올 때 검색 칸에 미리 넣는 말이다.
+    init(
+        brand: Brand,
+        catalog: CatalogIndex,
+        todayTotals: DayTotals,
+        limits: DailyLimits,
+        menuQuery: String = "",
+        onAdd: @escaping (ServingSelection) -> Void,
+        onManualEntry: @escaping () -> Void
+    ) {
+        self.brand = brand
+        self.catalog = catalog
+        self.todayTotals = todayTotals
+        self.limits = limits
+        self.onAdd = onAdd
+        self.onManualEntry = onManualEntry
+        _query = State(initialValue: menuQuery.isEmpty ? Self.initialQuery : menuQuery)
     }
 
     private var drinks: [Drink] { catalog.drinks(brandID: brand.id) }

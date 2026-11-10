@@ -12,7 +12,7 @@ struct FeedingRecordSheet: View {
     let onRecord: (Entry) -> Void
 
     @Environment(\.dismiss) private var dismiss
-    @State private var path: [String] = []
+    @State private var path: [BrandRoute] = []
     @State private var isManualEntryPresented = false
     /// 직접 입력 시트가 닫힌 뒤에 넘긴다. 닫히는 중에 이 시트까지 닫으면 두 시트가 엉킨다.
     @State private var pendingManual: Entry?
@@ -25,7 +25,7 @@ struct FeedingRecordSheet: View {
                 catalog: catalog,
                 todayTotals: request.totals,
                 limits: request.limits,
-                onBrand: { brandID in path = [brandID] },
+                onBrand: { route in path = [route] },
                 onManualEntry: { isManualEntryPresented = true },
                 onAdd: { selection, brand in
                     UsageReporter.shared?.logEntry(path: .search, place: place, brandID: brand.id, now: Date())
@@ -40,13 +40,14 @@ struct FeedingRecordSheet: View {
             )
             .toolbar(.hidden, for: .navigationBar)
             .navigationTitle("기록")
-            .navigationDestination(for: String.self) { brandID in
-                if let brand = catalog.brand(id: brandID) {
+            .navigationDestination(for: BrandRoute.self) { route in
+                if let brand = catalog.brand(id: route.brandID) {
                     BrandMenuView(
                         brand: brand,
                         catalog: catalog,
                         todayTotals: request.totals,
                         limits: request.limits,
+                        menuQuery: route.menuQuery,
                         onAdd: { selection in
                             UsageReporter.shared?.logEntry(path: .brandMenu, place: place, brandID: brand.id, now: Date())
                             save(selection.makeEntry(brandName: brand.name, at: loggedAt()))

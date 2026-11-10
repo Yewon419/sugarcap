@@ -285,6 +285,22 @@ final class CatalogIndexTests: XCTestCase {
         }
     }
 
+    func testBrandMatchesNameAndCarriesMenuQuery() throws {
+        let index = CatalogIndex(catalog: try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self)))
+
+        XCTAssertEqual(index.brandMatches("스타벅").map(\.brand.id), ["starbucks"])
+        XCTAssertEqual(index.brandMatches("스타 벅스").first?.menuQuery, "")
+        XCTAssertTrue(index.brandMatches("라떼").isEmpty, "메뉴 검색어가 브랜드에 걸림")
+        XCTAssertTrue(index.brandMatches(" ").isEmpty)
+
+        // 브랜드 이름 뒤에 친 말은 띄어쓰기를 살려 메뉴 검색어로 넘긴다.
+        let scoped = try XCTUnwrap(index.brandMatches("스타벅스 아이스 라떼").first)
+        XCTAssertEqual(scoped.brand.id, "starbucks")
+        XCTAssertEqual(scoped.menuQuery, "아이스 라떼")
+        XCTAssertEqual(index.brandMatches("스타벅스라떼").first?.menuQuery, "라떼")
+        XCTAssertFalse(index.drinks(brandID: "starbucks", matching: DrinkQuery(scoped.menuQuery)).isEmpty)
+    }
+
     func testShorterNamesBeatPrefixMatches() throws {
         let index = CatalogIndex(catalog: try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self)))
 

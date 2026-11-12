@@ -71,20 +71,31 @@ final class UsageReporterTests: XCTestCase {
         XCTAssertEqual(try queue.load().count, 1)
     }
 
-    /// 실제 TelemetryDeck으로 테스트 모드 신호를 보낸다(목 없음). CI가 시크릿으로 앱 ID를 넣은 빌드에서만 돈다.
-    func testGrantSendsQueuedEventsToTelemetryDeck() async throws {
-        let config = try XCTUnwrap(
-            UsageConfig.bundled(.main), "TelemetryDeckAppID가 비어 있다. CI 테스트 단계에 시크릿이 들어갔는지 본다.")
+    /// 보낸 신호 묶음을 담기만 한다. 실제 TelemetryDeck 호출은 러너 네트워크(TLS -1200)에 따라 CI를 깨서 뺐다(2026-11-11 대표님).
+    private final class SentBatches {
+        var batches: [(signals: [IngestSignal], url: URL)] = []
+    }
+
+    func testGrantSendsQueuedEventsAsTwoSeparateBatches() async throws {
+        let config = UsageConfig(appID: UUID().uuidString)
         let storage = try makeStorage()
         defer { try? storage.remove() }
         let queue = storage.queue
-        let reporter = UsageReporter(defaults: storage.defaults, queue: queue, config: config)
+        let sent = SentBatches()
+        let reporter = UsageReporter(defaults: storage.defaults, queue: queue, config: config) { signals, url in
+            sent.batches.append((signals, url))
+        }
         try reporter.record(type: "ci_probe_install", scope: .install, parameters: ["source": "UsageTests"])
         try reporter.record(type: "ci_probe_anonymous", scope: .anonymous, parameters: ["source": "UsageTests"])
 
         let result = try await reporter.grant()
         XCTAssertEqual(result, .sent(2))
         XCTAssertEqual(try queue.load(), [])
+        XCTAssertEqual(sent.batches.map { $0.url }, [config.ingestURL, config.ingestURL])
+        XCTAssertEqual(sent.batches.map { $0.signals.map(\.type) }, [["ci_probe_install"], ["ci_probe_anonymous"]])
+        XCTAssertEqual(sent.batches.flatMap { $0.signals.map(\.appID) }, [config.appID, config.appID])
+        XCTAssertNotNil(sent.batches[0].signals[0].sessionID)
+        XCTAssertNil(sent.batches[1].signals[0].sessionID)
     }
 
     func testFirstEntryIsLoggedOnceWithDaysSinceInstall() throws {

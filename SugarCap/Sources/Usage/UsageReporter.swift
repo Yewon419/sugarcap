@@ -89,20 +89,25 @@ final class UsageReporter {
         case sent(Int)
     }
 
+    /// 신호 묶음 하나를 보낸다. 앱은 `post`(TelemetryDeck), 테스트는 네트워크 없이 받은 신호를 담는 함수를 넣는다.
+    typealias Send = @MainActor ([IngestSignal], URL) async throws -> Void
+
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "usage")
     private static let attempts = 3
 
     let defaults: UserDefaults
     private let queue: UsageQueue
     private let config: UsageConfig?
+    private let send: Send
     /// 퍼널 이벤트를 실행 단위로 묶는다. 저장하지 않아 앱을 다시 켜면 바뀐다.
     private let sessionID = UUID()
     private var isFlushing = false
 
-    init(defaults: UserDefaults, queue: UsageQueue, config: UsageConfig?) {
+    init(defaults: UserDefaults, queue: UsageQueue, config: UsageConfig?, send: @escaping Send = UsageReporter.post) {
         self.defaults = defaults
         self.queue = queue
         self.config = config
+        self.send = send
     }
 
     /// 앱이 쓰는 하나. 대기열 위치를 못 잡으면 nil이고 그 실행에서는 아무것도 쌓지 않는다(로그는 남긴다).
@@ -167,7 +172,7 @@ final class UsageReporter {
             let signals = IngestSignal.make(
                 events: batch, appID: config.appID, installUser: installUser, isTestMode: isTestMode,
                 technical: technical)
-            try await post(signals, to: config.ingestURL)
+            try await send(signals, config.ingestURL)
             sent += batch.count
             // 보내는 사이 철회했으면 지운 파일을 되살리지 않는다.
             guard consent == .granted else { return .sent(sent) }
@@ -185,7 +190,7 @@ final class UsageReporter {
         }
     }
 
-    private func post(_ signals: [IngestSignal], to url: URL) async throws {
+    static func post(_ signals: [IngestSignal], to url: URL) async throws {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")

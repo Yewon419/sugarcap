@@ -272,7 +272,7 @@ final class CatalogIndexTests: XCTestCase {
             let hits = index.search(text, limit: 5_000)
             XCTAssertFalse(hits.isEmpty, text)
             let keys = try hits.map { drink -> [Int] in
-                let rank = try XCTUnwrap(query.rank(drink.searchNames))
+                let rank = try XCTUnwrap(query.rank(drink.searchNames, temperature: drink.temperature))
                 return [
                     rank.isExact ? 0 : 1,
                     drink.brandId == CatalogIndex.convenienceStoreID ? 1 : 0,
@@ -299,6 +299,39 @@ final class CatalogIndexTests: XCTestCase {
         XCTAssertEqual(scoped.menuQuery, "카페 라떼")
         XCTAssertEqual(index.brandMatches("스타벅스라떼").first?.menuQuery, "라떼")
         XCTAssertFalse(index.drinks(brandID: "starbucks", matching: DrinkQuery(scoped.menuQuery)).isEmpty)
+    }
+
+    func testBrandAliasesMatchAndCarryMenuQuery() throws {
+        let index = CatalogIndex(catalog: try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self)))
+        let brandIDs = Set(index.catalog.brands.map(\.id))
+        XCTAssertTrue(Set(CatalogIndex.brandAliases.keys).isSubset(of: brandIDs), "없는 브랜드에 줄임말이 걸림")
+
+        XCTAssertEqual(index.brandMatches("스벅").map(\.brand.id), ["starbucks"])
+        XCTAssertEqual(index.brandMatches("배라").map(\.brand.id), ["baskin"])
+        XCTAssertEqual(index.brandMatches("메가커피").map(\.brand.id), ["mega"])
+        let scoped = try XCTUnwrap(index.brandMatches("스벅 아이스 라떼").first)
+        XCTAssertEqual(scoped.brand.id, "starbucks")
+        XCTAssertEqual(scoped.menuQuery, "아이스 라떼")
+    }
+
+    func testTemperatureWordScopesSearchToThatTemperature() throws {
+        let index = CatalogIndex(catalog: try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self)))
+
+        // 2026-11-12: 이름에 "아이스"를 안 붙이는 브랜드가 많아 "아이스 라떼"가 아무것도 안 잡았다.
+        let starbucks = index.drinks(brandID: "starbucks", matching: DrinkQuery("아이스 라떼"))
+        XCTAssertEqual(starbucks.first?.name, "아이스 카페 라떼")
+        XCTAssertFalse(starbucks.contains { $0.temperature == .hot }, "아이스 검색에 뜨거운 메뉴가 섞임")
+        for brandID in ["mega", "compose", "ediya"] {
+            let hits = index.drinks(brandID: brandID, matching: DrinkQuery("아이스 라떼"))
+            XCTAssertFalse(hits.isEmpty, brandID)
+            XCTAssertFalse(hits.contains { $0.temperature == .hot }, brandID)
+        }
+        XCTAssertFalse(index.search("아이스 라떼").isEmpty)
+
+        // 붙여 쓴 이름의 앞말은 온도 말이 아니다.
+        XCTAssertNil(DrinkQuery("아이스크림").temperatureScope)
+        XCTAssertNil(DrinkQuery("핫식스 제로").temperatureScope)
+        XCTAssertNil(DrinkQuery("아이스").temperatureScope)
     }
 
     @MainActor

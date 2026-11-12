@@ -169,12 +169,29 @@ struct CatalogIndex {
             if name.hasPrefix(needle) || (needle.count >= 2 && name.contains(needle)) {
                 return BrandMatch(brand: brand, menuQuery: "")
             }
-            if needle.hasPrefix(name), let rest = Self.remainder(of: text, afterFolded: name) {
-                return BrandMatch(brand: brand, menuQuery: rest)
+            let aliases = Self.brandAliases[brand.id] ?? []
+            if needle.count >= 2, aliases.contains(where: { $0.hasPrefix(needle) }) {
+                return BrandMatch(brand: brand, menuQuery: "")
+            }
+            for prefix in [name] + aliases where needle.hasPrefix(prefix) {
+                if let rest = Self.remainder(of: text, afterFolded: prefix) {
+                    return BrandMatch(brand: brand, menuQuery: rest)
+                }
             }
             return nil
         }
     }
+
+    /// 브랜드 줄임말·흔한 오타(2026-11-12). 카탈로그는 파이프라인 산출물이라 앱에 둔다. 접은 값으로 적는다.
+    /// 이름 앞부분·가운데로 이미 잡히는 말("메가"·"투썸"·"벤티")은 넣지 않는다.
+    static let brandAliases: [String: [String]] = [
+        "starbucks": ["스벅"],
+        "mega": ["메가커피"],
+        "paik": ["백다방"],
+        "baskin": ["배라", "베라", "베스킨라빈스"],
+        "coffeebean": ["커빈"],
+        "parisbaguette": ["파바", "파리바게트"],
+    ]
 
     /// 원래 글에서 접은 브랜드 이름만큼 걷어 낸 나머지. 메뉴 검색어의 띄어쓰기를 그대로 둔다.
     private static func remainder(of text: String, afterFolded name: String) -> String? {
@@ -204,7 +221,7 @@ struct CatalogIndex {
     private func ranked(_ drinks: [Drink], _ query: DrinkQuery) -> [Drink] {
         drinks.enumerated()
             .compactMap { offset, drink -> (rank: DrinkSearchRank, isStore: Bool, offset: Int, drink: Drink)? in
-                guard let rank = query.rank(searchNames(drink)) else { return nil }
+                guard let rank = query.rank(searchNames(drink), temperature: drink.temperature) else { return nil }
                 return (rank, drink.brandId == Self.convenienceStoreID, offset, drink)
             }
             .sorted { lhs, rhs in

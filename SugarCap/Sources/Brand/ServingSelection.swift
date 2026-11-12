@@ -90,12 +90,8 @@ extension Drink {
     }
 
     func matches(_ query: String) -> Bool {
-        DrinkQuery(query).matches(searchKey)
-    }
-
-    /// 검색 비교용 이름: 이름과 영문명을 각각 접어서 줄바꿈으로 잇는다(두 이름에 걸친 일치를 막는다).
-    var searchKey: String {
-        [name, nameEn].compactMap { $0 }.map(DrinkQuery.fold).joined(separator: "\n")
+        let query = DrinkQuery(query)
+        return query.isEmpty || query.rank(searchNames, temperature: temperature) != nil
     }
 
     var searchNames: [DrinkSearchName] {
@@ -108,24 +104,44 @@ extension Drink {
 /// 메뉴마다 다시 접지 않게 검색어는 한 번만 접는다.
 struct DrinkQuery {
     let needle: String
+    /// "아이스 라떼"처럼 첫 낱말이 온도 말이고 뒤에 말이 더 있으면, 그 온도와 나머지 검색어(2026-11-12).
+    /// 대부분 브랜드는 이름에 "아이스"를 붙이지 않고 온도 칸에만 적어서, 이름만 보면 "아이스 라떼"가 하나도 안 걸렸다.
+    let temperatureScope: TemperatureScope?
+
+    struct TemperatureScope {
+        let temperature: Drink.Temperature
+        let needle: String
+    }
+
+    /// 띄어 쓴 첫 낱말일 때만 온도 말로 본다. 붙여 쓰면 "아이스크림"·"핫식스"가 갈라진다.
+    static let temperatureWords: [String: Drink.Temperature] = ["아이스": .iced, "iced": .iced, "핫": .hot, "hot": .hot]
 
     init(_ text: String) {
         needle = Self.fold(text)
+        let words = text.lowercased().split(whereSeparator: \.isWhitespace)
+        if words.count > 1, let temperature = Self.temperatureWords[String(words[0])] {
+            temperatureScope = TemperatureScope(temperature: temperature, needle: Self.fold(words.dropFirst().joined()))
+        } else {
+            temperatureScope = nil
+        }
     }
 
     var isEmpty: Bool { needle.isEmpty }
 
-    func matches(_ searchKey: String) -> Bool {
-        needle.isEmpty || searchKey.contains(needle)
-    }
-
-    /// 검색 순위. 이름과 영문명 중 더 나은 쪽. 일치하지 않으면 nil.
-    func rank(_ names: [DrinkSearchName]) -> DrinkSearchRank? {
+    /// 검색 순위. 이름과 영문명 중 더 나은 쪽, 온도 말 검색이면 그쪽 일치까지 견줘 더 나은 쪽. 일치하지 않으면 nil.
+    /// 온도 말 검색은 그 온도 메뉴와 온도를 나눠 싣지 않은(`both`) 메뉴만 잡고, `both`는 같은 순위 안에서 뒤로 보낸다.
+    func rank(_ names: [DrinkSearchName], temperature: Drink.Temperature) -> DrinkSearchRank? {
         guard !needle.isEmpty else { return nil }
-        return names.compactMap { rank(name: $0) }.min()
+        let whole = names.compactMap { Self.rank(name: $0, needle: needle) }.min()
+        guard let scope = temperatureScope, temperature == scope.temperature || temperature == .both else {
+            return whole
+        }
+        let scoped = names.compactMap { Self.rank(name: $0, needle: scope.needle) }.min()
+            .map { DrinkSearchRank(isExact: $0.isExact, extraLength: $0.extraLength, isPrefix: $0.isPrefix, isTemperatureGuess: temperature == .both) }
+        return [whole, scoped].compactMap { $0 }.min()
     }
 
-    private func rank(name: DrinkSearchName) -> DrinkSearchRank? {
+    private static func rank(name: DrinkSearchName, needle: String) -> DrinkSearchRank? {
         guard name.folded.contains(needle) else { return nil }
         let isExact = name.core == needle || name.core == "카페" + needle
         // 검색어가 떼어 낸 앞말에만 걸리면("아이스") 본체 대신 전체 이름 길이로 잰다.
@@ -168,9 +184,11 @@ struct DrinkSearchRank: Comparable {
     let isExact: Bool
     let extraLength: Int
     let isPrefix: Bool
+    /// 온도 말 검색에서 온도를 나눠 싣지 않은(`both`) 메뉴로 잡혔다. "아이스 라떼"에 카페 라떼보다 아이스 카페 라떼가 먼저.
+    var isTemperatureGuess = false
 
     static func < (lhs: DrinkSearchRank, rhs: DrinkSearchRank) -> Bool {
-        (lhs.isExact ? 0 : 1, lhs.extraLength, lhs.isPrefix ? 0 : 1)
-            < (rhs.isExact ? 0 : 1, rhs.extraLength, rhs.isPrefix ? 0 : 1)
+        (lhs.isExact ? 0 : 1, lhs.isTemperatureGuess ? 1 : 0, lhs.extraLength, lhs.isPrefix ? 0 : 1)
+            < (rhs.isExact ? 0 : 1, rhs.isTemperatureGuess ? 1 : 0, rhs.extraLength, rhs.isPrefix ? 0 : 1)
     }
 }

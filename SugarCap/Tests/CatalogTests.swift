@@ -334,6 +334,17 @@ final class CatalogIndexTests: XCTestCase {
         XCTAssertNil(DrinkQuery("아이스").temperatureScope)
     }
 
+    func testIcedAmericanoSlangFindsIcedAmericano() throws {
+        let index = CatalogIndex(catalog: try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self)))
+
+        let starbucks = index.drinks(brandID: "starbucks", matching: DrinkQuery("아아"))
+        XCTAssertEqual(starbucks.first?.name, "아이스 카페 아메리카노")
+        XCTAssertFalse(starbucks.contains { $0.temperature == .hot }, "아아에 뜨거운 메뉴가 섞임")
+        XCTAssertFalse(index.search("아아").isEmpty)
+        let scoped = try XCTUnwrap(index.brandMatches("스벅 아아").first)
+        XCTAssertEqual(scoped.menuQuery, "아아")
+    }
+
     @MainActor
     func testStarredBrandsLeadInStarOrderAndToggleOff() throws {
         let container = try ModelContainer(for: SharedStore.schema, configurations: ModelConfiguration(isStoredInMemoryOnly: true))

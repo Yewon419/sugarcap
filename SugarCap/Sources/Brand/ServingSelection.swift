@@ -116,7 +116,11 @@ struct DrinkQuery {
     /// 띄어 쓴 첫 낱말일 때만 온도 말로 본다. 붙여 쓰면 "아이스크림"·"핫식스"가 갈라진다.
     static let temperatureWords: [String: Drink.Temperature] = ["아이스": .iced, "iced": .iced, "핫": .hot, "hot": .hot]
 
-    init(_ text: String) {
+    /// 메뉴 줄임말. 검색어 전체가 이 말이면 풀어 쓴 말로 찾는다(2026-11-12 대표님 "아아").
+    static let menuAliases: [String: String] = ["아아": "아이스 아메리카노"]
+
+    init(_ typed: String) {
+        let text = Self.menuAliases[Self.fold(typed)] ?? typed
         needle = Self.fold(text)
         let words = text.lowercased().split(whereSeparator: \.isWhitespace)
         if words.count > 1, let temperature = Self.temperatureWords[String(words[0])] {

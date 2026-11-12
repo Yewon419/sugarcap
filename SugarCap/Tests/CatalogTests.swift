@@ -343,6 +343,13 @@ final class CatalogIndexTests: XCTestCase {
         XCTAssertFalse(index.search("아아").isEmpty)
         let scoped = try XCTUnwrap(index.brandMatches("스벅 아아").first)
         XCTAssertEqual(scoped.menuQuery, "아아")
+
+        XCTAssertEqual(index.drinks(brandID: "starbucks", matching: DrinkQuery("아바라")).first?.name, "아이스 바닐라 라떼")
+        XCTAssertEqual(index.drinks(brandID: "starbucks", matching: DrinkQuery("자허블")).first?.name, "아이스 자몽 허니 블랙 티")
+        XCTAssertFalse(index.drinks(brandID: "starbucks", matching: DrinkQuery("뜨아")).contains { $0.temperature == .iced })
+        for (slang, _) in DrinkQuery.menuAliases {
+            XCTAssertFalse(index.search(slang).isEmpty, "\(slang)로 아무것도 안 잡힘")
+        }
     }
 
     @MainActor

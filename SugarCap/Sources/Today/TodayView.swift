@@ -390,7 +390,7 @@ struct TodayView: View {
             .gesture(
                 DragGesture(minimumDistance: 12)
                     .onChanged { value in
-                        guard !locksForEvent, abs(value.translation.width) > abs(value.translation.height) else { return }
+                        guard !locksSwipe, abs(value.translation.width) > abs(value.translation.height) else { return }
                         isSliding = true
                         let pullingPastEdge = (side == trackedSides.first && value.translation.width > 0)
                             || (side == trackedSides.last && value.translation.width < 0)
@@ -402,7 +402,7 @@ struct TodayView: View {
                     }
                     .onEnded { value in
                         let travel = value.predictedEndTranslation.width
-                        let step = locksForEvent ? 0 : (travel < -width / 3 ? 1 : (travel > width / 3 ? -1 : 0))
+                        let step = locksSwipe ? 0 : (travel < -width / 3 ? 1 : (travel > width / 3 ? -1 : 0))
                         let next = Self.neighbor(of: side, step: step, in: trackedSides)
                         UserDefaults.standard.set(next.rawValue, forKey: Self.lastSideKey)
                         withAnimation(reduceMotion ? .easeInOut(duration: 0.25) : .spring(response: 0.45, dampingFraction: 0.86)) {
@@ -467,11 +467,29 @@ struct TodayView: View {
     }
 
     /// 선물 상자가 와 있거나 여는 중이어도 위 버튼·마감·컵 누르기·거래 상자를 막는다(대표님 2026-11-06 "선물상자도
-    /// 우선이벤트로"). 넘기기와 상자 열기는 그대로 둔다. 상자가 있는 면으로 가서 열어야 풀린다.
+    /// 우선이벤트로"). 상자 열기는 그대로 둔다. 넘기기는 `locksSwipe`가 막고 상자 있는 면으로 넘겨 준다.
     private var locksControls: Bool {
         guard tutorial == nil else { return false }
         return locksForEvent || opening != nil || reveal != nil || revealLead != nil
             || trackedSides.contains { carriedGift(for: $0) != nil }
+    }
+
+    /// 선물 상자가 기다리는 면(지금 면이 우선). 상자가 있으면 위 버튼·컵이 잠기므로, 상자 없는 면에 서 있으면
+    /// 아무것도 안 먹어 고장처럼 보였다(대표님 2026-11-13). 그래서 그 면으로 넘기고 상자를 열 때까지 넘기기도 막는다.
+    private var giftWaitingSide: CupSide? {
+        guard tutorial == nil else { return nil }
+        if carriedGift(for: side) != nil { return side }
+        return trackedSides.first { carriedGift(for: $0) != nil }
+    }
+
+    private var locksSwipe: Bool { locksForEvent || giftWaitingSide != nil }
+
+    /// 상자가 다른 면에 와 있을 때 넘겨 줄 면. 단계 상승·스탬프가 먼저다.
+    private var giftSideCue: CupSide? {
+        guard !locksForEvent, let target = giftWaitingSide, target != side, isOnScreen, !isSliding, path.isEmpty else {
+            return nil
+        }
+        return target
     }
 
     /// 다음에 볼 단계 상승.
@@ -1193,6 +1211,12 @@ struct TodayView: View {
             guard !Task.isCancelled, stampCue else { return }
             isStampCardPresented = true
         }
+        .task(id: giftSideCue) {
+            guard let target = giftSideCue else { return }
+            try? await Task.sleep(for: .seconds(0.4))
+            guard !Task.isCancelled, giftSideCue == target else { return }
+            switchSide(to: target)
+        }
         .task(id: tradeCue(now: now)) {
             if tradeCue(now: AppClock.now) != nil { await offerTradeIfDue(today: today) }
         }
@@ -1254,6 +1278,7 @@ struct TodayView: View {
                 )
                 // 컵 전환은 화면에서는 좌우 스와이프다. VoiceOver에서는 위아래 쓸기로 같은 일을 한다.
                 .accessibilityAdjustableAction { direction in
+                    guard !locksSwipe else { return }
                     switch direction {
                     case .increment: switchSide(to: .caffeine)
                     case .decrement: switchSide(to: .sugar)

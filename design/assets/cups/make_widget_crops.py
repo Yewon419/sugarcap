@@ -94,10 +94,12 @@ HALF_RIGHT = Family("half", 169 + SEAM, 158, 169 / 420, SEAM + 84.5)
 WIDE = Family("wide", 338, 158, 338 / 760, 0.35 * 338)
 # Large(시안 design/proto/widget-large.html A, 대표님 2026-11-09 확정): 잔 전체(입구 위 여유 ~ 냅킨 끝)를 위 262pt에.
 # 두 잔은 Medium처럼 칸마다 181pt(가운데 24pt 겹침), 모든 단계를 같은 위끝으로 잘라 입구 높이가 늘 같다.
+# 두 잔을 가운데 쪽으로 LARGE_PULL pt씩 당긴다(빌드 448 대표님 "두 음료 거리를 좀 더 좁혀도"). Swift `axis(.large)`와 같아야 한다.
 LARGE_TOP = 240.0
 LARGE_UNITS = 840.0
-LARGE_LEFT = Family("large", 181, 262, 262 / LARGE_UNITS, 84.5)
-LARGE_RIGHT = Family("large", 181, 262, 262 / LARGE_UNITS, 96.5)
+LARGE_PULL = 12.0
+LARGE_LEFT = Family("large", 181, 262, 262 / LARGE_UNITS, 84.5 + LARGE_PULL)
+LARGE_RIGHT = Family("large", 181, 262, 262 / LARGE_UNITS, SEAM + 84.5 - LARGE_PULL)
 # 한 면만 켠 사용자: 잔 하나를 가운데, 사진 폭 전체(1024단위)를 338pt에. 그만큼 위아래를 조금 덜 담는다.
 LARGE_SOLO = Family("largesolo", 338, 262, 338 / 1024, 338 / 1024 * AXIS_X)
 SOLO_TOP = LARGE_TOP + (LARGE_UNITS - 262 / LARGE_SOLO.k) / 2

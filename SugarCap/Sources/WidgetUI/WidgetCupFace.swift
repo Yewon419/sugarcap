@@ -33,7 +33,7 @@ enum WidgetCupFamily: String, Sendable {
         case .small: 79
         case .half: side == .sugar ? 84.5 : Self.seam + 84.5
         case .wide: 0.35 * 338
-        case .large: side == .sugar ? 84.5 : Self.seam + 84.5
+        case .large: side == .sugar ? 84.5 + Self.largePull : Self.seam + 84.5 - Self.largePull
         case .largeSolo: 338.0 / 1024 * WidgetCupCrops.axisX
         }
     }
@@ -56,6 +56,8 @@ enum WidgetCupFamily: String, Sendable {
 
     /// Medium 두 칸이 겹쳐 섞이는 폭의 절반. 두 잔 사진의 벽 톤이 달라 맞대면 세로 줄이 보였다(시안 v1).
     static let seam = 12.0
+    /// Large 두 잔을 가운데 쪽으로 당기는 폭(빌드 448 대표님). `make_widget_crops.py`의 `LARGE_PULL`과 같아야 한다.
+    static let largePull = 12.0
 
     func imageName(setID: String, step: Int) -> String {
         "widget-\(rawValue)-\(setID)-\(step)"

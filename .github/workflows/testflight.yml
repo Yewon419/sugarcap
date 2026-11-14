@@ -15,6 +15,11 @@ on:
       - "SugarCap/**"
       - "data/catalog.json"
   workflow_dispatch:
+    inputs:
+      upload:
+        description: "TestFlight에 올린다. 끄면 서명 entitlements 확인까지만 한다."
+        type: boolean
+        default: true
 
 concurrency:
   group: ios-${{ github.ref }}
@@ -679,7 +684,58 @@ jobs:
             TELEMETRYDECK_APP_ID="$TELEMETRYDECK_APP_ID" \
             CURRENT_PROJECT_VERSION=${{ github.run_number }}
 
+      # 무서명 아카이브에는 entitlements가 없어 cloud signing이 App Group을 빼고 서명했다(빌드 453까지, 2026-11-14).
+      # export는 서명된 아카이브라면 Xcode가 번들 안에 남기는 archived-expanded-entitlements.xcent를 읽는다.
+      # ad-hoc 코드 서명에 박은 entitlements는 무시됐다(run 456). 그 파일을 직접 넣는다. 프로필 두 개에는 App Group이 있다.
+      - name: 아카이브에 entitlements 넣기
+        env:
+          TEAM_ID: ${{ secrets.TEAM_ID }}
+        run: |
+          APP="$RUNNER_TEMP/SugarCap.xcarchive/Products/Applications/SugarCap.app"
+          put() {
+            local bundle="$1" entitlements="$2" identifier="$3"
+            local xcent="$bundle/archived-expanded-entitlements.xcent"
+            cp "$entitlements" "$xcent"
+            /usr/libexec/PlistBuddy -c "Add :application-identifier string ${TEAM_ID}.${identifier}" "$xcent"
+            /usr/libexec/PlistBuddy -c "Add :com.apple.developer.team-identifier string ${TEAM_ID}" "$xcent"
+            plutil -lint "$xcent"
+          }
+          put "$APP/PlugIns/SugarCapWidget.appex" SugarCap/SugarCapWidget.entitlements com.sugarcap.app.widget
+          put "$APP" SugarCap/SugarCap.entitlements com.sugarcap.app
+
+      # 업로드와 같은 cloud signing으로 로컬 IPA를 한 벌 더 뽑아, 앱·위젯에 App Group이 박혔는지 본다.
+      # 빠졌으면 여기서 멈춰 업로드하지 않는다. 빠지면 위젯이 빈 저장소를 본다(빈 선반·기본 잔·가득 찬 잔).
+      - name: 서명 entitlements 확인
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          LOCAL="$RUNNER_TEMP/ExportLocal.plist"
+          cp SugarCap/ExportOptions.plist "$LOCAL"
+          /usr/libexec/PlistBuddy -c "Set :destination export" "$LOCAL"
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/SugarCap.xcarchive" \
+            -exportPath "$RUNNER_TEMP/export-local" \
+            -exportOptionsPlist "$LOCAL" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$HOME/private_keys/AuthKey_${ASC_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+          mkdir -p "$RUNNER_TEMP/ipa"
+          unzip -q "$RUNNER_TEMP"/export-local/*.ipa -d "$RUNNER_TEMP/ipa"
+          APP="$RUNNER_TEMP/ipa/Payload/SugarCap.app"
+          for BIN in "$APP" "$APP/PlugIns/SugarCapWidget.appex"; do
+            echo "== $(basename "$BIN") =="
+            ENT=$(codesign -d --entitlements - --xml "$BIN" 2>/dev/null)
+            echo "$ENT"
+            if ! grep -q "group.com.sugarcap.app" <<< "$ENT"; then
+              echo "$(basename "$BIN")에 App Group(group.com.sugarcap.app)이 없습니다." >&2
+              exit 1
+            fi
+          done
+
       - name: 익스포트 + TestFlight 업로드
+        if: inputs.upload
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}

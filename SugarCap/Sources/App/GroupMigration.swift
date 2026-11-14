@@ -17,7 +17,8 @@ enum GroupMigration {
     /// 앱이 열 저장소. App Group이 없으면(CI 시뮬레이터 무서명) 앱 전용 저장소.
     /// 옮기다 실패하면 이번 실행은 앱 전용 저장소를 그대로 쓰고 다음 실행에 다시 옮긴다.
     static func appConfiguration() -> ModelConfiguration {
-        let local = ModelConfiguration(schema: SharedStore.schema)
+        // 기본값 `.automatic`은 App Group이 붙으면 공용 위치를 가리켜 옛 저장소와 새 저장소가 같은 파일이 된다(2026-11-15 CI에서 실행마다 기록이 지워짐).
+        let local = ModelConfiguration(schema: SharedStore.schema, groupContainer: .none)
         guard SharedStore.groupContainerURL != nil, let shared = SharedDefaults.store else { return local }
         let group = ModelConfiguration(schema: SharedStore.schema, groupContainer: .identifier(SharedStore.appGroupID))
         do {
@@ -43,7 +44,8 @@ enum GroupMigration {
     /// - Returns: 옮길 저장소가 있었는지. 새로 설치했거나 이미 옮긴 기기는 없다.
     @discardableResult
     static func moveStore(from source: URL, to destination: URL, fileManager: FileManager = .default) throws -> Bool {
-        guard fileManager.fileExists(atPath: source.path(percentEncoded: false)) else { return false }
+        guard source.standardizedFileURL != destination.standardizedFileURL,
+              fileManager.fileExists(atPath: source.path(percentEncoded: false)) else { return false }
         try fileManager.createDirectory(at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
         for suffix in storeSuffixes {
             let from = sibling(source, suffix)

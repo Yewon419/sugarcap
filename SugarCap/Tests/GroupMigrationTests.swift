@@ -55,6 +55,22 @@ final class GroupMigrationTests: XCTestCase {
         XCTAssertEqual(try names(at: destination), ["americano", "latte"])
     }
 
+    /// 옛 위치와 새 위치가 같은 파일이면 지우지 않는다(`.automatic` 설정이 공용 위치를 가리켜 실행마다 기록이 지워졌다).
+    @MainActor
+    func testSameLocationKeepsRecords() throws {
+        let store = root.appending(path: "group/default.store")
+        try FileManager.default.createDirectory(at: store.deletingLastPathComponent(), withIntermediateDirectories: true)
+        do {
+            let container = try ModelContainer(
+                for: SharedStore.schema, configurations: ModelConfiguration(schema: SharedStore.schema, url: store)
+            )
+            container.mainContext.insert(entry("latte"))
+            try container.mainContext.save()
+        }
+        XCTAssertFalse(try GroupMigration.moveStore(from: store, to: store))
+        XCTAssertEqual(try names(at: store), ["latte"])
+    }
+
     func testNoLocalStoreMovesNothing() throws {
         let destination = root.appending(path: "group/default.store")
         XCTAssertFalse(try GroupMigration.moveStore(from: root.appending(path: "none/default.store"), to: destination))

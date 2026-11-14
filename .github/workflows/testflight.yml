@@ -685,15 +685,23 @@ jobs:
             CURRENT_PROJECT_VERSION=${{ github.run_number }}
 
       # 무서명 아카이브에는 entitlements가 없어 cloud signing이 App Group을 빼고 서명했다(빌드 453까지, 2026-11-14).
-      # export는 아카이브 서명의 entitlements를 따르므로 ad-hoc 서명으로 박아 둔다. 안쪽(위젯)부터 서명한다.
-      - name: 아카이브에 entitlements 박기
+      # export는 서명된 아카이브라면 Xcode가 번들 안에 남기는 archived-expanded-entitlements.xcent를 읽는다.
+      # ad-hoc 코드 서명에 박은 entitlements는 무시됐다(run 456). 그 파일을 직접 넣는다. 프로필 두 개에는 App Group이 있다.
+      - name: 아카이브에 entitlements 넣기
+        env:
+          TEAM_ID: ${{ secrets.TEAM_ID }}
         run: |
           APP="$RUNNER_TEMP/SugarCap.xcarchive/Products/Applications/SugarCap.app"
-          find "$APP" \( -name "*.framework" -o -name "*.dylib" \) -prune -print | while read -r f; do
-            codesign --force --sign - "$f"
-          done
-          codesign --force --sign - --entitlements SugarCap/SugarCapWidget.entitlements "$APP/PlugIns/SugarCapWidget.appex"
-          codesign --force --sign - --entitlements SugarCap/SugarCap.entitlements "$APP"
+          put() {
+            local bundle="$1" entitlements="$2" identifier="$3"
+            local xcent="$bundle/archived-expanded-entitlements.xcent"
+            cp "$entitlements" "$xcent"
+            /usr/libexec/PlistBuddy -c "Add :application-identifier string ${TEAM_ID}.${identifier}" "$xcent"
+            /usr/libexec/PlistBuddy -c "Add :com.apple.developer.team-identifier string ${TEAM_ID}" "$xcent"
+            plutil -lint "$xcent"
+          }
+          put "$APP/PlugIns/SugarCapWidget.appex" SugarCap/SugarCapWidget.entitlements com.sugarcap.app.widget
+          put "$APP" SugarCap/SugarCap.entitlements com.sugarcap.app
 
       # 업로드와 같은 cloud signing으로 로컬 IPA를 한 벌 더 뽑아, 앱·위젯에 App Group이 박혔는지 본다.
       # 빠졌으면 여기서 멈춰 업로드하지 않는다. 빠지면 위젯이 빈 저장소를 본다(빈 선반·기본 잔·가득 찬 잔).

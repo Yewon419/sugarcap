@@ -730,6 +730,10 @@ jobs:
             echo "$ENT"
             if ! grep -q "group.com.sugarcap.app" <<< "$ENT"; then
               echo "$(basename "$BIN")에 App Group(group.com.sugarcap.app)이 없습니다." >&2
+              for LOG in $(find "${TMPDIR:-/tmp}" -path "*SugarCap_*.xcdistributionlogs/*" -name "*.log" 2>/dev/null); do
+                echo "== $LOG =="
+                grep -n -i -B2 -A12 "entitlement" "$LOG" | head -300
+              done
               exit 1
             fi
           done

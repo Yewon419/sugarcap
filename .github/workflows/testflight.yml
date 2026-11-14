@@ -15,6 +15,11 @@ on:
       - "SugarCap/**"
       - "data/catalog.json"
   workflow_dispatch:
+    inputs:
+      upload:
+        description: "TestFlight에 올린다. 끄면 서명 entitlements 확인까지만 한다."
+        type: boolean
+        default: true
 
 concurrency:
   group: ios-${{ github.ref }}
@@ -679,7 +684,36 @@ jobs:
             TELEMETRYDECK_APP_ID="$TELEMETRYDECK_APP_ID" \
             CURRENT_PROJECT_VERSION=${{ github.run_number }}
 
+      # 업로드와 같은 cloud signing으로 로컬 IPA를 한 벌 더 뽑아, 앱·위젯에 App Group이 박혔는지 본다.
+      # 빌드 453 실기기에서 위젯이 공용 저장소를 못 읽었다(빈 선반·기본 잔·가득 찬 잔, 2026-11-14).
+      - name: 서명 entitlements 확인
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          LOCAL="$RUNNER_TEMP/ExportLocal.plist"
+          cp SugarCap/ExportOptions.plist "$LOCAL"
+          /usr/libexec/PlistBuddy -c "Set :destination export" "$LOCAL"
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/SugarCap.xcarchive" \
+            -exportPath "$RUNNER_TEMP/export-local" \
+            -exportOptionsPlist "$LOCAL" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$HOME/private_keys/AuthKey_${ASC_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+          mkdir -p "$RUNNER_TEMP/ipa"
+          unzip -q "$RUNNER_TEMP"/export-local/*.ipa -d "$RUNNER_TEMP/ipa"
+          APP="$RUNNER_TEMP/ipa/Payload/SugarCap.app"
+          echo "== 아카이브(서명 전) 앱 =="
+          codesign -d --entitlements - "$RUNNER_TEMP/SugarCap.xcarchive/Products/Applications/SugarCap.app" || echo "서명 없음"
+          echo "== 내보낸 앱 =="
+          codesign -d --entitlements - "$APP"
+          echo "== 내보낸 위젯 =="
+          codesign -d --entitlements - "$APP/PlugIns/SugarCapWidget.appex"
+
       - name: 익스포트 + TestFlight 업로드
+        if: inputs.upload
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}

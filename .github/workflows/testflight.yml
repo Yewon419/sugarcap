@@ -699,6 +699,8 @@ jobs:
             /usr/libexec/PlistBuddy -c "Add :application-identifier string ${TEAM_ID}.${identifier}" "$xcent"
             /usr/libexec/PlistBuddy -c "Add :com.apple.developer.team-identifier string ${TEAM_ID}" "$xcent"
             plutil -lint "$xcent"
+            codesign --force --sign - --entitlements "$entitlements" "$bundle"
+            codesign -d --entitlements - --xml "$bundle"; echo
           }
           put "$APP/PlugIns/SugarCapWidget.appex" SugarCap/SugarCapWidget.entitlements com.sugarcap.app.widget
           put "$APP" SugarCap/SugarCap.entitlements com.sugarcap.app

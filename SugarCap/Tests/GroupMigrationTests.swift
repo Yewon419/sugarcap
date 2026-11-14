@@ -23,11 +23,13 @@ final class GroupMigrationTests: XCTestCase {
         )
     }
 
+    @MainActor
     private func names(at url: URL) throws -> [String] {
         let container = try ModelContainer(for: SharedStore.schema, configurations: ModelConfiguration(schema: SharedStore.schema, url: url))
         return try container.mainContext.fetch(FetchDescriptor<Entry>()).map(\.drinkName).sorted()
     }
 
+    @MainActor
     func testStoreMovesWithRecordsAndOnlyOnce() throws {
         let source = root.appending(path: "local/default.store")
         let destination = root.appending(path: "group/Library/Application Support/default.store")

@@ -129,12 +129,21 @@ jobs:
           OUT="$RUNNER_TEMP/screenshots"
           mkdir -p "$OUT"
           xcrun simctl bootstatus "$SIM_UDID" -b
+          stores() {
+            echo "== 저장소 파일 ($1) =="
+            find "$HOME/Library/Developer/CoreSimulator/Devices/$SIM_UDID/data/Containers" \
+              \( -name "default.store*" -o -name "group.com.sugarcap.app.plist*" \) -exec ls -la {} \; 2>/dev/null || true
+            xcrun simctl get_app_container "$SIM_UDID" com.sugarcap.app groups 2>&1 || true
+          }
+          stores "설치 전"
           xcrun simctl install "$SIM_UDID" "$APP"
+          stores "설치 후"
           # 설치 직후 첫 실행은 콜드 런치라 아래 sleep 안에 화면이 안 뜰 때가 있다(run 35956560232에서
           # light.png가 빈 흰 화면). 한 번 띄웠다 내려 두 번째부터 찍는다. 데이터는 건드리지 않는다.
           xcrun simctl launch "$SIM_UDID" com.sugarcap.app
           sleep 8
           xcrun simctl terminate "$SIM_UDID" com.sugarcap.app
+          stores "첫 실행 후"
           # 실행 후 찍기까지 대기. 4초는 느린 러너에서 흰 실행 화면이 찍혔다(run 40838033717
           # en-trends-month-digest-caffeine-slots-type-ax-xl, 2026-10-29).
           SHOT_WAIT=6

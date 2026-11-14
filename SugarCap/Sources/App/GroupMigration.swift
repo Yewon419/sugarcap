@@ -3,7 +3,7 @@ import OSLog
 import SwiftData
 
 /// 빌드 453까지 TestFlight·App Store 빌드에는 App Group entitlement가 빠져 있었다
-/// (아카이브를 무서명으로 만들어 cloud signing이 기본 키만 넣었다, 2026-11-14 CI에서 확인).
+/// (xcodegen이 `properties` 없는 entitlements 파일을 빈 dict로 다시 써 왔다, 2026-11-14 CI에서 확인).
 /// 그동안 앱은 앱 전용 저장소에 기록했고 위젯은 빈 저장소를 봤다.
 /// App Group이 붙은 첫 실행에 앱 전용 SwiftData 파일과 공용 설정(`group.com.sugarcap.app` suite)을 공용 저장소로 옮긴다.
 /// 옮긴 옛 파일은 지우지 않고 `.pre-group`을 붙여 둔다. 옛 파일이 없으면 다시 옮기지 않는다

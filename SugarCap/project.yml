@@ -25,6 +25,10 @@ targets:
       - target: SugarCapWidget
     entitlements:
       path: SugarCap.entitlements
+      # xcodegen은 이 파일을 매번 properties로 다시 쓴다. 빠지면 빈 entitlements가 된다(빌드 453까지).
+      properties:
+        com.apple.security.application-groups:
+          - group.com.sugarcap.app
     sources:
       - path: Sources
         # 위젯 코드는 확장 타깃 것이다. 앱까지 컴파일하면 @main이 둘이 된다.
@@ -124,6 +128,10 @@ targets:
     platform: iOS
     entitlements:
       path: SugarCapWidget.entitlements
+      # xcodegen은 이 파일을 매번 properties로 다시 쓴다. 빠지면 빈 entitlements가 된다(빌드 453까지).
+      properties:
+        com.apple.security.application-groups:
+          - group.com.sugarcap.app
     sources:
       - path: Sources/Widget
       # 위젯 그림. 앱도 Debug 위젯 스크린샷(`-screenshotWidget`)으로 같이 컴파일한다.

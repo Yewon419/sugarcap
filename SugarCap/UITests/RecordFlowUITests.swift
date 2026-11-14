@@ -422,6 +422,12 @@ extension RecordFlowUITests {
             next.tap()
         }
         XCTAssertTrue(next.waitForNonExistence(timeout: 3), "안내를 끝냈는데 남아 있음")
+        // 빌드 409 대표님: 첫 추이 열림 뒤 월 보기로 안 바뀜. 안내 3단계가 가리킨 그 토글로 바로 바꿔 본다.
+        app.segmentedControls["trend-range"].buttons["월"].tap()
+        let monthDay = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'month-day-'")).firstMatch
+        XCTAssertTrue(monthDay.waitForExistence(timeout: 5), "첫 추이 안내 뒤 월 보기로 안 바뀜")
+        app.segmentedControls["trend-range"].buttons["주"].tap()
+        XCTAssertTrue(monthDay.waitForNonExistence(timeout: 5), "월 보기에서 주 보기로 안 돌아옴")
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(ui.element("cup-summary").waitForExistence(timeout: 5), "뒤로 가기로 오늘에 안 돌아옴")
         XCTAssertFalse(unlocked.exists, "추이에 다녀왔는데 어둠이 남아 있음")

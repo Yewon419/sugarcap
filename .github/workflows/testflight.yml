@@ -684,8 +684,19 @@ jobs:
             TELEMETRYDECK_APP_ID="$TELEMETRYDECK_APP_ID" \
             CURRENT_PROJECT_VERSION=${{ github.run_number }}
 
+      # 무서명 아카이브에는 entitlements가 없어 cloud signing이 App Group을 빼고 서명했다(빌드 453까지, 2026-11-14).
+      # export는 아카이브 서명의 entitlements를 따르므로 ad-hoc 서명으로 박아 둔다. 안쪽(위젯)부터 서명한다.
+      - name: 아카이브에 entitlements 박기
+        run: |
+          APP="$RUNNER_TEMP/SugarCap.xcarchive/Products/Applications/SugarCap.app"
+          find "$APP" \( -name "*.framework" -o -name "*.dylib" \) -prune -print | while read -r f; do
+            codesign --force --sign - "$f"
+          done
+          codesign --force --sign - --entitlements SugarCap/SugarCapWidget.entitlements "$APP/PlugIns/SugarCapWidget.appex"
+          codesign --force --sign - --entitlements SugarCap/SugarCap.entitlements "$APP"
+
       # 업로드와 같은 cloud signing으로 로컬 IPA를 한 벌 더 뽑아, 앱·위젯에 App Group이 박혔는지 본다.
-      # 빌드 453 실기기에서 위젯이 공용 저장소를 못 읽었다(빈 선반·기본 잔·가득 찬 잔, 2026-11-14).
+      # 빠졌으면 여기서 멈춰 업로드하지 않는다. 빠지면 위젯이 빈 저장소를 본다(빈 선반·기본 잔·가득 찬 잔).
       - name: 서명 entitlements 확인
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
@@ -705,12 +716,15 @@ jobs:
           mkdir -p "$RUNNER_TEMP/ipa"
           unzip -q "$RUNNER_TEMP"/export-local/*.ipa -d "$RUNNER_TEMP/ipa"
           APP="$RUNNER_TEMP/ipa/Payload/SugarCap.app"
-          echo "== 아카이브(서명 전) 앱 =="
-          codesign -d --entitlements - "$RUNNER_TEMP/SugarCap.xcarchive/Products/Applications/SugarCap.app" || echo "서명 없음"
-          echo "== 내보낸 앱 =="
-          codesign -d --entitlements - "$APP"
-          echo "== 내보낸 위젯 =="
-          codesign -d --entitlements - "$APP/PlugIns/SugarCapWidget.appex"
+          for BIN in "$APP" "$APP/PlugIns/SugarCapWidget.appex"; do
+            echo "== $(basename "$BIN") =="
+            ENT=$(codesign -d --entitlements - --xml "$BIN" 2>/dev/null)
+            echo "$ENT"
+            if ! grep -q "group.com.sugarcap.app" <<< "$ENT"; then
+              echo "$(basename "$BIN")에 App Group(group.com.sugarcap.app)이 없습니다." >&2
+              exit 1
+            fi
+          done
 
       - name: 익스포트 + TestFlight 업로드
         if: inputs.upload

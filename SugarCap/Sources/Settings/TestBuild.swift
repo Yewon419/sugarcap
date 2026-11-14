@@ -110,3 +110,25 @@ final class IdleTestPose {
         poses[character] = pose
     }
 }
+
+/// 테스트 카드의 앱 언어 고르기(대표님 2026-11-15). iOS가 실행할 때 읽는 앱 도메인의 `AppleLanguages`에 한 언어만 적는다.
+/// iOS 설정 › 슈가캡 › 언어와 같은 자리라, 앱을 완전히 닫았다가 다시 켜야 바뀐다. 지우면 기기 설정을 따른다.
+enum AppLanguageOverride {
+    static let key = "AppleLanguages"
+    static let choices: [(id: String, name: String)] = [("ko", "한국어"), ("en", "English"), ("zh-Hant", "繁體中文")]
+
+    /// 앱 도메인에 적힌 첫 언어. `UserDefaults.standard.array`는 기기 언어(전역 도메인)까지 읽어서 쓰지 않는다.
+    static func current() -> String? {
+        guard let bundleID = Bundle.main.bundleIdentifier else { return nil }
+        let languages = UserDefaults.standard.persistentDomain(forName: bundleID)?[key] as? [String]
+        return languages?.first
+    }
+
+    static func set(_ language: String?) {
+        if let language {
+            UserDefaults.standard.set([language], forKey: key)
+        } else {
+            UserDefaults.standard.removeObject(forKey: key)
+        }
+    }
+}

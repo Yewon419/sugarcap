@@ -1042,7 +1042,7 @@ extension RecordFlowUITests {
         let settingsEnabled = XCTNSPredicateExpectation(
             predicate: NSPredicate(format: "isEnabled == true"), object: app.buttons["open-settings"]
         )
-        XCTAssertEqual(XCTWaiter().wait(for: [settingsEnabled], timeout: 6), .completed, "적용 연출이 끝났는데 설정 버튼이 잠겨 있음")
+        XCTAssertEqual(XCTWaiter().wait(for: [settingsEnabled], timeout: 6), .completed, "적용 연출이 끝났는데 설정 버튼이 잠겨 있음: \(String(describing: app.buttons["open-settings"].value))")
 
         app.buttons["open-settings"].tap()
         let inventory = ui.element("open-inventory")

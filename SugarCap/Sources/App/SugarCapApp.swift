@@ -13,7 +13,8 @@ struct SugarCapApp: App {
 
     init() {
         do {
-            container = try SharedStore.makeContainer()
+            // 위젯은 `SharedStore.makeContainer`로 연다. 앱만 첫 실행에 옛 앱 전용 저장소를 옮긴다(`GroupMigration`).
+            container = try ModelContainer(for: SharedStore.schema, configurations: GroupMigration.appConfiguration())
         } catch {
             Logger(subsystem: "com.sugarcap.app", category: "store")
                 .fault("저장소를 열지 못함: \(String(describing: error), privacy: .public)")

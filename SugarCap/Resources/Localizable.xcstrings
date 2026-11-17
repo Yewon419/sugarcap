@@ -8783,6 +8783,54 @@
           }
         }
       }
+    },
+    "기기 설정" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Device setting"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "依裝置設定"
+          }
+        }
+      }
+    },
+    "앱 언어" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App language"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App 語言"
+          }
+        }
+      }
+    },
+    "앱을 완전히 닫았다가 다시 켜면 언어가 바뀌어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quit the app completely and reopen it to switch the language."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "完全關閉 App 後重新開啟，語言就會切換。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

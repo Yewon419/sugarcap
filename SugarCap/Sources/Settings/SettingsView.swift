@@ -65,6 +65,8 @@ private struct SettingsContent: View {
     @AppStorage(CloseReminder.enabledKey) private var isReminderOn = false
     @AppStorage("cupSet.sugar", store: SharedDefaults.cupSetStore) private var testSugarCupSet: String?
     @AppStorage("cupSet.caffeine", store: SharedDefaults.cupSetStore) private var testCaffeineCupSet: String?
+    /// 테스트 카드의 앱 언어. 빈 문자열 = 기기 설정. 다시 켜야 바뀌어서 화면에 보이는 언어와 다를 수 있다.
+    @State private var testAppLanguage = AppLanguageOverride.current() ?? ""
     /// 별명(호감도 Lv7부터, §4.9 2026-10-11). 저장은 기기 설정이라 바꾸면 `renamed`로 행을 다시 그린다.
     @State private var namingSide: CupSide?
     @State private var nicknameDraft = ""
@@ -388,6 +390,7 @@ private struct SettingsContent: View {
             idlePosePicker(.caffeine)
             cupSetPicker(.sugar, selection: $testSugarCupSet)
             cupSetPicker(.caffeine, selection: $testCaffeineCupSet)
+            appLanguagePicker
             Button("첫 실행으로 되돌리기", role: .destructive) { confirmsFirstRun = true }
                 .font(AppFont.pretendard(16, .regular, relativeTo: .body))
                 .accessibilityIdentifier("test-first-run")
@@ -439,6 +442,24 @@ private struct SettingsContent: View {
         }
         .rowText()
         .accessibilityIdentifier("test-pose-\(side.rawValue)")
+    }
+
+    /// 기기 언어와 상관없이 앱 언어를 고른다(TestFlight 확인용, 대표님 2026-11-15). 앱을 완전히 닫았다가 다시 켜야 바뀐다.
+    private var appLanguagePicker: some View {
+        Picker(selection: $testAppLanguage) {
+            Text("기기 설정").tag("")
+            ForEach(AppLanguageOverride.choices, id: \.id) { choice in
+                Text(verbatim: choice.name).tag(choice.id)
+            }
+        } label: {
+            Text("앱 언어")
+        }
+        .rowText()
+        .accessibilityIdentifier("test-app-language")
+        .onChange(of: testAppLanguage) { _, language in
+            AppLanguageOverride.set(language.isEmpty ? nil : language)
+            alertMessage = String(localized: "앱을 완전히 닫았다가 다시 켜면 언어가 바뀌어요.")
+        }
     }
 
     /// 가진 것과 상관없이 그 면의 잔을 고른다. 안 가진 잔은 앱을 다시 켜면 기본 잔으로 돌아간다(`CupSetChoice.dropUnowned`).

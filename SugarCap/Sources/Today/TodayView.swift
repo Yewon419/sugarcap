@@ -1316,10 +1316,26 @@ struct TodayView: View {
             Button { isSettingsPresented = true } label: { cornerCircle(NavGlyphView(glyph: .settings)) }
                 .accessibilityLabel("설정")
                 .accessibilityIdentifier("open-settings")
+                .accessibilityValue(lockReasons)
         }
         .padding(.trailing, 16)
         .padding(.top, 2)
         .disabled(locksControls)
+    }
+
+    /// UI 테스트가 잠긴 버튼의 이유를 실패 메시지에 남기도록 Debug에서만 싣는다.
+    private var lockReasons: String {
+        #if DEBUG
+        let reasons: [(String, Bool)] = [
+            ("stamp", hasUnseenStamp), ("earlyBird", hasUnseenEarlyBird), ("levelUp", levelUp != nil),
+            ("levelUpSide", levelUpSide != nil), ("tradeApply", tradeApply != nil), ("opening", opening != nil),
+            ("reveal", reveal != nil), ("revealLead", revealLead != nil),
+            ("carried", trackedSides.contains { carriedGift(for: $0) != nil }), ("tutorial", tutorial != nil),
+        ]
+        return reasons.filter(\.1).map(\.0).joined(separator: ",")
+        #else
+        return ""
+        #endif
     }
 
     /// 보이는 원은 36pt 그대로, 누르는 영역만 44pt.

@@ -2,7 +2,8 @@ import SwiftUI
 
 /// 온보딩 영상(2026-10-28 대표님 확정): 매거진 12쪽을 카메라가 훑으며 앱 온보딩 7줄을 장면 문장으로 쓰는 22초 무음 영상.
 /// 원본은 HyperFrames 프로젝트(`C:\hfwork\sugarcap-onboard`)이고, 앱용은 아이폰 비율(1080×2340)로 따로 렌더했다(`app_page.py`).
-/// 가로 구도는 9:16판과 같고 위아래만 더 보인다. 한국어가 아니면 영어판을 쓴다(번체판 없음, 대표님 결정).
+/// 가로 구도는 9:16판과 같고 위아래만 더 보인다. 한국어·번체·영어 세 판이고 그 밖의 언어는 영어판을 쓴다(번체판 2026-11-17 대표님).
+/// 글자는 안전영역(1080×2340 기준 x 64~1016, y 360~2070) 안에 둔다. SE 비율로 잘려도, 위 진행 막대·아래 홈 표시줄에 가려도 읽힌다.
 /// 마지막 빼꼼(로슈·카인)은 영상에서 빼고 앱이 화면 가장자리에 직접 그린다. 영상을 화면에 채우면 좌우가 잘려 가장자리 그림이 사라져서다.
 enum OnboardingFilm {
     /// 장면 시작(영상의 BEAT). 화면을 누르면 다음 장면 시작으로 간다.
@@ -10,7 +11,11 @@ enum OnboardingFilm {
     static let stage = CGSize(width: 1080, height: 2340)
 
     static var videoName: String {
-        Bundle.main.preferredLocalizations.first == "ko" ? "onboarding-ko" : "onboarding-en"
+        switch Bundle.main.preferredLocalizations.first {
+        case "ko": "onboarding-ko"
+        case "zh-Hant": "onboarding-zh"
+        default: "onboarding-en"
+        }
     }
 
     /// 화면 위쪽이 어두운 방(지면 밖)인 구간. 진행 막대·건너뛰기를 흰색으로 바꾼다.

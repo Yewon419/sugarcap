@@ -12,7 +12,14 @@ struct CompanionIntroView: View {
     /// 스크린샷용(Debug 인자). 이 시각의 프레임에 멈춰 둔다.
     var frozenAt: Double?
 
-    static let videoName = "companion-intro"
+    /// 2026-11-17 아이폰 비율(1080×2340)로 다시 렌더하고 큰 글씨를 안전영역(x 64~1016, y 250~2090) 안에 넣었다. 한국어·번체·영어 세 판.
+    static var videoName: String {
+        switch Bundle.main.preferredLocalizations.first {
+        case "ko": "companion-intro-ko"
+        case "zh-Hant": "companion-intro-zh"
+        default: "companion-intro-en"
+        }
+    }
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "intro")
 
     @State private var player: AVPlayer?

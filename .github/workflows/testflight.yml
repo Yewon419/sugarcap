@@ -553,6 +553,12 @@ jobs:
           shoot_zh settings large -initialTab settings
           shoot_zh settings-type-ax-xl accessibility-extra-large -initialTab settings
           shoot_zh onboarding-locale large -onboardingCompleted NO
+          for at in 1.0 4.1 6.7 9.3 11.9 14.5 17.1 18.9 21.9; do
+            shoot_zh "onboarding-reel-$at" large -onboardingCompleted NO -onboardingReelAt "$at"
+          done
+          for at in 0.4 2.2 3.6 5.2 6.6 8.0; do
+            shoot_zh "intro-$at" large -screenshotFeeding YES -screenshotIntroAt "$at"
+          done
           shoot_zh onboarding-2 large -onboardingCompleted NO -onboardingPage 2
           shoot_zh onboarding-3 large -onboardingCompleted NO -onboardingPage 3
           shoot_zh trends large -seedDemo YES -initialTab trends

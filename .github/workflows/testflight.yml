@@ -692,7 +692,8 @@ jobs:
 
       # 무서명 아카이브에는 entitlements가 없어 cloud signing이 App Group을 빼고 서명했다(빌드 453까지, 2026-11-14).
       # export는 서명된 아카이브라면 Xcode가 번들 안에 남기는 archived-expanded-entitlements.xcent를 읽는다.
-      # ad-hoc 코드 서명에 박은 entitlements는 무시됐다(run 456). 그 파일을 직접 넣는다. 프로필 두 개에는 App Group이 있다.
+      # 그 파일과 ad-hoc 서명 entitlements를 직접 넣는다. 파일 내용은 project.yml `properties`가 채운다(둘 다 있어야 한다).
+      # 이 단계를 빼면 아래 확인에서 App Group이 빠져 멈췄다(run 44254309424, 2026-11-18). 프로필 두 개에는 App Group이 있다.
       - name: 아카이브에 entitlements 넣기
         env:
           TEAM_ID: ${{ secrets.TEAM_ID }}

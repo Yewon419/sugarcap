@@ -140,12 +140,31 @@ struct DrinkQuery {
         "제말크프": "제주 말차 크림 프라푸치노",
     ]
 
+    /// 같은 말의 다른 표기(2026-11-18 대표님). 검색어와 이름 양쪽을 앞의 표기로 바꿔 견준다. 접은 값, 긴 말부터.
+    /// 카탈로그에 실제로 섞여 있는 표기만 넣는다. 말차·꿀처럼 다른 말은 묶지 않는다.
+    static let spellings: [(variant: String, canonical: String)] = [
+        ("쵸콜릿", "초코"), ("쵸콜렛", "초코"), ("초콜릿", "초코"), ("초콜렛", "초코"), ("쵸코", "초코"),
+        ("그린티", "녹차"),
+        ("캬라멜", "카라멜"), ("캐러멜", "카라멜"), ("캐라멜", "카라멜"),
+        ("마끼아또", "마키아또"), ("마키야또", "마키아또"),
+        ("라테", "라떼"),
+        ("쥬스", "주스"),
+        ("콜드브류", "콜드브루"),
+        ("티라미슈", "티라미수"),
+        ("애이드", "에이드"),
+        ("요구르트", "요거트"),
+    ]
+
+    /// 띄어 쓴 낱말들(표기 묶기 후). 통째로 안 걸릴 때 순서 상관없이 낱말마다 견준다.
+    let words: [String]
+
     init(_ typed: String) {
         let text = Self.menuAliases[Self.fold(typed)] ?? typed
-        needle = Self.fold(text)
-        let words = text.lowercased().split(whereSeparator: \.isWhitespace)
-        if words.count > 1, let temperature = Self.temperatureWords[String(words[0])] {
-            temperatureScope = TemperatureScope(temperature: temperature, needle: Self.fold(words.dropFirst().joined()))
+        needle = Self.normalize(text)
+        let rawWords = text.lowercased().split(whereSeparator: \.isWhitespace).map(String.init)
+        words = rawWords.map(Self.normalize)
+        if rawWords.count > 1, let temperature = Self.temperatureWords[rawWords[0]] {
+            temperatureScope = TemperatureScope(temperature: temperature, needle: Self.normalize(rawWords.dropFirst().joined()))
         } else {
             temperatureScope = nil
         }
@@ -155,15 +174,46 @@ struct DrinkQuery {
 
     /// 검색 순위. 이름과 영문명 중 더 나은 쪽, 온도 말 검색이면 그쪽 일치까지 견줘 더 나은 쪽. 일치하지 않으면 nil.
     /// 온도 말 검색은 그 온도 메뉴와 온도를 나눠 싣지 않은(`both`) 메뉴만 잡고, `both`는 같은 순위 안에서 뒤로 보낸다.
+    /// 통째 일치가 하나도 없을 때만 조각 일치(`scatteredRank`)를 본다.
     func rank(_ names: [DrinkSearchName], temperature: Drink.Temperature) -> DrinkSearchRank? {
         guard !needle.isEmpty else { return nil }
         let whole = names.compactMap { Self.rank(name: $0, needle: needle) }.min()
-        guard let scope = temperatureScope, temperature == scope.temperature || temperature == .both else {
-            return whole
+        let inScope = temperatureScope.map { temperature == $0.temperature || temperature == .both } ?? false
+        let scoped = temperatureScope.flatMap { scope in
+            inScope ? names.compactMap { Self.rank(name: $0, needle: scope.needle) }.min() : nil
         }
-        let scoped = names.compactMap { Self.rank(name: $0, needle: scope.needle) }.min()
-            .map { DrinkSearchRank(isExact: $0.isExact, extraLength: $0.extraLength, isPrefix: $0.isPrefix, isTemperatureGuess: temperature == .both) }
-        return [whole, scoped].compactMap { $0 }.min()
+        .map { DrinkSearchRank(isExact: $0.isExact, extraLength: $0.extraLength, isPrefix: $0.isPrefix, isTemperatureGuess: temperature == .both) }
+        if let best = [whole, scoped].compactMap({ $0 }).min() { return best }
+        let scattered = names.compactMap { Self.scatteredRank(name: $0, pieces: words, needle: needle) }.min()
+        let scopedScattered = inScope
+            ? names.compactMap { Self.scatteredRank(name: $0, pieces: Array(words.dropFirst()), needle: needle) }.min()
+                .map { DrinkSearchRank(isExact: false, extraLength: $0.extraLength, isPrefix: false, isTemperatureGuess: temperature == .both, isScattered: true) }
+            : nil
+        return [scattered, scopedScattered].compactMap { $0 }.min()
+    }
+
+    /// 조각 일치(2026-11-18 대표님 "허니자몽"으로 자몽 허니 블랙 티). 띄어 쓴 낱말마다, 그 낱말이 통째로
+    /// 이름에 있거나 2글자 이상 조각으로 나눠 조각마다 이름에 있으면 걸린다. 순서는 상관없다.
+    /// 1글자 조각은 쓰지 않는다("라"·"티"가 아무 메뉴에나 걸린다). 통째 일치보다 늘 아래다.
+    private static func scatteredRank(name: DrinkSearchName, pieces: [String], needle: String) -> DrinkSearchRank? {
+        guard !pieces.isEmpty, pieces.joined().allSatisfy(name.characters.contains) else { return nil }
+        guard pieces.allSatisfy({ name.folded.contains($0) || covers(name.folded, $0) }) else { return nil }
+        let length = pieces.joined().count
+        return DrinkSearchRank(isExact: false, extraLength: max(0, name.folded.count - length), isPrefix: false, isScattered: true)
+    }
+
+    /// `piece`를 2글자 이상 조각들로 나눠 조각마다 `text` 안에 있게 할 수 있는가.
+    private static func covers(_ text: String, _ piece: String) -> Bool {
+        let chars = Array(piece)
+        guard chars.count >= 4 else { return false }
+        var reachable = [Bool](repeating: false, count: chars.count + 1)
+        reachable[0] = true
+        for start in 0..<chars.count where reachable[start] {
+            for end in stride(from: start + 2, through: chars.count, by: 1) where !reachable[end] {
+                if text.contains(String(chars[start..<end])) { reachable[end] = true }
+            }
+        }
+        return reachable[chars.count]
     }
 
     private static func rank(name: DrinkSearchName, needle: String) -> DrinkSearchRank? {
@@ -181,6 +231,11 @@ struct DrinkQuery {
     static func fold(_ text: String) -> String {
         String(text.lowercased().unicodeScalars.filter { !CharacterSet.whitespacesAndNewlines.contains($0) })
     }
+
+    /// 접고 표기를 묶은 값. 메뉴 이름 견주기에만 쓴다(브랜드 이름은 `fold`).
+    static func normalize(_ text: String) -> String {
+        spellings.reduce(fold(text)) { $0.replacingOccurrences(of: $1.variant, with: $1.canonical) }
+    }
 }
 
 /// 검색 순위를 매길 이름 하나. 맨 앞의 온도·"카페" 낱말을 뗀 본체(`core`)를 같이 들고 있다.
@@ -188,17 +243,20 @@ struct DrinkQuery {
 struct DrinkSearchName {
     let folded: String
     let core: String
+    /// 조각 일치 앞단 거르기용. 검색어 글자가 하나라도 없으면 조각을 나눠 보지 않는다.
+    let characters: Set<Character>
 
     /// 띄어 쓴 낱말 단위로만 뗀다. 붙여 쓴 이름까지 떼면 "아이스크림"이 "크림", "핫식스"가 "식스"가 된다.
     static let leadingWords: Set<String> = ["아이스", "핫", "카페", "iced", "hot", "caffe", "cafe", "café"]
 
     init(_ name: String) {
-        folded = DrinkQuery.fold(name)
+        folded = DrinkQuery.normalize(name)
         var words = name.lowercased().split(whereSeparator: \.isWhitespace).map(String.init)
         while words.count > 1, let first = words.first, Self.leadingWords.contains(first) {
             words.removeFirst()
         }
-        core = words.joined()
+        core = DrinkQuery.normalize(words.joined())
+        characters = Set(folded)
     }
 }
 
@@ -211,9 +269,11 @@ struct DrinkSearchRank: Comparable {
     let isPrefix: Bool
     /// 온도 말 검색에서 온도를 나눠 싣지 않은(`both`) 메뉴로 잡혔다. "아이스 라떼"에 카페 라떼보다 아이스 카페 라떼가 먼저.
     var isTemperatureGuess = false
+    /// 검색어가 통째로가 아니라 조각으로 걸렸다("허니자몽" → 자몽 허니 블랙 티). 통째 일치보다 늘 아래.
+    var isScattered = false
 
     static func < (lhs: DrinkSearchRank, rhs: DrinkSearchRank) -> Bool {
-        (lhs.isExact ? 0 : 1, lhs.isTemperatureGuess ? 1 : 0, lhs.extraLength, lhs.isPrefix ? 0 : 1)
-            < (rhs.isExact ? 0 : 1, rhs.isTemperatureGuess ? 1 : 0, rhs.extraLength, rhs.isPrefix ? 0 : 1)
+        (lhs.isScattered ? 1 : 0, lhs.isExact ? 0 : 1, lhs.isTemperatureGuess ? 1 : 0, lhs.extraLength, lhs.isPrefix ? 0 : 1)
+            < (rhs.isScattered ? 1 : 0, rhs.isExact ? 0 : 1, rhs.isTemperatureGuess ? 1 : 0, rhs.extraLength, rhs.isPrefix ? 0 : 1)
     }
 }

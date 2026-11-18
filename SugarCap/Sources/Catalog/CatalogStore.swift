@@ -24,7 +24,7 @@ enum CatalogError: Error, CustomStringConvertible {
 
 enum CatalogStore {
     /// 앱이 읽을 수 있는 스키마 버전. 깨는 변경이 오면 `data/SCHEMA.md`와 함께 올린다.
-    /// 2는 1에 `caffeine_range`를, 3은 `estimated`를 더했다. 미국 번들은 아직 1, 대만은 2, 한국은 3이라 셋 다 읽는다.
+    /// 2는 1에 `caffeine_range`를, 3은 `estimated`를 더했다. 번들은 2026-11-18부터 세 나라 다 3이고, 1·2도 그대로 읽는다.
     static let supportedSchemaVersions: ClosedRange<Int> = 1...3
     static var supportedSchemaVersion: Int { supportedSchemaVersions.upperBound }
 
@@ -225,6 +225,7 @@ struct CatalogIndex {
                 return (rank, drink.brandId == Self.convenienceStoreID, offset, drink)
             }
             .sorted { lhs, rhs in
+                if lhs.rank.isScattered != rhs.rank.isScattered { return !lhs.rank.isScattered }
                 if lhs.rank.isExact != rhs.rank.isExact { return lhs.rank.isExact }
                 if lhs.isStore != rhs.isStore { return !lhs.isStore }
                 if lhs.rank != rhs.rank { return lhs.rank < rhs.rank }

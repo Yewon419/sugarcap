@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from sugarcap_scrape.build import group_rows, merge_catalog
+from sugarcap_scrape.build import group_rows, in_registry_order, merge_catalog
 from sugarcap_scrape.ids import slugify
 from sugarcap_scrape.models import Brand, Catalog, RawServing, Temperature
 
@@ -68,3 +68,14 @@ def test_merge_swaps_only_the_updated_brands() -> None:
         "d:쉐이크:iced",
     ]
     assert (merged.schema_version, merged.built_at) == (2, "new")
+
+
+def test_registry_order_moves_new_brands_and_keeps_unregistered_in_place() -> None:
+    catalog = _catalog(
+        "c",
+        3,
+        [_row("x", "R", brand=b) for b in ["a", "b", "cvs", "c", "new"]],
+    )
+    ordered = in_registry_order(catalog, ["new", "a", "b", "c"])
+    assert [b.id for b in ordered.brands] == ["new", "a", "b", "cvs", "c"]
+    assert in_registry_order(ordered, ["new", "a", "b", "c"]) == ordered

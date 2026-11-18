@@ -46,6 +46,8 @@ struct BrandBadgeDesign {
     /// 색·모양은 2026-11-10 각 브랜드 앱스토어 아이콘과 나란히 놓고 맞췄다. 可不可는 대조할 앱이 없어 그 전 모양이다.
     private static let table: [String: BrandBadgeDesign] = [
         DrinkTutorial.brandID: make("#5B84AA", "#FFFFFF", [.text("슈", .pretendardBlack, 48, dy: 2)]),
+        // 기본 메뉴(2026-11-18, 세 나라)는 브랜드가 아니라 앱 아이콘이 없다. 먹색 바탕에 이름 글자.
+        "basic": make("#2C2C2E", "#FFFFFF", [.text("기본", .pretendardBlack, 30, dy: 1)]),
         "starbucks": starbucks,
         "mega": make("#FFD200", "#1A1A1A", [.text("MGC", .archivo, 30)]),
         "compose": make("#F6C90E", "#1A1A1A", [
@@ -83,6 +85,8 @@ struct BrandBadgeDesign {
             .tinted("#FFD23F", .crown(x: 39, y: 22, width: 22, height: 13)),
         ]),
         "oozy": make("#1B3D20", "#FFFFFF", [.text("OOZY", .anton, 34)]),
+        "us-basic": make("#2C2C2E", "#FFFFFF", [.text("Basic", .archivo, 22)]),
+        "tw-basic": make("#2C2C2E", "#FFFFFF", [.text("基本", .pretendardBold, 30, dy: 1)]),
         "us-starbucks": starbucks,
         "us-dutchbros": make("#00649F", "#FFFFFF", [.windmill]),
         "tw-cama": make("#F5A800", "#1A1A1A", [.ring(radius: 38, width: 4), .camaFace]),

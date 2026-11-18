@@ -1,7 +1,13 @@
 {
  "schema_version": 3,
- "built_at": "2026-11-03T07:23:40+00:00",
+ "built_at": "2026-11-18T03:48:44+00:00",
  "brands": [
+  {
+   "id": "basic",
+   "name": "기본 메뉴",
+   "serving_note": "흔한 카페 메뉴, 값은 추정치",
+   "has_size_choice": false
+  },
   {
    "id": "starbucks",
    "name": "스타벅스",
@@ -395881,6 +395887,321 @@
      "caffeine_mg": null,
      "caffeine_variants": [],
      "caffeine_range": null
+    }
+   ]
+  },
+  {
+   "id": "basic:녹차라떼:both",
+   "brand_id": "basic",
+   "name": "녹차라떼",
+   "name_en": null,
+   "category": "라떼",
+   "temperature": "both",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "basic:녹차라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 39.8,
+     "caffeine_mg": 88.3,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "basic:레몬에이드:both",
+   "brand_id": "basic",
+   "name": "레몬에이드",
+   "name_en": null,
+   "category": "에이드",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "basic:레몬에이드:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 47.5,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "basic:밀크티:both",
+   "brand_id": "basic",
+   "name": "밀크티",
+   "name_en": null,
+   "category": "티",
+   "temperature": "both",
+   "liquid_color": "#C8A27C",
+   "servings": [
+    {
+     "id": "basic:밀크티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 33.5,
+     "caffeine_mg": 138.1,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "basic:바닐라라떼:both",
+   "brand_id": "basic",
+   "name": "바닐라라떼",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "basic:바닐라라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 27.5,
+     "caffeine_mg": 194.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "basic:복숭아-아이스티:both",
+   "brand_id": "basic",
+   "name": "복숭아 아이스티",
+   "name_en": null,
+   "category": "티",
+   "temperature": "both",
+   "liquid_color": "#F7A57A",
+   "servings": [
+    {
+     "id": "basic:복숭아-아이스티:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 55.0,
+     "caffeine_mg": 20.2,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "basic:아메리카노:both",
+   "brand_id": "basic",
+   "name": "아메리카노",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "basic:아메리카노:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 175.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "basic:에스프레소:both",
+   "brand_id": "basic",
+   "name": "에스프레소",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "both",
+   "liquid_color": "#2E1B12",
+   "servings": [
+    {
+     "id": "basic:에스프레소:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 109.5,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "basic:자몽에이드:both",
+   "brand_id": "basic",
+   "name": "자몽에이드",
+   "name_en": null,
+   "category": "에이드",
+   "temperature": "both",
+   "liquid_color": "#F06B5B",
+   "servings": [
+    {
+     "id": "basic:자몽에이드:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 48.5,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "basic:초코라떼:both",
+   "brand_id": "basic",
+   "name": "초코라떼",
+   "name_en": null,
+   "category": "라떼",
+   "temperature": "both",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "basic:초코라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 45.5,
+     "caffeine_mg": 15.8,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "basic:카라멜마키아또:both",
+   "brand_id": "basic",
+   "name": "카라멜마키아또",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "both",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "basic:카라멜마키아또:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 24.0,
+     "caffeine_mg": 146.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "basic:카페라떼:both",
+   "brand_id": "basic",
+   "name": "카페라떼",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "basic:카페라떼:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 11.0,
+     "caffeine_mg": 168.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "basic:카페모카:both",
+   "brand_id": "basic",
+   "name": "카페모카",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "both",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "basic:카페모카:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 30.0,
+     "caffeine_mg": 192.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "basic:카푸치노:both",
+   "brand_id": "basic",
+   "name": "카푸치노",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "basic:카푸치노:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 10.0,
+     "caffeine_mg": 186.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "basic:콜드브루:both",
+   "brand_id": "basic",
+   "name": "콜드브루",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "basic:콜드브루:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 185.5,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "basic:플랫화이트:both",
+   "brand_id": "basic",
+   "name": "플랫화이트",
+   "name_en": null,
+   "category": "커피",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "basic:플랫화이트:both:기본",
+     "size_label": "기본",
+     "volume_ml": null,
+     "sugar_g": 9.0,
+     "caffeine_mg": 185.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
     }
    ]
   }

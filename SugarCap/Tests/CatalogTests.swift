@@ -18,7 +18,8 @@ final class CatalogTests: XCTestCase {
 
         XCTAssertTrue(CatalogStore.supportedSchemaVersions.contains(catalog.schemaVersion), "schema_version \(catalog.schemaVersion)")
         XCTAssertNotNil(catalog.builtAtDate, "built_at이 ISO 8601이 아님: \(catalog.builtAt)")
-        XCTAssertEqual(catalog.brands.count, 17)
+        XCTAssertEqual(catalog.brands.count, 18)
+        XCTAssertEqual(catalog.brands.first?.id, "basic", "기본 메뉴가 격자 맨 앞이 아님")
         XCTAssertFalse(catalog.drinks.isEmpty)
     }
 
@@ -71,13 +72,13 @@ final class CatalogTests: XCTestCase {
         }
     }
 
-    /// 추정치는 영양정보를 아예 공개하지 않는 브랜드에만 있다(SPEC §2 예외). 게시값 브랜드에 섞이면 파이프라인 버그다.
+    /// 추정치는 영양정보를 아예 공개하지 않는 브랜드와 기본 메뉴에만 있다(SPEC §2 예외). 게시값 브랜드에 섞이면 파이프라인 버그다.
     func testEstimatesStayInBrandsThatPublishNothing() throws {
         let catalog = try loadCatalog()
         let estimatedBrands = Set(
             catalog.drinks.filter { $0.servings.contains(where: \.isEstimated) }.map(\.brandId)
         )
-        XCTAssertEqual(estimatedBrands, ["bluebottle", "amasvin", "oozy"])
+        XCTAssertEqual(estimatedBrands, ["basic", "bluebottle", "amasvin", "oozy"])
 
         let latte = try XCTUnwrap(catalog.drinks.first { $0.brandId == "bluebottle" && $0.name == "카페라떼" })
         let cup = try XCTUnwrap(latte.servings.first)
@@ -267,13 +268,14 @@ final class CatalogIndexTests: XCTestCase {
         let index = CatalogIndex(catalog: catalog)
         let order = Dictionary(uniqueKeysWithValues: catalog.brands.enumerated().map { ($1.id, $0) })
 
-        for text in ["라떼", "아메리카노", "콜라", "커피"] {
+        for text in ["라떼", "아메리카노", "콜라", "커피", "허니자몽", "바닐라라떼"] {
             let query = DrinkQuery(text)
             let hits = index.search(text, limit: 5_000)
             XCTAssertFalse(hits.isEmpty, text)
             let keys = try hits.map { drink -> [Int] in
                 let rank = try XCTUnwrap(query.rank(drink.searchNames, temperature: drink.temperature))
                 return [
+                    rank.isScattered ? 1 : 0,
                     rank.isExact ? 0 : 1,
                     drink.brandId == CatalogIndex.convenienceStoreID ? 1 : 0,
                     rank.extraLength,
@@ -391,6 +393,29 @@ final class CatalogIndexTests: XCTestCase {
         XCTAssertEqual(DrinkSearchName("카페").core, "카페", "이름 전체를 떼지는 않는다")
     }
 
+    func testScatteredWordsAndSpellingsFindSameDrink() throws {
+        let index = CatalogIndex(catalog: try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self)))
+
+        // 2026-11-18 대표님: "허니자몽"으로 자몽 허니 블랙 티가 안 나왔다.
+        for text in ["허니자몽", "허니 자몽", "블랙티 자몽"] {
+            let names = index.drinks(brandID: "starbucks", matching: DrinkQuery(text)).map(\.name)
+            XCTAssertTrue(names.contains("아이스 자몽 허니 블랙 티"), "\(text): \(names.prefix(5))")
+        }
+        // 통째로 걸리는 메뉴가 조각으로 걸린 메뉴보다 먼저다.
+        let hits = index.search("허니자몽", limit: 500)
+        let query = DrinkQuery("허니자몽")
+        let firstScattered = hits.firstIndex { query.rank($0.searchNames, temperature: $0.temperature)?.isScattered == true }
+        let lastWhole = hits.lastIndex { query.rank($0.searchNames, temperature: $0.temperature)?.isScattered == false }
+        if let firstScattered, let lastWhole { XCTAssertLessThan(lastWhole, firstScattered) }
+        // 1글자 조각은 쓰지 않는다.
+        XCTAssertTrue(index.search("라티").allSatisfy { DrinkQuery.normalize($0.name).contains("라티") || DrinkQuery.normalize($0.nameEn ?? "").contains("라티") })
+
+        // 표기 묶기: 초콜릿↔초코, 그린티↔녹차, 마끼아또↔마키아또.
+        XCTAssertEqual(DrinkQuery("초콜릿 라떼").needle, DrinkQuery("초코라떼").needle)
+        XCTAssertTrue(index.drinks(brandID: "compose", matching: DrinkQuery("캬라멜마끼아또")).contains { $0.name.contains("마키아또") || $0.name.contains("마끼아또") })
+        XCTAssertFalse(index.drinks(brandID: "mega", matching: DrinkQuery("그린티라떼")).isEmpty)
+    }
+
     func testConvenienceStoreSearchIgnoresSpaces() throws {
         let catalog = try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self))
         let index = CatalogIndex(catalog: catalog)
@@ -413,8 +438,9 @@ final class USCatalogTests: XCTestCase {
         let catalog = try load(.us)
 
         XCTAssertTrue(CatalogStore.supportedSchemaVersions.contains(catalog.schemaVersion), "schema_version \(catalog.schemaVersion)")
-        XCTAssertEqual(catalog.brands.map(\.id), ["us-starbucks", "us-dutchbros"])
-        XCTAssertTrue(catalog.brands.allSatisfy(\.hasSizeChoice))
+        XCTAssertEqual(catalog.brands.map(\.id), ["us-basic", "us-starbucks", "us-dutchbros"])
+        // Basic(기본 메뉴)만 사이즈 없이 1잔 1값이다.
+        XCTAssertTrue(catalog.brands.filter { $0.id != "us-basic" }.allSatisfy(\.hasSizeChoice))
         let index = CatalogIndex(catalog: catalog)
         for brand in catalog.brands {
             XCTAssertFalse(index.drinks(brandID: brand.id).isEmpty, "\(brand.id) 메뉴가 비었음")
@@ -446,8 +472,8 @@ final class TWCatalogTests: XCTestCase {
     func testTWCatalogLoadsWithItsOwnBrands() throws {
         let catalog = try load()
 
-        XCTAssertEqual(catalog.schemaVersion, 2)
-        XCTAssertEqual(catalog.brands.map(\.id), ["tw-cama", "tw-kebuke"])
+        XCTAssertEqual(catalog.schemaVersion, 3)
+        XCTAssertEqual(catalog.brands.map(\.id), ["tw-basic", "tw-cama", "tw-kebuke"])
         let index = CatalogIndex(catalog: catalog)
         for brand in catalog.brands {
             XCTAssertFalse(index.drinks(brandID: brand.id).isEmpty, "\(brand.id) 메뉴가 비었음")

@@ -33,7 +33,9 @@ from sugarcap_scrape.brands import (
     cvs,
     estimated_likes,
     registry,
+    tw_estimated_likes,
     tw_registry,
+    us_estimated_likes,
     us_registry,
 )
 from sugarcap_scrape.colors import liquid_color
@@ -157,6 +159,22 @@ def merge_catalog(base: Catalog, update: Catalog) -> Catalog:
     )
 
 
+def in_registry_order(catalog: Catalog, registered: list[str]) -> Catalog:
+    """Brands in registry order; an unregistered one (`cvs`) stays right after the brand before it.
+
+    A full build already comes out this way; a merge appends new brands at the end, but the
+    app's brand grid follows this order (기본 메뉴 is registered first).
+    """
+    rank = {brand_id: float(index) for index, brand_id in enumerate(registered)}
+    keys: dict[str, float] = {}
+    previous = -1.0
+    for brand in catalog.brands:
+        previous = rank.get(brand.id, previous + 0.001)
+        keys[brand.id] = previous
+    brands = sorted(catalog.brands, key=lambda brand: keys[brand.id])
+    return catalog.model_copy(update={"brands": tuple(brands)})
+
+
 def write_catalog(catalog: Catalog, out: Path) -> None:
     out.parent.mkdir(parents=True, exist_ok=True)
     payload = catalog.model_dump(mode="json")
@@ -186,9 +204,11 @@ def main(argv: list[str]) -> int:
     catalog = build(scrapers, only, args.kfind)
     if args.merge is not None:
         base = Catalog.model_validate(json.loads(args.merge.read_text(encoding="utf-8")))
-        catalog = merge_catalog(base, catalog)
-    if args.country == "kr":
-        catalog = fill_estimates(catalog, estimated_likes())
+        catalog = in_registry_order(merge_catalog(base, catalog), list(scrapers))
+    likes = {"kr": estimated_likes, "us": us_estimated_likes, "tw": tw_estimated_likes}[
+        args.country
+    ]
+    catalog = fill_estimates(catalog, likes())
     problems = validate(catalog) if only is None or args.merge is not None else []
     if problems:
         for problem in problems:

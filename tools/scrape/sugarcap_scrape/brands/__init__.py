@@ -19,6 +19,7 @@ def registry() -> dict[str, tuple[Brand, Scraper]]:
     """Import brand modules lazily so one broken module does not block the others at import."""
     from sugarcap_scrape.brands import (
         amasvin,
+        basic,
         baskin,
         bluebottle,
         coffeebean,
@@ -37,6 +38,7 @@ def registry() -> dict[str, tuple[Brand, Scraper]]:
     )
 
     modules = (
+        basic,
         starbucks,
         mega,
         compose,
@@ -59,9 +61,10 @@ def registry() -> dict[str, tuple[Brand, Scraper]]:
 
 def estimated_likes() -> Likes:
     """Korean brands that publish no nutrition, with their comparable-drink overrides."""
-    from sugarcap_scrape.brands import amasvin, bluebottle, oozy
+    from sugarcap_scrape.brands import amasvin, basic, bluebottle, oozy
 
     return {
+        basic.BRAND.id: basic.LIKE,
         bluebottle.BRAND.id: bluebottle.LIKE,
         amasvin.BRAND.id: amasvin.LIKE,
         oozy.BRAND.id: oozy.LIKE,
@@ -70,15 +73,29 @@ def estimated_likes() -> Likes:
 
 def us_registry() -> dict[str, tuple[Brand, Scraper]]:
     """US brands, built into their own `catalog-us.json` (SPEC §9.9)."""
-    from sugarcap_scrape.brands import us_dutchbros, us_starbucks
+    from sugarcap_scrape.brands import us_basic, us_dutchbros, us_starbucks
 
-    modules = (us_starbucks, us_dutchbros)
+    modules = (us_basic, us_starbucks, us_dutchbros)
     return {module.BRAND.id: (module.BRAND, module.scrape) for module in modules}
+
+
+def us_estimated_likes() -> Likes:
+    """US estimated brands: only Basic (`us_basic.py`)."""
+    from sugarcap_scrape.brands import us_basic
+
+    return {us_basic.BRAND.id: us_basic.LIKE}
 
 
 def tw_registry() -> dict[str, tuple[Brand, Scraper]]:
     """Taiwan brands, built into `catalog-tw.json` (SPEC §9.9)."""
-    from sugarcap_scrape.brands import tw_cama, tw_kebuke
+    from sugarcap_scrape.brands import tw_basic, tw_cama, tw_kebuke
 
-    modules = (tw_cama, tw_kebuke)
+    modules = (tw_basic, tw_cama, tw_kebuke)
     return {module.BRAND.id: (module.BRAND, module.scrape) for module in modules}
+
+
+def tw_estimated_likes() -> Likes:
+    """Taiwan estimated brands: only 基本 (`tw_basic.py`)."""
+    from sugarcap_scrape.brands import tw_basic
+
+    return {tw_basic.BRAND.id: tw_basic.LIKE}

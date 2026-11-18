@@ -98,9 +98,17 @@ extension RecordFlowUITests {
     /// 추이 → 하루 기준 화면을 연다(2026-10-05 설정에서 옮겨 옴). 지금 보는 쪽이 당이어야 한다.
     @MainActor
     private func openSugarLimit(_ app: XCUIApplication) {
-        app.buttons["open-trends"].tap()
+        let trends = app.buttons["open-trends"]
         let row = app.buttons["trend-limit"]
-        XCTAssertTrue(row.waitForExistence(timeout: 10), "추이에 하루 기준 줄이 안 보임:\n\(app.debugDescription)")
+        // 실행 직후 추이 탭이 가끔 아무 반응 없이 지나간다(2026-11-14·11-18 CI, 실패 뒤 버튼은 안 잠겨 있었고 녹화에 변화 없음).
+        // 원인 미확정이라 한 번 더 누르고, 놓친 순간의 잠금 이유·활성 여부를 로그에 남긴다.
+        for attempt in 1...2 where !row.exists {
+            let lockAtTap = app.buttons["open-settings"].value as? String ?? ""
+            trends.tap()
+            if row.waitForExistence(timeout: 10) { break }
+            print("추이 탭이 무시됨: 시도 \(attempt), 탭 직전 잠금 '\(lockAtTap)', 지금 enabled \(trends.isEnabled)")
+        }
+        XCTAssertTrue(row.exists, "추이에 하루 기준 줄이 안 보임:\n\(app.debugDescription)")
         row.tap()
     }
 

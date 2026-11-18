@@ -413,7 +413,12 @@ struct StampCardView: View {
         withAnimation(.easeOut(duration: 0.2)) { earlyStage = 0 }
         earlyBirdDone = true
         onEarlyBirdSeen()
-        playRun += 1
+        // 더 찍을 칸이 없으면 판을 닫는다. 오늘 화면이 닫힌 뒤 받은 잔을 교환처럼 잔에 적용한다(대표님 2026-11-18).
+        if shown >= stamped {
+            onClose()
+        } else {
+            playRun += 1
+        }
     }
 
     // MARK: - 14칸

@@ -123,6 +123,8 @@ struct TodayView: View {
     @State private var screenshotStampSeen = 0
     @AppStorage(StampProgress.seenKey) private var stampSeen = 0
     @AppStorage(EarlyBird.seenKey) private var earlyBirdSeen = false
+    /// 열린 스탬프판에서 얼리버드 잔을 받았다. 판이 닫히면 잔에 적용한다(`applyEarlyBirdCups`).
+    @State private var earlyBirdTaken = false
 
     @Environment(ProStore.self) private var pro
 
@@ -889,6 +891,20 @@ struct TodayView: View {
             applyCupSet(item)
         } else {
             tradeApply = TradeApply(item: item, startedAt: Date())
+        }
+    }
+
+    /// 얼리버드 잔(당 = 유리 과일 소다, 카페인 = 유리 원두)을 잔에 적용한다(대표님 2026-11-18 "교환시 테마 획득 연출처럼").
+    /// 보이는 면은 교환처럼 방울이 잔에 떨어지며 바뀌고(`TradeApplyOverlay`), 다른 면은 바로 바꾼다. 동작 줄이기면 연출 없이 바꾼다.
+    private func applyEarlyBirdCups() {
+        let perks = TradeCatalog.perks.filter { trackedSides.contains($0.side) }
+        guard let shown = perks.first(where: { $0.side == side }) ?? perks.first else { return }
+        for perk in perks where perk.id != shown.id { applyCupSet(perk) }
+        if reduceMotion {
+            tradesAccepted += 1
+            applyCupSet(shown)
+        } else {
+            tradeApply = TradeApply(item: shown, startedAt: Date())
         }
     }
 
@@ -1959,15 +1975,24 @@ struct TodayView: View {
                 // 스크린샷은 7칸을 이미 본 판이면 무대도 본 것으로 둔다.
                 earlyBirdSeen: isScreenshot ? screenshotStampSeen >= StampMath.earlyBirdCell : earlyBirdSeen,
                 onSeen: { if !isScreenshot { stampSeen = max(stampSeen, $0) } },
-                onEarlyBirdSeen: { if !isScreenshot { earlyBirdSeen = true } },
+                onEarlyBirdSeen: {
+                    if !isScreenshot {
+                        earlyBirdSeen = true
+                        earlyBirdTaken = true
+                    }
+                },
                 onClose: {
                     // 연출 중에 닫아도 찍은 칸은 본 것으로 둔다(다시 열면 찍힌 채로 보인다). 얼리버드 무대도 같다.
+                    var appliesEarlyBird = false
                     if !isScreenshot {
                         stampSeen = max(stampSeen, StampMath.stamped(cellNumbers: stamps.compactMap(\.level)))
+                        appliesEarlyBird = earlyBirdTaken || hasUnseenEarlyBird
                         if hasUnseenEarlyBird { earlyBirdSeen = true }
                     }
+                    earlyBirdTaken = false
                     screenshotStamps = nil
                     isStampCardPresented = false
+                    if appliesEarlyBird { applyEarlyBirdCups() }
                 }
             )
             .transition(.opacity.combined(with: .scale(scale: 0.97)))

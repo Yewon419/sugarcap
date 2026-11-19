@@ -97,6 +97,8 @@ struct FeedingView: View {
     let onFeed: () throws -> [FeedResult]
     /// 정산 화면에서 음료를 더 기록한다. 그날 남은 양을 다시 계산한 요청을 돌려준다.
     let onAddDrink: (Entry) throws -> FeedingRequest
+    /// 저장한 뒤 그 주 진행 7칸을 읽는다. 비어 있으면(테스트 카드 먹이기) 요약에 그리지 않는다.
+    let weekSlots: () throws -> [GiftMath.WeekSlot]
     var snapshot: FeedingSnapshot?
 
     /// 음료를 더 기록하면 바뀐다.
@@ -133,6 +135,7 @@ struct FeedingView: View {
     @State private var isDropEaten = false
     @State private var characterFrame: CGRect = .zero
     @State private var summaryIn = false
+    @State private var week: [GiftMath.WeekSlot] = []
     /// "컵을 눌러 주세요." 안내. 컵 차례에서 2초 동안 아무것도 안 하면 뜬다(대표님 2026-10-23).
     @State private var isCupHintShown = false
     /// 첫 먹이기 튜토리얼(대표님 2026-10-27). 소개 영상 뒤 첫 먹이기에서만 켠다. 컵·캐릭터만 남기고 어둡게 덮고
@@ -148,7 +151,8 @@ struct FeedingView: View {
         catalog: CatalogIndex,
         snapshot: FeedingSnapshot? = nil,
         onFeed: @escaping () throws -> [FeedResult],
-        onAddDrink: @escaping (Entry) throws -> FeedingRequest
+        onAddDrink: @escaping (Entry) throws -> FeedingRequest,
+        weekSlots: @escaping () throws -> [GiftMath.WeekSlot]
     ) {
         _request = State(initialValue: request)
         self.opening = opening
@@ -156,6 +160,7 @@ struct FeedingView: View {
         self.snapshot = snapshot
         self.onFeed = onFeed
         self.onAddDrink = onAddDrink
+        self.weekSlots = weekSlots
         _isIntroPlaying = State(initialValue: opening == .companionIntro)
         isTutorial = opening == .companionIntro || snapshot?.tutorial == true
         _isSceneVisible = State(initialValue: opening == .immediate)
@@ -614,6 +619,10 @@ struct FeedingView: View {
                 Text(request.kind == .closeToday ? String(localized: "호감도는 내일 아침에 반영돼요.") : String(localized: "호감도에 바로 반영했어요."))
                     .font(AppFont.pretendard(14, .regular, relativeTo: .subheadline))
                     .foregroundStyle(Color.ink.opacity(0.55))
+                if week.count == 7 {
+                    weekProgress
+                        .padding(.top, 16)
+                }
             }
             .padding(.horizontal, 24)
             .padding(.top, 24)
@@ -658,6 +667,51 @@ struct FeedingView: View {
         .dynamicTypeSize(...DynamicTypeSize.xxLarge)
         .onAppear {
             if reduceMotion { summaryIn = true } else { withAnimation { summaryIn = true } }
+        }
+    }
+
+    /// 이번 주 지킨 날(대표님 2026-11-19). 월~일 점 7개와 "N / 5". 다섯 날을 지키면 그 주 선물이 온다(§4.9).
+    private var weekProgress: some View {
+        let kept = week.filter { $0 == .kept }.count
+        let required = GiftMath.requiredKeptDays
+        let symbols = Calendar.current.veryShortStandaloneWeekdaySymbols
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .firstTextBaseline) {
+                Text("이번 주 지킨 날")
+                    .font(AppFont.pretendard(13, .semibold, relativeTo: .footnote))
+                    .foregroundStyle(Color.ink.opacity(0.55))
+                Spacer(minLength: 8)
+                Text(verbatim: "\(min(kept, required)) / \(required)")
+                    .font(AppFont.pretendard(15, .bold, relativeTo: .subheadline))
+                    .monospacedDigit()
+                    .foregroundStyle(Color.ink)
+            }
+            HStack(spacing: 0) {
+                ForEach(Array(week.enumerated()), id: \.offset) { index, slot in
+                    VStack(spacing: 6) {
+                        weekDot(slot)
+                        Text(verbatim: symbols[(index + 1) % symbols.count])
+                            .font(AppFont.pretendard(11, .medium, relativeTo: .caption2))
+                            .foregroundStyle(Color.ink.opacity(0.45))
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("이번 주 지킨 날 \(kept)일"))
+        .accessibilityIdentifier("feeding-week")
+    }
+
+    @ViewBuilder
+    private func weekDot(_ slot: GiftMath.WeekSlot) -> some View {
+        switch slot {
+        case .kept:
+            Circle().fill(Color.ink).frame(width: 14, height: 14)
+        case .missed:
+            Circle().fill(Color.ink.opacity(0.12)).frame(width: 14, height: 14)
+        case .upcoming:
+            Circle().strokeBorder(Color.ink.opacity(0.2), lineWidth: 1.5).frame(width: 14, height: 14)
         }
     }
 
@@ -775,6 +829,7 @@ struct FeedingView: View {
         case .night:
             do {
                 results = try onFeed()
+                week = try weekSlots()
                 step = .done
             } catch {
                 Self.logger.error("먹이기 저장 실패(\(request.id, privacy: .public)): \(String(describing: error), privacy: .public)")
@@ -801,6 +856,7 @@ struct FeedingView: View {
         resetDrop()
         do {
             results = try onFeed()
+            week = try weekSlots()
             step = .done
         } catch {
             Self.logger.error("건너뛰기 저장 실패(\(request.id, privacy: .public)): \(String(describing: error), privacy: .public)")
@@ -833,6 +889,11 @@ struct FeedingView: View {
         case .caffeine: step = .side(sides.firstIndex(of: .caffeine) ?? 0)
         case .summary:
             results = []
+            do {
+                week = try weekSlots()
+            } catch {
+                Self.logger.error("주 진행 읽기 실패: \(String(describing: error), privacy: .public)")
+            }
             step = .done
             summaryIn = true
         }

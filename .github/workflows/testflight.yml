@@ -298,6 +298,9 @@ jobs:
           shoot feeding-turn light large -screenshotFeeding YES -screenshotFx turn -screenshotFxAt 1.0
           shoot feeding-summary light large -screenshotFeeding YES -screenshotFeedingStage summary
           shoot feeding-summary-type-ax-xl light accessibility-extra-large -screenshotFeeding YES -screenshotFeedingStage summary
+          # 이번 주 지킨 날 7칸(월 지킴·화 넘김·수목 지킴·금~일 아직).
+          shoot feeding-summary-week light large -screenshotFeeding YES -screenshotFeedingStage summary -screenshotWeekSlots kmkk---
+          shoot feeding-summary-week-type-ax-xl light accessibility-extra-large -screenshotFeeding YES -screenshotFeedingStage summary -screenshotWeekSlots kmkk---
           # 먹일 게 없는 날(빈 컵 털기): 조르기, 톡톡, 작은 방울, 카인 조르기(짧게 끊은 설명 글이 카인과 안 겹치는지).
           shoot feeding-empty light large -screenshotFeeding YES -screenshotFeedingEmpty YES
           shoot feeding-empty-patting light large -screenshotFeeding YES -screenshotFeedingEmpty YES -screenshotFeedingStage patting
@@ -535,6 +538,7 @@ jobs:
           shoot_en feeding-dropped large -screenshotFeeding YES -screenshotFeedingStage dropped
           shoot_en feeding-eaten large -screenshotFeeding YES -screenshotFeedingStage eaten
           shoot_en feeding-summary large -screenshotFeeding YES -screenshotFeedingStage summary
+          shoot_en feeding-summary-week large -screenshotFeeding YES -screenshotFeedingStage summary -screenshotWeekSlots kmkk---
           shoot_en feeding-empty-patting large -screenshotFeeding YES -screenshotFeedingEmpty YES -screenshotFeedingStage patting
           shoot_en fx-dusk large -screenshotFeeding YES -screenshotFx dusk -screenshotFxAt 0.8
           shoot_en fx-dusk-yesterday large -screenshotFeeding YES -screenshotFx dusk-yesterday -screenshotFxAt 1.0

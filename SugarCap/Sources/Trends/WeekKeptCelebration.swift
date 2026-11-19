@@ -8,7 +8,7 @@ import SwiftUI
 /// 아무 데나 누르면 시계가 부드럽게 빨라진다(뚝 건너뛰지 않는다). 뒤로 가기는 없다(전체 화면).
 struct WeekKeptCelebration: Identifiable, Equatable {
     let id = UUID()
-    /// 마감한 그 주 일요일.
+    /// 그 주의 다섯 번째 지킨 날을 채운 마감 날.
     let closed: DayKey
     /// 축하할 면(기록하는 면, 당 → 카페인 순).
     let sides: [CupSide]
@@ -221,8 +221,9 @@ struct WeekKeptCelebrationView: View {
 
     var body: some View {
         let tables: [CupSide: TrendTable] = Dictionary(uniqueKeysWithValues: sides.map { side in
-            (side, TrendTable.week(
-                entries: entries, boundaryHour: boundaryHour, today: celebration.closed, side: side, limit: side.limit(limits)
+            (side, TrendTable.calendarWeek(
+                entries: entries, boundaryHour: boundaryHour, today: celebration.closed,
+                start: GiftMath.weekStart(of: celebration.closed), side: side, limit: side.limit(limits)
             ))
         })
         TimelineView(.animation(minimumInterval: nil, paused: frozenAt != nil || clock == nil)) { timeline in

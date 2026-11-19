@@ -41,11 +41,9 @@ enum GiftStore {
         closed: DayKey, sides: [CupSide], isPro: Bool, now: Date, in context: ModelContext,
         roll: Double = Double.random(in: 0 ..< 1)
     ) throws -> Bool {
-        let days = try context.fetch(FetchDescriptor<DaySettlement>()).compactMap { row -> GiftMath.ClosedDay? in
-            guard row.isClosed, let day = row.dayKey else { return nil }
-            return GiftMath.ClosedDay(day: day, sugarOver: row.sugarOverAtCloseG, caffeineOver: row.caffeineOverAtCloseMg)
-        }
-        guard GiftMath.grantsWeekKept(closed: closed, days: days, sides: sides, gifts: try records(in: context)),
+        guard GiftMath.grantsWeekKept(
+                  closed: closed, days: try closedDays(in: context), sides: sides, gifts: try records(in: context)
+              ),
               let fallback = sides.randomElement()
         else { return false }
         let picked = Self.content(owners: sides, isPro: isPro, taken: try takenItems(in: context), roll: roll)
@@ -54,6 +52,18 @@ enum GiftStore {
             week: GiftMath.weekStart(of: closed), createdAt: now
         ))
         return true
+    }
+
+    /// `closed`가 든 주의 진행 7칸(마감 요약의 주 진행 표시).
+    static func weekSlots(closed: DayKey, sides: [CupSide], in context: ModelContext) throws -> [GiftMath.WeekSlot] {
+        GiftMath.weekSlots(closed: closed, days: try closedDays(in: context), sides: sides)
+    }
+
+    private static func closedDays(in context: ModelContext) throws -> [GiftMath.ClosedDay] {
+        try context.fetch(FetchDescriptor<DaySettlement>()).compactMap { row -> GiftMath.ClosedDay? in
+            guard row.isClosed, let day = row.dayKey else { return nil }
+            return GiftMath.ClosedDay(day: day, sugarOver: row.sugarOverAtCloseG, caffeineOver: row.caffeineOverAtCloseMg)
+        }
     }
 
     /// 마감(오늘 마감·어젯밤 먹이기)을 저장한 직후. 튜토리얼 상자 차례면 병뚜껑 1개 상자를 넣는다(§4.10).

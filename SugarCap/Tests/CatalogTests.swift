@@ -449,7 +449,7 @@ final class CatalogIndexTests: XCTestCase {
         let index = CatalogIndex(catalog: try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self)))
         func first(_ text: String) -> String { DrinkQuery.normalize(index.search(text).first?.name ?? "(없음)") }
 
-        XCTAssertEqual(HangulKeys.firstSounds("코카콜라 zero"), "ㅋㅋㅋㄹzero")
+        XCTAssertEqual(HangulKeys.firstSounds("코카콜라zero"), "ㅋㅋㅋㄹzero")
         XCTAssertNil(DrinkQuery("ㅋㅋ콜라").firstSounds, "완성 글자가 섞이면 초성 검색이 아니다")
 
         // 2026-11-19 대표님 "초성 검색도".

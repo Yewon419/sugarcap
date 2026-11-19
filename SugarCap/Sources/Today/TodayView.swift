@@ -278,7 +278,8 @@ struct TodayView: View {
                 onFeed: { try presentation.isRehearsal ? [] : feed(request) },
                 onAddDrink: { entry in
                     try presentation.isRehearsal ? Self.rehearse(entry, on: request) : addDrink(entry, to: request)
-                }
+                },
+                weekSlots: { try presentation.isRehearsal ? [] : weekSlots(for: request) }
             )
         }
         .fullScreenCover(item: $weekKept, onDismiss: askReminderAfterFirstFeed) { celebration in
@@ -1191,6 +1192,7 @@ struct TodayView: View {
                 onAddDrink: { entry, request in
                     try isGateRehearsal ? Self.rehearse(entry, on: request) : addDrink(entry, to: request)
                 },
+                weekSlots: { request in try isGateRehearsal ? [] : weekSlots(for: request) },
                 onDrank: {
                     if isGateRehearsal { self.gate = nil } else { dismissPastDay(gate.day) }
                 }
@@ -1571,6 +1573,22 @@ struct TodayView: View {
         } catch {
             Self.logger.error("하루 묶음 기록 실패: \(String(describing: error), privacy: .public)")
         }
+    }
+
+    /// 먹이기 요약의 주 진행 7칸. 마감한 그날이 든 주를 저장된 마감 행으로 센다.
+    /// Debug `-screenshotWeekSlots kkmk---`(k 지킴·m 못 지킴·- 아직)는 그 칸으로 고정한다.
+    private func weekSlots(for request: FeedingRequest) throws -> [GiftMath.WeekSlot] {
+        #if DEBUG
+        if let raw = UserDefaults.standard.string(forKey: "screenshotWeekSlots") {
+            return raw.prefix(7).map { $0 == "k" ? .kept : $0 == "m" ? .missed : .upcoming }
+        }
+        #endif
+        let day: DayKey
+        switch request.kind {
+        case .closeToday: day = DayKey(at: AppClock.now, boundaryHour: boundaryHour)
+        case .pastDay(let past): day = past
+        }
+        return try GiftStore.weekSlots(closed: day, sides: trackedSides, in: context)
     }
 
     private func feed(_ request: FeedingRequest) throws -> [FeedResult] {

@@ -125,6 +125,8 @@ struct TodayView: View {
     @AppStorage(EarlyBird.seenKey) private var earlyBirdSeen = false
     /// 열린 스탬프판에서 얼리버드 잔을 받았다. 판이 닫히면 잔에 적용한다(`applyEarlyBirdCups`).
     @State private var earlyBirdTaken = false
+    @AppStorage(ReviewPrompt.askedKey) private var reviewAsked = false
+    @State private var isReviewDue = false
 
     @Environment(ProStore.self) private var pro
 
@@ -1221,6 +1223,8 @@ struct TodayView: View {
         }
         .overlay { stampCardOverlay() }
         .animation(.easeOut(duration: 0.25), value: isStampCardPresented)
+        // 얼리버드 잔이 컵에 떨어지는 연출(`tradeApply`)이 끝난 뒤에 묻는다.
+        .requestsReview(when: isReviewDue && tradeApply == nil)
         .task(id: stampCue) {
             guard stampCue else { return }
             try? await Task.sleep(for: .seconds(0.5))
@@ -1986,9 +1990,11 @@ struct TodayView: View {
                     // 연출 중에 닫아도 찍은 칸은 본 것으로 둔다(다시 열면 찍힌 채로 보인다). 얼리버드 무대도 같다.
                     var appliesEarlyBird = false
                     if !isScreenshot {
-                        stampSeen = max(stampSeen, StampMath.stamped(cellNumbers: stamps.compactMap(\.level)))
+                        let stamped = StampMath.stamped(cellNumbers: stamps.compactMap(\.level))
+                        stampSeen = max(stampSeen, stamped)
                         appliesEarlyBird = earlyBirdTaken || hasUnseenEarlyBird
                         if hasUnseenEarlyBird { earlyBirdSeen = true }
+                        if ReviewPrompt.isDue(stampedCells: stamped, asked: reviewAsked) { askForReview() }
                     }
                     earlyBirdTaken = false
                     screenshotStamps = nil
@@ -1998,6 +2004,14 @@ struct TodayView: View {
             )
             .transition(.opacity.combined(with: .scale(scale: 0.97)))
         }
+    }
+
+    /// 별점 창은 `requestsReview(when:)`가 띄운다(`ReviewPrompt`).
+    private func askForReview() {
+        #if !DEBUG
+        reviewAsked = true
+        isReviewDue = true
+        #endif
     }
 
     // MARK: - 첫 기록 안내(DrinkTutorial)

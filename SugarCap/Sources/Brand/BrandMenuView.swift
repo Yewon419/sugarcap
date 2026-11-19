@@ -17,8 +17,12 @@ struct BrandMenuView: View {
     let limits: DailyLimits
     let onAdd: (ServingSelection) -> Void
     let onManualEntry: () -> Void
+    /// 메뉴를 연 화면. 결과 0개 검색어를 보낼 때 같이 보낸다(이용 기록 §9.10).
+    let place: EntryPlace
 
     @State private var query: String
+    /// 이미 보낸 결과 0개 검색어. 같은 말을 두 번 보내지 않는다.
+    @State private var reportedFailure: String?
     @State private var category = BrandMenuView.allCategory
     @State private var panelDrink: Drink?
     @State private var failureMessage: String?
@@ -52,6 +56,7 @@ struct BrandMenuView: View {
         todayTotals: DayTotals,
         limits: DailyLimits,
         menuQuery: String = "",
+        place: EntryPlace,
         onAdd: @escaping (ServingSelection) -> Void,
         onManualEntry: @escaping () -> Void
     ) {
@@ -61,6 +66,7 @@ struct BrandMenuView: View {
         self.limits = limits
         self.onAdd = onAdd
         self.onManualEntry = onManualEntry
+        self.place = place
         _query = State(initialValue: menuQuery.isEmpty ? Self.initialQuery : menuQuery)
     }
 
@@ -129,6 +135,7 @@ struct BrandMenuView: View {
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear(perform: openPanelForScreenshot)
+        .onDisappear { reportFailedSearch(thenManual: false) }
         // 첫 기록 안내: 맨 위 음료만 밝힌다. 뒤로 가기는 숨겨 안내 밖으로 못 나가게 한다.
         .overlay {
             if tutorial == .record, panelDrink == nil, let first = results().first {
@@ -162,6 +169,16 @@ struct BrandMenuView: View {
         }
     }
 
+    /// 이 브랜드 메뉴에서 결과가 0개인 검색어(분류 칩으로 비운 건 빼고). 직접 입력을 눌렀거나 그 상태로 나갈 때 하나만 보낸다.
+    private func reportFailedSearch(thenManual: Bool) {
+        guard tutorial == nil, reportedFailure != query, !DrinkQuery(query).isEmpty,
+            catalog.drinks(brandID: brand.id, matching: DrinkQuery(query)).isEmpty,
+            let draft = UsageEvents.searchFailed(query: query, place: place, brandID: brand.id, thenManual: thenManual)
+        else { return }
+        reportedFailure = query
+        UsageReporter.shared?.log(draft)
+    }
+
     /// CI 스크린샷이 메뉴 패널(출렁이는 큰 원)을 찍게 첫 결과를 연다(`-screenshotBrandPanel YES`, Debug 빌드만).
     private func openPanelForScreenshot() {
         #if DEBUG
@@ -174,7 +191,10 @@ struct BrandMenuView: View {
     private func menuList(_ found: [Drink]) -> some View {
         if found.isEmpty {
             CaptionNote(text: String(localized: "맞는 메뉴가 없어요."))
-            Button(action: onManualEntry) {
+            Button {
+                reportFailedSearch(thenManual: true)
+                onManualEntry()
+            } label: {
                 Label("직접 입력", systemImage: "plus")
                     .glassPill()
             }

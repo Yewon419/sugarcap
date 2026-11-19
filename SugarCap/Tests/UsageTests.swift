@@ -152,6 +152,29 @@ final class UsageEventsTests: XCTestCase {
             UsageEventDraft(type: "first_entry_logged", parameters: ["daysSinceInstall": "0"]))
     }
 
+    func testFailedSearchSendsTrimmedTextAndDropsPersonalLookingInput() {
+        XCTAssertEqual(
+            UsageEvents.searchFailed(query: "  말차   크림
+라떼 ", place: .feeding, brandID: nil, thenManual: true),
+            UsageEventDraft(
+                type: "search_failed",
+                parameters: ["query": "말차 크림 라떼", "place": "feeding", "scope": "all", "thenManual": "true"]))
+        XCTAssertEqual(
+            UsageEvents.searchFailed(query: "ㅁㅊ", place: .today, brandID: "mega", thenManual: false),
+            UsageEventDraft(
+                type: "search_failed",
+                parameters: [
+                    "query": "ㅁㅊ", "place": "today", "scope": "brand", "brandID": "mega", "thenManual": "false",
+                ]))
+        XCTAssertEqual(UsageEvents.searchText("가나다라마바사아자차카타파하가나다라마바사아자"), "가나다라마바사아자차카타파하가나다라마바")
+        XCTAssertEqual(UsageEvents.searchText("제로콜라 500ml"), "제로콜라 500ml")
+        XCTAssertNil(UsageEvents.searchText("010 1234 5678"))
+        XCTAssertNil(UsageEvents.searchText("전화 01012345678"))
+        XCTAssertNil(UsageEvents.searchText("me@example.com"))
+        XCTAssertNil(UsageEvents.searchText("12345"))
+        XCTAssertNil(UsageEvents.searchFailed(query: "   ", place: .today, brandID: nil, thenManual: false))
+    }
+
     func testPaywallSendsPlanNameAndOriginOfLockedFeature() {
         XCTAssertEqual(
             UsageEvents.paywallShown(

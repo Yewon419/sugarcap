@@ -179,6 +179,7 @@ struct TodayView: View {
                         todayTotals: todayTotals(now: AppClock.now),
                         limits: limits,
                         menuQuery: route.menuQuery,
+                        place: .today,
                         onAdd: { selection in
                             guard tutorial == nil else {
                                 addTutorialEntry(selection.makeEntry(brandName: brand.name, at: AppClock.now))
@@ -254,7 +255,8 @@ struct TodayView: View {
                 onTodayLog: {
                     isRecordSheetPresented = false
                     isDayLogPresented = true
-                }
+                },
+                place: .today
             )
             .environment(\.recordCup, side)
         }

@@ -135,6 +135,7 @@ struct FeedingView: View {
     @State private var isDropEaten = false
     @State private var characterFrame: CGRect = .zero
     @State private var summaryIn = false
+    @State private var isSummaryConfetti = false
     @State private var week: [GiftMath.WeekSlot] = []
     /// "컵을 눌러 주세요." 안내. 컵 차례에서 2초 동안 아무것도 안 하면 뜬다(대표님 2026-10-23).
     @State private var isCupHintShown = false
@@ -668,6 +669,10 @@ struct FeedingView: View {
         .onAppear {
             if reduceMotion { summaryIn = true } else { withAnimation { summaryIn = true } }
         }
+        .task {
+            try? await Task.sleep(for: .seconds(0.4))
+            isSummaryConfetti = true
+        }
     }
 
     /// 이번 주 지킨 날(대표님 2026-11-19). 월~일 점 7개와 "N / 5". 다섯 날을 지키면 그 주 선물이 온다(§4.9).
@@ -736,6 +741,12 @@ struct FeedingView: View {
                     .minimumScaleFactor(0.4)
                 Text(side.unit)
                     .font(AppFont.pretendard(22, .semibold, relativeTo: .title3))
+            }
+            // 기준 안에서 끝낸 판에만 작은 폭죽 한 번. 문구·캐릭터 없이(대표님 2026-11-19).
+            .overlay {
+                if isSummaryConfetti && over == 0 {
+                    ConfettiBurst(size: .small)
+                }
             }
         }
         .foregroundStyle(.white)

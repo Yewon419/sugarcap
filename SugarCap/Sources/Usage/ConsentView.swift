@@ -207,11 +207,13 @@ struct ConsentSummary: View {
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(Self.rows.indices, id: \.self) { index in
                     let row = Self.rows[index]
-                    ConsentRowLayout.of(typeSize) {
+                    let layout = ConsentRowLayout.of(typeSize)
+                    let width: CGFloat? = typeSize.isAccessibilitySize ? nil : labelWidth
+                    layout {
                         Text(row.0)
                             .font(AppFont.pretendard(13, .medium, relativeTo: .footnote))
                             .foregroundStyle(Self.sub)
-                            .frame(width: typeSize.isAccessibilitySize ? nil : labelWidth, alignment: .leading)
+                            .frame(width: width, alignment: .leading)
                         Text(row.1)
                             .font(AppFont.pretendard(14, .regular, relativeTo: .subheadline))
                             .foregroundStyle(Color.ink)
@@ -306,11 +308,13 @@ struct ConsentLaw: View {
         VStack(alignment: .leading, spacing: 0) {
             ForEach(Self.transfer.indices, id: \.self) { index in
                 let row = Self.transfer[index]
-                ConsentRowLayout.of(typeSize) {
+                let layout = ConsentRowLayout.of(typeSize)
+                let width: CGFloat? = typeSize.isAccessibilitySize ? nil : labelWidth
+                layout {
                     Text(row.0)
                         .font(AppFont.pretendard(13, .medium, relativeTo: .footnote))
                         .foregroundStyle(ConsentSummary.sub)
-                        .frame(width: typeSize.isAccessibilitySize ? nil : labelWidth, alignment: .leading)
+                        .frame(width: width, alignment: .leading)
                     Text(row.1)
                         .font(AppFont.pretendard(13, .regular, relativeTo: .footnote))
                         .foregroundStyle(Color.ink.opacity(0.86))

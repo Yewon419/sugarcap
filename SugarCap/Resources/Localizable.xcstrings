@@ -9808,18 +9808,18 @@
         }
       }
     },
-    "이 동의서는 [시행일] 부터 적용합니다." : {
+    "이 동의서는 2026년 11월 19일부터 적용합니다." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This consent applies from [effective date]."
+            "value" : "This consent applies from November 19, 2026."
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "本同意書自[施行日]起適用。"
+            "value" : "本同意書自2026年11月19日起適用。"
           }
         }
       }

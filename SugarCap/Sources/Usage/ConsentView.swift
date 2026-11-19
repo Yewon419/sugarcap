@@ -335,7 +335,7 @@ struct ConsentLaw: View {
             .modifier(LawBody())
 
         heading("부칙")
-        paragraph("이 동의서는 [시행일] 부터 적용합니다.")
+        paragraph("이 동의서는 2026년 11월 19일부터 적용합니다.")
     }
 
     private func heading(_ title: LocalizedStringKey) -> some View {

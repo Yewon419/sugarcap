@@ -277,6 +277,7 @@ final class CatalogIndexTests: XCTestCase {
                 return [
                     rank.isScattered ? 1 : 0,
                     rank.isExact ? 0 : 1,
+                    CatalogIndex.flagshipMenus[drink.brandId]?.contains(drink.name) == true ? 0 : 1,
                     drink.brandId == CatalogIndex.convenienceStoreID ? 1 : 0,
                     rank.extraLength,
                     rank.isPrefix ? 0 : 1,

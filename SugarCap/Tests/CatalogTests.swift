@@ -445,6 +445,26 @@ final class CatalogIndexTests: XCTestCase {
         XCTAssertTrue(first("라떼").hasSuffix("카페라떼"), first("라떼"))
     }
 
+    func testFirstSoundSearch() throws {
+        let index = CatalogIndex(catalog: try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self)))
+        func first(_ text: String) -> String { DrinkQuery.normalize(index.search(text).first?.name ?? "(없음)") }
+
+        XCTAssertEqual(HangulKeys.firstSounds("코카콜라zero"), "ㅋㅋㅋㄹzero")
+        XCTAssertNil(DrinkQuery("ㅋㅋ콜라").firstSounds, "완성 글자가 섞이면 초성 검색이 아니다")
+
+        // 2026-11-19 대표님 "초성 검색도".
+        XCTAssertEqual(first("ㅋㅋㅋㄹ"), "코카콜라")
+        XCTAssertEqual(first("ㅋㅋㄹ"), "코카콜라", "대표 메뉴가 앞부분 일치(코코리치)보다 먼저")
+        XCTAssertEqual(first("ㅇㅁㄹㅋㄴ"), "아메리카노")
+        XCTAssertEqual(first("ㅊㅅㅅㅇㄷ"), "칠성사이다")
+        XCTAssertEqual(first("ㅂㄴㄴㅁㅇㅇ"), "바나나맛우유")
+        XCTAssertEqual(first("ㅈㅁ ㅎㄴ ㅂㄹㅌ"), "자몽허니블랙티", "띄어 써도 된다")
+        // 자음 하나는 이름 맨 앞만 본다.
+        let single = index.search("ㅌ", limit: 500)
+        XCTAssertFalse(single.isEmpty)
+        XCTAssertTrue(single.allSatisfy { $0.searchNames.contains { $0.firstSounds.hasPrefix("ㅌ") } })
+    }
+
     func testScatteredWordsAndSpellingsFindSameDrink() throws {
         let index = CatalogIndex(catalog: try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self)))
 

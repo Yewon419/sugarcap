@@ -393,6 +393,23 @@ final class CatalogIndexTests: XCTestCase {
         XCTAssertEqual(DrinkSearchName("카페").core, "카페", "이름 전체를 떼지는 않는다")
     }
 
+    func testFlagshipDrinksComeFirst() throws {
+        let catalog = try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self))
+        let index = CatalogIndex(catalog: catalog)
+
+        // 카탈로그를 다시 빌드해 id가 바뀌면 목록이 조용히 무력해진다.
+        let ids = Set(catalog.drinks.map(\.id))
+        XCTAssertEqual(CatalogIndex.flagshipDrinkIDs.subtracting(ids), [], "카탈로그에 없는 대표 제품")
+
+        // 2026-11-19 대표님 "콜라 치면 코카콜라가 제일 위에".
+        XCTAssertEqual(index.search("콜라").first?.name, "코카콜라")
+        XCTAssertEqual(index.search("사이다").first?.name, "칠성사이다")
+        XCTAssertEqual(index.search("바나나").first?.name, "바나나맛우유")
+        // 대표 제품이 아닌 검색은 그대로: "라떼"는 카페 메뉴가 먼저다.
+        let latte = try XCTUnwrap(index.search("라떼").first)
+        XCTAssertNotEqual(latte.brandId, CatalogIndex.convenienceStoreID)
+    }
+
     func testScatteredWordsAndSpellingsFindSameDrink() throws {
         let index = CatalogIndex(catalog: try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self)))
 

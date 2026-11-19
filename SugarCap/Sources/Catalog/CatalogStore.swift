@@ -150,6 +150,17 @@ struct CatalogIndex {
     /// 편의점은 같은 순위 안에서 카페 뒤에 둔다. 제품이 만 개가 넘어 카페 메뉴를 밀어낸다.
     static let convenienceStoreID = "cvs"
 
+    /// 대표 제품(대표님 2026-11-19 "콜라 치면 코카콜라가 제일 위에"). 카탈로그에 인기 값이 없어 앱에 적는다.
+    /// 통째로 걸리면 다른 순위보다 먼저다. 커피 음료(조지아·칸타타 등)는 넣지 않는다: "라떼"에 카페 라떼를 덮는다.
+    static let flagshipDrinkIDs: Set<String> = [
+        "cvs:코카콜라:both", "cvs:펩시:both", "cvs:펩시제로슈거:both", "cvs:칠성사이다:both",
+        "cvs:칠성사이다제로:both", "cvs:스프라이트:both", "cvs:환타-오렌지:both", "cvs:밀키스:both",
+        "cvs:포카리스웨트-이온워터:both", "cvs:바나나맛우유:both", "cvs:초코에몽:both", "cvs:박카스에이:both",
+        "cvs:몬스터에너지:both", "cvs:핫식스:both", "cvs:솔의눈:both", "cvs:갈아만든배:both",
+        "cvs:아침햇살:both", "cvs:옥수수수염차:both", "cvs:하늘보리:both", "cvs:닥터페퍼:both",
+        "cvs:마운틴듀:both", "cvs:미에로화이바:both", "cvs:서울우유:both", "cvs:토레타!:both",
+    ]
+
     /// 기록 시트 검색(브랜드 전체). 브랜드 안 검색과 같은 순위 규칙(`DrinkSearchRank`), 최대 `limit`개.
     /// 같은 순위 안에서는 카페 → 편의점, 그다음 브랜드 격자 순서다.
     func search(_ query: String, limit: Int = 60) -> [Drink] {
@@ -220,12 +231,13 @@ struct CatalogIndex {
     /// 순서가 같으면 들어온 순서를 지키도록 위치를 마지막 기준으로 쓴다.
     private func ranked(_ drinks: [Drink], _ query: DrinkQuery) -> [Drink] {
         drinks.enumerated()
-            .compactMap { offset, drink -> (rank: DrinkSearchRank, isStore: Bool, offset: Int, drink: Drink)? in
+            .compactMap { offset, drink -> (rank: DrinkSearchRank, isFlagship: Bool, isStore: Bool, offset: Int, drink: Drink)? in
                 guard let rank = query.rank(searchNames(drink), temperature: drink.temperature) else { return nil }
-                return (rank, drink.brandId == Self.convenienceStoreID, offset, drink)
+                return (rank, Self.flagshipDrinkIDs.contains(drink.id), drink.brandId == Self.convenienceStoreID, offset, drink)
             }
             .sorted { lhs, rhs in
                 if lhs.rank.isScattered != rhs.rank.isScattered { return !lhs.rank.isScattered }
+                if lhs.isFlagship != rhs.isFlagship { return lhs.isFlagship }
                 if lhs.rank.isExact != rhs.rank.isExact { return lhs.rank.isExact }
                 if lhs.isStore != rhs.isStore { return !lhs.isStore }
                 if lhs.rank != rhs.rank { return lhs.rank < rhs.rank }

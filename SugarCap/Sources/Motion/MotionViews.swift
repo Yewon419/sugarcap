@@ -18,7 +18,9 @@ struct MaskLine: View {
             .tracking(tracking)
             .foregroundStyle(color)
             .lineLimit(1)
-            .fixedSize()
+            // 받은 폭보다 길면 줄여서 한 줄에 둔다(영어 "Yesterday's close"가 56pt로 화면 밖으로 나갔다, 2026-11-18).
+            .minimumScaleFactor(0.5)
+            .fixedSize(horizontal: false, vertical: true)
             .frame(height: lineHeight, alignment: .bottomLeading)
             .offset(y: lineHeight * 1.08 * (1 - reveal) - lineHeight * 1.08 * exit)
             .frame(height: lineHeight, alignment: .topLeading)

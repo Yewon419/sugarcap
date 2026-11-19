@@ -123,6 +123,8 @@ struct TodayView: View {
     @State private var screenshotStampSeen = 0
     @AppStorage(StampProgress.seenKey) private var stampSeen = 0
     @AppStorage(EarlyBird.seenKey) private var earlyBirdSeen = false
+    /// 열린 스탬프판에서 얼리버드 잔을 받았다. 판이 닫히면 잔에 적용한다(`applyEarlyBirdCups`).
+    @State private var earlyBirdTaken = false
     @AppStorage(ReviewPrompt.askedKey) private var reviewAsked = false
     @State private var isReviewDue = false
 
@@ -894,6 +896,20 @@ struct TodayView: View {
         }
     }
 
+    /// 얼리버드 잔(당 = 유리 과일 소다, 카페인 = 유리 원두)을 잔에 적용한다(대표님 2026-11-18 "교환시 테마 획득 연출처럼").
+    /// 보이는 면은 교환처럼 방울이 잔에 떨어지며 바뀌고(`TradeApplyOverlay`), 다른 면은 바로 바꾼다. 동작 줄이기면 연출 없이 바꾼다.
+    private func applyEarlyBirdCups() {
+        let perks = TradeCatalog.perks.filter { trackedSides.contains($0.side) }
+        guard let shown = perks.first(where: { $0.side == side }) ?? perks.first else { return }
+        for perk in perks where perk.id != shown.id { applyCupSet(perk) }
+        if reduceMotion {
+            tradesAccepted += 1
+            applyCupSet(shown)
+        } else {
+            tradeApply = TradeApply(item: shown, startedAt: Date())
+        }
+    }
+
     private func shownSetID(_ cupSide: CupSide) -> String {
         if let screenshotAppliedSet, screenshotAppliedSet.side == cupSide { return screenshotAppliedSet.id }
         return cupSide.cupSetID
@@ -1207,7 +1223,8 @@ struct TodayView: View {
         }
         .overlay { stampCardOverlay() }
         .animation(.easeOut(duration: 0.25), value: isStampCardPresented)
-        .requestsReview(when: isReviewDue)
+        // 얼리버드 잔이 컵에 떨어지는 연출(`tradeApply`)이 끝난 뒤에 묻는다.
+        .requestsReview(when: isReviewDue && tradeApply == nil)
         .task(id: stampCue) {
             guard stampCue else { return }
             try? await Task.sleep(for: .seconds(0.5))
@@ -1824,6 +1841,7 @@ struct TodayView: View {
             snapshot.stage = defaults.string(forKey: "screenshotFeedingStage").flatMap(FeedingSnapshot.Stage.init(rawValue:)) ?? .ask
             switch defaults.string(forKey: "screenshotFx") {
             case "dusk": snapshot.fx = .dusk(title: String(localized: "오늘 마감"))
+            case "dusk-yesterday": snapshot.fx = .dusk(title: String(localized: "어제 마감"))
             case "turn": snapshot.fx = .turn
             case "night": snapshot.fx = .night
             default: break
@@ -1962,17 +1980,26 @@ struct TodayView: View {
                 // 스크린샷은 7칸을 이미 본 판이면 무대도 본 것으로 둔다.
                 earlyBirdSeen: isScreenshot ? screenshotStampSeen >= StampMath.earlyBirdCell : earlyBirdSeen,
                 onSeen: { if !isScreenshot { stampSeen = max(stampSeen, $0) } },
-                onEarlyBirdSeen: { if !isScreenshot { earlyBirdSeen = true } },
+                onEarlyBirdSeen: {
+                    if !isScreenshot {
+                        earlyBirdSeen = true
+                        earlyBirdTaken = true
+                    }
+                },
                 onClose: {
                     // 연출 중에 닫아도 찍은 칸은 본 것으로 둔다(다시 열면 찍힌 채로 보인다). 얼리버드 무대도 같다.
+                    var appliesEarlyBird = false
                     if !isScreenshot {
                         let stamped = StampMath.stamped(cellNumbers: stamps.compactMap(\.level))
                         stampSeen = max(stampSeen, stamped)
+                        appliesEarlyBird = earlyBirdTaken || hasUnseenEarlyBird
                         if hasUnseenEarlyBird { earlyBirdSeen = true }
                         if ReviewPrompt.isDue(stampedCells: stamped, asked: reviewAsked) { askForReview() }
                     }
+                    earlyBirdTaken = false
                     screenshotStamps = nil
                     isStampCardPresented = false
+                    if appliesEarlyBird { applyEarlyBirdCups() }
                 }
             )
             .transition(.opacity.combined(with: .scale(scale: 0.97)))

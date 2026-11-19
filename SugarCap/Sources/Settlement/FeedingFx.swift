@@ -112,6 +112,7 @@ struct FeedFxOverlay: View {
                     reveal: seg(t, 0.45, 1.0, Ease.power4Out)
                 )
             }
+            .frame(width: size.width - 48, alignment: .leading)
             .offset(x: 24, y: 480 * sy - 40 * typeOut)
             .opacity(1 - typeOut)
         }

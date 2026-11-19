@@ -1821,6 +1821,7 @@ struct TodayView: View {
             snapshot.stage = defaults.string(forKey: "screenshotFeedingStage").flatMap(FeedingSnapshot.Stage.init(rawValue:)) ?? .ask
             switch defaults.string(forKey: "screenshotFx") {
             case "dusk": snapshot.fx = .dusk(title: String(localized: "오늘 마감"))
+            case "dusk-yesterday": snapshot.fx = .dusk(title: String(localized: "어제 마감"))
             case "turn": snapshot.fx = .turn
             case "night": snapshot.fx = .night
             default: break

@@ -533,6 +533,7 @@ jobs:
           shoot_en feeding-summary large -screenshotFeeding YES -screenshotFeedingStage summary
           shoot_en feeding-empty-patting large -screenshotFeeding YES -screenshotFeedingEmpty YES -screenshotFeedingStage patting
           shoot_en fx-dusk large -screenshotFeeding YES -screenshotFx dusk -screenshotFxAt 0.8
+          shoot_en fx-dusk-yesterday large -screenshotFeeding YES -screenshotFx dusk-yesterday -screenshotFxAt 1.0
           shoot_en feeding-tutorial large -screenshotFeeding YES -screenshotFeedingTutorial YES
           shoot_en feeding-tutorial-dropped large -screenshotFeeding YES -screenshotFeedingTutorial YES -screenshotFeedingStage dropped
           for at in 0.4 2.2 3.6 5.2 6.6 8.0; do

@@ -36,7 +36,8 @@ struct FeedingRecordSheet: View {
                     save(drink.selection.makeEntry(brandName: drink.brand.name, at: loggedAt()))
                 },
                 todayCount: 0,
-                onTodayLog: {}
+                onTodayLog: {},
+                place: place
             )
             .toolbar(.hidden, for: .navigationBar)
             .navigationTitle("기록")
@@ -48,6 +49,7 @@ struct FeedingRecordSheet: View {
                         todayTotals: request.totals,
                         limits: request.limits,
                         menuQuery: route.menuQuery,
+                        place: place,
                         onAdd: { selection in
                             UsageReporter.shared?.logEntry(path: .brandMenu, place: place, brandID: brand.id, now: Date())
                             save(selection.makeEntry(brandName: brand.name, at: loggedAt()))

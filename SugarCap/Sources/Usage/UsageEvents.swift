@@ -147,6 +147,25 @@ enum UsageEvents {
     static func tradeOffer(itemID: String, accepted: Bool) -> UsageEventDraft {
         UsageEventDraft(type: "trade_offer", parameters: ["itemID": itemID, "accepted": String(accepted)])
     }
+
+    /// 결과가 0개였던 검색어(SPEC §9.10). 브랜드 메뉴 안에서 찾았으면 그 브랜드를 같이 보낸다.
+    /// 보낼 수 없는 글(`searchText`가 거른 것)이면 nil.
+    static func searchFailed(query: String, place: EntryPlace, brandID: String?, thenManual: Bool) -> UsageEventDraft? {
+        guard let text = searchText(query) else { return nil }
+        var parameters = [
+            "query": text, "place": place.rawValue, "scope": brandID == nil ? "all" : "brand",
+            "thenManual": String(thenManual),
+        ]
+        if let brandID { parameters["brandID"] = brandID }
+        return UsageEventDraft(type: "search_failed", parameters: parameters)
+    }
+
+    /// 공백을 한 칸으로 줄이고 20자까지만. 글자가 없거나, 숫자가 7개 이상(전화번호 등)이거나, `@`(이메일)가 있으면 보내지 않는다.
+    static func searchText(_ raw: String) -> String? {
+        let text = raw.split(whereSeparator: \.isWhitespace).joined(separator: " ")
+        guard text.contains(where: \.isLetter), !text.contains("@"), text.filter(\.isNumber).count < 7 else { return nil }
+        return String(text.prefix(20))
+    }
 }
 
 extension UsageReporter {

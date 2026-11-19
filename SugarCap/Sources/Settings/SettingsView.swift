@@ -63,6 +63,8 @@ private struct SettingsContent: View {
     @State private var confirmsReset = false
     @AppStorage(AppClock.dayOffsetKey, store: SharedDefaults.store) private var dayOffset = 0
     @AppStorage(CloseReminder.enabledKey) private var isReminderOn = false
+    @AppStorage(UsageConsent.key) private var consentAnswer: Bool?
+    @State private var showsConsentText = false
     @AppStorage("cupSet.sugar", store: SharedDefaults.cupSetStore) private var testSugarCupSet: String?
     @AppStorage("cupSet.caffeine", store: SharedDefaults.cupSetStore) private var testCaffeineCupSet: String?
     /// 테스트 카드의 앱 언어. 빈 문자열 = 기기 설정. 다시 켜야 바뀌어서 화면에 보이는 언어와 다를 수 있다.
@@ -202,13 +204,29 @@ private struct SettingsContent: View {
                     linkRow(String(localized: "앱 소개 다시 보기"), trailing: "chevron.right")
                 }
                 .accessibilityIdentifier("replay-onboarding")
+            }
+
+            // 이용 기록 동의(SPEC §9.10, `design/proto/consent.html` 설정 화면). 끄면 확인 없이 바로 꺼지고 쌓인 기록도 지운다.
+            Section {
                 if let privacy = AppLinks.privacyPolicy {
                     Link(destination: privacy) {
                         linkRow(String(localized: "개인정보처리방침"), trailing: "arrow.up.right")
                     }
                 }
+                Toggle("이용 기록 제공(선택)", isOn: Binding(get: { consentAnswer == true }, set: setUsageConsent))
+                    .rowText()
+                    .accessibilityIdentifier("usage-consent")
+            } header: {
+                Text("개인정보")
             } footer: {
-                Text("기록은 이 기기에만 저장돼요. 수집하는 정보는 없어요.")
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("서비스 개선을 위한 이용 기록 수집·이용에 동의합니다.")
+                    Button("전문 보기") { showsConsentText = true }
+                        .font(AppFont.pretendard(13, .medium, relativeTo: .footnote))
+                        .foregroundStyle(Color.ink)
+                        .frame(minHeight: 44)
+                        .accessibilityIdentifier("consent-text")
+                }
             }
 
             if isTestBuild && isDeveloperMode { testSection }
@@ -273,6 +291,9 @@ private struct SettingsContent: View {
         .sheet(isPresented: $showsPaywall) {
             PaywallView(feature: nil, origin: paywallOrigin)
         }
+        .sheet(isPresented: $showsConsentText) {
+            ConsentTextSheet()
+        }
         .alert(
             alertMessage ?? "",
             isPresented: Binding(get: { alertMessage != nil }, set: { if !$0 { alertMessage = nil } })
@@ -322,6 +343,12 @@ private struct SettingsContent: View {
         guard isTestBuild else { return }
         isDeveloperMode.toggle()
         alertMessage = isDeveloperMode ? String(localized: "개발자 모드를 켰어요.") : String(localized: "개발자 모드를 껐어요.")
+    }
+
+    /// 스위치가 바로 움직이게 값부터 바꾸고, 보내기·지우기는 뒤에서 한다.
+    private func setUsageConsent(_ on: Bool) {
+        consentAnswer = on
+        Task { await ConsentPrompt.answer(granted: on) }
     }
 
     /// 켜면 권한부터 묻는다. 거절돼 있으면 스위치는 꺼진 채로 iOS 설정을 안내한다.

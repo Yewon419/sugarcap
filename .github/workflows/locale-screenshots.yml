@@ -121,6 +121,8 @@ jobs:
             shot "$d" stamp-early-stage-type-ax-xl accessibility-extra-large -screenshotStamps 7 -screenshotStampSeen 6 -earlyBird YES -screenshotStampInstant YES
             shot "$d" stamp-early-after large -screenshotStamps 9 -earlyBird YES
             shot "$d" stamp-early-not large -screenshotStamps 9 -earlyBird NO
+            shot "$d" consent large -screenshotConsent summary
+            shot "$d" consent-full large -screenshotConsent full
 
             shot "$d" inventory large -initialTab settings -screenshotInventory YES -screenshotCaps 12 -screenshotInventoryItems strawberry,coffee-bean,sugar-cube,cinnamon-stick
             shot "$d" glass-inventory large -cupSet.sugar glass-soda -cupSet.caffeine glass-beans -initialTab settings -screenshotInventory YES -screenshotCaps 3

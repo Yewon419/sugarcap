@@ -660,6 +660,14 @@ extension RecordFlowUITests {
         stage.tap()
         XCTAssertTrue(stage.waitForNonExistence(timeout: 3), "눌렀는데 두 번째 무대가 안 닫힘")
 
+        // 마감 뒤 연출이 다 끝나면 이용 기록 동의 카드가 한 번 뜬다(2026-11-19). 거절해 둬야 넘기기·뒤 테스트가 안 막힌다.
+        // 시뮬레이터에서 이미 답했으면 안 뜬다.
+        let decline = app.buttons["consent-decline"]
+        if decline.waitForExistence(timeout: 5) {
+            decline.tap()
+            XCTAssertTrue(decline.waitForNonExistence(timeout: 3), "거절해도 동의 카드가 안 닫힘")
+        }
+
         // 정리: 당 컵으로 되돌린다. 넘어간 컵이 저장돼 뒤 테스트가 카페인 컵에서 시작했다(2026-10-27 CI).
         if summary.label.hasPrefix("카페인 남은") {
             let window = app.windows.firstMatch
@@ -673,6 +681,51 @@ extension RecordFlowUITests {
         // 상자가 없으니 무대가 끝나면 위 버튼이 그대로 눌려야 한다(2026-11-06 CI, 녹화로 확인).
         let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isEnabled == true"), object: app.buttons["open-settings"])
         XCTAssertEqual(XCTWaiter().wait(for: [enabled], timeout: 5), .completed, "무대가 끝났는데 설정 버튼이 잠겨 있음")
+    }
+
+    /// 동의 카드는 전문을 펼치고 접을 수 있고, 거절하면 닫힌다(2026-11-19). 카드는 `-screenshotConsent`로 바로 연다.
+    /// 이름을 testSkipping… 뒤에 둔다. 거기서 실제 마감 뒤 카드를 이미 거절해 두어 여기서 거절해도 바뀌는 게 없다.
+    @MainActor
+    func testTodayConsentCardExpandsAndDeclines() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication.withTestSkips()
+        app.launchArguments += ["-screenshotConsent", "summary"]
+        app.launch()
+        completeOnboardingIfPresented(app)
+
+        let more = app.buttons["consent-more"]
+        XCTAssertTrue(more.waitForExistence(timeout: 10), "동의 카드가 안 뜸")
+        XCTAssertTrue(app.buttons["consent-accept"].exists, "동의 버튼이 없음")
+        XCTAssertFalse(app.staticTexts["제1조 (목적)"].exists, "접힌 카드에 전문이 보임")
+        more.tap()
+        XCTAssertTrue(app.staticTexts["제1조 (목적)"].waitForExistence(timeout: 3), "전문 보기를 눌러도 전문이 안 펼쳐짐")
+        more.tap()
+        XCTAssertTrue(app.staticTexts["제1조 (목적)"].waitForNonExistence(timeout: 3), "전문 접기를 눌러도 안 접힘")
+
+        let decline = app.buttons["consent-decline"]
+        decline.tap()
+        XCTAssertTrue(decline.waitForNonExistence(timeout: 3), "거절해도 동의 카드가 안 닫힘")
+    }
+
+    /// 설정 개인정보 묶음에 동의 스위치와 「전문 보기」가 있다. 스위치는 실제 전송이 걸려 있어 누르지 않는다.
+    @MainActor
+    func testSettingsConsentTextOpens() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication.withTestSkips()
+        app.launch()
+        completeOnboardingIfPresented(app)
+        app.buttons["open-settings"].tap()
+        let ui = Driver(app: app)
+
+        let text = app.buttons["consent-text"]
+        ui.reveal(text)
+        XCTAssertTrue(app.switches["usage-consent"].exists, "설정에 이용 기록 제공 스위치가 없음")
+        ui.tap(text)
+        let close = app.buttons["consent-text-close"]
+        XCTAssertTrue(close.waitForExistence(timeout: 5), "전문 보기가 안 열림")
+        XCTAssertTrue(app.staticTexts["제1조 (목적)"].exists, "전문 화면에 제1조가 없음")
+        close.tap()
+        XCTAssertTrue(text.waitForExistence(timeout: 5), "닫으면 설정으로 돌아와야 한다")
     }
 
     /// 편의점은 메뉴가 수천 개라 검색 우선 화면이다(2026-10-01). 검색 전에는 목록이 없고,

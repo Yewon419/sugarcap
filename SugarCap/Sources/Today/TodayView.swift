@@ -127,6 +127,12 @@ struct TodayView: View {
     @State private var earlyBirdTaken = false
     @AppStorage(ReviewPrompt.askedKey) private var reviewAsked = false
     @State private var isReviewDue = false
+    /// 이용 기록 동의 카드(SPEC §9.10). 마감하면 `consentDue`가 켜지고, 답하면 `consentAnswer`가 생겨 다시 안 뜬다.
+    @AppStorage(ConsentPrompt.dueKey) private var consentDue = false
+    @AppStorage(UsageConsent.key) private var consentAnswer: Bool?
+    @State private var isConsentPresented = false
+    /// CI 스크린샷(Debug `-screenshotConsent full`)이면 전문을 펼친 채로 연다.
+    @State private var consentStartsExpanded = false
 
     @Environment(ProStore.self) private var pro
 
@@ -1231,6 +1237,15 @@ struct TodayView: View {
             guard !Task.isCancelled, stampCue else { return }
             isStampCardPresented = true
         }
+        .overlay { consentOverlay() }
+        .animation(.easeOut(duration: 0.25), value: isConsentPresented)
+        .task(id: consentCue) {
+            guard consentCue else { return }
+            try? await Task.sleep(for: .seconds(0.8))
+            guard !Task.isCancelled, consentCue else { return }
+            consentStartsExpanded = false
+            isConsentPresented = true
+        }
         .task(id: giftSideCue) {
             guard let target = giftSideCue else { return }
             try? await Task.sleep(for: .seconds(0.4))
@@ -1613,6 +1628,7 @@ struct TodayView: View {
         case .pastDay: UsageReporter.shared?.log(UsageEvents.dayClosed(.pastDay))
         }
         didFeed = true
+        consentDue = true
         if let keptWeek { pendingWeekKept = try weekKeptCelebration(closed: keptWeek) }
         return results
     }
@@ -1683,6 +1699,7 @@ struct TodayView: View {
             try SettlementStore.dismissPastDay(day, now: AppClock.now, in: context)
             try context.save()
             UsageReporter.shared?.log(UsageEvents.dayClosed(.drank))
+            consentDue = true
             prompt = nil
             gate = nil
         } catch {
@@ -1889,6 +1906,11 @@ struct TodayView: View {
         if defaults.bool(forKey: "screenshotDayLog") {
             isDayLogPresented = true
         }
+        // 이용 기록 동의 카드(`-screenshotConsent summary|full`). 버튼을 누르면 실제로 답이 저장된다.
+        if let raw = defaults.string(forKey: "screenshotConsent") {
+            consentStartsExpanded = raw == "full"
+            isConsentPresented = true
+        }
         // 2주 스탬프판(`-screenshotStamps <찍은 칸 수>`). 14칸은 `-screenshotStampFinal caps|<잔 id>`(기본 청포도),
         // 찍는 연출은 `-screenshotStampSeen <본 칸 수>`(기본 = 찍은 칸 수, 연출 없음).
         if defaults.object(forKey: "screenshotStamps") != nil {
@@ -2012,6 +2034,33 @@ struct TodayView: View {
         reviewAsked = true
         isReviewDue = true
         #endif
+    }
+
+    // MARK: - 이용 기록 동의
+
+    /// 마감 뒤 연출(알림 질문·스탬프·단계 상승·선물 상자·주 축하·체험 권유)이 다 끝나고 오늘 화면이 비었을 때 한 번.
+    /// 이번 실행에 별점 창을 불렀으면 겹치지 않게 다음 실행으로 미룬다(`consentDue`는 남아 있다).
+    private var consentCue: Bool {
+        guard ConsentPrompt.isDue(consent: UsageConsent(stored: consentAnswer), closedDay: consentDue),
+              !isConsentPresented, !hasUnseenStamp, !isStampCardPresented, levelUp == nil, levelUpSide == nil,
+              giftWaitingSide == nil, opening == nil, reveal == nil, revealLead == nil, trade == nil, tradeApply == nil,
+              leavingOffer == nil, !trialPaywallPending, feeding == nil, gate == nil, weekKept == nil, !asksReminder,
+              paywall == nil, !isProPaywallPresented, tutorial == nil, !tutorialPending, !isReviewDue
+        else { return false }
+        return isOnScreen && !isSliding && !isSettingsPresented && !isTrendsPresented && !isRecordSheetPresented
+            && !isDayLogPresented && !isManualEntryPresented && path.isEmpty
+    }
+
+    @ViewBuilder
+    private func consentOverlay() -> some View {
+        if isConsentPresented {
+            ConsentCard(expanded: consentStartsExpanded) { granted in
+                consentAnswer = granted
+                isConsentPresented = false
+                Task { await ConsentPrompt.answer(granted: granted) }
+            }
+            .transition(.opacity.combined(with: .scale(scale: 0.97)))
+        }
     }
 
     // MARK: - 첫 기록 안내(DrinkTutorial)

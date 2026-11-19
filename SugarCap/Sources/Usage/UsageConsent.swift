@@ -9,11 +9,17 @@ enum UsageConsent: Equatable, Sendable {
 
     static let key = "usageConsentGranted"
 
-    static func load(from defaults: UserDefaults) -> UsageConsent {
-        guard let granted = defaults.object(forKey: key) as? Bool else {
-            return .undecided
+    /// 저장된 값(`key`)에서. 화면은 `@AppStorage(UsageConsent.key)`로 받은 `Bool?`을 넘긴다.
+    init(stored: Bool?) {
+        switch stored {
+        case nil: self = .undecided
+        case true?: self = .granted
+        case false?: self = .declined
         }
-        return granted ? .granted : .declined
+    }
+
+    static func load(from defaults: UserDefaults) -> UsageConsent {
+        UsageConsent(stored: defaults.object(forKey: key) as? Bool)
     }
 
     static func store(granted: Bool, in defaults: UserDefaults) {

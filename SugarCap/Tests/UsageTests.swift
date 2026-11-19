@@ -382,3 +382,28 @@ final class DayBundleTests: XCTestCase {
         XCTAssertEqual(queued.map { $0.parameters["weekday"] }, ["2", "3"])
     }
 }
+
+/// 동의 카드를 띄우는 때(대표님 2026-11-19: 새 사용자는 첫 마감, 기존 사용자는 업데이트 뒤 다음 마감 뒤에 한 번).
+final class ConsentPromptTests: XCTestCase {
+    func testAsksOnlyAfterClosingWhileUndecided() {
+        XCTAssertFalse(ConsentPrompt.isDue(consent: .undecided, closedDay: false))
+        XCTAssertTrue(ConsentPrompt.isDue(consent: .undecided, closedDay: true))
+        XCTAssertFalse(ConsentPrompt.isDue(consent: .granted, closedDay: true))
+        XCTAssertFalse(ConsentPrompt.isDue(consent: .declined, closedDay: true))
+    }
+
+    /// 화면은 `@AppStorage(UsageConsent.key)`의 `Bool?`로 읽고 보고자는 `load`로 읽는다. 둘이 같은 답이어야 한다.
+    func testStoredAnswerReadsTheSameBothWays() throws {
+        let suiteName = "consent-tests-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        XCTAssertEqual(UsageConsent.load(from: defaults), .undecided)
+        XCTAssertEqual(UsageConsent(stored: defaults.object(forKey: UsageConsent.key) as? Bool), .undecided)
+        for (granted, expected) in [(true, UsageConsent.granted), (false, UsageConsent.declined)] {
+            UsageConsent.store(granted: granted, in: defaults)
+            XCTAssertEqual(UsageConsent.load(from: defaults), expected)
+            XCTAssertEqual(UsageConsent(stored: defaults.object(forKey: UsageConsent.key) as? Bool), expected)
+        }
+    }
+}

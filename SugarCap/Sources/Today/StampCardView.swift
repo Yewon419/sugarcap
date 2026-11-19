@@ -27,8 +27,16 @@ struct StampCardView: View {
     @State private var reelOffset: CGFloat = 0
     @State private var isSettled = false
     @State private var notchY: CGFloat = 76
-    /// 얼리버드 무대 단계. 0 = 없음, 1 = 판이 어두워짐, 2 = 방울이 떠오름, 3 = 빛줄기가 지나감, 4 = 이름과 받기.
+    /// 얼리버드 무대 단계. 0 = 없음, 1 = 7칸에서 먹색이 번짐, 2 = 방울이 튀어나옴, 3 = 빛줄기가 지나감, 4 = 이름과 받기,
+    /// 5 = 방울이 7칸으로 돌아감.
     @State private var earlyStage = 0
+    /// 7칸 화면 좌표. 무대의 먹색 원과 방울이 이 칸에서 나오고 이 칸으로 돌아간다.
+    @State private var earlyCellFrame: CGRect = .zero
+    /// 먹색 원 크기(0 = 7칸 한 점, 1 = 화면을 다 덮음).
+    @State private var stageCover: CGFloat = 0
+    /// 무대 위 큰 폭죽(방울 착지·이름표 등장). 판 위 `bigBurst`는 무대에 가려서 따로 둔다.
+    @State private var dropBurst = 0
+    @State private var titleBurst = 0
     /// 빛줄기 위치(0 = 방울 왼쪽 밖, 1 = 오른쪽 밖).
     @State private var streak: CGFloat = 0
     /// 이 판에서 무대를 받았다(스크린샷처럼 바깥 기록이 안 바뀌어도 다시 틀지 않는다).
@@ -40,7 +48,7 @@ struct StampCardView: View {
     /// 작은 폭죽이 터지는 칸과 다시 터뜨리는 열쇠.
     @State private var burstCell: Int?
     @State private var burstID = 0
-    /// 잔·병뚜껑·얼리버드를 받을 때 판 전체에 터지는 큰 폭죽(0 = 아직 없음).
+    /// 잔·병뚜껑을 받을 때 판 전체에 터지는 큰 폭죽(0 = 아직 없음).
     @State private var bigBurst = 0
 
     private enum Finale: Equatable {
@@ -64,6 +72,7 @@ struct StampCardView: View {
                 .accessibilityHidden(true)
             card
                 .padding(.horizontal, 24)
+            earlyBirdStage
         }
         .task(id: playRun) { await play() }
         .sensoryFeedback(.impact(weight: .medium), trigger: shown) { old, new in new > old && old >= seen }
@@ -140,7 +149,6 @@ struct StampCardView: View {
             .padding(.trailing, 7)
         }
         .overlay { finaleView }
-        .overlay { earlyBirdView }
         .overlay {
             if bigBurst > 0 {
                 ConfettiBurst(size: .big)
@@ -207,6 +215,9 @@ struct StampCardView: View {
             }
         }
         .frame(width: 38, height: 38)
+        .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { frame in
+            if number == StampMath.earlyBirdCell { earlyCellFrame = frame }
+        }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(cellLabel(number, isDone: isDone, gift: gift))
     }
@@ -237,7 +248,13 @@ struct StampCardView: View {
     @ViewBuilder
     private func earlyBirdCell(isDone: Bool) -> some View {
         let isNext = shown == StampMath.earlyBirdCell - 1
-        if isDone {
+        if isDone, needsEarlyBirdStage || earlyStage > 0 {
+            // 무대를 받기 전에는 보통 도장 칸이다. 방울은 받기를 누르면 이 칸으로 날아와 앉는다.
+            Circle().fill(Color.ink)
+            if let gift = stampGift(at: StampMath.earlyBirdCell) {
+                PrizeGlyph(gift: gift, size: 20)
+            }
+        } else if isDone {
             Circle().fill(.white)
             Circle().strokeBorder(Color.ink, lineWidth: 2)
             HStack(spacing: -7) {
@@ -295,70 +312,119 @@ struct StampCardView: View {
 
     // MARK: - 얼리버드 무대
 
-    /// 판을 어둡게 덮고 뒤로 빛살이 돌며 유리 방울 두 개가 차례로 튀어 오른다. 폭죽이 터지고 빛줄기가 두 번 지나간 뒤
-    /// 이름표가 튀어나온다(빌드 407 대표님 "좀 더 화려하게"). 단색 면·또렷한 선만(에어브러시 금지).
+    /// 판 밖 전체 무대(대표님 2026-11-19 확정 시안 `design/proto/earlybird-stage.html`). 7칸 도장이 찍히면 그 칸에서
+    /// 먹색 원이 화면 전체로 번지고, 유리 방울 두 개가 칸에서 튀어나와 커지며 자리 잡는다. 폭죽이 터지고 방울 모양 안으로
+    /// 흰 띠가 두 번 지나간 뒤 제목·잔 이름·받기가 뜬다. 받기를 누르면 방울이 7칸으로 날아가 앉고 먹색 원이 그 칸으로
+    /// 접힌다. 빛살은 쓰지 않는다(대표님 2026-11-19 "촌스러움"). 단색 면·또렷한 선만(에어브러시 금지).
     @ViewBuilder
-    private var earlyBirdView: some View {
+    private var earlyBirdStage: some View {
         if earlyStage > 0 {
             ZStack {
-                CouponShape(notchY: notchY)
-                    .fill(Color.ink.opacity(0.92))
-                VStack(spacing: 0) {
-                    HStack(spacing: 20) {
+                GeometryReader { proxy in
+                    let origin = proxy.frame(in: .global).origin
+                    let cell = CGPoint(x: earlyCellFrame.midX - origin.x, y: earlyCellFrame.midY - origin.y)
+                    let size = proxy.size
+                    let dropY: CGFloat = size.height * 0.426
+                    let titleY: CGFloat = size.height * 0.252
+                    let cover: CGFloat = CGFloat(hypot(Double(size.width), Double(size.height))) * 2 * stageCover
+                    ZStack {
+                        // 무대가 떠 있는 동안 아래 판·바깥 누르기를 막는다.
+                        Color.clear
+                            .contentShape(Rectangle())
+                        Color.ink
+                            .mask {
+                                Circle()
+                                    .frame(width: cover, height: cover)
+                                    .position(cell)
+                            }
+                        if dropBurst > 0, (2 ... 4).contains(earlyStage) {
+                            ConfettiBurst(size: .big)
+                                .id(dropBurst)
+                                .position(x: size.width / 2, y: dropY)
+                        }
+                        if titleBurst > 0, earlyStage == 4 {
+                            ConfettiBurst(size: .big)
+                                .id(titleBurst)
+                                .position(x: size.width / 2, y: titleY)
+                        }
+                        Text("얼리버드 선물")
+                            .font(AppFont.pretendard(34, .extraBold, relativeTo: .largeTitle))
+                            .tracking(-0.68)
+                            .foregroundStyle(.white)
+                            .multilineTextAlignment(.center)
+                            .frame(width: size.width - 48)
+                            .offset(y: earlyStage == 4 ? 0 : 16)
+                            .opacity(earlyStage == 4 ? 1 : 0)
+                            .animation(textAnimation(delay: 0), value: earlyStage)
+                            .position(x: size.width / 2, y: titleY)
                         ForEach(Array(perkItems.enumerated()), id: \.element.id) { index, item in
-                            Image(item.dropAsset)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 92, height: 92)
-                                .overlay { streakBand(item) }
-                                .scaleEffect(earlyStage >= 2 ? 1 : 0.2)
-                                .rotationEffect(.degrees(earlyStage >= 2 ? 0 : (index == 0 ? -30 : 30)))
-                                .offset(y: earlyStage >= 2 ? 0 : 40)
-                                .opacity(earlyStage >= 2 ? 1 : 0)
-                                .animation(
-                                    reduceMotion ? nil : .spring(response: 0.5, dampingFraction: 0.48).delay(Double(index) * 0.14),
-                                    value: earlyStage
-                                )
+                            let spot = CGPoint(x: size.width / 2 + (index == 0 ? -78 : 78), y: dropY)
+                            stageDrop(item, index: index, cell: cell, spot: spot)
+                            Text(verbatim: item.name)
+                                .font(AppFont.pretendard(16, .semibold, relativeTo: .headline))
+                                .foregroundStyle(Color(white: 0.83))
+                                .multilineTextAlignment(.center)
+                                .frame(width: 150, height: 220, alignment: .top)
+                                .offset(y: earlyStage == 4 ? 0 : 10)
+                                .opacity(earlyStage == 4 ? 1 : 0)
+                                .animation(textAnimation(delay: 0.08 + Double(index) * 0.06), value: earlyStage)
+                                .position(x: spot.x, y: dropY + 80 + 110)
+                                .accessibilityIdentifier("stamp-early-name-\(index)")
                         }
                     }
-                    .background {
-                        SpinningRays(isOn: earlyStage >= 2)
-                            .frame(width: 420, height: 420)
-                    }
-                    .accessibilityHidden(true)
+                }
+                .ignoresSafeArea()
 
-                    Text("얼리버드 선물")
-                        .font(AppFont.pretendard(22, .bold, relativeTo: .title2))
-                        .foregroundStyle(.white)
-                        .padding(.top, 22)
-                        .scaleEffect(earlyStage >= 4 ? 1 : 0.6)
-                        .opacity(earlyStage >= 4 ? 1 : 0)
-                    Text(verbatim: perkItems.map(\.name).joined(separator: " · "))
-                        .font(AppFont.pretendard(17, .semibold, relativeTo: .headline))
-                        .foregroundStyle(Color(white: 0.85))
-                        .padding(.top, 8)
-                        .opacity(earlyStage >= 4 ? 1 : 0)
-                        .accessibilityIdentifier("stamp-early-names")
+                VStack {
+                    Spacer()
                     Button(action: takeEarlyBird) {
                         Text("받기")
-                            .font(AppFont.pretendard(16, .semibold, relativeTo: .body))
+                            .font(AppFont.pretendard(17, .semibold, relativeTo: .body))
                             .foregroundStyle(Color.ink)
-                            .padding(.horizontal, 28)
-                            .frame(minHeight: 44)
+                            .frame(maxWidth: .infinity, minHeight: 56)
                             .background(.white, in: Capsule())
                     }
-                    .opacity(earlyStage >= 4 ? 1 : 0)
-                    .disabled(earlyStage < 4)
-                    .padding(.top, 20)
+                    .offset(y: earlyStage == 4 ? 0 : 12)
+                    .opacity(earlyStage == 4 ? 1 : 0)
+                    .animation(textAnimation(delay: 0.14), value: earlyStage)
+                    .disabled(earlyStage != 4)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 12)
                     .accessibilityIdentifier("stamp-early-take")
                 }
-                .padding(.horizontal, 24)
             }
-            .clipShape(CouponShape(notchY: notchY))
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("stamp-early")
-            .transition(.opacity)
         }
+    }
+
+    /// 칸에서 튀어나와 자리 잡고(조금 넘쳤다 앉는다), 받기를 누르면 칸 안 두 자리(좌우 6pt, 19pt)로 돌아간다.
+    private func stageDrop(_ item: TradeItem, index: Int, cell: CGPoint, spot: CGPoint) -> some View {
+        let isOut = (2 ... 4).contains(earlyStage)
+        let isBack = earlyStage >= 5
+        let home = CGPoint(x: cell.x + (index == 0 ? -6 : 6), y: cell.y)
+        let scale: CGFloat = isOut ? 1 : (isBack ? 19.0 / 140.0 : 0.16)
+        let place: CGPoint = isOut ? spot : (isBack ? home : cell)
+        let flight: Animation = isBack
+            ? .timingCurve(0.65, 0, 0.35, 1, duration: 0.55).delay(0.05 + Double(index) * 0.06)
+            : .spring(response: 0.6, dampingFraction: 0.62).delay(Double(index) * 0.1)
+        return Image(item.dropAsset)
+            .resizable()
+            .scaledToFit()
+            .frame(width: 140, height: 140)
+            .overlay { streakBand(item) }
+            .scaleEffect(scale)
+            .rotationEffect(.degrees(earlyStage >= 2 ? 0 : (index == 0 ? -25 : 25)))
+            .opacity(earlyStage >= 2 ? 1 : 0)
+            .position(place)
+            .animation(reduceMotion ? nil : flight, value: earlyStage)
+            .accessibilityHidden(true)
+    }
+
+    /// 제목·이름·받기는 들어올 때 아래에서 떠오르고, 받기를 누르면 바로 흐려진다.
+    private func textAnimation(delay: Double) -> Animation? {
+        guard !reduceMotion else { return nil }
+        return earlyStage == 4 ? .timingCurve(0.23, 1, 0.32, 1, duration: 0.35).delay(delay) : .easeOut(duration: 0.15)
     }
 
     /// 방울 모양 안에서만 보이는 비스듬한 흰 띠.
@@ -368,8 +434,8 @@ struct StampCardView: View {
             let travel: CGFloat = width * 2
             let x: CGFloat = -width * 0.5 + travel * streak
             Rectangle()
-                .fill(Color.white.opacity(0.75))
-                .frame(width: 14, height: proxy.size.height * 1.6)
+                .fill(Color.white.opacity(0.8))
+                .frame(width: 16, height: proxy.size.height * 1.6)
                 .rotationEffect(.degrees(20))
                 .position(x: x, y: proxy.size.height / 2)
         }
@@ -384,16 +450,21 @@ struct StampCardView: View {
 
     private func playEarlyBird() async {
         streak = 0
-        withAnimation(.easeOut(duration: 0.25)) { earlyStage = 1 }
+        stageCover = 0
+        earlyStage = 1
         guard !reduceMotion, !Self.isScreenshotInstant else {
+            stageCover = 1
             earlyStage = 4
             return
         }
-        try? await Task.sleep(for: .seconds(0.3))
+        // 무대가 먼저 그려진 뒤 원을 키워야 7칸 한 점에서 번진다.
+        try? await Task.sleep(for: .milliseconds(30))
+        withAnimation(.timingCurve(0.32, 0, 0.67, 0, duration: 0.55)) { stageCover = 1 }
+        try? await Task.sleep(for: .seconds(0.35))
         earlyStage = 2
+        try? await Task.sleep(for: .seconds(0.5))
+        dropBurst += 1
         try? await Task.sleep(for: .seconds(0.25))
-        bigBurst += 1
-        try? await Task.sleep(for: .seconds(0.6))
         guard !Task.isCancelled else { return }
         earlyStage = 3
         for _ in 0 ..< 2 {
@@ -402,22 +473,45 @@ struct StampCardView: View {
             withTransaction(reset) { streak = 0 }
             try? await Task.sleep(for: .milliseconds(30))
             withAnimation(.easeInOut(duration: 0.55)) { streak = 1 }
-            try? await Task.sleep(for: .seconds(0.65))
+            try? await Task.sleep(for: .seconds(0.6))
             guard !Task.isCancelled else { return }
         }
-        withAnimation(.spring(response: 0.4, dampingFraction: 0.55)) { earlyStage = 4 }
-        bigBurst += 1
+        earlyStage = 4
+        titleBurst += 1
     }
 
     private func takeEarlyBird() {
-        withAnimation(.easeOut(duration: 0.2)) { earlyStage = 0 }
+        guard earlyStage == 4 else { return }
+        guard !reduceMotion else {
+            stageCover = 0
+            finishEarlyBird()
+            return
+        }
+        isPlaying = true
+        earlyStage = 5
+        withAnimation(.timingCurve(0.65, 0, 0.35, 1, duration: 0.5).delay(0.15)) { stageCover = 0 }
+        Task {
+            try? await Task.sleep(for: .seconds(0.68))
+            finishEarlyBird()
+        }
+    }
+
+    /// 방울이 7칸에 앉은 순간. 칸에 작은 폭죽을 터뜨리고, 칸을 잠깐 보여 준 뒤 다음으로 넘어간다.
+    private func finishEarlyBird() {
+        earlyStage = 0
         earlyBirdDone = true
+        burstCell = StampMath.earlyBirdCell
+        burstID += 1
         onEarlyBirdSeen()
-        // 더 찍을 칸이 없으면 판을 닫는다. 오늘 화면이 닫힌 뒤 받은 잔을 교환처럼 잔에 적용한다(대표님 2026-11-18).
-        if shown >= stamped {
-            onClose()
-        } else {
-            playRun += 1
+        Task {
+            try? await Task.sleep(for: .seconds(reduceMotion ? 0.2 : 0.7))
+            isPlaying = false
+            // 더 찍을 칸이 없으면 판을 닫는다. 오늘 화면이 닫힌 뒤 받은 잔을 교환처럼 잔에 적용한다(대표님 2026-11-18).
+            if shown >= stamped {
+                onClose()
+            } else {
+                playRun += 1
+            }
         }
     }
 
@@ -745,47 +839,5 @@ private struct GoldFoilGlyph: View {
     private var glyph: some View {
         Image(systemName: systemName)
             .font(.system(size: size, weight: .semibold))
-    }
-}
-
-/// 얼리버드 무대 뒤에서 천천히 도는 빛살. 흰 쐐기 면(옅은 단색)만, 번짐 없음. 켜질 때 작게 시작해 펼쳐진다.
-private struct SpinningRays: View {
-    let isOn: Bool
-
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    var body: some View {
-        TimelineView(.animation(paused: reduceMotion || !isOn)) { context in
-            let t: Double = context.date.timeIntervalSinceReferenceDate
-            let angle: Double = reduceMotion ? 0 : (t * 18).truncatingRemainder(dividingBy: 360)
-            RayWedges(count: 14)
-                .fill(Color.white.opacity(0.09))
-                .rotationEffect(.degrees(angle))
-        }
-        .scaleEffect(isOn ? 1 : 0.3)
-        .opacity(isOn ? 1 : 0)
-        .animation(reduceMotion ? nil : .spring(response: 0.7, dampingFraction: 0.7), value: isOn)
-        .allowsHitTesting(false)
-        .accessibilityHidden(true)
-    }
-}
-
-private struct RayWedges: Shape {
-    let count: Int
-
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        let center = CGPoint(x: rect.midX, y: rect.midY)
-        let radius: Double = Double(max(rect.width, rect.height))
-        let step: Double = 2 * Double.pi / Double(count)
-        for index in 0 ..< count {
-            let a0: Double = Double(index) * step
-            let a1: Double = a0 + step / 2
-            path.move(to: center)
-            path.addLine(to: CGPoint(x: Double(center.x) + cos(a0) * radius, y: Double(center.y) + sin(a0) * radius))
-            path.addLine(to: CGPoint(x: Double(center.x) + cos(a1) * radius, y: Double(center.y) + sin(a1) * radius))
-            path.closeSubpath()
-        }
-        return path
     }
 }

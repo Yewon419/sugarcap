@@ -39,6 +39,7 @@ struct ConsentCard: View {
     let onAnswer: (Bool) -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var typeSize
     @State private var isExpanded: Bool
 
     init(expanded: Bool, onAnswer: @escaping (Bool) -> Void) {
@@ -109,7 +110,11 @@ struct ConsentCard: View {
     }
 
     private var actions: some View {
-        HStack(spacing: 8) {
+        // 큰 글자에서는 두 버튼을 위아래로 쌓아 문구가 낱글자로 끊기지 않게 한다.
+        let layout = typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(spacing: 8))
+            : AnyLayout(HStackLayout(spacing: 8))
+        return layout {
             answerButton("동의하지 않습니다", granted: false, id: "consent-decline")
             answerButton("동의합니다", granted: true, id: "consent-accept")
         }
@@ -183,6 +188,7 @@ struct ConsentSummary: View {
     ]
 
     @ScaledMetric(relativeTo: .footnote) private var labelWidth: CGFloat = 92
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -201,11 +207,11 @@ struct ConsentSummary: View {
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(Self.rows.indices, id: \.self) { index in
                     let row = Self.rows[index]
-                    HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    ConsentRowLayout.of(typeSize) {
                         Text(row.0)
                             .font(AppFont.pretendard(13, .medium, relativeTo: .footnote))
                             .foregroundStyle(Self.sub)
-                            .frame(width: labelWidth, alignment: .leading)
+                            .frame(width: typeSize.isAccessibilitySize ? nil : labelWidth, alignment: .leading)
                         Text(row.1)
                             .font(AppFont.pretendard(14, .regular, relativeTo: .subheadline))
                             .foregroundStyle(Color.ink)
@@ -254,6 +260,7 @@ struct ConsentLaw: View {
     ]
 
     @ScaledMetric(relativeTo: .footnote) private var labelWidth: CGFloat = 92
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -299,11 +306,11 @@ struct ConsentLaw: View {
         VStack(alignment: .leading, spacing: 0) {
             ForEach(Self.transfer.indices, id: \.self) { index in
                 let row = Self.transfer[index]
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                ConsentRowLayout.of(typeSize) {
                     Text(row.0)
                         .font(AppFont.pretendard(13, .medium, relativeTo: .footnote))
                         .foregroundStyle(ConsentSummary.sub)
-                        .frame(width: labelWidth, alignment: .leading)
+                        .frame(width: typeSize.isAccessibilitySize ? nil : labelWidth, alignment: .leading)
                     Text(row.1)
                         .font(AppFont.pretendard(13, .regular, relativeTo: .footnote))
                         .foregroundStyle(Color.ink.opacity(0.86))
@@ -361,6 +368,15 @@ struct ConsentLaw: View {
         .modifier(LawBody())
         .padding(.bottom, 2)
         .accessibilityElement(children: .combine)
+    }
+}
+
+/// 항목 이름·값 한 줄. 큰 글자에서는 이름 칸이 값을 낱말 단위로 밀어내니 이름을 값 위로 올린다.
+private enum ConsentRowLayout {
+    static func of(_ typeSize: DynamicTypeSize) -> AnyLayout {
+        typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
+            : AnyLayout(HStackLayout(alignment: .firstTextBaseline, spacing: 12))
     }
 }
 

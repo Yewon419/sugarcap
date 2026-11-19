@@ -126,6 +126,7 @@ struct CatalogIndex {
     private let servingsByID: [String: Serving]
     private let drinksByServingID: [String: Drink]
     private let searchNamesByDrinkID: [String: [DrinkSearchName]]
+    private let flagshipDrinkIDs: Set<String>
 
     init(catalog: Catalog) {
         self.catalog = catalog
@@ -140,6 +141,9 @@ struct CatalogIndex {
         self.searchNamesByDrinkID = Dictionary(
             uniqueKeysWithValues: catalog.drinks.map { ($0.id, $0.searchNames) }
         )
+        self.flagshipDrinkIDs = Set(
+            catalog.drinks.filter { Self.flagshipMenus[$0.brandId]?.contains($0.name) == true }.map(\.id)
+        )
     }
 
     func brand(id: String) -> Brand? { brandsByID[id] }
@@ -150,15 +154,33 @@ struct CatalogIndex {
     /// 편의점은 같은 순위 안에서 카페 뒤에 둔다. 제품이 만 개가 넘어 카페 메뉴를 밀어낸다.
     static let convenienceStoreID = "cvs"
 
-    /// 대표 제품(대표님 2026-11-19 "콜라 치면 코카콜라가 제일 위에"). 카탈로그에 인기 값이 없어 앱에 적는다.
-    /// 통째로 걸리면 다른 순위보다 먼저다. 커피 음료(조지아·칸타타 등)는 넣지 않는다: "라떼"에 카페 라떼를 덮는다.
-    static let flagshipDrinkIDs: Set<String> = [
-        "cvs:코카콜라:both", "cvs:펩시:both", "cvs:펩시제로슈거:both", "cvs:칠성사이다:both",
-        "cvs:칠성사이다제로:both", "cvs:스프라이트:both", "cvs:환타-오렌지:both", "cvs:밀키스:both",
-        "cvs:포카리스웨트-이온워터:both", "cvs:바나나맛우유:both", "cvs:초코에몽:both", "cvs:박카스에이:both",
-        "cvs:몬스터에너지:both", "cvs:핫식스:both", "cvs:솔의눈:both", "cvs:갈아만든배:both",
-        "cvs:아침햇살:both", "cvs:옥수수수염차:both", "cvs:하늘보리:both", "cvs:닥터페퍼:both",
-        "cvs:마운틴듀:both", "cvs:미에로화이바:both", "cvs:서울우유:both", "cvs:토레타!:both",
+    /// 대표 메뉴(대표님 2026-11-19 "콜라 치면 코카콜라가 제일 위에", "카페 대표메뉴도"). 카탈로그에 인기 값이 없어
+    /// 앱에 브랜드별 메뉴 이름으로 적는다(온도별로 따로 실린 메뉴는 둘 다). 이름이 검색어와 같은 메뉴 다음,
+    /// 나머지보다 먼저다: "라떼"에 카페 라떼 → 돌체 라떼·토피넛 라떼 순. 한국 카탈로그만.
+    static let flagshipMenus: [String: Set<String>] = [
+        "cvs": [
+            "코카콜라", "펩시", "펩시제로슈거", "칠성사이다", "칠성사이다제로", "스프라이트", "환타 오렌지", "밀키스",
+            "포카리스웨트 이온워터", "바나나맛우유", "초코에몽", "박카스에이", "몬스터에너지", "핫식스", "솔의눈",
+            "갈아만든배", "아침햇살", "옥수수수염차", "하늘보리", "닥터페퍼", "마운틴듀", "미에로화이바", "서울우유",
+            "토레타!",
+        ],
+        "starbucks": [
+            "카페 아메리카노", "아이스 카페 아메리카노", "카페 라떼", "아이스 카페 라떼", "자몽 허니 블랙 티",
+            "아이스 자몽 허니 블랙 티", "스타벅스 돌체 라떼", "아이스 스타벅스 돌체 라떼", "자바 칩 프라푸치노",
+            "바닐라 크림 콜드 브루", "쿨 라임 피지오",
+        ],
+        "mega": ["메가리카노", "왕메가카페라떼", "플레인퐁크러쉬", "쿠키프라페"],
+        "compose": ["딥라떼"],
+        "ediya": ["카페 아메리카노", "토피넛 라떼"],
+        "paik": ["원조커피", "원조빽스치노(BASIC)", "달달연유라떼"],
+        "twosome": ["아메리카노", "로얄 밀크티"],
+        "hollys": ["아메리카노"],
+        "theventi": ["아이스 아메리카노", "아인슈페너"],
+        "gongcha": ["블랙 밀크티 + 펄", "브라운슈가 시그니처 밀크티 +펄", "타로 밀크티 + 펄"],
+        "paulbassett": ["룽고", "아이스 룽고", "바닐라빈 카페라떼", "아이스 바닐라빈 카페라떼"],
+        "coffeebean": ["바닐라 라떼", "아이스 바닐라 라떼", "헤이즐넛 아이스 블렌디드", "캐러멜 아이스 블렌디드"],
+        "bluebottle": ["뉴올리언스", "지브롤터"],
+        "amasvin": ["흑당 버블티"],
     ]
 
     /// 기록 시트 검색(브랜드 전체). 브랜드 안 검색과 같은 순위 규칙(`DrinkSearchRank`), 최대 `limit`개.
@@ -233,12 +255,12 @@ struct CatalogIndex {
         drinks.enumerated()
             .compactMap { offset, drink -> (rank: DrinkSearchRank, isFlagship: Bool, isStore: Bool, offset: Int, drink: Drink)? in
                 guard let rank = query.rank(searchNames(drink), temperature: drink.temperature) else { return nil }
-                return (rank, Self.flagshipDrinkIDs.contains(drink.id), drink.brandId == Self.convenienceStoreID, offset, drink)
+                return (rank, flagshipDrinkIDs.contains(drink.id), drink.brandId == Self.convenienceStoreID, offset, drink)
             }
             .sorted { lhs, rhs in
                 if lhs.rank.isScattered != rhs.rank.isScattered { return !lhs.rank.isScattered }
-                if lhs.isFlagship != rhs.isFlagship { return lhs.isFlagship }
                 if lhs.rank.isExact != rhs.rank.isExact { return lhs.rank.isExact }
+                if lhs.isFlagship != rhs.isFlagship { return lhs.isFlagship }
                 if lhs.isStore != rhs.isStore { return !lhs.isStore }
                 if lhs.rank != rhs.rank { return lhs.rank < rhs.rank }
                 return lhs.offset < rhs.offset

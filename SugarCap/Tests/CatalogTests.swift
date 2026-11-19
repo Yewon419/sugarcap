@@ -397,17 +397,27 @@ final class CatalogIndexTests: XCTestCase {
         let catalog = try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self))
         let index = CatalogIndex(catalog: catalog)
 
-        // 카탈로그를 다시 빌드해 id가 바뀌면 목록이 조용히 무력해진다.
-        let ids = Set(catalog.drinks.map(\.id))
-        XCTAssertEqual(CatalogIndex.flagshipDrinkIDs.subtracting(ids), [], "카탈로그에 없는 대표 제품")
+        // 카탈로그를 다시 빌드해 메뉴 이름이 바뀌면 목록이 조용히 무력해진다.
+        for (brandID, names) in CatalogIndex.flagshipMenus {
+            let menu = Set(index.drinks(brandID: brandID).map(\.name))
+            XCTAssertEqual(names.subtracting(menu), [], "\(brandID) 카탈로그에 없는 대표 메뉴")
+        }
 
         // 2026-11-19 대표님 "콜라 치면 코카콜라가 제일 위에".
         XCTAssertEqual(index.search("콜라").first?.name, "코카콜라")
         XCTAssertEqual(index.search("사이다").first?.name, "칠성사이다")
         XCTAssertEqual(index.search("바나나").first?.name, "바나나맛우유")
-        // 대표 제품이 아닌 검색은 그대로: "라떼"는 카페 메뉴가 먼저다.
-        let latte = try XCTUnwrap(index.search("라떼").first)
-        XCTAssertNotEqual(latte.brandId, CatalogIndex.convenienceStoreID)
+        // 온도별로 실린 대표 메뉴는 둘 다 올라온다(어느 쪽이 먼저인지는 카탈로그 순서).
+        XCTAssertEqual(index.search("자몽").prefix(2).map(\.name).sorted(), ["아이스 자몽 허니 블랙 티", "자몽 허니 블랙 티"])
+        let pearl = try XCTUnwrap(index.search("펄").first)
+        XCTAssertTrue(CatalogIndex.flagshipMenus["gongcha"]?.contains(pearl.name) == true, "펄: \(pearl.name)")
+        // 이름이 검색어와 같은 메뉴가 대표 메뉴보다 먼저다: "라떼"는 카페 라떼, 그다음 돌체 라떼.
+        let lattes = index.search("라떼", limit: 200).map(\.name)
+        let plain = try XCTUnwrap(lattes.firstIndex(of: "카페 라떼"))
+        let dolce = try XCTUnwrap(lattes.firstIndex(of: "스타벅스 돌체 라떼"))
+        let strawberry = try XCTUnwrap(lattes.firstIndex(of: "딸기라떼"), "메가 딸기라떼가 상위 200개에 없음")
+        XCTAssertLessThan(plain, dolce)
+        XCTAssertLessThan(dolce, strawberry)
     }
 
     func testScatteredWordsAndSpellingsFindSameDrink() throws {

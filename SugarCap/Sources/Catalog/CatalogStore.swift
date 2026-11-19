@@ -251,10 +251,29 @@ struct CatalogIndex {
     }
 
     /// 순서가 같으면 들어온 순서를 지키도록 위치를 마지막 기준으로 쓴다.
-    /// 글자로 하나도 안 걸리면 자판 키로 다시 찾는다(`DrinkQuery.typos`). 글자로 걸린 결과는 건드리지 않는다.
+    /// 글자로 하나도 안 걸리면 자음만 친 검색어는 초성으로, 나머지는 자판 키로 다시 찾는다(`DrinkQuery.typos`).
+    /// 글자로 걸린 결과는 건드리지 않는다.
     private func ranked(_ drinks: [Drink], _ query: DrinkQuery) -> [Drink] {
         let found = rankedByText(drinks, query)
-        return found.isEmpty ? rankedByKeys(drinks, query) : found
+        guard found.isEmpty else { return found }
+        return query.firstSounds == nil ? rankedByKeys(drinks, query) : rankedByFirstSounds(drinks, query)
+    }
+
+    /// 대표 메뉴 → 첫소리가 검색어로 시작 → 카페 → 짧은 이름 순. "ㅋㅋㄹ"에 코코리치보다 코카콜라가 먼저.
+    private func rankedByFirstSounds(_ drinks: [Drink], _ query: DrinkQuery) -> [Drink] {
+        drinks.enumerated()
+            .compactMap { offset, drink -> (isFlagship: Bool, isPrefix: Bool, isStore: Bool, length: Int, offset: Int, drink: Drink)? in
+                guard let match = query.firstSoundMatch(searchNames(drink)) else { return nil }
+                return (flagshipDrinkIDs.contains(drink.id), match.isPrefix, drink.brandId == Self.convenienceStoreID, match.length, offset, drink)
+            }
+            .sorted { lhs, rhs in
+                if lhs.isFlagship != rhs.isFlagship { return lhs.isFlagship }
+                if lhs.isPrefix != rhs.isPrefix { return lhs.isPrefix }
+                if lhs.isStore != rhs.isStore { return !lhs.isStore }
+                if lhs.length != rhs.length { return lhs.length < rhs.length }
+                return lhs.offset < rhs.offset
+            }
+            .map(\.drink)
     }
 
     private func rankedByText(_ drinks: [Drink], _ query: DrinkQuery) -> [Drink] {

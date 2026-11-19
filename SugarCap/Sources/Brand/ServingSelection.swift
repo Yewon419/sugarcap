@@ -160,12 +160,15 @@ struct DrinkQuery {
     /// 두벌식 자판 키 순서(`HangulKeys`). 통째·조각 일치가 하나도 없을 때 `typos`로 견준다.
     /// 영문 자판으로 친 글자("zhffk")는 키 그대로라 대소문자를 살린다(Shift 키 = 된소리·ㅒ·ㅖ).
     let keys: [UInt8]
+    /// 검색어가 자음 낱자로만 돼 있으면 그 자음들("ㅋㅋㅋㄹ"). 이름의 첫소리(`DrinkSearchName.firstSounds`)와 견준다.
+    let firstSounds: String?
 
     init(_ typed: String) {
         let text = Self.menuAliases[Self.fold(typed)] ?? typed
         needle = Self.normalize(text)
         let spaced = String(text.unicodeScalars.filter { !CharacterSet.whitespacesAndNewlines.contains($0) })
         keys = HangulKeys.typed(Self.spellings.reduce(spaced) { $0.replacingOccurrences(of: $1.variant, with: $1.canonical) })
+        firstSounds = !spaced.isEmpty && spaced.unicodeScalars.allSatisfy { (0x3131...0x314E).contains($0.value) } ? spaced : nil
         let rawWords = text.lowercased().split(whereSeparator: \.isWhitespace).map(String.init)
         words = rawWords.map(Self.normalize)
         if rawWords.count > 1, let temperature = Self.temperatureWords[rawWords[0]] {
@@ -184,6 +187,15 @@ struct DrinkQuery {
         guard keys.count >= 2 else { return nil }
         let allowed = keys.count <= 4 ? 0 : keys.count <= 8 ? 1 : 2
         return names.compactMap { HangulKeys.substringDistance(keys, in: $0.keys, allowed: allowed) }.min()
+    }
+
+    /// 초성 검색(2026-11-19 대표님). 걸리면 이름 첫소리가 검색어로 시작하는지, 안 걸리면 nil.
+    /// 자음 하나는 이름 맨 앞만 본다. 가운데까지 보면 "ㅋ" 하나에 메뉴 수천 개가 걸린다.
+    func firstSoundMatch(_ names: [DrinkSearchName]) -> (isPrefix: Bool, length: Int)? {
+        guard let firstSounds else { return nil }
+        let hits = names.filter { firstSounds.count == 1 ? $0.firstSounds.hasPrefix(firstSounds) : $0.firstSounds.contains(firstSounds) }
+        guard let shortest = hits.map(\.firstSounds.count).min() else { return nil }
+        return (hits.contains { $0.firstSounds.hasPrefix(firstSounds) }, shortest)
     }
 
     /// 검색 순위. 이름과 영문명 중 더 나은 쪽, 온도 말 검색이면 그쪽 일치까지 견줘 더 나은 쪽. 일치하지 않으면 nil.
@@ -260,6 +272,8 @@ struct DrinkSearchName {
     /// 조각 일치 앞단 거르기용. 검색어 글자가 하나라도 없으면 조각을 나눠 보지 않는다.
     let characters: Set<Character>
     let keys: [UInt8]
+    /// 글자마다 첫소리("코카콜라" → "ㅋㅋㅋㄹ"). 한글이 아닌 글자는 그대로.
+    let firstSounds: String
 
     /// 띄어 쓴 낱말 단위로만 뗀다. 붙여 쓴 이름까지 떼면 "아이스크림"이 "크림", "핫식스"가 "식스"가 된다.
     static let leadingWords: Set<String> = ["아이스", "핫", "카페", "iced", "hot", "caffe", "cafe", "café"]
@@ -273,6 +287,7 @@ struct DrinkSearchName {
         core = DrinkQuery.normalize(words.joined())
         characters = Set(folded)
         keys = HangulKeys.typed(folded)
+        firstSounds = HangulKeys.firstSounds(folded)
     }
 }
 
@@ -312,6 +327,17 @@ enum HangulKeys {
             }
         }
         return Array(out.utf8)
+    }
+
+    private static let firstSoundJamo = Array("ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ".unicodeScalars)
+
+    static func firstSounds(_ text: String) -> String {
+        var out = String.UnicodeScalarView()
+        for scalar in text.unicodeScalars {
+            let value = Int(scalar.value)
+            out.append((0xAC00...0xD7A3).contains(value) ? firstSoundJamo[(value - 0xAC00) / 588] : scalar)
+        }
+        return String(out)
     }
 
     /// `needle`이 `text` 안 어딘가와 몇 키 다른가(삽입·삭제·바꿈 하나가 1). `allowed`보다 크면 nil.

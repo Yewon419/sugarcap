@@ -1137,71 +1137,7 @@ struct TodayView: View {
         let today = DayKey(at: now, boundaryHour: boundaryHour)
         let todays = todaysEntries(now: now)
         let totals = DayMath.totals(todays.map(\.consumption), limits: limits)
-        let remaining = side.remaining(totals)
-        let limit = side.limit(limits)
-
-        ZStack(alignment: .topLeading) {
-            cupStrip(totals: totals, notice: shownNotice(today: today), today: today)
-
-            // 상태 바 글자가 밝은 사진 위에서 묻히지 않게 아주 옅게만 깐다.
-            LinearGradient(
-                colors: [Color.black.opacity(0.09), .clear],
-                startPoint: .top, endPoint: .bottom
-            )
-            .frame(height: 160)
-            .ignoresSafeArea(edges: .top)
-            .allowsHitTesting(false)
-
-            summaryProxy(remaining: remaining, limit: limit)
-
-            // 처음 한 번만: 기록 버튼이 따로 없으니 컵을 누르면 된다고 알려 준다. 첫 기록을 남기면 사라진다.
-            // 큰 숫자가 잔 입구로 내려가(2026-10-13) 비게 된 왼쪽 위에 둔다.
-            if entries.isEmpty || showsCupHintForScreenshot {
-                Text("컵을 눌러 마신 음료 적기")
-                    .font(AppFont.pretendard(15, .semibold, relativeTo: .subheadline))
-                    .foregroundStyle(.secondary)
-                    .padding(.leading, 24)
-                    // 오른쪽 위 버튼 4개(별·스탬프·추이·설정) 자리를 비운다. 큰 글자에서 겹치지 않고 줄을 바꾼다.
-                    .padding(.trailing, 196)
-                    .padding(.top, 14)
-                    .allowsHitTesting(false)
-                    .accessibilityHidden(true)
-            }
-
-            // 안내 한 줄(큰 숫자 라벨 위, `CupHero.notice`)을 3.5초 보여 준 뒤 지운다. 둘 다 있으면 차례로.
-            Color.clear
-                .frame(width: 0, height: 0)
-                .task(id: shownNotice(today: today)) {
-                    guard let line = shownNotice(today: today) else { return }
-                    AccessibilityNotification.Announcement(line).post()
-                    guard !showsCreditNoticeForScreenshot else { return }
-                    try? await Task.sleep(for: .seconds(3.5))
-                    guard !Task.isCancelled else { return }
-                    dismissNotice(today: today)
-                }
-
-            trendsLockToast()
-                .frame(maxWidth: .infinity)
-        }
-        .animation(.easeOut(duration: 0.2), value: trendsLockToastAt)
-        .fullScreenCover(item: $gate, onDismiss: {
-            isGateRehearsal = false
-            presentGateIfPending()
-            if gate == nil { afterFeedingClosed() }
-        }) { gate in
-            YesterdayGateView(
-                gate: gate,
-                opening: feedingOpening(),
-                catalog: catalog,
-                onFeed: { request in try isGateRehearsal ? [] : feed(request) },
-                onAddDrink: { entry, request in
-                    try isGateRehearsal ? Self.rehearse(entry, on: request) : addDrink(entry, to: request)
-                },
-                onDrank: {
-                    if isGateRehearsal { self.gate = nil } else { dismissPastDay(gate.day) }
-                }
-            )
-        }
+        stage(today: today, totals: totals)
         .overlay(alignment: .bottom) { bottomControls(now: now, today: today, totals: totals) }
         .overlay(alignment: .topTrailing) { cornerButtons }
         .overlay { tutorialOverlay(totals: totals) }
@@ -1289,6 +1225,75 @@ struct TodayView: View {
             presentScreenshotLevelUpIfRequested()
             presentScreenshotWeekKeptIfRequested(today: today)
             presentScreenshotTradeIfRequested()
+        }
+    }
+
+    /// 컵 장면과 그 위 안내·어제 마감 문. `content`의 수식어 체인이 길어 타입 추론이 끝나지 않아 나눴다.
+    private func stage(today: DayKey, totals: DayTotals) -> some View {
+        let remaining = side.remaining(totals)
+        let limit = side.limit(limits)
+
+        return ZStack(alignment: .topLeading) {
+            cupStrip(totals: totals, notice: shownNotice(today: today), today: today)
+
+            // 상태 바 글자가 밝은 사진 위에서 묻히지 않게 아주 옅게만 깐다.
+            LinearGradient(
+                colors: [Color.black.opacity(0.09), .clear],
+                startPoint: .top, endPoint: .bottom
+            )
+            .frame(height: 160)
+            .ignoresSafeArea(edges: .top)
+            .allowsHitTesting(false)
+
+            summaryProxy(remaining: remaining, limit: limit)
+
+            // 처음 한 번만: 기록 버튼이 따로 없으니 컵을 누르면 된다고 알려 준다. 첫 기록을 남기면 사라진다.
+            // 큰 숫자가 잔 입구로 내려가(2026-10-13) 비게 된 왼쪽 위에 둔다.
+            if entries.isEmpty || showsCupHintForScreenshot {
+                Text("컵을 눌러 마신 음료 적기")
+                    .font(AppFont.pretendard(15, .semibold, relativeTo: .subheadline))
+                    .foregroundStyle(.secondary)
+                    .padding(.leading, 24)
+                    // 오른쪽 위 버튼 4개(별·스탬프·추이·설정) 자리를 비운다. 큰 글자에서 겹치지 않고 줄을 바꾼다.
+                    .padding(.trailing, 196)
+                    .padding(.top, 14)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
+
+            // 안내 한 줄(큰 숫자 라벨 위, `CupHero.notice`)을 3.5초 보여 준 뒤 지운다. 둘 다 있으면 차례로.
+            Color.clear
+                .frame(width: 0, height: 0)
+                .task(id: shownNotice(today: today)) {
+                    guard let line = shownNotice(today: today) else { return }
+                    AccessibilityNotification.Announcement(line).post()
+                    guard !showsCreditNoticeForScreenshot else { return }
+                    try? await Task.sleep(for: .seconds(3.5))
+                    guard !Task.isCancelled else { return }
+                    dismissNotice(today: today)
+                }
+
+            trendsLockToast()
+                .frame(maxWidth: .infinity)
+        }
+        .animation(.easeOut(duration: 0.2), value: trendsLockToastAt)
+        .fullScreenCover(item: $gate, onDismiss: {
+            isGateRehearsal = false
+            presentGateIfPending()
+            if gate == nil { afterFeedingClosed() }
+        }) { gate in
+            YesterdayGateView(
+                gate: gate,
+                opening: feedingOpening(),
+                catalog: catalog,
+                onFeed: { request in try isGateRehearsal ? [] : feed(request) },
+                onAddDrink: { entry, request in
+                    try isGateRehearsal ? Self.rehearse(entry, on: request) : addDrink(entry, to: request)
+                },
+                onDrank: {
+                    if isGateRehearsal { self.gate = nil } else { dismissPastDay(gate.day) }
+                }
+            )
         }
     }
 

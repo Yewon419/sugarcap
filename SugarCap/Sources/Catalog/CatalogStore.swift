@@ -251,7 +251,13 @@ struct CatalogIndex {
     }
 
     /// 순서가 같으면 들어온 순서를 지키도록 위치를 마지막 기준으로 쓴다.
+    /// 글자로 하나도 안 걸리면 자판 키로 다시 찾는다(`DrinkQuery.typos`). 글자로 걸린 결과는 건드리지 않는다.
     private func ranked(_ drinks: [Drink], _ query: DrinkQuery) -> [Drink] {
+        let found = rankedByText(drinks, query)
+        return found.isEmpty ? rankedByKeys(drinks, query) : found
+    }
+
+    private func rankedByText(_ drinks: [Drink], _ query: DrinkQuery) -> [Drink] {
         drinks.enumerated()
             .compactMap { offset, drink -> (rank: DrinkSearchRank, isFlagship: Bool, isStore: Bool, offset: Int, drink: Drink)? in
                 guard let rank = query.rank(searchNames(drink), temperature: drink.temperature) else { return nil }
@@ -263,6 +269,25 @@ struct CatalogIndex {
                 if lhs.isFlagship != rhs.isFlagship { return lhs.isFlagship }
                 if lhs.isStore != rhs.isStore { return !lhs.isStore }
                 if lhs.rank != rhs.rank { return lhs.rank < rhs.rank }
+                return lhs.offset < rhs.offset
+            }
+            .map(\.drink)
+    }
+
+    /// 틀린 키가 적은 것 → 대표 메뉴 → 카페 → 짧은 이름 순.
+    private func rankedByKeys(_ drinks: [Drink], _ query: DrinkQuery) -> [Drink] {
+        drinks.enumerated()
+            .compactMap { offset, drink -> (typos: Int, isFlagship: Bool, isStore: Bool, length: Int, offset: Int, drink: Drink)? in
+                let names = searchNames(drink)
+                guard let typos = query.typos(names) else { return nil }
+                let length = names.map(\.keys.count).min() ?? 0
+                return (typos, flagshipDrinkIDs.contains(drink.id), drink.brandId == Self.convenienceStoreID, length, offset, drink)
+            }
+            .sorted { lhs, rhs in
+                if lhs.typos != rhs.typos { return lhs.typos < rhs.typos }
+                if lhs.isFlagship != rhs.isFlagship { return lhs.isFlagship }
+                if lhs.isStore != rhs.isStore { return !lhs.isStore }
+                if lhs.length != rhs.length { return lhs.length < rhs.length }
                 return lhs.offset < rhs.offset
             }
             .map(\.drink)

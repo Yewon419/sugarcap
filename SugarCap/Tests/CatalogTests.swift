@@ -420,6 +420,30 @@ final class CatalogIndexTests: XCTestCase {
         XCTAssertLessThan(dolce, strawberry)
     }
 
+    func testTypedKeysFindMenusDespiteTyposAndKeyboardMode() throws {
+        let index = CatalogIndex(catalog: try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self)))
+        func first(_ text: String) -> String { DrinkQuery.normalize(index.search(text).first?.name ?? "(없음)") }
+
+        // 두벌식 키 순서: 겹모음·겹받침은 두 키, 된소리·ㅖ는 Shift 키, 조합 중인 낱자도 같은 키.
+        XCTAssertEqual(HangulKeys.typed("뗴"), Array("EP".utf8))
+        XCTAssertEqual(HangulKeys.typed("닭과"), Array("ekfrrhk".utf8))
+        XCTAssertEqual(HangulKeys.typed("콜ㄹ"), Array("zhff".utf8))
+        XCTAssertEqual(HangulKeys.typed("ZHFFK"), Array("zhffk".utf8), "Shift가 없는 대문자는 소문자 키")
+
+        // 오타(2026-11-19 대표님 "검색 알고리즘이 별로면 금방 알아채").
+        XCTAssertEqual(first("아메리카도"), "아메리카노")
+        XCTAssertEqual(first("카페라뗴"), "카페라떼")
+        XCTAssertEqual(first("바닐리라떼"), "바닐라라떼")
+        // 조합 중인 글자: "콜라"를 치는 사이 "콜ㄹ"에서 결과가 비지 않는다.
+        XCTAssertEqual(first("콜ㄹ"), "코카콜라")
+        XCTAssertEqual(first("카페라ㄸ"), "카페라떼")
+        // 한/영 자판 실수: 영문 자판으로 친 "콜라"·"딸기라떼".
+        XCTAssertEqual(first("zhffk"), "코카콜라")
+        XCTAssertTrue(first("Ekfrlfkep").contains("딸기라떼"))
+        // 글자로 걸리는 검색은 키 셈을 쓰지 않는다: "라떼"는 그대로 카페 라떼가 먼저.
+        XCTAssertTrue(first("라떼").hasSuffix("카페라떼"), first("라떼"))
+    }
+
     func testScatteredWordsAndSpellingsFindSameDrink() throws {
         let index = CatalogIndex(catalog: try CatalogStore.loadBundled(.kr, from: Bundle(for: Self.self)))
 

@@ -157,10 +157,15 @@ struct DrinkQuery {
 
     /// 띄어 쓴 낱말들(표기 묶기 후). 통째로 안 걸릴 때 순서 상관없이 낱말마다 견준다.
     let words: [String]
+    /// 두벌식 자판 키 순서(`HangulKeys`). 통째·조각 일치가 하나도 없을 때 `typos`로 견준다.
+    /// 영문 자판으로 친 글자("zhffk")는 키 그대로라 대소문자를 살린다(Shift 키 = 된소리·ㅒ·ㅖ).
+    let keys: [UInt8]
 
     init(_ typed: String) {
         let text = Self.menuAliases[Self.fold(typed)] ?? typed
         needle = Self.normalize(text)
+        let spaced = String(text.unicodeScalars.filter { !CharacterSet.whitespacesAndNewlines.contains($0) })
+        keys = HangulKeys.typed(Self.spellings.reduce(spaced) { $0.replacingOccurrences(of: $1.variant, with: $1.canonical) })
         let rawWords = text.lowercased().split(whereSeparator: \.isWhitespace).map(String.init)
         words = rawWords.map(Self.normalize)
         if rawWords.count > 1, let temperature = Self.temperatureWords[rawWords[0]] {
@@ -171,6 +176,15 @@ struct DrinkQuery {
     }
 
     var isEmpty: Bool { needle.isEmpty }
+
+    /// 자판 키 순서로 견준 틀린 키 수(2026-11-19 대표님 "검색 알고리즘이 별로면 금방 알아채").
+    /// 오타("아메리카도"), 조합 중인 글자("콜ㄹ"), 한/영 자판 실수("zhffk")를 한 셈으로 잡는다.
+    /// 이름 어디에 들어가도 되고, 키가 짧을수록 덜 봐준다: 4키 이하 0, 8키 이하 1, 그 위 2. 못 잡으면 nil.
+    func typos(_ names: [DrinkSearchName]) -> Int? {
+        guard keys.count >= 2 else { return nil }
+        let allowed = keys.count <= 4 ? 0 : keys.count <= 8 ? 1 : 2
+        return names.compactMap { HangulKeys.substringDistance(keys, in: $0.keys, allowed: allowed) }.min()
+    }
 
     /// 검색 순위. 이름과 영문명 중 더 나은 쪽, 온도 말 검색이면 그쪽 일치까지 견줘 더 나은 쪽. 일치하지 않으면 nil.
     /// 온도 말 검색은 그 온도 메뉴와 온도를 나눠 싣지 않은(`both`) 메뉴만 잡고, `both`는 같은 순위 안에서 뒤로 보낸다.
@@ -245,6 +259,7 @@ struct DrinkSearchName {
     let core: String
     /// 조각 일치 앞단 거르기용. 검색어 글자가 하나라도 없으면 조각을 나눠 보지 않는다.
     let characters: Set<Character>
+    let keys: [UInt8]
 
     /// 띄어 쓴 낱말 단위로만 뗀다. 붙여 쓴 이름까지 떼면 "아이스크림"이 "크림", "핫식스"가 "식스"가 된다.
     static let leadingWords: Set<String> = ["아이스", "핫", "카페", "iced", "hot", "caffe", "cafe", "café"]
@@ -257,6 +272,65 @@ struct DrinkSearchName {
         }
         core = DrinkQuery.normalize(words.joined())
         characters = Set(folded)
+        keys = HangulKeys.typed(folded)
+    }
+}
+
+/// 한글을 두벌식 자판에서 누르는 키 순서로 푼다("콜라" → `zhffk`, "뗴" → `EP`). 겹받침·겹모음은 두 키로.
+/// 한글이 아닌 글자는 그대로 둔다. 영문 자판으로 친 검색어는 키 순서 자체라 이 셈에서 한글 이름과 맞는다.
+enum HangulKeys {
+    private static let initials = ["r", "R", "s", "e", "E", "f", "a", "q", "Q", "t", "T", "d", "w", "W", "c", "z", "x", "v", "g"]
+    private static let medials = [
+        "k", "o", "i", "O", "j", "p", "u", "P", "h", "hk", "ho", "hl", "y", "n", "nj", "np", "nl", "b", "m", "ml", "l",
+    ]
+    private static let finals = [
+        "", "r", "R", "rt", "s", "sw", "sg", "e", "f", "fr", "fa", "fq", "ft", "fx", "fv", "fg", "a", "q", "qt", "t", "T",
+        "d", "w", "c", "z", "x", "v", "g",
+    ]
+    /// 호환 자모(ㄱ U+3131 ~ ㅣ U+3163). 조합 중인 글자가 낱자로 들어온다.
+    private static let jamo = [
+        "r", "R", "rt", "s", "sw", "sg", "e", "E", "f", "fr", "fa", "fq", "ft", "fx", "fv", "fg", "a", "q", "Q", "qt", "t",
+        "T", "d", "w", "W", "c", "z", "x", "v", "g",
+    ] + medials
+    /// Shift로 치는 키. 나머지 대문자는 소문자와 같은 키다.
+    private static let shifted: Set<Character> = ["Q", "W", "E", "R", "T", "O", "P"]
+
+    static func typed(_ text: String) -> [UInt8] {
+        var out = ""
+        for scalar in text.unicodeScalars {
+            let value = Int(scalar.value)
+            if (0xAC00...0xD7A3).contains(value) {
+                let index = value - 0xAC00
+                out += initials[index / 588] + medials[(index % 588) / 28] + finals[index % 28]
+            } else if (0x3131...0x3163).contains(value) {
+                out += jamo[value - 0x3131]
+            } else if scalar.isASCII, scalar.properties.isUppercase {
+                let letter = Character(scalar)
+                out += shifted.contains(letter) ? String(letter) : letter.lowercased()
+            } else {
+                out.unicodeScalars.append(scalar)
+            }
+        }
+        return Array(out.utf8)
+    }
+
+    /// `needle`이 `text` 안 어딘가와 몇 키 다른가(삽입·삭제·바꿈 하나가 1). `allowed`보다 크면 nil.
+    static func substringDistance(_ needle: [UInt8], in text: [UInt8], allowed: Int) -> Int? {
+        guard !needle.isEmpty, text.count + allowed >= needle.count else { return nil }
+        var previous = Array(0...needle.count)
+        var current = previous
+        var best = previous[needle.count]
+        for byte in text {
+            current[0] = 0
+            for i in 1...needle.count {
+                let replace = previous[i - 1] + (needle[i - 1] == byte ? 0 : 1)
+                current[i] = min(replace, previous[i] + 1, current[i - 1] + 1)
+            }
+            best = min(best, current[needle.count])
+            if best == 0 { return 0 }
+            swap(&previous, &current)
+        }
+        return best <= allowed ? best : nil
     }
 }
 

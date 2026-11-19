@@ -154,8 +154,7 @@ final class UsageEventsTests: XCTestCase {
 
     func testFailedSearchSendsTrimmedTextAndDropsPersonalLookingInput() {
         XCTAssertEqual(
-            UsageEvents.searchFailed(query: "  말차   크림
-라떼 ", place: .feeding, brandID: nil, thenManual: true),
+            UsageEvents.searchFailed(query: "  말차   크림\n라떼 ", place: .feeding, brandID: nil, thenManual: true),
             UsageEventDraft(
                 type: "search_failed",
                 parameters: ["query": "말차 크림 라떼", "place": "feeding", "scope": "all", "thenManual": "true"]))

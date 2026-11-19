@@ -1137,6 +1137,56 @@ struct TodayView: View {
         let today = DayKey(at: now, boundaryHour: boundaryHour)
         let todays = todaysEntries(now: now)
         let totals = DayMath.totals(todays.map(\.consumption), limits: limits)
+        layered(now: now, today: today, totals: totals)
+        .task(id: giftSideCue) {
+            guard let target = giftSideCue else { return }
+            try? await Task.sleep(for: .seconds(0.4))
+            guard !Task.isCancelled, giftSideCue == target else { return }
+            switchSide(to: target)
+        }
+        .task(id: tradeCue(now: now)) {
+            if tradeCue(now: AppClock.now) != nil { await offerTradeIfDue(today: today) }
+        }
+        .task(id: leavingOffer) {
+            if let leavingOffer { await finishLeaving(leavingOffer) }
+        }
+        .sensoryFeedback(.success, trigger: tradesAccepted)
+        .task(id: trialPaywallCue) {
+            if trialPaywallCue { await presentTrialPaywall() }
+        }
+        .task(id: levelUpCue) {
+            if let levelUpCue { await startLevelUp(after: levelUpCue) }
+        }
+        .task(id: levelUp?.id) {
+            if let levelUp { await playLevelUp(levelUp) }
+        }
+        .task(id: opening?.id) {
+            if let opening { await unlockAfterKeyFlight(opening) }
+        }
+        // 상자가 열리는 순간 가볍게, 열쇠가 버튼을 열 때 성공 햅틱(SPEC §4.9).
+        .sensoryFeedback(.impact(weight: .light), trigger: opening?.id) { _, new in new != nil }
+        .sensoryFeedback(.success, trigger: opening?.isUnlocked == true) { _, new in new }
+        .onAppear { isOnScreen = true }
+        .onDisappear { isOnScreen = false }
+        // 하루가 바뀔 때마다(앱을 켠 날마다) 정산을 한 번 돈다(§4.7).
+        // Pro를 처음 사면 축하 선물(§4.9 2026-10-12). 기록하는 면이 바뀌면 다시 본다(고를 물건이 생길 수 있다).
+        .task(id: pro.ownsRealPro ? trackedSides : []) { grantProWelcomeIfOwned() }
+        .task(id: stamps.count) { await grantEarlyBirdIfDue() }
+        // Large 위젯 선반. 앱을 열 때, 기록·삭제·별표로 후보가 바뀔 때 다시 쓴다.
+        .task(id: shelfCandidates) { writeWidgetShelf(shelfCandidates) }
+        .task(id: today) {
+            refreshSettlement(today: today)
+            presentScreenshotFeedingIfRequested(totals: totals)
+            presentScreenshotGiftIfRequested()
+            presentScreenshotLevelUpIfRequested()
+            presentScreenshotWeekKeptIfRequested(today: today)
+            presentScreenshotTradeIfRequested()
+        }
+    }
+
+    /// 컵 장면에 얹는 조작부·연출·카드들. `content`의 수식어 체인을 나눠 타입 추론 시간을 줄인다.
+    @ViewBuilder
+    private func layered(now: Date, today: DayKey, totals: DayTotals) -> some View {
         stage(today: today, totals: totals)
         .overlay(alignment: .bottom) { bottomControls(now: now, today: today, totals: totals) }
         .overlay(alignment: .topTrailing) { cornerButtons }
@@ -1181,50 +1231,6 @@ struct TodayView: View {
             guard !Task.isCancelled, consentCue else { return }
             consentStartsExpanded = false
             isConsentPresented = true
-        }
-        .task(id: giftSideCue) {
-            guard let target = giftSideCue else { return }
-            try? await Task.sleep(for: .seconds(0.4))
-            guard !Task.isCancelled, giftSideCue == target else { return }
-            switchSide(to: target)
-        }
-        .task(id: tradeCue(now: now)) {
-            if tradeCue(now: AppClock.now) != nil { await offerTradeIfDue(today: today) }
-        }
-        .task(id: leavingOffer) {
-            if let leavingOffer { await finishLeaving(leavingOffer) }
-        }
-        .sensoryFeedback(.success, trigger: tradesAccepted)
-        .task(id: trialPaywallCue) {
-            if trialPaywallCue { await presentTrialPaywall() }
-        }
-        .task(id: levelUpCue) {
-            if let levelUpCue { await startLevelUp(after: levelUpCue) }
-        }
-        .task(id: levelUp?.id) {
-            if let levelUp { await playLevelUp(levelUp) }
-        }
-        .task(id: opening?.id) {
-            if let opening { await unlockAfterKeyFlight(opening) }
-        }
-        // 상자가 열리는 순간 가볍게, 열쇠가 버튼을 열 때 성공 햅틱(SPEC §4.9).
-        .sensoryFeedback(.impact(weight: .light), trigger: opening?.id) { _, new in new != nil }
-        .sensoryFeedback(.success, trigger: opening?.isUnlocked == true) { _, new in new }
-        .onAppear { isOnScreen = true }
-        .onDisappear { isOnScreen = false }
-        // 하루가 바뀔 때마다(앱을 켠 날마다) 정산을 한 번 돈다(§4.7).
-        // Pro를 처음 사면 축하 선물(§4.9 2026-10-12). 기록하는 면이 바뀌면 다시 본다(고를 물건이 생길 수 있다).
-        .task(id: pro.ownsRealPro ? trackedSides : []) { grantProWelcomeIfOwned() }
-        .task(id: stamps.count) { await grantEarlyBirdIfDue() }
-        // Large 위젯 선반. 앱을 열 때, 기록·삭제·별표로 후보가 바뀔 때 다시 쓴다.
-        .task(id: shelfCandidates) { writeWidgetShelf(shelfCandidates) }
-        .task(id: today) {
-            refreshSettlement(today: today)
-            presentScreenshotFeedingIfRequested(totals: totals)
-            presentScreenshotGiftIfRequested()
-            presentScreenshotLevelUpIfRequested()
-            presentScreenshotWeekKeptIfRequested(today: today)
-            presentScreenshotTradeIfRequested()
         }
     }
 

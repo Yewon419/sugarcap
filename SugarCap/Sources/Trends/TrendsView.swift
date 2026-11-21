@@ -499,6 +499,7 @@ struct TrendsView: View {
         }
         .buttonStyle(PressScaleStyle())
         .fixedSize()
+        .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { coachFrames[.limit] = $0 }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(
             isReducing
@@ -732,14 +733,18 @@ struct TrendsView: View {
         return 0
     }
 
-    /// 1 잔 → 2 넘기기(두 면을 켰을 때만) → 3 기간.
+    /// 1 잔 → 2 넘기기(두 면을 켰을 때만) → 3 하루 기준 → 4 기간(월 통계).
+    /// 하루 기준·월 통계 안내는 대표님 2026-11-21 "튜토리얼에서 하루기준 변경 가능하다고", "월 탭으로 넘어가서 이 달 통계 볼 수 있다는 안내도".
     private var coachSteps: [TrendCoachStep] {
         var steps = [TrendCoachStep(spot: .todayCup, message: String(localized: "잔을 누르면 그날 마신 기록이 열려요"))]
         if trackedSides.count > 1 {
             let message = side == .sugar ? String(localized: "옆으로 넘기면 카페인 잔이에요") : String(localized: "옆으로 넘기면 당 잔이에요")
             steps.append(TrendCoachStep(spot: .cups, message: message))
         }
-        let range = pro.isPro ? String(localized: "여기서 월 보기로 바꿀 수 있어요") : String(localized: "여기서 월 보기로 바꿀 수 있어요 (Pro)")
+        steps.append(TrendCoachStep(spot: .limit, message: String(localized: "하루 기준은 여기서 바꿀 수 있어요. 설정에서도 돼요")))
+        let range = pro.isPro
+            ? String(localized: "월 보기로 바꾸면 이 달 통계를 볼 수 있어요")
+            : String(localized: "월 보기로 바꾸면 이 달 통계를 볼 수 있어요 (Pro)")
         steps.append(TrendCoachStep(spot: .range, message: range))
         return steps
     }

@@ -5,6 +5,7 @@ import WidgetKit
 
 /// 설정(SPEC §4.4). 오늘 화면 모서리 버튼으로 여는 시트다(2026-10-05 하단 탭 제거).
 /// 2026-10-05 프로토타입 v4 확정 = 네이티브 목록 하나. 하루 기준·조금씩 줄이기는 추이 화면으로 옮겼다(대표님 "설정 탭에 안 어울리는 기능").
+/// 2026-11-21 대표님 "설정탭에서 하루 기준 바꿀 수 있게"로 하루 기준 줄을 다시 둔다. 누르면 추이와 같은 하루 기준 화면.
 /// 시간 → Pro·복원·소개·개인정보 → 테스트(TestFlight·Debug에서 개발자 모드를 켰을 때만).
 struct SettingsView: View {
     let catalog: Catalog
@@ -72,6 +73,8 @@ private struct SettingsContent: View {
     @State private var nicknameDraft = ""
     @State private var renamed = 0
     @State private var showsInventory = false
+    @State private var limitSide: CupSide?
+    @Query private var goals: [ReductionGoal]
     @Query private var gifts: [GiftEvent]
     @Query private var trades: [TradeOffer]
     /// 「하루 마감법」은 한 번이라도 마감한 뒤에 보인다.
@@ -121,6 +124,14 @@ private struct SettingsContent: View {
                 Text("기록할 것")
             } footer: {
                 Text("끈 쪽도 음료 값은 계속 저장돼요. 다시 켜면 지난 기록이 그대로 보여요.")
+            }
+
+            Section {
+                ForEach(settings.trackedSides) { side in
+                    limitRow(side)
+                }
+            } header: {
+                Text("하루 기준")
             }
 
             // 메뉴 국가(SPEC §9.9). 처음엔 기기 지역을 따르고, 여기서 고르면 그 값으로 굳는다.
@@ -233,6 +244,9 @@ private struct SettingsContent: View {
         .scrollContentBackground(.hidden)
         .background(Color.wall.ignoresSafeArea())
         .navigationDestination(isPresented: $showsInventory) { InventoryView() }
+        .navigationDestination(item: $limitSide) { side in
+            LimitDetailView(side: side)
+        }
         .task {
             #if DEBUG
             if UserDefaults.standard.bool(forKey: "screenshotInventory") { showsInventory = true }
@@ -287,6 +301,31 @@ private struct SettingsContent: View {
                 onClose: { showsOnboarding = false }
             )
         }
+    }
+
+    /// 켠 면마다 한 줄: 이름 · (줄이는 중) · 지금 기준. 추이 끝줄 `limitLink`와 같은 화면을 연다.
+    private func limitRow(_ side: CupSide) -> some View {
+        let isReducing = goals.contains { $0.side == side.rawValue }
+        return Button {
+            limitSide = side
+        } label: {
+            HStack {
+                Text(side.label)
+                Spacer()
+                if isReducing {
+                    Text("줄이는 중").foregroundStyle(.secondary)
+                }
+                Text("\(Amount.number(side.limit(settings.limits))) \(side.unit)")
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
+                Image(systemName: "chevron.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+            }
+            .rowText()
+            .contentShape(Rectangle())
+        }
+        .accessibilityIdentifier("settings-limit-\(side.rawValue)")
     }
 
     private func setTracks(_ isOn: Bool, _ side: CupSide) {

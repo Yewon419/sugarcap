@@ -4276,34 +4276,50 @@
         }
       }
     },
-    "여기서 월 보기로 바꿀 수 있어요" : {
+    "월 보기로 바꾸면 이 달 통계를 볼 수 있어요" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Switch to the monthly view here"
+            "value" : "Switch to the monthly view to see this month's stats"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "可以在這裡切換成每月檢視"
+            "value" : "切換成每月檢視就能看到這個月的統計"
           }
         }
       }
     },
-    "여기서 월 보기로 바꿀 수 있어요 (Pro)" : {
+    "하루 기준은 여기서 바꿀 수 있어요. 설정에서도 돼요" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Switch to the monthly view here (Pro)"
+            "value" : "You can change your daily limit here, or in Settings"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "可以在這裡切換成每月檢視（Pro）"
+            "value" : "每日標準可以在這裡調整，也可以在設定中調整"
+          }
+        }
+      }
+    },
+    "월 보기로 바꾸면 이 달 통계를 볼 수 있어요 (Pro)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch to the monthly view to see this month's stats (Pro)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "切換成每月檢視就能看到這個月的統計（Pro）"
           }
         }
       }

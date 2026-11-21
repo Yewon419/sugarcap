@@ -96,8 +96,3 @@ GitHub > Actions > **iOS** > **Run workflow** (main 브랜치).
   App Store Connect의 앱 버전(1.0)보다 낮으면 업로드가 거부된다(2026-09-24에 0.1.0 → 1.0으로 맞춤).
 - `CURRENT_PROJECT_VERSION` — CI가 `github.run_number`로 덮어쓴다. 실행할 때마다 자동 증가하므로
   "이 빌드 번호는 이미 사용됨" 오류가 나지 않는다.
-
-## 아직 플레이스홀더인 것
-
-- **카인 · 로슈 스프라이트** — Phase 1c에서 임시 이미지로 채운다. 최종 원화로 교체 전제.
-- **루트 화면** — Phase 1a는 파이프라인 확인용 한 장짜리다. Phase 1c에서 오늘 화면으로 교체한다.

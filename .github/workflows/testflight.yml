@@ -177,6 +177,10 @@ jobs:
           shoot stamp-day1 light large -screenshotStamps 0
           shoot stamp-mid light large -screenshotStamps 6
           shoot stamp-roulette light large -screenshotStamps 14 -screenshotStampSeen 13 -screenshotStampInstant YES
+          # 룰렛: 누르기 전("돌리기") → 멈출 듯 버티는 순간("과연?") → 당첨 방울이 창 밖으로 튀어나온 순간.
+          shoot stamp-roulette-armed light large -screenshotStamps 14 -screenshotStampSeen 13
+          shoot stamp-roulette-doubt light large -screenshotStamps 14 -screenshotStampSeen 13 -screenshotStampRollAt 4.3
+          shoot stamp-roulette-pop light large -screenshotStamps 14 -screenshotStampSeen 13 -screenshotStampRollAt 5.6
           shoot stamp-caps light large -screenshotStamps 14 -screenshotStampSeen 13 -screenshotStampFinal caps
           shoot stamp-full light large -screenshotStamps 14
           shoot stamp-mid-dark dark large -screenshotStamps 6

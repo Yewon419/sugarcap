@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>슈가캡 · 스탬프 전체 흐름 (시안)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<style>
+  /* 첫날 안내 끝의 2주 스탬프판 시안(대표님 2026-11-05). 좌표는 폰 pt(402×874).
+     ?state=1|mid|13|14 → 시작 상태, &z=배율. 카페 쿠폰처럼 14칸, 전부 가려져 있다가 마감할 때마다 한 칸씩 찍힌다.
+     1~13일은 하트(로슈 흰색+먹선, 카인 호박색)와 병뚜껑 1~2개가 무작위, 14일은 미보유 잔 세트 룰렛.
+     에어브러시 없음: 단색 면·또렷한 선만.
+     stamp-flow.html = stamp-card.html 복사본에 얼리버드 무대만 새 안으로 바꿨다(2026-11-19 대표님 "빛살 없애자", "배경 없음").
+     얼리버드: 먹색 면·빛살 없이 기존 딤 위에서 판이 흐려지고, 방울 둘이 7칸에서 튀어나와 140pt로 자리 잡는다.
+     받기를 누르면 판이 돌아오고 방울이 7칸 두 자리로 날아가 앉은 뒤 판이 닫히고, 오늘 화면이 교환 적용 연출
+     (방울 낙하·동심원 두 겹·잔 크로스페이드·폭죽)로 잔을 바꾼다. 교환 적용은 원본 그대로.
+     14일 룰렛 강화(2026-11-19 대표님 "판 안에서 강화"): 창 148×188(먹색 선 2pt 포함 152×192)·방울 116pt, 칸이 지날 때마다 양옆 걸쇠가 튕긴다(앱은 틱 햅틱).
+     끝에서 다음 방울이 반쯤 올라오다 못 넘고 되돌아와 앉는다. 멈추면 방울 튐·흰 띠 두 번·폭죽 두 번.
+     값은 TradeApplyStage.swift·StampCardView.swift·TodayView.playStampTake와 같다. */
+  * { box-sizing: border-box; margin: 0; }
+  html, body { background: #E4E4E7; font-family: "Pretendard", sans-serif; color: #18181B; }
+  body { display: flex; gap: 32px; padding: 32px; align-items: flex-start; }
+  .frame { width: 402px; height: 874px; position: relative; flex: none; transform-origin: 0 0; }
+  .stage { position: absolute; inset: 0; overflow: hidden; border-radius: 44px; background: #F4F4F5; }
+  /* 앱 CupView와 같은 사진 틀: 화면 높이 84%, 바닥에서 4% 띄움, 937×1666 사진을 채워 맞춤. */
+  .page { position: absolute; inset: 0; }
+  .page img { position: absolute; left: -5.45px; top: 104.88px; width: 412.9px; height: 734.16px; }
+  .side-tag { position: absolute; left: 24px; top: 178px; font-size: 15px; font-weight: 600; color: #3F3F46; }
+  .hero { position: absolute; left: 24px; top: 70px; display: flex; align-items: baseline; }
+  .hero b { font-size: 96px; font-weight: 700; letter-spacing: -5.8px; font-variant-numeric: tabular-nums; line-height: 1.04; }
+  .hero span { font-size: 30px; font-weight: 500; opacity: .85; margin-left: 6px; }
+  .corner { position: absolute; top: 63px; width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.55); display: grid; place-items: center; }
+  .corner svg { width: 19px; height: 19px; }
+  #btnStamp { left: 250px; } #btnTrends { left: 287px; } #btnSettings { left: 324px; }
+
+  .dim { position: absolute; inset: 0; background: rgba(0,0,0,.5); opacity: 0; }
+  .card { position: absolute; left: 24px; right: 24px; top: 236px; background: #fff; border-radius: 16px; opacity: 0; }
+  .card .top { padding: 22px 22px 18px; display: flex; align-items: baseline; justify-content: space-between; }
+  .card h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+  .count { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; margin-right: 34px; }
+  .count small { font-size: 15px; font-weight: 500; color: #A1A1AA; }
+  .x { position: absolute; right: 14px; top: 16px; width: 30px; height: 30px; border-radius: 50%; background: #F4F4F5; display: grid; place-items: center; cursor: pointer; }
+  .x svg { width: 11px; height: 11px; }
+  /* 쿠폰 절취선: 양옆 반원 홈 + 점선 */
+  .perf { position: relative; height: 18px; }
+  .card { --py: 76px;
+    -webkit-mask: radial-gradient(circle 9px at 0 var(--py), #0000 8.5px, #000 9px), radial-gradient(circle 9px at 100% var(--py), #0000 8.5px, #000 9px);
+    -webkit-mask-composite: source-in; mask-composite: intersect; }
+  .perf i { position: absolute; left: 16px; right: 16px; top: 8.5px; border-top: 1.5px dashed #D4D4D8; }
+  .grid { padding: 14px 18px 6px; display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 14px; justify-items: center; }
+  .cell { position: relative; width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid #D4D4D8; display: grid; place-items: center; }
+  .cell > .n, .cell > svg { grid-area: 1 / 1; }
+  .cell .n { font-size: 12px; font-weight: 600; color: #A1A1AA; font-variant-numeric: tabular-nums; }
+  .cell.today { border: 2px solid #18181B; }
+  .cell.today .n { color: #18181B; }
+  .cell.done { border-color: #18181B; background: #18181B; }
+  .cell.done .n { display: none; }
+  .cell .ink { position: absolute; inset: -1.5px; border-radius: 50%; background: #18181B; opacity: 0; }
+  .cell svg.prize { position: relative; width: 24px; height: 24px; opacity: 0; }
+  .cell.done svg.prize { opacity: 1; }
+  .cell.last { border-style: dashed; border-color: #18181B; }
+  .cell.last svg.cupmark { width: 18px; height: 18px; }
+  .cell.last.ready { border-style: solid; border-width: 2px; cursor: pointer; }
+  .cell.last.done { background: #fff; border: 2px solid #18181B; }
+  .cell.last.done .won { width: 34px; height: 34px; border-radius: 50%; background-size: 30px 30px; background-position: center; background-repeat: no-repeat; }
+  .note { padding: 14px 22px 22px; font-size: 14px; font-weight: 500; color: #71717A; text-align: center; }
+
+  /* 14일 룰렛 */
+  .roul { position: absolute; inset: 0; border-radius: 16px; background: #fff; opacity: 0; pointer-events: none; display: flex; align-items: center; gap: 22px; padding: 0 26px; }
+  .roul .side { flex: 1; }
+  .roul h3 { font-size: 22px; font-weight: 700; }
+  /* 룰렛 기계: 먹색 틀(12pt) 안에 흰 창. 전구는 틀에 박혀 있다(꾸밈 점선처럼 떠 있지 않게). */
+  /* 룰렛 창: 틀·전구 없이 먹색 선 하나, 크기는 틀 있던 때 바깥 크기만큼(대표님 2026-11-21). */
+  .wwrap { position: relative; flex: none; }
+  .window { position: relative; width: 152px; height: 192px; overflow: hidden; border: 2px solid #18181B; border-radius: 16px; background: #fff; }
+  /* 걸쇠: 창 안쪽 양옆 가운데의 먹색 삼각형. 칸이 지날 때마다 튕긴다. */
+  .flap { position: absolute; top: 50%; width: 0; height: 0; margin-top: -7px; border-top: 7px solid transparent; border-bottom: 7px solid transparent; z-index: 2; }
+  .flap.l { left: 2px; border-left: 10px solid #18181B; transform-origin: 0 50%; }
+  .flap.r { right: 2px; border-right: 10px solid #18181B; transform-origin: 100% 50%; }
+  .win-shine { position: absolute; left: 16px; top: 36px; width: 116px; height: 116px; overflow: hidden; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; opacity: 0; pointer-events: none; }
+  .win-shine i { position: absolute; top: -30%; left: -40%; width: 14px; height: 160%; background: #fff; opacity: .8; transform: rotate(20deg); }
+  .reel { position: absolute; left: 0; top: 0; width: 148px; }
+  /* 룰렛은 잔이 아니라 그 잔의 먹이기 방울(80pt)로 돈다. */
+  .reel div { width: 148px; height: 188px; background-size: 116px 116px; background-position: center; background-repeat: no-repeat; }
+  .caps3 { height: 188px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+  .caps3 svg { width: 34px; height: 34px; }
+  .pick { font-size: 17px; font-weight: 600; margin-top: 8px; min-height: 22px; color: #3F3F46; }
+  .pick.rolling { color: #A1A1AA; }
+  .take { margin-top: 18px; height: 44px; padding: 0 24px; border-radius: 12px; background: #18181B; color: #fff; font: 600 16px "Pretendard"; border: 0; opacity: 0; cursor: pointer; }
+  /* 도는 동안: 자리를 지키는 흐린 받기(눌리지 않음). */
+  .take.off { background: #E4E4E7; color: #A1A1AA; cursor: default; }
+  .popdrop { position: absolute; width: 116px; height: 116px; margin: -58px 0 0 -58px; background-size: 100% 100%; pointer-events: none; }
+
+  /* 얼리버드 무대: 먹색 면·빛살 없음. 딤 위에 방울·제목·이름·받기만. */
+  .eb-drop { position: absolute; left: 0; top: 0; width: 140px; height: 140px; margin: -70px 0 0 -70px; opacity: 0; pointer-events: none; }
+  .eb-drop img { width: 100%; height: 100%; display: block; }
+  .eb-drop .shine { position: absolute; inset: 0; overflow: hidden; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; }
+  .eb-drop .shine i { position: absolute; top: -30%; left: -40%; width: 16px; height: 160%; background: #fff; opacity: .8; transform: rotate(20deg); }
+  .eb-name { position: absolute; top: 462px; width: 160px; margin-left: -80px; text-align: center; font-size: 16px; font-weight: 600; color: #fff; opacity: 0; pointer-events: none; }
+  #ebTitle { position: absolute; left: 0; right: 0; top: 200px; text-align: center; color: #fff; font-size: 34px; font-weight: 800; letter-spacing: -0.68px; opacity: 0; pointer-events: none; }
+  #ebTake { position: absolute; left: 24px; right: 24px; bottom: 42px; height: 56px; border-radius: 28px; border: 0; background: #fff; color: #18181B; font: 600 17px "Pretendard"; opacity: 0; pointer-events: none; cursor: pointer; }
+  .cell.eb-won { background: #fff; border: 2px solid #18181B; }
+  .cell .pair { position: relative; width: 31px; height: 19px; }
+  .cell .pair img { position: absolute; top: 0; width: 19px; height: 19px; }
+  .cell .pair img:first-child { left: 0; } .cell .pair img:last-child { right: 0; }
+  .fx { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .confetti { position: absolute; left: 0; top: 0; }
+  .ring { position: absolute; border-radius: 50%; border: 5px solid #18181B; }
+  .falling { position: absolute; width: 72px; height: 72px; object-fit: contain; transform-origin: 50% 100%; }
+
+  .panel { width: 260px; font-size: 13px; line-height: 1.6; color: #3F3F46; }
+  .panel h1 { font-size: 16px; margin-bottom: 10px; }
+  .panel button { display: block; width: 100%; margin: 6px 0; padding: 9px 12px; border: 1px solid #D4D4D8; background: #fff; border-radius: 8px; font: 500 13px "Pretendard"; text-align: left; cursor: pointer; }
+  .panel button.on { border-color: #18181B; font-weight: 700; }
+  .panel p { margin-top: 14px; }
+</style>
+</head>
+<body>
+<div class="frame" id="frame">
+  <div class="stage">
+    <div class="page" id="page-sugar"><img class="cupA" alt=""><img class="cupB" alt=""><div class="hero"><b>20</b><span>g</span></div><div class="side-tag">당</div></div>
+    <div class="page" id="page-caffeine"><img class="cupA" alt=""><img class="cupB" alt=""><div class="hero"><b>120</b><span>mg</span></div><div class="side-tag">카페인</div></div>
+    <div class="corner" id="btnStamp">
+      <svg viewBox="0 0 20 20" fill="none" stroke="#18181B" stroke-width="1.6"><rect x="2.5" y="4.5" width="15" height="11" rx="2.5"/><circle cx="7" cy="10" r="1.6"/><circle cx="13" cy="10" r="1.6"/></svg>
+    </div>
+    <div class="corner" id="btnTrends">
+      <svg viewBox="0 0 20 20" fill="none" stroke="#18181B" stroke-width="1.6" stroke-linecap="round"><path d="M4 15V10M8 15V6M12 15V9M16 15V4"/></svg>
+    </div>
+    <div class="corner" id="btnSettings">
+      <svg viewBox="0 0 20 20" fill="none" stroke="#18181B" stroke-width="1.6"><circle cx="10" cy="10" r="2.6"/><circle cx="10" cy="10" r="6.6" stroke-dasharray="3 2.2"/></svg>
+    </div>
+
+    <div class="dim" id="dim"></div>
+    <div class="card" id="card">
+      <div class="top"><h2>2주 스탬프</h2><div class="count"><span id="cnt">0</span> <small>/ 14</small></div></div>
+      <div class="x" id="x"><svg viewBox="0 0 12 12" stroke="#18181B" stroke-width="1.8" stroke-linecap="round"><path d="M1.5 1.5l9 9M10.5 1.5l-9 9"/></svg></div>
+      <div class="perf"><i></i></div>
+      <div class="grid" id="grid"></div>
+      <div class="note" id="note">밤에 돌아와서 마감 시 스탬프를 적립!</div>
+      <div class="roul" id="roul">
+        <div class="wwrap" id="wwrap"><div class="window"><div class="reel" id="reel"></div><div class="win-shine" id="winShine"><i></i></div></div><span class="flap l"></span><span class="flap r"></span></div>
+        <div class="side">
+          <h3>14일 룰렛</h3>
+          <div class="pick" id="pick"></div>
+          <button class="take" id="take">받기</button>
+        </div>
+      </div>
+    </div>
+    <div class="fx" id="fx"></div>
+    <div class="eb-drop" id="eb0"><img src="flow-img/drop-glass-soda.png" alt=""><div class="shine" style="-webkit-mask-image:url(flow-img/drop-glass-soda.png);mask-image:url(flow-img/drop-glass-soda.png)"><i></i></div></div>
+    <div class="eb-drop" id="eb1"><img src="flow-img/drop-glass-beans.png" alt=""><div class="shine" style="-webkit-mask-image:url(flow-img/drop-glass-beans.png);mask-image:url(flow-img/drop-glass-beans.png)"><i></i></div></div>
+    <div class="eb-name" style="left:123px">유리 과일 소다</div>
+    <div class="eb-name" style="left:279px">유리 원두</div>
+    <div id="ebTitle">얼리버드 선물</div>
+    <button id="ebTake">받기</button>
+    <div class="fx" id="fxTop"></div>
+  </div>
+</div>
+
+<div class="panel">
+  <h1>한 번에</h1>
+  <button id="all">7칸 얼리버드 → 잔 바뀜 → 14칸 룰렛 → 잔 바뀜</button>
+  <h1 style="margin-top:18px">상태</h1>
+  <button data-s="1">1일차 첫 방문 (0칸)</button>
+  <button data-s="mid">중간 (6칸)</button>
+  <button data-s="13">13일차 마감 후 (13칸)</button>
+  <button data-s="14">14일차 마감 → 룰렛</button>
+  <button data-s="14all">14일차 마감 (잔 전부 보유)</button>
+  <button data-s="7">7일차 마감 → 얼리버드</button>
+  <h1 style="margin-top:18px">기록하는 면</h1>
+  <button data-t="both">당·카페인 둘 다</button>
+  <button data-t="sugar">당만 (카페인 꺼짐)</button>
+  <button data-t="caffeine">카페인만 (당 꺼짐)</button>
+  <h1 style="margin-top:18px">판을 열 때 보던 면</h1>
+  <button data-v="sugar">당</button>
+  <button data-v="caffeine">카페인</button>
+  <h1 style="margin-top:18px">동작</h1>
+  <button id="press">마감 한 번 (다음 칸 찍기)</button>
+  <button id="reopen">카드 다시 열기</button>
+  <button id="resetCups">잔 원래대로</button>
+  <p id="log" style="color:#18181B;font-weight:600"></p>
+  <p>상태·면을 바꾸면 처음부터 다시 돈다. 받기를 누르면 판이 닫히고 오늘 화면에서 잔이 바뀐다. 얼리버드는 보던 면부터 한 잔씩, 꺼진 면 잔은 연출 없이 바꿔 둔다(아래 줄에 표시).<br>바깥(어두운 곳)이나 X를 누르면 닫힌다. 칸 안 내용은 찍히기 전까지 안 보인다.<br>14번째 칸은 점선 테두리 + 잔 표시로만 특별하다는 걸 알리고, 찍히는 순간 미보유 잔 세트 중 하나를 돌린다. 잔 세트를 전부 가졌으면 룰렛 대신 병뚜껑 3개.</p>
+</div>
+
+<script>
+const q = new URLSearchParams(location.search);
+const z = parseFloat(q.get("z") || "1");
+document.getElementById("frame").style.transform = `scale(${z})`;
+if (z !== 1) { const f = document.getElementById("frame"); f.style.marginRight = `${402 * (z - 1)}px`; f.style.marginBottom = `${874 * (z - 1)}px`; }
+
+// 상품: 1~13일 무작위. 병뚜껑은 1~2개, 나머지는 하트(로슈 흰색·카인 호박색).
+function rng(seed) { return () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; }; }
+function rollPrizes(seed) {
+  const r = rng(seed);
+  const caps = r() < 0.5 ? 1 : 2;
+  const list = Array.from({ length: 13 }, (_, i) => ({ kind: i < caps ? "cap" : "heart", side: r() < 0.5 ? "roshu" : "kain" }));
+  for (let i = list.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [list[i], list[j]] = [list[j], list[i]]; }
+  return list;
+}
+const prizes = rollPrizes(20261105);
+const fill = s => s === "roshu" ? "#FFFFFF" : "#E3C29F";
+const heart = s => `<svg class="prize" viewBox="0 0 24 24"><path d="M12 20.5C6 16.3 2.6 13 2.6 8.9 2.6 6.2 4.7 4.2 7.2 4.2c1.9 0 3.6 1.1 4.8 2.8 1.2-1.7 2.9-2.8 4.8-2.8 2.5 0 4.6 2 4.6 4.7 0 4.1-3.4 7.4-9.4 11.6z" fill="${fill(s)}" stroke="${s === "roshu" ? "#52525B" : "none"}" stroke-width="1.2"/></svg>`;
+function sealPath() {
+  let d = ""; const n = 12;
+  for (let i = 0; i <= n * 2; i++) {
+    const a = Math.PI * i / n - Math.PI / 2, r = i % 2 ? 9.2 : 10.6;
+    d += (i ? "L" : "M") + (12 + r * Math.cos(a)).toFixed(2) + " " + (12 + r * Math.sin(a)).toFixed(2);
+  }
+  return d + "Z";
+}
+const cap = s => `<svg class="prize" viewBox="0 0 24 24"><path d="${sealPath()}" fill="${fill(s)}" stroke="${s === "roshu" ? "#52525B" : "none"}" stroke-width="1.1" stroke-linejoin="round"/><circle cx="12" cy="12" r="5.6" fill="none" stroke="${s === "roshu" ? "#D4D4D8" : "#C9A57E"}" stroke-width="1.2"/></svg>`;
+const cupMark = `<svg class="cupmark" viewBox="0 0 20 20" fill="none" stroke="#18181B" stroke-width="1.6" stroke-linejoin="round"><path d="M4.5 5h11l-1.4 11.2a1.5 1.5 0 0 1-1.5 1.3H7.4a1.5 1.5 0 0 1-1.5-1.3z"/><path d="M5 9.5h10"/></svg>`;
+
+const sets = [
+  { id: "cafe-latte", name: "카페라떼", side: "caffeine" }, { id: "choco-frappe", name: "초코 프라페", side: "sugar" },
+  { id: "matcha", name: "말차 라떼", side: "caffeine" }, { id: "mango", name: "망고 스무디", side: "sugar" },
+  { id: "einspanner", name: "아인슈페너", side: "caffeine" }, { id: "grape", name: "청포도 에이드", side: "sugar" },
+];
+const perks = [{ id: "glass-soda", name: "유리 과일 소다", side: "sugar" }, { id: "glass-beans", name: "유리 원두", side: "caffeine" }];
+let stamped = 0, won = null, allOwned = false;
+
+const grid = document.getElementById("grid");
+function render() {
+  grid.innerHTML = "";
+  for (let i = 0; i < 14; i++) {
+    const c = document.createElement("div");
+    c.className = "cell";
+    if (i === 13) {
+      c.classList.add("last");
+      if (won && won.caps) { c.classList.add("done"); c.innerHTML = cap("kain").replace('class="prize"', 'class="prize" style="opacity:1"'); }
+      else if (won) { c.classList.add("done"); c.innerHTML = `<div class="won" style="background-image:url(flow-img/drop-${won.id}.png)"></div>`; }
+      else { c.innerHTML = cupMark; if (stamped === 13) c.classList.add("ready"); }
+    } else {
+      const p = prizes[i];
+      c.innerHTML = `<div class="ink"></div><span class="n">${i + 1}</span>` + (p.kind === "cap" ? cap(p.side) : heart(p.side));
+      if (i < stamped) c.classList.add("done");
+      if (i === 6 && earlyTaken && i < stamped) { c.className = "cell eb-won"; c.innerHTML = '<div class="pair"><img src="flow-img/drop-glass-soda.png"><img src="flow-img/drop-glass-beans.png"></div>'; }
+      if (i === stamped) c.classList.add("today");
+    }
+    grid.appendChild(c);
+  }
+  document.getElementById("cnt").textContent = won ? 14 : stamped;
+}
+
+function open() {
+  gsap.set("#roul", { opacity: 0, pointerEvents: "none" });
+  gsap.fromTo("#dim", { opacity: 0 }, { opacity: 1, duration: .25, ease: "power2.out" });
+  gsap.fromTo("#card", { opacity: 0, scale: .95 }, { opacity: 1, scale: 1, duration: .3, ease: "expo.out" });
+}
+function close() {
+  gsap.to("#card", { opacity: 0, scale: .97, duration: .18, ease: "power2.in" });
+  gsap.to("#dim", { opacity: 0, duration: .2 });
+}
+document.getElementById("x").onclick = close;
+document.getElementById("dim").onclick = close;
+
+// 찍기: 먹색 원이 크게 내려와 눌리고(살짝 기울었다 바로 섬), 그 안에서 상품이 튀어나온다.
+function press() {
+  if (won) return;
+  if (stamped === 13) { spin(); return; }
+  const i = stamped, cell = grid.children[i];
+  const ink = cell.querySelector(".ink"), prize = cell.querySelector(".prize"), n = cell.querySelector(".n");
+  const tl = gsap.timeline({ onComplete: () => { stamped++; render(); if (stamped === 7 && earlyPending) setTimeout(playEarly, 300); } });
+  tl.set(ink, { opacity: 0, scale: 1.7, rotation: -10 })
+    .to(n, { opacity: 0, duration: .1 }, 0)
+    .to(ink, { opacity: 1, scale: 1, rotation: 0, duration: .22, ease: "power3.in" }, .05)
+    .to(cell, { scale: .9, duration: .06, yoyo: true, repeat: 1, ease: "power1.out" }, .27)
+    .fromTo(prize, { opacity: 0, scale: .3 }, { opacity: 1, scale: 1, duration: .32, ease: "back.out(2.4)" }, .33)
+    .to("#cnt", { textContent: i + 1, duration: .01, snap: { textContent: 1 } }, .33)
+    .fromTo("#cnt", { y: -6 }, { y: 0, duration: .25, ease: "expo.out" }, .33);
+}
+
+// 룰렛: 미보유 잔 세트의 방울이 세로로 돌다가 하나에 멈춘다. "돌리기"를 눌러야 시작한다.
+// 칸이 지날 때마다 걸쇠가 튕긴다(앱은 같은 박자에 틱 햅틱, 소리 없음). 느려질수록 띄엄띄엄해진다.
+// 끝에서 다음 방울이 반쯤 올라오다 못 넘고 되돌아와 앉고, 당첨 방울이 창 밖으로 튀어나왔다 들어간다.
+const RH = 188;
+function tick() {
+  gsap.fromTo(".flap.l", { rotation: 32 }, { rotation: 0, duration: .2, ease: "power2.out", overwrite: true });
+  gsap.fromTo(".flap.r", { rotation: -32 }, { rotation: 0, duration: .2, ease: "power2.out", overwrite: true });
+}
+function windowCenter() {
+  const w = document.querySelector(".window").getBoundingClientRect(), st = document.querySelector(".stage").getBoundingClientRect();
+  return { x: (w.left + w.width / 2 - st.left) / z, y: (w.top + w.height / 2 - st.top) / z };
+}
+function spin() {
+  if (allOwned) { capsInstead(); return; }
+  const my = runId;
+  document.querySelector("#roul h3").textContent = "14일 룰렛";
+  const pool = sets.filter(x => tracked.includes(x.side)); // 시안: 미보유 = 기록하는 면의 거래 잔 세트 전부라고 가정
+  const target = pool[Math.floor(Math.random() * pool.length)];
+  const loops = 4, seq = [];
+  for (let k = 0; k < loops; k++) seq.push(...pool);
+  seq.push(target);
+  // 당첨 칸 아래에 다음 방울 하나를 더 둬서 끝에 반쯤 올라왔다 되돌아가는 게 보이게 한다.
+  seq.push(pool[(pool.indexOf(target) + 1) % pool.length]);
+  const stop = seq.length - 2;
+  const reel = document.getElementById("reel");
+  reel.innerHTML = seq.map(s => `<div style="background-image:url(flow-img/drop-${s.id}.png)"></div>`).join("");
+  // 판이 열리면 멈춰 있고, "돌리기"가 두근거린다. 눌러야 돈다(테무식, 대표님 2026-11-20).
+  const pick = document.getElementById("pick"), take = document.getElementById("take");
+  pick.textContent = "뭐가 나올까"; pick.classList.add("rolling");
+  take.textContent = "돌리기"; take.classList.remove("off");
+  gsap.set(["#pick", "#take"], { opacity: 1, y: 0, scale: 1 });
+  won = null;
+  gsap.set(reel, { y: 0 });
+  gsap.set("#winShine", { opacity: 0 });
+  gsap.to("#roul", { opacity: 1, duration: .25, onStart: () => document.getElementById("roul").style.pointerEvents = "auto" });
+  gsap.to(take, { scale: 1.06, duration: .45, ease: "sine.inOut", yoyo: true, repeat: -1, delay: .3 });
+  take.style.pointerEvents = "auto";
+  armed = () => { armed = null; roll(); };
+  // 도는 동안: 흐린 멘트 두 줄(돌 때 → 멈출 듯할 때)과 흐린 받기가 자리를 지킨다.
+  function roll() {
+  gsap.killTweensOf(take); gsap.set(take, { scale: 1 });
+  take.textContent = "받기"; take.classList.add("off"); take.style.pointerEvents = "none";
+  let last = 0;
+  const onUpdate = () => {
+    const k = Math.floor((-gsap.getProperty(reel, "y") + RH / 2) / RH);
+    if (k !== last) { last = k; tick(); }
+  };
+  const at = off => -(stop + off) * RH;
+  // 아슬아슬: ① 앞 방울에서 멈출 듯 느려지고 ② 당첨 방울로 기어 넘어간 뒤
+  // ③ 다음 방울이 반쯤 올라와 흔들리며 버티다 ④ 못 넘고 당첨 칸으로 튕겨 돌아온다.
+  gsap.timeline({ delay: .35 })
+    .to(reel, { y: at(-.56), duration: 3.4, ease: "power4.out", onUpdate })
+    .add(() => { pick.textContent = "과연?"; gsap.fromTo(pick, { y: 4 }, { y: 0, duration: .2 }); }, "+=.06")
+    .to(reel, { y: at(.46), duration: .7, ease: "power2.inOut", onUpdate })
+    .to(reel, { y: at(.41), duration: .09, ease: "sine.inOut", yoyo: true, repeat: 1, onUpdate })
+    .to(reel, { y: at(0), duration: .4, ease: "back.out(2.8)", onUpdate })
+    .add(() => { if (my === runId) landed(target, stop); });
+  }
+}
+let armed = null;
+async function landed(target, stop) {
+  const my = runId;
+  const cell = document.querySelectorAll("#reel > div")[stop];
+  const c = windowCenter();
+  // 당첨 팡: 방울이 창 밖으로 튀어나와 커졌다가 창 속 자리로 돌아가 앉는다.
+  const pop = document.createElement("div");
+  pop.className = "popdrop"; pop.style.left = c.x + "px"; pop.style.top = c.y + "px";
+  pop.style.backgroundImage = `url(flow-img/drop-${target.id}.png)`;
+  document.getElementById("fxTop").appendChild(pop);
+  gsap.set(cell, { opacity: 0 });
+  gsap.timeline({ onComplete: () => { pop.remove(); gsap.set(cell, { opacity: 1 }); } })
+    .fromTo(pop, { scale: 1, y: 0 }, { scale: 1.6, y: -10, duration: .34, ease: "back.out(2.6)" })
+    .to(pop, { scale: 1, y: 0, duration: .32, ease: "power2.inOut" }, "+=.45");
+  confetti("fxTop", c.x, c.y);
+  await sleep(1150); if (my !== runId) return;
+  const shine = document.getElementById("winShine");
+  shine.style.webkitMaskImage = shine.style.maskImage = `url(flow-img/drop-${target.id}.png)`;
+  gsap.set(shine, { opacity: 1 });
+  await sleep(250); if (my !== runId) return;
+  gsap.fromTo("#winShine i", { left: "-40%" }, { left: "130%", duration: .5, ease: "power2.inOut" });
+  await sleep(560); if (my !== runId) return;
+  gsap.set(shine, { opacity: 0 });
+  const pick = document.getElementById("pick"), take = document.getElementById("take");
+  pick.textContent = target.name; pick.classList.remove("rolling");
+  gsap.fromTo(pick, { scale: .9 }, { scale: 1, duration: .3, ease: "back.out(3)", transformOrigin: "0% 50%" });
+  take.classList.remove("off");
+  gsap.fromTo(take, { scale: .9 }, { scale: 1, duration: .3, delay: .1, ease: "back.out(3)",
+    onComplete: () => { take.style.pointerEvents = "auto"; } });
+  confetti("fxTop", c.x + 110, c.y);
+  won = target;
+}
+// 잔 세트를 전부 가졌으면 룰렛 대신 병뚜껑 3개(대표님 2026-11-05).
+function capsInstead() {
+  document.querySelector("#roul h3").textContent = "14일 선물";
+  document.getElementById("take").classList.remove("off"); document.getElementById("pick").classList.remove("rolling");
+  document.getElementById("take").textContent = "받기"; armed = null;
+  const reel = document.getElementById("reel");
+  gsap.set(reel, { y: 0 });
+  reel.innerHTML = `<div class="caps3">${["roshu", "kain", "roshu"].map(cap).join("")}</div>`;
+  document.getElementById("pick").textContent = "병뚜껑 3개";
+  gsap.to("#roul", { opacity: 1, duration: .25, onStart: () => document.getElementById("roul").style.pointerEvents = "auto" });
+  gsap.fromTo("#reel .prize", { opacity: 0, scale: .3 }, { opacity: 1, scale: 1, duration: .32, ease: "back.out(2.4)", stagger: .12, delay: .35 });
+  gsap.fromTo("#pick", { opacity: 0 }, { opacity: 1, duration: .25, delay: .8 });
+  document.getElementById("take").style.pointerEvents = "none";
+  gsap.fromTo("#take", { opacity: 0 }, { opacity: 1, duration: .25, delay: .9,
+    onComplete: () => { document.getElementById("take").style.pointerEvents = "auto"; } });
+  won = { caps: true };
+}
+document.getElementById("take").onclick = () => {
+  // 결과가 뜨기 전(투명한 동안)에는 눌리지 않는다.
+  const take = document.getElementById("take");
+  if (armed && take.style.pointerEvents === "auto") { armed(); return; }
+  if (!won || take.style.pointerEvents !== "auto") return;
+  take.style.pointerEvents = "none";
+  if (won && !won.caps) { const item = won; render(); close(); takeCups([item]); return; }
+  gsap.to("#roul", { opacity: 0, duration: .2, onComplete: () => { document.getElementById("roul").style.pointerEvents = "none"; render(); } });
+};
+grid.addEventListener("click", e => { if (e.target.closest(".cell.last.ready")) spin(); });
+
+function setState(s) {
+  curState = s; runId++;
+  won = null; allOwned = s === "14all"; earlyPending = s === "7"; earlyTaken = false; allFlow = false;
+  stamped = { "1": 0, mid: 6, "13": 13, "14": 13, "14all": 13, "7": 6 }[s] ?? 0;
+  document.getElementById("fx").innerHTML = ""; document.getElementById("fxTop").innerHTML = "";
+  resetEarly();
+  gsap.killTweensOf(["#reel", "#reel > div", "#winShine i", "#take", "#pick"]);
+  document.getElementById("take").style.pointerEvents = "none";
+  armed = null; gsap.set(["#take", "#reel > div"], { scale: 1, opacity: 1 });
+  resetCups(); showSide(tracked.includes(viewSide) ? viewSide : tracked[0], false); log("");
+  render(); open();
+  document.querySelectorAll("[data-s]").forEach(b => b.classList.toggle("on", b.dataset.s === s));
+  document.querySelectorAll("[data-t]").forEach(b => b.classList.toggle("on", b.dataset.t === trackKey));
+  document.querySelectorAll("[data-v]").forEach(b => b.classList.toggle("on", b.dataset.v === viewSide));
+  if (s.startsWith("14")) setTimeout(spin, 500);
+  if (s === "7") setTimeout(press, 600);
+}
+document.querySelectorAll("[data-s]").forEach(b => b.onclick = () => setState(b.dataset.s));
+document.querySelectorAll("[data-t]").forEach(b => b.onclick = () => {
+  trackKey = b.dataset.t; tracked = trackKey === "both" ? ["sugar", "caffeine"] : [trackKey]; setState(curState);
+});
+document.querySelectorAll("[data-v]").forEach(b => b.onclick = () => { viewSide = b.dataset.v; setState(curState); });
+document.getElementById("resetCups").onclick = () => resetCups();
+document.getElementById("press").onclick = press;
+// ---- 오늘 화면(면 두 개) ----
+let tracked = ["sugar", "caffeine"], trackKey = "both", viewSide = "sugar", side = "sugar";
+let earlyPending = false, earlyTaken = false, allFlow = false, curState = "1", runId = 0;
+const DEFAULT_SET = { sugar: "strawberry-latte", caffeine: "iced-americano" };
+const W = 402, LAND = { x: -5.45 + 0.5 * 412.9, y: 104.88 + 0.45 * 734.16 };
+const page = s => document.getElementById(`page-${s}`);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function log(t) { document.getElementById("log").textContent = t; }
+function setCup(s, id, fade) {
+  const p = page(s), a = p.querySelector(".cupA"), b = p.querySelector(".cupB");
+  const src = `flow-img/cup-${id}-80.png`;
+  if (!fade) { a.src = src; gsap.set(a, { opacity: 1 }); gsap.set(b, { opacity: 0 }); return; }
+  // CupView: 잔 세트가 바뀌면 0.35초 easeInOut 크로스페이드.
+  b.src = src;
+  gsap.fromTo(b, { opacity: 0 }, { opacity: 1, duration: .35, ease: "power1.inOut", onComplete: () => { a.src = src; gsap.set(a, { opacity: 1 }); gsap.set(b, { opacity: 0 }); } });
+}
+function resetCups() { setCup("sugar", DEFAULT_SET.sugar, false); setCup("caffeine", DEFAULT_SET.caffeine, false); }
+function showSide(s, animate) {
+  side = s;
+  const x = { sugar: s === "sugar" ? 0 : -W, caffeine: s === "caffeine" ? 0 : W };
+  // switchSide: spring(response .45, damping .86).
+  for (const k of ["sugar", "caffeine"]) {
+    if (animate) gsap.to(page(k), { x: x[k], duration: .55, ease: "power3.out" });
+    else gsap.set(page(k), { x: x[k] });
+  }
+}
+
+// ---- 폭죽 (ConfettiBurst .big: 44조각, 1.5초) ----
+const CONF_COLORS = ["#D99A4E", "rgb(245,107,135)", "rgb(84,173,242)", "rgb(102,204,133)", "rgb(252,201,56)", "#18181B"];
+function unit(i, salt) { return ((i * 7919 + salt * 104729 + 13) % 997) / 997; }
+function confetti(layer, x, y) {
+  const host = document.getElementById(layer), pieces = [];
+  for (let i = 0; i < 44; i++) {
+    const el = document.createElement("div"), round = i % 3 === 0;
+    el.className = "confetti";
+    Object.assign(el.style, { width: "6px", height: round ? "6px" : "11px", borderRadius: round ? "50%" : "0", background: CONF_COLORS[i % 6] });
+    host.appendChild(el);
+    pieces.push({ el, angle: (i / 44 + unit(i, 1) * .12) * 2 * Math.PI, speed: 110 + unit(i, 2) * 120, spin: (unit(i, 3) - .5) * 900, h: round ? 6 : 11 });
+  }
+  const start = performance.now();
+  (function frame(now) {
+    const p = Math.min((now - start) / 1500, 1), spread = 1 - (1 - p) * (1 - p);
+    const fade = p < .7 ? 1 : Math.max(0, (1 - p) / .3);
+    for (const k of pieces) {
+      const dx = Math.cos(k.angle) * k.speed * spread, dy = Math.sin(k.angle) * k.speed * spread + 170 * p * p;
+      k.el.style.transform = `translate(${x + dx - 3}px, ${y + dy - k.h / 2}px) rotate(${k.spin * p}deg)`;
+      k.el.style.opacity = fade;
+    }
+    if (p < 1) requestAnimationFrame(frame); else pieces.forEach(k => k.el.remove());
+  })(start);
+}
+
+// ---- 교환 적용 연출 (TradeApplyTimeline: 낙하 .3~.85, 동심원 .55초 간격 .12, 전체 2.4초) ----
+function tradeApply(item) {
+  return new Promise(resolve => {
+    const fx = document.getElementById("fx");
+    const drop = document.createElement("img");
+    drop.className = "falling"; drop.src = `flow-img/drop-${item.id}.png`; fx.appendChild(drop);
+    const rings = [0, 1].map(() => { const r = document.createElement("div"); r.className = "ring"; r.style.opacity = 0; fx.appendChild(r); return r; });
+    let swapped = false;
+    const start = performance.now();
+    (function frame(now) {
+      const t = (now - start) / 1000;
+      if (t < .85) {
+        const p = Math.min(Math.max((t - .3) / .55, 0), 1), fall = p * p, stretch = 1 + .18 * fall;
+        const y = -72 + (LAND.y + 72) * fall;
+        drop.style.transform = `translate(${LAND.x - 36}px, ${y - 72}px) scale(${1 / stretch}, ${stretch})`;
+      } else if (!swapped) {
+        swapped = true; drop.remove();
+        setCup(item.side, item.id, true);
+        confetti("fx", LAND.x, LAND.y);
+      }
+      rings.forEach((r, i) => {
+        const p = (t - (.85 + i * .12)) / .55;
+        if (p < 0 || p > 1) { r.style.opacity = 0; return; }
+        const eased = 1 - (1 - p) * (1 - p), w = 16 + (W * .5 - 16) * eased, h = w * .3, line = 5 - 3.5 * p;
+        Object.assign(r.style, { width: `${w}px`, height: `${h}px`, left: `${LAND.x - w / 2}px`, top: `${LAND.y - h / 2}px`, borderWidth: `${line}px`, opacity: p < .6 ? 1 : 1 - (p - .6) / .4 });
+      });
+      if (t < 2.4) requestAnimationFrame(frame); else { rings.forEach(r => r.remove()); resolve(); }
+    })(start);
+  });
+}
+
+// ---- 받은 잔 적용 (TodayView.takeStampCups / playStampTake) ----
+async function takeCups(items) {
+  const my = runId;
+  const shown = items.filter(i => tracked.includes(i.side)), silent = items.filter(i => !tracked.includes(i.side));
+  silent.forEach(i => setCup(i.side, i.id, false));
+  if (silent.length) log(`꺼진 면: ${silent.map(i => i.name).join(", ")}은(는) 연출 없이 바꿔 둠`);
+  const ordered = shown.filter(i => i.side === side).concat(shown.filter(i => i.side !== side));
+  await sleep(250);
+  for (const item of ordered) {
+    if (my !== runId) return;
+    if (item.side !== side) { showSide(item.side, true); await sleep(600); }
+    if (my !== runId) return;
+    await tradeApply(item);
+  }
+}
+
+// ---- 얼리버드 무대 (StampCardView.playEarlyBird, 2026-11-19 새 안) ----
+const EB_SPOTS = [{ x: 123, y: 372 }, { x: 279, y: 372 }];
+function cell7() {
+  const c = grid.children[6].getBoundingClientRect(), st = document.querySelector(".stage").getBoundingClientRect();
+  return { x: (c.left + c.width / 2 - st.left) / z, y: (c.top + c.height / 2 - st.top) / z };
+}
+function resetEarly() {
+  gsap.killTweensOf([".eb-drop", ".eb-drop .shine i", ".eb-name", "#ebTitle", "#ebTake"]);
+  gsap.set(".eb-drop", { opacity: 0 });
+  gsap.set([".eb-name", "#ebTitle", "#ebTake"], { opacity: 0, y: 0 });
+  document.getElementById("ebTake").style.pointerEvents = "none";
+}
+async function playEarly() {
+  const my = runId;
+  earlyPending = false;
+  const c = cell7();
+  // 판이 흐려지며 물러나고, 방울 둘이 7칸에서 튀어나와 커지며 자리 잡는다(조금 넘쳤다 앉는다).
+  gsap.to("#card", { opacity: 0, duration: .3, ease: "power2.out" });
+  EB_SPOTS.forEach((p, i) => gsap.fromTo(`#eb${i}`,
+    { left: c.x, top: c.y, scale: .16, opacity: 1, rotation: i ? 25 : -25 },
+    { left: p.x, top: p.y, scale: 1, rotation: 0, duration: .7, ease: "back.out(1.6)", delay: .1 + i * .1 }));
+  await sleep(650); if (my !== runId) return;
+  confetti("fxTop", 201, 372);
+  await sleep(250); if (my !== runId) return;
+  for (let k = 0; k < 2; k++) {
+    gsap.fromTo(".eb-drop .shine i", { left: "-40%" }, { left: "130%", duration: .55, ease: "power2.inOut", stagger: .1 });
+    await sleep(650); if (my !== runId) return;
+  }
+  gsap.fromTo("#ebTitle", { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: .35, ease: "power3.out" });
+  gsap.fromTo(".eb-name", { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: .3, ease: "power3.out", stagger: .06, delay: .08 });
+  gsap.fromTo("#ebTake", { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: .3, ease: "power3.out", delay: .14,
+    onComplete: () => { document.getElementById("ebTake").style.pointerEvents = "auto"; } });
+  confetti("fxTop", 201, 230);
+}
+document.getElementById("ebTake").onclick = async () => {
+  const my = runId;
+  document.getElementById("ebTake").style.pointerEvents = "none";
+  gsap.to([".eb-name", "#ebTitle", "#ebTake"], { opacity: 0, duration: .15, ease: "power2.out" });
+  gsap.to("#card", { opacity: 1, duration: .25, ease: "power2.out" });
+  const c = cell7();
+  [-6, 6].forEach((dx, i) => gsap.to(`#eb${i}`, { left: c.x + dx, top: c.y, scale: 19 / 140, duration: .55, ease: "power3.inOut", delay: .05 + i * .06 }));
+  await sleep(680); if (my !== runId) return;
+  gsap.set(".eb-drop", { opacity: 0 });
+  earlyTaken = true; render();
+  gsap.fromTo(grid.children[6], { scale: .8 }, { scale: 1, duration: .4, ease: "back.out(3)" });
+  // 앱: 칸에 앉은 걸 0.7초 보여 준 뒤 판을 닫고, 오늘 화면이 받은 잔을 교환처럼 적용한다.
+  await sleep(700); if (my !== runId) return;
+  close();
+  await takeCups(perks);
+  if (!allFlow || my !== runId) return;
+  // 한 번에 보기: 이어서 13칸까지 찍힌 판을 열고 14칸 룰렛.
+  await sleep(700); if (my !== runId) return;
+  stamped = 13; render(); open();
+  await sleep(500); if (my !== runId) return;
+  spin();
+};
+document.getElementById("all").onclick = () => {
+  setState("7");
+  allFlow = true;
+  document.querySelectorAll("[data-s]").forEach(b => b.classList.remove("on"));
+};
+
+document.getElementById("reopen").onclick = open;
+setState(q.get("state") || "1");
+</script>
+</body>
+</html>

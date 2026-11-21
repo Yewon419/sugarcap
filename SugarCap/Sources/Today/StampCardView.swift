@@ -24,11 +24,28 @@ struct StampCardView: View {
     /// 찍는 칸의 단계. 0 = 도장이 위에 떠 있음, 1 = 눌림, 2 = 상품이 튀어나옴.
     @State private var phase = 0
     @State private var finale: Finale?
-    @State private var reelOffset: CGFloat = 0
+    /// 룰렛 판이 뜬 시각("돌리기" 두근거림 기준)과 "돌리기"를 누른 시각.
+    @State private var armedAt: Date?
+    @State private var rollStart: Date?
+    /// 칸이 넘어간 횟수와 마지막으로 넘어간 시각(걸쇠 튕김·틱 햅틱).
+    @State private var ticks = 0
+    @State private var lastTick: Date?
+    /// 당첨 칸에 앉을 때 창에서 터지는 폭죽.
+    @State private var landBurst = 0
+    /// 이름·받기가 다 떠오른 뒤 매 프레임 그리기를 멈춘다.
+    @State private var isRevealDone = false
     @State private var isSettled = false
     @State private var notchY: CGFloat = 76
-    /// 얼리버드 무대 단계. 0 = 없음, 1 = 판이 어두워짐, 2 = 방울이 떠오름, 3 = 빛줄기가 지나감, 4 = 이름과 받기.
+    /// 얼리버드 무대 단계. 0 = 없음, 1 = 판이 흐려짐, 2 = 방울이 튀어나옴, 3 = 빛줄기가 지나감, 4 = 이름과 받기,
+    /// 5 = 방울이 7칸으로 돌아감.
     @State private var earlyStage = 0
+    /// 7칸 화면 좌표. 무대의 방울이 이 칸에서 나오고 이 칸으로 돌아간다.
+    @State private var earlyCellFrame: CGRect = .zero
+    /// 무대 동안 판을 숨긴다(방울·이름이 판에 겹치지 않게).
+    @State private var isCardHidden = false
+    /// 무대 위 큰 폭죽(방울 착지·이름표 등장). 판 위 `bigBurst`는 무대에 가려서 따로 둔다.
+    @State private var dropBurst = 0
+    @State private var titleBurst = 0
     /// 빛줄기 위치(0 = 방울 왼쪽 밖, 1 = 오른쪽 밖).
     @State private var streak: CGFloat = 0
     /// 이 판에서 무대를 받았다(스크린샷처럼 바깥 기록이 안 바뀌어도 다시 틀지 않는다).
@@ -40,7 +57,7 @@ struct StampCardView: View {
     /// 작은 폭죽이 터지는 칸과 다시 터뜨리는 열쇠.
     @State private var burstCell: Int?
     @State private var burstID = 0
-    /// 잔·병뚜껑·얼리버드를 받을 때 판 전체에 터지는 큰 폭죽(0 = 아직 없음).
+    /// 잔·병뚜껑을 받을 때 판 전체에 터지는 큰 폭죽(0 = 아직 없음).
     @State private var bigBurst = 0
 
     private enum Finale: Equatable {
@@ -49,7 +66,9 @@ struct StampCardView: View {
         case caps
     }
 
-    private static let windowSize = CGSize(width: 104, height: 104)
+    /// 룰렛 창 안쪽 크기. 바깥은 먹색 선 2pt를 더해 152×192(대표님 2026-11-21 "선만 버전을 연한 틀 크기까지").
+    private static let windowSize = CGSize(width: 148, height: 188)
+    private static let reelDrop: CGFloat = 116
 
     private var stamped: Int {
         StampMath.stamped(cellNumbers: stamps.compactMap(\.level))
@@ -64,8 +83,12 @@ struct StampCardView: View {
                 .accessibilityHidden(true)
             card
                 .padding(.horizontal, 24)
+                .opacity(isCardHidden ? 0 : 1)
+            earlyBirdStage
         }
         .task(id: playRun) { await play() }
+        .task(id: rollStart) { await runRoll() }
+        .sensoryFeedback(.selection, trigger: ticks)
         .sensoryFeedback(.impact(weight: .medium), trigger: shown) { old, new in new > old && old >= seen }
         .sensoryFeedback(.success, trigger: isSettled) { _, new in new }
     }
@@ -140,7 +163,6 @@ struct StampCardView: View {
             .padding(.trailing, 7)
         }
         .overlay { finaleView }
-        .overlay { earlyBirdView }
         .overlay {
             if bigBurst > 0 {
                 ConfettiBurst(size: .big)
@@ -207,6 +229,9 @@ struct StampCardView: View {
             }
         }
         .frame(width: 38, height: 38)
+        .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { frame in
+            if number == StampMath.earlyBirdCell { earlyCellFrame = frame }
+        }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(cellLabel(number, isDone: isDone, gift: gift))
     }
@@ -237,7 +262,13 @@ struct StampCardView: View {
     @ViewBuilder
     private func earlyBirdCell(isDone: Bool) -> some View {
         let isNext = shown == StampMath.earlyBirdCell - 1
-        if isDone {
+        if isDone, needsEarlyBirdStage || earlyStage > 0 {
+            // 무대를 받기 전에는 보통 도장 칸이다. 방울은 받기를 누르면 이 칸으로 날아와 앉는다.
+            Circle().fill(Color.ink)
+            if let gift = stampGift(at: StampMath.earlyBirdCell) {
+                PrizeGlyph(gift: gift, size: 20)
+            }
+        } else if isDone {
             Circle().fill(.white)
             Circle().strokeBorder(Color.ink, lineWidth: 2)
             HStack(spacing: -7) {
@@ -295,70 +326,112 @@ struct StampCardView: View {
 
     // MARK: - 얼리버드 무대
 
-    /// 판을 어둡게 덮고 뒤로 빛살이 돌며 유리 방울 두 개가 차례로 튀어 오른다. 폭죽이 터지고 빛줄기가 두 번 지나간 뒤
-    /// 이름표가 튀어나온다(빌드 407 대표님 "좀 더 화려하게"). 단색 면·또렷한 선만(에어브러시 금지).
+    /// 판 밖 전체 무대(대표님 2026-11-19 확정 시안 `design/proto/earlybird-stage.html`). 7칸 도장이 찍히면 판이 흐려지며
+    /// 물러나고, 유리 방울 두 개가 칸에서 튀어나와 커지며 자리 잡는다. 폭죽이 터지고 방울 모양 안으로 흰 띠가 두 번 지나간 뒤
+    /// 제목·잔 이름·받기가 뜬다. 받기를 누르면 판이 돌아오고 방울이 7칸으로 날아가 앉는다. 먹색 면·빛살은 쓰지 않고
+    /// 판 바깥 딤 위에 그대로 띄운다(대표님 2026-11-19 "배경 없음", 빛살 "촌스러움"). 단색 면·또렷한 선만(에어브러시 금지).
     @ViewBuilder
-    private var earlyBirdView: some View {
+    private var earlyBirdStage: some View {
         if earlyStage > 0 {
             ZStack {
-                CouponShape(notchY: notchY)
-                    .fill(Color.ink.opacity(0.92))
-                VStack(spacing: 0) {
-                    HStack(spacing: 20) {
+                GeometryReader { proxy in
+                    let origin = proxy.frame(in: .global).origin
+                    let cell = CGPoint(x: earlyCellFrame.midX - origin.x, y: earlyCellFrame.midY - origin.y)
+                    let size = proxy.size
+                    let dropY: CGFloat = size.height * 0.426
+                    let titleY: CGFloat = size.height * 0.252
+                    ZStack {
+                        // 무대가 떠 있는 동안 아래 판·바깥 누르기를 막는다.
+                        Color.clear
+                            .contentShape(Rectangle())
+                        if dropBurst > 0, (2 ... 4).contains(earlyStage) {
+                            ConfettiBurst(size: .big)
+                                .id(dropBurst)
+                                .position(x: size.width / 2, y: dropY)
+                        }
+                        if titleBurst > 0, earlyStage == 4 {
+                            ConfettiBurst(size: .big)
+                                .id(titleBurst)
+                                .position(x: size.width / 2, y: titleY)
+                        }
+                        Text("얼리버드 선물")
+                            .font(AppFont.pretendard(34, .extraBold, relativeTo: .largeTitle))
+                            .tracking(-0.68)
+                            .foregroundStyle(.white)
+                            .multilineTextAlignment(.center)
+                            .frame(width: size.width - 48)
+                            .offset(y: earlyStage == 4 ? 0 : 16)
+                            .opacity(earlyStage == 4 ? 1 : 0)
+                            .animation(textAnimation(delay: 0), value: earlyStage)
+                            .position(x: size.width / 2, y: titleY)
                         ForEach(Array(perkItems.enumerated()), id: \.element.id) { index, item in
-                            Image(item.dropAsset)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 92, height: 92)
-                                .overlay { streakBand(item) }
-                                .scaleEffect(earlyStage >= 2 ? 1 : 0.2)
-                                .rotationEffect(.degrees(earlyStage >= 2 ? 0 : (index == 0 ? -30 : 30)))
-                                .offset(y: earlyStage >= 2 ? 0 : 40)
-                                .opacity(earlyStage >= 2 ? 1 : 0)
-                                .animation(
-                                    reduceMotion ? nil : .spring(response: 0.5, dampingFraction: 0.48).delay(Double(index) * 0.14),
-                                    value: earlyStage
-                                )
+                            let spot = CGPoint(x: size.width / 2 + (index == 0 ? -78 : 78), y: dropY)
+                            stageDrop(item, index: index, cell: cell, spot: spot)
+                            Text(verbatim: item.name)
+                                .font(AppFont.pretendard(16, .semibold, relativeTo: .headline))
+                                .foregroundStyle(.white)
+                                .multilineTextAlignment(.center)
+                                .frame(width: 150, height: 220, alignment: .top)
+                                .offset(y: earlyStage == 4 ? 0 : 10)
+                                .opacity(earlyStage == 4 ? 1 : 0)
+                                .animation(textAnimation(delay: 0.08 + Double(index) * 0.06), value: earlyStage)
+                                .position(x: spot.x, y: dropY + 80 + 110)
+                                .accessibilityIdentifier("stamp-early-name-\(index)")
                         }
                     }
-                    .background {
-                        SpinningRays(isOn: earlyStage >= 2)
-                            .frame(width: 420, height: 420)
-                    }
-                    .accessibilityHidden(true)
+                }
+                .ignoresSafeArea()
 
-                    Text("얼리버드 선물")
-                        .font(AppFont.pretendard(22, .bold, relativeTo: .title2))
-                        .foregroundStyle(.white)
-                        .padding(.top, 22)
-                        .scaleEffect(earlyStage >= 4 ? 1 : 0.6)
-                        .opacity(earlyStage >= 4 ? 1 : 0)
-                    Text(verbatim: perkItems.map(\.name).joined(separator: " · "))
-                        .font(AppFont.pretendard(17, .semibold, relativeTo: .headline))
-                        .foregroundStyle(Color(white: 0.85))
-                        .padding(.top, 8)
-                        .opacity(earlyStage >= 4 ? 1 : 0)
-                        .accessibilityIdentifier("stamp-early-names")
+                VStack {
+                    Spacer()
                     Button(action: takeEarlyBird) {
                         Text("받기")
-                            .font(AppFont.pretendard(16, .semibold, relativeTo: .body))
+                            .font(AppFont.pretendard(17, .semibold, relativeTo: .body))
                             .foregroundStyle(Color.ink)
-                            .padding(.horizontal, 28)
-                            .frame(minHeight: 44)
+                            .frame(maxWidth: .infinity, minHeight: 56)
                             .background(.white, in: Capsule())
                     }
-                    .opacity(earlyStage >= 4 ? 1 : 0)
-                    .disabled(earlyStage < 4)
-                    .padding(.top, 20)
+                    .offset(y: earlyStage == 4 ? 0 : 12)
+                    .opacity(earlyStage == 4 ? 1 : 0)
+                    .animation(textAnimation(delay: 0.14), value: earlyStage)
+                    .disabled(earlyStage != 4)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 12)
                     .accessibilityIdentifier("stamp-early-take")
                 }
-                .padding(.horizontal, 24)
             }
-            .clipShape(CouponShape(notchY: notchY))
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("stamp-early")
-            .transition(.opacity)
         }
+    }
+
+    /// 칸에서 튀어나와 자리 잡고(조금 넘쳤다 앉는다), 받기를 누르면 칸 안 두 자리(좌우 6pt, 19pt)로 돌아간다.
+    private func stageDrop(_ item: TradeItem, index: Int, cell: CGPoint, spot: CGPoint) -> some View {
+        let isOut = (2 ... 4).contains(earlyStage)
+        let isBack = earlyStage >= 5
+        let home = CGPoint(x: cell.x + (index == 0 ? -6 : 6), y: cell.y)
+        let scale: CGFloat = isOut ? 1 : (isBack ? 19.0 / 140.0 : 0.16)
+        let place: CGPoint = isOut ? spot : (isBack ? home : cell)
+        let flight: Animation = isBack
+            ? .timingCurve(0.65, 0, 0.35, 1, duration: 0.55).delay(0.05 + Double(index) * 0.06)
+            : .spring(response: 0.6, dampingFraction: 0.62).delay(Double(index) * 0.1)
+        return Image(item.dropAsset)
+            .resizable()
+            .scaledToFit()
+            .frame(width: 140, height: 140)
+            .overlay { streakBand(item) }
+            .scaleEffect(scale)
+            .rotationEffect(.degrees(earlyStage >= 2 ? 0 : (index == 0 ? -25 : 25)))
+            .opacity(earlyStage >= 2 ? 1 : 0)
+            .position(place)
+            .animation(reduceMotion ? nil : flight, value: earlyStage)
+            .accessibilityHidden(true)
+    }
+
+    /// 제목·이름·받기는 들어올 때 아래에서 떠오르고, 받기를 누르면 바로 흐려진다.
+    private func textAnimation(delay: Double) -> Animation? {
+        guard !reduceMotion else { return nil }
+        return earlyStage == 4 ? .timingCurve(0.23, 1, 0.32, 1, duration: 0.35).delay(delay) : .easeOut(duration: 0.15)
     }
 
     /// 방울 모양 안에서만 보이는 비스듬한 흰 띠.
@@ -368,8 +441,8 @@ struct StampCardView: View {
             let travel: CGFloat = width * 2
             let x: CGFloat = -width * 0.5 + travel * streak
             Rectangle()
-                .fill(Color.white.opacity(0.75))
-                .frame(width: 14, height: proxy.size.height * 1.6)
+                .fill(Color.white.opacity(0.8))
+                .frame(width: 16, height: proxy.size.height * 1.6)
                 .rotationEffect(.degrees(20))
                 .position(x: x, y: proxy.size.height / 2)
         }
@@ -384,16 +457,19 @@ struct StampCardView: View {
 
     private func playEarlyBird() async {
         streak = 0
-        withAnimation(.easeOut(duration: 0.25)) { earlyStage = 1 }
+        earlyStage = 1
         guard !reduceMotion, !Self.isScreenshotInstant else {
+            isCardHidden = true
             earlyStage = 4
             return
         }
-        try? await Task.sleep(for: .seconds(0.3))
+        try? await Task.sleep(for: .seconds(0.15))
+        withAnimation(.easeOut(duration: 0.3)) { isCardHidden = true }
+        try? await Task.sleep(for: .seconds(0.05))
         earlyStage = 2
+        try? await Task.sleep(for: .seconds(0.5))
+        dropBurst += 1
         try? await Task.sleep(for: .seconds(0.25))
-        bigBurst += 1
-        try? await Task.sleep(for: .seconds(0.6))
         guard !Task.isCancelled else { return }
         earlyStage = 3
         for _ in 0 ..< 2 {
@@ -402,87 +478,58 @@ struct StampCardView: View {
             withTransaction(reset) { streak = 0 }
             try? await Task.sleep(for: .milliseconds(30))
             withAnimation(.easeInOut(duration: 0.55)) { streak = 1 }
-            try? await Task.sleep(for: .seconds(0.65))
+            try? await Task.sleep(for: .seconds(0.6))
             guard !Task.isCancelled else { return }
         }
-        withAnimation(.spring(response: 0.4, dampingFraction: 0.55)) { earlyStage = 4 }
-        bigBurst += 1
+        earlyStage = 4
+        titleBurst += 1
     }
 
     private func takeEarlyBird() {
-        withAnimation(.easeOut(duration: 0.2)) { earlyStage = 0 }
+        guard earlyStage == 4 else { return }
+        guard !reduceMotion else {
+            isCardHidden = false
+            finishEarlyBird()
+            return
+        }
+        isPlaying = true
+        earlyStage = 5
+        withAnimation(.easeOut(duration: 0.25)) { isCardHidden = false }
+        Task {
+            try? await Task.sleep(for: .seconds(0.68))
+            finishEarlyBird()
+        }
+    }
+
+    /// 방울이 7칸에 앉은 순간. 칸에 작은 폭죽을 터뜨리고, 칸을 잠깐 보여 준 뒤 다음으로 넘어간다.
+    private func finishEarlyBird() {
+        earlyStage = 0
         earlyBirdDone = true
+        burstCell = StampMath.earlyBirdCell
+        burstID += 1
         onEarlyBirdSeen()
-        // 더 찍을 칸이 없으면 판을 닫는다. 오늘 화면이 닫힌 뒤 받은 잔을 교환처럼 잔에 적용한다(대표님 2026-11-18).
-        if shown >= stamped {
-            onClose()
-        } else {
-            playRun += 1
+        Task {
+            try? await Task.sleep(for: .seconds(reduceMotion ? 0.2 : 0.7))
+            isPlaying = false
+            // 더 찍을 칸이 없으면 판을 닫는다. 오늘 화면이 닫힌 뒤 받은 잔을 교환처럼 잔에 적용한다(대표님 2026-11-18).
+            if shown >= stamped {
+                onClose()
+            } else {
+                playRun += 1
+            }
         }
     }
 
     // MARK: - 14칸
 
+    /// 14칸 판(대표님 2026-11-21 확정 시안 `design/proto/stamp-flow.html`). 잔 세트면 멈춘 룰렛이 뜨고 "돌리기"가 두근거린다.
+    /// 누르면 돌고(`RouletteMotion`), 도는 동안 멘트는 "뭐가 나올까" → "과연?", 받기는 흐린 채 자리를 지킨다.
+    /// 다 가졌으면 룰렛 없이 병뚜껑 3개와 받기.
     @ViewBuilder
     private var finaleView: some View {
         if let finale {
-            HStack(spacing: 22) {
-                ZStack(alignment: .top) {
-                    switch finale {
-                    case .cup:
-                        VStack(spacing: 0) {
-                            ForEach(Array(reelSequence.enumerated()), id: \.offset) { _, item in
-                                // 룰렛은 잔이 아니라 그 잔의 먹이기 방울로 돈다(대표님 2026-11-05).
-                                Image(item.dropAsset)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 80, height: 80)
-                                    .frame(width: Self.windowSize.width, height: Self.windowSize.height)
-                            }
-                        }
-                        .offset(y: reelOffset)
-                    case .caps:
-                        // 세 줄로 쌓으면 창(104pt)을 넘어 위아래가 잘린다. 둘·하나 삼각형으로 놓는다.
-                        VStack(spacing: 4) {
-                            HStack(spacing: 4) {
-                                ForEach(capGifts.prefix(2), id: \.id) { gift in capGlyph(gift) }
-                            }
-                            HStack(spacing: 4) {
-                                ForEach(capGifts.dropFirst(2), id: \.id) { gift in capGlyph(gift) }
-                            }
-                        }
-                        .frame(width: Self.windowSize.width, height: Self.windowSize.height)
-                    }
-                }
-                .frame(width: Self.windowSize.width, height: Self.windowSize.height, alignment: .top)
-                .clipped()
-                .background(Color.wall, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                .accessibilityHidden(true)
-
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(finale == .caps ? "14일 선물" : "14일 룰렛")
-                        .font(AppFont.pretendard(22, .bold, relativeTo: .title2))
-                        .foregroundStyle(Color.ink)
-                    Text(isSettled ? finaleName : " ")
-                        .font(AppFont.pretendard(17, .semibold, relativeTo: .headline))
-                        .foregroundStyle(Color(white: 0.25))
-                        .padding(.top, 8)
-                        .accessibilityIdentifier("stamp-pick")
-                    Button(action: takeFinale) {
-                        Text("받기")
-                            .font(AppFont.pretendard(16, .semibold, relativeTo: .body))
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 28)
-                            .frame(minHeight: 44)
-                            .background(Color.ink, in: Capsule())
-                    }
-                    .opacity(isSettled ? 1 : 0)
-                    .disabled(!isSettled)
-                    .padding(.top, 18)
-                    .accessibilityIdentifier("stamp-take")
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
+            TimelineView(.animation(minimumInterval: nil, paused: !isRouletteMoving)) { timeline in
+                finaleRow(finale, now: timeline.date)
             }
             .padding(.horizontal, 26)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -491,8 +538,179 @@ struct StampCardView: View {
         }
     }
 
+    private func finaleRow(_ finale: Finale, now: Date) -> some View {
+        let t = rollTime(now: now)
+        let sinceLand = t.map { $0 - RouletteMotion.landAt }
+        let position = t.map { RouletteMotion.reel(at: min($0, RouletteMotion.landAt), stop: reelStop) } ?? 0
+        let revealScale = sinceLand.map { RouletteMotion.reveal(at: $0 - RouletteMotion.revealAt) } ?? 1
+        let isRolling = rollStart != nil && !isSettled
+        let isArmed = finale != .caps && rollStart == nil && !isSettled && !reduceMotion
+        let pulse: Double = isArmed ? RouletteMotion.pulse(at: now.timeIntervalSince(armedAt ?? now)) : 1
+        return HStack(spacing: 22) {
+            rouletteWindow(finale, now: now, position: position, sinceLand: sinceLand)
+
+            VStack(alignment: .leading, spacing: 0) {
+                Text(finale == .caps ? "14일 선물" : "14일 룰렛")
+                    .font(AppFont.pretendard(22, .bold, relativeTo: .title2))
+                    .foregroundStyle(Color.ink)
+                pick(finale, t: t)
+                    .scaleEffect(isSettled ? revealScale : 1, anchor: .leading)
+                    .padding(.top, 8)
+                    .accessibilityIdentifier("stamp-pick")
+                finaleButton(finale, isRolling: isRolling)
+                    .scaleEffect(isSettled ? revealScale : pulse)
+                    .padding(.top, 18)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    /// 누르기 전 "돌리기", 도는 동안 흐린 "받기"(자리만 지킴), 멈추면 "받기".
+    private func finaleButton(_ finale: Finale, isRolling: Bool) -> some View {
+        let isArmed = rollStart == nil && !isSettled
+        let isHidden = finale == .caps && !isSettled
+        let fill: Color = isRolling ? Self.offFill : Color.ink
+        let ink: Color = isRolling ? Self.offText : Color.white
+        return Button(action: pressFinale) {
+            Text(isArmed ? "돌리기" : "받기")
+                .font(AppFont.pretendard(16, .semibold, relativeTo: .body))
+                .foregroundStyle(ink)
+                .padding(.horizontal, 24)
+                .frame(minHeight: 44)
+                .background(fill, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        }
+        .opacity(isHidden ? 0 : 1)
+        .disabled(isRolling || isHidden)
+        .accessibilityIdentifier(isArmed ? "stamp-roll" : "stamp-take")
+    }
+
+    private static let offFill = Color(red: 0xE4 / 255, green: 0xE4 / 255, blue: 0xE7 / 255)
+    private static let offText = Color(red: 0xA1 / 255, green: 0xA1 / 255, blue: 0xAA / 255)
+
+    /// 결과가 나오기 전 멘트는 흐린 회색, 멈출 듯할 때 "과연?"으로 바뀌며 4pt 올라온다.
+    @ViewBuilder
+    private func pick(_ finale: Finale, t: Double?) -> some View {
+        if isSettled {
+            Text(verbatim: finaleName)
+                .font(AppFont.pretendard(17, .semibold, relativeTo: .headline))
+                .foregroundStyle(Color(white: 0.25))
+        } else if finale == .caps {
+            Text(verbatim: " ")
+                .font(AppFont.pretendard(17, .semibold, relativeTo: .headline))
+        } else {
+            let elapsed: Double = t ?? 0
+            let isDoubt = elapsed >= RouletteMotion.doubtAt
+            let settle: Double = Motion.seg(elapsed, RouletteMotion.doubtAt, RouletteMotion.doubtAt + 0.2, Ease.power2Out)
+            let rise: Double = isDoubt ? 4 * (1 - settle) : 0
+            Text(isDoubt ? "과연?" : "뭐가 나올까")
+                .font(AppFont.pretendard(17, .semibold, relativeTo: .headline))
+                .foregroundStyle(Self.offText)
+                .offset(y: rise)
+        }
+    }
+
+    /// 먹색 선 하나로 두른 창. 안에서 방울 릴이 돌고, 양옆 걸쇠가 칸마다 튕긴다. 당첨 방울은 창 밖으로 튀어나왔다 들어간다.
+    private func rouletteWindow(_ finale: Finale, now: Date, position: Double, sinceLand: Double?) -> some View {
+        let won = reelSequence.indices.contains(reelStop) ? reelSequence[reelStop] : nil
+        let isPopping = sinceLand.map { $0 >= 0 && $0 < RouletteMotion.popEnd } ?? false
+        let flap = lastTick.map { RouletteMotion.flap(sinceTick: now.timeIntervalSince($0)) } ?? 0
+        return ZStack {
+            switch finale {
+            case .cup:
+                VStack(spacing: 0) {
+                    ForEach(Array(reelSequence.enumerated()), id: \.offset) { index, item in
+                        // 룰렛은 잔이 아니라 그 잔의 먹이기 방울로 돈다(대표님 2026-11-05).
+                        Image(item.dropAsset)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: Self.reelDrop, height: Self.reelDrop)
+                            .frame(width: Self.windowSize.width, height: Self.windowSize.height)
+                            .opacity(isPopping && index == reelStop ? 0 : 1)
+                    }
+                }
+                .offset(y: -CGFloat(position) * Self.windowSize.height)
+                .frame(width: Self.windowSize.width, height: Self.windowSize.height, alignment: .top)
+                .clipped()
+                .overlay {
+                    if let won, let x = sinceLand.flatMap(RouletteMotion.shine(at:)) {
+                        shineBand(won, x: x)
+                    }
+                }
+            case .caps:
+                // 세 줄로 쌓으면 창을 넘어 위아래가 잘린다. 둘·하나 삼각형으로 놓는다.
+                VStack(spacing: 6) {
+                    HStack(spacing: 6) {
+                        ForEach(capGifts.prefix(2), id: \.id) { gift in capGlyph(gift) }
+                    }
+                    HStack(spacing: 6) {
+                        ForEach(capGifts.dropFirst(2), id: \.id) { gift in capGlyph(gift) }
+                    }
+                }
+                .frame(width: Self.windowSize.width, height: Self.windowSize.height)
+            }
+        }
+        .overlay {
+            if finale != .caps {
+                HStack(spacing: 0) {
+                    Flap()
+                        .fill(Color.ink)
+                        .frame(width: 10, height: 14)
+                        .rotationEffect(.degrees(flap), anchor: .leading)
+                    Spacer(minLength: 0)
+                    Flap()
+                        .fill(Color.ink)
+                        .frame(width: 10, height: 14)
+                        .scaleEffect(x: -1, y: 1)
+                        .rotationEffect(.degrees(-flap), anchor: .trailing)
+                }
+            }
+        }
+        .padding(2)
+        .background(.white)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(Color.ink, lineWidth: 2)
+        }
+        .overlay {
+            if let won, isPopping, let sinceLand {
+                let pop = RouletteMotion.pop(at: sinceLand)
+                Image(won.dropAsset)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: Self.reelDrop, height: Self.reelDrop)
+                    .scaleEffect(pop.scale)
+                    .offset(y: -pop.rise)
+            }
+        }
+        .overlay {
+            if landBurst > 0 {
+                ConfettiBurst(size: .big)
+                    .id(landBurst)
+            }
+        }
+        .accessibilityHidden(true)
+    }
+
+    /// 당첨 방울 모양 안에서만 보이는 비스듬한 흰 띠.
+    private func shineBand(_ item: TradeItem, x: Double) -> some View {
+        let width = Self.reelDrop
+        return Rectangle()
+            .fill(Color.white.opacity(0.8))
+            .frame(width: 14, height: width * 1.6)
+            .rotationEffect(.degrees(20))
+            .position(x: -width * 0.4 + width * 1.7 * x, y: width / 2)
+            .frame(width: width, height: width)
+            .mask {
+                Image(item.dropAsset)
+                    .resizable()
+                    .scaledToFit()
+            }
+            .allowsHitTesting(false)
+    }
+
     private func capGlyph(_ gift: GiftEvent) -> some View {
-        PrizeGlyph(gift: gift, size: 28)
+        PrizeGlyph(gift: gift, size: 34)
             .scaleEffect(isSettled || reduceMotion ? 1 : 0.3)
             .opacity(isSettled || reduceMotion ? 1 : 0)
     }
@@ -509,11 +727,68 @@ struct StampCardView: View {
         }
     }
 
-    /// 4바퀴 돈 뒤 받은 잔에서 멈춘다.
+    /// 4바퀴 돈 뒤 받은 잔에서 멈춘다. 당첨 아래에 다음 방울 하나를 더 둬서 끝에 반쯤 올라왔다 되돌아가는 게 보이게 한다.
     private var reelSequence: [TradeItem] {
         guard case .cup(let id) = finale, let won = TradeCatalog.item(id) else { return [] }
         let loop = reel.isEmpty ? [won] : reel
-        return Array(repeating: loop, count: 4).flatMap { $0 } + [won]
+        let next = loop.firstIndex { $0.id == won.id }.map { loop[($0 + 1) % loop.count] } ?? loop[0]
+        return Array(repeating: loop, count: 4).flatMap { $0 } + [won, next]
+    }
+
+    /// 당첨 방울 칸 번호.
+    private var reelStop: Int { max(0, reelSequence.count - 2) }
+
+    /// "돌리기"를 누른 뒤 흐른 시각. 누르기 전이면 nil, 바로 멈춘 자리(동작 줄이기·스크린샷)면 다 끝난 시각.
+    private func rollTime(now: Date) -> Double? {
+        if let frozen = Self.screenshotRollAt { return frozen }
+        if let rollStart { return now.timeIntervalSince(rollStart) }
+        return isSettled ? RouletteMotion.landAt + RouletteMotion.revealAt + 1 : nil
+    }
+
+    /// 두근거림·회전·팡·이름이 떠오르는 동안만 매 프레임 그린다.
+    private var isRouletteMoving: Bool {
+        guard case .cup = finale, !reduceMotion, Self.screenshotRollAt == nil else { return false }
+        return !isRevealDone
+    }
+
+    private func pressFinale() {
+        if isSettled {
+            takeFinale()
+        } else if case .cup = finale, rollStart == nil {
+            guard !reduceMotion else {
+                isSettled = true
+                bigBurst += 1
+                return
+            }
+            isPlaying = true
+            rollStart = Date()
+        }
+    }
+
+    /// 릴이 도는 동안 칸이 넘어갈 때마다 틱(걸쇠·햅틱), 앉으면 폭죽, 띠가 지나간 뒤 이름과 받기.
+    private func runRoll() async {
+        guard let start = rollStart, Self.screenshotRollAt == nil else { return }
+        var last = 0
+        while !Task.isCancelled {
+            let t = Date().timeIntervalSince(start)
+            if t >= RouletteMotion.landAt { break }
+            let cell = RouletteMotion.cell(at: RouletteMotion.reel(at: t, stop: reelStop))
+            if cell != last {
+                last = cell
+                ticks += 1
+                lastTick = Date()
+            }
+            try? await Task.sleep(for: .milliseconds(8))
+        }
+        guard !Task.isCancelled else { return }
+        landBurst += 1
+        try? await Task.sleep(for: .seconds(RouletteMotion.revealAt))
+        guard !Task.isCancelled else { return }
+        isSettled = true
+        bigBurst += 1
+        isPlaying = false
+        try? await Task.sleep(for: .seconds(0.45))
+        isRevealDone = true
     }
 
     private func takeFinale() {
@@ -584,21 +859,29 @@ struct StampCardView: View {
         #endif
     }
 
+    /// CI 스크린샷(Debug `-screenshotStampRollAt 4.3`): "돌리기"를 누른 뒤 그 시각에 멈춘 룰렛.
+    private static var screenshotRollAt: Double? {
+        #if DEBUG
+        return UserDefaults.standard.object(forKey: "screenshotStampRollAt") != nil
+            ? UserDefaults.standard.double(forKey: "screenshotStampRollAt") : nil
+        #else
+        return nil
+        #endif
+    }
+
     private func playFinale() async {
         guard let first = capGifts.first else { return }
         if let set = Self.setID(of: first), TradeCatalog.item(set) != nil {
+            armedAt = Date()
             withAnimation(.easeOut(duration: 0.25)) { finale = .cup(set) }
-            guard !reduceMotion, !Self.isScreenshotInstant else {
-                reelOffset = -CGFloat(reelSequence.count - 1) * Self.windowSize.height
+            if Self.isScreenshotInstant {
                 isSettled = true
                 bigBurst += 1
-                return
+            } else if Self.screenshotRollAt != nil {
+                rollStart = Date()
             }
-            try? await Task.sleep(for: .seconds(0.35))
-            withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 3.2)) {
-                reelOffset = -CGFloat(reelSequence.count - 1) * Self.windowSize.height
-            }
-            try? await Task.sleep(for: .seconds(3.2))
+            // 누를 때까지 멈춰 기다린다(대표님 2026-11-20 "테무에서 배워야"). 받기 버튼처럼 닫기는 여기서 풀린다.
+            return
         } else {
             withAnimation(.easeOut(duration: 0.25)) { finale = .caps }
             try? await Task.sleep(for: .seconds(0.35))
@@ -650,6 +933,18 @@ private struct Line: Shape {
         Path { path in
             path.move(to: CGPoint(x: rect.minX, y: rect.midY))
             path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
+        }
+    }
+}
+
+/// 룰렛 걸쇠: 창 안쪽 가장자리에서 가운데를 가리키는 삼각형.
+private struct Flap: Shape {
+    func path(in rect: CGRect) -> Path {
+        Path { path in
+            path.move(to: CGPoint(x: rect.minX, y: rect.minY))
+            path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
+            path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+            path.closeSubpath()
         }
     }
 }
@@ -745,47 +1040,5 @@ private struct GoldFoilGlyph: View {
     private var glyph: some View {
         Image(systemName: systemName)
             .font(.system(size: size, weight: .semibold))
-    }
-}
-
-/// 얼리버드 무대 뒤에서 천천히 도는 빛살. 흰 쐐기 면(옅은 단색)만, 번짐 없음. 켜질 때 작게 시작해 펼쳐진다.
-private struct SpinningRays: View {
-    let isOn: Bool
-
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    var body: some View {
-        TimelineView(.animation(paused: reduceMotion || !isOn)) { context in
-            let t: Double = context.date.timeIntervalSinceReferenceDate
-            let angle: Double = reduceMotion ? 0 : (t * 18).truncatingRemainder(dividingBy: 360)
-            RayWedges(count: 14)
-                .fill(Color.white.opacity(0.09))
-                .rotationEffect(.degrees(angle))
-        }
-        .scaleEffect(isOn ? 1 : 0.3)
-        .opacity(isOn ? 1 : 0)
-        .animation(reduceMotion ? nil : .spring(response: 0.7, dampingFraction: 0.7), value: isOn)
-        .allowsHitTesting(false)
-        .accessibilityHidden(true)
-    }
-}
-
-private struct RayWedges: Shape {
-    let count: Int
-
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        let center = CGPoint(x: rect.midX, y: rect.midY)
-        let radius: Double = Double(max(rect.width, rect.height))
-        let step: Double = 2 * Double.pi / Double(count)
-        for index in 0 ..< count {
-            let a0: Double = Double(index) * step
-            let a1: Double = a0 + step / 2
-            path.move(to: center)
-            path.addLine(to: CGPoint(x: Double(center.x) + cos(a0) * radius, y: Double(center.y) + sin(a0) * radius))
-            path.addLine(to: CGPoint(x: Double(center.x) + cos(a1) * radius, y: Double(center.y) + sin(a1) * radius))
-            path.closeSubpath()
-        }
-        return path
     }
 }

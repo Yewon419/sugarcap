@@ -99,7 +99,5 @@ GitHub > Actions > **iOS** > **Run workflow** (main 브랜치).
 
 ## 아직 플레이스홀더인 것
 
-- **앱 아이콘** — `SugarCap/Resources/Assets.xcassets/AppIcon.appiconset/icon-1024.png` 는
-  업로드 검증을 통과시키려고 코드로 그린 임시 이미지다. 실제 아이콘으로 교체해야 한다.
 - **카인 · 로슈 스프라이트** — Phase 1c에서 임시 이미지로 채운다. 최종 원화로 교체 전제.
 - **루트 화면** — Phase 1a는 파이프라인 확인용 한 장짜리다. Phase 1c에서 오늘 화면으로 교체한다.

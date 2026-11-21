@@ -142,4 +142,22 @@ final class StampTests: XCTestCase {
         let resolved = await EarlyBird.resolve(defaults)
         XCTAssertEqual(resolved, false, "저장된 판정이 있으면 영수증을 다시 읽지 않는다")
     }
+
+    /// 룰렛 시간표(대표님 2026-11-21 시안): 당첨 칸에 앉고, 끝에 다음 방울이 반쯤 올라와도 칸이 넘어가지 않는다.
+    func testRouletteLandsOnStopWithoutTickingPastIt() {
+        let stop = 17
+        XCTAssertEqual(RouletteMotion.reel(at: 0, stop: stop), 0)
+        XCTAssertEqual(RouletteMotion.reel(at: RouletteMotion.landAt, stop: stop), Double(stop), accuracy: 1e-9)
+        XCTAssertEqual(RouletteMotion.cell(at: RouletteMotion.reel(at: RouletteMotion.doubtAt - 0.01, stop: stop)), stop - 1)
+        var t = RouletteMotion.doubtAt
+        while t <= RouletteMotion.landAt {
+            let position = RouletteMotion.reel(at: t, stop: stop)
+            XCTAssertLessThan(position, Double(stop) + 0.5, "t \(t): 다음 칸으로 넘어가면 안 된다")
+            XCTAssertGreaterThan(position, Double(stop) - 1.5, "t \(t)")
+            t += 0.01
+        }
+        XCTAssertEqual(RouletteMotion.pop(at: 0).scale, 1, accuracy: 1e-9)
+        XCTAssertEqual(RouletteMotion.pop(at: RouletteMotion.popGrow + 0.1).scale, 1.6, accuracy: 1e-9)
+        XCTAssertEqual(RouletteMotion.pop(at: RouletteMotion.popEnd).scale, 1, accuracy: 1e-9)
+    }
 }

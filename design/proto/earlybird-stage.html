@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>슈가캡 · 얼리버드 받는 무대 (시안)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<style>
+  /* 얼리버드 받는 무대 개편 시안(대표님 2026-11-19 "받는 연출을 전체적으로 개선", A안 판 밖 전체 무대).
+     좌표는 폰 pt(402×874). ?z=배율.
+     흐름: 7칸 도장 → 그 칸에서 먹색 원이 화면 전체로 번지며 방울 둘이 튀어나와 커진다 → 착지·폭죽·유리 반짝임
+     → 제목·잔 이름·받기 → 받기 누르면 방울이 7칸으로 돌아가고 먹색이 그 칸으로 오므라든다 → 7칸에 두 방울.
+     에어브러시 없음: 단색 면·또렷한 선만. */
+  * { box-sizing: border-box; margin: 0; }
+  html, body { background: #E4E4E7; font-family: "Pretendard", sans-serif; color: #18181B; }
+  body { display: flex; gap: 32px; padding: 32px; align-items: flex-start; }
+  .frame { width: 402px; height: 874px; position: relative; flex: none; transform-origin: 0 0; }
+  .stage { position: absolute; inset: 0; overflow: hidden; border-radius: 44px; background: #F4F4F5; }
+  .bg { position: absolute; left: -5px; top: 70px; width: 413px; height: 734px; object-fit: cover; }
+  .dim { position: absolute; inset: 0; background: rgba(0,0,0,.5); }
+
+  .card { position: absolute; left: 24px; right: 24px; top: 328px; background: #fff; border-radius: 16px; --py: 76px;
+    -webkit-mask: radial-gradient(circle 9px at 0 var(--py), #0000 8.5px, #000 9px), radial-gradient(circle 9px at 100% var(--py), #0000 8.5px, #000 9px);
+    -webkit-mask-composite: source-in; mask-composite: intersect; }
+  .card .top { padding: 22px 22px 18px; display: flex; align-items: baseline; justify-content: space-between; }
+  .card h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+  .count { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; margin-right: 34px; }
+  .count small { font-size: 15px; font-weight: 500; color: #A1A1AA; }
+  .x { position: absolute; right: 14px; top: 16px; width: 30px; height: 30px; border-radius: 50%; background: #F4F4F5; display: grid; place-items: center; }
+  .x svg { width: 11px; height: 11px; }
+  .perf { position: relative; height: 18px; }
+  .perf i { position: absolute; left: 16px; right: 16px; top: 8.5px; border-top: 1.5px dashed #D4D4D8; }
+  .grid { padding: 14px 18px 6px; display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 14px; justify-items: center; }
+  .cell { position: relative; width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid #D4D4D8; display: grid; place-items: center; }
+  .cell .n { font-size: 12px; font-weight: 600; color: #A1A1AA; font-variant-numeric: tabular-nums; }
+  .cell.done { border-color: #18181B; background: #18181B; }
+  .cell.done svg { width: 22px; height: 22px; }
+  .cell.eb { border: 1.5px dashed #18181B; }
+  .cell.eb .q { font-size: 17px; font-weight: 800; color: #18181B; }
+  .cell.eb.won { border: 2px solid #18181B; background: #fff; }
+  .cell .pair { position: relative; width: 34px; height: 22px; }
+  .cell .pair img { position: absolute; top: 0; width: 22px; height: 22px; }
+  .cell .pair img:first-child { left: 0; }
+  .cell .pair img:last-child { right: 0; }
+  .note { padding: 14px 22px 22px; font-size: 14px; font-weight: 500; color: #71717A; text-align: center; }
+
+  /* 무대: 먹색 면 없음. 기존 딤 위에서 판만 잠깐 숨긴다(대표님 2026-11-19 "배경 없음"). */
+  .drop { position: absolute; width: 140px; height: 140px; margin: -70px 0 0 -70px; opacity: 0; pointer-events: none; }
+  .drop img { width: 100%; height: 100%; display: block; }
+  .drop .shine { position: absolute; inset: 0; overflow: hidden;
+    -webkit-mask-size: 100% 100%; mask-size: 100% 100%; }
+  .drop .shine i { position: absolute; top: -30%; left: -40%; width: 16px; height: 160%; background: #fff; opacity: .8; transform: rotate(20deg); }
+  .name { position: absolute; top: 462px; width: 160px; margin-left: -80px; text-align: center; font-size: 16px; font-weight: 600; color: #FFFFFF; opacity: 0; }
+  #n0 { left: 123px; } #n1 { left: 279px; }
+  #title { position: absolute; left: 0; right: 0; top: 200px; text-align: center; color: #fff; font-size: 34px; font-weight: 800; letter-spacing: -0.68px; opacity: 0; }
+  #take { position: absolute; left: 24px; right: 24px; bottom: 42px; height: 56px; border-radius: 28px; border: 0; background: #fff; color: #18181B; font: 600 17px "Pretendard"; opacity: 0; pointer-events: none; cursor: pointer; }
+  .bit { position: absolute; width: 8px; height: 12px; pointer-events: none; }
+
+  .panel { width: 280px; font-size: 13px; line-height: 1.6; color: #3F3F46; }
+  .panel h1 { font-size: 16px; margin-bottom: 10px; }
+  .panel button { display: block; width: 100%; margin: 6px 0; padding: 9px 12px; border: 1px solid #D4D4D8; background: #fff; border-radius: 8px; font: 500 13px "Pretendard"; text-align: left; cursor: pointer; }
+  .panel button.on { border-color: #18181B; font-weight: 700; }
+  .panel p { margin-top: 14px; }
+</style>
+</head>
+<body>
+<div class="frame" id="frame">
+  <div class="stage" id="stage">
+    <img class="bg" src="stamp-img/bg.png" alt="">
+    <div class="dim"></div>
+    <div class="card" id="card">
+      <div class="top"><h2>2주 스탬프</h2><div class="count"><span id="cnt">6</span> <small>/ 14</small></div></div>
+      <div class="x"><svg viewBox="0 0 12 12" stroke="#18181B" stroke-width="1.8" stroke-linecap="round"><path d="M1.5 1.5l9 9M10.5 1.5l-9 9"/></svg></div>
+      <div class="perf"><i></i></div>
+      <div class="grid" id="grid"></div>
+      <div class="note">밤에 돌아와서 마감 시 스탬프를 적립!</div>
+    </div>
+
+    <div id="title">얼리버드 선물</div>
+    <div class="drop" id="d0"><img src="stamp-img/drop-glass-soda.png" alt=""><div class="shine"><i></i></div></div>
+    <div class="drop" id="d1"><img src="stamp-img/drop-glass-beans.png" alt=""><div class="shine"><i></i></div></div>
+    <div class="name" id="n0">유리 과일 소다</div>
+    <div class="name" id="n1">유리 원두</div>
+    <button id="take">받기</button>
+  </div>
+</div>
+
+<div class="panel">
+  <h1>동작</h1>
+  <button id="play">마감 한 번 (7칸 찍기 → 무대)</button>
+  <button id="reset">처음으로</button>
+  <h1 style="margin-top:18px">속도</h1>
+  <button data-speed="1" class="on">1배</button>
+  <button data-speed="0.25">0.25배 (프레임 확인)</button>
+  <h1 style="margin-top:18px">동작 줄이기</h1>
+  <button id="rm">끔</button>
+  <p>바뀐 점<br>
+  · 화면 전체가 무대. 먹색 면 없이 기존 딤 위에서, 판은 무대 동안 흐려져 물러난다.<br>
+  · 방울 140pt, 위아래 여백 확보. 잔 이름은 각 방울 밑에.<br>
+  · 받기는 먹이기 요약 "완료"와 같은 자리·크기(아래 꽉 찬 버튼).<br>
+  · 받으면 판이 다시 나타나고 방울이 7칸으로 날아 들어간다. 7칸엔 두 방울이 나란히.</p>
+</div>
+
+<script>
+const q = new URLSearchParams(location.search);
+const z = parseFloat(q.get("z") || "1");
+const frame = document.getElementById("frame");
+frame.style.transform = `scale(${z})`;
+if (z !== 1) { frame.style.marginRight = `${402 * (z - 1)}px`; frame.style.marginBottom = `${874 * (z - 1)}px`; }
+
+const heart = '<svg viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7C19.5 15.9 12 20.5 12 20.5z" fill="#E9C9A0"/></svg>';
+const grid = document.getElementById("grid");
+let reduceMotion = false;
+
+function buildGrid(won) {
+  grid.innerHTML = "";
+  for (let n = 1; n <= 14; n++) {
+    const c = document.createElement("div");
+    c.className = "cell";
+    if (n <= 6) { c.classList.add("done"); c.innerHTML = heart; }
+    else if (n === 7) {
+      c.classList.add("eb"); c.id = "c7";
+      c.innerHTML = won
+        ? '<div class="pair"><img src="stamp-img/drop-glass-soda.png"><img src="stamp-img/drop-glass-beans.png"></div>'
+        : '<span class="q">?</span>';
+      if (won) c.classList.add("won");
+    } else c.innerHTML = `<span class="n">${n}</span>`;
+    grid.appendChild(c);
+  }
+  document.getElementById("cnt").textContent = won ? 7 : 6;
+}
+
+
+// 방울 반짝 띠는 방울 모양 안에서만.
+for (const [id, src] of [["d0", "drop-glass-soda"], ["d1", "drop-glass-beans"]]) {
+  const s = document.querySelector(`#${id} .shine`);
+  s.style.webkitMaskImage = s.style.maskImage = `url(stamp-img/${src}.png)`;
+}
+
+const colors = ["#D9A441", "#F56B87", "#54ADF2", "#66CC85", "#FCC938", "#FFFFFF"];
+const stage = document.getElementById("stage");
+function burst(x, y, count, power) {
+  if (reduceMotion) return;
+  for (let i = 0; i < count; i++) {
+    const b = document.createElement("div");
+    b.className = "bit";
+    b.style.background = colors[i % colors.length];
+    b.style.left = `${x - 4}px`; b.style.top = `${y - 6}px`;
+    stage.appendChild(b);
+    const ang = Math.random() * Math.PI * 2, dist = power * (0.5 + Math.random() * 0.6);
+    gsap.timeline({ onComplete: () => b.remove() })
+      .to(b, { x: Math.cos(ang) * dist, y: Math.sin(ang) * dist - power * 0.3, rotation: Math.random() * 540 - 270, duration: 0.55, ease: "power3.out" })
+      .to(b, { y: `+=${power * 0.9}`, opacity: 0, duration: 0.9, ease: "power1.in" });
+  }
+}
+
+function cellCenter() {
+  const c = document.getElementById("c7").getBoundingClientRect(), s = stage.getBoundingClientRect();
+  return { x: (c.left + c.width / 2 - s.left) / z, y: (c.top + c.height / 2 - s.top) / z };
+}
+
+const spots = [{ x: 123, y: 372 }, { x: 279, y: 372 }];
+let tl = null;
+
+function reset() {
+  if (tl) tl.kill();
+  buildGrid(false);
+  gsap.set("#card", { opacity: 1 });
+  gsap.set(["#title", ".name", "#take", ".drop"], { clearProps: "all" });
+  document.getElementById("take").style.pointerEvents = "none";
+}
+
+function play() {
+  reset();
+  const c = cellCenter();
+  const cell = document.getElementById("c7");
+  if (reduceMotion) {
+    gsap.set("#card", { opacity: 0 });
+    spots.forEach((s, i) => gsap.set(`#d${i}`, { left: s.x, top: s.y, opacity: 1 }));
+    gsap.set(["#title", ".name", "#take"], { opacity: 1 });
+    document.getElementById("take").style.pointerEvents = "auto";
+    return;
+  }
+  tl = gsap.timeline();
+  // 1) 7칸 도장: 칸이 먹색으로 찍힌다.
+  tl.to(cell, { scale: 0.82, duration: 0.12, ease: "power2.in" })
+    .add(() => { cell.style.background = "#18181B"; cell.innerHTML = ""; })
+    .to(cell, { scale: 1, duration: 0.35, ease: "back.out(3)" })
+  // 2) 판이 흐려지며 물러난다(방울·이름이 판에 겹치지 않게).
+    .to("#card", { opacity: 0, duration: 0.3, ease: "power2.out" }, "+=0.15")
+  // 3) 방울 둘이 칸에서 튀어나와 커지며 제자리로(조금 넘쳤다 앉는다).
+  spots.forEach((s, i) => {
+    tl.fromTo(`#d${i}`, { left: c.x, top: c.y, scale: 0.16, opacity: 1, rotation: i ? 25 : -25 },
+      { left: s.x, top: s.y, scale: 1, rotation: 0, duration: 0.7, ease: "back.out(1.6)" }, i ? "<0.1" : "-=0.25");
+  });
+  tl.add(() => burst(201, 372, 44, 190), "-=0.2")
+  // 4) 착지 뒤 유리 반짝 두 번(방울 모양 안에서만).
+  for (let k = 0; k < 2; k++) {
+    tl.fromTo(".drop .shine i", { left: "-40%" }, { left: "130%", duration: 0.55, ease: "power2.inOut", stagger: 0.1 }, k ? "+=0.05" : "+=0.05");
+  }
+  // 5) 제목·잔 이름·받기.
+  tl.fromTo("#title", { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: "power3.out" }, "-=0.6")
+    .fromTo(".name", { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: "power3.out", stagger: 0.06 }, "<0.08")
+    .fromTo("#take", { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: "power3.out" }, "<0.1")
+    .add(() => { document.getElementById("take").style.pointerEvents = "auto"; burst(201, 230, 24, 140); });
+}
+
+function take() {
+  document.getElementById("take").style.pointerEvents = "none";
+  const c = cellCenter();
+  const done = () => { buildGrid(true); gsap.set(".drop", { opacity: 0 }); const nc = cellCenter(); burst(nc.x, nc.y, 12, 50);
+    gsap.fromTo("#c7", { scale: 0.8 }, { scale: 1, duration: 0.4, ease: "back.out(3)" }); };
+  if (reduceMotion) {
+    gsap.set(["#title", ".name", "#take"], { opacity: 0 });
+    gsap.set("#card", { opacity: 1 });
+    done();
+    return;
+  }
+  tl = gsap.timeline({ onComplete: done });
+  tl.to(["#title", ".name", "#take"], { opacity: 0, duration: 0.15, ease: "power2.out" })
+    .to("#card", { opacity: 1, duration: 0.25, ease: "power2.out" }, "<");
+  // 방울이 7칸으로 날아가 칸 안 두 자리(좌우 6pt)에 앉는다.
+  [-6, 6].forEach((dx, i) => {
+    tl.to(`#d${i}`, { left: c.x + dx, top: c.y, scale: 22 / 140, duration: 0.55, ease: "power3.inOut" }, i ? "<0.06" : "<0.05");
+  });
+}
+
+document.getElementById("play").onclick = play;
+document.getElementById("reset").onclick = reset;
+document.getElementById("take").onclick = take;
+document.querySelectorAll("[data-speed]").forEach(b => b.onclick = () => {
+  document.querySelectorAll("[data-speed]").forEach(x => x.classList.remove("on"));
+  b.classList.add("on");
+  gsap.globalTimeline.timeScale(parseFloat(b.dataset.speed));
+});
+document.getElementById("rm").onclick = (e) => {
+  reduceMotion = !reduceMotion;
+  e.target.textContent = reduceMotion ? "켬" : "끔";
+  e.target.classList.toggle("on", reduceMotion);
+};
+reset();
+</script>
+</body>
+</html>

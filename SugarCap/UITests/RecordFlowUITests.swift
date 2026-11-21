@@ -159,6 +159,49 @@ extension RecordFlowUITests {
         XCTAssertTrue(summary.waitForExistence(timeout: 5))
         XCTAssertTrue(summary.label.contains("/ 50 g"), "기본값으로 안 돌아옴: \(summary.label)")
     }
+
+    /// 설정의 하루 기준 줄에서도 같은 화면이 열리고, 바꾸면 오늘 화면 분모가 바뀐다(대표님 2026-11-21 "설정탭에서 하루 기준 바꿀 수 있게").
+    /// 끝나면 50 g으로 되돌린다.
+    @MainActor
+    func testSettingsLimitRowChangesTodayLimit() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication.withTestSkips()
+        app.launch()
+        completeOnboardingIfPresented(app)
+
+        let summary = app.descendants(matching: .any)["cup-summary"]
+        XCTAssertTrue(summary.waitForExistence(timeout: 15))
+        let row = app.buttons["settings-limit-sugar"]
+        let close = app.buttons["settings-close"]
+
+        app.buttons["open-settings"].tap()
+        XCTAssertTrue(row.waitForExistence(timeout: 5), "설정에 당 하루 기준 줄이 없음")
+        XCTAssertTrue(row.label.contains("50 g"), "설정 줄이 지금 기준을 안 보여 줌: \(row.label)")
+        row.tap()
+        let preset100 = app.buttons["limit-sugar-100"]
+        XCTAssertTrue(preset100.waitForExistence(timeout: 5), "설정에서 하루 기준 화면이 안 열림")
+        preset100.tap()
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        XCTAssertTrue(row.label.contains("100 g"), "바꾼 기준이 설정 줄에 안 보임: \(row.label)")
+        close.tap()
+        XCTAssertTrue(summary.waitForExistence(timeout: 5))
+        XCTAssertTrue(summary.label.contains("/ 100 g"), "설정에서 바꾼 기준이 오늘 화면에 안 반영됨: \(summary.label)")
+
+        app.buttons["open-settings"].tap()
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        row.tap()
+        let preset50 = app.buttons["limit-sugar-50"]
+        XCTAssertTrue(preset50.waitForExistence(timeout: 5))
+        preset50.tap()
+        expectation(for: NSPredicate(format: "isSelected == true"), evaluatedWith: preset50)
+        waitForExpectations(timeout: 5)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(close.waitForExistence(timeout: 5))
+        close.tap()
+        XCTAssertTrue(summary.waitForExistence(timeout: 5))
+        XCTAssertTrue(summary.label.contains("/ 50 g"), "기본값으로 안 돌아옴: \(summary.label)")
+    }
 }
 
 extension RecordFlowUITests {
@@ -423,14 +466,14 @@ extension RecordFlowUITests {
         unlocked.tap()
         // 첫 등장 연출 동안 글자는 투명했다가 약 4초 뒤 내려온다.
         XCTAssertTrue(ui.element("trend-range").waitForExistence(timeout: 10), "열린 추이 버튼을 눌렀는데 추이가 안 열림")
-        // 첫 등장 연출 뒤 안내 3단계(잔 → 넘기기 → 기간).
+        // 첫 등장 연출 뒤 안내 4단계(잔 → 넘기기 → 하루 기준 → 기간).
         let next = app.buttons["trend-coach-next"]
-        for step in 1 ... 3 {
+        for step in 1 ... 4 {
             XCTAssertTrue(next.waitForExistence(timeout: step == 1 ? 10 : 3), "첫 추이 안내 \(step)단계가 안 뜸")
             next.tap()
         }
         XCTAssertTrue(next.waitForNonExistence(timeout: 3), "안내를 끝냈는데 남아 있음")
-        // 빌드 409 대표님: 첫 추이 열림 뒤 월 보기로 안 바뀜. 안내 3단계가 가리킨 그 토글로 바로 바꿔 본다.
+        // 빌드 409 대표님: 첫 추이 열림 뒤 월 보기로 안 바뀜. 안내 마지막 단계가 가리킨 그 토글로 바로 바꿔 본다.
         app.segmentedControls["trend-range"].buttons["월"].tap()
         let monthDay = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'month-day-'")).firstMatch
         XCTAssertTrue(monthDay.waitForExistence(timeout: 5), "첫 추이 안내 뒤 월 보기로 안 바뀜")

@@ -58,6 +58,7 @@ struct TrendRevealClock<Content: View>: View {
 enum TrendCoachSpot: Hashable {
     case todayCup
     case cups
+    case limit
     case range
 }
 

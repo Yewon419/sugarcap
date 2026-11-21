@@ -781,6 +781,33 @@ extension RecordFlowUITests {
         XCTAssertTrue(back.minY < paik.frame.minY || (back.minY == paik.frame.minY && back.minX < paik.frame.minX),
                       "해제했는데 빽다방이 아직 스타벅스보다 앞: \(paik.frame) vs \(back)")
     }
+
+    /// 최근 마신 음료의 별을 누르면 그 줄이 즐겨찾기 칸으로 올라가며 별이 찬다(베타 피드백 빌드 517 대표님
+    /// "즐겨찾기 눌러도 별이 안차네?"). 앞 테스트가 남긴 기록이 최근 음료로 뜬다.
+    @MainActor
+    func testStarringRecentDrinkFillsItsStar() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication.withTestSkips()
+        app.launchArguments += ["-idleAt", "0"]
+        app.launch()
+        completeOnboardingIfPresented(app)
+
+        let add = app.buttons["record-add"]
+        XCTAssertTrue(add.waitForExistence(timeout: 15))
+        add.tap()
+        let off = app.buttons.matching(NSPredicate(format: "label == %@", "즐겨찾기")).firstMatch
+        XCTAssertTrue(off.waitForExistence(timeout: 5), "기록 시트에 최근 음료 별이 없음")
+        XCTAssertFalse(app.buttons["즐겨찾기 해제"].exists, "시작부터 즐겨찾기한 음료가 있음")
+        off.tap()
+
+        let on = app.buttons["즐겨찾기 해제"].firstMatch
+        XCTAssertTrue(on.waitForExistence(timeout: 5), "별을 눌렀는데 즐겨찾기 줄 별이 안 켜짐")
+        XCTAssertTrue(on.isSelected, "즐겨찾기 줄 별이 선택 상태가 아님")
+
+        // 정리: 다시 눌러 해제한다. 남기면 CI 스크린샷의 기록 시트가 바뀐다.
+        on.tap()
+        wait(for: [expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: app.buttons["즐겨찾기 해제"])], timeout: 5)
+    }
 }
 
 extension RecordFlowUITests {

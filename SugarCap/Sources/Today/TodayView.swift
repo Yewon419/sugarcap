@@ -303,7 +303,7 @@ struct TodayView: View {
         ) {
             Button("확인", role: .cancel) {}
         }
-        .alert("내일도 이 시간에 알려 줄까요?", isPresented: $asksReminder) {
+        .alert("밤 10시에 마감을 알려 줄까요?", isPresented: $asksReminder) {
             Button("알려 줘요") {
                 Task {
                     let granted = await CloseReminder.enable()
@@ -317,7 +317,7 @@ struct TodayView: View {
             }
             .accessibilityIdentifier("reminder-no")
         } message: {
-            Text("저녁 8시에 마감이 열리면, 밤 10시엔 아직 안 먹였으면 알려 줘요. 커피 사기 좋은 아침 8시 30분·오후 2시에도 기록을 알려 줘요. 설정에서 언제든 끌 수 있어요.")
+            Text("아침 8시 반·오후 2시엔 기록을 알려 줘요. 설정에서 끌 수 있어요.")
         }
         // 기록할 때만 햅틱 1회(§4.1). 삭제로 줄어들 때는 울리지 않는다.
         .sensoryFeedback(.success, trigger: entries.count) { old, new in new > old }
@@ -1046,6 +1046,18 @@ struct TodayView: View {
         #endif
     }
 
+    /// CI 스크린샷 전용(Debug `-screenshotSugarOver 0.2`): 오늘 기록 대신 당만 기준을 그만큼 넘긴 하루(카페인 0).
+    /// 당 숫자가 0, 카페인이 "400"이라 양쪽 크기 맞춤으로 당 숫자가 가장 작아지는 경우(베타 피드백 빌드 468).
+    private static func screenshotSugarOver(_ limits: DailyLimits) -> [Consumption]? {
+        #if DEBUG
+        guard UserDefaults.standard.object(forKey: "screenshotSugarOver") != nil else { return nil }
+        let over = UserDefaults.standard.double(forKey: "screenshotSugarOver")
+        return [Consumption(sugarG: limits.sugarG + over, caffeineMg: 0)]
+        #else
+        return nil
+        #endif
+    }
+
     /// CI 스크린샷 전용(Debug `-screenshotCupHint YES`). CI 시뮬레이터는 UI 테스트 기록이 남아 첫 안내가 안 찍힌다.
     private var showsCupHintForScreenshot: Bool {
         #if DEBUG
@@ -1130,7 +1142,7 @@ struct TodayView: View {
     private func content(now: Date) -> some View {
         let today = DayKey(at: now, boundaryHour: boundaryHour)
         let todays = todaysEntries(now: now)
-        let totals = DayMath.totals(todays.map(\.consumption), limits: limits)
+        let totals = DayMath.totals(Self.screenshotSugarOver(limits) ?? todays.map(\.consumption), limits: limits)
         let remaining = side.remaining(totals)
         let limit = side.limit(limits)
 

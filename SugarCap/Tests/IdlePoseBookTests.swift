@@ -326,8 +326,8 @@ final class IdlePoseBookTests: XCTestCase {
                 let sprite = try XCTUnwrap(IdleSprite(side: side, pose: name, step: 50, size: slot), name)
                 let m = IdleMotion.frame(sprite.spec, cast: sprite.cast, t: 0, photo: photo, walkBaseX: sprite.base.x)
                 let onBody = CGPoint(x: sprite.base.x + m.dx, y: sprite.base.y + m.dy - 4)
-                // 잔 뒤 물러난 자세(대표님 2026-10-27 "건드려지지도 않게")와 잔 뒤에 숨은 빼꼼은 누를 수 없다.
-                let pokeable = sprite.rule.away == nil && !sprite.rule.behindCup
+                // 잔 뒤 물러난 자세(대표님 2026-10-27 "건드려지지도 않게")는 누를 수 없다. 빼꼼은 누를 수 있다(2026-11-21).
+                let pokeable = sprite.rule.away == nil
                 XCTAssertEqual(sprite.contains(onBody, t: 0), pokeable, "\(side) \(name)")
                 XCTAssertFalse(sprite.contains(CGPoint(x: -100, y: -100), t: 0), "\(side) \(name)")
             }

@@ -168,6 +168,12 @@ jobs:
           shoot sugar-over light large -screenshotSugarOver 0.2
           # 같은 하루의 원두 잔 100%: 카페인 "400"이 원두 더미 틈으로 비치지 않는지(베타 피드백 453).
           shoot glass-beans-hero light large -cupSet.caffeine glass-beans -screenshotSide caffeine -idleStep 100 -screenshotSugarOver 0.2
+          # 업데이트 안내(2026-11-22): 왼쪽 위 안내가 오른쪽 원 버튼(무료면 별까지 넷)과 안 겹치는지, 강제 화면.
+          shoot update-available light large -screenshotUpdate available
+          shoot update-available-free light large -screenshotUpdate available -mockPro YES
+          shoot update-available-type-ax-xl light accessibility-extra-large -screenshotUpdate available -mockPro YES
+          shoot update-required light large -screenshotUpdate required
+          shoot update-required-type-ax-xl light accessibility-extra-large -screenshotUpdate required
           shoot slide-30 light large -screenshotCupSlide 0.3
           shoot slide-50 light large -screenshotCupSlide 0.5
           shoot slide-70 light large -screenshotCupSlide 0.7
@@ -509,6 +515,8 @@ jobs:
           shoot_en cup-hint large -screenshotCupHint YES
           shoot_en settings large -initialTab settings
           shoot_en settings-type-ax-xl accessibility-extra-large -initialTab settings
+          shoot_en update-available large -screenshotUpdate available -mockPro YES
+          shoot_en update-required large -screenshotUpdate required
           shoot_en onboarding-locale large -onboardingCompleted NO
           for at in 1.0 4.1 6.7 9.3 11.9 14.5 17.1 18.9 21.9; do
             shoot_en "onboarding-reel-$at" large -onboardingCompleted NO -onboardingReelAt "$at"
@@ -566,6 +574,8 @@ jobs:
           shoot_zh type-ax-xl accessibility-extra-large
           shoot_zh settings large -initialTab settings
           shoot_zh settings-type-ax-xl accessibility-extra-large -initialTab settings
+          shoot_zh update-available large -screenshotUpdate available -mockPro YES
+          shoot_zh update-required large -screenshotUpdate required
           shoot_zh onboarding-locale large -onboardingCompleted NO
           for at in 1.0 4.1 6.7 9.3 11.9 14.5 17.1 18.9 21.9; do
             shoot_zh "onboarding-reel-$at" large -onboardingCompleted NO -onboardingReelAt "$at"

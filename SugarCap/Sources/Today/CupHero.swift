@@ -67,6 +67,13 @@ struct CupHero: View {
         }
     }
 
+    /// 단위·기준이 숫자 바닥에서 올라가는 높이. 사진 비율 자리를 따르되 단위 윗변이 숫자 머리를 넘지 않는다.
+    /// 숫자가 작아지면(양쪽 숫자 크기 맞춤으로 카페인 "400"에 맞출 때) 단위가 라벨 줄까지 올라가
+    /// "오늘 남은 당 +0.2 g 넘김"과 겹쳤다(베타 피드백 빌드 468 대표님 "글씨 겹침 문제").
+    static func unitRise(photoRise: Double, size: Double) -> Double {
+        min(photoRise, (1 - unitScale) * capRatio * size)
+    }
+
     /// 숫자 크기(pt). 두 자리 "50"이 화면 폭의 약 32%. 자리가 늘면 숫자 폭이 화면 폭 42%를 넘지 않게 줄인다.
     /// 처음엔 시안대로 45%였는데 대표님이 "숫자 너무 큰데"(2026-10-13)라고 해서 줄였다.
     static func size(width: Double, widest: String) -> Double {
@@ -107,7 +114,7 @@ struct CupHero: View {
                     .frame(maxWidth: .infinity, alignment: Alignment(horizontal: edge, vertical: .center))
                     .frame(height: max(capTop - Self.labelGap, 0), alignment: Alignment(horizontal: edge, vertical: .bottom))
                     .padding(.horizontal, 24)
-                numberRow(size: size, rise: baseline - (photo.top + Self.unitBaselineRatio * photo.height))
+                numberRow(size: size, rise: Self.unitRise(photoRise: baseline - (photo.top + Self.unitBaselineRatio * photo.height), size: size))
                     .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { row in
                         let top: Double = row.minY + (Self.ascentRatio - Self.capRatio) * size - Self.labelGap - 20
                         let bottom: Double = row.minY + Self.ascentRatio * size

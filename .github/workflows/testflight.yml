@@ -164,6 +164,10 @@ jobs:
           shoot notice-credit light large -screenshotCreditNotice YES
           # 두 컵 사이를 넘기는 중(넓힌 사진의 날개가 겹쳐 녹는 자리). 0.3·0.5·0.7만큼 끈 채로.
           shoot today-caffeine light large -lastCupSide caffeine
+          # 당만 기준을 0.2 g 넘긴 하루(카페인 0): 당 숫자 0과 "+0.2 g 넘김" 라벨이 단위와 겹치지 않는지(베타 피드백 468).
+          shoot sugar-over light large -screenshotSugarOver 0.2
+          # 같은 하루의 원두 잔 100%: 카페인 "400"이 원두 더미 틈으로 비치지 않는지(베타 피드백 453).
+          shoot glass-beans-hero light large -cupSet.caffeine glass-beans -screenshotSide caffeine -idleStep 100 -screenshotSugarOver 0.2
           shoot slide-30 light large -screenshotCupSlide 0.3
           shoot slide-50 light large -screenshotCupSlide 0.5
           shoot slide-70 light large -screenshotCupSlide 0.7

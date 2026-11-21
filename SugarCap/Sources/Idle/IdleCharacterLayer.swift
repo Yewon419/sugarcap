@@ -91,9 +91,11 @@ struct IdleCharacterLayer: View {
                     if IdleFussMath.canPoke(character: side.idleCast.character, pose: pose),
                        sprite.contains(local, t: hostFuss.stare.time(t)) {
                         flinchAt = now
+                        // 잔 뒤 빼꼼은 잘린 원화라 피하기·쳐다보기 없이 움찔·하트만(대표님 2026-11-21 "로슈가 컵 왼쪽 아래 있을 때 터치가 안되고 기록으로 넘어감").
+                        let isHidden = sprite.rule.behindCup
                         let candidate = IdleFussMath.pick(
-                            canDodge: dodgeTarget() != nil,
-                            canStare: IdleFussMath.canStare(character: side.idleCast.character, pose: pose),
+                            canDodge: !isHidden && dodgeTarget() != nil,
+                            canStare: !isHidden && IdleFussMath.canStare(character: side.idleCast.character, pose: pose),
                             level: affinityLevel(side),
                             heartRoll: Double.random(in: 0 ..< 1), otherRoll: Double.random(in: 0 ..< 1)
                         )
@@ -503,9 +505,9 @@ struct IdleSprite {
     private static let flinchWiden = 0.035
 
     /// 화면 위 점이 시각 t의 캐릭터 위인지. 그림 틀을 놓인 자리로 옮긴 사각형에 손가락 여유를 둔다.
-    /// 잔 뒤 물러난 자세와 잔 뒤에 숨은 자세(빼꼼)는 누를 수 없다.
+    /// 잔 뒤 벽까지 물러난 자세는 누를 수 없다. 잔 뒤에 숨은 빼꼼은 유리 너머로 보이니 누를 수 있다.
     func contains(_ point: CGPoint, t: Double) -> Bool {
-        guard rule.away == nil, !rule.behindCup else { return false }
+        guard rule.away == nil else { return false }
         return transformed(m: frame(t)).insetBy(dx: -8, dy: -8).contains(point)
     }
 

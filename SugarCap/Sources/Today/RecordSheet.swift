@@ -122,7 +122,9 @@ struct RecordSheet: View {
         if starred.isEmpty, recents.isEmpty {
             CaptionNote(text: String(localized: "자주 마시는 음료는 별을 눌러 두세요. 최근 마신 음료도 여기 모여요. 한 번 눌러 바로 기록해요."))
         } else {
-            ForEach(starred) { quickRow($0, isStarred: true) }
+            // 두 칸이 같은 음료 키를 id로 쓰면 최근 → 즐겨찾기로 옮긴 줄에 예전 모습(빈 별)이 남았다
+            // (베타 피드백 빌드 517 대표님 "즐겨찾기 눌러도 별이 안차네?"). 칸마다 id를 나눈다.
+            ForEach(starred) { quickRow($0, isStarred: true).id("favorite-\($0.id)") }
             if !recents.isEmpty {
                 if !starred.isEmpty {
                     Text("최근 마신 음료")
@@ -133,7 +135,7 @@ struct RecordSheet: View {
                         .padding(.top, 16)
                         .padding(.bottom, 4)
                 }
-                ForEach(recents) { quickRow($0, isStarred: false) }
+                ForEach(recents) { quickRow($0, isStarred: false).id("recent-\($0.id)") }
             }
         }
     }

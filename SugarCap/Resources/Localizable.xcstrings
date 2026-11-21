@@ -449,18 +449,18 @@
         }
       }
     },
-    "저녁 8시에 마감이 열리면, 밤 10시엔 아직 안 먹였으면 알려 줘요. 커피 사기 좋은 아침 8시 30분·오후 2시에도 기록을 알려 줘요. 설정에서 언제든 끌 수 있어요." : {
+    "아침 8시 반·오후 2시엔 기록을 알려 줘요. 설정에서 끌 수 있어요." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "We'll tell you when closing opens at 8 PM, and at 10 PM if you haven't fed them yet. We'll also remind you to log at 8:30 AM and 2 PM, when coffee runs happen. You can turn this off anytime in Settings."
+            "value" : "We'll remind you to log at 8:30 AM and 2 PM. You can turn this off in Settings."
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "晚上 8 點結算開放時、晚上 10 點還沒餵食時會通知你。早上 8:30 和下午 2 點買咖啡的時間也會提醒你記錄。可以隨時在設定中關閉。"
+            "value" : "早上 8:30 和下午 2 點會提醒你記錄。可以在設定中關閉。"
           }
         }
       }
@@ -2244,18 +2244,18 @@
         }
       }
     },
-    "내일도 이 시간에 알려 줄까요?" : {
+    "밤 10시에 마감을 알려 줄까요?" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Remind you at this time tomorrow too?"
+            "value" : "Remind you to close at 10 PM?"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "明天也在這個時間提醒你嗎？"
+            "value" : "晚上 10 點提醒你結算嗎？"
           }
         }
       }

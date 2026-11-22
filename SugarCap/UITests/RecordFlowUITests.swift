@@ -201,6 +201,12 @@ extension RecordFlowUITests {
         close.tap()
         XCTAssertTrue(summary.waitForExistence(timeout: 5))
         XCTAssertTrue(summary.label.contains("/ 50 g"), "기본값으로 안 돌아옴: \(summary.label)")
+
+        // 되돌린 값이 저장소에 남았는지 다시 띄워 본다. 자동 저장만 믿으면 100 g이 남아 다음 테스트가 깨졌다(2026-11-22).
+        app.terminate()
+        app.launch()
+        XCTAssertTrue(summary.waitForExistence(timeout: 15))
+        XCTAssertTrue(summary.label.contains("/ 50 g"), "다시 켜니 되돌린 기준이 사라짐: \(summary.label)")
     }
 }
 

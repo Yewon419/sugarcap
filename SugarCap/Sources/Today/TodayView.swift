@@ -129,6 +129,7 @@ struct TodayView: View {
     @State private var isReviewDue = false
 
     @Environment(ProStore.self) private var pro
+    @Environment(UpdateStore.self) private var update
 
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "today")
 
@@ -1210,6 +1211,7 @@ struct TodayView: View {
         }
         .overlay(alignment: .bottom) { bottomControls(now: now, today: today, totals: totals) }
         .overlay(alignment: .topTrailing) { cornerButtons }
+        .overlay(alignment: .topLeading) { updateBadge }
         .overlay { tutorialOverlay(totals: totals) }
         .animation(.easeOut(duration: 0.25), value: tutorial)
         .task(id: tutorialPending) {
@@ -1353,6 +1355,18 @@ struct TodayView: View {
         .padding(.trailing, 16)
         .padding(.top, 2)
         .disabled(locksControls)
+    }
+
+    /// 새 버전이 있으면 왼쪽 위에 늘 띄운다(닫기 없음, 대표님 2026-11-22). 오른쪽 원 버튼과 같은 줄, 버튼 줄과 겹치지 않게 폭을 남긴다.
+    @ViewBuilder
+    private var updateBadge: some View {
+        if update.state == .available {
+            UpdateBadge()
+                .frame(maxWidth: 210, alignment: .leading)
+                .padding(.leading, 16)
+                .padding(.top, 2)
+                .disabled(locksControls)
+        }
     }
 
     /// UI 테스트가 잠긴 버튼의 이유를 실패 메시지에 남기도록 Debug에서만 싣는다.
@@ -2181,6 +2195,7 @@ struct TodayView: View {
     if let catalog = try? CatalogStore.loadBundled(.kr) {
         TodayView(catalog: CatalogIndex(catalog: catalog))
             .environment(ProStore(previewPlans: ProStore.mockPlans, isPro: false))
+            .environment(UpdateStore(fixed: .available))
             .modelContainer(for: [Entry.self, AppSettings.self, DaySettlement.self, Affinity.self, ReductionGoal.self, FavoriteDrink.self, FavoriteBrand.self], inMemory: true)
     } else {
         Text("번들 카탈로그를 읽지 못함")

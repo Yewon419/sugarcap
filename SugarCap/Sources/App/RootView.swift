@@ -25,6 +25,7 @@ struct RootView: View {
     @Query private var settingsRows: [AppSettings]
     @AppStorage(OnboardingView.completedKey) private var onboardingCompleted = false
     @State private var pro = ProStore.make()
+    @State private var update = UpdateStore.make()
 
     private static let logger = Logger(subsystem: "com.sugarcap.app", category: "root")
 
@@ -41,7 +42,10 @@ struct RootView: View {
         Group {
             switch catalog.result {
             case .success(let index):
-                if let mode = Self.screenshotWidget {
+                // 최소 버전보다 낮으면 오늘·온보딩 대신 업데이트 화면만(대표님 2026-11-22).
+                if update.state == .required {
+                    UpdateGateView()
+                } else if let mode = Self.screenshotWidget {
                     #if DEBUG
                     WidgetGallery(mode: mode)
                     #endif
@@ -64,6 +68,7 @@ struct RootView: View {
             }
         }
         .environment(pro)
+        .environment(update)
         // 설정 "기록할 것"(2026-10-06). 기록 시트·직접 입력·하루 기록이 끈 면을 숨긴다.
         .environment(\.trackedSides, settingsRows.first?.trackedSides ?? CupSide.allCases)
         .environment(\.menuCountry, catalog.country)
@@ -78,6 +83,7 @@ struct RootView: View {
                 Task { await CloseReminder.refresh() }
                 Task { await UsageReporter.shared?.noteWidgets() }
                 UsageReporter.shared?.logWidgetEntries()
+                Task { await update.refresh() }
             }
         }
         // 설정에서 메뉴 국가를 바꾸면 그 나라 카탈로그로 갈아 끼운다(SPEC §9.9).

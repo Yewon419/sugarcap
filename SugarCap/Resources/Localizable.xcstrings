@@ -8895,6 +8895,102 @@
           }
         }
       }
+    },
+    "업데이트" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Update"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更新"
+          }
+        }
+      }
+    },
+    "중요한 업데이트가 있어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An important update is available"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有重要更新"
+          }
+        }
+      }
+    },
+    "업데이트해야 계속 쓸 수 있어요. 기록은 그대로 남아 있어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Update to keep using the app. Your records stay as they are."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更新後才能繼續使用。你的紀錄都會保留。"
+          }
+        }
+      }
+    },
+    "App Store에서 업데이트" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Update on the App Store"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "前往 App Store 更新"
+          }
+        }
+      }
+    },
+    "새로운 업데이트가 있습니다" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A new update is available"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有新的更新"
+          }
+        }
+      }
+    },
+    "하루 기준을 저장하지 못했어요. 다시 시도해 주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't save your daily limit. Please try again."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法儲存每日標準，請再試一次。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

@@ -161,8 +161,9 @@ extension RecordFlowUITests {
     }
 
     /// 반 잔 기록(2026-11-22 베타 요청): 스테퍼를 1에서 내리면 ½, 추가하면 하루 기록에 "×½" 줄이 생긴다.
+    /// 이름이 `testRecording…`보다 앞서면 첫 실행 온보딩을 먼저 지나 버려 그 테스트가 깨진다(이름순 실행).
     @MainActor
-    func testHalfCupRecordShowsInDayLog() throws {
+    func testStepperHalfCupShowsInDayLog() throws {
         continueAfterFailure = false
         let app = XCUIApplication.withTestSkips()
         app.launch()

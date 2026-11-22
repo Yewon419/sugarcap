@@ -90,6 +90,8 @@ private struct LimitDetailContent: View {
         }
         .scrollBounceBehavior(.basedOnSize)
         .background(Color.wall.ignoresSafeArea())
+        // 자동 저장을 기다리지 않는다. 바꾸고 바로 앱을 끄면 예전 기준으로 돌아갔다(2026-11-22 CI, 다음 테스트가 100 g을 봄).
+        .onChange(of: value.wrappedValue) { _, _ in saveLimit() }
         .safeAreaInset(edge: .bottom) {
             Group {
                 if goal != nil {
@@ -228,6 +230,15 @@ private struct LimitDetailContent: View {
     }
 
     // MARK: 동작
+
+    private func saveLimit() {
+        do {
+            try context.save()
+        } catch {
+            Self.logger.error("하루 기준 저장 실패: \(String(describing: error), privacy: .public)")
+            alertMessage = String(localized: "하루 기준을 저장하지 못했어요. 다시 시도해 주세요.")
+        }
+    }
 
     private func start(target: Double, weeks: Int) {
         do {

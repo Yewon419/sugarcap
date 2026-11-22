@@ -8975,6 +8975,22 @@
           }
         }
       }
+    },
+    "하루 기준을 저장하지 못했어요. 다시 시도해 주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't save your daily limit. Please try again."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法儲存每日標準，請再試一次。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

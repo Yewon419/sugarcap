@@ -32,6 +32,36 @@ final class ServingSelectionTests: XCTestCase {
         XCTAssertNil(entry.variantLabel)
     }
 
+    /// 반 잔(2026-11-22): 1에서 한 칸 더 내리면 ½, 다시 올리면 1. 값은 절반, 잔 수는 1로 남는다.
+    func testHalfCupHalvesTheSnapshotAndStepsBackToOne() throws {
+        let drink = try firstDrink(in: catalog()) {
+            $0.servings[0].sugarG != nil && $0.servings[0].caffeineMg != nil
+                && $0.servings[0].caffeineVariants.isEmpty
+        }
+        let serving = drink.servings[0]
+
+        var selection = ServingSelection(drink: drink)
+        selection.stepUp()
+        selection.stepDown()
+        XCTAssertFalse(selection.isHalf, "2에서 내리면 1이어야 함")
+        selection.stepDown()
+        XCTAssertTrue(selection.isHalf)
+        XCTAssertFalse(selection.canStepDown, "반 잔 아래로는 못 내려감")
+        selection.stepDown()
+        XCTAssertTrue(selection.isHalf)
+
+        let entry = selection.makeEntry(brandName: "브랜드", at: Date(timeIntervalSince1970: 0))
+        XCTAssertTrue(entry.halfCup)
+        XCTAssertEqual(entry.quantity, 1, "잔 수 통계는 반 잔도 1잔")
+        XCTAssertEqual(try XCTUnwrap(entry.sugarG), try XCTUnwrap(serving.sugarG) / 2, accuracy: 1e-9)
+        XCTAssertEqual(try XCTUnwrap(entry.caffeineMg), try XCTUnwrap(serving.caffeineMg) / 2, accuracy: 1e-9)
+
+        selection.stepUp()
+        XCTAssertFalse(selection.isHalf)
+        XCTAssertEqual(selection.quantity, 1, "반 잔에서 올리면 2가 아니라 1")
+        XCTAssertFalse(selection.makeEntry(brandName: "브랜드", at: Date()).halfCup)
+    }
+
     func testPrimarySideSplitsCaffeineDrinksFromSugarDrinks() {
         XCTAssertEqual(CupSide.primary(name: "", sugarG: 8, caffeineMg: 75), .caffeine, "우유 당이 있는 카페라떼")
         XCTAssertEqual(CupSide.primary(name: "", sugarG: 43, caffeineMg: 75), .caffeine, "카페인이 한 샷 이상이면 단 커피도 카페인")

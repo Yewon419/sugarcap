@@ -12,6 +12,8 @@ final class Entry {
     /// 원두 선택(더벤티). 선택지가 없으면 nil.
     var variantLabel: String?
     var quantity: Int
+    /// 반 잔(대표님 2026-11-22 베타 요청). 이때 quantity는 1이고 당·카페인은 이미 절반이다. 잔 수 통계는 1잔으로 센다.
+    var halfCup: Bool = false
     var loggedAt: Date
 
     /// **수량이 이미 곱해진 총량이다.** 합계에서 다시 곱하면 안 된다(`DayMath.Consumption`).
@@ -31,6 +33,7 @@ final class Entry {
         servingID: String?,
         variantLabel: String? = nil,
         quantity: Int,
+        halfCup: Bool = false,
         loggedAt: Date,
         sugarG: Double?,
         caffeineMg: Double?,
@@ -43,6 +46,7 @@ final class Entry {
         self.servingID = servingID
         self.variantLabel = variantLabel
         self.quantity = quantity
+        self.halfCup = halfCup
         self.loggedAt = loggedAt
         self.sugarG = sugarG
         self.caffeineMg = caffeineMg

@@ -160,6 +160,42 @@ extension RecordFlowUITests {
         XCTAssertTrue(summary.label.contains("/ 50 g"), "기본값으로 안 돌아옴: \(summary.label)")
     }
 
+    /// 반 잔 기록(2026-11-22 베타 요청): 스테퍼를 1에서 내리면 ½, 추가하면 하루 기록에 "×½" 줄이 생긴다.
+    /// 이름이 `testRecording…`보다 앞서면 첫 실행 온보딩을 먼저 지나 버려 그 테스트가 깨진다(이름순 실행).
+    @MainActor
+    func testStepperHalfCupShowsInDayLog() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication.withTestSkips()
+        app.launch()
+        completeOnboardingIfPresented(app)
+
+        let summary = app.descendants(matching: .any)["cup-summary"]
+        XCTAssertTrue(summary.waitForExistence(timeout: 15))
+        app.buttons["record-add"].tap()
+        let starbucks = app.buttons["brand-starbucks"]
+        XCTAssertTrue(starbucks.waitForExistence(timeout: 5), "기록 시트에 브랜드가 없음")
+        starbucks.tap()
+        let firstDrink = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "drink-")).firstMatch
+        XCTAssertTrue(firstDrink.waitForExistence(timeout: 10))
+        firstDrink.tap()
+
+        let minus = app.buttons["quantity-minus"]
+        let value = app.descendants(matching: .any)["quantity-value"]
+        XCTAssertTrue(minus.waitForExistence(timeout: 5), "패널에 수량 빼기가 없음")
+        XCTAssertTrue(minus.isEnabled, "1잔에서 반 잔으로 못 내림")
+        let oneCup = value.label
+        minus.tap()
+        XCTAssertNotEqual(value.label, oneCup, "수량 표시가 반 잔으로 안 바뀜")
+        XCTAssertFalse(minus.isEnabled, "반 잔 아래로 내려감")
+        app.buttons["add-entry"].tap()
+
+        XCTAssertTrue(summary.waitForExistence(timeout: 10))
+        summary.tap()
+        let half = app.staticTexts.matching(NSPredicate(format: "label ENDSWITH %@", "×½")).firstMatch
+        XCTAssertTrue(half.waitForExistence(timeout: 5), "하루 기록에 반 잔 줄이 없음")
+        app.buttons["daylog-close"].tap()
+    }
+
     /// 설정의 하루 기준 줄에서도 같은 화면이 열리고, 바꾸면 오늘 화면 분모가 바뀐다(대표님 2026-11-21 "설정탭에서 하루 기준 바꿀 수 있게").
     /// 끝나면 50 g으로 되돌린다.
     @MainActor

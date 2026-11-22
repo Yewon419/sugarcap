@@ -283,6 +283,9 @@ jobs:
           shoot brand-mega light large -seedDemo YES -screenshotBrand mega
           shoot brand-cvs-juice light large -seedDemo YES -screenshotBrand cvs -screenshotBrandQuery "주스"
           shoot brand-panel light large -seedDemo YES -screenshotBrand starbucks -screenshotBrandQuery "딸기" -screenshotBrandPanel YES
+          # 반 잔(2026-11-22 베타 요청): 스테퍼 ½, 미리보기가 절반.
+          shoot brand-panel-half light large -seedDemo YES -screenshotBrand starbucks -screenshotBrandQuery "딸기" -screenshotBrandPanel YES -screenshotHalfCup YES
+          shoot brand-panel-half-type-ax-xl light accessibility-extra-large -seedDemo YES -screenshotBrand starbucks -screenshotBrandQuery "딸기" -screenshotBrandPanel YES -screenshotHalfCup YES
           # 카페인 컵에서 연 기록은 딸기 음료도 카페인이 크다(빌드 105 베타 피드백).
           shoot brand-caffeine light large -seedDemo YES -screenshotSide caffeine -screenshotBrand starbucks -screenshotBrandQuery "딸기"
           shoot brand-panel-caffeine light large -seedDemo YES -screenshotSide caffeine -screenshotBrand starbucks -screenshotBrandQuery "딸기" -screenshotBrandPanel YES
@@ -544,6 +547,7 @@ jobs:
           shoot_en record large -seedDemo YES -screenshotRecord YES
           shoot_en daylog large -seedDemo YES -screenshotDayLog YES
           shoot_en brand-panel large -seedDemo YES -screenshotBrand us-starbucks -screenshotBrandQuery "Strawberry" -screenshotBrandPanel YES
+          shoot_en brand-panel-half large -seedDemo YES -screenshotBrand us-starbucks -screenshotBrandQuery "Strawberry" -screenshotBrandPanel YES -screenshotHalfCup YES
           shoot_en brand-many large -seedDemo YES -screenshotBrand us-dutchbros -screenshotBrandQuery "Mocha"
           shoot_en gate-feed large -seedDemo YES -screenshotGate feed
           shoot_en gate-ask large -screenshotGate ask
@@ -600,6 +604,7 @@ jobs:
           shoot_zh record large -seedDemo YES -screenshotRecord YES
           shoot_zh daylog large -seedDemo YES -screenshotDayLog YES
           shoot_zh brand-panel large -seedDemo YES -screenshotBrand tw-cama -screenshotBrandQuery "拿鐵" -screenshotBrandPanel YES
+          shoot_zh brand-panel-half large -seedDemo YES -screenshotBrand tw-cama -screenshotBrandQuery "拿鐵" -screenshotBrandPanel YES -screenshotHalfCup YES
           shoot_zh brand-panel-caffeine large -seedDemo YES -screenshotSide caffeine -screenshotBrand tw-kebuke -screenshotBrandQuery "熟成紅茶" -screenshotBrandPanel YES
           shoot_zh brand-many large -seedDemo YES -screenshotBrand tw-kebuke -screenshotBrandQuery "奶茶"
           shoot_zh gate-feed large -seedDemo YES -screenshotGate feed

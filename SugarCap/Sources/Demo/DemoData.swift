@@ -20,7 +20,7 @@ enum DemoData {
     /// 지난날 기록이 이미 있으면 아무것도 하지 않는다. 오늘 기록만 있으면(CI는 UI 테스트가 남긴 오늘 기록 위에서 찍는다)
     /// 오늘은 그대로 두고 지난날만 채운다(2026-10-28, 전에는 기록이 하나라도 있으면 통째로 건너뛰어 CI 추이가 비었다).
     /// 메뉴 국가에 맞는 음료로 채운다. 미국 값은 `catalog-us.json`의 Starbucks Tall, 대만은 `catalog-tw.json`의 cama café M 그대로다.
-    static func seed(into context: ModelContext, boundaryHour: Int, country: MenuCountry, now: Date = Date()) {
+    static func seed(into context: ModelContext, boundaryHour: Int, country: MenuCountry, now: Date = AppClock.now) {
         do {
             let calendar = Calendar.current
             let today = DayKey(at: now, boundaryHour: boundaryHour)
@@ -105,7 +105,7 @@ enum DemoData {
     }
 
     /// 하루 기준 화면의 "줄이는 중" 스크린샷용. `-seedGoal caffeine`이면 카페인 목표(8주 중 3주 지킴)를 만든다.
-    static func seedGoalIfRequested(into context: ModelContext, settings: AppSettings, now: Date = Date()) {
+    static func seedGoalIfRequested(into context: ModelContext, settings: AppSettings, now: Date = AppClock.now) {
         guard let raw = UserDefaults.standard.string(forKey: "seedGoal"), let side = CupSide(rawValue: raw) else { return }
         do {
             let today = DayKey(at: now, boundaryHour: settings.dayBoundaryHour)
@@ -120,7 +120,7 @@ enum DemoData {
     }
 
     /// `-screenshotFavoriteBrands paik,gongcha`: 그 브랜드들을 적은 순서로 즐겨찾기한 상태로 둔다. 저장돼 남으니 촬영 목록 맨 끝에 찍는다.
-    static func seedFavoriteBrandsIfRequested(into context: ModelContext, now: Date = Date()) {
+    static func seedFavoriteBrandsIfRequested(into context: ModelContext, now: Date = AppClock.now) {
         guard let raw = UserDefaults.standard.string(forKey: "screenshotFavoriteBrands") else { return }
         do {
             try context.delete(model: FavoriteBrand.self)

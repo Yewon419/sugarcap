@@ -1011,10 +1011,13 @@ extension RecordFlowUITests {
 }
 
 private extension XCUIApplication {
+    /// 테스트 프로세스가 시작한 시각. 모든 테스트가 같은 값을 넘겨 앱 시계가 정오에서 이어 간다(`AppClock.uiTestStart`).
+    static let clockStart = Date().timeIntervalSince1970
+
     /// 첫 실행 건너뛰기(온보딩 영상·캐릭터 소개·첫 먹이기)는 앱에서 뺐다(대표님 2026-11-06). 테스트만 Debug 인자로 다시 띄운다.
     static func withTestSkips() -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments += ["-uiTestSkip", "YES"]
+        app.launchArguments += ["-uiTestSkip", "YES", "-uiClockStart", String(clockStart)]
         return app
     }
 }

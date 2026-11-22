@@ -166,7 +166,9 @@ struct DayLogSheet: View {
     }
 
     private func row(_ entry: Entry) -> some View {
-        let name = entry.quantity > 1 ? "\(entry.drinkName) ×\(entry.quantity)" : entry.drinkName
+        let name =
+            entry.halfCup
+            ? "\(entry.drinkName) ×½" : entry.quantity > 1 ? "\(entry.drinkName) ×\(entry.quantity)" : entry.drinkName
         let size = [Serving.displaySize(entry.sizeLabel), entry.variantLabel].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " ")
         let meta = [entry.loggedAt.formatted(date: .omitted, time: .shortened), entry.brandName, size]
             .filter { !$0.isEmpty }

@@ -11,6 +11,8 @@ struct ServingSelection: Equatable {
     }
     var variantIndex = 0
     var quantity = 1
+    /// 반 잔. 수량 1에서 한 칸 더 내리면 켜진다(½ → 1 → 2 …). 켜져 있는 동안 quantity는 1이다.
+    private(set) var isHalf = false
 
     init(drink: Drink) {
         self.drink = drink
@@ -27,14 +29,28 @@ struct ServingSelection: Equatable {
         return variants[min(max(variantIndex, 0), variants.count - 1)]
     }
 
+    /// 한 잔에 곱할 값. 반 잔이면 0.5.
+    var cups: Double { isHalf ? 0.5 : Double(quantity) }
+
+    var canStepDown: Bool { !isHalf }
+    var canStepUp: Bool { quantity < 99 }
+
+    mutating func stepDown() {
+        if quantity > 1 { quantity -= 1 } else { isHalf = true }
+    }
+
+    mutating func stepUp() {
+        if isHalf { isHalf = false } else if quantity < 99 { quantity += 1 }
+    }
+
     /// 수량을 곱한 총량. 기록에는 이 값을 스냅샷한다(`Consumption` 주석 참고).
     var sugarG: Double? {
-        serving.sugarG.map { $0 * Double(quantity) }
+        serving.sugarG.map { $0 * cups }
     }
 
     /// 원두 선택이 있으면 그 값, 없으면 serving 값(prototype.html:347).
     var caffeineMg: Double? {
-        (variant?.caffeineMg ?? serving.caffeineMg).map { $0 * Double(quantity) }
+        (variant?.caffeineMg ?? serving.caffeineMg).map { $0 * cups }
     }
 
     func amount(_ side: CupSide) -> Double? {
@@ -54,6 +70,7 @@ struct ServingSelection: Equatable {
             servingID: serving.id,
             variantLabel: variant?.label,
             quantity: quantity,
+            halfCup: isHalf,
             loggedAt: date,
             sugarG: sugarG,
             caffeineMg: caffeineMg,

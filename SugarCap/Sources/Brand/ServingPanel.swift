@@ -28,7 +28,12 @@ struct ServingPanel: View {
         self.todayTotals = todayTotals
         self.limits = limits
         self.onAdd = onAdd
-        _selection = State(initialValue: ServingSelection(drink: drink))
+        var initial = ServingSelection(drink: drink)
+        #if DEBUG
+        // CI 스크린샷이 반 잔 상태를 찍는다(`-screenshotHalfCup YES`).
+        if UserDefaults.standard.bool(forKey: "screenshotHalfCup") { initial.stepDown() }
+        #endif
+        _selection = State(initialValue: initial)
     }
 
     private var isFavorite: Bool { favorites.contains { $0.key == selection.drinkKey } }
@@ -84,7 +89,7 @@ struct ServingPanel: View {
                     .padding(.vertical, 20)
 
                 HStack(spacing: 16) {
-                    QuantityStepper(quantity: $selection.quantity)
+                    QuantityStepper(selection: $selection)
                     Button {
                         onAdd(selection)
                     } label: {
@@ -212,24 +217,40 @@ private struct ImpactCup: View {
     }
 }
 
-/// − 수량 + . 1잔 아래로는 내려가지 않는다.
+/// − 수량 + . 1잔에서 한 칸 더 내리면 반 잔(½)이고, 그 아래로는 내려가지 않는다.
 struct QuantityStepper: View {
-    @Binding var quantity: Int
+    @Binding var selection: ServingSelection
 
     var body: some View {
         HStack(spacing: 14) {
-            stepButton("minus", label: String(localized: "한 잔 빼기"), enabled: quantity > 1) { quantity -= 1 }
-            Text("\(quantity)")
-                .font(AppFont.pretendard(17, .bold, relativeTo: .headline))
-                .monospacedDigit()
-                .frame(minWidth: 18)
-                .accessibilityLabel("\(quantity)잔")
-            stepButton("plus", label: String(localized: "한 잔 더"), enabled: quantity < 99) { quantity += 1 }
+            stepButton(
+                "minus", id: "quantity-minus",
+                label: selection.quantity == 1 ? String(localized: "반 잔으로") : String(localized: "한 잔 빼기"),
+                enabled: selection.canStepDown
+            ) { selection.stepDown() }
+            Group {
+                if selection.isHalf {
+                    Text(verbatim: "½").accessibilityLabel(Text("반 잔"))
+                } else {
+                    Text("\(selection.quantity)").accessibilityLabel("\(selection.quantity)잔")
+                }
+            }
+            .font(AppFont.pretendard(17, .bold, relativeTo: .headline))
+            .monospacedDigit()
+            .frame(minWidth: 18)
+            .accessibilityIdentifier("quantity-value")
+            stepButton(
+                "plus", id: "quantity-plus",
+                label: selection.isHalf ? String(localized: "한 잔으로") : String(localized: "한 잔 더"),
+                enabled: selection.canStepUp
+            ) { selection.stepUp() }
         }
-        .sensoryFeedback(.selection, trigger: quantity)
+        .sensoryFeedback(.selection, trigger: selection.cups)
     }
 
-    private func stepButton(_ symbol: String, label: String, enabled: Bool, action: @escaping () -> Void) -> some View {
+    private func stepButton(
+        _ symbol: String, id: String, label: String, enabled: Bool, action: @escaping () -> Void
+    ) -> some View {
         Button(action: action) {
             Image(systemName: symbol)
                 .font(.system(size: 15, weight: .semibold))
@@ -240,5 +261,6 @@ struct QuantityStepper: View {
         .buttonStyle(.plain)
         .disabled(!enabled)
         .accessibilityLabel(label)
+        .accessibilityIdentifier(id)
     }
 }

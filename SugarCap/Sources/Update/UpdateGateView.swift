@@ -54,9 +54,8 @@ struct UpdateBadge: View {
                     .font(.system(size: 14, weight: .semibold))
                 Text("새로운 업데이트가 있습니다")
                     .font(AppFont.pretendard(13, .semibold, relativeTo: .footnote))
-                    .lineLimit(2)
-                    .multilineTextAlignment(.leading)
-                    .fixedSize(horizontal: false, vertical: true)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
             }
             .foregroundStyle(Color.ink)
             .padding(.horizontal, 10)
@@ -66,6 +65,8 @@ struct UpdateBadge: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(PressScaleStyle())
+        // 오른쪽 모서리 버튼은 글자 크기를 안 따라 커진다. 안내만 커지면 날짜 줄을 덮었다(2026-11-22 AX-XL 스크린샷).
+        .dynamicTypeSize(...DynamicTypeSize.xLarge)
         .accessibilityIdentifier("update-available")
     }
 }

@@ -201,6 +201,10 @@ jobs:
           shoot stamp-early-after light large -screenshotStamps 9 -earlyBird YES
           shoot stamp-early-not light large -screenshotStamps 9 -earlyBird NO
           shoot stamp-early-stage-type-ax-xl light accessibility-extra-large -screenshotStamps 7 -screenshotStampSeen 6 -earlyBird YES -screenshotStampInstant YES
+          # 이용 기록 동의 카드(SPEC §9.10): 요약 → 전문 펼침 → 큰 글자.
+          shoot consent light large -screenshotConsent summary
+          shoot consent-full light large -screenshotConsent full
+          shoot consent-type-ax-xl light accessibility-extra-large -screenshotConsent summary
           shoot glass-inventory light large -cupSet.sugar glass-soda -cupSet.caffeine glass-beans -initialTab settings -screenshotInventory YES -screenshotCaps 3
           shoot settings light large -initialTab settings
           # 위젯(SPEC §4.6). 홈 화면은 못 찍으니 위젯과 같은 그림을 앱이 늘어놓는다(Debug `-screenshotWidget small|medium|large|large-more`).

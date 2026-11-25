@@ -9071,6 +9071,998 @@
           }
         }
       }
+    },
+    "선택" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optional"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇性"
+          }
+        }
+      }
+    },
+    "서비스 개선을 위한\n이용 기록 수집·이용 동의" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consent to Collect and Use\nUsage Data to Improve the Service"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "為改善服務\n同意蒐集及使用使用紀錄"
+          }
+        }
+      }
+    },
+    "수집·이용 목적" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purpose"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "蒐集及使用目的"
+          }
+        }
+      }
+    },
+    "앱 기능 개선, 음료 메뉴 데이터 보완, 이용 통계 분석" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Improving app features, filling gaps in drink menu data, and usage statistics"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "改善 App 功能、補充飲品菜單資料、分析使用統計"
+          }
+        }
+      }
+    },
+    "수집 항목" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data collected"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "蒐集項目"
+          }
+        }
+      }
+    },
+    "앱 이용 기록, 음료 기록(메뉴·잔 수·요일·시간대), 무작위 생성 식별값, 앱 버전·운영체제 버전·언어·지역 설정" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App usage records, drink records (menu, cup count, weekday, time of day), randomly generated identifiers, app version, OS version, language and region settings"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App 使用紀錄、飲品紀錄（菜單、杯數、星期、時段）、隨機產生的識別值、App 版本、作業系統版本、語言及地區設定"
+          }
+        }
+      }
+    },
+    "보유·이용 기간" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retention"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存及使用期間"
+          }
+        }
+      }
+    },
+    "수집일로부터 2년, 기간이 끝나면 지체 없이 파기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2 years from collection, then deleted without delay"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自蒐集日起 2 年，期滿後立即銷毀"
+          }
+        }
+      }
+    },
+    "동의 거부 권리" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Right to refuse"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拒絕同意的權利"
+          }
+        }
+      }
+    },
+    "동의하지 않을 수 있으며, 동의하지 않아도 앱의 모든 기능을 똑같이 이용할 수 있습니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You may refuse, and if you do, you can still use every feature of the app exactly the same."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您可以不同意，即使不同意，也能同樣使用 App 的所有功能。"
+          }
+        }
+      }
+    },
+    "전문 보기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Read full text"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看全文"
+          }
+        }
+      }
+    },
+    "전문 접기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide full text"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "收合全文"
+          }
+        }
+      }
+    },
+    "동의하지 않습니다" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I don't agree"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不同意"
+          }
+        }
+      }
+    },
+    "동의합니다" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I agree"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "同意"
+          }
+        }
+      }
+    },
+    "동의 전문" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Full Consent Text"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "同意書全文"
+          }
+        }
+      }
+    },
+    "개인정보" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacy"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "隱私"
+          }
+        }
+      }
+    },
+    "이용 기록 제공(선택)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share Usage Data (Optional)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "提供使用紀錄（選擇性）"
+          }
+        }
+      }
+    },
+    "서비스 개선을 위한 이용 기록 수집·이용에 동의합니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I agree to the collection and use of usage data to improve the service."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我同意為改善服務而蒐集及使用使用紀錄。"
+          }
+        }
+      }
+    },
+    "제1조 (목적)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Article 1 (Purpose)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第 1 條（目的）"
+          }
+        }
+      }
+    },
+    "슈가캡(이하 \"앱\")의 운영자는 앱 기능을 개선하고 음료 메뉴 데이터를 보완하기 위하여, 이용자의 동의를 받아 아래와 같이 이용 기록을 수집·이용합니다. 이 동의는 선택 사항입니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The operator of SugarCap (the \"App\") collects and uses usage data as described below, with your consent, to improve app features and fill gaps in drink menu data. This consent is optional."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SugarCap（以下稱「App」）的營運者為改善 App 功能並補充飲品菜單資料，經使用者同意後，依下列方式蒐集及使用使用紀錄。本同意為選擇性。"
+          }
+        }
+      }
+    },
+    "제2조 (수집·이용 목적)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Article 2 (Purposes of Collection and Use)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第 2 條（蒐集及使用目的）"
+          }
+        }
+      }
+    },
+    "앱 기능과 화면의 이용 흐름 분석 및 개선" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analyzing and improving how app features and screens are used"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分析並改善 App 功能與畫面的使用流程"
+          }
+        }
+      }
+    },
+    "앱에 없는 음료 메뉴 파악과 메뉴 데이터 보완" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finding drinks missing from the app and improving menu data"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "掌握 App 中沒有的飲品並補充菜單資料"
+          }
+        }
+      }
+    },
+    "음료 종류·요일·시간대별 이용 통계 작성" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compiling usage statistics by drink type, weekday, and time of day"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "依飲品種類、星期及時段製作使用統計"
+          }
+        }
+      }
+    },
+    "수집한 정보는 위 목적 외의 용도로 이용하지 않으며, 광고·마케팅 목적으로 이용하거나 제3자에게 판매하지 않습니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collected data is not used for any other purpose, is not used for advertising or marketing, and is not sold to third parties."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "蒐集的資訊不會用於上述目的以外的用途，不會用於廣告或行銷，也不會出售給第三方。"
+          }
+        }
+      }
+    },
+    "제3조 (수집 항목)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Article 3 (Data Collected)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第 3 條（蒐集項目）"
+          }
+        }
+      }
+    },
+    "앱 이용 기록:" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App usage records:"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App 使用紀錄："
+          }
+        }
+      }
+    },
+    "처음 사용 안내 완료 여부, 음료 기록 방법(검색·브랜드 메뉴·즐겨찾기·최근 기록·직접 입력의 구분), 하루 마감 진행 여부, 구독 안내 화면의 표시와 선택 결과, 줄이기 목표·마감 알림·위젯 사용 여부" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "whether onboarding was completed, how drinks are logged (search, brand menu, favorites, recent, or manual entry), whether days are closed, when the subscription screen is shown and what is chosen, and whether reduction goals, closing reminders, and widgets are used"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "是否完成初次使用導覽、飲品記錄方式（搜尋、品牌菜單、我的最愛、最近紀錄、手動輸入的區分）、是否進行每日結算、訂閱介紹畫面的顯示與選擇結果、是否使用減量目標、結算提醒及小工具"
+          }
+        }
+      }
+    },
+    "음료 기록:" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drink records:"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "飲品紀錄："
+          }
+        }
+      }
+    },
+    "앱 메뉴 데이터의 음료 식별값, 잔 수, 기록한 요일과 시간대(정각 단위), 메뉴 국가, 하루 기준량의 범위, 하루 기준량 안에서 마쳤는지 여부, 직접 입력한 음료의 잔 수, 기록 항목(당·카페인) 설정" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "drink identifiers from the app's menu data, cup count, weekday and hour logged (on the hour), menu country, daily limit range, whether the day ended within the daily limit, cup count of manually entered drinks, and tracked items (sugar, caffeine) settings"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App 菜單資料中的飲品識別值、杯數、記錄的星期與時段（以整點為單位）、菜單國家、每日基準量範圍、是否在每日基準量內結束、手動輸入飲品的杯數、記錄項目（糖、咖啡因）設定"
+          }
+        }
+      }
+    },
+    "무작위 생성 식별값:" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Randomly generated identifiers:"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "隨機產生的識別值："
+          }
+        }
+      }
+    },
+    "앱 설치 시 무작위로 만든 값과 앱을 실행할 때마다 새로 만드는 값으로, 이용 흐름을 잇는 데만 씁니다. 기기에서 변환(해시)한 뒤 보내며, 기기 고유번호나 광고 식별자가 아닙니다. 음료 기록(제2호)에는 이 값을 붙이지 않습니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "a value created at random when the app is installed and a new value created each time the app is launched, used only to connect usage flows. They are hashed on the device before sending and are not device serial numbers or advertising identifiers. They are not attached to drink records (item 2)."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "安裝 App 時隨機產生的值，以及每次啟動 App 時新產生的值，僅用於串連使用流程。會在裝置上轉換（雜湊）後傳送，並非裝置序號或廣告識別碼。飲品紀錄（第 2 款）不會附加此值。"
+          }
+        }
+      }
+    },
+    "기술 정보:" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Technical information:"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "技術資訊："
+          }
+        }
+      }
+    },
+    "앱 버전, 운영체제 버전, 언어·지역 설정" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "app version, OS version, language and region settings"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App 版本、作業系統版本、語言及地區設定"
+          }
+        }
+      }
+    },
+    "다음 정보는 수집하지 않습니다: 이름, 연락처, 이메일, 위치, 사진, 광고 식별자, 직접 입력한 음료 이름, 음료를 기록한 정확한 시각, 기록 하나하나의 당·카페인 양." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We do not collect: name, contact details, email, location, photos, advertising identifiers, names of manually entered drinks, the exact time a drink was logged, or the sugar or caffeine amount of individual records."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下列資訊不會蒐集：姓名、聯絡方式、電子郵件、位置、照片、廣告識別碼、手動輸入的飲品名稱、記錄飲品的確切時間、每筆紀錄的糖或咖啡因含量。"
+          }
+        }
+      }
+    },
+    "제4조 (보유 및 이용 기간)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Article 4 (Retention and Use Period)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第 4 條（保存及使用期間）"
+          }
+        }
+      }
+    },
+    "수집한 정보는 수집일로부터 2년 동안 보유·이용하며, 기간이 끝나거나 이용자가 동의를 철회하면 지체 없이 파기합니다. 다만 이미 보낸 정보에는 이용자를 알아볼 수 있는 값이 없어 이용자별로 골라 지울 수 없으므로, 동의 철회 이후에는 새로 수집하지 않는 방식으로 처리합니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collected data is kept and used for 2 years from collection and deleted without delay when that period ends or when you withdraw consent. However, data already sent contains no value that identifies you, so it cannot be singled out and deleted per user; after you withdraw, we handle this by collecting nothing new."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "蒐集的資訊自蒐集日起保存及使用 2 年，期滿或使用者撤回同意時立即銷毀。但已傳送的資訊不含可識別使用者的值，無法依使用者個別刪除，因此撤回同意後，以不再新蒐集的方式處理。"
+          }
+        }
+      }
+    },
+    "제5조 (처리 위탁 및 국외 이전)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Article 5 (Outsourcing and Transfer Abroad)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第 5 條（委託處理及境外傳輸）"
+          }
+        }
+      }
+    },
+    "운영자는 이용 기록의 저장과 분석을 아래 업체에 맡기며, 이에 따라 정보가 국외로 이전됩니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The operator entrusts storage and analysis of usage data to the company below, and the data is transferred abroad accordingly."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "營運者將使用紀錄的儲存與分析委託給下列業者，資訊因此傳輸至境外。"
+          }
+        }
+      }
+    },
+    "이전받는 자" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recipient"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "接收者"
+          }
+        }
+      }
+    },
+    "TelemetryDeck GmbH (Von-der-Tann-Str. 54, 86159 Augsburg, Germany)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TelemetryDeck GmbH (Von-der-Tann-Str. 54, 86159 Augsburg, Germany)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TelemetryDeck GmbH (Von-der-Tann-Str. 54, 86159 Augsburg, Germany)"
+          }
+        }
+      }
+    },
+    "이전되는 국가" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Countries"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "傳輸國家"
+          }
+        }
+      }
+    },
+    "독일, 네덜란드(위탁사가 이용하는 Amazon Web Services·Hetzner의 독일 서버와 Microsoft Azure의 네덜란드 서버)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Germany and the Netherlands (German servers of Amazon Web Services and Hetzner and Netherlands servers of Microsoft Azure, used by the processor)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "德國、荷蘭（受託者使用的 Amazon Web Services 與 Hetzner 德國伺服器，以及 Microsoft Azure 荷蘭伺服器）"
+          }
+        }
+      }
+    },
+    "이전 일시와 방법" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When and how"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "傳輸時間與方式"
+          }
+        }
+      }
+    },
+    "동의 후 앱 이용 시마다 암호화된 네트워크로 전송" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sent over an encrypted network each time you use the app after consenting"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "同意後每次使用 App 時，透過加密網路傳送"
+          }
+        }
+      }
+    },
+    "이전 항목" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data transferred"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "傳輸項目"
+          }
+        }
+      }
+    },
+    "제3조의 항목" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The items in Article 3"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第 3 條所列項目"
+          }
+        }
+      }
+    },
+    "이용 목적" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purpose"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用目的"
+          }
+        }
+      }
+    },
+    "이용 기록 저장과 통계 처리" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Storing usage data and processing statistics"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "儲存使用紀錄及統計處理"
+          }
+        }
+      }
+    },
+    "보유 기간" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retention"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存期間"
+          }
+        }
+      }
+    },
+    "제4조와 같음" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Same as Article 4"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "與第 4 條相同"
+          }
+        }
+      }
+    },
+    "거부 방법" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How to refuse"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拒絕方式"
+          }
+        }
+      }
+    },
+    "동의하지 않거나 설정에서 \"이용 기록 제공\"을 끄면 이전되지 않습니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing is transferred if you do not consent or turn off \"Share Usage Data\" in Settings."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不同意或在設定中關閉「提供使用紀錄」，即不會傳輸。"
+          }
+        }
+      }
+    },
+    "전송 과정에서 기기의 IP 주소가 위탁사 서버에 전달되지만, 위탁사는 이를 데이터베이스나 로그 파일 어디에도 저장하지 않는다고 밝히고 있습니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your device's IP address reaches the processor's servers during transmission, but the processor states that it does not store it anywhere, in databases or log files."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "傳送過程中，裝置的 IP 位址會傳到受託者的伺服器，但受託者表示不會將其儲存在任何資料庫或日誌檔中。"
+          }
+        }
+      }
+    },
+    "제6조 (동의를 거부할 권리와 불이익)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Article 6 (Right to Refuse and Consequences)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第 6 條（拒絕同意的權利與不利影響）"
+          }
+        }
+      }
+    },
+    "이용자는 이 동의를 거부할 권리가 있습니다. 동의하지 않아도 음료 기록, 마감, 캐릭터, 구독 등 앱의 모든 기능을 똑같이 이용할 수 있으며 어떠한 불이익도 없습니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You have the right to refuse this consent. Even if you do not consent, you can use every feature of the app, including drink logging, closing the day, characters, and subscriptions, exactly the same, with no disadvantage of any kind."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用者有權拒絕本同意。即使不同意，也能同樣使用飲品記錄、結算、角色、訂閱等 App 的所有功能，不會有任何不利影響。"
+          }
+        }
+      }
+    },
+    "제7조 (동의 철회)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Article 7 (Withdrawing Consent)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第 7 條（撤回同意）"
+          }
+        }
+      }
+    },
+    "이용자는 언제든지 앱의 설정 > 개인정보 > \"이용 기록 제공\"을 꺼서 동의를 철회할 수 있습니다. 철회하면 그 즉시 수집을 멈추고, 기기에 남아 있던 미전송 기록도 삭제합니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can withdraw consent at any time by turning off \"Share Usage Data\" under Settings > Privacy in the app. Collection stops immediately, and unsent records left on the device are deleted."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用者可隨時在 App 的設定 > 隱私中關閉「提供使用紀錄」以撤回同意。撤回後立即停止蒐集，並刪除裝置上尚未傳送的紀錄。"
+          }
+        }
+      }
+    },
+    "제8조 (문의)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Article 8 (Contact)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第 8 條（聯絡方式）"
+          }
+        }
+      }
+    },
+    "이용 기록 처리에 관한 문의:" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questions about usage data:"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用紀錄處理相關問題："
+          }
+        }
+      }
+    },
+    "부칙" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Addendum"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "附則"
+          }
+        }
+      }
+    },
+    "이 동의서는 2026년 11월 19일부터 적용합니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This consent applies from November 19, 2026."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本同意書自2026年11月19日起適用。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

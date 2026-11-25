@@ -127,6 +127,12 @@ struct TodayView: View {
     @State private var earlyBirdTaken = false
     @AppStorage(ReviewPrompt.askedKey) private var reviewAsked = false
     @State private var isReviewDue = false
+    /// 이용 기록 동의 카드(SPEC §9.10). 마감하면 `consentDue`가 켜지고, 답하면 `consentAnswer`가 생겨 다시 안 뜬다.
+    @AppStorage(ConsentPrompt.dueKey) private var consentDue = false
+    @AppStorage(UsageConsent.key) private var consentAnswer: Bool?
+    @State private var isConsentPresented = false
+    /// CI 스크린샷(Debug `-screenshotConsent full`)이면 전문을 펼친 채로 연다.
+    @State private var consentStartsExpanded = false
 
     @Environment(ProStore.self) private var pro
     @Environment(UpdateStore.self) private var update
@@ -1147,10 +1153,110 @@ struct TodayView: View {
         let today = DayKey(at: now, boundaryHour: boundaryHour)
         let todays = todaysEntries(now: now)
         let totals = DayMath.totals(Self.screenshotSugarOver(limits) ?? todays.map(\.consumption), limits: limits)
+        layered(now: now, today: today, totals: totals)
+        .task(id: giftSideCue) {
+            guard let target = giftSideCue else { return }
+            try? await Task.sleep(for: .seconds(0.4))
+            guard !Task.isCancelled, giftSideCue == target else { return }
+            switchSide(to: target)
+        }
+        .task(id: tradeCue(now: now)) {
+            if tradeCue(now: AppClock.now) != nil { await offerTradeIfDue(today: today) }
+        }
+        .task(id: leavingOffer) {
+            if let leavingOffer { await finishLeaving(leavingOffer) }
+        }
+        .sensoryFeedback(.success, trigger: tradesAccepted)
+        .task(id: trialPaywallCue) {
+            if trialPaywallCue { await presentTrialPaywall() }
+        }
+        .task(id: levelUpCue) {
+            if let levelUpCue { await startLevelUp(after: levelUpCue) }
+        }
+        .task(id: levelUp?.id) {
+            if let levelUp { await playLevelUp(levelUp) }
+        }
+        .task(id: opening?.id) {
+            if let opening { await unlockAfterKeyFlight(opening) }
+        }
+        // 상자가 열리는 순간 가볍게, 열쇠가 버튼을 열 때 성공 햅틱(SPEC §4.9).
+        .sensoryFeedback(.impact(weight: .light), trigger: opening?.id) { _, new in new != nil }
+        .sensoryFeedback(.success, trigger: opening?.isUnlocked == true) { _, new in new }
+        .onAppear { isOnScreen = true }
+        .onDisappear { isOnScreen = false }
+        // 하루가 바뀔 때마다(앱을 켠 날마다) 정산을 한 번 돈다(§4.7).
+        // Pro를 처음 사면 축하 선물(§4.9 2026-10-12). 기록하는 면이 바뀌면 다시 본다(고를 물건이 생길 수 있다).
+        .task(id: pro.ownsRealPro ? trackedSides : []) { grantProWelcomeIfOwned() }
+        .task(id: stamps.count) { await grantEarlyBirdIfDue() }
+        // Large 위젯 선반. 앱을 열 때, 기록·삭제·별표로 후보가 바뀔 때 다시 쓴다.
+        .task(id: shelfCandidates) { writeWidgetShelf(shelfCandidates) }
+        .task(id: today) {
+            refreshSettlement(today: today)
+            presentScreenshotFeedingIfRequested(totals: totals)
+            presentScreenshotGiftIfRequested()
+            presentScreenshotLevelUpIfRequested()
+            presentScreenshotWeekKeptIfRequested(today: today)
+            presentScreenshotTradeIfRequested()
+        }
+    }
+
+    /// 컵 장면에 얹는 조작부·연출·카드들. `content`의 수식어 체인을 나눠 타입 추론 시간을 줄인다.
+    @ViewBuilder
+    private func layered(now: Date, today: DayKey, totals: DayTotals) -> some View {
+        stage(today: today, totals: totals)
+        .overlay(alignment: .bottom) { bottomControls(now: now, today: today, totals: totals) }
+        .overlay(alignment: .topTrailing) { cornerButtons }
+        .overlay(alignment: .topLeading) { updateBadge }
+        .overlay { tutorialOverlay(totals: totals) }
+        .animation(.easeOut(duration: 0.25), value: tutorial)
+        .task(id: tutorialPending) {
+            guard tutorialPending, tutorial == nil else { return }
+            try? await Task.sleep(for: .seconds(0.6))
+            guard !Task.isCancelled, tutorial == nil else { return }
+            startTutorial()
+        }
+        .task(id: tutorial) { await runTimedTutorialStep() }
+        .overlay { giftOpeningOverlay() }
+        .animation(.easeOut(duration: 0.25), value: opening?.id)
+        .overlay { levelUpOverlay() }
+        .animation(.easeOut(duration: 0.25), value: levelUp?.id)
+        .overlay { giftRevealOverlay() }
+        .animation(.easeOut(duration: 0.25), value: reveal?.id)
+        .overlay { tradeOverlay() }
+        .animation(.easeOut(duration: 0.25), value: trade?.id)
+        .overlay {
+            if let tradeApply { TradeApplyOverlay(apply: tradeApply) }
+        }
+        .task(id: tradeApply?.id) {
+            if let tradeApply { await playTradeApply(tradeApply) }
+        }
+        .overlay { stampCardOverlay() }
+        .animation(.easeOut(duration: 0.25), value: isStampCardPresented)
+        // 얼리버드 잔이 컵에 떨어지는 연출(`tradeApply`)이 끝난 뒤에 묻는다.
+        .requestsReview(when: isReviewDue && tradeApply == nil)
+        .task(id: stampCue) {
+            guard stampCue else { return }
+            try? await Task.sleep(for: .seconds(0.5))
+            guard !Task.isCancelled, stampCue else { return }
+            isStampCardPresented = true
+        }
+        .overlay { consentOverlay() }
+        .animation(.easeOut(duration: 0.25), value: isConsentPresented)
+        .task(id: consentCue) {
+            guard consentCue else { return }
+            try? await Task.sleep(for: .seconds(0.8))
+            guard !Task.isCancelled, consentCue else { return }
+            consentStartsExpanded = false
+            isConsentPresented = true
+        }
+    }
+
+    /// 컵 장면과 그 위 안내·어제 마감 문. `content`의 수식어 체인이 길어 타입 추론이 끝나지 않아 나눴다.
+    private func stage(today: DayKey, totals: DayTotals) -> some View {
         let remaining = side.remaining(totals)
         let limit = side.limit(limits)
 
-        ZStack(alignment: .topLeading) {
+        return ZStack(alignment: .topLeading) {
             cupStrip(totals: totals, notice: shownNotice(today: today), today: today)
 
             // 상태 바 글자가 밝은 사진 위에서 묻히지 않게 아주 옅게만 깐다.
@@ -1212,86 +1318,6 @@ struct TodayView: View {
                     if isGateRehearsal { self.gate = nil } else { dismissPastDay(gate.day) }
                 }
             )
-        }
-        .overlay(alignment: .bottom) { bottomControls(now: now, today: today, totals: totals) }
-        .overlay(alignment: .topTrailing) { cornerButtons }
-        .overlay(alignment: .topLeading) { updateBadge }
-        .overlay { tutorialOverlay(totals: totals) }
-        .animation(.easeOut(duration: 0.25), value: tutorial)
-        .task(id: tutorialPending) {
-            guard tutorialPending, tutorial == nil else { return }
-            try? await Task.sleep(for: .seconds(0.6))
-            guard !Task.isCancelled, tutorial == nil else { return }
-            startTutorial()
-        }
-        .task(id: tutorial) { await runTimedTutorialStep() }
-        .overlay { giftOpeningOverlay() }
-        .animation(.easeOut(duration: 0.25), value: opening?.id)
-        .overlay { levelUpOverlay() }
-        .animation(.easeOut(duration: 0.25), value: levelUp?.id)
-        .overlay { giftRevealOverlay() }
-        .animation(.easeOut(duration: 0.25), value: reveal?.id)
-        .overlay { tradeOverlay() }
-        .animation(.easeOut(duration: 0.25), value: trade?.id)
-        .overlay {
-            if let tradeApply { TradeApplyOverlay(apply: tradeApply) }
-        }
-        .task(id: tradeApply?.id) {
-            if let tradeApply { await playTradeApply(tradeApply) }
-        }
-        .overlay { stampCardOverlay() }
-        .animation(.easeOut(duration: 0.25), value: isStampCardPresented)
-        // 얼리버드 잔이 컵에 떨어지는 연출(`tradeApply`)이 끝난 뒤에 묻는다.
-        .requestsReview(when: isReviewDue && tradeApply == nil)
-        .task(id: stampCue) {
-            guard stampCue else { return }
-            try? await Task.sleep(for: .seconds(0.5))
-            guard !Task.isCancelled, stampCue else { return }
-            isStampCardPresented = true
-        }
-        .task(id: giftSideCue) {
-            guard let target = giftSideCue else { return }
-            try? await Task.sleep(for: .seconds(0.4))
-            guard !Task.isCancelled, giftSideCue == target else { return }
-            switchSide(to: target)
-        }
-        .task(id: tradeCue(now: now)) {
-            if tradeCue(now: AppClock.now) != nil { await offerTradeIfDue(today: today) }
-        }
-        .task(id: leavingOffer) {
-            if let leavingOffer { await finishLeaving(leavingOffer) }
-        }
-        .sensoryFeedback(.success, trigger: tradesAccepted)
-        .task(id: trialPaywallCue) {
-            if trialPaywallCue { await presentTrialPaywall() }
-        }
-        .task(id: levelUpCue) {
-            if let levelUpCue { await startLevelUp(after: levelUpCue) }
-        }
-        .task(id: levelUp?.id) {
-            if let levelUp { await playLevelUp(levelUp) }
-        }
-        .task(id: opening?.id) {
-            if let opening { await unlockAfterKeyFlight(opening) }
-        }
-        // 상자가 열리는 순간 가볍게, 열쇠가 버튼을 열 때 성공 햅틱(SPEC §4.9).
-        .sensoryFeedback(.impact(weight: .light), trigger: opening?.id) { _, new in new != nil }
-        .sensoryFeedback(.success, trigger: opening?.isUnlocked == true) { _, new in new }
-        .onAppear { isOnScreen = true }
-        .onDisappear { isOnScreen = false }
-        // 하루가 바뀔 때마다(앱을 켠 날마다) 정산을 한 번 돈다(§4.7).
-        // Pro를 처음 사면 축하 선물(§4.9 2026-10-12). 기록하는 면이 바뀌면 다시 본다(고를 물건이 생길 수 있다).
-        .task(id: pro.ownsRealPro ? trackedSides : []) { grantProWelcomeIfOwned() }
-        .task(id: stamps.count) { await grantEarlyBirdIfDue() }
-        // Large 위젯 선반. 앱을 열 때, 기록·삭제·별표로 후보가 바뀔 때 다시 쓴다.
-        .task(id: shelfCandidates) { writeWidgetShelf(shelfCandidates) }
-        .task(id: today) {
-            refreshSettlement(today: today)
-            presentScreenshotFeedingIfRequested(totals: totals)
-            presentScreenshotGiftIfRequested()
-            presentScreenshotLevelUpIfRequested()
-            presentScreenshotWeekKeptIfRequested(today: today)
-            presentScreenshotTradeIfRequested()
         }
     }
 
@@ -1659,6 +1685,7 @@ struct TodayView: View {
         case .pastDay: UsageReporter.shared?.log(UsageEvents.dayClosed(.pastDay))
         }
         didFeed = true
+        consentDue = true
         if let keptWeek { pendingWeekKept = try weekKeptCelebration(closed: keptWeek) }
         return results
     }
@@ -1729,6 +1756,7 @@ struct TodayView: View {
             try SettlementStore.dismissPastDay(day, now: AppClock.now, in: context)
             try context.save()
             UsageReporter.shared?.log(UsageEvents.dayClosed(.drank))
+            consentDue = true
             prompt = nil
             gate = nil
         } catch {
@@ -1935,6 +1963,11 @@ struct TodayView: View {
         if defaults.bool(forKey: "screenshotDayLog") {
             isDayLogPresented = true
         }
+        // 이용 기록 동의 카드(`-screenshotConsent summary|full`). 버튼을 누르면 실제로 답이 저장된다.
+        if let raw = defaults.string(forKey: "screenshotConsent") {
+            consentStartsExpanded = raw == "full"
+            isConsentPresented = true
+        }
         // 2주 스탬프판(`-screenshotStamps <찍은 칸 수>`). 14칸은 `-screenshotStampFinal caps|<잔 id>`(기본 청포도),
         // 찍는 연출은 `-screenshotStampSeen <본 칸 수>`(기본 = 찍은 칸 수, 연출 없음).
         if defaults.object(forKey: "screenshotStamps") != nil {
@@ -2058,6 +2091,33 @@ struct TodayView: View {
         reviewAsked = true
         isReviewDue = true
         #endif
+    }
+
+    // MARK: - 이용 기록 동의
+
+    /// 마감 뒤 연출(알림 질문·스탬프·단계 상승·선물 상자·주 축하·체험 권유)이 다 끝나고 오늘 화면이 비었을 때 한 번.
+    /// 이번 실행에 별점 창을 불렀으면 겹치지 않게 다음 실행으로 미룬다(`consentDue`는 남아 있다).
+    private var consentCue: Bool {
+        guard ConsentPrompt.isDue(consent: UsageConsent(stored: consentAnswer), closedDay: consentDue),
+              !isConsentPresented, !hasUnseenStamp, !isStampCardPresented, levelUp == nil, levelUpSide == nil,
+              giftWaitingSide == nil, opening == nil, reveal == nil, revealLead == nil, trade == nil, tradeApply == nil,
+              leavingOffer == nil, !trialPaywallPending, feeding == nil, gate == nil, weekKept == nil, !asksReminder,
+              paywall == nil, !isProPaywallPresented, tutorial == nil, !tutorialPending, !isReviewDue
+        else { return false }
+        return isOnScreen && !isSliding && !isSettingsPresented && !isTrendsPresented && !isRecordSheetPresented
+            && !isDayLogPresented && !isManualEntryPresented && path.isEmpty
+    }
+
+    @ViewBuilder
+    private func consentOverlay() -> some View {
+        if isConsentPresented {
+            ConsentCard(expanded: consentStartsExpanded) { granted in
+                consentAnswer = granted
+                isConsentPresented = false
+                Task { await ConsentPrompt.answer(granted: granted) }
+            }
+            .transition(.opacity.combined(with: .scale(scale: 0.97)))
+        }
     }
 
     // MARK: - 첫 기록 안내(DrinkTutorial)

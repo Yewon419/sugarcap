@@ -598,8 +598,9 @@ Entry는 기록 시점 값을 스냅샷한다. 카탈로그 갱신으로 과거 
      - `goal_started` {`side`, `weeks`, `startLimitBand`, `targetBand`}, `goal_stopped` {`side`, `achievedWeeks`, `evaluatedWeeks`}, `goal_reached` {`side`, `weeks`}. 구간은 음료 통계와 같다. 데모 데이터가 만드는 목표는 세지 않는다.
      - `reminder_answered` {`place`: `prompt`(첫 먹이기 뒤 질문)·`settings`, `result`: `granted`·`denied`·`notNow`(괜찮아요)·`turnedOff`}.
      - `widget_state` {`installed`, `count`}: 앱이 앞으로 올 때 올려 둔 위젯 수를 보고 지난번과 다를 때만(첫 확인은 항상). `WidgetCenter.getCurrentConfigurations`(async판은 iOS 18+). 코드 `Sources/Usage/WidgetUsage.swift`.
-- **보내지 않는 것:** 직접 입력한 음료 이름 등 자유 글, 잔마다 당 g·카페인 mg(`servingID`로 카탈로그에서 다시 계산), 정확한 기록 시각, 광고 식별자(IDFA, ATT 없음). 직접 입력 잔은 음료 통계에서 뺀다.
-- **App Privacy 신고 방향:** 섭취 기록이 Apple의 "Health"("any other user provided health or medical data")에 드는지 문서가 단정하지 않아, 보수적으로 "건강 · 사용자와 연결 안 됨 · 분석"으로 신고한다. 퍼널은 "사용 데이터(제품 상호작용) · 연결 안 됨 · 분석". 연결 안 됨 조건(보내기 전 식별자 제거, 받은 뒤 재연결·타 데이터 결합 금지)을 지킨다. 심사 지침 5.1.3 원문은 문항 작성 때 다시 확인한다.
+  9. `search_failed` {`query`, `place`, `scope`, `thenManual`, `brandID`?}: 기록 시트·브랜드 메뉴 검색 결과가 0개인 채로 직접 입력을 누르거나 시트를 닫았을 때 마지막 검색어 하나. 공백을 한 칸으로 줄여 20자까지, 글자가 없거나 숫자 7개 이상(전화번호)·`@`(이메일)가 든 글은 보내지 않는다(`UsageEvents.searchText`). 동의서 제3조 1호·개인정보처리방침·STORE §6 "검색 기록"에 적었다(대표님 2026-11-25).
+- **보내지 않는 것:** 직접 입력한 음료 이름 등 자유 글(결과 없던 검색어 9는 예외), 잔마다 당 g·카페인 mg(`servingID`로 카탈로그에서 다시 계산), 정확한 기록 시각, 광고 식별자(IDFA, ATT 없음). 직접 입력 잔은 음료 통계에서 뺀다.
+- **App Privacy 신고 방향:** 섭취 기록이 Apple의 "Health"("any other user provided health or medical data")에 드는지 문서가 단정하지 않아, 보수적으로 "건강 · 사용자와 연결 안 됨 · 분석"으로 신고한다. 퍼널은 "사용 데이터(제품 상호작용) · 연결 안 됨 · 분석", 결과 없던 검색어는 "검색 기록 · 연결 안 됨 · 분석"(최종 답은 `docs/STORE.md` §6). 연결 안 됨 조건(보내기 전 식별자 제거, 받은 뒤 재연결·타 데이터 결합 금지)을 지킨다. 심사 지침 5.1.3 원문은 문항 작성 때 다시 확인한다.
 - **분석:** 받은 원자료를 카탈로그와 맞춰 당·카페인을 다시 계산하고, 시간대는 `MonthDigest`와 같은 아침·점심·오후·저녁으로 묶는다. 결과는 운영자만 본다. 앱에 내려보내는 것은 없다.
 - **받는 곳 = TelemetryDeck Free(대표님 2026-11-03).** Vercel 함수를 두지 않으므로 §2.3 "서버 로직 없음"은 그대로다. 실측(2026-11-03 요금 계산기·API 문서): Free = 월 5만 이벤트(2026-07-01 이전 가입 계정은 10만)·보관 3개월·하루 지연·앱 3개·**API 토큰 없음**, Indie = €9/월·75만·보관 24개월·실시간·API.
   - 음료 통계는 대시보드 JSON 내보내기로 손으로 받아 분석한다. 보관이 3개월이라 내보낸 파일을 우리가 쌓아 둬야 긴 추이(최근 6개월 등)를 본다.

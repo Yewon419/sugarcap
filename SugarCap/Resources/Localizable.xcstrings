@@ -9152,18 +9152,18 @@
         }
       }
     },
-    "앱 이용 기록, 음료 기록(메뉴·잔 수·요일·시간대), 무작위 생성 식별값, 앱 버전·운영체제 버전·언어·지역 설정" : {
+    "앱 이용 기록(결과가 없던 검색어 포함), 음료 기록(메뉴·잔 수·요일·시간대), 무작위 생성 식별값, 앱 버전·운영체제 버전·언어·지역 설정" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "App usage records, drink records (menu, cup count, weekday, time of day), randomly generated identifiers, app version, OS version, language and region settings"
+            "value" : "App usage records (including search terms that returned no results), drink records (menu, cup count, weekday, time of day), randomly generated identifiers, app version, OS version, language and region settings"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "App 使用紀錄、飲品紀錄（菜單、杯數、星期、時段）、隨機產生的識別值、App 版本、作業系統版本、語言及地區設定"
+            "value" : "App 使用紀錄（包含無搜尋結果的搜尋字詞）、飲品紀錄（菜單、杯數、星期、時段）、隨機產生的識別值、App 版本、作業系統版本、語言及地區設定"
           }
         }
       }
@@ -9504,18 +9504,18 @@
         }
       }
     },
-    "처음 사용 안내 완료 여부, 음료 기록 방법(검색·브랜드 메뉴·즐겨찾기·최근 기록·직접 입력의 구분), 하루 마감 진행 여부, 구독 안내 화면의 표시와 선택 결과, 줄이기 목표·마감 알림·위젯 사용 여부" : {
+    "처음 사용 안내 완료 여부, 음료 기록 방법(검색·브랜드 메뉴·즐겨찾기·최근 기록·직접 입력의 구분), 하루 마감 진행 여부, 구독 안내 화면의 표시와 선택 결과, 줄이기 목표·마감 알림·위젯 사용 여부, 결과가 없던 검색어(20자까지, 전화번호·이메일로 보이는 글은 보내지 않음)" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "whether onboarding was completed, how drinks are logged (search, brand menu, favorites, recent, or manual entry), whether days are closed, when the subscription screen is shown and what is chosen, and whether reduction goals, closing reminders, and widgets are used"
+            "value" : "whether onboarding was completed, how drinks are logged (search, brand menu, favorites, recent, or manual entry), whether days are closed, when the subscription screen is shown and what is chosen, whether reduction goals, closing reminders, and widgets are used, and search terms that returned no results (up to 20 characters; text that looks like a phone number or email address is not sent)"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "是否完成初次使用導覽、飲品記錄方式（搜尋、品牌菜單、我的最愛、最近紀錄、手動輸入的區分）、是否進行每日結算、訂閱介紹畫面的顯示與選擇結果、是否使用減量目標、結算提醒及小工具"
+            "value" : "是否完成初次使用導覽、飲品記錄方式（搜尋、品牌菜單、我的最愛、最近紀錄、手動輸入的區分）、是否進行每日結算、訂閱介紹畫面的顯示與選擇結果、是否使用減量目標、結算提醒及小工具、無搜尋結果的搜尋字詞（最多 20 字，看似電話號碼或電子郵件的文字不會傳送）"
           }
         }
       }

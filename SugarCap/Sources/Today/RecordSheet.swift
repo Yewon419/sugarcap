@@ -18,6 +18,8 @@ struct RecordSheet: View {
     let todayCount: Int
     /// 잘못 넣은 음료를 바로 고치러 간다(빌드 272 대표님 "수정할 경로가 가까워야지").
     let onTodayLog: () -> Void
+    /// 시트를 연 화면. 결과 0개 검색어를 보낼 때 같이 보낸다(이용 기록 §9.10).
+    let place: EntryPlace
 
     @Query(sort: \FavoriteDrink.addedAt) private var favorites: [FavoriteDrink]
     @Query(sort: \FavoriteBrand.addedAt) private var favoriteBrands: [FavoriteBrand]
@@ -34,6 +36,8 @@ struct RecordSheet: View {
     @State private var firstBrandFrame: CGRect = .zero
     @State private var panelDrink: Drink?
     @State private var failureMessage: String?
+    /// 이미 보낸 결과 0개 검색어. 같은 말을 두 번 보내지 않는다.
+    @State private var reportedFailure: String?
 
     /// CI 스크린샷이 검색 결과를 찍게 검색어를 미리 넣는다(`-screenshotRecordQuery 스타벅스`, Debug 빌드만).
     private static var initialQuery: String {
@@ -93,6 +97,7 @@ struct RecordSheet: View {
                 CoachMark(hole: firstBrandFrame, text: String(localized: "마신 음료의 브랜드를 탭하세요")) { onBrand(BrandRoute(brandID: first.id)) }
             }
         }
+        .onDisappear { reportFailedSearch(thenManual: false) }
         .interactiveDismissDisabled(tutorial != nil)
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
@@ -276,7 +281,10 @@ struct RecordSheet: View {
             } else if brands.isEmpty {
                 CaptionNote(text: String(localized: "\"\(query)\" 메뉴가 없어요. 직접 입력으로 남길 수 있어요."))
                     .padding(.top, 10)
-                Button(action: onManualEntry) {
+                Button {
+                    reportFailedSearch(thenManual: true)
+                    onManualEntry()
+                } label: {
                     Label("직접 입력", systemImage: "plus").glassPill()
                 }
                 .buttonStyle(.plain)
@@ -292,6 +300,16 @@ struct RecordSheet: View {
                 }
             }
         }
+    }
+
+    /// 결과 0개 화면에서 직접 입력을 눌렀거나 그 상태로 시트를 닫았을 때 마지막 검색어 하나만 보낸다.
+    private func reportFailedSearch(thenManual: Bool) {
+        guard tutorial == nil, reportedFailure != query, !DrinkQuery(query).isEmpty,
+            catalog.brandMatches(query).isEmpty, catalog.search(query).isEmpty,
+            let draft = UsageEvents.searchFailed(query: query, place: place, brandID: nil, thenManual: thenManual)
+        else { return }
+        reportedFailure = query
+        UsageReporter.shared?.log(draft)
     }
 
     private func brandRow(_ match: BrandMatch) -> some View {

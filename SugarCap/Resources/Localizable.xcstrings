@@ -5220,6 +5220,38 @@
         }
       }
     },
+    "이번 주 지킨 날" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Days kept this week"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本週達標天數"
+          }
+        }
+      }
+    },
+    "이번 주 지킨 날 %lld일" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Days kept this week: %lld"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本週達標 %lld 天"
+          }
+        }
+      }
+    },
     "이용약관" : {
       "localizations" : {
         "en" : {

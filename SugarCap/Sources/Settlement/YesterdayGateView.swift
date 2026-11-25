@@ -28,6 +28,7 @@ struct YesterdayGateView: View {
     let catalog: CatalogIndex
     let onFeed: (FeedingRequest) throws -> [FeedResult]
     let onAddDrink: (Entry, FeedingRequest) throws -> FeedingRequest
+    let weekSlots: (FeedingRequest) throws -> [GiftMath.WeekSlot]
     let onDrank: () -> Void
 
     @State private var feeding: FeedingRequest?
@@ -39,7 +40,8 @@ struct YesterdayGateView: View {
             FeedingView(
                 request: feeding, opening: isSkipped ? .skipped : opening, catalog: catalog,
                 onFeed: { try onFeed(feeding) },
-                onAddDrink: { entry in try onAddDrink(entry, feeding) }
+                onAddDrink: { entry in try onAddDrink(entry, feeding) },
+                weekSlots: { try weekSlots(feeding) }
             )
         } else {
             gateScreen

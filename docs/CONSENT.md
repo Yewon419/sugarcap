@@ -60,14 +60,23 @@ SPEC §9.10의 동의 화면 문구 원본. 대표님 확정 전 초안이다. `
 | 항목 | 내용 |
 |---|---|
 | 이전받는 자 | TelemetryDeck GmbH (Von-der-Tann-Str. 54, 86159 Augsburg, Germany) |
-| 이전되는 국가 | 독일 등 유럽연합(EU) 내 서버 [확인 필요: 위탁사 문서상 저장은 EU 내, 일부 인프라는 네덜란드·독일 소재 클라우드] |
+| 이전되는 국가 | 독일, 네덜란드(위탁사가 이용하는 Amazon Web Services·Hetzner의 독일 서버와 Microsoft Azure의 네덜란드 서버) |
 | 이전 일시와 방법 | 동의 후 앱 이용 시마다 암호화된 네트워크로 전송 |
 | 이전 항목 | 제3조의 항목 |
 | 이용 목적 | 이용 기록 저장과 통계 처리 |
 | 보유 기간 | 제4조와 같음 |
 | 거부 방법 | 동의하지 않거나 설정에서 "이용 기록 제공"을 끄면 이전되지 않습니다. |
 
-[확인 필요: 전송 과정의 IP 주소를 위탁사가 저장하는지. 위탁사 공개 문서에 답이 없어 문의 또는 처리 위탁 계약서(AVV)로 확인 후 문구 확정]
+전송 과정에서 기기의 IP 주소가 위탁사 서버에 전달되지만, 위탁사는 이를 데이터베이스나 로그 파일 어디에도 저장하지 않는다고 밝히고 있습니다.
+
+<!-- 근거(2026-11-19 위탁사 공개 문서 확인, 대표님 결정 "공개 문서로 확정"):
+     국가 = Privacy FAQ "Where is TelemetryDeck hosted?"(https://telemetrydeck.com/docs/guides/privacy-faq/):
+       Azure 암스테르담, AWS 프랑크푸르트, Hetzner 팔켄슈타인·뉘른베르크. 수집 엔드포인트가 그중 어디인지는 공개되지 않음.
+     IP = 같은 FAQ "IP addresses are never stored on the TelemetryDeck server, neither in the database nor in log files",
+       Ingest v3 문서(https://telemetrydeck.com/docs/ingest/v3/) "The IP address itself is never stored."
+     남는 것: 위탁사 웹사이트 개인정보처리방침(https://telemetrydeck.com/privacy/)은 자사 온라인 서비스 이용 시 IP를 저장한다고 써 있고,
+       수집 서버도 여기에 드는지 문서가 말하지 않는다. 클라우드 사업자 쪽 네트워크 기록, 재수탁자 목록(DPA 제6조, 개별 고지 없음)도 공개되지 않음. -->
+
 
 ### 제6조 (동의를 거부할 권리와 불이익)
 이용자는 이 동의를 거부할 권리가 있습니다. 동의하지 않아도 음료 기록, 마감, 캐릭터, 구독 등 앱의 모든 기능을 똑같이 이용할 수 있으며 어떠한 불이익도 없습니다.
@@ -79,4 +88,4 @@ SPEC §9.10의 동의 화면 문구 원본. 대표님 확정 전 초안이다. `
 이용 기록 처리에 관한 문의: windgarden05@gmail.com
 
 ### 부칙
-이 동의서는 [시행일] 부터 적용합니다.
+이 동의서는 2026년 11월 19일부터 적용합니다.

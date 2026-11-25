@@ -41,20 +41,39 @@ enum GiftMath {
         day.shifted(by: -((day.weekday(calendar: calendar) + 5) % 7), calendar: calendar)
     }
 
-    /// 기준 지킨 주 선물을 지금 줄지. `closed`가 일요일이고, 그 주 월~일 7일을 모두 마감했고,
-    /// 마감 순간 `sides`(기록하는 면) 전부 하루 기준 안이었고, 그 주 선물을 아직 안 줬을 때.
-    /// 주 중간에 시작했거나 마감하지 않은 날이 있으면 행이 없어 자연히 빠진다.
+    /// 기준 지킨 주에 필요한 지킨 날 수(7일 중, 대표님 2026-11-19).
+    static let requiredKeptDays = 5
+
+    /// 주 진행 칸 하나. 마감 안 한 날은 못 지킨 날로 센다(감소 목표와 다르다).
+    enum WeekSlot: Equatable, Sendable {
+        case kept, missed, upcoming
+    }
+
+    /// `closed`가 든 달력 주 월~일 7칸. `closed` 뒤의 날은 `upcoming`.
+    /// 마감 순간 `sides`(기록하는 면) 전부 하루 기준 안이었던 날만 `kept`.
+    static func weekSlots(
+        closed: DayKey, days: [ClosedDay], sides: [CupSide], calendar: Calendar = .current
+    ) -> [WeekSlot] {
+        let monday = weekStart(of: closed, calendar: calendar)
+        return (0 ..< 7).map { offset in
+            let day = monday.shifted(by: offset, calendar: calendar)
+            if day > closed { return .upcoming }
+            guard !sides.isEmpty, let row = days.first(where: { $0.day == day }) else { return .missed }
+            return sides.allSatisfy(row.kept) ? .kept : .missed
+        }
+    }
+
+    /// 기준 지킨 주 선물을 지금 줄지. `closed`가 든 주(월~일)에 지킨 날이 `requiredKeptDays`에 닿았고,
+    /// 그 주 선물을 아직 안 줬을 때. 다섯 번째 지킨 날을 마감한 그 자리에서 준다(일요일을 기다리지 않는다).
     static func grantsWeekKept(
         closed: DayKey, days: [ClosedDay], sides: [CupSide], gifts: [Record], calendar: Calendar = .current
     ) -> Bool {
-        guard !sides.isEmpty, closed.weekday(calendar: calendar) == 1 else { return false }
+        guard !sides.isEmpty else { return false }
         let monday = weekStart(of: closed, calendar: calendar)
         guard !gifts.contains(where: { $0.kind == .weekKept && $0.week == monday }) else { return false }
-        return (0 ..< 7).allSatisfy { offset in
-            let day = monday.shifted(by: offset, calendar: calendar)
-            guard let row = days.first(where: { $0.day == day }) else { return false }
-            return sides.allSatisfy(row.kept)
-        }
+        let sunday = monday.shifted(by: 6, calendar: calendar)
+        let slots = weekSlots(closed: sunday, days: days, sides: sides, calendar: calendar)
+        return slots.filter { $0 == .kept }.count >= requiredKeptDays
     }
 
     /// 튜토리얼 상자(병뚜껑 1개) 수(§4.10 초반 보상 고정).

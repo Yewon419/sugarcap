@@ -78,9 +78,31 @@ enum CatalogStore {
         }
         return try load(from: try Data(contentsOf: url))
     }
+
+    /// 번들 파일 앞 1KB에서 `built_at`만 읽는다. 파이프라인이 `schema_version`·`built_at`을 맨 앞에 쓴다(`RemoteCatalogTests`가 지킨다).
+    static func bundledBuiltAt(_ country: MenuCountry, from bundle: Bundle = .main) throws -> String {
+        let name = country.catalogResourceName
+        guard let url = bundle.url(forResource: name, withExtension: resourceExtension) else {
+            throw CatalogError.resourceMissing("\(name).\(resourceExtension)")
+        }
+        let handle = try FileHandle(forReadingFrom: url)
+        defer {
+            do {
+                try handle.close()
+            } catch {
+                RemoteCatalog.logger.error("번들 카탈로그 파일 닫기 실패: \(String(describing: error), privacy: .public)")
+            }
+        }
+        let head = String(decoding: try handle.read(upToCount: 1024) ?? Data(), as: UTF8.self)
+        guard let match = head.firstMatch(of: #/"built_at"\s*:\s*"([^"]+)"/#) else {
+            throw RemoteCatalogError.missingBuiltAt("\(name).\(resourceExtension)")
+        }
+        return String(match.1)
+    }
 }
 
 /// 지금 고른 나라의 카탈로그. 나라가 바뀌면 그 나라 파일을 다시 읽는다(한국 약 8.3MB라 둘 다 들고 있지 않는다).
+/// 원격에서 받아 둔 더 새 파일이 있으면 그걸 쓴다(`RemoteCatalog`, SPEC §2.3).
 @MainActor
 @Observable
 final class LoadedCatalog {
@@ -101,9 +123,9 @@ final class LoadedCatalog {
     }
 
     private static func load(_ country: MenuCountry) -> Result<CatalogIndex, any Error> {
-        let loaded = Result { CatalogIndex(catalog: try CatalogStore.loadBundled(country)) }
+        let loaded = Result { CatalogIndex(catalog: try RemoteCatalog.live.loadNewest(country)) }
         if case .failure(let error) = loaded {
-            logger.fault("번들 카탈로그 로드 실패(\(country.rawValue, privacy: .public)): \(String(describing: error), privacy: .public)")
+            logger.fault("카탈로그 로드 실패(\(country.rawValue, privacy: .public)): \(String(describing: error), privacy: .public)")
         }
         return loaded
     }

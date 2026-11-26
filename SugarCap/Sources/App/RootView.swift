@@ -84,11 +84,26 @@ struct RootView: View {
                 Task { await UsageReporter.shared?.noteWidgets() }
                 UsageReporter.shared?.logWidgetEntries()
                 Task { await update.refresh() }
+                refreshRemoteCatalog()
             }
         }
         // 설정에서 메뉴 국가를 바꾸면 그 나라 카탈로그로 갈아 끼운다(SPEC §9.9).
         .onChange(of: settingsRows.first?.menuCountry) { _, country in
             if let country { catalog.show(country) }
+        }
+    }
+
+    /// 원격 카탈로그를 받아 둔다(SPEC §2.3). 받은 파일은 다음 실행부터 쓴다. 실패는 로그만 남기고 번들·캐시를 그대로 쓴다.
+    private func refreshRemoteCatalog() {
+        guard RemoteCatalog.refreshesOnForeground else { return }
+        let country = catalog.country
+        Task {
+            do {
+                let outcome = try await RemoteCatalog.live.refresh(country)
+                RemoteCatalog.logger.info("원격 카탈로그 확인(\(country.rawValue, privacy: .public)): \(String(describing: outcome), privacy: .public)")
+            } catch {
+                RemoteCatalog.logger.error("원격 카탈로그 갱신 실패(\(country.rawValue, privacy: .public)): \(String(describing: error), privacy: .public)")
+            }
         }
     }
 

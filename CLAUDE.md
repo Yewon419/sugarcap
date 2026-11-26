@@ -6,6 +6,7 @@ SSOT = `SPEC.md`. 세션 시작 시 SPEC §0·§8·§9부터 읽는다.
 - `tools/scrape/` — 카탈로그 수집 파이프라인(Python 3.13). 패키지 `sugarcap_scrape`, 브랜드 파서는 `brands/<id>.py`.
 - `data/catalog.json` — 앱이 번들·원격 갱신하는 산출물. 손으로 고치지 않는다. 파이프라인으로만 생성.
 - iOS 앱은 Phase 1에서 `SugarCap/` 아래 XcodeGen 프로젝트로 추가.
+- Android 앱은 `android/`(Kotlin + Compose, SPEC §9.11). 카탈로그는 빌드가 `data/`에서 에셋으로 가져가고 JVM 테스트도 `data/`를 직접 읽는다. 명령: `android/`에서 `./gradlew test assembleDebug`. 한글 경로에서 Gradle이 깨지므로 영문 경로 클론에서 돌린다. 검색 규칙(`brand/DrinkSearch.kt`, `catalog/CatalogIndex.kt`)은 iOS를 옮긴 것이라 바꾸면 양쪽 코드·테스트를 같이 고친다.
 
 ## 파이프라인 명령 (전부 `tools/scrape/`에서, venv는 리포 루트 `.venv`)
 ```

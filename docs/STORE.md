@@ -74,12 +74,14 @@
 | 이 앱이 데이터를 수집합니까? | **예** |
 | 건강 및 피트니스 > 건강 | 사용자와 연결 안 됨 · 추적 안 함 · 목적: 분석 |
 | 사용 데이터 > 제품 상호작용 | 사용자와 연결 안 됨 · 추적 안 함 · 목적: 분석 |
+| 검색 기록 > 검색 기록 | 사용자와 연결 안 됨 · 추적 안 함 · 목적: 분석 |
 | 식별자 > 기기 ID | 사용자와 연결 안 됨 · 추적 안 함 · 목적: 분석 |
 | 추적(App Tracking Transparency) | 하지 않음 → `NSUserTrackingUsageDescription` 불필요 |
 
 근거:
 - 건강: 음료 기록(메뉴·잔 수·요일·시간대)이 Apple의 "기타 사용자 제공 건강 데이터"에 드는지 문서가 단정하지 않아 보수적으로 신고한다(SPEC §9.10).
 - 제품 상호작용: 온보딩 완료·기록 경로·마감·페이월 결과 같은 퍼널 이벤트.
+- 검색 기록: 결과가 0개였던 검색어(`search_failed`, 20자까지, 전화번호·이메일로 보이는 글은 거름). Apple 정의 "Information about searches performed in the app"(App Privacy Details, Browsing History 아래 Search History, 2026-11-25 확인)에 그대로 든다.
 - 기기 ID: 설치 때 만든 무작위 값을 해시해 보낸다. TelemetryDeck 안내(https://telemetrydeck.com/docs/articles/apple-app-privacy, 2024-02-27 수정)가 사용자 식별값을 따로 넣지 않는 기본 설정을 "식별자 > 기기 ID · 연결 안 됨 · 추적 안 함 · 분석"으로 답하라고 한다.
 - 연결 안 됨 조건: 이름·연락처·계정이 없고, 음료 기록에는 식별값을 붙이지 않으며, 받은 뒤 다른 데이터와 결합하지 않는다.
 - SDK는 넣지 않았다. 앱이 `nom.telemetrydeck.com`으로 직접 보낸다(`Sources/Usage/UsageReporter.swift`). 그래도 받는 곳이 제3자라 위 신고 대상이다.
@@ -192,7 +194,7 @@ See how much you left each day of the week, cup by cup.
 - Widget
 
 ■ No account, no server
-There's nothing to sign up for. Your entries stay on this device and are never sent anywhere.
+There's nothing to sign up for. Your entries are stored on this device. Usage data is shared only if you agree, and you can turn it off anytime in Settings.
 
 Purchase information
 - SugarCap Pro Yearly: auto-renewing subscription. It renews automatically unless canceled at least 24 hours before the end of the current period. Manage or cancel it in your App Store account settings.
@@ -271,7 +273,7 @@ cama café 公開的是全糖時的最高值；咖啡因只以區間（≤100、
 - 小工具
 
 ■ 不用帳號，沒有伺服器
-不需要註冊。你的記錄只存在這台裝置上，不會傳送到任何地方。
+不需要註冊。你的記錄儲存在這台裝置上。只有在你同意時才會提供使用紀錄，也可以隨時在設定中關閉。
 
 購買資訊
 - SugarCap Pro 年訂閱：自動續訂。除非在目前期間結束前至少 24 小時取消，否則會自動續訂。可在 App Store 帳號設定中管理或取消。

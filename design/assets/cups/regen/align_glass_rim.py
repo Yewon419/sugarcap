@@ -31,12 +31,23 @@ class Search:
     scale_min: float = 0.94
     shift_span: int = 30
     wide_rim: bool = False
+    # 잔을 이미 아메리카노 윤곽에 맞춘 사진이면 1단계(잔 전체 배율·이동)를 건너뛴다.
+    glass_fixed: bool = False
+    rim_k_min: float = 0.85
+    # 탐색이 못 붙는 단계는 눈으로 잰 입구 바깥 상자(왼쪽, 오른쪽, 뒤 꼭대기, 앞 바닥)에 바로 맞춘다.
+    rim_box: tuple[float, float, float, float] | None = None
 
 
 # 기본 범위에서 엉뚱한 자리(안쪽 수면·과일 윤곽)에 붙은 단계만 좁히거나 넓힌다.
+# 소다 v2(2026-11-26, prep_glass_soda.py)는 잔을 윤곽에 맞춰 두었고, 낮은 각도로 찍혀 입구 타원이
+# 아메리카노보다 납작하다(세로 약 0.65배). 1단계는 입구를 맞추려 잔 전체를 위로 끌어올려 건너뛴다.
+# 80%는 입구가 거의 눈높이라 더 납작해 탐색이 하한에 걸리고, 100%는 민트가 앞 입구를 가려 위로 떠서 상자로 맞춘다.
+SODA_V2 = Search(glass_fixed=True, rim_k_min=0.5)
 SEARCH: dict[str, Search] = {
-    "glass-soda-50": Search(scale_min=0.99, shift_span=12, wide_rim=True),
-    "glass-soda-80": Search(scale_min=0.99, shift_span=12, wide_rim=True),
+    "glass-soda-30": SODA_V2,
+    "glass-soda-50": SODA_V2,
+    "glass-soda-80": Search(glass_fixed=True, rim_box=(196, 740, 432, 472)),
+    "glass-soda-100": Search(glass_fixed=True, rim_box=(200, 735, 445, 530)),
 }
 
 
@@ -83,6 +94,8 @@ def sample(grad: NDArray[np.float32], xs: Coords, ys: Coords) -> float:
 def fit_glass(
     grad: NDArray[np.float32], pts: NDArray[np.float32], search: Search
 ) -> tuple[float, float, float, float]:
+    if search.glass_fixed:
+        return 1.0, 1.0, 0.0, 0.0
     cx, cy = CENTER
     best = (-1.0, 1.0, 1.0, 0.0, 0.0)
     for s in np.arange(search.scale_min, 1.08, 0.005):
@@ -110,6 +123,18 @@ def fit_rim(
     grad: NDArray[np.float32], rim: NDArray[np.uint8], search: Search
 ) -> NDArray[np.float32]:
     ry, rx = np.nonzero(rim > 128)
+    if search.rim_box is not None:
+        left, right, top_y, bottom_y = search.rim_box
+        col = ry[np.abs(rx - CENTER[0]) <= 2]
+        kx = (right - left) / float(rx.max() - rx.min())
+        k = (bottom_y - top_y) / float(col.max() - col.min())
+        return np.array(
+            [
+                [kx, 0, left - kx * float(rx.min())],
+                [0, k, top_y - k * float(col.min())],
+            ],
+            dtype=np.float32,
+        )
     keep = ry < np.percentile(ry, 85)
     pts = np.column_stack([rx[keep], ry[keep]]).astype(np.float32)[::2]
     top = float(ry.min())
@@ -119,7 +144,7 @@ def fit_rim(
         dys, ks = np.arange(-44, 8.1, 2), np.arange(0.85, 1.5, 0.02)
     else:
         kxs, dxs = np.arange(0.98, 1.021, 0.01), np.array([0.0])
-        dys, ks = np.arange(-12, 12.1, 1), np.arange(0.85, 1.5, 0.01)
+        dys, ks = np.arange(-12, 12.1, 1), np.arange(search.rim_k_min, 1.5, 0.01)
     best = (-1.0, 1.0, 0.0, 1.0, 0.0)
     for k in ks:
         for dy in dys:

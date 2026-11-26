@@ -639,6 +639,10 @@ private struct Driver {
                 forDuration: 0.1, thenDragTo: start.withOffset(CGVector(dx: 0, dy: step)),
                 withVelocity: .slow, thenHoldForDuration: 0.3
             )
+            // 목록 끝이라 더 안 움직이면 홈 인디케이터만 피하면 된다(설정 맨 아래 줄 y=742~758).
+            if target.frame == frame {
+                return frame.minY >= safeTop && frame.maxY <= bounds.maxY - 60 && target.isHittable
+            }
         }
         let frame = target.frame
         return target.exists && frame.minY >= safeTop && frame.maxY <= safeBottom && target.isHittable

@@ -613,10 +613,16 @@ private struct Driver {
     /// `isHittable`은 요소가 일부만 보여도 참이다. 화면 아래 끝에 걸친 버튼은 탭 지점이
     /// 홈 인디케이터 제스처 영역에 떨어져 시스템이 먹는다(실측: 874pt 화면에서 y=851~892 칩).
     /// 그래서 내비게이션 바 아래 ~ 하단 여유 위, 온전히 안쪽에 들어올 때까지 움직인다.
-    func reveal(_ target: XCUIElement, maxSwipes: Int = 6) {
-        let window = app.windows.firstMatch.frame
-        let safeTop = window.minY + 160
-        let safeBottom = window.maxY - 120
+    /// `swipeUp`/`swipeDown`은 관성으로 한 번에 너무 멀리 가서 목표 위아래를 오가다 횟수를 다 썼다
+    /// (2026-11-25 설정 "캐릭터 소개 바로 보기"가 제목 막대 밑에 깔린 채 탭됨). 보이는 요소는 남은 거리만큼
+    /// 천천히 끌고 멈춰서 놓는다.
+    @discardableResult
+    func reveal(_ target: XCUIElement, maxSwipes: Int = 8) -> Bool {
+        let window = app.windows.firstMatch
+        let bounds = window.frame
+        let safeTop = bounds.minY + 160
+        let safeBottom = bounds.maxY - 120
+        let start = window.coordinate(withNormalizedOffset: CGVector(dx: 0.15, dy: 0.5))
 
         for _ in 0..<maxSwipes {
             guard target.exists else {
@@ -625,14 +631,21 @@ private struct Driver {
             }
             let frame = target.frame
             if frame.minY >= safeTop, frame.maxY <= safeBottom, target.isHittable {
-                return
+                return true
             }
-            if frame.minY < safeTop {
-                app.swipeDown()
-            } else {
-                app.swipeUp()
+            let distance = (safeTop + safeBottom) / 2 - frame.midY
+            let step = max(-300, min(300, distance))
+            start.press(
+                forDuration: 0.1, thenDragTo: start.withOffset(CGVector(dx: 0, dy: step)),
+                withVelocity: .slow, thenHoldForDuration: 0.3
+            )
+            // 목록 끝이라 더 안 움직이면 홈 인디케이터만 피하면 된다(설정 맨 아래 줄 y=742~758).
+            if target.frame == frame {
+                return frame.minY >= safeTop && frame.maxY <= bounds.maxY - 60 && target.isHittable
             }
         }
+        let frame = target.frame
+        return target.exists && frame.minY >= safeTop && frame.maxY <= safeBottom && target.isHittable
     }
 
     func scrollToTop() {
@@ -642,8 +655,10 @@ private struct Driver {
     }
 
     func tap(_ target: XCUIElement) {
-        reveal(target)
-        XCTAssertTrue(target.isHittable, "\(target) 를 누를 수 없음")
+        guard reveal(target) else {
+            XCTFail("\(target) 를 화면 안쪽으로 못 가져옴: \(target.frame)")
+            return
+        }
         target.tap()
     }
 
@@ -1218,7 +1233,8 @@ extension RecordFlowUITests {
         let settingsEnabled = XCTNSPredicateExpectation(
             predicate: NSPredicate(format: "isEnabled == true"), object: app.buttons["open-settings"]
         )
-        XCTAssertEqual(XCTWaiter().wait(for: [settingsEnabled], timeout: 6), .completed, "적용 연출이 끝났는데 설정 버튼이 잠겨 있음: \(String(describing: app.buttons["open-settings"].value))")
+        // 느린 러너에서는 한 번 확인에 3~5초가 걸려 6초 안에 두 번밖에 못 봤다(2026-11-25 PR #22 재실행).
+        XCTAssertEqual(XCTWaiter().wait(for: [settingsEnabled], timeout: 15), .completed, "적용 연출이 끝났는데 설정 버튼이 잠겨 있음: \(String(describing: app.buttons["open-settings"].value))")
 
         app.buttons["open-settings"].tap()
         let inventory = ui.element("open-inventory")

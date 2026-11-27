@@ -179,6 +179,7 @@ struct WeekKeptCelebrationView: View {
 
     @Query private var settingsRows: [AppSettings]
     @Query(sort: \Entry.loggedAt, order: .reverse) private var entries: [Entry]
+    @Query private var settlements: [DaySettlement]
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var clock: CelebrationClock?
@@ -220,9 +221,10 @@ struct WeekKeptCelebrationView: View {
     }
 
     var body: some View {
+        let closedDays = TrendTable.closedDays(settlements)
         let tables: [CupSide: TrendTable] = Dictionary(uniqueKeysWithValues: sides.map { side in
             (side, TrendTable.calendarWeek(
-                entries: entries, boundaryHour: boundaryHour, today: celebration.closed,
+                entries: entries, closedDays: closedDays, boundaryHour: boundaryHour, today: celebration.closed,
                 start: GiftMath.weekStart(of: celebration.closed), side: side, limit: side.limit(limits)
             ))
         })

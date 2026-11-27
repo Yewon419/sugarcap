@@ -7,6 +7,8 @@ import SwiftUI
 /// 그 위로 면 주인의 보관함(물건·병뚜껑·마음)이 굴러다닌다(`MonthShakerScene`). 격자가 벽이다.
 struct MonthTrendsView: View {
     let entries: [Entry]
+    /// 마감한 날(`TrendTable.closedDays`). 0잔으로 마감한 날도 칸이 찍힌다.
+    let closedDays: Set<DayKey>
     let boundaryHour: Int
     let limits: DailyLimits
     let today: DayKey
@@ -47,14 +49,16 @@ struct MonthTrendsView: View {
 
     var body: some View {
         let page = MonthPage.make(
-            entries: entries, boundaryHour: boundaryHour, year: shown.year, month: shown.month, today: today, side: side
+            entries: entries, closedDays: closedDays, boundaryHour: boundaryHour, year: shown.year, month: shown.month,
+            today: today, side: side
         )
         let change = MonthStats.change(
-            entries: entries, boundaryHour: boundaryHour, year: shown.year, month: shown.month, today: today, side: side
+            entries: entries, closedDays: closedDays, boundaryHour: boundaryHour, year: shown.year, month: shown.month,
+            today: today, side: side
         )
         let digest = MonthDigest.make(
-            entries: entries, boundaryHour: boundaryHour, year: shown.year, month: shown.month, today: today, side: side,
-            limit: side.limit(limits), earliest: earliest
+            entries: entries, closedDays: closedDays, boundaryHour: boundaryHour, year: shown.year, month: shown.month,
+            today: today, side: side, limit: side.limit(limits), earliest: earliest
         )
         // 달력 한 화면 아래로 그 달 통계가 이어진다(2026-10-28 대표님 "밑으로 슬라이드하면 통계").
         GeometryReader { proxy in

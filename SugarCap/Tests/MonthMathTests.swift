@@ -35,7 +35,8 @@ final class MonthMathTests: XCTestCase {
     func testPageLeavesUnloggedPastDaysEmptyAndTodayAtZero() {
         let entries = [entry(10, 3, sugar: 10), entry(10, 3, sugar: 5), entry(9, 30, sugar: 99)]
         let page = MonthPage.make(
-            entries: entries, boundaryHour: 4, year: 2026, month: 10, today: today, side: .sugar, calendar: calendar
+            entries: entries, closedDays: [], boundaryHour: 4, year: 2026, month: 10, today: today, side: .sugar,
+            calendar: calendar
         )
         XCTAssertEqual(page.cells.count, 31)
         XCTAssertEqual(page.leadingBlanks, 4, "2026년 10월 1일은 목요일")
@@ -47,6 +48,16 @@ final class MonthMathTests: XCTestCase {
         XCTAssertNil(page.cells[27].used)
         XCTAssertEqual(page.eaten, 15, "다른 달 기록은 섞이지 않는다")
         XCTAssertEqual(page.dailyAverage ?? -1, 7.5, accuracy: 1e-9, "3일(15)과 오늘(0)의 평균")
+    }
+
+    func testPageFillsZeroDrinkClosedDaysWithZero() {
+        let page = MonthPage.make(
+            entries: [entry(10, 3, sugar: 15)], closedDays: [DayKey(year: 2026, month: 10, day: 4)], boundaryHour: 4,
+            year: 2026, month: 10, today: today, side: .sugar, calendar: calendar
+        )
+        XCTAssertEqual(page.cells[3].used, 0, "0잔으로 마감한 날은 0이 찍힌다(출석과 같은 기준)")
+        XCTAssertNil(page.cells[4].used, "기록도 마감도 없는 날은 그대로 비운다")
+        XCTAssertEqual(page.dailyAverage ?? -1, 5, accuracy: 1e-9, "3일(15)·4일(0)·오늘(0)의 평균")
     }
 
     func testThingsConvertEatenToCubesAndShots() {
@@ -61,7 +72,8 @@ final class MonthMathTests: XCTestCase {
         // 10월: 1~27일 하루 8씩(오늘 포함).
         entries += (1...27).map { entry(10, $0, sugar: 8) }
         let change = MonthStats.change(
-            entries: entries, boundaryHour: 4, year: 2026, month: 10, today: today, side: .sugar, calendar: calendar
+            entries: entries, closedDays: [], boundaryHour: 4, year: 2026, month: 10, today: today, side: .sugar,
+            calendar: calendar
         )
         XCTAssertEqual(change, -20)
     }
@@ -76,12 +88,14 @@ final class MonthMathTests: XCTestCase {
             drinkName: "테스트", brandName: "", sizeLabel: ""
         )
         let change = MonthStats.change(
-            entries: [jan, dec], boundaryHour: 4, year: 2026, month: 1, today: today, side: .sugar, calendar: calendar
+            entries: [jan, dec], closedDays: [], boundaryHour: 4, year: 2026, month: 1, today: today, side: .sugar,
+            calendar: calendar
         )
         XCTAssertEqual(change, 50, "1월 하루 평균 30, 지난해 12월 20")
         XCTAssertNil(
             MonthStats.change(
-                entries: [jan], boundaryHour: 4, year: 2026, month: 1, today: today, side: .sugar, calendar: calendar
+                entries: [jan], closedDays: [], boundaryHour: 4, year: 2026, month: 1, today: today, side: .sugar,
+                calendar: calendar
             ),
             "지난달 기록이 없으면 비교하지 않는다"
         )
@@ -148,8 +162,8 @@ final class MonthMathTests: XCTestCase {
 
     private func digest(_ entries: [Entry], side: CupSide = .sugar, limit: Double = 50) -> MonthDigest {
         MonthDigest.make(
-            entries: entries, boundaryHour: 4, year: 2026, month: 10, today: today, side: side, limit: limit,
-            earliest: DayKey(year: 2026, month: 7, day: 3), calendar: calendar
+            entries: entries, closedDays: [], boundaryHour: 4, year: 2026, month: 10, today: today, side: side,
+            limit: limit, earliest: DayKey(year: 2026, month: 7, day: 3), calendar: calendar
         )
     }
 

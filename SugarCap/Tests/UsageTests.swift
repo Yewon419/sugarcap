@@ -365,8 +365,8 @@ final class DayBundleTests: XCTestCase {
             entry(27, serving: "today", sugar: 10),
         ]
         let digest = MonthDigest.make(
-            entries: entries, boundaryHour: 4, year: 2026, month: 10, today: today, side: .sugar, limit: 50,
-            earliest: day(1), calendar: calendar)
+            entries: entries, closedDays: [], boundaryHour: 4, year: 2026, month: 10, today: today, side: .sugar,
+            limit: 50, earliest: day(1), calendar: calendar)
         let bundled = try [20, 21, 22, 23].map {
             try DayBundle.parameters(day: day($0), entries: entries, settings: settings, calendar: calendar)
         }

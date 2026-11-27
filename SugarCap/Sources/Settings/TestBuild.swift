@@ -73,6 +73,8 @@ enum StampRehearsal: CaseIterable {
     case roulette
     /// 14칸 병뚜껑 3개(잔을 다 가졌을 때).
     case caps
+    /// 14칸 다 찬 판이 뒤로 가고 2판 1칸(15칸)이 찍힌다.
+    case nextBoard
 
     var title: String {
         switch self {
@@ -80,6 +82,7 @@ enum StampRehearsal: CaseIterable {
         case .earlyBird: return String(localized: "얼리버드 선물")
         case .roulette: return String(localized: "14일 룰렛")
         case .caps: return String(localized: "14일 선물")
+        case .nextBoard: return String(localized: "다음 판")
         }
     }
 
@@ -89,6 +92,7 @@ enum StampRehearsal: CaseIterable {
         case .stamp: return 4
         case .earlyBird: return StampMath.earlyBirdCell
         case .roulette, .caps: return StampMath.cells
+        case .nextBoard: return StampMath.cells + 1
         }
     }
 }

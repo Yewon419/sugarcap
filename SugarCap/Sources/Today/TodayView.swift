@@ -1968,10 +1968,10 @@ struct TodayView: View {
             consentStartsExpanded = raw == "full"
             isConsentPresented = true
         }
-        // 2주 스탬프판(`-screenshotStamps <찍은 칸 수>`). 14칸은 `-screenshotStampFinal caps|<잔 id>`(기본 청포도),
+        // 2주 스탬프판(`-screenshotStamps <찍은 칸 수>`, 15부터 다음 판). 14칸은 `-screenshotStampFinal caps|<잔 id>`(기본 청포도),
         // 찍는 연출은 `-screenshotStampSeen <본 칸 수>`(기본 = 찍은 칸 수, 연출 없음).
         if defaults.object(forKey: "screenshotStamps") != nil {
-            let count = min(max(defaults.integer(forKey: "screenshotStamps"), 0), StampMath.cells)
+            let count = min(max(defaults.integer(forKey: "screenshotStamps"), 0), StampMath.cells * 3)
             screenshotStamps = Self.rehearsalStampRows(
                 count: count, final: defaults.string(forKey: "screenshotStampFinal") ?? "grape",
                 // 얼리버드(`-earlyBird YES`)면 7칸에 유리 공예 잔 두 행.
@@ -2017,14 +2017,26 @@ struct TodayView: View {
     }
 
     /// 저장소 밖 스탬프 행(CI 스크린샷, 테스트 카드 「스탬프 보상 바로 보기」). `earlyBird`면 7칸에 유리 공예 잔 두 행.
+    /// 14칸을 넘기면 다음 판으로 이어 만든다. 판마다 14칸은 `final`(병뚜껑 3개 `caps` 또는 잔 id).
     private static func rehearsalStampRows(count: Int, final: String, earlyBird: Bool) -> [GiftEvent] {
         let now = Date()
-        let layout = StampMath.layout(seed: 7, board: 1)
         var rows: [GiftEvent] = []
-        for cell in 1 ..< min(count + 1, StampMath.cells) {
-            let side: CupSide = cell.isMultiple(of: 2) ? .caffeine : .sugar
-            let payload = layout[cell - 1] == .cap ? GiftContent.cap : GiftContent.heart
-            rows.append(GiftEvent(kind: .stamp, side: side, level: cell, payload: payload, createdAt: now, openedAt: now))
+        for cell in stride(from: 1, through: count, by: 1) {
+            let local = StampMath.cellInBoard(cell)
+            if local < StampMath.cells {
+                let side: CupSide = cell.isMultiple(of: 2) ? .caffeine : .sugar
+                let prize = StampMath.layout(seed: 7, board: StampMath.board(of: cell))[local - 1]
+                let payload = prize == .cap ? GiftContent.cap : GiftContent.heart
+                rows.append(GiftEvent(kind: .stamp, side: side, level: cell, payload: payload, createdAt: now, openedAt: now))
+            } else if final == "caps" {
+                for index in 0 ..< StampMath.finalCaps {
+                    let side: CupSide = index.isMultiple(of: 2) ? .sugar : .caffeine
+                    rows.append(GiftEvent(kind: .stamp, side: side, level: cell, payload: GiftContent.cap, createdAt: now, openedAt: now))
+                }
+            } else {
+                let side = TradeCatalog.item(final)?.side ?? .sugar
+                rows.append(GiftEvent(kind: .stamp, side: side, level: cell, payload: GiftContent.set(final), createdAt: now, openedAt: now))
+            }
         }
         if count >= StampMath.earlyBirdCell, earlyBird {
             for perk in TradeCatalog.perks {
@@ -2033,16 +2045,6 @@ struct TodayView: View {
                     createdAt: now, openedAt: now
                 ))
             }
-        }
-        guard count == StampMath.cells else { return rows }
-        if final == "caps" {
-            for index in 0 ..< StampMath.finalCaps {
-                let side: CupSide = index.isMultiple(of: 2) ? .sugar : .caffeine
-                rows.append(GiftEvent(kind: .stamp, side: side, level: count, payload: GiftContent.cap, createdAt: now, openedAt: now))
-            }
-        } else {
-            let side = TradeCatalog.item(final)?.side ?? .sugar
-            rows.append(GiftEvent(kind: .stamp, side: side, level: count, payload: GiftContent.set(final), createdAt: now, openedAt: now))
         }
         return rows
     }

@@ -59,6 +59,19 @@ struct StampCardView: View {
     @State private var burstID = 0
     /// 잔·병뚜껑을 받을 때 판 전체에 터지는 큰 폭죽(0 = 아직 없음).
     @State private var bigBurst = 0
+    /// 앞에서부터 판 번호(대표님 2026-11-27 확정 시안 `design/proto/stamp-boards.html`). 첫 값이 앞 판, 나머지는 다 찬 판.
+    /// 비어 있으면 열 때 판(`startBoard`)부터 1판까지.
+    @State private var order: [Int] = []
+    /// 뒤 판 가장자리를 끌어낸 거리.
+    @State private var pull: CGFloat = 0
+    /// 앞으로 올라서는 중인 판(맨 위에 그린다).
+    @State private var raised: Int?
+    /// 판 바뀜: 들렸다 뒤로 내려앉는 판, 위에서 내려오는 새 판과 그 단계.
+    @State private var lifted: Int?
+    @State private var entering: Int?
+    @State private var enterShown = false
+    @State private var enterLanded = false
+    @State private var cardHeight: CGFloat = 290
 
     private enum Finale: Equatable {
         /// 받은 잔 세트 id.
@@ -74,6 +87,21 @@ struct StampCardView: View {
         StampMath.stamped(cellNumbers: stamps.compactMap(\.level))
     }
 
+    /// 열 때 앞에 둘 판. 판이 다 찼으면 다음 칸을 찍기 전까지 그 판을 보여 준다.
+    private var startBoard: Int {
+        StampMath.board(of: max(min(seen, stamped), 1))
+    }
+
+    private var deck: [Int] {
+        order.isEmpty ? Array((1 ... startBoard).reversed()) : order
+    }
+
+    /// 앞 판 번호.
+    private var board: Int { deck[0] }
+
+    /// 판의 첫 칸 앞 번호(1판 0, 2판 14).
+    private static func base(_ board: Int) -> Int { (board - 1) * StampMath.cells }
+
     var body: some View {
         ZStack {
             Color.black.opacity(0.5)
@@ -81,7 +109,7 @@ struct StampCardView: View {
                 .contentShape(Rectangle())
                 .onTapGesture { if !isPlaying { onClose() } }
                 .accessibilityHidden(true)
-            card
+            deckView
                 .padding(.horizontal, 24)
                 .opacity(isCardHidden ? 0 : 1)
             earlyBirdStage
@@ -93,14 +121,134 @@ struct StampCardView: View {
         .sensoryFeedback(.success, trigger: isSettled) { _, new in new }
     }
 
-    private var card: some View {
-        VStack(spacing: 0) {
+    // MARK: - 판 묶음
+
+    /// 다 찬 판은 앞 판 아래로 10pt씩 엇갈려 가장자리만 보인다(최대 2장). 가장자리를 끌거나 누르면 뒤 판이 앞으로 오고
+    /// 앞에 있던 판은 맨 뒤로 간다(대표님 2026-11-27 "카드 모으는 것마냥").
+    private var deckView: some View {
+        let cards = Array(deck.enumerated())
+        return ZStack(alignment: .top) {
+            ForEach(cards, id: \.element) { depth, number in
+                let pose = cardPose(number, depth: depth)
+                card(number, depth: depth)
+                    .scaleEffect(pose.scale, anchor: .bottom)
+                    .rotationEffect(.degrees(pose.angle), anchor: .bottom)
+                    .offset(y: pose.y)
+                    .opacity(pose.opacity)
+                    .zIndex(raised == number ? 1000 : Double(100 - depth))
+                    .allowsHitTesting(depth == 0)
+                    .accessibilityHidden(depth != 0)
+                    .transition(.identity)
+            }
+        }
+        .overlay(alignment: .top) {
+            if deck.count > 1, !isPlaying, finale == nil, earlyStage == 0, entering == nil {
+                Color.clear
+                    .frame(height: 44)
+                    .contentShape(Rectangle())
+                    .offset(y: cardHeight - 8)
+                    .gesture(deckDrag)
+                    .accessibilityElement()
+                    .accessibilityLabel(Text("다른 판 보기"))
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityAction { bringForward() }
+                    .accessibilityIdentifier("stamp-deck-edge")
+            }
+        }
+    }
+
+    private struct CardPose {
+        var y: CGFloat
+        var scale: CGFloat
+        var angle: Double
+        var opacity: Double
+    }
+
+    private func cardPose(_ number: Int, depth: Int) -> CardPose {
+        if number == entering {
+            return CardPose(y: enterLanded ? 0 : -28, scale: enterLanded ? 1 : 0.96, angle: 0, opacity: enterShown ? 1 : 0)
+        }
+        if depth == 0 {
+            let isLifted = lifted == number
+            return CardPose(y: isLifted ? -6 : 0, scale: isLifted ? 1.015 : 1, angle: 0, opacity: 1)
+        }
+        let step = min(depth, 2)
+        let angle: Double = step == 1 ? -1.4 : 1.1
+        let y: CGFloat = 10 * CGFloat(step)
+        let scale: CGFloat = 1 - 0.035 * CGFloat(step)
+        guard depth == 1 else { return CardPose(y: y, scale: scale, angle: angle, opacity: depth > 2 ? 0 : 1) }
+        // 끌어낸 만큼 따라 나오고, 120pt를 넘으면 덜 따라온다. 나올수록 똑바로 선다.
+        let eased: CGFloat = pull < 120 ? pull : 120 + (pull - 120) * 0.35
+        let straighten: Double = 1 - min(Double(eased) / 120, 1)
+        return CardPose(y: y + eased, scale: scale, angle: angle * straighten, opacity: 1)
+    }
+
+    /// 뒤 판 색: 한 장 뒤로 갈수록 한 단계 진한 회색(#E4E4E7, #D4D4D8).
+    private static func cardFill(depth: Int) -> Color {
+        switch depth {
+        case 0: return .white
+        case 1: return Color(red: 0xE4 / 255, green: 0xE4 / 255, blue: 0xE7 / 255)
+        default: return Color(red: 0xD4 / 255, green: 0xD4 / 255, blue: 0xD8 / 255)
+        }
+    }
+
+    private var deckDrag: some Gesture {
+        DragGesture(minimumDistance: 0)
+            .onChanged { value in pull = max(0, value.translation.height) }
+            .onEnded { value in
+                let distance = max(0, value.translation.height)
+                if distance < 4 || value.predictedEndTranslation.height > 90 {
+                    bringForward()
+                } else {
+                    withAnimation(.spring(response: 0.45, dampingFraction: 0.7)) { pull = 0 }
+                }
+            }
+    }
+
+    /// 뒤 판을 앞으로: 아래로 마저 빠져나온 뒤 앞 판 위로 올라선다. 앞에 있던 판은 맨 뒤로 간다.
+    private func bringForward() {
+        let current = deck
+        guard current.count > 1 else { return }
+        let pulled = current[1]
+        let next: [Int] = [pulled] + Array(current.dropFirst(2)) + [current[0]]
+        guard !reduceMotion else {
+            pull = 0
+            withAnimation(.easeOut(duration: 0.2)) { order = next }
+            return
+        }
+        withAnimation(.easeOut(duration: 0.18)) { pull = max(pull, cardHeight * 0.62) }
+        Task {
+            try? await Task.sleep(for: .seconds(0.18))
+            raised = pulled
+            withAnimation(.spring(response: 0.4, dampingFraction: 1)) {
+                order = next
+                pull = 0
+            }
+            try? await Task.sleep(for: .seconds(0.4))
+            raised = nil
+        }
+    }
+
+    // MARK: - 판
+
+    private func card(_ number: Int, depth: Int) -> some View {
+        let isFront = depth == 0
+        let count = min(max(shown - Self.base(number), 0), StampMath.cells)
+        return VStack(spacing: 0) {
             HStack(alignment: .firstTextBaseline) {
-                Text("2주 스탬프")
-                    .font(AppFont.pretendard(22, .bold, relativeTo: .title2))
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Text("2주 스탬프")
+                        .font(AppFont.pretendard(22, .bold, relativeTo: .title2))
+                    // 몇 번째 판인지(대표님 2026-11-27 "표시 있게").
+                    Text("\(number)판")
+                        .font(AppFont.pretendard(17, .semibold, relativeTo: .headline))
+                        .foregroundStyle(Color(white: 0.63))
+                        .monospacedDigit()
+                        .accessibilityIdentifier("stamp-board")
+                }
                 Spacer(minLength: 12)
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    Text(verbatim: "\(shown)")
+                    Text(verbatim: "\(count)")
                         .font(AppFont.pretendard(17, .bold, relativeTo: .headline))
                         .contentTransition(.numericText())
                     Text(verbatim: "/ \(StampMath.cells)")
@@ -109,7 +257,7 @@ struct StampCardView: View {
                 }
                 .monospacedDigit()
                 .accessibilityElement(children: .ignore)
-                .accessibilityLabel(Text(verbatim: "\(shown) / \(StampMath.cells)"))
+                .accessibilityLabel(Text(verbatim: "\(count) / \(StampMath.cells)"))
                 .accessibilityIdentifier("stamp-count")
                 .padding(.trailing, 34)
             }
@@ -117,7 +265,7 @@ struct StampCardView: View {
             .padding(.horizontal, 22)
             .padding(.top, 22)
             .padding(.bottom, 18)
-            .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { notchY = $0 + 9 }
+            .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { if isFront { notchY = $0 + 9 } }
 
             Line()
                 .stroke(Color(white: 0.83), style: StrokeStyle(lineWidth: 1.5, dash: [4, 3]))
@@ -127,9 +275,9 @@ struct StampCardView: View {
 
             // 폭죽이 옆·아래 칸에 가리지 않게 터지는 칸의 줄을 위로 올린다.
             VStack(spacing: 14) {
-                row(1 ... 7)
-                    .zIndex(burstCell.map { $0 <= 7 } == true ? 1 : 0)
-                row(8 ... 14)
+                row(1 ... 7, board: number, isFront: isFront)
+                    .zIndex(burstCell.map { $0 - Self.base(number) <= 7 } == true ? 1 : 0)
+                row(8 ... 14, board: number, isFront: isFront)
             }
             .padding(.horizontal, 18)
             .padding(.top, 14)
@@ -143,43 +291,50 @@ struct StampCardView: View {
                 .padding(.top, 14)
                 .padding(.bottom, 22)
         }
-        .background(CouponShape(notchY: notchY).fill(.white))
+        .background(CouponShape(notchY: notchY).fill(Self.cardFill(depth: depth)))
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { if isFront { cardHeight = $0 } }
         .overlay(alignment: .topTrailing) {
             // 찍는 연출이 끝나야 닫을 수 있다(대표님 2026-11-06 "애니메이션 종료 후 엑스버튼 활성화").
-            Button(action: onClose) {
-                Image(systemName: "xmark")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundStyle(Color.ink)
-                    .frame(width: 30, height: 30)
-                    .background(Color.wall, in: Circle())
-                    .tapTarget()
-            }
-            .disabled(isPlaying)
-            .opacity(isPlaying ? 0.3 : 1)
-            .animation(.easeOut(duration: 0.2), value: isPlaying)
-            .accessibilityLabel("닫기")
-            .accessibilityIdentifier("stamp-close")
-            .padding(.top, 9)
-            .padding(.trailing, 7)
+            if isFront { closeButton }
         }
-        .overlay { finaleView }
+        .overlay { if isFront { finaleView } }
         .overlay {
-            if bigBurst > 0 {
+            if isFront, bigBurst > 0 {
                 ConfettiBurst(size: .big)
                     .id(bigBurst)
             }
         }
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("stamp-card")
+        .accessibilityIdentifier(isFront ? "stamp-card" : "stamp-card-back")
     }
 
-    private func row(_ numbers: ClosedRange<Int>) -> some View {
+    private var closeButton: some View {
+        Button(action: onClose) {
+            Image(systemName: "xmark")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(Color.ink)
+                .frame(width: 30, height: 30)
+                .background(Color.wall, in: Circle())
+                .tapTarget()
+        }
+        .disabled(isPlaying)
+        .opacity(isPlaying ? 0.3 : 1)
+        .animation(.easeOut(duration: 0.2), value: isPlaying)
+        .accessibilityLabel("닫기")
+        .accessibilityIdentifier("stamp-close")
+        .padding(.top, 9)
+        .padding(.trailing, 7)
+    }
+
+    /// 판 안 칸(1~14) 한 줄. 폭죽·누르기 상태는 누적 칸 번호로 맞춘다.
+    private func row(_ numbers: ClosedRange<Int>, board: Int, isFront: Bool) -> some View {
         HStack(spacing: 0) {
-            ForEach(Array(numbers), id: \.self) { number in
-                cell(number)
+            ForEach(Array(numbers), id: \.self) { local in
+                let number = Self.base(board) + local
+                cell(local, board: board, isFront: isFront)
                     .frame(maxWidth: .infinity)
                     .overlay {
-                        if burstCell == number {
+                        if isFront, burstCell == number {
                             ConfettiBurst(size: .small)
                                 .id(burstID)
                         }
@@ -192,15 +347,18 @@ struct StampCardView: View {
     // MARK: - 칸
 
     @ViewBuilder
-    private func cell(_ number: Int) -> some View {
-        let isLast = number == StampMath.cells
+    private func cell(_ local: Int, board: Int, isFront: Bool) -> some View {
+        let number = Self.base(board) + local
+        let isLast = local == StampMath.cells
+        // 얼리버드 칸은 1판 7칸뿐이다. 2판부터 7칸은 일반 칸(대표님 2026-11-27).
+        let isEarlyBirdCell = board == 1 && local == StampMath.earlyBirdCell
         let isDone = number <= shown
         let isPressing = pressing == number
         let gift = stampGift(at: number)
         ZStack {
             if isLast {
-                lastCell(isDone: isDone, gift: gift)
-            } else if number == StampMath.earlyBirdCell, isDone ? !perkItems.isEmpty : (isEarlyBird && !isPressing) {
+                lastCell(isDone: isDone, gift: gift, isNext: shown == number - 1)
+            } else if isEarlyBirdCell, isDone ? !perkItems.isEmpty : (isEarlyBird && !isPressing) {
                 earlyBirdCell(isDone: isDone)
             } else {
                 Circle()
@@ -221,7 +379,7 @@ struct StampCardView: View {
                     PrizeGlyph(gift: gift, size: 20)
                         .transition(.scale(scale: 0.3).combined(with: .opacity))
                 } else if !isPressing {
-                    Text(verbatim: "\(number)")
+                    Text(verbatim: "\(local)")
                         .font(AppFont.pretendardFixed(12, .semibold))
                         .foregroundStyle(number == shown + 1 ? Color.ink : Color(white: 0.63))
                         .monospacedDigit()
@@ -230,14 +388,14 @@ struct StampCardView: View {
         }
         .frame(width: 38, height: 38)
         .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { frame in
-            if number == StampMath.earlyBirdCell { earlyCellFrame = frame }
+            if isFront, isEarlyBirdCell { earlyCellFrame = frame }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(cellLabel(number, isDone: isDone, gift: gift))
+        .accessibilityLabel(cellLabel(local, isEarlyBirdCell: isEarlyBirdCell, isDone: isDone, gift: gift))
     }
 
     @ViewBuilder
-    private func lastCell(isDone: Bool, gift: GiftEvent?) -> some View {
+    private func lastCell(isDone: Bool, gift: GiftEvent?, isNext: Bool) -> some View {
         if isDone, let gift {
             Circle().fill(.white)
             Circle().strokeBorder(Color.ink, lineWidth: 2)
@@ -251,7 +409,7 @@ struct StampCardView: View {
                 PrizeGlyph(gift: gift, size: 20)
             }
         } else {
-            Circle().strokeBorder(Self.gold, style: StrokeStyle(lineWidth: shown == StampMath.cells - 1 ? 2 : 1.5, dash: shown == StampMath.cells - 1 ? [] : [3, 2.5]))
+            Circle().strokeBorder(Self.gold, style: StrokeStyle(lineWidth: isNext ? 2 : 1.5, dash: isNext ? [] : [3, 2.5]))
             GoldFoilGlyph(systemName: "cup.and.saucer.fill", size: 15)
         }
     }
@@ -286,8 +444,8 @@ struct StampCardView: View {
         }
     }
 
-    private func cellLabel(_ number: Int, isDone: Bool, gift: GiftEvent?) -> String {
-        if number == StampMath.earlyBirdCell, isDone ? !perkItems.isEmpty : isEarlyBird {
+    private func cellLabel(_ number: Int, isEarlyBirdCell: Bool, isDone: Bool, gift: GiftEvent?) -> String {
+        if isEarlyBirdCell, isDone ? !perkItems.isEmpty : isEarlyBird {
             let title = String(localized: "얼리버드 선물")
             let place = String(localized: "\(number)번째 칸")
             guard isDone else { return "\(place), \(title)" }
@@ -715,8 +873,10 @@ struct StampCardView: View {
             .opacity(isSettled || reduceMotion ? 1 : 0)
     }
 
+    /// 앞 판 14칸 행.
     private var capGifts: [GiftEvent] {
-        stamps.filter { $0.level == StampMath.cells }
+        let finalCell = Self.base(board) + StampMath.cells
+        return stamps.filter { $0.level == finalCell }
     }
 
     private var finaleName: String {
@@ -791,12 +951,15 @@ struct StampCardView: View {
         isRevealDone = true
     }
 
+    /// 받으면 판이 다 찬다. 찍을 칸이 더 남았으면(여러 날 밀려 열었을 때) 다음 판으로 이어 간다.
     private func takeFinale() {
+        let finalCell = Self.base(board) + StampMath.cells
         withAnimation(.easeOut(duration: 0.2)) {
             finale = nil
-            shown = StampMath.cells
+            shown = finalCell
         }
-        onSeen(StampMath.cells)
+        onSeen(finalCell)
+        if finalCell < stamped { playRun += 1 }
     }
 
     // MARK: - 순서
@@ -804,6 +967,7 @@ struct StampCardView: View {
     /// 찍을 칸·무대가 남았으면 그동안 닫기를 막는다. 무대·룰렛은 받기 버튼이 뜨는 순간 풀린다.
     private func play() async {
         shown = max(shown, min(seen, stamped))
+        if order.isEmpty { order = deck }
         let isRetroEarlyBird = shown >= StampMath.earlyBirdCell && needsEarlyBirdStage
         guard isRetroEarlyBird || shown < stamped else { return }
         isPlaying = true
@@ -814,6 +978,8 @@ struct StampCardView: View {
     private func playSteps(isRetroEarlyBird: Bool) async {
         // 판정이 늦게 와서 이미 찍은 7칸에 잔이 들어왔다. 판을 열자마자 무대부터.
         if isRetroEarlyBird {
+            // 무대 방울은 1판 7칸에서 나오고 그리로 돌아간다. 다른 판이 앞이면 1판을 앞으로.
+            if board != 1 { order = [1] + deck.filter { $0 != 1 } }
             try? await Task.sleep(for: .seconds(0.45))
             guard !Task.isCancelled else { return }
             await playEarlyBird()
@@ -822,7 +988,12 @@ struct StampCardView: View {
         try? await Task.sleep(for: .seconds(0.45))
         while shown < stamped, !Task.isCancelled {
             let number = shown + 1
-            if number == StampMath.cells {
+            let next = StampMath.board(of: number)
+            if next != board {
+                await turnBoard(to: next)
+                guard !Task.isCancelled else { return }
+            }
+            if StampMath.cellInBoard(number) == StampMath.cells {
                 await playFinale()
                 return
             }
@@ -869,8 +1040,49 @@ struct StampCardView: View {
         #endif
     }
 
+    /// 판 바뀜(대표님 2026-11-27 확정 시안 `design/proto/stamp-boards.html`): 다 찬 판이 살짝 들렸다가 뒤로 내려앉고,
+    /// 새 판이 위에서 내려와 자리 잡는다. 그다음 새 판 1칸을 찍는다. 이미 있는 판이면(1판을 앞으로 꺼내 둔 뒤) 순서만 되돌린다.
+    private func turnBoard(to next: Int) async {
+        let full: [Int] = Array((1 ... next).reversed())
+        guard !deck.contains(next) else {
+            withAnimation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 1)) { order = full }
+            try? await Task.sleep(for: .seconds(0.4))
+            return
+        }
+        var instant = Transaction()
+        instant.disablesAnimations = true
+        withTransaction(instant) {
+            entering = next
+            enterShown = false
+            enterLanded = reduceMotion
+        }
+        if reduceMotion {
+            withTransaction(instant) { order = full }
+            withAnimation(.easeOut(duration: 0.2)) { enterShown = true }
+            try? await Task.sleep(for: .seconds(0.3))
+        } else {
+            let old = board
+            withAnimation(.easeOut(duration: 0.16)) { lifted = old }
+            try? await Task.sleep(for: .seconds(0.16))
+            withAnimation(.timingCurve(0.65, 0, 0.35, 1, duration: 0.42)) {
+                order = full
+                lifted = nil
+            }
+            try? await Task.sleep(for: .seconds(0.3))
+            withAnimation(.linear(duration: 0.12)) { enterShown = true }
+            withAnimation(.timingCurve(0.23, 1, 0.32, 1, duration: 0.4)) { enterLanded = true }
+            try? await Task.sleep(for: .seconds(0.7))
+        }
+        withTransaction(instant) { entering = nil }
+    }
+
     private func playFinale() async {
         guard let first = capGifts.first else { return }
+        // 앞 판 룰렛을 처음 상태로(여러 판을 이어 찍을 때 앞 판 결과가 남지 않게).
+        isSettled = false
+        isRevealDone = false
+        rollStart = nil
+        armedAt = nil
         if let set = Self.setID(of: first), TradeCatalog.item(set) != nil {
             armedAt = Date()
             withAnimation(.easeOut(duration: 0.25)) { finale = .cup(set) }

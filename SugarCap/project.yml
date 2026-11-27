@@ -13,7 +13,7 @@ settings:
     SWIFT_EMIT_LOC_STRINGS: YES
     LOCALIZATION_PREFERS_STRING_CATALOGS: YES
     CODE_SIGN_STYLE: Automatic
-    MARKETING_VERSION: "1.1.3"
+    MARKETING_VERSION: "1.1.4"
     # CI가 xcodebuild 인자로 덮어쓴다 (docs/RELEASE.md)
     CURRENT_PROJECT_VERSION: "1"
 
@@ -80,6 +80,11 @@ targets:
         ITSAppUsesNonExemptEncryption: false
         # 이용 기록 전송(SPEC §9.10). CI가 시크릿을 xcodebuild 인자로 넣는다. 없으면 빈 값이라 보내지 않는다.
         TelemetryDeckAppID: $(TELEMETRYDECK_APP_ID)
+        # 인앱 이벤트 딥링크(sugarcap://early-bird). 앱만 열면 되므로 처리 코드는 없다.
+        CFBundleURLTypes:
+          - CFBundleURLName: com.sugarcap.app
+            CFBundleURLSchemes:
+              - sugarcap
 
   SugarCapTests:
     type: bundle.unit-test

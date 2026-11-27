@@ -77,17 +77,18 @@ enum GiftStore {
     }
 
     /// 마감(오늘 마감·어젯밤 먹이기)을 저장한 직후. 스탬프판 다음 칸을 연 채로 넣는다(`StampMath`).
-    /// 1~13칸은 배치대로 마음·병뚜껑을 기록하는 면 중 무작위가, 14칸은 안 가진 잔 세트 하나를 그 주인이 준다.
-    /// 잔 세트를 다 가졌으면 병뚜껑 3개. 다 찍었으면 넣지 않는다. 찍은 칸 번호.
+    /// 판 안 1~13칸은 그 판 배치대로 마음·병뚜껑을 기록하는 면 중 무작위가, 14칸은 안 가진 잔 세트 하나를 그 주인이 준다.
+    /// 잔 세트를 다 가졌으면 병뚜껑 3개. 판이 다 차면 다음 판 1칸으로 이어진다. 찍은 칸 번호(누적).
     static func grantStamp(
         sides: [CupSide], seed: UInt64, now: Date, in context: ModelContext,
         pick: ([TradeItem]) -> TradeItem? = { $0.randomElement() }
     ) throws -> Int? {
         let gifts = try all(in: context)
-        let stamped = StampMath.stamped(cellNumbers: gifts.filter { $0.giftKind == .stamp }.compactMap(\.level))
-        guard let cell = StampMath.nextCell(stamped: stamped), let carrier = sides.randomElement() else { return nil }
-        if cell < StampMath.cells {
-            let prize = StampMath.layout(seed: seed)[cell - 1]
+        let cell = StampMath.stamped(cellNumbers: gifts.filter { $0.giftKind == .stamp }.compactMap(\.level)) + 1
+        guard let carrier = sides.randomElement() else { return nil }
+        let inBoard = StampMath.cellInBoard(cell)
+        if inBoard < StampMath.cells {
+            let prize = StampMath.layout(seed: seed, board: StampMath.board(of: cell))[inBoard - 1]
             let payload = prize == .cap ? GiftContent.cap : GiftContent.heart
             context.insert(GiftEvent(kind: .stamp, side: carrier, level: cell, payload: payload, createdAt: now, openedAt: now))
             return cell

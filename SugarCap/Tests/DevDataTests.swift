@@ -53,8 +53,8 @@ final class DevDataTests: XCTestCase {
 
         let gifts = try GiftStore.all(in: context)
         XCTAssertTrue(gifts.allSatisfy(\.isOpened), "쌓인 상자·무대는 연 것으로 둔다")
-        XCTAssertEqual(StampMath.stamped(cellNumbers: gifts.filter { $0.giftKind == .stamp }.compactMap(\.level)), 14)
-        XCTAssertEqual(UserDefaults.standard.integer(forKey: StampProgress.seenKey), 14, "스탬프판은 본 것으로")
+        XCTAssertEqual(StampMath.stamped(cellNumbers: gifts.filter { $0.giftKind == .stamp }.compactMap(\.level)), 60, "판이 다 차도 다음 판으로 이어 찍는다")
+        XCTAssertEqual(UserDefaults.standard.integer(forKey: StampProgress.seenKey), 60, "스탬프판은 본 것으로")
         XCTAssertTrue(gifts.contains { $0.giftKind == .trendsUnlock }, "첫 적립 선물")
         XCTAssertEqual(gifts.filter { $0.giftKind == .starterCap }.count, 2, "튜토리얼 병뚜껑 2개")
         XCTAssertTrue(try SettlementStore.affinity(for: .sugar, in: context).points > 0)

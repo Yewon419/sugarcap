@@ -2,35 +2,49 @@ import Foundation
 
 /// 2주 스탬프판(대표님 2026-11-05, 시안 `design/proto/stamp-card.html`). 전부 순수 함수다. 행은 `GiftStore.grantStamp`.
 /// 마감한 날마다 한 칸, 빠진 날이 있어도 이어서 센다. 기존 선물과 따로 더 준다.
+/// 14칸이 다 차면 다음 판이 이어진다(대표님 2026-11-27). 칸 번호는 판을 넘어 15, 16…으로 이어 센다.
 enum StampMath {
     static let cells = 14
     /// 잔 세트를 다 가졌을 때 14칸 대신 주는 병뚜껑 수(대표님 2026-11-05).
     static let finalCaps = 3
-    /// 얼리버드 선물 칸(`EarlyBird`). 늘 마음이고, 대상이면 유리 공예 잔 두 개를 더 받는다.
+    /// 얼리버드 선물 칸(`EarlyBird`). 첫 판에서만 늘 마음이고, 대상이면 유리 공예 잔 두 개를 더 받는다.
     static let earlyBirdCell = 7
 
     enum Prize: Equatable, Sendable {
         case heart, cap
     }
 
-    /// 1~13칸 내용. 병뚜껑 1~2개, 나머지는 마음, 자리는 7칸을 뺀 곳 중 무작위. 기기마다 한 번 정한 `seed`라 다시 계산해도 같다.
-    static func layout(seed: UInt64) -> [Prize] {
-        var generator = SeededGenerator(state: seed)
+    /// 판 안 1~13칸 내용. 병뚜껑 1~2개, 나머지는 마음. 첫 판은 7칸을 뺀 곳 중 무작위, 둘째 판부터는 7칸도 일반 칸.
+    /// 기기마다 한 번 정한 `seed`와 판 번호로 정해져 다시 계산해도 같다. 첫 판은 판 반복 전과 같은 배치다.
+    static func layout(seed: UInt64, board: Int) -> [Prize] {
+        guard board > 1 else {
+            var generator = SeededGenerator(state: seed)
+            let caps = generator.next() % 2 == 0 ? 1 : 2
+            var prizes = (0 ..< cells - 2).map { $0 < caps ? Prize.cap : Prize.heart }
+            prizes.shuffle(using: &generator)
+            prizes.insert(.heart, at: earlyBirdCell - 1)
+            return prizes
+        }
+        var generator = SeededGenerator(state: seed ^ (UInt64(board) &* 0xD1B5_4A32_D192_ED03))
         let caps = generator.next() % 2 == 0 ? 1 : 2
-        var prizes = (0 ..< cells - 2).map { $0 < caps ? Prize.cap : Prize.heart }
+        var prizes = (0 ..< cells - 1).map { $0 < caps ? Prize.cap : Prize.heart }
         prizes.shuffle(using: &generator)
-        prizes.insert(.heart, at: earlyBirdCell - 1)
         return prizes
     }
 
-    /// 찍은 칸 수 = 스탬프 행의 가장 큰 칸 번호.
+    /// 찍은 칸 수 = 스탬프 행의 가장 큰 칸 번호(판을 넘어 누적).
     static func stamped(cellNumbers: [Int]) -> Int {
-        min(cellNumbers.max() ?? 0, cells)
+        cellNumbers.max() ?? 0
     }
 
-    /// 다음에 찍을 칸. 다 찍었으면 nil.
-    static func nextCell(stamped: Int) -> Int? {
-        stamped < cells ? stamped + 1 : nil
+    /// 칸 번호가 속한 판(1부터).
+    static func board(of cell: Int) -> Int {
+        (cell - 1) / cells + 1
+    }
+
+    /// 칸 번호의 판 안 자리(1~14).
+    static func cellInBoard(_ cell: Int) -> Int {
+        (cell - 1) % cells + 1
     }
 
     /// 14칸 잔 세트 후보: 기록하는 면의 상품 중 아직 안 가진 것(목록 순서).

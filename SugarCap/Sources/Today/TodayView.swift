@@ -2019,7 +2019,7 @@ struct TodayView: View {
     /// 저장소 밖 스탬프 행(CI 스크린샷, 테스트 카드 「스탬프 보상 바로 보기」). `earlyBird`면 7칸에 유리 공예 잔 두 행.
     private static func rehearsalStampRows(count: Int, final: String, earlyBird: Bool) -> [GiftEvent] {
         let now = Date()
-        let layout = StampMath.layout(seed: 7)
+        let layout = StampMath.layout(seed: 7, board: 1)
         var rows: [GiftEvent] = []
         for cell in 1 ..< min(count + 1, StampMath.cells) {
             let side: CupSide = cell.isMultiple(of: 2) ? .caffeine : .sugar

@@ -54,8 +54,8 @@ struct MonthDigest: Equatable, Sendable {
     let recent: [Recent]
 
     static func make(
-        entries: [Entry], boundaryHour: Int, year: Int, month: Int, today: DayKey, side: CupSide, limit: Double,
-        earliest: DayKey, calendar: Calendar = .current
+        entries: [Entry], closedDays: Set<DayKey>, boundaryHour: Int, year: Int, month: Int, today: DayKey,
+        side: CupSide, limit: Double, earliest: DayKey, calendar: Calendar = .current
     ) -> MonthDigest {
         let mine = entries.filter { entry in
             let key = entry.dayKey(boundaryHour: boundaryHour, calendar: calendar)
@@ -89,8 +89,8 @@ struct MonthDigest: Equatable, Sendable {
             .prefix(3)
 
         let page = MonthPage.make(
-            entries: entries, boundaryHour: boundaryHour, year: year, month: month, today: today, side: side,
-            calendar: calendar
+            entries: entries, closedDays: closedDays, boundaryHour: boundaryHour, year: year, month: month, today: today,
+            side: side, calendar: calendar
         )
         let closed = page.cells.filter { !$0.isToday }.compactMap { cell in cell.used.map { (cell.day, $0) } }
         var byWeekday = Array(repeating: [Double](), count: 7)
@@ -107,8 +107,8 @@ struct MonthDigest: Equatable, Sendable {
             let start = MonthTrendsView.shift(shown, by: -back)
             guard start >= firstMonth else { return Recent(month: start, average: nil) }
             let average = MonthPage.make(
-                entries: entries, boundaryHour: boundaryHour, year: start.year, month: start.month, today: today,
-                side: side, calendar: calendar
+                entries: entries, closedDays: closedDays, boundaryHour: boundaryHour, year: start.year,
+                month: start.month, today: today, side: side, calendar: calendar
             ).dailyAverage
             return Recent(month: start, average: average)
         }

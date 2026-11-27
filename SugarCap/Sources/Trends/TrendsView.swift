@@ -17,6 +17,7 @@ struct TrendsView: View {
 
     @Query private var settingsRows: [AppSettings]
     @Query(sort: \Entry.loggedAt, order: .reverse) private var entries: [Entry]
+    @Query private var settlements: [DaySettlement]
     @Query private var goals: [ReductionGoal]
     @Environment(\.modelContext) private var context
     @Environment(ProStore.self) private var pro
@@ -213,7 +214,7 @@ struct TrendsView: View {
         )
         let first = earliestDay(today: today)
         return MonthTrendsView(
-            entries: entries, boundaryHour: boundaryHour, limits: limits, today: today, side: side,
+            entries: entries, closedDays: closedDays, boundaryHour: boundaryHour, limits: limits, today: today, side: side,
             trackedSides: trackedSides, shown: shown, earliest: DayKey(year: first.year, month: first.month, day: 1),
             onPickDay: { day in
                 let start = day.weekStart()
@@ -250,9 +251,12 @@ struct TrendsView: View {
         #endif
     }
 
-    /// 첫 기록 날(기록이 없으면 오늘). 주·달을 그 앞으로는 못 넘긴다.
+    private var closedDays: Set<DayKey> { TrendTable.closedDays(settlements) }
+
+    /// 첫 기록 날과 첫 마감 날 중 이른 날(둘 다 없으면 오늘). 주·달을 그 앞으로는 못 넘긴다.
     private func earliestDay(today: DayKey) -> DayKey {
-        min(entries.last?.dayKey(boundaryHour: boundaryHour) ?? today, today)
+        let firstEntry = entries.last?.dayKey(boundaryHour: boundaryHour) ?? today
+        return min(firstEntry, closedDays.min() ?? today, today)
     }
 
     /// 넘기기 연출 없이 면을 바꾼다(월 달력). 주 보기로 돌아왔을 때 잔·캐릭터 층이 그 면에 있게 쪽 번호도 맞춘다.
@@ -269,8 +273,8 @@ struct TrendsView: View {
 
     private func makeTable(today: DayKey, side: CupSide) -> TrendTable {
         TrendTable.calendarWeek(
-            entries: entries, boundaryHour: boundaryHour, today: today, start: shownWeekStart(today: today), side: side,
-            limit: side.limit(limits)
+            entries: entries, closedDays: closedDays, boundaryHour: boundaryHour, today: today,
+            start: shownWeekStart(today: today), side: side, limit: side.limit(limits)
         )
     }
 
@@ -461,7 +465,8 @@ struct TrendsView: View {
     private func weekChange(_ cupSide: CupSide, today: DayKey) -> Double? {
         guard !isMonth, weekStart == nil else { return nil }
         return TrendTable.calendarWeekChange(
-            entries: entries, boundaryHour: boundaryHour, today: today, side: cupSide, limit: cupSide.limit(limits)
+            entries: entries, closedDays: closedDays, boundaryHour: boundaryHour, today: today, side: cupSide,
+            limit: cupSide.limit(limits)
         )
     }
 

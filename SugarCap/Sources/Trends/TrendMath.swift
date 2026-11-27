@@ -125,7 +125,8 @@ struct TableCup: Identifiable, Equatable, Sendable {
     /// 그 칸의 첫날. 주 보기에서는 그날이다.
     let day: DayKey
     let used: Double
-    /// 기록한 날이나 오늘이 하나라도 들었는지. 기록 없는 지난날은 "남겼다"고 셀 수 없다(안 적었을 수도 있다).
+    /// 기록한 날·마감한 날·오늘인지. 기록도 마감도 없는 지난날은 "남겼다"고 셀 수 없다(안 적었을 수도 있다).
+    /// 0잔으로 마감한 날도 기록한 날이다(출석 스탬프와 같은 기준, 대표님 2026-11-27).
     let recorded: Bool
     let isFuture: Bool
     /// 오늘 칸. 캐릭터가 이 잔 뒤에 선다(없으면 마지막 잔).
@@ -144,11 +145,13 @@ struct TrendTable: Equatable, Sendable {
     var nowIndex: Int { cups.firstIndex(where: \.isNow) ?? max(0, cups.count - 1) }
 
     /// 오늘로 끝나는 7일. `weeksAgo`만큼 앞 주로 옮긴다. 주 지킴 축하(`WeekKeptCelebration`)가 쓴다.
+    /// `closedDays` = 마감한 날(`DaySettlement.closedAt`이 있는 날).
     static func week(
-        entries: [Entry], boundaryHour: Int, today: DayKey, side: CupSide, limit: Double, weeksAgo: Int = 0,
-        calendar: Calendar = .current
+        entries: [Entry], closedDays: Set<DayKey>, boundaryHour: Int, today: DayKey, side: CupSide, limit: Double,
+        weeksAgo: Int = 0, calendar: Calendar = .current
     ) -> TrendTable {
         let recordedDays = recordedDays(entries: entries, boundaryHour: boundaryHour, calendar: calendar)
+            .union(closedDays)
         let end = today.shifted(by: -7 * weeksAgo, calendar: calendar)
         let days = TrendMath.daily(entries: entries, boundaryHour: boundaryHour, today: end, days: 7, calendar: calendar)
         let cups = days.map { point in
@@ -164,10 +167,11 @@ struct TrendTable: Equatable, Sendable {
 
     /// `start`(월요일)부터 일요일까지 한 주. 오늘 이후 날은 비운다(기록 없음, `isFuture`).
     static func calendarWeek(
-        entries: [Entry], boundaryHour: Int, today: DayKey, start: DayKey, side: CupSide, limit: Double,
-        calendar: Calendar = .current
+        entries: [Entry], closedDays: Set<DayKey>, boundaryHour: Int, today: DayKey, start: DayKey, side: CupSide,
+        limit: Double, calendar: Calendar = .current
     ) -> TrendTable {
         let recordedDays = recordedDays(entries: entries, boundaryHour: boundaryHour, calendar: calendar)
+            .union(closedDays)
         let end = start.shifted(by: 6, calendar: calendar)
         let days = TrendMath.daily(entries: entries, boundaryHour: boundaryHour, today: end, days: 7, calendar: calendar)
         let cups = days.map { point in
@@ -185,21 +189,26 @@ struct TrendTable: Equatable, Sendable {
     /// 이번 주와 지난주 **같은 요일까지** 남긴 양의 차이(끝줄 한 줄). 이번 주는 아직 안 끝났으니 월 비교와 같은 규칙이다.
     /// 지난주 그 기간에 기록이 없으면 비교하지 않는다.
     static func calendarWeekChange(
-        entries: [Entry], boundaryHour: Int, today: DayKey, side: CupSide, limit: Double,
+        entries: [Entry], closedDays: Set<DayKey>, boundaryHour: Int, today: DayKey, side: CupSide, limit: Double,
         calendar: Calendar = .current
     ) -> Double? {
         let start = today.weekStart(calendar: calendar)
         let elapsed = start.days(until: today, calendar: calendar) + 1
         let previous = calendarWeek(
-            entries: entries, boundaryHour: boundaryHour, today: today, start: start.shifted(by: -7, calendar: calendar),
-            side: side, limit: limit, calendar: calendar
+            entries: entries, closedDays: closedDays, boundaryHour: boundaryHour, today: today,
+            start: start.shifted(by: -7, calendar: calendar), side: side, limit: limit, calendar: calendar
         ).cups.prefix(elapsed).filter(\.recorded)
         guard !previous.isEmpty else { return nil }
         let current = calendarWeek(
-            entries: entries, boundaryHour: boundaryHour, today: today, start: start, side: side, limit: limit,
-            calendar: calendar
+            entries: entries, closedDays: closedDays, boundaryHour: boundaryHour, today: today, start: start, side: side,
+            limit: limit, calendar: calendar
         )
         return current.total - previous.reduce(0) { $0 + max(0, limit - $1.used) }
+    }
+
+    /// 마감한 날(0잔 마감 포함). 출석 스탬프가 찍힌 날과 같다.
+    static func closedDays(_ rows: [DaySettlement]) -> Set<DayKey> {
+        Set(rows.filter(\.isClosed).compactMap(\.dayKey))
     }
 
     private static func recordedDays(entries: [Entry], boundaryHour: Int, calendar: Calendar) -> Set<DayKey> {

@@ -5,7 +5,7 @@ import Foundation
 struct MonthPage: Equatable, Sendable {
     struct Cell: Equatable, Sendable, Identifiable {
         let day: DayKey
-        /// 그날 먹은 양. 기록 없는 지난날과 오늘 이후는 nil(사진 없음). 오늘은 기록이 없어도 0이다.
+        /// 그날 먹은 양. 기록 없는 지난날과 오늘 이후는 nil(사진 없음). 오늘과 0잔으로 마감한 날은 기록이 없어도 0이다.
         let used: Double?
         let isFuture: Bool
         let isToday: Bool
@@ -36,9 +36,10 @@ struct MonthPage: Equatable, Sendable {
     }
 
     /// `upto`일까지만 본 하루 평균. 이번 달을 지난달 같은 날까지와 비교할 때 쓴다(지난달 이맘때).
+    /// `closedDays` = 마감한 날(`DaySettlement.closedAt`이 있는 날).
     static func make(
-        entries: [Entry], boundaryHour: Int, year: Int, month: Int, today: DayKey, side: CupSide,
-        upto: Int? = nil, calendar: Calendar = .current
+        entries: [Entry], closedDays: Set<DayKey>, boundaryHour: Int, year: Int, month: Int, today: DayKey,
+        side: CupSide, upto: Int? = nil, calendar: Calendar = .current
     ) -> MonthPage {
         let first = DayKey(year: year, month: month, day: 1)
         let next = month == 12 ? DayKey(year: year + 1, month: 1, day: 1) : DayKey(year: year, month: month + 1, day: 1)
@@ -52,7 +53,7 @@ struct MonthPage: Equatable, Sendable {
         let cells = (0..<count).map { offset -> Cell in
             let day = first.shifted(by: offset, calendar: calendar)
             let isFuture = day > today
-            let used: Double? = isFuture ? nil : (totals[day] ?? (day == today ? 0 : nil))
+            let used: Double? = isFuture ? nil : (totals[day] ?? (day == today || closedDays.contains(day) ? 0 : nil))
             return Cell(day: day, used: used, isFuture: isFuture, isToday: day == today)
         }
         let counted = cells.filter { cell in cell.used != nil && (upto.map { cell.day.day <= $0 } ?? true) }
@@ -82,19 +83,19 @@ enum MonthStats {
     /// 지난달 대비 하루 평균 변화(%, 반올림). 이번 달이면 지난달도 오늘 날짜까지만 본다.
     /// 지난달 기록이 없거나 평균이 0이면 비교하지 않는다.
     static func change(
-        entries: [Entry], boundaryHour: Int, year: Int, month: Int, today: DayKey, side: CupSide,
-        calendar: Calendar = .current
+        entries: [Entry], closedDays: Set<DayKey>, boundaryHour: Int, year: Int, month: Int, today: DayKey,
+        side: CupSide, calendar: Calendar = .current
     ) -> Int? {
         let live = year == today.year && month == today.month
         let upto = live ? today.day : nil
         let now = MonthPage.make(
-            entries: entries, boundaryHour: boundaryHour, year: year, month: month, today: today, side: side,
-            upto: upto, calendar: calendar
+            entries: entries, closedDays: closedDays, boundaryHour: boundaryHour, year: year, month: month, today: today,
+            side: side, upto: upto, calendar: calendar
         )
         let (py, pm) = month == 1 ? (year - 1, 12) : (year, month - 1)
         let before = MonthPage.make(
-            entries: entries, boundaryHour: boundaryHour, year: py, month: pm, today: today, side: side,
-            upto: upto, calendar: calendar
+            entries: entries, closedDays: closedDays, boundaryHour: boundaryHour, year: py, month: pm, today: today,
+            side: side, upto: upto, calendar: calendar
         )
         guard let current = now.dailyAverage, let previous = before.dailyAverage, previous > 0 else { return nil }
         return Int(((current - previous) / previous * 100).rounded())

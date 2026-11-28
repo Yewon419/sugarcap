@@ -194,6 +194,9 @@ jobs:
           shoot stamp-roulette-pop light large -screenshotStamps 14 -screenshotStampSeen 13 -screenshotStampRollAt 5.6
           shoot stamp-caps light large -screenshotStamps 14 -screenshotStampSeen 13 -screenshotStampFinal caps
           shoot stamp-full light large -screenshotStamps 14
+          shoot stamp-board2 light large -screenshotStamps 15 -screenshotStampSeen 14
+          shoot stamp-board3 light large -screenshotStamps 29
+          shoot stamp-board3-dark dark large -screenshotStamps 29
           shoot stamp-mid-dark dark large -screenshotStamps 6
           shoot stamp-mid-type-ax-xl light accessibility-extra-large -screenshotStamps 6
           # 얼리버드 선물(7칸): 받기 전 옅은 방울 → 7칸을 찍은 뒤 무대(멈춘 자리) → 받은 뒤 판 → 보관함의 유리 잔.

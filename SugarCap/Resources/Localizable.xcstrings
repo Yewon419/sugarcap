@@ -3204,22 +3204,6 @@
         }
       }
     },
-    "모은 병뚜껑과 물건을 볼 수 있어요." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "See the bottle caps and things you've collected."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "看看收集到的瓶蓋和物品。"
-          }
-        }
-      }
-    },
     "목록에 없을 때" : {
       "localizations" : {
         "en" : {
@@ -6948,22 +6932,6 @@
         }
       }
     },
-    "잔" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cups"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "杯子"
-          }
-        }
-      }
-    },
     "지금 가진 것" : {
       "localizations" : {
         "en" : {
@@ -10156,6 +10124,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "本同意書自2026年11月19日起適用。"
+          }
+        }
+      }
+    },
+    "컵 스킨" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cup skins"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "杯子造型"
+          }
+        }
+      }
+    },
+    "모은 병뚜껑·컵 스킨·물건을 볼 수 있어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "See your bottle caps, cup skins and things you've collected."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "看看收集到的瓶蓋、杯子造型和物品。"
+          }
+        }
+      }
+    },
+    "병뚜껑으로 새로운 컵 스킨을 교환할 수 있어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can trade bottle caps for a new cup skin"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可以用瓶蓋交換新的杯子造型"
           }
         }
       }

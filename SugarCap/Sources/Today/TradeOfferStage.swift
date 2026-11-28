@@ -105,12 +105,23 @@ struct TradeOfferOverlay: View {
     private func choiceView(t: Double) -> some View {
         let caption = GiftRevealTimeline.caption(t, calm: reduceMotion)
         return VStack(spacing: 16) {
-            Text("병뚜껑 \(stage.offer.price)개랑 바꿀래?")
-                .font(AppFont.pretendard(17, .semibold, relativeTo: .headline))
-                .foregroundStyle(.white)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-                .accessibilityIdentifier("trade-question")
+            VStack(spacing: 6) {
+                // 첫 거래만. 교환이 뭘 하는지 모르고 "바꾸기"만 누르던 사용자(대표님 2026-11-28).
+                if !canRefuse {
+                    Text("병뚜껑으로 새로운 컵 스킨을 교환할 수 있어요")
+                        .font(AppFont.pretendard(15, .medium, relativeTo: .subheadline))
+                        .foregroundStyle(.white.opacity(0.8))
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityIdentifier("trade-explain")
+                }
+                Text("병뚜껑 \(stage.offer.price)개랑 바꿀래?")
+                    .font(AppFont.pretendard(17, .semibold, relativeTo: .headline))
+                    .foregroundStyle(.white)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier("trade-question")
+            }
             HStack(spacing: 12) {
                 if canRefuse {
                     Button(action: onRefuse) {

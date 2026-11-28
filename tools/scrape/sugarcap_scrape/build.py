@@ -7,11 +7,15 @@ Usage:
         --merge ../../data/catalog.json --only paulbassett,baskin
     python -m sugarcap_scrape.build --country us --out ../../data/catalog-us.json
     python -m sugarcap_scrape.build --country tw --out ../../data/catalog-tw.json
+    python -m sugarcap_scrape.build --country global --out ../../data/catalog-global.json
+        --reference ../../data/catalog.json
 
 `--kfind` is the hand-downloaded K-FIND 가공식품 xlsx behind the `cvs` brand
 (see `brands/cvs.py`). A full Korean build requires it so the brand cannot drop out.
 
 Korean catalogs then get `estimate.py` values for the brands that publish none.
+`--country global` (countries without a catalog) has only estimated drinks; their reference
+cups come from the Korean catalog given as `--reference`.
 
 `--merge` re-scrapes only the `--only` brands and swaps them into an existing catalog,
 leaving every other brand's drinks untouched. Used when an unrelated brand site broke
@@ -32,6 +36,8 @@ from sugarcap_scrape.brands import (
     Scraper,
     cvs,
     estimated_likes,
+    global_estimated_likes,
+    global_registry,
     registry,
     tw_estimated_likes,
     tw_registry,
@@ -39,7 +45,7 @@ from sugarcap_scrape.brands import (
     us_registry,
 )
 from sugarcap_scrape.colors import liquid_color
-from sugarcap_scrape.estimate import fill_estimates
+from sugarcap_scrape.estimate import fill_estimates, fill_estimates_from, references
 from sugarcap_scrape.http import make_client
 from sugarcap_scrape.ids import drink_id, serving_id, slugify
 from sugarcap_scrape.models import Brand, Catalog, Drink, RawServing, Serving
@@ -184,11 +190,14 @@ def write_catalog(catalog: Catalog, out: Path) -> None:
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, required=True)
-    parser.add_argument("--country", choices=("kr", "us", "tw"), default="kr")
+    parser.add_argument("--country", choices=("kr", "us", "tw", "global"), default="kr")
     parser.add_argument("--only", type=str, default=None, help="comma-separated brand ids")
     parser.add_argument("--kfind", type=Path, default=None, help="K-FIND 가공식품 DB xlsx")
     parser.add_argument(
         "--merge", type=Path, default=None, help="existing catalog to swap --only brands into"
+    )
+    parser.add_argument(
+        "--reference", type=Path, default=None, help="Korean catalog for --country global"
     )
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args(argv)
@@ -200,15 +209,27 @@ def main(argv: list[str]) -> int:
         parser.error(f"a full build needs --kfind for the {cvs.BRAND.id} brand")
     if args.country != "kr" and args.kfind is not None:
         parser.error("--kfind is the Korean convenience-store source")
-    scrapers = {"kr": registry, "us": us_registry, "tw": tw_registry}[args.country]()
+    if (args.country == "global") != (args.reference is not None):
+        parser.error("--reference goes with --country global, and only there")
+    scrapers = {"kr": registry, "us": us_registry, "tw": tw_registry, "global": global_registry}[
+        args.country
+    ]()
     catalog = build(scrapers, only, args.kfind)
     if args.merge is not None:
         base = Catalog.model_validate(json.loads(args.merge.read_text(encoding="utf-8")))
         catalog = in_registry_order(merge_catalog(base, catalog), list(scrapers))
-    likes = {"kr": estimated_likes, "us": us_estimated_likes, "tw": tw_estimated_likes}[
-        args.country
-    ]
-    catalog = fill_estimates(catalog, likes())
+    likes = {
+        "kr": estimated_likes,
+        "us": us_estimated_likes,
+        "tw": tw_estimated_likes,
+        "global": global_estimated_likes,
+    }[args.country]()
+    if args.reference is None:
+        catalog = fill_estimates(catalog, likes)
+    else:
+        korean = Catalog.model_validate(json.loads(args.reference.read_text(encoding="utf-8")))
+        pool = references(korean, frozenset(estimated_likes()))
+        catalog = fill_estimates_from(catalog, likes, pool)
     problems = validate(catalog) if only is None or args.merge is not None else []
     if problems:
         for problem in problems:

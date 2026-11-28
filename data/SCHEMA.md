@@ -26,6 +26,12 @@ cd tools\scrape
 ..\..\.venv\Scripts\python -m sugarcap_scrape.build --country tw --out ..\..\data\catalog-tw.json
 ```
 
+그 밖의 지역 카탈로그 `data/catalog-global.json`(2026-11-28)은 `global-basic` 한 브랜드뿐이고, 값은 한국 카탈로그를 근거로 매긴다.
+
+```
+..\..\.venv\Scripts\python -m sugarcap_scrape.build --country global --out ..\..\data\catalog-global.json --reference ..\..\data\catalog.json
+```
+
 빌더는 쓰기 전에 `sugarcap_scrape.validate.validate()`를 돌린다. 문제가 하나라도 있으면
 `INVALID ...`를 찍고 **파일을 쓰지 않은 채 exit 1**. `--only`로 일부 브랜드만 돌릴 때는
 카탈로그가 불완전하므로 검증을 건너뛴다(그 산출물은 커밋하지 않는다).
@@ -34,7 +40,7 @@ cd tools\scrape
 
 | 필드 | 타입 | 설명 |
 |---|---|---|
-| `schema_version` | int | 현재 3(`estimated` 추가, 2는 `caffeine_range`). 앱이 읽을 수 있는 버전인지 먼저 확인한다(앱은 1...3). 깨는 변경 시 +1. 한국 카탈로그는 2026-10-31 추정 브랜드 추가로 3, 미국·대만은 2026-11-18 기본 메뉴(`us-basic`·`tw-basic`) 병합으로 3 |
+| `schema_version` | int | 현재 3(`estimated` 추가, 2는 `caffeine_range`). 앱이 읽을 수 있는 버전인지 먼저 확인한다(앱은 1...3). 깨는 변경 시 +1. 한국 카탈로그는 2026-10-31 추정 브랜드 추가로 3, 미국·대만은 2026-11-18 기본 메뉴(`us-basic`·`tw-basic`) 병합으로 3, 그 밖의 지역은 처음부터 3 |
 | `built_at` | string | 수집 시각, UTC ISO 8601(초 단위). 설정 화면의 "데이터 갱신 날짜" |
 | `brands` | Brand[] | 등록 순서 |
 | `drinks` | Drink[] | `(brand_id, 이름 slug, temperature)` 사전순 |
@@ -74,7 +80,7 @@ cd tools\scrape
 | `caffeine_mg` | float \| null | null = 브랜드 미공개. 변형이 있으면 첫 변형 값과 같다. `parisbaguette`는 박스마다 다른 게시값 중 최댓값. `cvs`는 항상 null(출처에 카페인 없음) |
 | `caffeine_variants` | CaffeineVariant[] | 원두 선택에 따라 카페인이 갈리는 경우만. 없으면 `[]` |
 | `caffeine_range` | CaffeineRange \| 없음 | v2. 브랜드가 카페인을 정확한 값이 아니라 구간으로만 게시한 경우(대만 표시 규정의 `≤100` `101~200` `≥201`, 폴바셋 `10mg이하`, 배스킨라빈스 `5~6`). 정확한 값이면 키가 없거나 null |
-| `estimated` | bool \| 없음 | v3. 참이면 `sugar_g`·`caffeine_mg`는 브랜드 게시값이 아니라 다른 카페 같은 메뉴의 중앙값(SPEC §2 예외, `bluebottle`·`amasvin`·`oozy`·`basic`·`us-basic`·`tw-basic`(기본 메뉴)만). 앱은 숫자 앞에 "추정"을 붙인다. 거짓이면 키가 없다
+| `estimated` | bool \| 없음 | v3. 참이면 `sugar_g`·`caffeine_mg`는 브랜드 게시값이 아니라 다른 카페 같은 메뉴의 중앙값(SPEC §2 예외, `bluebottle`·`amasvin`·`oozy`·`basic`·`us-basic`·`tw-basic`·`global-basic`(기본 메뉴)만). 앱은 숫자 앞에 "추정"을 붙인다. 거짓이면 키가 없다
 
 ### CaffeineRange
 

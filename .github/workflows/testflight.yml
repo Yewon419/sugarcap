@@ -576,6 +576,22 @@ jobs:
           for at in 0.4 2.2 3.6 5.2 6.6 8.0; do
             shoot_en "intro-$at" large -screenshotFeeding YES -screenshotIntroAt "$at"
           done
+          # 그 밖의 지역(2026-11-28 전 세계 출시): 영국 지역, 영어 기본 메뉴만 있는 카탈로그.
+          shoot_global() {
+            local name="$1" size="$2"
+            shift 2
+            xcrun simctl ui "$SIM_UDID" content_size "$size"
+            xcrun simctl launch "$SIM_UDID" com.sugarcap.app -companionIntroSeen YES -AppleLanguages "(en)" -AppleLocale en_GB -screenshotMenuCountry global "$@"
+            sleep "$SHOT_WAIT"
+            xcrun simctl io "$SIM_UDID" screenshot "$OUT/global-$name.png"
+            xcrun simctl terminate "$SIM_UDID" com.sugarcap.app
+          }
+          shoot_global onboarding-locale large -onboardingCompleted NO
+          shoot_global onboarding-locale-type-ax-xl accessibility-extra-large -onboardingCompleted NO
+          shoot_global light large -seedDemo YES
+          shoot_global record large -seedDemo YES -screenshotRecord YES
+          shoot_global brand-panel large -seedDemo YES -screenshotBrand global-basic -screenshotBrandQuery "Latte" -screenshotBrandPanel YES
+          shoot_global settings large -initialTab settings
           # 대만판(SPEC §9.9 ④). 번체 문장 넘침과 대만 메뉴(카페인 구간 표기)를 본다.
           shoot_zh() {
             local name="$1" size="$2"

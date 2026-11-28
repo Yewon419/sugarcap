@@ -91,7 +91,7 @@ struct LocaleCheck: View {
     /// 고른 나라. VoiceOver에서는 방울 열 대신 여기서 위아래로 쓸어 나라를 바꾼다.
     private var pick: some View {
         VStack(alignment: .leading, spacing: 0) {
-            OutlineText(text: country.rawValue.uppercased(), font: AppFont.numeralFixed(64), color: .ink, lineWidth: 2.5)
+            OutlineText(text: country.code, font: AppFont.numeralFixed(64), color: .ink, lineWidth: 2.5)
             Text(country.name)
                 .font(AppFont.pretendard(17, .bold, relativeTo: .headline))
                 .padding(.top, 10)
@@ -144,11 +144,13 @@ struct LocaleCheck: View {
     }
 
     /// 그 나라 카탈로그의 앞쪽 브랜드(`data/catalog*.json` 표기 그대로). 한국은 17곳이라 셋만 적고 나머지는 "외".
+    /// 그 밖의 지역은 브랜드 없이 기본 메뉴만 있다.
     private static func brands(for country: MenuCountry) -> String {
         switch country {
         case .kr: String(localized: "\("스타벅스 · 메가MGC커피 · 컴포즈커피") 외")
         case .us: "Starbucks · Dutch Bros"
         case .tw: "cama café · 可不可熟成紅茶"
+        case .global: String(localized: "흔한 카페 메뉴 (값은 추정)")
         }
     }
 
@@ -180,7 +182,9 @@ private struct DropColumn: View {
         case drink(String)
     }
 
-    private static let items: [Item] = [.flag(.kr), .drink("drop-matcha"), .flag(.us), .drink("drop-mango"), .flag(.tw), .drink("drop-grape")]
+    private static let items: [Item] = [
+        .flag(.kr), .drink("drop-matcha"), .flag(.us), .drink("drop-mango"), .flag(.tw), .drink("drop-grape"), .flag(.global), .drink("drop-cafe-latte"),
+    ]
 
     @State private var anchorOffset: CGFloat = 30
     @State private var anchorTime = Date()

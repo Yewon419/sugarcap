@@ -42,6 +42,8 @@ targets:
         buildPhase: resources
       - path: ../data/catalog-tw.json
         buildPhase: resources
+      - path: ../data/catalog-global.json
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.sugarcap.app
@@ -97,6 +99,8 @@ targets:
       - path: ../data/catalog-us.json
         buildPhase: resources
       - path: ../data/catalog-tw.json
+        buildPhase: resources
+      - path: ../data/catalog-global.json
         buildPhase: resources
     dependencies:
       - target: SugarCap

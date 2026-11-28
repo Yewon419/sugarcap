@@ -11,6 +11,9 @@ from sugarcap_scrape.brands import (
     Scraper,
     basic,
     estimated_likes,
+    global_basic,
+    global_estimated_likes,
+    global_registry,
     registry,
     tw_basic,
     tw_estimated_likes,
@@ -20,8 +23,9 @@ from sugarcap_scrape.brands import (
     us_registry,
 )
 from sugarcap_scrape.build import group_rows, in_registry_order, merge_catalog
-from sugarcap_scrape.estimate import Likes, fill_estimates
+from sugarcap_scrape.estimate import Likes, fill_estimates, fill_estimates_from, references
 from sugarcap_scrape.models import Brand, Catalog
+from sugarcap_scrape.validate import validate
 
 DATA = Path(__file__).resolve().parents[3] / "data"
 
@@ -64,3 +68,42 @@ def test_every_drink_gets_both_estimates(
         (serving,) = drink.servings
         assert serving.estimated, drink.name
         assert serving.sugar_g is not None and serving.caffeine_mg is not None, drink.name
+
+
+def test_global_basic_contract() -> None:
+    assert global_basic.BRAND.has_size_choice is False
+    assert list(global_registry()) == [global_basic.BRAND.id]
+    assert global_basic.BRAND.id in global_estimated_likes()
+    names = [name for _, name in global_basic.DRINKS]
+    assert set(global_basic.LIKE) == set(names)
+
+
+def test_global_basic_matches_the_korean_drink_it_names() -> None:
+    korean = Catalog.model_validate(json.loads((DATA / "catalog.json").read_text(encoding="utf-8")))
+    with httpx.Client() as client:
+        drinks = tuple(group_rows(global_basic.scrape(client)))
+    empty = Catalog(schema_version=3, built_at="", brands=(global_basic.BRAND,), drinks=drinks)
+    pool = references(korean, frozenset(estimated_likes()))
+    filled = fill_estimates_from(empty, global_estimated_likes(), pool)
+    # Korean basic drinks by the query they are estimated with (`basic.LIKE` renames a few).
+    korean_basic = {
+        basic.LIKE.get(d.name) or d.name: d.servings[0]
+        for d in korean.drinks
+        if d.brand_id == basic.BRAND.id
+    }
+    for drink in filled.drinks:
+        (serving,) = drink.servings
+        assert serving.estimated, drink.name
+        assert serving.sugar_g is not None and serving.caffeine_mg is not None, drink.name
+        same = korean_basic.get(global_basic.LIKE[drink.name] or "")
+        if same is not None:
+            assert (serving.sugar_g, serving.caffeine_mg) == (same.sugar_g, same.caffeine_mg)
+
+
+def test_bundled_global_catalog_is_the_build() -> None:
+    bundled = Catalog.model_validate(
+        json.loads((DATA / "catalog-global.json").read_text(encoding="utf-8"))
+    )
+    assert validate(bundled) == []
+    assert [brand.id for brand in bundled.brands] == [global_basic.BRAND.id]
+    assert len(bundled.drinks) == len(global_basic.DRINKS)

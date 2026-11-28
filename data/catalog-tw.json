@@ -1,6 +1,6 @@
 {
  "schema_version": 3,
- "built_at": "2026-11-18T04:16:43+00:00",
+ "built_at": "2026-11-28T03:57:32+00:00",
  "brands": [
   {
    "id": "tw-basic",
@@ -4695,6 +4695,27 @@
    ]
   },
   {
+   "id": "tw-basic:抹茶拿鐵:both",
+   "brand_id": "tw-basic",
+   "name": "抹茶拿鐵",
+   "name_en": null,
+   "category": "茶",
+   "temperature": "both",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "tw-basic:抹茶拿鐵:both:標準",
+     "size_label": "標準",
+     "volume_ml": null,
+     "sugar_g": 17.9,
+     "caffeine_mg": 115.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
    "id": "tw-basic:拿鐵:both",
    "brand_id": "tw-basic",
    "name": "拿鐵",
@@ -4730,6 +4751,27 @@
      "volume_ml": null,
      "sugar_g": 21.6,
      "caffeine_mg": 195.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "tw-basic:焦糖拿鐵:both",
+   "brand_id": "tw-basic",
+   "name": "焦糖拿鐵",
+   "name_en": null,
+   "category": "咖啡",
+   "temperature": "both",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "tw-basic:焦糖拿鐵:both:標準",
+     "size_label": "標準",
+     "volume_ml": null,
+     "sugar_g": 28.1,
+     "caffeine_mg": 207.8,
      "caffeine_variants": [],
      "caffeine_range": null,
      "estimated": true
@@ -4813,6 +4855,27 @@
      "size_label": "標準",
      "volume_ml": null,
      "sugar_g": 0.2,
+     "caffeine_mg": 207.8,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "tw-basic:香草拿鐵:both",
+   "brand_id": "tw-basic",
+   "name": "香草拿鐵",
+   "name_en": null,
+   "category": "咖啡",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "tw-basic:香草拿鐵:both:標準",
+     "size_label": "標準",
+     "volume_ml": null,
+     "sugar_g": 20.6,
      "caffeine_mg": 207.8,
      "caffeine_variants": [],
      "caffeine_range": null,

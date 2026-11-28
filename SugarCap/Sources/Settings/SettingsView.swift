@@ -111,7 +111,7 @@ private struct SettingsContent: View {
                 }
                 .accessibilityIdentifier("open-inventory")
             } footer: {
-                Text("모은 병뚜껑과 물건을 볼 수 있어요.")
+                Text("모은 병뚜껑·컵 스킨·물건을 볼 수 있어요.")
             }
 
             Section {

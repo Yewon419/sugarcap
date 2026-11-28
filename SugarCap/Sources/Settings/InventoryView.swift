@@ -4,7 +4,7 @@ import SwiftUI
 /// 보관함(대표님 2026-10-24 "설정에 인벤토리, 뭐 모았는지 볼 수 있게"). 설정 맨 위 줄에서 연다.
 /// 병뚜껑은 잔액(열어 본 병뚜껑 − 거래에 쓴 것, §4.10), 물건은 열어 본 선물만. 마음은 넣지 않는다(같은 날 대표님 "마음은 빼").
 /// 물건 칸은 등록된 물건 수 + 물음표 칸 3개(아직 없는 물건 자리, 대표님 "몇 개 미리 물음표 깔아 한 세 개쯤").
-/// "잔" 칸(§4.10): 면마다 기본 잔 + 거래로 산 잔. 누르면 그 면의 잔으로 바꾼다.
+/// "컵 스킨" 칸(§4.10, 2026-11-28 대표님 "잔" → "컵 스킨"): 면마다 기본 잔 + 거래로 산 잔. 누르면 그 면의 잔으로 바꾼다.
 struct InventoryView: View {
     @Query private var gifts: [GiftEvent]
     @Query private var trades: [TradeOffer]
@@ -19,7 +19,7 @@ struct InventoryView: View {
                 capHeader
                     .padding(.horizontal, 32)
                     .padding(.top, 8)
-                sectionTitle("잔")
+                sectionTitle("컵 스킨")
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 3), spacing: 10) {
                     ForEach(cupTiles, id: \.setID) { tile in
                         cupTile(tile)

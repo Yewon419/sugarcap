@@ -19,7 +19,8 @@ enum DemoData {
 
     /// 지난날 기록이 이미 있으면 아무것도 하지 않는다. 오늘 기록만 있으면(CI는 UI 테스트가 남긴 오늘 기록 위에서 찍는다)
     /// 오늘은 그대로 두고 지난날만 채운다(2026-10-28, 전에는 기록이 하나라도 있으면 통째로 건너뛰어 CI 추이가 비었다).
-    /// 메뉴 국가에 맞는 음료로 채운다. 미국 값은 `catalog-us.json`의 Starbucks Tall, 대만은 `catalog-tw.json`의 cama café M 그대로다.
+    /// 메뉴 국가에 맞는 음료로 채운다. 미국 값은 `catalog-us.json`의 Starbucks Tall, 대만은 `catalog-tw.json`의 cama café M,
+    /// 그 밖의 지역은 `catalog-global.json`의 Basic 그대로다.
     static func seed(into context: ModelContext, boundaryHour: Int, country: MenuCountry, now: Date = AppClock.now) {
         do {
             let calendar = Calendar.current
@@ -66,6 +67,9 @@ enum DemoData {
             // `catalog-tw.json`의 cama café M 그대로(美式 熱, 輕拿鐵 冰).
             insert(context, "微韻輕美式", "cama café", "M", sugar: 0.2, caffeine: 103.9, at: now.addingTimeInterval(-5400))
             insert(context, "CAMA金獎拿鐵", "cama café", "M", sugar: 10.2, caffeine: 207.8, at: now.addingTimeInterval(-1800))
+        case .global:
+            insert(context, "Americano", "Basic", "Regular", sugar: 0, caffeine: 175, at: now.addingTimeInterval(-5400))
+            insert(context, "Mocha", "Basic", "Regular", sugar: 30, caffeine: 192, at: now.addingTimeInterval(-1800))
         }
     }
 
@@ -77,7 +81,7 @@ enum DemoData {
     ) throws {
         let pastName = switch country {
         case .kr: "그날의 음료"
-        case .us: "Drink of the day"
+        case .us, .global: "Drink of the day"
         case .tw: "當日飲品"
         }
         let recentSugar: [Double] = [30, 28, 33, 35, 38, 40, 44, 51, 48, 55, 58, 62]

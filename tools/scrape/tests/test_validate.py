@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from sugarcap_scrape.brands import cvs, registry, tw_registry, us_registry
+from sugarcap_scrape.brands import cvs, global_registry, registry, tw_registry, us_registry
 from sugarcap_scrape.build import SCHEMA_VERSION
 from sugarcap_scrape.ids import serving_id_parts
 from sugarcap_scrape.models import (
@@ -208,5 +208,11 @@ def test_the_committed_tw_catalog_is_valid() -> None:
 
 
 def test_every_registered_brand_has_a_minimum() -> None:
-    brand_ids = set(registry()) | set(us_registry()) | set(tw_registry()) | {cvs.BRAND.id}
+    brand_ids = (
+        set(registry())
+        | set(us_registry())
+        | set(tw_registry())
+        | set(global_registry())
+        | {cvs.BRAND.id}
+    )
     assert brand_ids == set(MIN_DRINKS_PER_BRAND)

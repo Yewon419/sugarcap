@@ -87,6 +87,7 @@ struct BrandBadgeDesign {
         "oozy": make("#1B3D20", "#FFFFFF", [.text("OOZY", .anton, 34)]),
         "us-basic": make("#2C2C2E", "#FFFFFF", [.text("Basic", .archivo, 22)]),
         "tw-basic": make("#2C2C2E", "#FFFFFF", [.text("基本", .pretendardBold, 30, dy: 1)]),
+        "global-basic": make("#2C2C2E", "#FFFFFF", [.text("Basic", .archivo, 22)]),
         "us-starbucks": starbucks,
         "us-dutchbros": make("#00649F", "#FFFFFF", [.windmill]),
         "tw-cama": make("#F5A800", "#1A1A1A", [.ring(radius: 38, width: 4), .camaFace]),

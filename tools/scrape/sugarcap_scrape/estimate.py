@@ -122,7 +122,11 @@ def fill_estimates(catalog: Catalog, likes: Likes) -> Catalog:
 
     Always recomputed from scratch, so running it on an already filled catalog is a no-op.
     """
-    pool = references(catalog, frozenset(likes))
+    return fill_estimates_from(catalog, likes, references(catalog, frozenset(likes)))
+
+
+def fill_estimates_from(catalog: Catalog, likes: Likes, pool: Sequence[Reference]) -> Catalog:
+    """Like `fill_estimates`, with reference cups from another catalog (`catalog-global.json`)."""
     drinks: list[Drink] = []
     for drink in catalog.drinks:
         like = likes.get(drink.brand_id)

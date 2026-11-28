@@ -1,6 +1,6 @@
 {
  "schema_version": 3,
- "built_at": "2026-11-18T04:16:41+00:00",
+ "built_at": "2026-11-28T03:57:30+00:00",
  "brands": [
   {
    "id": "us-basic",
@@ -18699,6 +18699,27 @@
    ]
   },
   {
+   "id": "us-basic:caramel-latte:both",
+   "brand_id": "us-basic",
+   "name": "Caramel Latte",
+   "name_en": null,
+   "category": "Coffee",
+   "temperature": "both",
+   "liquid_color": "#B07A3B",
+   "servings": [
+    {
+     "id": "us-basic:caramel-latte:both:regular",
+     "size_label": "Regular",
+     "volume_ml": null,
+     "sugar_g": 45.5,
+     "caffeine_mg": 190.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
    "id": "us-basic:caramel-macchiato:both",
    "brand_id": "us-basic",
    "name": "Caramel Macchiato",
@@ -18846,6 +18867,69 @@
    ]
   },
   {
+   "id": "us-basic:iced-black-tea:both",
+   "brand_id": "us-basic",
+   "name": "Iced Black Tea",
+   "name_en": null,
+   "category": "Tea",
+   "temperature": "both",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "us-basic:iced-black-tea:both:regular",
+     "size_label": "Regular",
+     "volume_ml": null,
+     "sugar_g": 22.0,
+     "caffeine_mg": 55.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "us-basic:iced-coffee:both",
+   "brand_id": "us-basic",
+   "name": "Iced Coffee",
+   "name_en": null,
+   "category": "Coffee",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "us-basic:iced-coffee:both:regular",
+     "size_label": "Regular",
+     "volume_ml": null,
+     "sugar_g": 1.0,
+     "caffeine_mg": 135.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "us-basic:iced-green-tea:both",
+   "brand_id": "us-basic",
+   "name": "Iced Green Tea",
+   "name_en": null,
+   "category": "Tea",
+   "temperature": "both",
+   "liquid_color": "#8DB255",
+   "servings": [
+    {
+     "id": "us-basic:iced-green-tea:both:regular",
+     "size_label": "Regular",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 50.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
    "id": "us-basic:latte:both",
    "brand_id": "us-basic",
    "name": "Latte",
@@ -18860,6 +18944,48 @@
      "volume_ml": null,
      "sugar_g": 24.5,
      "caffeine_mg": 190.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "us-basic:lemonade:both",
+   "brand_id": "us-basic",
+   "name": "Lemonade",
+   "name_en": null,
+   "category": "Other",
+   "temperature": "both",
+   "liquid_color": "#F3D34A",
+   "servings": [
+    {
+     "id": "us-basic:lemonade:both:regular",
+     "size_label": "Regular",
+     "volume_ml": null,
+     "sugar_g": 69.0,
+     "caffeine_mg": 0.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "us-basic:london-fog:both",
+   "brand_id": "us-basic",
+   "name": "London Fog",
+   "name_en": null,
+   "category": "Tea",
+   "temperature": "both",
+   "liquid_color": "#B5651D",
+   "servings": [
+    {
+     "id": "us-basic:london-fog:both:regular",
+     "size_label": "Regular",
+     "volume_ml": null,
+     "sugar_g": 17.0,
+     "caffeine_mg": 40.0,
      "caffeine_variants": [],
      "caffeine_range": null,
      "estimated": true
@@ -18902,6 +19028,90 @@
      "volume_ml": null,
      "sugar_g": 54.5,
      "caffeine_mg": 190.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "us-basic:nitro-cold-brew:both",
+   "brand_id": "us-basic",
+   "name": "Nitro Cold Brew",
+   "name_en": null,
+   "category": "Coffee",
+   "temperature": "both",
+   "liquid_color": "#4A2C1D",
+   "servings": [
+    {
+     "id": "us-basic:nitro-cold-brew:both:regular",
+     "size_label": "Regular",
+     "volume_ml": null,
+     "sugar_g": 0.0,
+     "caffeine_mg": 255.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "us-basic:pumpkin-spice-latte:both",
+   "brand_id": "us-basic",
+   "name": "Pumpkin Spice Latte",
+   "name_en": null,
+   "category": "Coffee",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "us-basic:pumpkin-spice-latte:both:regular",
+     "size_label": "Regular",
+     "volume_ml": null,
+     "sugar_g": 29.5,
+     "caffeine_mg": 75.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "us-basic:vanilla-latte:both",
+   "brand_id": "us-basic",
+   "name": "Vanilla Latte",
+   "name_en": null,
+   "category": "Coffee",
+   "temperature": "both",
+   "liquid_color": "#C49A6C",
+   "servings": [
+    {
+     "id": "us-basic:vanilla-latte:both:regular",
+     "size_label": "Regular",
+     "volume_ml": null,
+     "sugar_g": 42.5,
+     "caffeine_mg": 190.0,
+     "caffeine_variants": [],
+     "caffeine_range": null,
+     "estimated": true
+    }
+   ]
+  },
+  {
+   "id": "us-basic:white-chocolate-mocha:both",
+   "brand_id": "us-basic",
+   "name": "White Chocolate Mocha",
+   "name_en": null,
+   "category": "Coffee",
+   "temperature": "both",
+   "liquid_color": "#6B3E26",
+   "servings": [
+    {
+     "id": "us-basic:white-chocolate-mocha:both:regular",
+     "size_label": "Regular",
+     "volume_ml": null,
+     "sugar_g": 51.5,
+     "caffeine_mg": 132.5,
      "caffeine_variants": [],
      "caffeine_range": null,
      "estimated": true

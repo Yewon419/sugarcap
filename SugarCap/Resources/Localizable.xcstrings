@@ -2628,6 +2628,54 @@
         }
       }
     },
+    "그 밖의 지역" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Other regions"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "其他地區"
+          }
+        }
+      }
+    },
+    "EFSA·FDA 권고" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "EFSA & FDA advice"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "歐盟EFSA、美國FDA建議"
+          }
+        }
+      }
+    },
+    "흔한 카페 메뉴 (값은 추정)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Everyday café drinks (estimated values)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "常見咖啡廳飲品（數值為估計）"
+          }
+        }
+      }
+    },
     "더 가까워져요" : {
       "localizations" : {
         "en" : {

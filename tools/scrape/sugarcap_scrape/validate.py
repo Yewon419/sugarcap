@@ -51,13 +51,15 @@ MIN_DRINKS_PER_BRAND = {
     "amasvin": 35,
     # 2026-11-01: 우지커피 names from archived official menu pages, 125 drinks.
     "oozy": 60,
-    # 2026-11-18: 기본 메뉴, a fixed list of 15 (`brands/basic.py`).
-    "basic": 15,
+    # 2026-11-18: 기본 메뉴, a fixed list (`brands/basic.py`). 2026-11-28: 34.
+    "basic": 34,
     # K-FIND export of 2026-08-28 gave 17,845 in-scope products.
     "cvs": 9000,
-    # 2026-11-18: fixed lists, `brands/us_basic.py` 11 and `brands/tw_basic.py` 8.
-    "us-basic": 11,
-    "tw-basic": 8,
+    # 2026-11-18: fixed lists, `brands/us_basic.py` and `brands/tw_basic.py`. 2026-11-28: 21, 11.
+    "us-basic": 21,
+    "tw-basic": 11,
+    # 2026-11-28: fixed list for countries without a catalog, `brands/global_basic.py`.
+    "global-basic": 24,
     # 2026-10-07: ordering menu 169 (product, form) pairs; nutritional guide PDF 300 drinks.
     "us-starbucks": 85,
     "us-dutchbros": 150,

@@ -535,6 +535,30 @@ final class USCatalogTests: XCTestCase {
     }
 }
 
+/// 그 밖의 지역 카탈로그(`data/catalog-global.json`, 2026-11-28). 영어 기본 메뉴 한 브랜드, 값은 전부 추정.
+final class GlobalCatalogTests: XCTestCase {
+    private func load() throws -> Catalog {
+        try CatalogStore.loadBundled(.global, from: Bundle(for: Self.self))
+    }
+
+    func testGlobalCatalogIsBasicOnly() throws {
+        let catalog = try load()
+
+        XCTAssertTrue(CatalogStore.supportedSchemaVersions.contains(catalog.schemaVersion), "schema_version \(catalog.schemaVersion)")
+        XCTAssertEqual(catalog.brands.map(\.id), ["global-basic"])
+        XCTAssertFalse(catalog.brands[0].hasSizeChoice)
+        let servings = catalog.drinks.flatMap(\.servings)
+        XCTAssertGreaterThanOrEqual(servings.count, 20)
+        XCTAssertTrue(servings.allSatisfy { $0.isEstimated && $0.sugarG != nil && $0.caffeineMg != nil })
+    }
+
+    func testEnglishSearchFindsLattes() throws {
+        let index = CatalogIndex(catalog: try load())
+        let first = try XCTUnwrap(index.search("latte").first, "latte 검색 결과가 없음")
+        XCTAssertTrue(first.name.lowercased().contains("latte"), "맨 위가 라떼가 아님: \(first.name)")
+    }
+}
+
 /// 대만 카탈로그(`data/catalog-tw.json`, schema 2). 카페인 구간(`caffeine_range`)을 읽는다.
 final class TWCatalogTests: XCTestCase {
     private func load() throws -> Catalog {
@@ -566,7 +590,7 @@ final class TWCatalogTests: XCTestCase {
 
     func testCountryCatalogsShareNoIdentifiers() throws {
         let tw = try load()
-        for other in [MenuCountry.kr, .us] {
+        for other in [MenuCountry.kr, .us, .global] {
             let ids = try Set(CatalogStore.loadBundled(other, from: Bundle(for: Self.self)).drinks.flatMap(\.servings).map(\.id))
             XCTAssertTrue(tw.drinks.flatMap(\.servings).allSatisfy { !ids.contains($0.id) }, other.rawValue)
         }
@@ -578,15 +602,17 @@ final class MenuCountryTests: XCTestCase {
         XCTAssertEqual(MenuCountry.resolve(storedCode: nil, region: .unitedStates), .us)
         XCTAssertEqual(MenuCountry.resolve(storedCode: nil, region: .taiwan), .tw)
         XCTAssertEqual(MenuCountry.resolve(storedCode: nil, region: .southKorea), .kr)
-        // 카탈로그가 없는 지역·지역 없음은 한국.
-        XCTAssertEqual(MenuCountry.resolve(storedCode: nil, region: .japan), .kr)
-        XCTAssertEqual(MenuCountry.resolve(storedCode: nil, region: nil), .kr)
+        // 카탈로그가 없는 지역·지역 없음은 그 밖의 지역(2026-11-28 전 세계 출시, 전에는 한국).
+        XCTAssertEqual(MenuCountry.resolve(storedCode: nil, region: .japan), .global)
+        XCTAssertEqual(MenuCountry.resolve(storedCode: nil, region: .unitedKingdom), .global)
+        XCTAssertEqual(MenuCountry.resolve(storedCode: nil, region: nil), .global)
     }
 
     func testStoredChoiceBeatsTheDeviceRegion() {
         XCTAssertEqual(MenuCountry.resolve(storedCode: "kr", region: .unitedStates), .kr)
         XCTAssertEqual(MenuCountry.resolve(storedCode: "us", region: .southKorea), .us)
         XCTAssertEqual(MenuCountry.resolve(storedCode: "tw", region: .unitedStates), .tw)
+        XCTAssertEqual(MenuCountry.resolve(storedCode: "global", region: .southKorea), .global)
         // 모르는 값(다음 버전에서 내려온 나라 등)은 기기 지역으로 돌아간다.
         XCTAssertEqual(MenuCountry.resolve(storedCode: "jp", region: .southKorea), .kr)
     }
@@ -595,11 +621,12 @@ final class MenuCountryTests: XCTestCase {
         XCTAssertEqual(MenuCountry.kr.caffeineAdviceMg, 400)
         XCTAssertEqual(MenuCountry.us.caffeineAdviceMg, 400)
         XCTAssertEqual(MenuCountry.tw.caffeineAdviceMg, 300)
+        XCTAssertEqual(MenuCountry.global.caffeineAdviceMg, 400)
     }
 
     @MainActor
     func testFirstSettingsTakeTheRegionsCaffeineAdvice() throws {
-        for (region, expected) in [(Locale.Region.taiwan, 300.0), (.unitedStates, 400), (.southKorea, 400)] {
+        for (region, expected) in [(Locale.Region.taiwan, 300.0), (.unitedStates, 400), (.southKorea, 400), (.germany, 400)] {
             let container = try ModelContainer(
                 for: AppSettings.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true)
             )

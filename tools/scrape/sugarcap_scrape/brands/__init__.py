@@ -99,3 +99,17 @@ def tw_estimated_likes() -> Likes:
     from sugarcap_scrape.brands import tw_basic
 
     return {tw_basic.BRAND.id: tw_basic.LIKE}
+
+
+def global_registry() -> dict[str, tuple[Brand, Scraper]]:
+    """Everywhere else: only Basic, built into `catalog-global.json` (SPEC §9.9)."""
+    from sugarcap_scrape.brands import global_basic
+
+    return {global_basic.BRAND.id: (global_basic.BRAND, global_basic.scrape)}
+
+
+def global_estimated_likes() -> Likes:
+    """Basic (everywhere else), compared against the Korean catalog (`global_basic.py`)."""
+    from sugarcap_scrape.brands import global_basic
+
+    return {global_basic.BRAND.id: global_basic.LIKE}

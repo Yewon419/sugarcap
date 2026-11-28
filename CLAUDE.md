@@ -16,6 +16,7 @@ SSOT = `SPEC.md`. 세션 시작 시 SPEC §0·§8·§9부터 읽는다.
 ..\..\.venv\Scripts\python -m sugarcap_scrape.build --out ..\..\data\catalog.json --merge ..\..\data\catalog.json --only paulbassett,baskin   # 지정 브랜드만 갈아 끼움
 ..\..\.venv\Scripts\python -m sugarcap_scrape.build --country us --out ..\..\data\catalog-us.json
 ..\..\.venv\Scripts\python -m sugarcap_scrape.build --country tw --out ..\..\data\catalog-tw.json
+..\..\.venv\Scripts\python -m sugarcap_scrape.build --country global --out ..\..\data\catalog-global.json --reference ..\..\data\catalog.json   # 한국 카탈로그를 바꾸면 같이 다시 돌린다
 ```
 게이트: ruff·mypy 0 에러 + pytest 통과 전에 "완료" 금지.
 
